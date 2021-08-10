@@ -1,0 +1,15 @@
+<div mat-dialog-content>
+
+  <div class="table-size-picker">
+    <div class="table-size-picker-row" *ngFor="let row of [0,1,2,3,4,5,6,7]">
+      <div [id]="SIZE*row + cell" [style.background]="idsToHover.includes(SIZE*row + cell) ? 'gray' : 'white'"
+        (mouseenter)=" tablePickerHover($event)" (click)="chooseSize()" class="table-size-picker-cell"
+        *ngFor="let cell of [0,1,2,3,4,5,6,7]">
+      </div>
+    </div>
+    <div class="size-bar">
+      {{selectedRow}} x {{selectedCell}}
+    </div>
+  </div>
+
+</div>
