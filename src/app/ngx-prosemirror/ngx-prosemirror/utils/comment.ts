@@ -59,7 +59,6 @@ class CommentState {
     getCommentsBetween(from:number,to:number) :{comments:Comment[],from:number,to:number}[]{
         let data = this.ycomments.get('data')
         let decorationsArray = data?.decorationsArray
-        //console.log(data);
         if(decorationsArray == undefined) return []
         let comments = data?.comments || []
         let foundComments : {comments:Comment[],from:number,to:number}[] = [];
@@ -379,7 +378,6 @@ function commentTooltip(view:EditorView,dispatch:any,commentsContainer?:ElementR
             right:elemRect.right ,
             bottom:elemRect.bottom ,
         }
-        //console.log(editorCoordinatesObj)
         let coords={left:elemRect.left+10,top:elemRect.top+10}
         let coords2={left:elemRect.right-14,top:elemRect.bottom-4}
         let startOfEditor = view.posAtCoords(coords);
@@ -400,7 +398,6 @@ function commentTooltip(view:EditorView,dispatch:any,commentsContainer?:ElementR
         }
     }
  
-    //console.log(edRec);
     /* let comments = commentPlugin.getState(state).commentsAt(sel.from)
     if(commentsContainer?.nativeElement) {
         commentsContainer.nativeElement.innerHTML = ''

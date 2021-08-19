@@ -3,6 +3,50 @@
 @import '../node_modules/katex/dist/katex.min.css';
 @import "../node_modules/prosemirror-view/style/prosemirror.css";
 
+span.insertion {
+  color: royalblue;
+  footnote {
+    background: royalblue;
+  }
+}
+
+.selected-format-change,
+.selected-block-change {
+  background-color: #eefbfb;
+}
+
+.format-change {
+  border-bottom: 2px solid royalblue;
+}
+
+[data-track] {
+  position: relative;
+}
+
+[data-track]::before {
+  content: '';
+  position: absolute;
+  border-left: 2px solid royalblue;
+  left: -10px;
+  height: 100%;
+}
+
+.selected-deletion {
+  background: indianred;
+}
+
+
+
+.insertion .show-insertion {
+  color: black;
+}
+
+.deletion .hide-deletion {
+  //display: none;
+  text-decoration: line-through black;
+}
+//new 
+
 ::ng-deep .mat-dialog-container {
   background-color: aquamarine;
 }

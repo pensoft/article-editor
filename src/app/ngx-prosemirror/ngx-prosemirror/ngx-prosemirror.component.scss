@@ -1,3 +1,59 @@
+// changes css
+
+::ng-deep .changes-container-scroller {
+  border: solid 2px;
+  border-radius: 4px;
+  overflow: hidden;
+  overflow-y: scroll;
+  height: 230px;
+}
+::ng-deep .changes-container {
+  padding: 5px;
+}
+::ng-deep .change-div {
+  border: solid;
+  border-color: rgb(192, 192, 192);
+  border-radius: 4px;
+  margin-bottom: 6px;
+}
+
+::ng-deep .change-content-div {
+  word-wrap: break-word;
+  margin: 5px;
+}
+
+::ng-deep .change-hr {
+  background-color: lightgray;
+  margin: 5px;
+}
+
+::ng-deep .change-properties-div {
+  margin: 5px;
+}
+
+::ng-deep .change-btns-div {
+  margin: 5px;
+}
+
+::ng-deep .change-accept-btn-div {
+  background-color: rgb(240, 255, 244);
+  color:green;
+  width: 70px;
+  height: 30px;
+  border: solid gray;
+  border-radius: 5px;
+  margin-right: 5px;
+}
+
+::ng-deep .change-reject-btn-div {
+  background-color: rgb(255, 239, 239);
+  color :red;
+  width: 70px;
+  height: 30px;
+  border: solid gray;
+  border-radius: 5px;
+}
+
 ::ng-deep .ProseMirror {
   position: relative;
 }
@@ -460,7 +516,7 @@
       border-bottom: 1px solid silver;
     }
 
-    .comments-list-container{
+    .comments-list-container {
       position: relative;
       width: 100%;
       height: 358px;
@@ -469,14 +525,13 @@
       overflow-y: scroll;
     }
     .comments-list {
-      
       div {
         border: solid;
         margin: 5px;
         border-radius: 5px;
         padding: 3px;
         div {
-          background-color:lightblue;
+          background-color: lightblue;
           width: fit-content;
         }
       }
@@ -486,7 +541,6 @@
         width: 100%;
         text-align: center;
       } */
-      
     }
   }
   .sidebar {

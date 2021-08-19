@@ -1,7 +1,7 @@
 import { MatDialog } from "@angular/material/dialog";
 import { toggleMark } from "prosemirror-commands";
 import { MenuItem, Dropdown } from "prosemirror-menu"
-import { Fragment, NodeType } from "prosemirror-model"
+import { Fragment, MarkType, NodeType } from "prosemirror-model"
 import { EditorState, NodeSelection, Transaction } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
 import { addAnnotation, annotationIcon } from "./comment";
@@ -48,6 +48,32 @@ const videoPlayerIcon = {
 let sharedDialog: MatDialog
 
 let cut = (arr: MenuItem<any>[]) => arr.filter(x => x)
+
+function markItem(markType: MarkType, options: any) {
+    let passedOptions: any = {
+        active(state: EditorState) { return markActive(state, markType) },
+        enable: true
+    }
+    for (let prop in options) passedOptions[prop] = options[prop]
+    return cmdItem(toggleMark(markType), passedOptions)
+}
+
+function cmdItem(cmd: any, options: any) {
+    let passedOptions: any = {
+        label: options.title,
+        run: cmd
+    }
+    for (let prop in options) passedOptions[prop] = options[prop]
+    if ((!options.enable || options.enable === true) && !options.select)
+        passedOptions[options.enable ? "enable" : "select"] = (state: EditorState) => cmd(state)
+
+    return new MenuItem(passedOptions)
+}
+function markActive(state: EditorState, type: MarkType) {
+    let { from, $from, to, empty } = state.selection
+    if (empty) return type.isInSet(state.storedMarks || $from.marks()) ? true : false
+    else return state.doc.rangeHasMark(from, to, type)
+}
 
 function canInsert(state: EditorState, nodeType: NodeType) {
     let $from = state.selection.$from
@@ -107,9 +133,7 @@ function setAlignment(alignment: string) {
             let tr1 = state.tr;
             state.tr.doc.nodesBetween(sel.from, sel.to, (node, pos, parent, index) => {
                 if (node.attrs.align) {
-                    /* console.log(node.attrs.align);
-                    console.log(pos);
-                    console.log(parent); */
+
                     tr1 = tr1.setNodeMarkup(pos, node.type, { 'align': alignment })
                 }
             })
@@ -143,7 +167,7 @@ function addMathInline(mathType: string) {
                 console.log('noselection');
                 const dialogRef = sharedDialog.open(AngularDialogComponent, {
                     width: 'auto',
-                    
+
                     data: { url: mathExpresion, type: 'mathinline' }
                 });
                 dialogRef.afterClosed().subscribe(result => {
@@ -177,24 +201,12 @@ export const mathBlockItem = new MenuItem({
     label: 'BlockMath',
     // @ts-ignore
     run: addMathInline('math_display'),
-    enable(state) {return state.tr.selection.empty }
+    enable(state) { return state.tr.selection.empty }
 })
 
-export const superscriptItem = new MenuItem({
-    title: 'Transform selection to superscript',
-    // @ts-ignore
-    run: toggleMark(schema.marks.superscript),
-    enable(state) { return !state.selection.empty },
-    icon: superscriptIcon
-})
+export const superscriptItem = markItem(schema.marks.superscript,{title:'Toggle superscript',icon:superscriptIcon})
 
-export const subscriptItem = new MenuItem({
-    title: 'Transform selection to subscript',
-    // @ts-ignore
-    run: toggleMark(schema.marks.subscript),
-    enable(state) { return !state.selection.empty },
-    icon: subscriptIcon
-})
+export const subscriptItem = markItem(schema.marks.subscript,{title:'Toggle subscript',icon:subscriptIcon})
 
 export const setAlignLeft = new MenuItem({
     title: 'Align element to left',

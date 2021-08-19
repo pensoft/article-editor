@@ -1,6 +1,11 @@
 import { MarkSpec, NodeSpec, Schema } from 'prosemirror-model';
 import { nodes as basicnodes, marks as basicmarks } from 'prosemirror-schema-basic';
 import { tableNodes } from 'prosemirror-tables';
+//@ts-ignore
+import {trackChangesNodes,trackChangesMarks} from './trackChanges/wax-prosemirror-schema'
+//@ts-ignore
+import { SchemaHelpers } from 'wax-prosemirror-utilities';
+
 const olDOM = ["ol", 0], ulDOM = ["ul", 0], liDOM = ["li", 0]
 
 // :: NodeSpec
@@ -19,12 +24,33 @@ const nodes: NodeSpec = {
   doc: {
     content: "block+"
   },
+  
   paragraph: {
     content: "inline*",
     group: "block",
-    attrs: { align: { default: 'set-align-left' } },
-    parseDOM: [{ tag: "p" }],
-    toDOM(node: any) { return ["p", { class: node.attrs.align }, 0]; }
+    attrs: { 
+      align: { default: 'set-align-left' } ,
+      id: { default: '' },
+      track: { default: [] },
+      group: { default: '' },
+      viewid: { default: '' },
+    },
+    parseDOM: [{ tag: "p" ,getAttrs(dom:any) {
+      return {
+        id: dom.dataset.id,
+        track: SchemaHelpers.parseTracks(dom.dataset.track),
+        group: dom.dataset.group,
+        viewid: dom.dataset.viewid,
+      }
+    },}],
+    toDOM(node: any) { return ["p", {
+      class: node.attrs.align ,
+      'data-id': node.attrs.id,
+      'data-track': JSON.stringify(node.attrs.track),
+      'data-group': node.attrs.group,
+      'data-viewid': node.attrs.viewid,
+
+    }, 0]; }
   },
 
   video: {
@@ -114,7 +140,8 @@ const nodes: NodeSpec = {
         setDOMAttr(value, attrs) { if (value) attrs.style = (attrs.style || "") + `background-color: ${value};` }
       }
     }
-  })
+  }),
+  ...trackChangesNodes,
 }
 
 const marks: MarkSpec = {
@@ -130,6 +157,7 @@ const marks: MarkSpec = {
     toDOM() { return ["sup", 0] },
     parseDOM: [{ tag: "sup" }]
   },
+  ...trackChangesMarks,
   ...basicmarks,
 }
 

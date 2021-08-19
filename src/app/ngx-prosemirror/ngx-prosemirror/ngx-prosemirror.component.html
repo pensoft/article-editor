@@ -22,10 +22,18 @@
             <span *ngIf="versionsService.getVersionList(ydoc).length == 0">No versions found</span>
             <ul>
                 <li *ngFor="let version of versionsService.getVersionList(ydoc); let i = index"
-                    (click)="versionsService.renderVersion(view, version)">
+                    (click)="versionsService.renderVersion(view!, version)">
                     {{version.date | date: 'dd/MM/yyyy HH:mm:ss'}} (<b>{{version.clientID}}</b>)
                 </li>
             </ul>
         </div>
     </div>
 </div>
+<div class="changes-container-scroller">
+    <div class="changes-container" #changesContainer>
+    
+    </div>
+</div>
+<button mat-raised-button (click)="printDocToProsemirrorJson()">Print Doc</button>
+<!-- <button mat-raised-button  (click)="acceptSelectedChange()">Accept</button>
+<button mat-raised-button (click)="rejectSelectedChange()">Reject</button> -->
