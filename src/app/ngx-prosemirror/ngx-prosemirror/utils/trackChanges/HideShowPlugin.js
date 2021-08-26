@@ -14,6 +14,7 @@ const getTrackChanges = state => {
   allInlineNodes.map(node => {
     if (node.node.marks.length > 0) {
       node.node.marks.filter(mark => {
+        
         if (
           mark.type.name === 'insertion' ||
           mark.type.name === 'deletion' ||
@@ -45,6 +46,9 @@ function createChangeDiv(result, position, type, doc,view) {
     changeContentDiv.setAttribute('style', 'color: #f08989;text-decoration: line-through black;');
   }else if(type == 'insertion'){
     changeContentDiv.setAttribute('style', 'background-color: #72e090;width: fit-content;');
+  }
+  else if(type == 'format_change'){
+    changeContentDiv.setAttribute('style', 'border-bottom: 2px solid royalblue;width: fit-content;');
   }
 
   changeContentDiv.textContent = changeContent
@@ -115,7 +119,12 @@ export const hideShowPlugin = (changesContainerRef) => {
               });
             }
           });
-          createdDecorations = DecorationSet.create(newState.doc, decorations);
+          decorations = decorations.filter((dec)=>dec!==undefined)
+          if(decorations.length){
+            createdDecorations = DecorationSet.create(newState.doc, decorations);
+          }else{
+            createdDecorations = DecorationSet.empty
+          }
         }
         return {
           createdDecorations,
@@ -134,8 +143,6 @@ export const hideShowPlugin = (changesContainerRef) => {
       },
     },
     view: (editorView) => {
-      console.log('asd');
-      console.log(editorView);
       return {
         update: (view, prevState) => {
           changesContainer.innerHTML = '';
@@ -157,6 +164,14 @@ export const hideShowPlugin = (changesContainerRef) => {
                   editorView.state,
                   result.pos,
                   'deletion',
+                );
+                createChangeDiv(result, position, result.type.name, editorView.state.doc,editorView)
+              }
+              if (result.type.name === 'format_change') {
+                const position = DocumentHelpers.findMarkPosition(
+                  editorView.state,
+                  result.pos,
+                  'format_change',
                 );
                 createChangeDiv(result, position, result.type.name, editorView.state.doc,editorView)
               }

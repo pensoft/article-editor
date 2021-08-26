@@ -164,14 +164,12 @@ function addMathInline(mathType: string) {
                 let mathExpresion;
                 let { from, to } = state.selection
                 let mathNode = state.schema.nodes[mathType]
-                console.log('noselection');
                 const dialogRef = sharedDialog.open(AngularDialogComponent, {
                     width: 'auto',
 
                     data: { url: mathExpresion, type: 'mathinline' }
                 });
                 dialogRef.afterClosed().subscribe(result => {
-                    console.log('The dialog was closed');
                     mathExpresion = result
                     let newmathNode = mathNode.create(undefined, state.schema.text(mathExpresion))
                     let tr = view.state.tr.replaceSelectionWith(newmathNode);
@@ -181,7 +179,6 @@ function addMathInline(mathType: string) {
                     }
                 });
             } else {
-                console.log('selection');
             }
         }
         return true

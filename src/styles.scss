@@ -35,7 +35,14 @@ span.insertion {
   background: indianred;
 }
 
+.selected-format-change,
+.selected-block-change {
+  background-color: #eefbfb;
+}
 
+.format-change {
+  border-bottom: 2px solid royalblue;
+}
 
 .insertion .show-insertion {
   color: black;

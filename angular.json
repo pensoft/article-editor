@@ -31,26 +31,45 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/manifest.webmanifest",
+              "src/editor-service-worker.js",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/y-prosemirror/",
+                "output": "/y-prosemirror/"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/yjs/",
+                "output": "/yjs/"
+              },
+              {
+                "glob": "**/*",
+                "input": "./node_modules/y-indexeddb/",
+                "output": "/y-indexeddb/"
+              }
             ],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",
               "src/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "serviceWorker": true,
+            "ngswConfigPath": "ngsw-config.json"
           },
           "configurations": {
             "production": {
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "4000kb",
-                  "maximumError": "4mb"
+                  "maximumWarning": "20mb",
+                  "maximumError": "50mb"
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "10kb",
-                  "maximumError": "20kb"
+                  "maximumWarning": "100kb",
+                  "maximumError": "150kb"
                 }
               ],
               "fileReplacements": [
@@ -100,7 +119,8 @@
             "inlineStyleLanguage": "scss",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              "src/manifest.webmanifest"
             ],
             "styles": [
               "./node_modules/@angular/material/prebuilt-themes/deeppurple-amber.css",

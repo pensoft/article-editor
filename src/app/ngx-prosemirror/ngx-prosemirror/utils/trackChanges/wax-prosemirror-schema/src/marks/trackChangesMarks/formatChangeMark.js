@@ -16,7 +16,7 @@ const format_change = {
   group: 'track',
   parseDOM: [
     {
-      tag: 'span.format-change',
+      tag: 'span',
       getAttrs(dom) {
         return {
           class: dom.getAttribute('class'),
@@ -29,11 +29,10 @@ const format_change = {
           group: dom.dataset.group,
           viewid: dom.dataset.viewid,
         }
-        next();
       },
     },
   ],
-  toDOM() {
+  toDOM(node) {
     return [
       'span',
       {

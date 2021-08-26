@@ -284,7 +284,7 @@ class CommentState {
         return result
     } */
 
-    static init(config:any) {
+    static init(config:any,insance:EditorState) {
         let ycomments : YMap<ycommentsSpec> =  config.comments.ycommets
         let userID :number = config.comments.userId
         let commentsData = ycomments.get('data');
@@ -292,7 +292,7 @@ class CommentState {
             return decorate(commentDecoration);
         }) 
         if(decorations != undefined){
-            DecorationSet.create(config.doc,decorations)
+            DecorationSet.create(insance.doc,decorations)
         }
         return new CommentState(ycomments,userID)
     }

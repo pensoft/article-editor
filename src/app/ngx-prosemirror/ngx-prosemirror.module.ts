@@ -8,6 +8,7 @@ import {MatInputModule} from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import {MatDialogModule} from '@angular/material/dialog';
 import { TableSizePickerComponent } from './table-size-picker/table-size-picker.component';
+import { HttpClientModule } from '@angular/common/http';
 
 
 

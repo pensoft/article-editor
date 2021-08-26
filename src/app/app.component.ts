@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -306,29 +305,13 @@ export class AppComponent {
                 }
             ]
         },
-        {
-            "type": "paragraph",
-            "attrs": {
-                "align": "set-align-left",
-                "id": "9029d6cf-4377-4e3a-a3e6-a2e06f0850d9",
-                "track": [],
-                "group": "main",
-                "viewid": ""
-            },
-            "content": [
-                {
-                    "type": "video",
-                    "attrs": {
-                        "src": "https://www.youtube.com/embed/GDae7zmUHlc"
-                    }
-                }
-            ]
-        }
+        
     ]
 };
   constructor() {
 
   }
-  ngOnInit(): void {}
+  ngOnInit(): void {
+  }
     
 }
