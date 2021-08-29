@@ -2,7 +2,11 @@
 
 
 importScripts('./ngsw-worker.js');
-
+self.addEventListener('periodicsync', event => {
+    if (event.tag == 'fetch-news') {
+       console.log('asd');
+    }
+});
 self.addEventListener('notificationclick', (event) => {
     console.log('notification clicked!')
 });

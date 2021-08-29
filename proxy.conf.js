@@ -6,7 +6,8 @@ const PROXY_CONFIG = [
     ws: true,
     headers: {
       'Access-Control-Allow-Origin': '*',
-      'Access-Control-Expose-Headers': '*'
+      'Access-Control-Expose-Headers': '*',
+      'Content-Type': 'application/x-www-form-urlencoded'
     },
     autoRewrite: true,
     "target": "http://18.196.139.28:8000/",

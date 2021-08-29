@@ -345,6 +345,10 @@ export class Room {
       encoding.writeVarUint(encoder, messageSync)
       syncProtocol.writeUpdate(encoder, update)
       broadcastRoomMessage(this, encoding.toUint8Array(encoder))
+      if (this !== origin) {
+        this.provider.emit('onChange', [update]);
+      }
+      //console.log(encoding.toUint8Array(encoder));
     }
     /**
      * Listens to Awareness updates and sends them to remote peers
@@ -359,7 +363,8 @@ export class Room {
       encoding.writeVarUint8Array(encoderAwareness, awarenessProtocol.encodeAwarenessUpdate(this.awareness, changedClients))
       broadcastRoomMessage(this, encoding.toUint8Array(encoderAwareness))
     }
-    this.doc.on('update', this._docUpdateHandler)
+    this.doc.on('update',
+      this._docUpdateHandler)
     this.awareness.on('update', this._awarenessUpdateHandler)
     window.addEventListener('beforeunload', () => {
       awarenessProtocol.removeAwarenessStates(this.awareness, [doc.clientID], 'window unload')

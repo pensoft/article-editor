@@ -5,11 +5,12 @@
     "ng": "ng",
     "serve": "ng serve --proxy-config proxy.conf.js --open",
     "start-json-db": "json-server --watch jsonServer/db.json",
-    "startHttp": "http-server -p 8080 -c-1 dist/article-editor",
+    "startBuild": "http-server -p 8080 -c-1 dist/article-editor --proxy http://18.196.139.28:8000",
     "signalingServer": "node signaling-server/index.js",
-    "startHttpAndJsonDB": "npm-run-all --parallel startHttp start-json-db signalingServer",
-    "start": "npm-run-all --parallel serve signalingServer",
+    "startHttpBuild": "npm-run-all --parallel startHttp ",
+    "start": "npm-run-all --parallel serve",
     "build": "ng build",
+    "build-demo": "ng build --base-href /demo/ --output-path demo",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
@@ -79,6 +80,7 @@
     "y-prosemirror": "^1.0.9",
     "y-serviceworker": "^1.0.1",
     "y-webrtc": "^10.2.0",
+    "y-websocket": "^1.3.16",
     "y-websockets-client": "^8.0.16",
     "yjs": "^13.5.12",
     "zone.js": "~0.11.4"
