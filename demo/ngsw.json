@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1631120926354,
+  "timestamp": 1631121715716,
   "index": "/demo/index.html",
   "assetGroups": [
     {
@@ -14,7 +14,7 @@
         "/demo/editor-service-worker.js",
         "/demo/favicon.ico",
         "/demo/index.html",
-        "/demo/main.f02b63ce58cd48b22f5d.js",
+        "/demo/main.b482559c78cebe7b8a87.js",
         "/demo/manifest.webmanifest",
         "/demo/polyfills.69549cecede3637ffe2a.js",
         "/demo/runtime.344fa7b11de0682345b9.js",
@@ -172,8 +172,8 @@
     "/demo/assets/logo/arpha.svg": "3b3aff0548b8166d56b5589a42462d492f7c96f1",
     "/demo/editor-service-worker.js": "8590f1423570c7bfa1f2faf83905b12fd94c2e9e",
     "/demo/favicon.ico": "22f6a4a3bcaafafb0254e0f2fa4ceb89e505e8b2",
-    "/demo/index.html": "f6d143d08e06a370ef895cbf5b9e23d6a6358f51",
-    "/demo/main.f02b63ce58cd48b22f5d.js": "537b013cabec50de94b2ea020fa3e598cdc06414",
+    "/demo/index.html": "6da70bfa8c7a6855384e32c3dcebce256eaf8e8e",
+    "/demo/main.b482559c78cebe7b8a87.js": "8602ef48f71a294eb9328a227b40befb65471268",
     "/demo/manifest.webmanifest": "b5f7ceaa58f1678f213017cdd5f6a6423a0a4d37",
     "/demo/polyfills.69549cecede3637ffe2a.js": "f686f79f057bb1c77c447b441f1c33b5338933b8",
     "/demo/runtime.344fa7b11de0682345b9.js": "731ea541033760269a83dec5edd18f5a8a097468",
