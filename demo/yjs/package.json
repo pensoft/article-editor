@@ -2,7 +2,7 @@
   "_args": [
     [
       "yjs@13.5.12",
-      "C:\\scalewest\\article-editor"
+      "C:\\work\\articlle_editor"
     ]
   ],
   "_from": "yjs@13.5.12",
@@ -26,7 +26,7 @@
   ],
   "_resolved": "https://registry.npmjs.org/yjs/-/yjs-13.5.12.tgz",
   "_spec": "13.5.12",
-  "_where": "C:\\scalewest\\article-editor",
+  "_where": "C:\\work\\articlle_editor",
   "author": {
     "name": "Kevin Jahns"
   },

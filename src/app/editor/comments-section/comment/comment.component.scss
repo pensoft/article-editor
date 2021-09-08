@@ -1,0 +1,120 @@
+::ng-deep {
+    .comment {
+        padding: 10px 7px !important;
+        .comment-avatar {
+            height: 36px;
+            width: 36px;
+            background-image: url("https://material.angular.io/assets/img/examples/shiba1.jpg");
+            background-size: cover;
+        }
+        .mat-card-header-text {
+            margin-left: 6px !important;
+        }
+        .header-actions {
+            margin-left: auto;
+            mat-icon {
+                color: var(--color-e3e3e3);
+            }
+        }
+    }
+    .mat-card {
+        box-shadow: none !important;
+    }
+}
+.comment-title {
+    font-family: var(--font-family-open-sans);
+    font-style: var(--font-style-normal);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-14);
+    line-height: var(--line-spacing-19);
+    letter-spacing: var(--character-spacing-0);
+    color: var(--color-192956);
+    margin-bottom: 0 !important;
+}
+
+.comment-subtitle {
+    font-family: var(--font-family-open-sans);
+    font-style: var(--font-style-normal);
+    font-weight: var(--font-weight-normal);
+    font-size: var(--font-size-12);
+    line-height: var(--line-spacing-17);
+    letter-spacing: var(--character-spacing-0);
+    color: var(--color-818181);
+    margin-top: 0 !important;
+}
+
+.resolve-button {
+    line-height: 23px;
+}
+
+.selected-text {
+    margin-bottom: 13px;
+    .selected-text-title {
+        font-family: var(--font-family-open-sans);
+        font-style: var(--font-style-normal);
+        font-weight: var(--font-weight-bold);
+        font-size: var(--font-size-12);
+        line-height: var(--line-spacing-20);
+        letter-spacing: var(--character-spacing-0);
+        color: var(--color-192956);
+    }
+    .selected-text-content {
+        font-family: var(--font-family-open-sans);
+        font-style: var(--font-style-normal);
+        font-weight: var(--font-weight-normal);
+        font-size: var(--font-size-12);
+        line-height: var(--line-spacing-20);
+        letter-spacing: var(--character-spacing-0);
+        color: var(--color-818181);
+        border-left: 2px solid;
+        border-color: var(--color-559efe);
+        padding-left: 5px;
+    }
+}
+
+.comment-content {
+    font-family: var(--font-family-open-sans);
+    font-style: var(--font-style-normal);
+    font-weight: var(--font-weight-normal);
+    font-size: var(--font-size-12);
+    line-height: var(--line-spacing-16);
+    letter-spacing: var(--character-spacing-0);
+    color: var(--color-192956);
+    margin-bottom: 12px;
+    max-height: 65px;
+    overflow: hidden;
+    display: inline-block;
+}
+
+.show-more-label {
+    display: block;
+    font-family: var(--font-family-open-sans);
+    font-style: var(--font-style-normal);
+    font-weight: var(--font-weight-normal);
+    font-size: var(--font-size-12);
+    line-height: var(--line-spacing-16);
+    letter-spacing: var(--character-spacing-0);
+    color: var(--color-559efe);
+    cursor: pointer;
+}
+
+.show {
+    overflow: visible;
+    height: auto;
+}
+
+.reply {
+    font-family: var(--font-family-open-sans);
+    font-style: var(--font-style-normal);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-12);
+    line-height: var(--line-spacing-16);
+    letter-spacing: var(--character-spacing-0);
+    color: var(--color-192956);
+    cursor: pointer;
+}
+
+.label {
+    background-color: lightblue;
+    color: lightcoral;
+}

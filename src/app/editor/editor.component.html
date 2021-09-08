@@ -1,0 +1,59 @@
+<mat-toolbar class="controls-toolbar no-print" color="primary">
+  <mat-toolbar-row class="controls-container">
+    <div class="left-group">
+      <button class="button-style-bold" color="primary" mat-button>
+        <mat-icon svgIcon="edit1"></mat-icon>Editor
+      </button>
+      <button color="primary" mat-button>
+        <mat-icon svgIcon="library"></mat-icon>Library
+      </button>
+      <button color="primary" mat-button>
+        <mat-icon svgIcon="contributors"></mat-icon>Contributors
+      </button>
+    </div>
+
+    <div class="right-group" style="display:flex;align-items:center;">
+      <span class="vertical-delimiter"></span>
+      <button class="right-button" mat-stroked-button>Print</button>
+      <button class="right-button" mat-flat-button color="primary">Export</button>
+      <button class="right-button" mat-flat-button color="primary">Submit</button>
+    </div>
+
+  </mat-toolbar-row>
+</mat-toolbar>
+
+<ng-container *ngIf="shouldBuild">
+
+  <div class="actions-container">
+    <app-editor-menu></app-editor-menu>
+    <div class="side-navbar">
+      <button (click)="sidebar='changes'" mat-icon-button>
+        <mat-icon aria-hidden="false" aria-label="comments icon">rate_review</mat-icon>
+      </button>
+      <button (click)="sidebar='comments'" mat-icon-button>
+        <mat-icon svgIcon="comments"></mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="main-container">
+
+    <div class="data-tree">
+      <app-meta-data-tree style="width:100%;"></app-meta-data-tree>
+    </div>
+
+    <div class="editor-container">
+      <app-prosemirror-editor style="width:100%;height:97%;"></app-prosemirror-editor>
+    </div>
+
+    <div class="sidebar-content" #display>
+      <app-comments-section *ngIf="sidebar=='comments'" style="width:100%;"></app-comments-section>
+      <div *ngIf="sidebar=='changes'" class="changesContainer">
+        <app-changes-section></app-changes-section>
+      </div>
+    </div>
+
+  </div>
+  <!-- </div> -->
+
+</ng-container>

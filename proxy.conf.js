@@ -10,7 +10,7 @@ const PROXY_CONFIG = [
       'Content-Type': 'application/x-www-form-urlencoded'
     },
     autoRewrite: true,
-    "target": "http://18.196.139.28:8000/",
+    "target": "https://ps-article-editor.dev.scalewest.com/",
     "secure": false,
     "changeOrigin": true,
     "logLevel": "debug"

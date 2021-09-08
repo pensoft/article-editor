@@ -19,17 +19,22 @@ span.insertion {
   border-bottom: 2px solid royalblue;
 }
 
+.deletion{
+  color: #f08989;
+  text-decoration: line-through black;
+}
+
 [data-track] {
   position: relative;
 }
 
-[data-track]::before {
+/*[data-track]::before {
   content: '';
   position: absolute;
   border-left: 2px solid royalblue;
   left: -10px;
   height: 100%;
-}
+}*/
 
 .selected-deletion {
   background: indianred;
@@ -60,8 +65,15 @@ span.insertion {
 
 .subtle { color: #777 }
 
-.comment { background-color: #ff8 }
-.currentComment { background-color: #fe0 }
+.comment {
+  background-color: gold;
+  
+
+  .active-comment {
+    background-color: gold;
+    /* color: black; */
+  }
+}
 
 .commentList, .commentText {
   display: block;
@@ -254,3 +266,20 @@ li.commentText + li.commentText {
 }
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+app-root {
+  display: flex;
+  flex-direction: column;
+}
+
+router-outlet {
+  display: none;
+}
+
+.a {
+  fill: transparent !important;
+}
+
+.mat-icon{
+  font-size: 17px;
+}

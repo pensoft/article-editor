@@ -1,0 +1,27 @@
+:host {
+  //transform: rotate(180deg);
+
+  ::ng-deep {
+    .mat-slide-toggle-label {
+      position: relative;
+    }
+    .mat-slide-toggle-content {
+      position: absolute;
+      bottom: 0;
+      top: 0;
+      display: flex;
+    }
+    .mat-slide-toggle-bar {
+      //overflow: hidden;
+    }
+  }
+}
+
+mat-icon {
+  text-align: center;
+  font-size: 18px;
+  height: 28px;
+  line-height: 28px;
+  width: 28px;
+  color: var(--color-ffffff);
+}

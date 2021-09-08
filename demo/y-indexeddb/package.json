@@ -2,7 +2,7 @@
   "_args": [
     [
       "y-indexeddb@9.0.6",
-      "C:\\scalewest\\article-editor"
+      "C:\\work\\articlle_editor"
     ]
   ],
   "_from": "y-indexeddb@9.0.6",
@@ -26,7 +26,7 @@
   ],
   "_resolved": "https://registry.npmjs.org/y-indexeddb/-/y-indexeddb-9.0.6.tgz",
   "_spec": "9.0.6",
-  "_where": "C:\\scalewest\\article-editor",
+  "_where": "C:\\work\\articlle_editor",
   "author": {
     "name": "Kevin Jahns",
     "email": "kevin.jahns@protonmail.com"

@@ -1,0 +1,7 @@
+<div>
+    <div *ngFor="let change of changes">
+        <span>Edited:</span><div class="{{change.type}} target">{{change.text}}</div>
+        <button mat-raised-button (click)="acceptChange(change.viewRef,change.from,change.to)"><mat-icon>done</mat-icon>Accept</button>
+        <button mat-raised-button (click)="declineChange(change.viewRef,change.from,change.to)"><mat-icon>close</mat-icon>Decline</button>
+    </div>
+</div>

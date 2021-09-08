@@ -1,0 +1,13 @@
+<div class="comments-container">
+
+    <div style="padding:5px 0;width:100%;border-bottom:1px solid gray;">
+        Search...
+    </div>
+
+    <div *ngIf="comments.length>0" style="overflow-y:scroll;height:660px;">
+        <div *ngFor="let comment of comments">
+            <app-comment [comment]="comment"></app-comment>
+        </div>
+    </div>
+
+</div>
