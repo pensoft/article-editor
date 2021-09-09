@@ -1,6 +1,6 @@
 {
   "configVersion": 1,
-  "timestamp": 1631121715716,
+  "timestamp": 1631170783282,
   "index": "/demo/index.html",
   "assetGroups": [
     {
@@ -163,7 +163,7 @@
     "/demo/KaTeX_Typewriter-Regular.209b10f4e35040ca859c.woff2": "fea389c6ac148b303ad5ecca0fa1b5447908fb18",
     "/demo/KaTeX_Typewriter-Regular.834915271cbece10d426.ttf": "a1e59802b5d7b64bb36afd16026efe5d759c1343",
     "/demo/KaTeX_Typewriter-Regular.b6a56b14d09ea3eb5f01.woff": "c4b02e556ffda5eacc6e925f5dfa6b22a5b86c9c",
-    "/demo/assets/icons/comments.svg": "ba9fcf22494d6961c0a4af5bb30fca8e502376af",
+    "/demo/assets/icons/comments.svg": "c54d09eeb227e43f582bb38596fc3bbf99606d92",
     "/demo/assets/icons/contributors.svg": "d789ec06fb6c891cf0645e860b3289167215dba5",
     "/demo/assets/icons/dashboard.svg": "c2bca20f94473fb0df44a1919645d3f4b0a7205a",
     "/demo/assets/icons/edit1.svg": "6737d3397af5bfbc83035b561a2073277aa7d4ad",
