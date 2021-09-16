@@ -477,7 +477,7 @@ function createCustomIcon(name: string, width?: number, height?: number) {
     width = width || 15;
     height = height || 15;
     let icon = document.createElement('img');
-    icon.setAttribute('src', `../../../assets/icons/${name}`);
+    icon.setAttribute('src', `./assets/icons/${name}`);
     icon.setAttribute('width', width.toString());
     return {
         width: width, height: height,
