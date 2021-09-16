@@ -46,10 +46,8 @@ export class AppComponent {
   dataSource = new ArrayDataSource(TREE_DATA);
   constructor() {
     navigator.serviceWorker.ready.then(function(registration) {
-      console.log('Service Worker Ready')
       return registration.sync.register('sendFormData')
     }).then(function () {
-       console.log('sync event registered')
      }).catch(function() {
        // system was unable to register for a sync,
        // this could be an OS-level restriction

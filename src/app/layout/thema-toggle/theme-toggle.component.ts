@@ -14,10 +14,8 @@ export const storageKey = 'aio-theme';
           {{ isLight ? 'light' : 'dark' }}_mode
         </mat-icon>
       </button>-->
-      <mat-slide-toggle  dir="rtl" [disableRipple]="true" [(ngModel)]="isLight">
-          <mat-icon>light_mode</mat-icon>
-          <mat-icon>light_mode</mat-icon>
-      </mat-slide-toggle>
+      <arpha-toggle-button [leftIcon]="'light_mode'" [rightIcon]="'dark_mode'" [(ngModel)]="isLight">
+      </arpha-toggle-button>
   `
 })
 export class ThemeToggleComponent {

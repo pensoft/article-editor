@@ -54,7 +54,7 @@ export class CommentsService {
         return {
           update: (view, prevState) => {
             let commentsMark = view.state.schema.marks.comment
-            let editor = document.getElementsByClassName('editor-outer-div').item(0) as HTMLDivElement
+            let editor = document.getElementsByClassName('editor-container').item(0) as HTMLDivElement
             let sectionName = commentPluginKey.getState(view.state).sectionName
 
 

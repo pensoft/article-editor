@@ -1,0 +1,198 @@
+.logo {
+  height: 50px;
+  width: 197px;
+
+  margin-left: 42px;
+
+}
+
+.main {
+  background-image: url("../../../assets/img/Photo-3@2x.png");
+  background-position: center;
+  background-size: cover;
+  height: 768px;
+  margin: -8px -16px ;
+
+}
+
+.emptyPusher {
+  height: 28px;
+}
+
+.register {
+  height: 618px;
+  width: 544px;
+  border-radius: 15px;
+  margin-right: 125px;
+  margin-top: -3px;
+  float: right;
+  background-color: #FFFFFF;
+}
+
+.form-container{
+  height: 207px;
+  width: 460px;
+  // border: 1px solid black;
+  margin-left: 41px;
+  //margin-top: 40px;
+}
+
+.title-container {
+  margin-top: 40px;
+  margin-left: 41px;
+  font-weight: bold;
+  font-size: 34px;
+  line-height: 50px;
+  color: #192956;
+  width: 92px;
+  height: 46px;
+  //border: 1px solid black;
+}
+
+div {
+  @import url('https://fonts.googleapis.com/css?family=Open+Sans');
+  font-family: "Open Sans", sans-serif;
+}
+
+// p.a {
+//   font-size: 34px;
+//   font-weight: bold;
+//   color: #192956;
+//   margin-top: 0px;
+// }
+
+.form-a{
+  height: 63px;
+  //border: solid black;
+  margin-top: 31px;
+}
+
+.form-b{
+  height: 63px;
+  //border: solid black;
+  margin-top: 20px;
+}
+
+label {
+  @import url('https://fonts.googleapis.com/css?family=Open+Sans');
+  font-family: "Open Sans", sans-serif;
+  color: #192956;
+  font-weight: bold;
+  font-size: 14px;
+  line-height: 19px;
+}
+
+input {
+  @import url('https://fonts.googleapis.com/css?family=Open+Sans');
+  font-family: "Open Sans", sans-serif;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 10px;
+  border: 1px solid #CACDD3;
+  height: 35px;
+  border-radius: 6px;
+  text-indent: 12px;
+  outline: none; //remember this!!!
+}
+
+input:focus {
+  border-radius: 6px;
+  border: 1px solid black ;
+}
+
+input:hover {
+  border: 1px solid black;
+  border-radius: 6px;
+}
+
+input.pass {
+  background-image: url("../../../assets/img/dashboard.svg");
+  background-repeat: no-repeat;
+  background-size: 22px 18px;
+  background-position: left center;
+  background-position: 422px;
+}
+
+.password-link {
+  text-align: right;
+  font-size: 14px;
+  @import url('https://fonts.googleapis.com/css?family=Open+Sans');
+  font-family: "Open Sans", sans-serif;
+  font-weight: bold;
+  color: #1BB1B2;
+  //margin-top: 12px;
+  //line-height: 50px;
+}
+
+.login-button {
+  margin-top: 30px;
+  width: 460px;
+  height: 39px;
+  background-color: #00B1B2;
+  border: 1px solid #00B1B2;
+  border-radius: 18px;
+  color: #FFFFFF;
+  font-size: 15px;
+  @import url('https://fonts.googleapis.com/css?family=Open+Sans');
+  font-family: "Open Sans", sans-serif;
+}
+
+.login-button:active {
+  opacity: 60%;
+}
+
+.register-button {
+  margin-top: 14px;
+  width: 460px;
+  height: 39px;
+  border: 1px solid #00B1B2;
+  border-radius: 18px;
+  color: #00B1B2;
+  font-size: 15px;
+  background-color: white;
+}
+
+.b {
+  margin-top: 46px;
+  text-align: center;
+  font-size: 14px;
+  color: #192956;
+  line-height: 19px;
+  font-weight: bold;
+  //border: 1px solid black;
+}
+
+.link-container {
+  height: 30px;
+  //border: 1px solid black;
+  margin-top: 200px;
+  display: flex;
+  justify-content: center;
+}
+.link-container > button {
+  margin: 0px 6px;
+}
+
+.snbutton {
+  height: 30px;
+  width: 112px;
+  border-radius: 15px;
+  border: 1px solid #AEDBD0;
+  background: white;
+}
+
+.text {
+  text-align: center;
+  font-size: 14px;
+  @import url('https://fonts.googleapis.com/css?family=Open+Sans');
+  font-family: "Open Sans", sans-serif;
+  font-weight: bold;
+  line-height: 19px;
+  width: 15px;
+  height: 19px;
+  //border: 1px solid black;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 13px;
+}
+

@@ -1,0 +1,5 @@
+<mat-slide-toggle dir="rtl" [disableRipple]="true" [disabled]="disabled" [ngModel]="checked"
+  (ngModelChange)="onModelChange($event)">
+  <mat-icon *ngIf="rightIcon">{{rightIcon}}</mat-icon>
+  <mat-icon *ngIf="leftIcon">{{leftIcon}}</mat-icon>
+</mat-slide-toggle>

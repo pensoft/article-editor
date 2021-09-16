@@ -1,0 +1,29 @@
+::ng-deep {
+  .arpha-checkbox {
+    .mat-checkbox-inner-container {
+      height: 24px;
+      width: 24px;
+    }
+    .mat-checkbox-frame {
+      border-color: var(--color-00b1b2);
+    }
+  }
+
+  .mat-checkbox-checked.mat-accent .mat-checkbox-background {
+    background-color: var(--color-00b1b2) !important;
+  }
+
+  .mat-checkbox-disabled.mat-checkbox-checked {
+    .mat-checkbox-frame {
+      opacity: 0;
+    }
+    .mat-checkbox-background {
+      opacity: 0.6;
+    }
+  }
+
+  .mat-checkbox-disabled .mat-checkbox-frame {
+    border-color: var(--color-00b1b2) !important;
+    opacity: 0.6;
+  }
+}

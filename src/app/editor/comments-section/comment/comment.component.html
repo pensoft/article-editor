@@ -1,32 +1,32 @@
 <mat-card class="comment" *ngFor="let userComment of userComments">
-    <mat-card-header>
-        <div mat-card-avatar class="comment-avatar"></div>
-        <mat-card-title class="comment-title">Nikolay Ivanov</mat-card-title>
-        <mat-card-subtitle class="comment-subtitle">11:28 AM Today</mat-card-subtitle>
+  <mat-card-header>
+    <div mat-card-avatar class="comment-avatar"></div>
+    <mat-card-title class="comment-title">Nikolay Ivanov</mat-card-title>
+    <mat-card-subtitle class="comment-subtitle">11:28 AM Today</mat-card-subtitle>
 
-        <div class="header-actions">
-            <button class="resolve-button" mat-stroked-button>Resolve</button>
-            <button mat-icon-button [matMenuTriggerFor]="menu">
-                <mat-icon>more_horiz</mat-icon>
-            </button>
+    <div class="header-actions">
+      <arpha-button label="Resolve" class="small secondary resolve-button"></arpha-button>
+      <button mat-icon-button [matMenuTriggerFor]="menu">
+        <mat-icon>more_horiz</mat-icon>
+      </button>
 
-            <mat-menu #menu="matMenu">
-                <button (click)="editComment(userComment.id, userComment.comment)" mat-menu-item>Edit</button>
-                <button (click)="deleteComment()" mat-menu-item>Delete</button>
-            </mat-menu>
-        </div>
+      <mat-menu #menu="matMenu">
+        <button (click)="editComment(userComment.id, userComment.comment)" mat-menu-item>Edit</button>
+        <button (click)="deleteComment()" mat-menu-item>Delete</button>
+      </mat-menu>
+    </div>
 
-    </mat-card-header>
-    <mat-card-content>
-        <div class="selected-text">
-            <div class="selected-text-title">Selected text:</div>
-            <div class="selected-text-content">{{comment!.text}}</div>
-        </div>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="selected-text">
+      <div class="selected-text-title">Selected text:</div>
+      <div class="selected-text-content">{{comment!.text}}</div>
+    </div>
 
-        <div #content class="comment-content" [class.show]="showMore">{{userComment.comment}}</div>
-        <a *ngIf="contentHeight >= MAX_CONTENT_HEIGHT" (click)="showMore = !showMore" class="show-more-label">{{
-            showMore ? 'Show less': 'Show More' }}</a>
+    <div #content class="comment-content" [class.show]="showMore">{{userComment.comment}}</div>
+    <a *ngIf="contentHeight >= MAX_CONTENT_HEIGHT" (click)="showMore = !showMore" class="show-more-label">{{
+      showMore ? 'Show less': 'Show More' }}</a>
 
-        <div class="reply" (click)="replyComment()">Reply</div>
-    </mat-card-content>
+    <div class="reply" (click)="replyComment()">Reply</div>
+  </mat-card-content>
 </mat-card>

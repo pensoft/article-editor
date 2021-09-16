@@ -1,11 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { WebrtcProvider as OriginalWebRtc, } from 'y-webrtc';
 import { map } from 'rxjs/operators';
-import { sectionNode } from './utils/interfaces/section-node'
 import { YdocService } from './services/ydoc.service';
 import { ActivatedRoute, ParamMap } from '@angular/router';
-import { MatDialog } from '@angular/material/dialog';
-import { shereDialog } from './utils/menuItems';
+import { treeNode } from './utils/interfaces/treeNode';
+import { MatDrawer } from '@angular/material/sidenav';
+import { ViewChild } from '@angular/core';
 
 import * as Y from 'yjs';
 
@@ -16,16 +16,19 @@ import * as Y from 'yjs';
 })
 export class EditorComponent implements OnInit {
 
-  TREE_DATA?: sectionNode[]
+  TREE_DATA?: treeNode[]
 
   ydoc?: Y.Doc;
   provider?: OriginalWebRtc;
-  sidebar = 'comments'
   shouldBuild: boolean = false;
   roomName?: string | null;
 
-  constructor(private ydocService: YdocService, public dialog: MatDialog, private route: ActivatedRoute) {
-    shereDialog(dialog);
+  active = 'editor';
+
+  @ViewChild(MatDrawer) sidebarDrawer?: MatDrawer;
+  sidebar = 'validation';
+
+  constructor(private ydocService: YdocService, private route: ActivatedRoute) {
   }
 
   ngOnInit(): void {
@@ -34,16 +37,32 @@ export class EditorComponent implements OnInit {
       .subscribe(roomName => { this.roomName = roomName; this.ydocService.init(roomName!); });
 
     this.ydocService.ydocStateObservable.subscribe((event) => {
-      
+
       if (event == 'docIsBuild') {
         let data = this.ydocService.getData();
         this.ydoc = data.ydoc
         this.provider = data.provider
         this.TREE_DATA = data.TREE_DATA
         this.shouldBuild = true
-        console.log(this.ydoc);
       }
     })
   }
-  
+
+  toggleSidebar(section: string) {
+    if (!this.sidebarDrawer?.opened || this.sidebar == section) {
+      this.sidebarDrawer?.toggle();
+    }
+    this.sidebar = section;
+
+    // If it's closed - clear the sidebar value
+    if (!this.sidebarDrawer?.opened) {
+      this.sidebar = '';
+    }
+  }
+
+  print() { }
+
+  export() { }
+
+  submit() { }
 }

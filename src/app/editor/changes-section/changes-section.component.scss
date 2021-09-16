@@ -1,11 +1,35 @@
-.insertion{
-    background-color: #72e090;
+.changes-wrapper {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-.format_change{
-    border-bottom: 2px solid royalblue;
+.changes-container {
+  width: 100%;
+  overflow-y: auto;
+  flex: 1 1 auto;
 }
 
-.target{
-    width: fit-content;
+.changes-footer {
+  width: 100%;
+  flex: 0 1 70px;
+  min-height: 70px;
+  border-top: 1px solid var(--color-f5f5f5);
+  .left,
+  .right {
+    width: 50%;
+    height: 100%;
+    float: left;
+    align-items: center;
+    justify-content: center;
+    display: flex;
+    color: var(--color-00b1b2) !important;
+    font-family: var(--font-family-open-sans);
+    font-style: var(--font-style-normal);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-13);
+    line-height: var(--line-spacing-18);
+    letter-spacing: var(--character-spacing-0);
+  }
 }

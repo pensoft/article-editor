@@ -1,7 +1,18 @@
-<div>
-    <div *ngFor="let change of changes">
-        <span>Edited:</span><div class="{{change.type}} target">{{change.text}}</div>
-        <button mat-raised-button (click)="acceptChange(change.viewRef,change.from,change.to)"><mat-icon>done</mat-icon>Accept</button>
-        <button mat-raised-button (click)="declineChange(change.viewRef,change.from,change.to)"><mat-icon>close</mat-icon>Decline</button>
+<div class="changes-wrapper">
+
+  <div class="changes-container">
+    <app-change *ngFor="let change of changes" [change]="change"></app-change>
+  </div>
+
+  <div class="changes-footer">
+    <div class="left">
+      <mat-icon style="margin-right:8px">west</mat-icon>
+      Previous change
     </div>
+    <div class="right">
+      Next change
+      <mat-icon style="margin-left:8px">east</mat-icon>
+    </div>
+  </div>
+
 </div>

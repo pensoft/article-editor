@@ -241,12 +241,12 @@ $altTheme: (
 // Specific component overrides, pieces that are not in line with the general theming
 
 // Handle buttons appropriately, with respect to line-height
-.mat-raised-button, .mat-stroked-button, .mat-flat-button {
-  padding: 0 1.15em;
-  margin: 0 .65em;
-  min-width: 3em;
-  line-height: 36.4px
-}
+// .mat-raised-button, .mat-stroked-button, .mat-flat-button {
+//   padding: 0 1.15em;
+//   margin: 0 .65em;
+//   min-width: 3em;
+//   line-height: 36.4px
+// }
 
 .mat-standard-chip {
   padding: .5em .85em;
@@ -262,12 +262,12 @@ $altTheme: (
 }
 
 
-.mat-button, .mat-raised-button, .mat-icon-button, .mat-stroked-button, .mat-flat-button, .mat-fab, .mat-mini-fab {
-  font-family: 'Open Sans' !important;
-  font-size: 12px !important;
-  letter-spacing: 0.18px;
-  border-radius: 100px !important;
-  border-color: var(--color-00b1b2) !important;
-  color: var(--color-00b1b2);
-  font-weight: bold !important;
-}
+// .mat-button, .mat-raised-button, .mat-icon-button, .mat-stroked-button, .mat-flat-button, .mat-fab, .mat-mini-fab {
+//   font-family: 'Open Sans' !important;
+//   font-size: 12px !important;
+//   letter-spacing: 0.18px;
+//   border-radius: 100px !important;
+//   border-color: var(--color-00b1b2) !important;
+//   color: var(--color-00b1b2);
+//   font-weight: bold !important;
+// }

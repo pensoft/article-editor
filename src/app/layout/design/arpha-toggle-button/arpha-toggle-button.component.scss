@@ -1,0 +1,60 @@
+::ng-deep {
+  .mat-slide-toggle {
+    height: 28px !important;
+    line-height: 28px !important;
+    width: 56px;
+
+    &.mat-slide-toggle.mat-checked {
+      .mat-slide-toggle-thumb-container {
+        transform: translate3d(-28px, 0, 0);
+        background: transparent;
+      }
+
+      .mat-slide-toggle-bar {
+        background: var(--color-cacdd3);
+      }
+    }
+
+    .mat-ripple {
+      display: none;
+    }
+
+    .mat-slide-toggle-bar {
+      height: 28px;
+      width: 56px;
+      line-height: 28px;
+      border-radius: 14px;
+    }
+
+    .mat-slide-toggle-thumb-container {
+      width: 22px;
+      height: 22px;
+      top: 3px;
+      right: 3px !important;
+
+      .mat-slide-toggle-thumb {
+        background: var(--color-ffffff);
+        width: 22px;
+        height: 22px;
+      }
+    }
+  }
+  .mat-slide-toggle-label {
+    position: relative;
+  }
+  .mat-slide-toggle-content {
+    position: absolute;
+    bottom: 0;
+    top: 0;
+    display: flex;
+  }
+}
+
+mat-icon {
+  text-align: center;
+  font-size: 18px;
+  height: 28px;
+  line-height: 28px;
+  width: 28px;
+  color: var(--color-ffffff);
+}

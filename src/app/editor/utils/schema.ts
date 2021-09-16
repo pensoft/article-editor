@@ -161,6 +161,18 @@ const marks: MarkSpec = {
   comment :commentMark,
   ...trackChangesMarks,
   ...basicmarks,
+  linkM:{
+    attrs: {
+      class: { default: 'link-mark' },
+      href: {},
+      title: {default: null}
+    },
+    inclusive: false,
+    parseDOM: [{tag: "a[href]", getAttrs(dom:any) {
+      return {href: dom.getAttribute("href"),class: dom.getAttribute('class'), title: dom.getAttribute("title")}
+    }}],
+    toDOM(node:any) { return ["a", {href:node.attrs.href, title:node.attrs.title,class:node.attrs.class}, 0] }
+  }
 }
 
 export { nodes, marks }

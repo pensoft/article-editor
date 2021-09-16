@@ -74,7 +74,7 @@ export class TrackChangesService {
             let deletionMark  = view.state.schema.marks.deletion
             let insertionMark = view.state.schema.marks.insertion
             let format_changeMark = view.state.schema.marks.format_change
-            let editor = document.getElementsByClassName('editor-outer-div').item(0) as HTMLDivElement
+            let editor = document.getElementsByClassName('editor-container').item(0) as HTMLDivElement
             let sectionName = hideShowPluginKey.getState(view.state).sectionName
             if (editor) {
               let elemRect = editor.getBoundingClientRect();

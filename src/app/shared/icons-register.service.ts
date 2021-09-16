@@ -17,6 +17,10 @@ export class IconsRegisterService {
     iconRegistry.addSvgIcon('library', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/library.svg'));
     iconRegistry.addSvgIcon('contributors', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/contributors.svg'));
     iconRegistry.addSvgIcon('comments', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/comments.svg'));
+    iconRegistry.addSvgIcon('reference', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/reference.svg'));
+    iconRegistry.addSvgIcon('validate', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/validate.svg'));
+    iconRegistry.addSvgIcon('dashboard', sanitizer.bypassSecurityTrustResourceUrl('assets/icons/dashboard.svg'));
+
 
 
     // iconRegistry.addSvgIconLiteral('thumbs-up', sanitizer.bypassSecurityTrustHtml(THUMBUP_ICON));

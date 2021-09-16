@@ -1,0 +1,15 @@
+::ng-deep {
+  .search-box {
+    .mat-form-field-flex {
+      background: white;
+      background-color: white;
+    }
+    .label {
+      margin-left: 7px;
+      color: var(--color-cacdd3);
+    }
+    .search-icon {
+      color: var(--color-cacdd3);
+    }
+  }
+}

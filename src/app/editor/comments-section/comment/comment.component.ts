@@ -24,7 +24,7 @@ export class CommentComponent implements OnInit {
 
   @ViewChild('content') elementView: ElementRef | undefined;
   showMore = false;
-  MAX_CONTENT_HEIGHT = 60;
+  MAX_CONTENT_HEIGHT = 30;
   contentHeight: number = this.MAX_CONTENT_HEIGHT;
   commentsMap: YMap<any>
   userComments?: any[];

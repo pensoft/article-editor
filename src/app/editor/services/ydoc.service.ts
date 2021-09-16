@@ -17,6 +17,8 @@ import {editorContainer } from '../utils/interfaces/editor-container'
 import { Subject } from 'rxjs';
 import { ydocData } from '../utils/interfaces/ydocData.js';
 import { YMap } from 'yjs/dist/src/internals';
+import { treeNode } from '../utils/interfaces/treeNode.js';
+import { uuidv4 } from "lib0/random";
 
 @Injectable({
   providedIn: 'root'
@@ -29,7 +31,7 @@ export class YdocService {
   ydoc = new Y.Doc();
   provider?: OriginalWebRtc;
   roomName = 'webrtc-test3'
-  providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
+  providerIndexedDb ?: IndexeddbPersistence
   constructor(private http: HttpClient) { }
   editorMetadata ?: YMap<any>
   comments ?: YMap<any>
@@ -40,40 +42,75 @@ export class YdocService {
     return this.editorMetadata!
   }
 
+  getYDoc(){
+    return this.ydoc
+  }
+
   getData():ydocData{
-    let TREE_DATA=this.editorMetadata?.get('TREE_DATA')
+    let TREE_DATA:treeNode[]=this.editorMetadata?.get('TREE_DATA')
     if(TREE_DATA == undefined){
-      TREE_DATA = [
-        {
-          name: 'Article metadata',
-          children: [
-            { name: 'Title', active: true },
-            { name: 'Abstract & Keywords', active: false },
-            { name: 'Classifications', active: false },
-            { name: 'Funder', active: false },
-          ]
-        }, { name: 'Introduction', active: true },
-        { name: 'General description', active: false },
-        { name: 'Project description', active: false },
-        { name: 'Sampling methods', active: false },
-        { name: 'Geographic coverage', active: true },
-        { name: 'Taxonomic coverage', active: false },
-        { name: 'Traits coverage', active: false },
-        { name: 'Temporal coverage', active: true },
-        { name: 'Collection data', active: false },
-        { name: 'Usage rights', active: false },
-        { name: 'Data resources', active: false },
-        { name: 'Additional information', active: false },
-        { name: 'Acknowledgements', active: false },
-        { name: 'Author contributions', active: false },
-      
+      let TREE_DATA1 =  [
+        {name:'Article metadata',
+        id:uuidv4(),extended:false,
+        edit:true,active:false,
+        listId:'2d99e338-5011-4699-9cd5-7dc59f187daa',
+        children:[
+          {name:'Title',id:uuidv4(),edit:true,children:[],extended:false,active:true},
+          {name:'Abstract',id:uuidv4(),edit:true,children:[],extended:false,active:false},
+          {name:'Grant title',
+          edit:true,listId:'4045db78-0a4f-4b06-a91d-85d6e6c2aa16',extended:false,active:false,id:uuidv4(),
+          children:[
+            {name:'Taxonomy',id:uuidv4(),edit:true,extended:false,children:[],active:true},
+            {name:'Species characteristics',active:false,extended:false,
+            edit:true,
+            add:true,
+            listId:'cf66575f-a42d-4b4f-8b5c-fe392dd713b6',id:uuidv4(),
+            children:[
+              {name:'Taxonomy',id:uuidv4(),edit:true,extended:false,children:[],active:false},
+              {name:'Species characteristics',id:uuidv4(),extended:false,children:[],edit:true,add:true,active:false},
+            ]},
+          ]},
+          {name:'Hosting institution',id:uuidv4(),children:[],extended:false,edit:true,active:false},
+          {name:'Ethics and security',id:uuidv4(),children:[],extended:false,edit:true,active:true},
+        ]},
+        {name:'Introduction',edit:true,id:uuidv4(),children:[],extended:false,add:true,active:false},
+        {name:'General information',edit:true,id:uuidv4(),extended:false,active:false,listId:'edeed1b5-1ad1-45d6-95f8-9b1eb3c51ccf'
+        ,children:[
+          {name:'Taxonomy',id:uuidv4(),edit:true,children:[],extended:false,active:false},
+          {name:'Species characteristics',id:uuidv4(),children:[],extended:false,edit:true,add:true,active:false},
+        ]},
+        {name:'Habitat',id:uuidv4(),children:[],edit:true,extended:false,active:false},
+        {name:'Distribution',id:uuidv4(),edit:true,children:[],extended:false,add:true,active:false},
+      ];
+      TREE_DATA =  [
+        {name:'Article metadata',
+        id:uuidv4(),extended:false,
+        edit:true,active:false,
+        listId:'2d99e338-5011-4699-9cd5-7dc59f187daa',
+        children:[
+          {name:'Title',id:uuidv4(),edit:true,children:[],extended:false,active:true},
+          {name:'Abstract',id:uuidv4(),edit:true,children:[],extended:false,active:false},
+          {name:'Grant title',
+          edit:true,listId:'4045db78-0a4f-4b06-a91d-85d6e6c2aa16',extended:false,active:false,id:uuidv4(),
+          children:[]},
+          {name:'Hosting institution',id:uuidv4(),children:[],extended:false,edit:true,active:false},
+          {name:'Ethics and security',id:uuidv4(),children:[],extended:false,edit:true,active:true},
+        ]},
+        {name:'Introduction',edit:true,id:uuidv4(),children:[],extended:false,add:true,active:false},
+        {name:'General information',edit:true,id:uuidv4(),extended:false,active:false,listId:'edeed1b5-1ad1-45d6-95f8-9b1eb3c51ccf'
+        ,children:[
+          {name:'Taxonomy',id:uuidv4(),edit:true,children:[],extended:false,active:false},
+          {name:'Species characteristics',id:uuidv4(),children:[],extended:false,edit:true,add:true,active:false},
+        ]},
+        {name:'Habitat',id:uuidv4(),children:[],edit:true,extended:false,active:false},
+        {name:'Distribution',id:uuidv4(),edit:true,children:[],extended:false,add:true,active:false},
       ];
       this.editorMetadata?.set('TREE_DATA',TREE_DATA);
     }
     return {
       ydoc:this.ydoc,
       provider:this.provider,
-      providerIndexedDb:this.providerIndexedDb,
+      providerIndexedDb:this.providerIndexedDb!,
       TREE_DATA:TREE_DATA
     }
   }
@@ -84,8 +121,8 @@ export class YdocService {
   }
 
   init(roomName:string){
-    console.log(roomName);
     this.roomName=roomName
+    this.providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
     let buildApp = () => {
       this.provider = new WebrtcProvider(this.roomName, this.ydoc, {
         signaling: [/* 'ws://dev.scalewest.com:4444' *//* 'ws://localhost:4444' */  'wss://y-webrtc-signaling-eu.herokuapp.com' /* , 'wss://signaling.yjs.dev'  ,'wss://y-webrtc-signaling-us.herokuapp.com' */],
@@ -124,8 +161,8 @@ export class YdocService {
       } else {
 
         // Building the editor without backend for now just for developer purpose
-        /* this.buildEditor();
-        return */
+        this.buildEditor();
+        return
         let onSubevent = fromEvent(this.provider!, 'signalingConnected').subscribe(()=>{
           let r = race(this.http.get('/products').pipe(delay(500),catchError((err:any)=>{
             console.log("ERROR", err);
@@ -134,7 +171,6 @@ export class YdocService {
             throw(err)
           })), fromEvent(this.provider!, 'synced')).subscribe((data: any) => {
             let synced = this.provider?.room?.synced
-            console.log(synced);
             if (data.synced) {
               this.buildEditor();
             } else {

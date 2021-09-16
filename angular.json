@@ -54,8 +54,7 @@
               "src/variables.scss",
               "src/styles.scss",
               "src/theme.scss",
-              "src/custom-toolbar-theme.scss",
-              "src/material/styles.scss"
+              "src/custom-toolbar-theme.scss"
             ],
             "scripts": [],
             "serviceWorker": true,

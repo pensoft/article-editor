@@ -1,13 +1,15 @@
-<div class="comments-container">
+<div style="height: 100%;overflow-y: scroll;">
 
-    <div style="padding:5px 0;width:100%;border-bottom:1px solid gray;">
-        Search...
-    </div>
+  <mat-form-field class="search-box" style="width:100%;background:white;" appearance="fill">
+    <mat-label class="character-style-9 label">Search comments...</mat-label>
+    <mat-icon class="search-icon" matPrefix>search</mat-icon>
+    <input matInput>
+  </mat-form-field>
 
-    <div *ngIf="comments.length>0" style="overflow-y:scroll;height:660px;">
-        <div *ngFor="let comment of comments">
-            <app-comment [comment]="comment"></app-comment>
-        </div>
+  <div *ngIf="comments.length>0" style="overflow-y:scroll;height:660px;">
+    <div *ngFor="let comment of comments">
+      <app-comment [comment]="comment"></app-comment>
     </div>
+  </div>
 
 </div>

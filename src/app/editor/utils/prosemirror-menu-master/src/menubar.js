@@ -55,6 +55,7 @@ class MenuBarView {
     let {dom, update} = renderGrouped(this.editorView, this.options.content)
     this.contentUpdate = update
     this.menu.appendChild(dom)
+    console.log(this.menuContainer.children);
     this.update()
 
     if (options.floating && !isIOS()) {

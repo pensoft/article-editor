@@ -1,0 +1,9 @@
+<label *ngIf="label" class="arpha-label character-style-11">{{label}}</label>
+<div class="arpha-input-container" [class.invalid]="!isValid">
+    <input class="arpha-input" [type]="type" [id]="id" [name]="name" [placeholder]="placeholder"
+        [disabled]="disabled" [value]="value" (input)="onValueChange($event)" (blur)="onTouched()">
+    <mat-icon *ngIf="revealPassword || type=='password'" class="password-icon" svgIcon="dashboard"
+        (click)="revealText()"></mat-icon>
+
+</div>
+<div *ngIf="!isValid && errorMessage" class="arpha-error-message character-style-11">{{errorMessage}}</div>
