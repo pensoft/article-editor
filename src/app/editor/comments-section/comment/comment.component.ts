@@ -21,8 +21,9 @@ export class CommentComponent implements OnInit {
     attrs: any,
     viewRef: EditorView
   };
+  @ViewChild('content') elementView: ElementRef | undefined; 
 
-  @ViewChild('content') elementView: ElementRef | undefined;
+  replyInputDisplay = false
   showMore = false;
   MAX_CONTENT_HEIGHT = 30;
   contentHeight: number = this.MAX_CONTENT_HEIGHT;
@@ -51,22 +52,29 @@ export class CommentComponent implements OnInit {
     this.commentsMap.delete(this.comment?.attrs.id)
   }
 
-  replyComment() {
-    let commentsArray = this.commentsMap.get(this.comment?.attrs.id);
-    let commentContent;
-    let userCommentId = uuidv4();
-    const dialogRef = this.sharedDialog.open(AddCommentDialogComponent, { width: 'auto', data: { url: commentContent, type: 'comment' } });
-    dialogRef.afterClosed().subscribe(result => {
-      commentContent = result
-      if (result) {
-        let userComment = {
-          id: userCommentId,
-          comment: commentContent
-        }
-        this.commentsMap.set(this.comment?.attrs.id, [userComment, ...commentsArray]);
-        this.userComments = [userComment, ...commentsArray];
-      }
-    });
+  showHideReply(replyDiv:HTMLDivElement) {
+    console.log(replyDiv);
+    if(replyDiv.style.display == 'block'){
+      replyDiv.style.display = 'none';
+    }else{
+      replyDiv.style.display = 'block';
+    }
+     
+    /*  let commentsArray = this.commentsMap.get(this.comment?.attrs.id);
+     let commentContent;
+     let userCommentId = uuidv4();
+     const dialogRef = this.sharedDialog.open(AddCommentDialogComponent, { width: 'auto', data: { url: commentContent, type: 'comment' } });
+     dialogRef.afterClosed().subscribe(result => {
+       commentContent = result
+       if (result) {
+         let userComment = {
+           id: userCommentId,
+           comment: commentContent
+         }
+         this.commentsMap.set(this.comment?.attrs.id, [userComment, ...commentsArray]);
+         this.userComments = [userComment, ...commentsArray];
+       }
+     }); */
   }
 
   editComment(id: any, comment: string) {
@@ -85,5 +93,33 @@ export class CommentComponent implements OnInit {
         this.commentsMap.set(this.comment?.attrs.id, [...commentsArray]);
       }
     });
+  }
+
+  cancelReplyBtnHandle(replyDiv:HTMLDivElement) {
+    
+    replyDiv.style.display = 'none';
+
+  }
+
+  commentReplyBtnHandle(input: HTMLInputElement,replyDiv:HTMLDivElement) {
+    if (!input.value) {
+      return
+    }
+    let commentsArray = this.commentsMap.get(this.comment?.attrs.id);
+    let commentContent;
+    let userCommentId = uuidv4();
+
+    commentContent = input.value
+
+    let userComment = {
+      id: userCommentId,
+      comment: commentContent
+    }
+    this.commentsMap.set(this.comment?.attrs.id, [userComment, ...commentsArray]);
+    this.userComments = [userComment, ...commentsArray];
+    input.value = ''
+    replyDiv.style.display = 'none';
+
+
   }
 }

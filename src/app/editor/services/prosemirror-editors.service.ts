@@ -199,7 +199,7 @@ export class ProsemirrorEditorsService {
     editorDiv.setAttribute('class', 'editor-container');
 
     let xmlFragment = this.ydoc?.getXmlFragment(name);
-    let menu1 = this.menuService.attachMenuItems(this.menu, this.ydoc!, sectionName?.name!);
+    let menu1 = this.menuService.attachMenuItems(this.menu, this.ydoc!, sectionName?.name!,name);
     this.initDocumentReplace[name] = false;
     setTimeout(() => {
       this.initDocumentReplace[name] = true;
@@ -296,7 +296,7 @@ export class ProsemirrorEditorsService {
     this.TREE_DATA = data.TREE_DATA;
     this.permanentUserData = new Y.PermanentUserData(this.ydoc);
     this.permanentUserData.setUserMapping(this.ydoc, this.ydoc.clientID, this.user.username);
-    this.menuService.attachMenuItems2(this.menu, this.ydoc!);
+    //this.menuService.attachMenuItems2(this.menu, this.ydoc!);
     this.ydoc.gc = false;
     this.renderSectionsFromTree(this.TREE_DATA, this.editorDivContainer);
     this.nodesListRef['parentList'] = {newlistNodesDiv: this.editorDivContainer};

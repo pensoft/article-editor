@@ -7,7 +7,7 @@ import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {ServiceWorkerModule} from '@angular/service-worker';
 import {MaterialModule} from 'src/app/shared/material.module';
 import {STORAGE_PROVIDERS} from 'src/app/shared/storage.service';
-import {ThemeToggleComponent} from 'src/app/layout/thema-toggle/theme-toggle.component';
+import {ThemeToggleComponent} from 'src/app/layout/widgets/thema-toggle/theme-toggle.component';
 import {windowProvider, WindowToken} from 'src/app/shared/window';
 import {environment} from '../environments/environment';
 
@@ -23,21 +23,22 @@ import {ProsemirrorEditorComponent} from './editor/prosemirror-editor/prosemirro
 import {CommentComponent} from './editor/comments-section/comment/comment.component';
 import {AddCommentDialogComponent} from './editor/add-comment-dialog/add-comment-dialog.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MainComponent} from './layout/main/main.component';
+import {MainComponent} from './layout/pages/main/main.component';
 import {MAT_RIPPLE_GLOBAL_OPTIONS, RippleGlobalOptions} from '@angular/material/core';
 import {IconsRegisterService} from './shared/icons-register.service';
 import { TableSizePickerComponent } from './editor/utils/table-size-picker/table-size-picker.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
 import { CdkListRecursiveComponent } from './editor/meta-data-tree/cdk-list-recursive/cdk-list-recursive.component';
 import { AddLinkDialogComponent } from './editor/add-link-dialog/add-link-dialog.component';
-import { ArphaInputComponent } from './layout/design/arpha-input/arpha-input.component';
-import { ArphaButtonComponent } from './layout/design/arpha-button/arpha-button.component';
-import { ArphaCheckboxComponent } from './layout/design/arpha-checkbox/arpha-checkbox.component';
-import { ArphaToggleButtonComponent } from './layout/design/arpha-toggle-button/arpha-toggle-button.component';
-import { LandingComponent } from './layout/landing/landing.component';
-import { LoginComponent } from './layout/login/login.component';
+import { ArphaInputComponent } from './layout/widgets/arpha-input/arpha-input.component';
+import { ArphaButtonComponent } from './layout/widgets/arpha-button/arpha-button.component';
+import { ArphaCheckboxComponent } from './layout/widgets/arpha-checkbox/arpha-checkbox.component';
+import { ArphaToggleButtonComponent } from './layout/widgets/arpha-toggle-button/arpha-toggle-button.component';
+import { LandingComponent } from './layout/pages/landing/landing.component';
+import { LoginComponent } from './layout/pages/login/login.component';
 import { ChangeComponent } from './editor/changes-section/change/change.component';
 import { ValidationSectionComponent } from './editor/validation-section/validation-section.component';
+import { ArphaNavigationComponent } from './layout/widgets/arpha-navigation/arpha-navigation.component';
 
 const globalRippleConfig: RippleGlobalOptions = {
   disabled: true,
@@ -71,6 +72,7 @@ const globalRippleConfig: RippleGlobalOptions = {
     LoginComponent,
     ChangeComponent,
     ValidationSectionComponent,
+    ArphaNavigationComponent,
   ],
   imports: [
     provideFirebaseApp(() => initializeApp({

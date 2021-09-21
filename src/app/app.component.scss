@@ -1,30 +1,4 @@
-:host {
-  ::ng-deep {
-    mat-toolbar-row {
-      display: flex;
-      height: 60px;
-      justify-content: space-between;
-    }
-
-    mat-toolbar {
-      min-height: 60px;
-
-      &.app-toolbar {
-        z-index: 10;
-        box-shadow: 0 6px 10px #1BB1B224;
-      }
-    }
-  }
-}
-.logo img {
-  width: 95px;
-}
-
-.tree-container {
-  height: 430px;
-  overflow: hidden;
-  overflow-y: scroll;
-  width: 18%;
-  display: inline-flex;
-  border-bottom: solid lightgray;
+.app-toolbar {
+  z-index: 10;
+  box-shadow: 0 6px 10px var(--color-1bb1b224);
 }

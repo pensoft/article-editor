@@ -6,7 +6,26 @@
     <input matInput>
   </mat-form-field>
 
-  <div *ngIf="comments.length>0" style="overflow-y:scroll;height:660px;">
+  <div  style="overflow-y:scroll;height:660px;">
+    <mat-card  *ngIf='showAddCommentBox' class="commentBox">
+      <mat-card-header>
+        <div mat-card-avatar class="commentBox-avatar"></div>
+        <mat-card-title class="commentBox-title">Nikolay Ivanov</mat-card-title>
+        <mat-card-subtitle class="commentBox-subtitle">11:28 AM Today</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content>
+        <div class="selected-commet-text">
+          <div class="selected-commet-text-title">Selected text:</div>
+          <div *ngIf="selectedTextInEditors[lastFocusedEditor!] && commentAllowdIn[lastFocusedEditor!]" class="selected-commet-text-content">{{selectedTextInEditors[lastFocusedEditor!]}}</div>
+          <div *ngIf="!commentAllowdIn[lastFocusedEditor!]" class="selected-commet-text-content-no-selection">Please make a valid selection</div>
+        </div>
+      </mat-card-content>
+      <input #input class="comment-input" type="text" placeholder="Leave a comment...">
+      <div class="comment-btns">
+        <button mat-button label="Cancel" (click)="cancelBtnHandle()" class="small  secondary cencel-button">Cancel</button>
+        <button mat-button label="Comment" (click)="commentBtnHandle(input.value)" [disabled]="!selectedTextInEditors[lastFocusedEditor!] || input.value.length === 0" class="small  secondary comment-button">Comment</button>
+      </div>
+    </mat-card>
     <div *ngFor="let comment of comments">
       <app-comment [comment]="comment"></app-comment>
     </div>

@@ -9,13 +9,17 @@ export class DetectFocusService {
   focusedEditor 
   detectFocusPlugin:Plugin
   detectFocusPluginKey
-  sectionName:String|undefined
+  sectionName:string|undefined
   constructor() { 
     let focusedE = new Subject<string>();
     this.focusedEditor = focusedE
     let detectFocusPluginKey = new PluginKey('detectFocusPluginKey')
     this.detectFocusPluginKey = detectFocusPluginKey;
     let sectionName :string
+    let setLastEditorFocus = (id:string)=>{
+      this.sectionName = id
+      sectionName = id
+    }
     this.detectFocusPlugin = new Plugin({
       key: this.detectFocusPluginKey,
       state: {
@@ -31,7 +35,7 @@ export class DetectFocusService {
               setTimeout(() => {
                 focusedE.next(prev.sectionName);
               }, 10);
-              sectionName = prev.sectionName
+              setLastEditorFocus(prev.sectionName)
             }else if(!focusRN){
               focusedE.next('');
 

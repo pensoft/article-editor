@@ -5,7 +5,7 @@
     <mat-card-subtitle class="comment-subtitle">11:28 AM Today</mat-card-subtitle>
 
     <div class="header-actions">
-      <arpha-button label="Resolve" class="small secondary resolve-button"></arpha-button>
+      <arpha-button label="Resolve" style="background-color: transparent;" class="small secondary resolve-button"></arpha-button>
       <button mat-icon-button [matMenuTriggerFor]="menu">
         <mat-icon>more_horiz</mat-icon>
       </button>
@@ -27,6 +27,21 @@
     <a *ngIf="contentHeight >= MAX_CONTENT_HEIGHT" (click)="showMore = !showMore" class="show-more-label">{{
       showMore ? 'Show less': 'Show More' }}</a>
 
-    <div class="reply" (click)="replyComment()">Reply</div>
+    <div class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
+
+    <div #ReplyDiv style="display: none;">
+      <div class="reply-input">
+        <div class="input_div">
+          <input #input  type="text" placeholder="Write a reply...">
+        </div>
+        <div class="input_icon">
+          <mat-icon class="maticon">alternate_email</mat-icon>
+        </div>
+      </div>
+      <div class="comment-reply-btns">
+        <button mat-button label="Cancel" (click)="cancelReplyBtnHandle(ReplyDiv)" class="small  secondary cencel-button">Cancel</button>
+        <button mat-button label="Comment" (click)="commentReplyBtnHandle(input,ReplyDiv)" [disabled]="input.value.length === 0" class="small  secondary comment-button">Reply</button>
+      </div>
+    </div>
   </mat-card-content>
 </mat-card>

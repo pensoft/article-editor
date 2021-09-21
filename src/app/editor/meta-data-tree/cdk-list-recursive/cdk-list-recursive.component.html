@@ -1,9 +1,10 @@
 <ng-container *ngIf="startFromIndex == 0">
     <div cdkDropList class="outer-list" (cdkDropListDropped)="drop($event)">
         <ng-container *ngFor="let node of TREE_DATA;index as i">
-            <div class="node-box" *ngIf="node.children.length == 0"  cdkDrag >
+            <div class="node-box" *ngIf="node.children.length == 0" cdkDrag>
                 <div (mouseover)="showButtons(cdkDragSection,true,'sectionBorder','selectedEditor',node)" (mouseout)="showButtons(cdkDragSection,false,'sectionBorder','selectedEditor',node)" #cdkDragSection>
-                    <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+                    <div class="border-placeholder" *cdkDragPlaceholder><div class="border-view"></div>
+                </div>
                     <div class='sectionBorderInactive border ' [ngClass]="{'selectedEditor' : node.id == focusedId&&mouseOn!==node.id}">
                         <button [style.display]="'none'" mat-icon-button cdkDragHandle class="drag_btn hidden drag_btn_leaf_node"><mat-icon >drag_indicator</mat-icon></button>
                         <div class="text-section-div">
@@ -16,7 +17,8 @@
                 </div>
             </div>
             <div class="node-box-dropdownbox" *ngIf="node.children.length > 0" cdkDrag>
-                <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+                <div class="border-placeholder" *cdkDragPlaceholder><div class="border-view"></div>
+            </div>
                 <div (mouseover)="showButtons(cdkDragWithChildren,true,'sectionBorderListItem','selectedEditor',node)" (mouseout)="showButtons(cdkDragWithChildren,false,'sectionBorderListItem','selectedEditor',node)" #cdkDragWithChildren>
                     <div class='sectionBorderListItemInactive border' [ngClass]="{'selectedEditor' : node.id == focusedId&&mouseOn!==node.id}">
                         <button [style.display]="'none'" mat-icon-button cdkDragHandle class="drag_btn hidden drag_btn_list_node"><mat-icon >drag_indicator</mat-icon></button>
@@ -41,10 +43,13 @@
 <ng-container *ngIf="startFromIndex >= 1">
     <div cdkDropList class="nested-list" (cdkDropListDropped)="drop($event)">
         <ng-container *ngFor="let node of TREE_DATA;index as i">
-            <div  class="node-box-nested"  *ngIf="node.children.length == 0" cdkDrag>
+            <div class="node-box-nested" *ngIf="node.children.length == 0" cdkDrag>
                 <div (mouseover)="showButtons(cdkDragSection,true,'sectionBorderNested','selectedEditorNestedLeaf',node)" (mouseout)="showButtons(cdkDragSection,false,'sectionBorderNested','selectedEditorNestedLeaf',node)" #cdkDragSection>
                     <div class="text-placeholder"></div>
-                    <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+                    <div class="border-placeholder-nested" *cdkDragPlaceholder>
+                        <div class="border-view"></div>
+
+                    </div>
                     <div class='sectionBorderNestedInactive border' [ngClass]="{'selectedEditorNestedLeaf' : node.id == focusedId&&mouseOn!==node.id}">
                         <button [style.display]="'none'" mat-icon-button cdkDragHandle class="drag_btn hidden drag_btn_leaf_node_nested"><mat-icon >drag_indicator</mat-icon></button>
                         <div class="text-section-div-nested">
@@ -57,8 +62,10 @@
 
                 </div>
             </div>
-            <div class="node-box-dropdownbox-nested"  *ngIf="node.children.length > 0" cdkDrag>
-                <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+            <div class="node-box-dropdownbox-nested" *ngIf="node.children.length > 0" cdkDrag>
+                <div class="border-placeholder-nested" *cdkDragPlaceholder>
+                    <div class="border-view"></div>
+                </div>
                 <div #cdkDragWithChildren (mouseover)="showButtons(cdkDragWithChildren,true,'sectionBorderListNested','selectedEditorNestedList',node)" (mouseout)="showButtons(cdkDragWithChildren,false,'sectionBorderListNested','selectedEditorNestedList',node)">
                     <div class="text-placeholder-nested"></div>
                     <div class='sectionBorderListNestedInactive border' [ngClass]="{'selectedEditorNestedList' : node.id == focusedId&&mouseOn!==node.id}">
@@ -74,7 +81,7 @@
 
 
                 </div>
-                <div #listDiv class="example-list-dropdownbox-nested" [style.display]="'none'" #childrenDiv >
+                <div #listDiv class="example-list-dropdownbox-nested" [style.display]="'none'" #childrenDiv>
                     <app-cdk-list-recursive *ngIf="node.children.length > 0" [(TREE_DATA)]="node.children" [parentListData]="{expandParentFunc,listDiv}" [startFromIndex]="startFromIndex+i+1" [id]='node.id'></app-cdk-list-recursive>
                 </div>
             </div>

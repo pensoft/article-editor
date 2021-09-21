@@ -53,18 +53,18 @@ export class YdocService {
         {name:'Article metadata',
         id:uuidv4(),extended:false,
         edit:true,active:false,
-        listId:'2d99e338-5011-4699-9cd5-7dc59f187daa',
+        
         children:[
           {name:'Title',id:uuidv4(),edit:true,children:[],extended:false,active:true},
           {name:'Abstract',id:uuidv4(),edit:true,children:[],extended:false,active:false},
           {name:'Grant title',
-          edit:true,listId:'4045db78-0a4f-4b06-a91d-85d6e6c2aa16',extended:false,active:false,id:uuidv4(),
+          edit:true,extended:false,active:false,id:uuidv4(),
           children:[
             {name:'Taxonomy',id:uuidv4(),edit:true,extended:false,children:[],active:true},
             {name:'Species characteristics',active:false,extended:false,
             edit:true,
             add:true,
-            listId:'cf66575f-a42d-4b4f-8b5c-fe392dd713b6',id:uuidv4(),
+            id:uuidv4(),
             children:[
               {name:'Taxonomy',id:uuidv4(),edit:true,extended:false,children:[],active:false},
               {name:'Species characteristics',id:uuidv4(),extended:false,children:[],edit:true,add:true,active:false},
@@ -74,7 +74,7 @@ export class YdocService {
           {name:'Ethics and security',id:uuidv4(),children:[],extended:false,edit:true,active:true},
         ]},
         {name:'Introduction',edit:true,id:uuidv4(),children:[],extended:false,add:true,active:false},
-        {name:'General information',edit:true,id:uuidv4(),extended:false,active:false,listId:'edeed1b5-1ad1-45d6-95f8-9b1eb3c51ccf'
+        {name:'General information',edit:true,id:uuidv4(),extended:false,active:false
         ,children:[
           {name:'Taxonomy',id:uuidv4(),edit:true,children:[],extended:false,active:false},
           {name:'Species characteristics',id:uuidv4(),children:[],extended:false,edit:true,add:true,active:false},
@@ -86,21 +86,20 @@ export class YdocService {
         {name:'Article metadata',
         id:uuidv4(),extended:false,
         edit:true,active:false,
-        listId:'2d99e338-5011-4699-9cd5-7dc59f187daa',
+        
         children:[
           {name:'Title',id:uuidv4(),edit:true,children:[],extended:false,active:true},
           {name:'Abstract',id:uuidv4(),edit:true,children:[],extended:false,active:false},
           {name:'Grant title',
-          edit:true,listId:'4045db78-0a4f-4b06-a91d-85d6e6c2aa16',extended:false,active:false,id:uuidv4(),
+          edit:true,extended:false,active:false,id:uuidv4(),
           children:[]},
           {name:'Hosting institution',id:uuidv4(),children:[],extended:false,edit:true,active:false},
           {name:'Ethics and security',id:uuidv4(),children:[],extended:false,edit:true,active:true},
         ]},
         {name:'Introduction',edit:true,id:uuidv4(),children:[],extended:false,add:true,active:false},
-        {name:'General information',edit:true,id:uuidv4(),extended:false,active:false,listId:'edeed1b5-1ad1-45d6-95f8-9b1eb3c51ccf'
-        ,children:[
+        {name:'General information',edit:true,id:uuidv4(),extended:false,active:false,children:[
           {name:'Taxonomy',id:uuidv4(),edit:true,children:[],extended:false,active:false},
-          {name:'Species characteristics',id:uuidv4(),children:[],extended:false,edit:true,add:true,active:false},
+          {name:'Species characteristics',id:uuidv4(),children:[],extended:false,edit:true,active:false},
         ]},
         {name:'Habitat',id:uuidv4(),children:[],edit:true,extended:false,active:false},
         {name:'Distribution',id:uuidv4(),edit:true,children:[],extended:false,add:true,active:false},

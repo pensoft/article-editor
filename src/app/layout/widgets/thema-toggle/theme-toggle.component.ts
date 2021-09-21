@@ -1,24 +1,16 @@
-import {DOCUMENT} from '@angular/common';
-import {Component, Inject} from '@angular/core';
-import {LocalStorage} from 'src/app/shared/storage.service';
+import { DOCUMENT } from '@angular/common';
+import { Component, Inject } from '@angular/core';
+import { LocalStorage } from 'src/app/shared/storage.service';
 
 export const storageKey = 'aio-theme';
 
 @Component({
   selector: 'app-theme-toggle',
-  styleUrls: ['theme-toggle.component.scss'],
-  template: `
-      <!--<button mat-icon-button type="button" (click)="toggleTheme()"
-              [title]="getToggleLabel()" [attr.aria-label]="getToggleLabel()">
-        <mat-icon>
-          {{ isLight ? 'light' : 'dark' }}_mode
-        </mat-icon>
-      </button>-->
-      <arpha-toggle-button [leftIcon]="'light_mode'" [rightIcon]="'dark_mode'" [(ngModel)]="isLight">
-      </arpha-toggle-button>
-  `
+  templateUrl: './theme-toggle.component.html',
+  styleUrls: ['./theme-toggle.component.scss'],
 })
 export class ThemeToggleComponent {
+
   isLight = true;
 
   constructor(@Inject(DOCUMENT) private document: Document, @Inject(LocalStorage) private storage: Storage) {

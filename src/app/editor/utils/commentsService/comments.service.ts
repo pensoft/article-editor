@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { EditorState, Plugin, PluginKey } from 'prosemirror-state'
-import { Decoration, DecorationSet } from 'prosemirror-view';
+import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
 import { Transaction } from 'yjs';
 //@ts-ignore
 import { DocumentHelpers } from 'wax-prosemirror-utilities';
@@ -10,17 +10,34 @@ import { from, Subject } from 'rxjs';
 import { Observable } from 'lib0/observable';
 
 @Injectable({
-  providedIn:'root'
+  providedIn: 'root'
 })
 
 export class CommentsService {
+  addCommentSubject 
   commentsPlugin: Plugin
   commentPluginKey: PluginKey
   storeData: any;
   editorsOuterDiv?: HTMLDivElement
   commentsObject: any
-  commentsVisibilityChange:Subject<any>
+  commentsVisibilityChange: Subject<any>
+  addCommentData: any = {}
+  commentAllowdIn?: any = {} // editor id where comment can be made RN equals ''/undefined if there is no such editor RN
+  selectedTextInEditors?: any = {} // selected text in every editor
   constructor() {
+    let addCommentSubject1 = new Subject<any>()
+    this.addCommentSubject = addCommentSubject1
+    this.addCommentSubject.subscribe((data) => {
+      if (data.type == 'commentData') {
+        this.addCommentData = data
+      } else if (data.type == 'commentAllownes') {
+        this.commentAllowdIn[data.sectionId] = data.allow
+
+        this.selectedTextInEditors[data.sectionId] = data.text
+
+
+      }
+    })
     let commentPluginKey = new PluginKey('commentPlugin')
     this.commentPluginKey = commentPluginKey;
     let checkPosition = (editorP: { top: number, bottom: number }, positionToCheck: { top: number, bottom: number }) => {
@@ -34,7 +51,7 @@ export class CommentsService {
       return undefined
     }
 
-    let commentsVisibilityChange :Subject<any> = new Subject<any>();
+    let commentsVisibilityChange: Subject<any> = new Subject<any>();
     this.commentsVisibilityChange = commentsVisibilityChange
 
     let commentsObject: any = {};
@@ -46,15 +63,24 @@ export class CommentsService {
           return { sectionName: _.sectionName };
         },
         apply(tr, prev, _, newState) {
+          let {from,to,empty} = newState.selection ;
+            let text = newState.doc.textBetween(from,to)
+            if(!empty&&from!==to){
+              addCommentSubject1.next({type:'commentAllownes',sectionId:prev.sectionName,allow:true,text})
+            }else{
+              addCommentSubject1.next({type:'commentAllownes',sectionId:prev.sectionName,allow:false,text})
+            }
           return prev
         },
       },
-      
+
       view: function () {
         return {
           update: (view, prevState) => {
             let commentsMark = view.state.schema.marks.comment
             let editor = document.getElementsByClassName('editor-container').item(0) as HTMLDivElement
+
+            attachCommentBtn(editor, view)
             let sectionName = commentPluginKey.getState(view.state).sectionName
 
 
@@ -67,8 +93,9 @@ export class CommentsService {
                 //right: elemRect.right,
                 bottom: elemRect.bottom,
               }
-              let coords = { left: elemRect.left + 10, top: elemRect.top + 10 }
-              let coords2 = { left: elemRect.right - 14, top: elemRect.bottom - 4 }
+              console.log(elemRect);
+              let coords = { left: elemRect.left + 47, top: elemRect.top + 24 }
+              let coords2 = { left: elemRect.right - 80, top: elemRect.bottom - 80 }
               //let startOfEditor = view.posAtCoords(coords);
               //let endOfEditor = view.posAtCoords(coords2);
               let startCoords = view.coordsAtPos(0)
@@ -77,18 +104,21 @@ export class CommentsService {
               let endCoords = view.coordsAtPos(endOfEditor)
               let endPosition = checkPosition(editorCoordinatesObj, { top: endCoords.top, bottom: endCoords.bottom })
               if (startPosition == endPosition && endPosition == 'above' || startPosition == endPosition && endPosition == 'under') {
-                
+
                 commentsObject[sectionName] = [];
-                
+
                 return
               } else {
                 let displayCommentsFrom = 0;
                 let displayCommentsTo = endOfEditor;
                 if (startPosition == 'above') {
                   displayCommentsFrom = view.posAtCoords(coords)?.pos!;
+                  console.log({startCoords,endCoords,coords});
                 }
                 if (endPosition == 'under') {
                   displayCommentsTo = view.posAtCoords(coords2)?.pos!;
+                  console.log({startCoords,endCoords,coords2});
+
                 }
                 let allCommentMarksFound: any[] = []
                 let doc = view.state.doc
@@ -100,34 +130,65 @@ export class CommentsService {
                       let comFound = allCommentMarksFound.length
                       if (comFound > 0 && allCommentMarksFound[comFound - 1].attrs.id == actualMark.attrs.id) {
                         allCommentMarksFound[comFound - 1].to = from + node.nodeSize
-                        allCommentMarksFound[comFound - 1].text = doc.textBetween(allCommentMarksFound[comFound - 1].from,from + node.nodeSize)
+                        allCommentMarksFound[comFound - 1].text = doc.textBetween(allCommentMarksFound[comFound - 1].from, from + node.nodeSize)
                       } else {
                         let markFound = {
                           from,
                           to: from + node.nodeSize,
-                          text:doc.textBetween(from,from + node.nodeSize),
-                          section:sectionName,
+                          text: doc.textBetween(from, from + node.nodeSize),
+                          section: sectionName,
                           attrs: actualMark.attrs,
-                          viewRef:view
+                          viewRef: view
                         };
                         allCommentMarksFound.push(markFound)
                       }
                     }
                   }
                 });
-                
-                  commentsObject[sectionName] = allCommentMarksFound;
-                
+
+                commentsObject[sectionName] = allCommentMarksFound;
+
               }
               commentsVisibilityChange.next(commentsObject);
             }
           },
           destroy: () => { }
         }
-      }
-    });
+      },
 
+    });
+    let attachCommentBtn = (editor: HTMLDivElement, view: EditorView) => {
+      let { empty, from, to } = view.state.selection
+      let commentBtn = editor.getElementsByClassName('commentsBtn').item(0) as HTMLButtonElement;
+      let editorBtnsWrapper = editor.getElementsByClassName('editor_buttons_wrapper').item(0) as HTMLDivElement;
+      if (!view.hasFocus()){
+        return
+      }
+
+      
+      
+      commentBtn.removeAllListeners!('click');
+      if (empty || from == to) {
+        editorBtnsWrapper.style.display = 'none'
+        return
+      }
+      let sectionName = commentPluginKey.getState(view.state).sectionName
+      
+      let coordinatesAtFrom = view.coordsAtPos(from)
+      let coordinatesAtTo = view.coordsAtPos(to)
+      let averageValueTop = (coordinatesAtFrom.top + coordinatesAtTo.top) / 2
+      let editorBtns = editor.getElementsByClassName('editor_buttons').item(0) as HTMLDivElement;
+      editorBtnsWrapper.style.display = 'block'
+      editorBtnsWrapper.style.top = (averageValueTop - 42) + 'px';
+      editorBtnsWrapper.style.position = 'fixed'
+      console.log(commentBtn);
+      commentBtn.addEventListener('click',()=>{
+        this.addCommentSubject.next({ type: 'commentData', sectionName, showBox: true })
+      })
+    }
   }
+
+
 
   init() {
     this.editorsOuterDiv = document.getElementsByClassName('editor')[0] as HTMLDivElement
@@ -138,7 +199,7 @@ export class CommentsService {
   }
 
   getData(): any {
-    
+
     return this.commentsObject
   }
 }

@@ -76,7 +76,7 @@ export class CdkListRecursiveComponent implements OnInit {
       }
     }
   }
-
+  focusIdHold?:string
   showButtons(div:HTMLDivElement,mouseOn:boolean,borderClass:string,focusClass:string,node:any){
     if(mouseOn){
       this.mouseOn = node.id
@@ -94,23 +94,39 @@ export class CdkListRecursiveComponent implements OnInit {
         
       }else if(el.classList.contains('border')){
         if(mouseOn){
-          el.classList.replace(borderClass+"Inactive",borderClass)
+          if(this.focusedId == node.id){
+            this.focusIdHold = node.id
+            this.focusedId = ''
+            /* el.classList.add(focusClass); */
+          }
+          el.className = `border ${borderClass} `
+          /* el.classList.remove(borderClass+"Inactive")
+
+          el.classList.remove(borderClass)
+          el.classList.add(borderClass)
           
-          el.classList.remove(focusClass)
+          el.classList.remove(focusClass) */
           
           el.children.item(0).style.display = 'inline'
         }else{
-          if(this.focusedId == node.id){
-            el.classList.add(focusClass);
+          if(this.focusIdHold == node.id){
+
+            this.focusedId = this.focusIdHold
+            this.focusIdHold = '';
+
+            /* el.classList.add(focusClass); */
           }
-          el.classList.replace(borderClass,borderClass+"Inactive")
+          el.className = `border ${borderClass}Inactive`
+
+          
+          /* el.classList.remove(borderClass)
+          el.classList.remove(borderClass)
+          el.classList.add(borderClass+"Inactive") */
           el.children.item(0).style.display = 'none'
         }
       }
     })
   }
 
-  log(asd:any){
-    console.log('lelvel',asd);
-  }
+ 
 }

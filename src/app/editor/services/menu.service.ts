@@ -1,17 +1,25 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Dropdown, DropdownSubmenu } from 'prosemirror-menu';
+import { EditorView } from 'prosemirror-view';
+import { Subject } from 'rxjs';
 
 import * as Y from 'yjs';
+import { CommentsService } from '../utils/commentsService/comments.service';
 import * as m from '../utils/menuItems';
+import { ProsemirrorEditorsService } from './prosemirror-editors.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MenuService {
 
-  constructor(public dialog: MatDialog,) {
+  
+  addCommentSubject
+
+  constructor(public dialog: MatDialog,private commentsService:CommentsService) {
     m.shereDialog(dialog);
+    this.addCommentSubject=commentsService.addCommentSubject;
   }
 
   sectionMenus: { [key: string]: (string | { dropdownName: string, label?: string, content: (string | { dropdownSubmenuName: string, label?: string, content: any })[] })[][] } = {
@@ -24,7 +32,7 @@ export class MenuService {
         ['undoItem', 'redoItem']
       ],
     'fullMenu': [
-      ['toggleStrong', 'toggleEm', 'toggleCode', 'addCommentMenuItem', 'insertLink'],
+      ['toggleStrong', 'toggleEm', 'toggleCode', 'insertLink'],
       [
         { dropdownName: 'Insert', content: ['insertImage', 'insertHorizontalRule'] },
         {
@@ -50,7 +58,7 @@ export class MenuService {
 
   attachMenuItems2(menu: any, ydoc: Y.Doc) {
     let menuItems = m.getItems()
-    menu.fullMenu[0].push(menuItems.addCommentMenuItem(ydoc));
+    
     menu.fullMenu[4] = [];
     menu.fullMenu[4].push(menuItems.setAlignLeft);
     menu.fullMenu[4].push(menuItems.setAlignCenter);
@@ -67,21 +75,18 @@ export class MenuService {
     menu.fullMenu[8].push(menuItems.insertLink);
   }
 
-  attachMenuItems(menu: any, ydoc: Y.Doc, sectionName: string) {
+  attachMenuItems(menu: any, ydoc: Y.Doc, sectionName: string,sectionId:string) {
     let menuItemsData
     if (!this.sectionMenus[sectionName]) {
       menuItemsData = [...this.sectionMenus['fullMenu']]
     } else {
       menuItemsData = [...this.sectionMenus[sectionName]]
     }
-
     // build Menu
     let menuBuild: any[] = []
     let menuItems = m.getItems()
     let getMenuItem = (itemName: string) => {
-      if (itemName == 'addCommentMenuItem') {
-        return menuItems[itemName](ydoc)
-      } else if (itemName == 'alignMenu') {
+      if (itemName == 'alignMenu') {
         return new Dropdown(menuItems['alignMenu'], { class: "align-icon" })
       } else if (itemName == 'tableMenu') {
         return new Dropdown(menuItems['tableMenu'], { class: "table-icon" })

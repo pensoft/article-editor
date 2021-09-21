@@ -1,9 +1,9 @@
 import {NgModule} from '@angular/core';
 import {RouterModule, Routes} from '@angular/router';
 import {EditorComponent} from './editor/editor.component';
-import {MainComponent} from './layout/main/main.component';
-import {LandingComponent} from './layout/landing/landing.component';
-import {LoginComponent} from './layout/login/login.component';
+import {MainComponent} from './layout/pages/main/main.component';
+import {LandingComponent} from './layout/pages/landing/landing.component';
+import {LoginComponent} from './layout/pages/login/login.component';
 
 const routes: Routes = [
   {

@@ -84,8 +84,8 @@ export class TrackChangesService {
                 //right: elemRect.right,
                 bottom: elemRect.bottom,
               }
-              let coords = { left: elemRect.left + 10, top: elemRect.top + 10 }
-              let coords2 = { left: elemRect.right - 14, top: elemRect.bottom - 4 }
+              let coords = { left: elemRect.left + 47, top: elemRect.top + 24 }
+              let coords2 = { left: elemRect.right - 80, top: elemRect.bottom - 80 }
               //let startOfEditor = view.posAtCoords(coords);
               //let endOfEditor = view.posAtCoords(coords2);
               let startCoords = view.coordsAtPos(0)

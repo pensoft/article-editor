@@ -8,6 +8,8 @@ import { MatDrawer } from '@angular/material/sidenav';
 import { ViewChild } from '@angular/core';
 
 import * as Y from 'yjs';
+import { MenuService } from './services/menu.service';
+import { CommentsService } from './utils/commentsService/comments.service';
 
 @Component({
   selector: 'app-editor',
@@ -26,9 +28,19 @@ export class EditorComponent implements OnInit {
   active = 'editor';
 
   @ViewChild(MatDrawer) sidebarDrawer?: MatDrawer;
-  sidebar = 'validation';
+  sidebar = '';
 
-  constructor(private ydocService: YdocService, private route: ActivatedRoute) {
+  constructor(private ydocService: YdocService, private route: ActivatedRoute,private commentService:CommentsService) {
+    commentService.addCommentSubject.subscribe((data)=>{
+      if(data.type == 'commentData'){
+        if (!this.sidebarDrawer?.opened) {
+          this.sidebarDrawer?.toggle();
+        }
+        if(this.sidebar !== 'comments'){
+          this.sidebar = 'comments';
+        }
+      }
+    })
   }
 
   ngOnInit(): void {

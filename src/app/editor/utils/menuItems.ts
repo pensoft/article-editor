@@ -20,6 +20,7 @@ import { AddLinkDialogComponent } from "../add-link-dialog/add-link-dialog.compo
 import { wrapInList } from "prosemirror-schema-list";
 
 import * as Y from 'yjs'
+import { Subject } from 'rxjs';
 
 const alignLeftIcon = {
     width: 35, height: 35,
@@ -202,15 +203,16 @@ function addMathInline(mathType: string) {
     }
 }
 
-const createComment = (commentsMap: YMap<any>) => {
+const createComment = (commentsMap: YMap<any>,addCommentSubject:Subject<any>,sectionId:string) => {
     return (state: EditorState, dispatch: any) => {
-        const {
+        addCommentSubject.next({type:'commentData',sectionId,showBox:true})
+        /*const {
             selection: { $from, $to },
             tr,
         } = state;
         let commentId = uuidv4()
         let commentContent
-        const dialogRef = sharedDialog.open(AddCommentDialogComponent, {
+         const dialogRef = sharedDialog.open(AddCommentDialogComponent, {
             width: 'auto',
 
             data: { url: commentContent, type: 'comment' }
@@ -228,14 +230,14 @@ const createComment = (commentsMap: YMap<any>) => {
                     id: commentId
                 })(state, dispatch);
             }
-        });
+        }); */
 
 
         return true
     };
 }
 
-const isCommentAllowed = (state: EditorState): boolean => {
+export const isCommentAllowed = (state: EditorState): boolean => {
     const commentMark = state.schema.marks.comment;
     const mark = DocumentHelpers.findMark(state, commentMark, true);
 
@@ -405,13 +407,22 @@ const insertVideoItem = new MenuItem({
     icon: videoPlayerIcon
 })
 
-const addCommentMenuItem = (ydoc: Y.Doc) => {
+const addCommentMenuItem = (ydoc: Y.Doc,addCommentSubject:Subject<any>,sectionId:string) => {
     let commentsMap = ydoc.getMap('comments')
     return new MenuItem({
         title: 'Add an annotation',
         // @ts-ignore
-        run: createComment(commentsMap),
-        enable(state) { return isCommentAllowed(state) },
+        run: createComment(commentsMap,addCommentSubject,sectionId),
+        enable(state:EditorState) { 
+            /* let {from,to,empty} = state.selection ;
+            let text = state.doc.textBetween(from,to)
+            if(!empty&&from!==to){
+                addCommentSubject.next({type:'commentAllownes',sectionId,allow:true,text})
+            }else{
+                addCommentSubject.next({type:'commentAllownes',sectionId,allow:false,text})
+            } */
+            return isCommentAllowed(state)
+        },
         icon: addCommentIcon
     });
 }
