@@ -1,0 +1,21 @@
+:host .sillySpinner{
+  min-height: 160px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto;
+}
+
+.spinnerSpace{
+  height: 150px;
+}
+
+mat-progress-bar {
+  width: 60%;
+  margin: 0 auto;
+}
+
+p {
+  margin-top: 18px;
+  text-align: center;
+}

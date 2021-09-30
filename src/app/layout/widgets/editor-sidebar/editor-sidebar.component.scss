@@ -1,0 +1,36 @@
+ul.title {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    @media screen and (min-width: 600px) {
+        display: none;
+    }
+    li:first-child {
+        margin-right: auto;
+        visibility: hidden;
+    }
+    li:last-child {
+        margin-left: auto;
+        ::ng-deep {
+            mat-icon {
+                color: var(--color-00b1b2);
+            }
+        }
+    }
+
+    li {
+        display: flex;
+        margin: 1px;
+        padding: 5px;
+        font-family: var(--font-family-open-sans);
+        font-style: var(--font-style-normal);
+        font-weight: var(--font-weight-bold);
+        font-size: var(--font-size-18);
+        line-height: var(--line-spacing-24);
+        letter-spacing: var(--character-spacing-0);
+        color: var(--color-000000);
+    }
+}

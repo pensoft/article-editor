@@ -1,0 +1,24 @@
+<div class="title">Add a special symbol</div>
+<div class="content">
+  <div class="search-box">
+    <arpha-input placeholder="Search for symbol"></arpha-input>
+  </div>
+  <div class="filter-box">
+    <arpha-button label="Symbols" class="small primary"></arpha-button>
+    <arpha-button label="Font" class="small primary"></arpha-button>
+    <arpha-button label="Color" class="small primary"></arpha-button>
+  </div>
+  <div class="content-box">
+    <mat-grid-list cols="10" rowHeight="1:1">
+      <mat-grid-tile *ngFor="let i of size">
+        <mat-icon svgIcon="openPadlock"></mat-icon>
+      </mat-grid-tile>
+    </mat-grid-list>
+  </div>
+
+</div>
+<div class="actions">
+  <arpha-button label="Cancel" (clickEvent)="onNoClick()" class="small secondary action-button negative-button">
+  </arpha-button>
+  <arpha-button label="Add" (clickEvent)="doAction(data)" class="small primary action-button"></arpha-button>
+</div>

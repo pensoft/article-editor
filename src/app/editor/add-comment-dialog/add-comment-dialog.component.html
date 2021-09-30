@@ -4,11 +4,13 @@
       <a href="https://katex.org/docs/supported.html "  target="_blank">https://katex.org/docs/supported.html</a>
     </p>
     <p *ngIf="type == 'comment'">White your comment here : </p>
+    <p *ngIf="type == 'anchorTag'">White your anchor id here : </p>
     <p *ngIf="type == 'video'">Enter video url.Atention url must be embedable (youtube case: contain /embed) : https://www.youtube.com/embed/GDae7zmUHlc Tutorial on how to get embeded videos form youtube : https://www.youtube.com/watch?v=ZnuwB35GYMY&ab_channel=Techoist</p>
     <mat-form-field [style.width]='"100%"' appearance="fill">
       <mat-label *ngIf="type == 'mathinline'">expresion...</mat-label>
       <mat-label *ngIf="type == 'video'">Video embed link</mat-label>
       <mat-label *ngIf="type == 'comment'">Comment...</mat-label>
+      <mat-label *ngIf="type == 'anchorTag'">Anchor id...</mat-label>
       <input matInput  [(ngModel)]="data.url" [formControl]="text" required>
       <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
     </mat-form-field>

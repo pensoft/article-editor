@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { TreeService } from 'src/app/editor/meta-data-tree/tree-service/tree.service';
 
 @Component({
   selector: 'arpha-navigation',
@@ -7,9 +8,14 @@ import { Component, OnInit } from '@angular/core';
 })
 export class ArphaNavigationComponent implements OnInit {
 
-  constructor() { }
+  constructor(private treeService:TreeService) {
+
+  }
 
   ngOnInit(): void {
   }
 
+  toggleTreeDrawer(){
+    this.treeService.toggleTreeDrawer.next('toggle')
+  }
 }

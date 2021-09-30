@@ -1,5 +1,7 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
+import { YdocService } from '../services/ydoc.service';
+import { ydocData } from '../utils/interfaces/ydocData';
 
 
 
@@ -13,12 +15,28 @@ export class ProsemirrorEditorComponent implements AfterViewInit {
   @ViewChild('editor', { read: ElementRef }) editor?: ElementRef;
 
 
-  constructor(private prosemirrorService : ProsemirrorEditorsService) {
+  constructor(private prosemirrorService : ProsemirrorEditorsService,private ydocService:YdocService) {
   }
 
   ngAfterViewInit(){
-    let editorDiv = this.prosemirrorService.init();
     let ref = this.editor?.nativeElement as HTMLDivElement
-    ref.parentElement?.appendChild(editorDiv)
+    let editorOuterDiv = ref.parentElement?.getElementsByClassName('editor-outer-div').item(0) as HTMLDivElement
+    let i =()=>{
+      let editorDiv = this.prosemirrorService.init()!;
+      ref.parentElement?.appendChild(editorDiv)
+    }
+    if(!this.ydocService.editorIsBuild){
+      
+      this.ydocService.ydocStateObservable.subscribe((event) => {
+        if (event == 'docIsBuild') {
+          return i()
+        }
+      });
+    }else{
+      return i()
+    }
+
+    
+    
   }
 }

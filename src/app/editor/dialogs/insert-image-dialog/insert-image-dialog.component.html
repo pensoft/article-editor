@@ -1,0 +1,14 @@
+<div class="title">Add a photo</div>
+<div class="content">
+  <div class="upload-div">
+    <div class="upload-row">Drag and Drop Files to upload</div>
+    <div class="upload-row">or</div>
+    <arpha-button label="Select Files to Upload" class="primary text-icon upload-row" icon="add"></arpha-button>
+  </div>
+  <div class="text">Supported formats are JPEG, GIF & PNG up to size is 15 MB.</div>
+</div>
+<div class="actions">
+  <arpha-button label="Cancel" (clickEvent)="onNoClick()" class="small secondary action-button negative-button">
+  </arpha-button>
+  <arpha-button label="Insert" (clickEvent)="doAction(data)" class="small primary action-button"></arpha-button>
+</div>

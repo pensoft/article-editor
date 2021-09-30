@@ -1,0 +1,81 @@
+.title {
+  font-family: var(--font-family-open-sans);
+  font-style: var(--font-style-normal);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-18);
+  line-height: var(--line-spacing-24);
+  letter-spacing: var(--character-spacing-0);
+  color: var(--color-192956);
+  margin: 9px 0px 11px 0px;
+}
+
+.content {
+  .search-box {
+    margin-left: -4px;
+    margin-bottom: 14px;
+    ::ng-deep {
+      .arpha-input-container {
+        border-radius: 20px !important;
+      }
+      input {
+        border-radius: 20px !important;
+      }
+    }
+  }
+  .filter-box {
+    margin-left: -4px;
+    margin-bottom: 50px;
+    arpha-button {
+      &:not(:first-child) {
+        margin-left: 21px;
+      }
+    }
+    ::ng-deep {
+      button {
+        width: 100px;
+        height: 30px;
+      }
+    }
+  }
+  .content-box {
+    height: 210px;
+    overflow: auto;
+    margin-bottom: 55px;
+    mat-icon {
+      width: 22px;
+    }
+  }
+}
+
+::ng-deep {
+  .mat-radio-button.mat-accent .mat-radio-inner-circle {
+    background-color: var(--color-00b1b2) !important;
+  }
+}
+
+.actions {
+  float: right;
+  .action-button {
+    &:first-of-type {
+      margin-right: 21px;
+    }
+    &:last-of-type {
+      margin-right: -3px;
+    }
+    ::ng-deep {
+      button {
+        width: 100px !important;
+        height: 33px !important;
+      }
+    }
+  }
+  .negative-button {
+    ::ng-deep {
+      button {
+        color: var(--color-676767) !important;
+        border-color: var(--color-676767) !important;
+        opacity: 0.69;
+      }
+    }
+  }
+}

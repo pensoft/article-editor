@@ -21,17 +21,19 @@ export class DetectFocusService {
       sectionName = id
     }
     this.detectFocusPlugin = new Plugin({
-      key: this.detectFocusPluginKey,
+      key: detectFocusPluginKey,
       state: {
         init: (_, state) => {
           return { sectionName: _.sectionName ,hasFocus:false};
         },
         apply(tr, prev, editorState, newState) {
-          let pluginMeta = tr.getMeta(detectFocusPluginKey)
+          let pluginMeta = detectFocusPluginKey.getState(editorState)
+          console.log('pluginMeta',pluginMeta);
           if(pluginMeta){
             let focusRN = pluginMeta.focusRN;
             prev.hasFocus = focusRN;
             if(focusRN){
+              console.log(prev.sectionName);
               setTimeout(() => {
                 focusedE.next(prev.sectionName);
               }, 10);
@@ -50,11 +52,17 @@ export class DetectFocusService {
           update: (view, prevState) => {
             let {sectionName,hasFocus} = detectFocusPluginKey.getState(view.state)
             let focusRN = view.hasFocus()
-            if(focusRN !== hasFocus){
+            console.log('focusRN',focusRN);
+            console.log('hasFocus',hasFocus);
+            if(focusRN){
+              setTimeout(() => {
+                focusedE.next(sectionName);
+              }, 10);
+            }
+            /* if(focusRN !== hasFocus){
               hasFocus = focusRN
               let tr = view.state.tr.setMeta(detectFocusPluginKey,{focusRN});
-              view.dispatch(tr);
-            }
+            } */
           },
           destroy: () => { }
         }

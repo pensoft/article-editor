@@ -2,7 +2,7 @@ import { MarkSpec, NodeSpec, Schema } from 'prosemirror-model';
 import { nodes as basicnodes, marks as basicmarks } from 'prosemirror-schema-basic';
 import { tableNodes } from 'prosemirror-tables';
 //@ts-ignore
-import {trackChangesNodes,trackChangesMarks,commentMark} from './trackChanges/wax-prosemirror-schema'
+import {trackChangesMarks,commentMark} from './trackChanges/wax-prosemirror-schema'
 //@ts-ignore
 import { SchemaHelpers } from 'wax-prosemirror-utilities';
 
@@ -142,7 +142,7 @@ const nodes: NodeSpec = {
       }
     }
   }),
-  ...trackChangesNodes,
+  //...trackChangesNodes,
 }
 
 const marks: MarkSpec = {
@@ -161,17 +161,20 @@ const marks: MarkSpec = {
   comment :commentMark,
   ...trackChangesMarks,
   ...basicmarks,
-  linkM:{
+  anchorTag:{
     attrs: {
-      class: { default: 'link-mark' },
-      href: {},
-      title: {default: null}
+      class: { default: 'anchor_tag' },
+      id: { },
     },
     inclusive: false,
-    parseDOM: [{tag: "a[href]", getAttrs(dom:any) {
-      return {href: dom.getAttribute("href"),class: dom.getAttribute('class'), title: dom.getAttribute("title")}
+    parseDOM: [{tag: "span", getAttrs(dom:any) {
+      return {id: dom.getAttribute("id"),class: dom.getAttribute('class')}
     }}],
-    toDOM(node:any) { return ["a", {href:node.attrs.href, title:node.attrs.title,class:node.attrs.class}, 0] }
+    toDOM(node:any) { return ["span", { id:node.attrs.id,class:node.attrs.class}, 0] }
+  },
+  underline:{
+    parseDOM: [{tag: 'u'}, {style: 'text-decoration=underline'}],
+    toDOM() { return ['u', 0] },
   }
 }
 

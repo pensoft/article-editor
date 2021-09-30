@@ -1,0 +1,15 @@
+<ul class="title">
+    <li>
+        <mat-icon>close</mat-icon>
+    </li>
+    <li>{{ sidebar == 'comments' ? 'Comments' : sidebar == 'changes' ? 'Track changes' : 'Validation'}}</li>
+    <li (click)="closeSheet()">
+        <mat-icon>close</mat-icon>
+    </li>
+</ul>
+
+<app-comments-section *ngIf="sidebar=='comments'" style="width:100%;"></app-comments-section>
+
+<app-changes-section *ngIf="sidebar=='changes'" style="width:100%;"></app-changes-section>
+
+<app-validation-section *ngIf="sidebar=='validation'"></app-validation-section>

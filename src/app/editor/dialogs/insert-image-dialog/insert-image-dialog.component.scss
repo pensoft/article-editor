@@ -1,0 +1,91 @@
+.title {
+  font-family: var(--font-family-open-sans);
+  font-style: var(--font-style-normal);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-18);
+  line-height: var(--line-spacing-24);
+  letter-spacing: var(--character-spacing-0);
+  color: var(--color-192956);
+  margin: 6px 0px 26px 17px;
+}
+
+.content {
+  .upload-div {
+    height: 140px;
+    width: 345px;
+    background-color: #e4f6f691;
+    background-image: url("/assets/img/_Overrides-Icons-file-cloud_upload.svg");
+    background-position: 50% 0%;
+    background-repeat: no-repeat;
+    border: 1px dashed var(--color-00b1b2);
+    border-radius: 15px;
+    margin-bottom: 10px;
+    margin-left: 26px;
+    text-align: center;
+    .upload-row {
+      font-family: var(--font-family-open-sans);
+      font-style: var(--font-style-normal);
+      font-weight: var(--font-weight-600);
+      font-size: var(--font-size-14);
+      letter-spacing: var(--character-spacing-0);
+      color: var(--color-192956);
+      margin-bottom: 16px;
+      &:nth-child(1) {
+        margin-top: 14px;
+      }
+      &:nth-child(2) {
+        font-size: var(--font-size-12);
+      }
+    }
+    arpha-button.upload-row {
+      ::ng-deep {
+        button {
+          width: 202px !important;
+          height: 35px !important;
+          font-size: var(--font-size-12);
+          line-height: var(--line-spacing-11);
+          font-weight: var(--font-weight-normal);
+          border-radius: 6px !important;
+        }
+      }
+    }
+  }
+  .text {
+    font-family: var(--font-family-open-sans);
+    font-style: var(--font-style-normal);
+    font-weight: var(--font-weight-bold);
+    font-size: var(--font-size-12);
+    line-height: var(--line-spacing-18);
+    letter-spacing: var(--character-spacing-0);
+    color: var(--color-192956);
+    margin-left: 28px;
+    margin-bottom: 27px;
+  }
+}
+
+.actions {
+  float: right;
+  .action-button {
+    &:first-of-type {
+      margin-right: 21px;
+    }
+    &:last-of-type {
+      margin-right: -3px;
+    }
+    ::ng-deep {
+      button {
+        width: 100px !important;
+        height: 33px !important;
+      }
+    }
+  }
+  .negative-button {
+    ::ng-deep {
+      button {
+        color: var(--color-676767) !important;
+        border-color: var(--color-676767) !important;
+        opacity: 0.69;
+      }
+    }
+  }
+}

@@ -1,4 +1,10 @@
-<button mat-flat-button class="arpha-button" [disabled]="disabled" (click)="onButtonClick($event)">
+<button *ngIf="!routerLink" mat-flat-button class="arpha-button" [disabled]="disabled" (click)="onButtonClick($event)">
+  <mat-icon *ngIf="icon">{{icon}}</mat-icon>
+  <span *ngIf="label">{{label}}</span>
+</button>
+
+<button *ngIf="routerLink" mat-flat-button class="arpha-button" [disabled]="disabled" (click)="onButtonClick($event)"
+  [routerLink]="routerLink">
   <mat-icon *ngIf="icon">{{icon}}</mat-icon>
   <span *ngIf="label">{{label}}</span>
 </button>

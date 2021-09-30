@@ -1,15 +1,15 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 
 @Component({
   selector: 'app-validation-section',
   templateUrl: './validation-section.component.html',
-  styleUrls: ['./validation-section.component.scss']
+  styleUrls: [ './validation-section.component.scss' ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class ValidationSectionComponent implements OnInit {
+export class ValidationSectionComponent {
+  spinnerComponent!: boolean;
 
-  constructor() { }
-
-  ngOnInit(): void {
+  validate() {
+    this.spinnerComponent = true;
   }
-
 }

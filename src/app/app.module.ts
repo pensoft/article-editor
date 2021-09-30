@@ -5,15 +5,14 @@ import {getFirestore, provideFirestore} from '@angular/fire/firestore';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {ServiceWorkerModule} from '@angular/service-worker';
+import { NgxSpinnerModule } from 'ngx-spinner';
 import {MaterialModule} from 'src/app/shared/material.module';
 import {STORAGE_PROVIDERS} from 'src/app/shared/storage.service';
 import {ThemeToggleComponent} from 'src/app/layout/widgets/thema-toggle/theme-toggle.component';
 import {windowProvider, WindowToken} from 'src/app/shared/window';
 import {environment} from '../environments/environment';
-
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
-//import {NgxProsemirrorModule} from './ngx-prosemirror/ngx-prosemirror.module';
 import {EditorComponent} from './editor/editor.component';
 import {EditorMenuComponent} from './editor/editor-menu/editor-menu.component';
 import {MetaDataTreeComponent} from './editor/meta-data-tree/meta-data-tree.component';
@@ -39,14 +38,15 @@ import { LoginComponent } from './layout/pages/login/login.component';
 import { ChangeComponent } from './editor/changes-section/change/change.component';
 import { ValidationSectionComponent } from './editor/validation-section/validation-section.component';
 import { ArphaNavigationComponent } from './layout/widgets/arpha-navigation/arpha-navigation.component';
-
-const globalRippleConfig: RippleGlobalOptions = {
-  disabled: true,
-  animation: {
-    enterDuration: 0,
-    exitDuration: 0
-  }
-};
+import { EditorSidebarComponent } from './layout/widgets/editor-sidebar/editor-sidebar.component';
+import { ValidationSpinnerComponent } from 'src/app/editor/validation-section/validation-spinner/validation-spinner.component';
+import { InsertImageDialogComponent } from './editor/dialogs/insert-image-dialog/insert-image-dialog.component';
+import { InsertDiagramDialogComponent } from './editor/dialogs/insert-diagram-dialog/insert-diagram-dialog.component';
+import { InsertSpecialSymbolDialogComponent } from './editor/dialogs/insert-special-symbol-dialog/insert-special-symbol-dialog.component';
+import {FormioAppConfig, FormioModule} from '@formio/angular';
+import { AppConfig } from './config';
+import { AddTaxonomyComponent } from 'src/app/editor/dialogs/add-taxonomy/add-taxonomy.component';
+import { TaxonomyEditorComponent } from './editor/taxonomy-editor/taxonomy-editor.component';
 
 @NgModule({
   declarations: [
@@ -73,6 +73,13 @@ const globalRippleConfig: RippleGlobalOptions = {
     ChangeComponent,
     ValidationSectionComponent,
     ArphaNavigationComponent,
+    EditorSidebarComponent,
+    ValidationSpinnerComponent,
+    InsertImageDialogComponent,
+    InsertDiagramDialogComponent,
+    InsertSpecialSymbolDialogComponent,
+    AddTaxonomyComponent,
+    TaxonomyEditorComponent,
   ],
   imports: [
     provideFirebaseApp(() => initializeApp({
@@ -90,28 +97,27 @@ const globalRippleConfig: RippleGlobalOptions = {
     MaterialModule,
     FormsModule,
     ReactiveFormsModule,
+    FormioModule,
     DragDropModule,
     HttpClientModule,
     AppRoutingModule,
-    //NgxProsemirrorModule,
     BrowserAnimationsModule,
     ServiceWorkerModule.register('editor-service-worker.js', {
       enabled: environment.production,
       // Register the ServiceWorker as soon as the app is stables
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'
-    })
+    }),
+    NgxSpinnerModule
   ],
-  providers: [STORAGE_PROVIDERS,
-    {provide: MAT_RIPPLE_GLOBAL_OPTIONS, useValue: globalRippleConfig},
-    {provide: WindowToken, useFactory: windowProvider}
+  providers: [
+    STORAGE_PROVIDERS,
+    {provide: WindowToken, useFactory: windowProvider},
+    {provide: FormioAppConfig, useValue: AppConfig},
   ],
   bootstrap: [AppComponent]
 })
 export class AppModule {
   constructor(public iconsRegisterService: IconsRegisterService) {
-
   }
-
-
 }

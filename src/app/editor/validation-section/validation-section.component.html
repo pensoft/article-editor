@@ -1,15 +1,24 @@
-<mat-card>
+<mat-card style="height:80%;">
   <mat-card-header>
     <mat-icon svgIcon="validate"></mat-icon>
     <mat-card-title>Article Validation</mat-card-title>
   </mat-card-header>
   <mat-card-subtitle>0 Results</mat-card-subtitle>
-  <div class="image-container">
-    <img mat-card-image src="./assets/img/Illustration-validation-2.svg">
-  </div>
-  <mat-card-content>
-    <p>
-      Validate your article <br>before submitting it <br>for review.
-    </p>
-  </mat-card-content>
+  <ng-container *ngIf="!spinnerComponent; else spinnerIssue">
+    <mat-card-content>
+      <div class="image-container">
+        <img mat-card-image src="./assets/img/Illustration-validation-2.svg">
+      </div>
+      <p> Validate your article <br>before submitting it <br>for review. </p>
+    </mat-card-content>
+    <mat-card-actions>
+      <arpha-button (clickEvent)="validate()" label="Print"
+                    class="small secondary" style="margin-right: 16px;">
+      </arpha-button>
+    </mat-card-actions>
+  </ng-container>
 </mat-card>
+
+<ng-template #spinnerIssue>
+  <app-validaiton-spinner></app-validaiton-spinner>
+</ng-template>

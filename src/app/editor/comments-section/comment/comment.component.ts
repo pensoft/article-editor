@@ -27,15 +27,23 @@ export class CommentComponent implements OnInit {
   showMore = false;
   MAX_CONTENT_HEIGHT = 30;
   contentHeight: number = this.MAX_CONTENT_HEIGHT;
-  commentsMap: YMap<any>
+  commentsMap?: YMap<any>
   userComments?: any[];
 
   constructor(private ydocService: YdocService, public sharedDialog: MatDialog) {
-    this.commentsMap = this.ydocService.getCommentsMap()
+    if(this.ydocService.editorIsBuild){
+      this.commentsMap = this.ydocService.getCommentsMap()
+    }
+    this.ydocService.ydocStateObservable.subscribe((event) => {
+      if (event == 'docIsBuild') {
+        this.commentsMap = this.ydocService.getCommentsMap()
+
+      }
+    });
   }
 
   ngOnInit(): void {
-    this.userComments = this.commentsMap.get(this.comment!.attrs.id) || [];
+    this.userComments = this.commentsMap?.get(this.comment!.attrs.id) || [];
   }
 
   ngAfterViewInit() {
@@ -49,7 +57,7 @@ export class CommentComponent implements OnInit {
     let commentsMark = state?.schema.marks.comment
 
     this.comment?.viewRef.dispatch(state?.tr.removeMark(from!, to!, commentsMark)!)
-    this.commentsMap.delete(this.comment?.attrs.id)
+    this.commentsMap?.delete(this.comment?.attrs.id)
   }
 
   showHideReply(replyDiv:HTMLDivElement) {
@@ -78,7 +86,7 @@ export class CommentComponent implements OnInit {
   }
 
   editComment(id: any, comment: string) {
-    let commentsArray: any[] = this.commentsMap.get(this.comment?.attrs.id);
+    let commentsArray: any[] = this.commentsMap?.get(this.comment?.attrs.id);
     let commentContent: any = comment;
     const dialogRef = this.sharedDialog.open(AddCommentDialogComponent, { width: 'auto', data: { url: commentContent, type: 'comment' } });
     dialogRef.afterClosed().subscribe(result => {
@@ -90,7 +98,7 @@ export class CommentComponent implements OnInit {
           }
         })
         this.userComments = commentsArray;
-        this.commentsMap.set(this.comment?.attrs.id, [...commentsArray]);
+        this.commentsMap?.set(this.comment?.attrs.id, [...commentsArray]);
       }
     });
   }
@@ -105,7 +113,7 @@ export class CommentComponent implements OnInit {
     if (!input.value) {
       return
     }
-    let commentsArray = this.commentsMap.get(this.comment?.attrs.id);
+    let commentsArray = this.commentsMap?.get(this.comment?.attrs.id);
     let commentContent;
     let userCommentId = uuidv4();
 
@@ -115,7 +123,7 @@ export class CommentComponent implements OnInit {
       id: userCommentId,
       comment: commentContent
     }
-    this.commentsMap.set(this.comment?.attrs.id, [userComment, ...commentsArray]);
+    this.commentsMap?.set(this.comment?.attrs.id, [userComment, ...commentsArray]);
     this.userComments = [userComment, ...commentsArray];
     input.value = ''
     replyDiv.style.display = 'none';

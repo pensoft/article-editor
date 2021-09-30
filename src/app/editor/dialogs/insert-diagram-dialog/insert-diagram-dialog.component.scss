@@ -1,0 +1,90 @@
+.title {
+  font-family: var(--font-family-open-sans);
+  font-style: var(--font-style-normal);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-18);
+  line-height: var(--line-spacing-24);
+  letter-spacing: var(--character-spacing-0);
+  color: var(--color-192956);
+  margin: 7px 0px 31px 8px;
+}
+
+.content {
+  span {
+    font-family: var(--font-family-open-sans);
+    font-style: var(--font-style-normal);
+    font-weight: var(--font-weight-600);
+    font-size: var(--font-size-14);
+    line-height: var(--line-spacing-19);
+    letter-spacing: var(--character-spacing-0);
+    color: var(--color-192956);
+    margin-left: 15px;
+    margin-right: 15px;
+  }
+  .types-radio-group {
+    display: inline-flex;
+    flex-direction: column;
+  }
+  .types-radio-button {
+    margin-bottom: 18px;
+    &:last-child {
+      margin-bottom: 35px;
+    }
+    span {
+      font-family: var(--font-family-open-sans);
+      font-style: var(--font-style-normal);
+      font-weight: var(--font-weight-normal);
+      font-size: var(--font-size-14);
+      line-height: var(--line-spacing-19);
+      letter-spacing: var(--character-spacing-0);
+      color: var(--color-192956);
+      margin-left: 18px;
+    }
+    ::ng-deep {
+      .mat-radio-label-content {
+        display: flex;
+      }
+      .mat-radio-container,
+      .mat-radio-outer-circle,
+      .mat-radio-inner-circle {
+        height: 17px;
+        width: 17px;
+        border-color: var(--color-707070) !important;
+        border-width: 1px !important;
+      }
+    }
+  }
+}
+
+::ng-deep {
+  .mat-radio-button.mat-accent .mat-radio-inner-circle {
+    background-color: var(--color-00b1b2) !important;
+  }
+}
+
+.actions {
+  float: right;
+  .action-button {
+    &:first-of-type {
+      margin-right: 21px;
+    }
+    &:last-of-type {
+      margin-right: -3px;
+    }
+    ::ng-deep {
+      button {
+        width: 100px !important;
+        height: 33px !important;
+      }
+    }
+  }
+  .negative-button {
+    ::ng-deep {
+      button {
+        color: var(--color-676767) !important;
+        border-color: var(--color-676767) !important;
+        opacity: 0.69;
+      }
+    }
+  }
+}

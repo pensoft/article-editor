@@ -40,7 +40,7 @@ const checkPosition = (editorP: { top: number, bottom: number }, positionToCheck
   return undefined
 }
 
-let showHide = true;
+let showChanges = true;
 
 @Injectable({
   providedIn: 'root'
@@ -49,6 +49,7 @@ export class TrackChangesService {
   changesVisibilityChange
   changesObject
   hideShowPlugin
+  showChangesSubject = new Subject<boolean>()
   constructor() { 
     let hideShowPluginKey = new PluginKey('hideShowPlugin');
 
@@ -58,15 +59,73 @@ export class TrackChangesService {
     let changesObject: any = {};
     this.changesObject = changesObject;
 
+    this.showChangesSubject.subscribe((data)=>{
+      showChanges = data
+    })
+
     let hideShowPlugin = new Plugin({
       key: hideShowPluginKey,
       state: {
         init: (_, state) => {
-          return { sectionName: _.sectionName };;
+          return {
+            sectionName: _.sectionName,
+            createdDecorations:DecorationSet.empty,
+            allMatches:undefined,
+          };
         },
         apply(tr, prev, _, newState) {
-          return prev
+          
+          let decorations;
+          let createdDecorations = DecorationSet.empty;
+          const allMatches = getTrackChanges(newState);
+        if (allMatches.length > 0 && !showChanges) {
+
+          decorations = allMatches.map((result, index) => {
+
+
+
+            if (result.type.name === 'insertion') {
+              const position = DocumentHelpers.findMarkPosition(
+                newState,
+                result.pos,
+                'insertion',
+              );
+              //createChangeDiv(result, position, result.type.name, tr.doc)
+              return Decoration.inline(position.from, position.to, {
+                class: 'show-insertion',
+              });
+            }
+            if (result.type.name === 'deletion') {
+              const position = DocumentHelpers.findMarkPosition(
+                newState,
+                result.pos,
+                'deletion',
+              );
+              //createChangeDiv(result, position, result.type.name, tr.doc)
+              return Decoration.inline(position.from, position.to, {
+                class: 'hide-deletion',
+              });
+            }
+          });
+          decorations = decorations.filter((dec)=>dec!==undefined) as Decoration<{ [key: string]: any; }>[]
+          if(decorations.length){
+            createdDecorations = DecorationSet.create(newState.doc, decorations);
+          }else{
+            createdDecorations = DecorationSet.empty
+          }
+        }
+        
+        return {
+          sectionName: prev.sectionName,
+          createdDecorations,
+          allMatches,
+        };
         },
+      },props: {
+        decorations: state => {
+          const hideShowPluginState : any = state && hideShowPlugin.getState(state);
+          return hideShowPluginState.createdDecorations;
+        }
       },
       view: (editorView) => {
         return {

@@ -207,9 +207,13 @@ export class Dropdown {
 function renderDropdownItems(items, view) {
   let rendered = [], updates = []
   for (let i = 0; i < items.length; i++) {
-    let {dom, update} = items[i].render(view)
-    rendered.push(crel("div", {class: prefix + "-dropdown-item"}, dom))
-    updates.push(update)
+    if(items[i] == 'menuseparator'){
+      rendered.push(crel("span", {class: "ProseMirror-menuseparator"}))
+    }else{
+      let {dom, update} = items[i].render(view)
+      rendered.push(crel("div", {class: prefix + "-dropdown-item"}, dom))
+      updates.push(update)
+    }
   }
   return {dom: rendered, update: combineUpdates(updates, rendered)}
 }

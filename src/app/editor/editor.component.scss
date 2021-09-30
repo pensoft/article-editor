@@ -1,19 +1,21 @@
 .controls-toolbar {
-  @media screen and (max-width: 992px) {
-    display: none;
-  }
   border-bottom: 1px solid;
   border-color: var(--color-f1f2f2);
-  .controls-container {
+
+  .controls-toolbar-row {
     min-height: 70px;
+    justify-content: space-between;
+
     .left-group {
       .active {
         color: var(--color-00b1b2) !important;
         font-weight: bold;
+
         ::ng-deep {
           .b {
             stroke: var(--color-00b1b2) !important;
           }
+
           .a {
             fill: var(--color-00b1b2) !important;
           }
@@ -37,8 +39,10 @@
   align-items: center;
   float: right;
   margin-right: 8px;
+
   .active {
     background: var(--color-e4f6f6) !important;
+
     ::ng-deep {
       .a {
         fill: var(--color-559efe) !important;
@@ -56,7 +60,7 @@ app-meta-data-tree {
 }
 
 app-prosemirror-editor {
-  width : calc(100% - 52px);
+  width: calc(100% - 52px);
   height: 443px;
   border-top-left-radius: 20px;
   margin-top: 20px;
@@ -66,70 +70,164 @@ app-prosemirror-editor {
 }
 
 .actions-container {
-  @media screen and (max-width: 992px) {
-    display: none;
-  }
   height: 65px;
   background: var(--color-ffffff);
 }
 
+$treeSpace: 290px;
 .main-container {
   background: var(--color-f9fafc);
   height: calc(100vh - 202px);
   display: flex;
   .data-tree {
     height: calc(100% - 20px);
-    margin-top: 20px;
-    width: 290px;
+    margin-top: 0px;
+    width: $treeSpace;
     background: #ffffff00;
     display: inline-flex;
     overflow-y: auto;
   }
+
   .editor-container {
+    width: 100%;
     height: calc(100% - 20px);
-    flex-grow: 1;
     margin-top: 20px;
     background: var(--color-ffffff);
-    box-shadow: -2px 0px 1px #1bb1b22b;
+    box-shadow: 0 4px 4px #1bb1b22b;
     border-top-left-radius: 20px;
     display: inline-flex;
     overflow: hidden;
     overflow-y: auto;
   }
+
+  .editorSpace {
+    width: calc(100% - 500px);
+    border-top-right-radius: 20px;
+    @media screen and (max-width: 992px) {
+      width: calc(100% - #{$treeSpace});
+    }
+  }
+}
+
+::ng-deep .changes_state_btn_mobile {
+  width: 28x !important;
+  height: 41px !important;
+  line-height: 28px !important;
+  padding-right: 16px !important ;
+  .ng-star-inserted {
+    display: none !important;
+  }
+  .mat-icon {
+    width: 18px !important;
+    height: 18px !important;
+    line-height: 18px !important;
+  }
+
+  .material-icons {
+    font-size: 18px !important;
+  }
+}
+
+.changes_state_btn {
+  width: 28x !important;
+  height: 28px !important;
+  line-height: 28px !important;
+
+  .mat-icon {
+    width: 18px !important;
+    height: 18px !important;
+    line-height: 18px !important;
+  }
+
+  .material-icons {
+    font-size: 18px !important;
+  }
+}
+
+.changes_on_btn {
+  color: #19d928;
+}
+
+.changes_on_btn_mobile {
+  .mat-icon {
+    color: #19d928;
+  }
+}
+
+
+
+.tree_btn_container {
+  display: inline;
+  margin-left: 10px;
+  .editor_tree_btn_mobile {
+    color: #00b1b2;
+    margin-top: 12px;
+    margin-bottom: 2px;
+  }
+}
+.prosemirror_menu_container {
+  margin-top: 0px !important;
+
+  width: calc(100% - 40px);
+  display: inline;
+  vertical-align: middle;
+}
+
+.changes_off_btn {
+  color: #f37b4a;
+}
+
+.changes_off_btn_mobile {
+  .mat-icon {
+    color: #f37b4a;
+  }
+}
+
+.changes_on_editor_side_btn {
+  box-shadow: 0px 1px 2px 1px #19d928, 0px 0px 0px 0px #19d928, 0px 1px 3px 0px #19d928 !important;
+}
+
+.changes_off_editor_side_btn {
+  box-shadow: 0px 1px 2px 1px #f37b4a, 0px 0px 0px 0px #f37b4a, 0px 1px 3px 0px #f37b4a !important;
+}
+
+.track_changes_menu {
+  background-color: turquoise;
 }
 
 .editor_buttons {
   width: 40px;
   height: 100px;
   margin: 12px 12px 12px 0px;
-  
+
   position: relative;
-  .editor_buttons_wrapper{
+
+  .editor_buttons_wrapper {
     display: none;
   }
+
   .commentBtnDiv {
     height: 60px;
     //height: 40px;
     display: inline-flex;
-    .commentsBtn{
+
+    .commentsBtn {
       margin-bottom: 20px;
     }
   }
-  .trackChangesBtnDiv{
+
+  .trackChangesBtnDiv {
     height: 40px;
-    .trackChangesBtn{
-      
-    }
   }
 
-  button{
-    box-shadow: 0px 1px 5px 2px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 4px 0px rgb(0 177 178 / 20%);
+  button {
+    box-shadow: 0px 1px 5px 2px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
+      0px 1px 4px 0px rgb(0 177 178 / 20%);
   }
 }
 
 .sidebar-container {
   width: 341px;
-  height: 100%;
   height: 100%;
   background: var(--color-ffffff);
   box-shadow: -2px 0px 1px #1bb1b22b;
@@ -139,6 +237,119 @@ app-prosemirror-editor {
 ::-webkit-scrollbar-thumb {
   background: none !important;
 }
+
 ::-webkit-scrollbar-track {
   background: none !important;
+}
+
+.floating-button {
+  display: none;
+  position: fixed;
+  width: 58px;
+  height: 60px;
+  bottom: 40px;
+  right: 40px;
+  background-color: var(--color-ffffff);
+  color: var(--color-000000);
+  border-radius: 50px;
+  text-align: center;
+  box-shadow: 0px 3px 6px #00000029;
+  z-index: 10000;
+
+  ::ng-deep {
+    .mat-button-wrapper {
+      padding: 0 !important;
+    }
+  }
+
+  mat-icon {
+    font-size: 35px;
+    width: 35px;
+    height: 35px;
+  }
+}
+
+::ng-deep {
+  .floating-menu {
+    min-width: 58px !important;
+    width: 58px;
+    margin-bottom: -27px;
+    border-top-left-radius: 20px !important;
+    border-top-right-radius: 20px !important;
+    box-shadow: 0px 3px 6px #00000029 !important;
+
+    button {
+      text-align: center;
+
+      &:last-child {
+        margin-bottom: 27px;
+      }
+    }
+
+    .mat-icon {
+      margin-right: 0 !important;
+      font-size: 20px;
+      height: 20px;
+      width: 20px;
+    }
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .sidebar-container,
+  .data-tree {
+    width: 100% !important;
+    /* position: absolute;
+    z-index: 2;
+    height: calc(100% - 36px) !important;
+    margin-top: 20px !important;
+    background: #F9FAFC !important;
+    border-right: solid 2px;
+    border-top: solid 2px;
+    border-bottom-right-radius: 19px;
+    border-bottom: solid 2px;
+    border-top-right-radius: 19px;
+    display: inline-flex;
+    overflow-y: auto !important;
+    padding-top: 10px;
+    box-shadow: 0px 2px 8px -2px grey;
+    border-color: #00B1B2;
+    transition: visibility 0s, opacity 0.5s linear; */
+  }
+  .side-navbar-actions,
+  .controls-toolbar {
+    display: none !important;
+  }
+  .prosemirror_menu_container{
+    display: none;
+    margin-top: 0px !important;
+    width: calc(100% - 50px);
+    vertical-align: middle;
+    app-editor-menu{
+      width: 100%;
+    }
+  }
+  .actions-container {
+    display: none;
+  }
+  .metadataTreeDrawer {
+    background-color: white !important;
+    width: 100%;
+  }
+  .editor-container {
+    border-top-left-radius: 0 !important;
+    border-top-right-radius: 0 !important;
+    margin-top: 0 !important;
+    height: 100% !important;
+    width: 100% !important;
+  }
+  .floating-button {
+    display: block;
+  }
+}
+
+::ng-deep {
+  .sidebar-bottom-sheet {
+    height: 400px;
+  }
 }

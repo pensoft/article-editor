@@ -1,5 +1,11 @@
 ::ng-deep {
   .search-box {
+    .mat-form-field-wrapper {
+      padding-bottom: 0;
+    }
+    .mat-form-field-underline {
+      position: unset;
+    }
     .mat-form-field-flex {
       background: white;
       background-color: white;
@@ -89,9 +95,10 @@
   background: var(--color-f5f5f5);
   border-color: var(--color-559efe);
 
-  textarea:focus, input:focus{
+  textarea:focus,
+  input:focus {
     outline: none;
-}
+  }
 }
 
 .commentBox-title {
@@ -152,5 +159,13 @@
     border-left: 2px solid;
     border-color: #f7000075;
     padding-left: 5px;
+  }
+}
+
+.comment-wrapper {
+  overflow-y: scroll;
+  height: calc(100% - 52px);
+  @media screen and (max-width: 600px) {
+    height: calc(100% - 89px);
   }
 }

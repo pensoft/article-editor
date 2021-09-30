@@ -84,7 +84,6 @@ export class CommentsService {
             let sectionName = commentPluginKey.getState(view.state).sectionName
 
 
-
             if (editor) {
               let elemRect = editor.getBoundingClientRect();
               let editorCoordinatesObj = {
@@ -93,7 +92,6 @@ export class CommentsService {
                 //right: elemRect.right,
                 bottom: elemRect.bottom,
               }
-              console.log(elemRect);
               let coords = { left: elemRect.left + 47, top: elemRect.top + 24 }
               let coords2 = { left: elemRect.right - 80, top: elemRect.bottom - 80 }
               //let startOfEditor = view.posAtCoords(coords);
@@ -113,11 +111,9 @@ export class CommentsService {
                 let displayCommentsTo = endOfEditor;
                 if (startPosition == 'above') {
                   displayCommentsFrom = view.posAtCoords(coords)?.pos!;
-                  console.log({startCoords,endCoords,coords});
                 }
                 if (endPosition == 'under') {
                   displayCommentsTo = view.posAtCoords(coords2)?.pos!;
-                  console.log({startCoords,endCoords,coords2});
 
                 }
                 let allCommentMarksFound: any[] = []
@@ -181,7 +177,6 @@ export class CommentsService {
       editorBtnsWrapper.style.display = 'block'
       editorBtnsWrapper.style.top = (averageValueTop - 42) + 'px';
       editorBtnsWrapper.style.position = 'fixed'
-      console.log(commentBtn);
       commentBtn.addEventListener('click',()=>{
         this.addCommentSubject.next({ type: 'commentData', sectionName, showBox: true })
       })

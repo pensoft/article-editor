@@ -1,0 +1,15 @@
+<div class="title">Add a diagram</div>
+<div class="content">
+  <span>Type:</span>
+  <mat-radio-group class="types-radio-group" [(ngModel)]="data.type">
+    <mat-radio-button class="types-radio-button" *ngFor="let type of diagramTypes" [value]="type.value">
+      <mat-icon style="height:19px;font-size:19px;" [svgIcon]="type.value + 'Chart'"></mat-icon>
+      <span>{{type.label}}</span>
+    </mat-radio-button>
+  </mat-radio-group>
+</div>
+<div class="actions">
+  <arpha-button label="Cancel" (clickEvent)="onNoClick()" class="small secondary action-button negative-button">
+  </arpha-button>
+  <arpha-button label="Add" (clickEvent)="doAction(data)" class="small primary action-button"></arpha-button>
+</div>

@@ -9,7 +9,7 @@ import { ProsemirrorEditorsService } from '../services/prosemirror-editors.servi
 import { YdocService } from '../services/ydoc.service';
 import { CommentsService } from '../utils/commentsService/comments.service';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
-import { isCommentAllowed } from '../utils/menuItems';
+import { isCommentAllowed } from '../utils/menu/menuItems';
 
 @Component({
   selector: 'app-comments-section',
@@ -48,7 +48,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
           this.editorView = this.editorsService.editorContainers[this.lastFocusedEditor!].editorView
           this.showAddCommentBox =  commentsService.addCommentData.showBox
         }
-        console.log(this);
         this.detectFocus.focusedEditor.subscribe((data) => {
           if (data) {
             this.lastFocusedEditor = data
@@ -84,7 +83,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
   }
 
   commentBtnHandle(value: string) {
-    console.log(this,'value',value);
     if (value.length == 0) {
       return
     }
@@ -94,7 +92,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
       id: userCommentId,
       comment: value
     }
-    console.log('editorView',this.editorView);
     this.commentsMap!.set(commentId, [userComment]);
     let state = this.editorView?.state;
     let dispatch = this.editorView?.dispatch

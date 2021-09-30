@@ -1,81 +1,66 @@
+.main-top {
+  background-image: url("/assets/img/Home-photo-1@2x.png");
+  background-position: center;
+  background-size: cover;
+  height: 100vh;
+}
+
 .logo {
   height: 42px;
   width: 197px;
   margin-left: 42px;
-  //border: 1px solid black;
-}
-
-.main-top {
-  background-image: url("../../../../assets/img/Home-photo-1@2x.png");
-  background-position: center;
-  background-size: cover;
-  height: 768px;
-  margin: -8px -16px 0px;
+  padding-top: 28px;
 }
 
 .container {
-  width: 780px;
-  height: 173px;
-  //border: 1px solid black;
+  width: 62%;
   margin-top: 291px;
-  margin-left: 505px;
-  @import url('https://fonts.googleapis.com/css?family=Open+Sans');
-  font-family: "Open Sans", sans-serif;
-  line-height: 56px;
-  font-weight: bold;
-  font-size: 45px;
-  color: #F7F9FB;
-}
-
-.emptyPusher {
-  height: 28px;
+  margin-left: 38%;
+  font-family: var(--font-family-open-sans);
+  font-style: var(--font-style-normal);
+  font-weight: var(--font-weight-bold);
+  font-size: var(--font-size-45);
+  line-height: var(--line-spacing-56);
+  letter-spacing: var(--character-spacing-0);
+  color: var(--color-f7f9fb);
 }
 
 .login-button {
-  width: 212px;
-  height: 48px;
-  background-color: #00B1B2;
-  border: 1px solid #00B1B2;
-  border-radius: 24px;
-  color: #FFFFFF;
-  font-size: 15x;
-  @import url('https://fonts.googleapis.com/css?family=Open+Sans');
-  font-family: "Open Sans", sans-serif;
-  line-height: 28px;
-  font-size: 21px;
-  margin-left: 505px;
-  margin-top: -29px;
+  ::ng-deep {
+    button {
+      width: 212px !important;
+      height: 48px !important;
+      font-size: 21px !important;
+      line-height: 28px !important;
+      margin-top: 25px;
+    }
+    margin-left: 38%;
+  }
 }
-
 .register-button {
-  width: 212px;
-  height: 48px;
-  background-color: #FFFFFF;
-  border-radius: 24px;
-  color: #00B1B2;
-  font-size: 15x;
-  @import url('https://fonts.googleapis.com/css?family=Open+Sans');
-  font-family: "Open Sans", sans-serif;
-  line-height: 28px;
-  font-size: 21px;
-  margin-left: 37px;
-  margin-top: -29px;
+  ::ng-deep {
+    button {
+      width: 212px !important;
+      height: 48px !important;
+      line-height: 28px !important;
+      font-size: 21px !important;
+      margin-top: 25px;
+    }
+    margin-left: 37px;
+  }
 }
 
 .card {
   width: 344px;
-  height: 481px;
+  height: fit-content;
   margin: 0px 25px;
   border-radius: 20px;
-  box-shadow: 0px 6px 10px #1BB1B22B;
-  //border: 1px solid black;
-
+  box-shadow: 0px 6px 10px #1bb1b22b;
 }
 
 .main-bottom {
   width: 100%;
-  height: 738px;
-  // border: 1px solid black;
+  height: 100vh;
   background-color: #ffffff;
   background-position: center;
   background-size: cover;
@@ -83,7 +68,6 @@
 
 .card-container {
   height: 481px;
-  // border: 1px solid black;
   margin-top: 60px;
   display: flex;
   justify-content: center;
@@ -92,18 +76,41 @@
 .card-title {
   font-size: 28px;
   line-height: 50px;
-  @import url('https://fonts.googleapis.com/css?family=Open+Sans');
-  font-family: "Open Sans", sans-serif;
-  font-weight: bold;
+  font-family: var(--font-family-open-sans);
+  font-style: var(--font-style-normal);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-192956);
   text-align: center;
   margin-top: 26px;
-  color: #192956;
+  padding: 0 20px;
 }
 
 .image-container {
   width: 224px;
   height: 205px;
-  // border: 1px solid black;
   margin-left: auto;
   margin-right: auto;
+}
+
+ul.card-content {
+  list-style: none;
+  padding: 27px 21px;
+  li {
+    padding-left: 1.5em;
+    font-family: var(--font-family-open-sans);
+    font-style: var(--font-style-normal);
+    font-weight: var(--font-weight-normal);
+    font-size: var(--font-size-18);
+    line-height: var(--line-spacing-45);
+    letter-spacing: var(--character-spacing-0);
+    color: var(--color-192956);
+  }
+  li:before {
+    content: "\f00c";
+    font-family: FontAwesome;
+    display: inline-block;
+    color: var(--color-00b1b2);
+    margin-left: -1.5em;
+    width: 1.5em;
+  }
 }

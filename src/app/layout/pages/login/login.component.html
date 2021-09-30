@@ -1,45 +1,51 @@
 <div class="main">
-    <div class="emptyPusher">
-    </div>
-    <div class="logo">
-        <img src="././assets/img/logo1.svg" height="42px" width="197px" alt="arpha">
-    </div>
-    <div class="register">
-        <div class="title-container">
-            Login
-        </div>
-        <div class="form-container">
 
-            <div class="form-a">
-                <form>
-                    <label for="email">Email*</label><br>
-                    <input type="text" id="email" name="email" placeholder="Email address"><br>
-                </form>
-            </div>
-            <div class="form-b">
-                <form>
-                    <label for="password">Password*</label><br>
-                    <input class="pass" type="password" id="password" name="password" placeholder="Password"><br>
-                </form>
-            </div>
-            <div class="password-link"><a style="color: #1BB1B2;" >Forgot your password?</a></div>
-            <button type="button" class="login-button" routerLink="/9b1deb4d-3b7d-4bad-9bdd-2b0d7b3dcb6d">Login</button>
-            <div class="text">
-                or
-            </div>
-            <button type="button" class="register-button" routerLink="/register">Register</button>
-            <div class="b">
-                Or login with
-            </div>
+  <div class="logo">
+    <img src="./assets/img/logo1.svg" height="42px" width="197px" alt="arpha">
+  </div>
 
-        </div>
-        <div class="link-container">
-            <button type="button" class="snbutton" onclick="alert('Hello World!')"></button>
-            <button type="button" class="snbutton" onclick="alert('Hello World!')"></button>
-            <button type="button" class="snbutton" onclick="alert('Hello World!')"></button>
-            <button type="button" class="snbutton" onclick="alert('Hello World!')"></button>
-        </div>
+  <div class="logo-mobile">
+    <img src="./assets/logo/arpha.svg" width="144px" alt="arpha">
+  </div>
 
+  <div class="register">
+
+    <div class="title-container">Login</div>
+
+    <div class="form-container">
+      <div class="form-a">
+        <arpha-input label="Email*" placeholder="Email address" id="email" name="email"></arpha-input>
+      </div>
+      <div class="form-b">
+        <arpha-input type="password" label="Password*" placeholder="Password" id="password" name="password">
+        </arpha-input>
+      </div>
+      <div class="password-link"><a>Forgot your password?</a></div>
+      <arpha-button label="Login" class="primary large login-button"></arpha-button>
+      <div class="text">or</div>
+      <arpha-button label="Register" class="secondary large register-button"></arpha-button>
+      <div class="crossed-title">
+        <span>or Login with</span>
+      </div>
     </div>
 
+    <div class="link-container">
+      <arpha-button label="ORCID" class="secondary small icon-text" icon="dashboard"></arpha-button>
+      <arpha-button label="Google" class="secondary small icon-text" icon="dashboard"></arpha-button>
+      <arpha-button label="Linkedin" class="secondary small icon-text" icon="dashboard"></arpha-button>
+      <arpha-button label="Facebook" class="secondary small icon-text" icon="dashboard"></arpha-button>
+    </div>
+
+    <div class="link-container-mobile">
+      <div>
+        <arpha-button label="ORCID" class="secondary small icon-text" icon="dashboard"></arpha-button>
+        <arpha-button label="Google" class="secondary small icon-text" icon="dashboard"></arpha-button>
+      </div>
+      <div>
+        <arpha-button label="Linkedin" class="secondary small icon-text" icon="dashboard"></arpha-button>
+        <arpha-button label="Facebook" class="secondary small icon-text" icon="dashboard"></arpha-button>
+      </div>
+    </div>
+
+  </div>
 </div>

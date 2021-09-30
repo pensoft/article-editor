@@ -1,11 +1,9 @@
 export interface treeNode {
-    name:string,
-    edit:boolean,
-    id:string,
-    children:treeNode[],
-    add?:boolean,
-    active:boolean,
-    listId?:string,
-    delete?:boolean,
-    extended:boolean
-  }
+  name: string,
+  id: string,
+  children: treeNode[],
+  active: boolean,
+  add: {bool:boolean,main:boolean},
+  edit: {bool:boolean,main:boolean},
+  delete: {bool:boolean,main:boolean},
+}

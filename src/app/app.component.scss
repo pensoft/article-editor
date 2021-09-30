@@ -1,4 +1,8 @@
 .app-toolbar {
   z-index: 10;
   box-shadow: 0 6px 10px var(--color-1bb1b224);
+  @media screen and (max-width: 600px) {
+    box-shadow: none;
+    border-bottom: 1px solid var(--color-e3e3e3);
+  }
 }

@@ -2,8 +2,7 @@
 
 $textFontWeight: 500;
 $textFontSize: 15px;
-$itemHeight:30px;
-
+$itemHeight: 30px;
 
 ::ng-deep .drag_btn {
     height: 20px !important;
@@ -28,7 +27,7 @@ $itemHeight:30px;
     line-height: 0px;
     .mat-button-wrapper {
         padding: 0px;
-        padding-top: 4px;
+        padding-top: 7px;
         line-height: 0px;
     }
 }
@@ -38,6 +37,7 @@ $itemHeight:30px;
     background-color: white;
     margin-right: 1px;
     margin-left: 2px;
+    z-index: 5;
     vertical-align: middle;
     box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
         0px 1px 1px 0px rgb(0 177 178 / 20%);
@@ -49,7 +49,7 @@ $itemHeight:30px;
     line-height: 0px;
     .mat-button-wrapper {
         padding: 0px;
-        padding-top: 4px;
+        padding-top: 7px;
         line-height: 0px;
     }
 }
@@ -61,7 +61,7 @@ $itemHeight:30px;
     line-height: 0px;
     .mat-button-wrapper {
         padding: 0px;
-        padding-top: 5px;
+        padding-top: 7px;
         line-height: 0px;
     }
 }
@@ -70,44 +70,49 @@ $itemHeight:30px;
     display: inline-flex;
     padding-left: 30px;
     min-height: $itemHeight;
-    min-width: 60%;
+    
+    width: fit-content;
+    z-index: 4;
+    position: relative;
 }
 
 .sectionBorderNested {
     display: inline-flex;
     padding-left: 30px;
+    margin-left: 0px !important;
     background-color: white;
     border-radius: 4px;
     height: $itemHeight;
-    z-index: 2;
+    z-index: 4;
+    position: relative;
     width: calc(100% - 105px);
     box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
         0px 1px 1px 0px rgb(0 177 178 / 20%);
     position: relative;
-    
-    
 }
 
 .sectionBorderListNestedInactive {
     display: inline-flex;
-    padding-left: 22px;
+    margin-left: 26px;
     height: $itemHeight;
-    z-index: 2;
-    min-width: 60%;
+    background-color: #f9fafc;
+    z-index: 4;
+    width: fit-content;
+    position: relative;
 }
 
 .sectionBorderListNested {
     display: inline-flex;
-    padding-left: 22px;
+    padding-left: 26px;
     background-color: white;
     border-radius: 4px;
     height: $itemHeight;
-    z-index: 2;
+    z-index: 4;
+    position: relative;
     width: 60%;
     box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
         0px 1px 1px 0px rgb(0 177 178 / 20%);
     position: relative;
-    
 }
 
 .sectionBorderListItem {
@@ -115,26 +120,39 @@ $itemHeight:30px;
     background-color: white;
     border-radius: 4px;
     width: 74%;
+    z-index: 4;
+    position: relative;
     vertical-align: middle;
     height: $itemHeight;
     box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
         0px 1px 1px 0px rgb(0 177 178 / 20%);
-        
 }
 
 .sectionBorderListItemInactive {
     display: inline-flex;
-    min-width: 74%;
+    width: fit-content;
     vertical-align: middle;
+    background-color: #f9fafc;
     height: $itemHeight;
-
+    z-index: 4;
+    position: relative;
 }
 
 .sectionBorderInactive {
     display: inline-flex;
     padding-left: 30px;
     height: $itemHeight;
-    min-width: 60%;
+    width: fit-content;
+    z-index: 4;
+    position: relative;
+}
+
+.vertical_line_nestedList {
+    border-left: 2px solid #6cd0d2;
+    display: inline;
+    position: absolute;
+    height: 100%;
+    transform: translate(17px, -37px);
 }
 
 .sectionBorder {
@@ -142,14 +160,13 @@ $itemHeight:30px;
     padding-left: 30px;
     background-color: white;
     border-radius: 4px;
+    z-index: 4;
+    position: relative;
     height: $itemHeight;
     width: 60%;
     box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
         0px 1px 1px 0px rgb(0 177 178 / 20%);
-    
 }
-
-
 
 ::ng-deep .expandBTN {
     height: 20px !important;
@@ -157,7 +174,7 @@ $itemHeight:30px;
     margin-left: 8px;
     align-self: center;
     line-height: 0px !important;
-    
+
     .mat-icon {
         line-height: 20px !important;
         vertical-align: baseline;
@@ -192,40 +209,40 @@ $itemHeight:30px;
 
 .example-list-dropdownbox {
     display: block;
-    overflow: hidden;
     padding-top: 5px;
     padding-bottom: 5px;
 }
 
-.text-placeholder-nested{
-    border-left: 1.5px solid #6cd0d2;
+.text-placeholder-nested {
+    border-left: 2px solid #6cd0d2;
     padding-left: 8px;
-    z-index: 1;
+    z-index: 3;
     display: initial;
     position: absolute;
-    border-bottom: 1.54px solid #6cd0d2;
+    border-bottom: 2px solid #6cd0d2;
     transform: translate(17px, -24px);
     height: 36px;
 }
-
 
 .section_btn {
     color: #223361;
     background-color: white;
     margin-right: 1px;
+    z-index: 5;
     margin-left: 2px;
     box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
         0px 1px 1px 0px rgb(0 177 178 / 20%);
 }
 
 .node-box-dropdownbox {
-    position: relative;
+    position: relative !important;
+
     //padding: 10px 5px 10px 5px;
     background-color: #f9fafc;
     color: rgba(0, 0, 0, 0.87);
     padding-left: 5px;
     min-height: 45px;
-    font-size: $textFontSize !important; 
+    font-size: $textFontSize !important;
     font-weight: $textFontWeight !important;
 }
 
@@ -242,8 +259,6 @@ $itemHeight:30px;
 
 .cdk-drag-preview {
     background-color: transparent;
-    
-    
 }
 
 .cdk-drag-animating {
@@ -271,12 +286,12 @@ $itemHeight:30px;
 }
 
 .border-placeholder {
-    .border-view{
-        background: #E0F3F4;
-        border-style:dashed ;
+    .border-view {
+        background: #e0f3f4;
+        border-style: dashed;
         border-radius: 5px;
         border-width: 2px;
-        border-color: #1EBABB;
+        border-color: #1ebabb;
         margin-left: 3px;
         min-height: 28px;
         width: 74%;
@@ -284,13 +299,13 @@ $itemHeight:30px;
     }
 }
 
-.border-placeholder-nested{
-    .border-view{
-        background: #E0F3F4;
-        border-style:dashed ;
+.border-placeholder-nested {
+    .border-view {
+        background: #e0f3f4;
+        border-style: dashed;
         border-radius: 5px;
         border-width: 2px;
-        border-color: #1EBABB;
+        border-color: #1ebabb;
         min-height: 28px;
         margin-left: 21px;
         width: calc(100% - 81px);
@@ -311,15 +326,27 @@ $itemHeight:30px;
     height: 35px;
     font-size: $textFontSize;
     font-weight: $textFontWeight;
-
 }
 
 .node-box-dropdownbox-nested {
-    position: relative;
+    position: relative !important;
+
     color: rgba(0, 0, 0, 0.87);
     font-size: $textFontSize;
     font-weight: $textFontWeight;
     padding-left: 20px;
+}
+
+.section_btn_container {
+    display: inline-grid;
+    height: fit-content;
+    align-content: center;
+    width: 30px;
+    position: absolute;
+    z-index: 5;
+    top: 50%;
+    transform: translate(4%, -50%);
+    margin-top: -2px;
 }
 
 .drag_btn_leaf_node_nested {
@@ -349,6 +376,7 @@ $itemHeight:30px;
     background-color: white;
     margin-right: 1px;
     margin-left: 2px;
+    z-index: 5;
     vertical-align: top;
     box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
         0px 1px 1px 0px rgb(0 177 178 / 20%);
@@ -373,56 +401,123 @@ $itemHeight:30px;
 
 .example-list-dropdownbox-nested {
     display: block;
-    overflow: hidden;
     padding-top: 5px;
     padding-bottom: 5px;
 }
 
-.selectedEditor{
-    background-color: #E4F6F6;
+.selectedEditor {
+    background-color: #e4f6f6;
+    width: 60%;
+    z-index: 4;
+
 }
 
-.selectedEditorNestedLeaf{
-    background-color: #E4F6F6;
-    margin-left: 18px;
-    padding-left: 13px;
+.selectedEditorNestedLeaf {
+    background-color: #e4f6f6;
+    margin-left: 18.7px;
+    padding-left: 11.3px;
+    width: 60%;
+    z-index: 4;
 }
 
-.selectedEditorNestedList{
-    background-color: #E4F6F6;
-    margin-left: 18px;
-    padding-left: 4px;
+.selectedEditorNestedList {
+    background-color: #e4f6f6;
+    margin-left: 19px;
+    padding-left: 7px;
+    width: 60%;
+    z-index: 4;
 }
 
 .text-placeholder {
-    border-left: 1.5px solid #6cd0d2;
+    border-left: 2px solid #6cd0d2;
     padding-left: 8px;
-    z-index: 1;
+    z-index: 3;
     display: initial;
     position: absolute;
-    height: 100%;
-    border-bottom: 1.54px solid #6cd0d2;
-    transform: translate(17px, -23px);
+    height: 113%;
+    border-bottom: 2px solid #6cd0d2;
+    transform: translate(17px, -20px);
 }
 
 .text-section-div-nested {
     align-self: center;
     text-overflow: ellipsis;
-    overflow: hidden; 
+    overflow: hidden;
     white-space: nowrap;
 }
 
 .text-section-div {
     align-self: center;
     text-overflow: ellipsis;
-    overflow: hidden; 
+    overflow: hidden;
     white-space: nowrap;
 }
 
 .text-section-list-item-div {
     align-self: center;
     text-overflow: ellipsis;
-    overflow: hidden; 
+    overflow: hidden;
     margin-left: 4px;
     white-space: nowrap;
+}
+
+@media screen and (max-width: 600px) {
+    .outer-list {
+        .node-box-dropdownbox {
+            background-color: white;
+        }
+        .node-box {
+            background-color: white;
+        }
+        background-color: white;
+        padding-top: 36px;
+
+        .text-placeholder {
+            border-left: 2px solid #6cd0d2;
+            padding-left: 8px;
+            z-index: 3;
+            display: initial;
+            position: absolute;
+            height: 113%;
+            border-bottom: 2px solid #6cd0d2;
+            transform: translate(17px, -20px);
+        }
+
+        .sectionBorderListItemInactive {
+            background-color: white;
+            z-index: 4;
+        }
+
+        .sectionBorderListNestedInactive {
+            background-color: white;
+            padding-left: 0px;
+            margin-left: 26px;
+            z-index: 4;
+        }
+        .selectedEditorNestedLeaf {
+            z-index: 4;
+            background-color: #e4f6f6 ;
+            margin-left: 18px ;
+            padding-left: 8px;
+            width: 60%;
+        }
+
+        .selectedEditor {
+            background-color: #e4f6f6;
+            width: 60%;
+            z-index: 4;
+        }
+
+        .selectedEditorNestedList {
+            background-color: #e4f6f6 ;
+            margin-left: 18px;
+            padding-left: 8px;
+            width: 60%;
+            z-index: 4;
+        }
+    }
+}
+
+.outer-list{
+    padding-top: 41px;
 }

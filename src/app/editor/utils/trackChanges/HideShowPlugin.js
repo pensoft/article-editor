@@ -29,7 +29,7 @@ const getTrackChanges = state => {
   return finalTracks;
 };
 
-let showHide = true;
+let showChanges = true;
 let changesContainer = document.createElement('div')
 
 function createChangeDiv(result, position, type, doc,view) {
@@ -90,7 +90,7 @@ export const hideShowPlugin = (changesContainerRef) => {
         let decorations;
         let createdDecorations = DecorationSet.empty;
         const allMatches = getTrackChanges(newState);
-        if (allMatches.length > 0 && showHide) {
+        if (allMatches.length > 0 && !showChanges) {
 
           decorations = allMatches.map((result, index) => {
 

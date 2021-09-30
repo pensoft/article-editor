@@ -7,7 +7,7 @@ const markInsertion = (tr, from, to, user, date, group, viewId) => {
   const insertionMark = tr.doc.type.schema.marks.insertion.create({
     user: user.userId,
     username: user.username,
-    style: `background-color: ${user.userColor.addition};`,
+    
     // date
   });
   tr = tr.addMark(from, to, insertionMark);

@@ -1,38 +1,37 @@
+//@ts-ignore
+import { Dropdown as Dropdown2} from '../utils/prosemirror-menu-master/src/index.js';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Dropdown, DropdownSubmenu } from 'prosemirror-menu';
-import { EditorView } from 'prosemirror-view';
-import { Subject } from 'rxjs';
+import { CommentsService } from '../utils/commentsService/comments.service';
 
 import * as Y from 'yjs';
-import { CommentsService } from '../utils/commentsService/comments.service';
-import * as m from '../utils/menuItems';
-import { ProsemirrorEditorsService } from './prosemirror-editors.service';
+import * as menuDialogs from '../utils/menu/menu-dialogs';
+import * as m from '../utils/menu/menuItems';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MenuService {
-
   
-  addCommentSubject
+  addCommentSubject;
 
   constructor(public dialog: MatDialog,private commentsService:CommentsService) {
-    m.shereDialog(dialog);
+    menuDialogs.shareDialog(dialog);
     this.addCommentSubject=commentsService.addCommentSubject;
   }
 
-  sectionMenus: { [key: string]: (string | { dropdownName: string, label?: string, content: (string | { dropdownSubmenuName: string, label?: string, content: any })[] })[][] } = {
+  sectionMenus: { [key: string]: (string | { dropdownName?: string, dropdownIcon?:string,label?: string, content: (string | { dropdownSubmenuName?: string,dropdownSubmenuIcon?:string, label?: string, content: any })[] })[][] } = {
     'Title':
       [
         ['toggleStrong', 'toggleEm', 'toggleCode'],
         ['alignMenu'],
-        ['insertLink'],
+        ['insertLink','addAnchorTagMenuItem'],
         ['toggleSubscriptItem', 'toggleSuperscriptItem'],
         ['undoItem', 'redoItem']
       ],
-    'fullMenu': [
-      ['toggleStrong', 'toggleEm', 'toggleCode', 'insertLink'],
+    'fullMenu1': [
+      ['toggleStrong', 'toggleEm', 'toggleCode', 'insertLink','addAnchorTagMenuItem'],
       [
         { dropdownName: 'Insert', content: ['insertImage', 'insertHorizontalRule'] },
         {
@@ -53,11 +52,18 @@ export class MenuService {
         { dropdownName: 'Math', content: ['addMathInlineMenuItem', 'addMathBlockMenuItem'] }
       ],
       ['tableMenu']
+    ],
+    'fullMenu': [
+      ['textMenu'],
+      ['alignMenu'],
+      ['undoItem', 'redoItem'],
+      ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
+      ['insertMenu']
     ]
   }
 
   attachMenuItems2(menu: any, ydoc: Y.Doc) {
-    let menuItems = m.getItems()
+    let menuItems = m.getItems();
     
     menu.fullMenu[4] = [];
     menu.fullMenu[4].push(menuItems.setAlignLeft);
@@ -87,9 +93,14 @@ export class MenuService {
     let menuItems = m.getItems()
     let getMenuItem = (itemName: string) => {
       if (itemName == 'alignMenu') {
-        return new Dropdown(menuItems['alignMenu'], { class: "align-icon" })
+        return new Dropdown(menuItems[itemName], { class: "align-icon" })
       } else if (itemName == 'tableMenu') {
-        return new Dropdown(menuItems['tableMenu'], { class: "table-icon" })
+        return new Dropdown(menuItems[itemName], { class: "table-icon" })
+      } else if (itemName == 'textMenu') {
+        let dropdown = new Dropdown2(menuItems[itemName], { class: "text-menu-icon" })
+        return dropdown
+      } else if (itemName == 'insertMenu') {
+        return new Dropdown(menuItems[itemName], { label: 'Insert' })
       } else if (itemName == 'headings') {
         //@ts-ignore
         return Object.values(menuItems['headings'])
@@ -128,7 +139,7 @@ export class MenuService {
           menuBuild[i][j] = getMenuItem(menuItem);
         } else {
 
-          menuBuild[i][j] = buildDropDown(menuItem.dropdownName, 'dropdown', menuItem.content)!
+          menuBuild[i][j] = buildDropDown( menuItem.dropdownIcon!, 'dropdown', menuItem.content)!
         }
       })
     })

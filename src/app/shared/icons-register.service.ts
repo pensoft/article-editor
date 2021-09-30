@@ -21,6 +21,13 @@ export class IconsRegisterService {
     iconRegistry.addSvgIcon('validate', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/validate.svg'));
     iconRegistry.addSvgIcon('dashboard', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashboard.svg'));
 
+    iconRegistry.addSvgIcon('pieChart', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/chart-pie.svg'));
+    iconRegistry.addSvgIcon('linearChart', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/chart-line.svg'));
+    iconRegistry.addSvgIcon('barChart', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/chart-bar.svg'));
+    iconRegistry.addSvgIcon('periodicChart', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/chart-area.svg'));
+    iconRegistry.addSvgIcon('bubbleChart', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/chart-bubble.svg'));
+
+    iconRegistry.addSvgIcon('openPadlock', sanitizer.bypassSecurityTrustResourceUrl('./assets/img/open-padlock.svg'));
 
 
     // iconRegistry.addSvgIconLiteral('thumbs-up', sanitizer.bypassSecurityTrustHtml(THUMBUP_ICON));

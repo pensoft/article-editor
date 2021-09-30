@@ -24,12 +24,20 @@ export class MetaDataTreeComponent implements OnInit,AfterViewInit{
   
   metadataMap?:YMap<any>
   constructor(public treeService:TreeService,private ydocService:YdocService){
-    
-    this.metadataMap=ydocService.getMetaDataMap()
-    this.TREE_DATA = this.metadataMap.get('TREE_DATA');
   }
   ngOnInit(){
-    this.treeService.initTreeList(this.TREE_DATA!)
+    if (this.ydocService.editorIsBuild) {
+      this.TREE_DATA = this.ydocService.editorMetadata?.get('TREE_DATA');
+      this.metadataMap=this.ydocService.editorMetadata
+      this.treeService.initTreeList(this.TREE_DATA!)
+    }
+    this.ydocService.ydocStateObservable.subscribe((event) => {
+      if (event == 'docIsBuild') {
+        this.TREE_DATA = this.ydocService.editorMetadata?.get('TREE_DATA');
+      this.metadataMap=this.ydocService.editorMetadata
+      this.treeService.initTreeList(this.TREE_DATA!)
+    }
+    });
   }
 
   ngAfterViewInit(){
