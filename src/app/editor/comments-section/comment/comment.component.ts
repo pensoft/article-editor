@@ -1,9 +1,11 @@
 import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { DateSelectionModelChange } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import { uuidv4 } from 'lib0/random';
 import { EditorView } from 'prosemirror-view';
 import { YMap } from 'yjs/dist/src/internals';
 import { AddCommentDialogComponent } from '../../add-comment-dialog/add-comment-dialog.component';
+import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
 import { YdocService } from '../../services/ydoc.service';
 
 @Component({
@@ -29,8 +31,8 @@ export class CommentComponent implements OnInit {
   contentHeight: number = this.MAX_CONTENT_HEIGHT;
   commentsMap?: YMap<any>
   userComments?: any[];
-
-  constructor(private ydocService: YdocService, public sharedDialog: MatDialog) {
+  mobileVersion:boolean
+  constructor(private ydocService: YdocService, public sharedDialog: MatDialog,private prosemirrorEditorService:ProsemirrorEditorsService) {
     if(this.ydocService.editorIsBuild){
       this.commentsMap = this.ydocService.getCommentsMap()
     }
@@ -40,10 +42,15 @@ export class CommentComponent implements OnInit {
 
       }
     });
+    this.mobileVersion = prosemirrorEditorService.mobileVersion
   }
 
   ngOnInit(): void {
     this.userComments = this.commentsMap?.get(this.comment!.attrs.id) || [];
+    this.prosemirrorEditorService.mobileVersionSubject.subscribe((data)=>{
+      // data == true => mobule version
+      this.mobileVersion = data
+    })
   }
 
   ngAfterViewInit() {

@@ -1,6 +1,6 @@
 import { Component, Injectable, OnInit } from '@angular/core';
 import * as Y from 'yjs';
-import { WebrtcConn, WebrtcProvider as OriginalWebRtc,  } from 'y-webrtc';
+import { WebrtcConn, WebrtcProvider as OriginalWebRtc, } from 'y-webrtc';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import { YXmlFragment } from 'yjs/dist/src/types/YXmlFragment';
 import { EditorState, Transaction } from 'prosemirror-state';
@@ -13,117 +13,158 @@ import { catchError, delay } from 'rxjs/operators';
 //@ts-ignore
 import { WebrtcProvider } from '../utils/y-webrtc/index.js';
 import { sectionNode } from '../utils/interfaces/section-node'
-import {editorContainer } from '../utils/interfaces/editor-container'
+import { editorContainer } from '../utils/interfaces/editor-container'
 import { Subject } from 'rxjs';
-import { ydocData } from '../utils/interfaces/ydocData.js';
+import { ydocData } from '../utils/interfaces/ydocData';
 import { YMap } from 'yjs/dist/src/internals';
-import { treeNode } from '../utils/interfaces/treeNode.js';
+import { treeNode } from '../utils/interfaces/treeNode';
 import { uuidv4 } from "lib0/random";
+import { articleSection, editorData, taxonomicCoverageContentData } from '../utils/interfaces/articleSection';
+import { articleBasicStructure } from '../utils/articleBasicStructure';
 
 @Injectable({
   providedIn: 'root'
 })
 export class YdocService {
-  ydocStateObservable:Subject<any>= new Subject<any>();
+  ydocStateObservable: Subject<any> = new Subject<any>();
 
   editorIsBuild = false;
 
   ydoc = new Y.Doc();
+
   provider?: OriginalWebRtc;
   roomName = 'webrtc-test3'
-  providerIndexedDb ?: IndexeddbPersistence
+  providerIndexedDb?: IndexeddbPersistence
   constructor(private http: HttpClient) { }
-  editorMetadata ?: YMap<any>
-  comments ?: YMap<any>
-  getCommentsMap():YMap<any>{
+  articleStructure?: YMap<any>
+  comments?: YMap<any>
+  getCommentsMap(): YMap<any> {
     return this.comments!
   }
-  getMetaDataMap():YMap<any>{
 
-    return this.ydoc.getMap('editorMetadata');
-  }
-
-  getYDoc(){
+  getYDoc() {
     return this.ydoc
   }
 
-  getData():ydocData{
-    let TREE_DATA:treeNode[]=this.editorMetadata?.get('TREE_DATA')
-    if(TREE_DATA == undefined){
-      let TREE_DATA1 =  [
-        {name:'Article metadata',
-        id:uuidv4(),
-        edit:true,active:false,
+  findSectionById(sectionId:string){
+    let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
+    
+  }
 
-        children:[
-          {name:'Title',id:uuidv4(),edit:true,children:[],active:true},
-          {name:'Abstract',id:uuidv4(),edit:true,children:[],active:false},
-          {name:'Grant title',
-          edit:true,active:false,id:uuidv4(),
-          children:[
-            {name:'Taxonomy',id:uuidv4(),edit:true,children:[],active:true},
-            {name:'Species characteristics',active:false,
-            edit:true,
-            add:true,
-            id:uuidv4(),
-            children:[
-              {name:'Taxonomy',id:uuidv4(),edit:true,children:[],active:false},
-              {name:'Species characteristics',id:uuidv4(),children:[],edit:true,add:true,active:false},
-            ]},
-          ]},
-          {name:'Hosting institution',id:uuidv4(),children:[],edit:true,active:false},
-          {name:'Ethics and security',id:uuidv4(),children:[],edit:true,active:true},
-        ]},
-        {name:'Introduction',edit:true,id:uuidv4(),children:[],add:true,active:false},
-        {name:'General information',edit:true,id:uuidv4(),active:false
-        ,children:[
-          {name:'Taxonomy',id:uuidv4(),edit:true,children:[],active:false},
-          {name:'Species characteristics',id:uuidv4(),children:[],edit:true,add:true,active:false},
-        ]},
-        {name:'Habitat',id:uuidv4(),children:[],edit:true,active:false},
-        {name:'Distribution',id:uuidv4(),edit:true,children:[],add:true,active:false},
-      ];
-      TREE_DATA =  [
-        {name:'Article metadata',
-        id:uuidv4(),
-        edit:{bool:true,main:true},active:false,add:{bool:true,main:false},delete:{bool:true,main:false},
-        children:[
-          {name:'Title',id:uuidv4(),edit:{bool:true,main:true},add:{bool:true,main:false},delete:{bool:true,main:false},children:[],active:true},
-          {name:'Abstract',id:uuidv4(),edit:{bool:true,main:true},add:{bool:true,main:false},delete:{bool:true,main:false},children:[],active:false},
-          {name:'Grant title',
-          edit:{bool:true,main:true},active:false,id:uuidv4(),add:{bool:true,main:false},delete:{bool:true,main:false},
-          children:[]},
-          {name:'Hosting institution',id:uuidv4(),children:[],edit:{bool:true,main:true},add:{bool:true,main:false},delete:{bool:true,main:false},active:false},
-          {name:'Ethics and security',id:uuidv4(),children:[],edit:{bool:true,main:true},add:{bool:true,main:false},delete:{bool:true,main:false},active:true},
-        ]},
-        {name:'Taxonomy',edit:{bool:true,main:false},id:uuidv4(),children:[],add:{bool:true,main:false},delete:{bool:true,main:true},active:false},
-        {name:'Introduction',edit:{bool:false,main:false},id:uuidv4(),children:[],add:{bool:false,main:false},delete:{bool:true,main:true},active:false},
-        {name:'Introduction',edit:{bool:false,main:false},id:uuidv4(),children:[],add:{bool:true,main:false},delete:{bool:true,main:true},active:false},
-        {name:'General information',edit:{bool:true,main:true},add:{bool:true,main:false},id:uuidv4(),active:false,delete:{bool:true,main:false},children:[
-          {name:'Taxonomy',id:uuidv4(),edit:{bool:true,main:true},children:[],delete:{bool:true,main:false},add:{bool:true,main:false},active:false},
-          {name:'Species characteristics',id:uuidv4(),children:[],edit:{bool:true,main:true},delete:{bool:true,main:false},add:{bool:true,main:false},active:false},
-        ]},
-        {name:'Habitat',id:uuidv4(),children:[],edit:{bool:true,main:true},delete:{bool:true,main:false},add:{bool:true,main:false},active:false},
-        {name:'Distribution',id:uuidv4(),edit:{bool:true,main:false},children:[],delete:{bool:true,main:true},add:{bool:true,main:false},active:false},
-      ];
-      this.editorMetadata?.set('TREE_DATA',TREE_DATA);
+  updateSection(sectionData: articleSection){
+    let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
+    let nodeRef: any
+    let findF = (list?: articleSection[]) => {
+      list?.forEach((node) => {
+        if (node.sectionID !== undefined && node.sectionID == sectionData.sectionID) {
+          nodeRef = node
+        } else if (node.children) {
+          findF(node.children)
+        }
+      })
     }
+    findF(articleSectionsStructure);
+    
+    console.log(nodeRef);
+
+    let articleSectionsStructureFlat:articleSection[] = []
+    let makeFlat = (structure:articleSection[]) => {
+      structure.forEach((section)=>{
+        if(section.active){
+          articleSectionsStructureFlat.push(section)
+        }
+        if(section.children.length>0){
+          makeFlat(section.children)
+        }
+      })
+    }
+    makeFlat(articleSectionsStructure)
+    console.log(articleSectionsStructureFlat);
+    this.articleStructure?.set('articleSectionsStructure', articleSectionsStructure);
+    this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
+  }
+  
+  applySectionChange(value:{ contentData:editorData|string|editorData|taxonomicCoverageContentData, sectionData: articleSection ,type:string}){
+    let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
+    console.log(articleSectionsStructure);
+    let nodeRef: any
+    let findF = (list?: articleSection[]) => {
+      list?.forEach((node) => {
+        if (node.sectionID !== undefined && node.sectionID == value.sectionData.sectionID) {
+          nodeRef = node
+        } else if (node.children) {
+          findF(node.children)
+        }
+      })
+    }
+    findF(articleSectionsStructure);
+    
+    nodeRef![value.type].contentData = value.contentData
+    console.log(nodeRef);
+
+    let articleSectionsStructureFlat:articleSection[] = []
+    let makeFlat = (structure:articleSection[]) => {
+      structure.forEach((section)=>{
+        if(section.active){
+          articleSectionsStructureFlat.push(section)
+        }
+        if(section.children.length>0){
+          makeFlat(section.children)
+        }
+      })
+    }
+    makeFlat(articleSectionsStructure)
+    console.log(articleSectionsStructureFlat);
+    this.articleStructure?.set('articleSectionsStructure', articleSectionsStructure);
+    this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
+  }
+
+  getData(): ydocData {
+    let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
+    let articleSectionsStructureFlat: articleSection[] = this.articleStructure?.get('articleSectionsStructureFlat');
+    try{
+      if (articleSectionsStructure == undefined) {
+        articleSectionsStructureFlat = []
+        articleSectionsStructure = articleBasicStructure
+        
+        let makeFlat = (structure:articleSection[]) => {
+          structure.forEach((section)=>{
+            if(section.active){
+              articleSectionsStructureFlat.push(section)
+            }
+            if(section.children.length>0){
+              makeFlat(section.children)
+            }
+          })
+        }
+        makeFlat(articleSectionsStructure)
+        console.log('flat');
+        this.articleStructure?.set('articleSectionsStructure', articleSectionsStructure);
+        this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
+        
+      }
+
+    }catch(e){
+      console.log(e);
+    }
+    console.log(articleSectionsStructureFlat);
+
     return {
-      ydoc:this.ydoc,
-      provider:this.provider,
-      providerIndexedDb:this.providerIndexedDb!,
-      TREE_DATA:TREE_DATA
+      ydoc: this.ydoc,
+      provider: this.provider,
+      providerIndexedDb: this.providerIndexedDb!,
+      articleSectionsStructure: articleSectionsStructure
     }
   }
-  buildEditor(){
-    this.editorMetadata = this.ydoc.getMap('editorMetadata');
+  buildEditor() {
+    this.articleStructure = this.ydoc.getMap('articleStructure');
     this.comments = this.ydoc.getMap('comments');
     this.ydocStateObservable.next('docIsBuild');
     this.editorIsBuild = true;
   }
 
-  init(roomName:string){
-    this.roomName=roomName
+  init(roomName: string) {
+    this.roomName = roomName
     this.providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
     let buildApp = () => {
       this.provider = new WebrtcProvider(this.roomName, this.ydoc, {
@@ -165,12 +206,12 @@ export class YdocService {
         // Building the editor without backend for now just for developer purpose
         this.buildEditor();
         return
-        let onSubevent = fromEvent(this.provider!, 'signalingConnected').subscribe(()=>{
-          let r = race(this.http.get('/products').pipe(delay(500),catchError((err:any)=>{
+        let onSubevent = fromEvent(this.provider!, 'signalingConnected').subscribe(() => {
+          let r = race(this.http.get('/products').pipe(delay(500), catchError((err: any) => {
             console.log("ERROR", err);
             console.log("Editor build with local document");
             this.buildEditor();
-            throw(err)
+            throw (err)
           })), fromEvent(this.provider!, 'synced')).subscribe((data: any) => {
             let synced = this.provider?.room?.synced
             if (data.synced) {

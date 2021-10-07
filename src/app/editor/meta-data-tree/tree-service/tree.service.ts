@@ -4,21 +4,22 @@ import { YdocService } from '../../services/ydoc.service';
 import { treeNode } from '../../utils/interfaces/treeNode';
 import * as Y from 'yjs'
 import { uuidv4 } from 'lib0/random';
+import { articleSection } from '../../utils/interfaces/articleSection';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TreeService {
-  TREE_DATA?: treeNode[]
+  articleSectionsStructure?: articleSection[]
   treeVisibilityChange: Subject<any> = new Subject<any>();
   metadatachangeMap?: Y.Map<any>
-  metadataMap?: Y.Map<any>
+  articleStructureMap?: Y.Map<any>
   guid?: string
   toggleTreeDrawer: Subject<any> = new Subject<any>();
   constructor(private ydocService: YdocService) {
     let buildFunc = () => {
       this.guid = this.metadatachangeMap?.doc?.guid;
-      this.metadataMap = ydocService.getMetaDataMap()
+      this.articleStructureMap = ydocService.ydoc.getMap('articleStructure');
       this.metadatachangeMap?.observe((event, transaction) => {
         let metadatachange = this.metadatachangeMap?.get('change')
         if (this.guid != metadatachange.guid) {
@@ -36,12 +37,14 @@ export class TreeService {
             let { nodeRef, i } = this.deleteNodeById(metadatachange.childId);
           }
         }
-        this.metadataMap?.set('TREE_DATA', this.TREE_DATA)
+        //this.articleStructureMap?.set('articleSectionsStructure', this.articleSectionsStructure)
+        
       })
 
       this.treeVisibilityChange.subscribe((data) => {
         let guid = this.metadatachangeMap?.doc?.guid
         this.metadatachangeMap?.set('change', { ...data, guid })
+        this.setArticleSectionStructureFlat()
       })
     }
     if (this.ydocService.editorIsBuild) {
@@ -56,8 +59,28 @@ export class TreeService {
     });
   }
 
-  initTreeList(TREE_DATA: treeNode[]) {
-    this.TREE_DATA = TREE_DATA
+  setArticleSectionStructureFlat(){
+    //this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure')
+
+    let articleSectionsStructureFlat1:articleSection[] = []
+    let makeFlat = (structure:articleSection[]) => {
+      structure.forEach((section)=>{
+        if(section.active){
+          articleSectionsStructureFlat1.push(section)
+        }
+        if(section.children.length>0){
+          makeFlat(section.children)
+        }
+      })
+    }
+    makeFlat(this.articleSectionsStructure!)
+    //this.articleSectionsStructureFlat = articleSectionsStructureFlat1
+    this.ydocService.articleStructure?.set('articleSectionsStructureFlat',articleSectionsStructureFlat1)
+    this.ydocService.articleStructure?.set('articleSectionsStructure',this.articleSectionsStructure)
+  }
+
+  initTreeList(articleSectionsStructure: articleSection[]) {
+    this.articleSectionsStructure = articleSectionsStructure
   }
 
   dragNodeChange(from: number, to: number, id: string) {
@@ -80,27 +103,27 @@ export class TreeService {
   }
 
   findListArray(id: string) {
-    let arr: treeNode[] | undefined
-    let findF = (list?: treeNode[]) => {
+    let arr: articleSection[] | undefined
+    let findF = (list?: articleSection[]) => {
       list?.forEach((node) => {
-        if (node.id !== undefined && node.id == id) {
+        if (node.sectionID !== undefined && node.sectionID == id) {
           arr = node.children
         } else if (node.children) {
           findF(node.children)
         }
       })
     }
-    findF(this.TREE_DATA);
+    findF(this.articleSectionsStructure);
     return arr
   }
 
   deleteNodeById(id: string) {
-    let nodeRef: treeNode | undefined
+    let nodeRef: articleSection | undefined
     let i: number | undefined
-    let arrayRef: treeNode[] | undefined
-    let findF = (list?: treeNode[]) => {
+    let arrayRef: articleSection[] | undefined
+    let findF = (list?: articleSection[]) => {
       list?.forEach((node, index, array) => {
-        if (node.id !== undefined && node.id == id) {
+        if (node.sectionID !== undefined && node.sectionID == id) {
           nodeRef = node
           i = index
           arrayRef = array
@@ -109,30 +132,30 @@ export class TreeService {
         }
       })
     }
-    findF(this.TREE_DATA);
+    findF(this.articleSectionsStructure);
     arrayRef?.splice(i!, 1);
     return { nodeRef, i }
   }
 
   findNodeById(id: string) {
-    let nodeRef: treeNode | undefined
-    let findF = (list?: treeNode[]) => {
+    let nodeRef: articleSection | undefined
+    let findF = (list?: articleSection[]) => {
       list?.forEach((node) => {
-        if (node.id !== undefined && node.id == id) {
+        if (node.sectionID !== undefined && node.sectionID == id) {
           nodeRef = node
         } else if (node.children) {
           findF(node.children)
         }
       })
     }
-    findF(this.TREE_DATA);
+    findF(this.articleSectionsStructure);
     return nodeRef
   }
 
   applyNodeDrag(from: number, to: number, id: string) {
     if (id == 'parentList') {
-      let s = this.TREE_DATA?.splice(from, 1);
-      this.TREE_DATA?.splice(to, 0, ...s!)
+      let s = this.articleSectionsStructure?.splice(from, 1);
+      this.articleSectionsStructure?.splice(to, 0, ...s!)
       return
     }
     let listRef = this.findListArray(id);
@@ -147,7 +170,16 @@ export class TreeService {
     if (!nodeRef.children) {
       nodeRef.children = []
     }
-    nodeRef.children.push({ name: 'Subsection', id: childId!, children: [], edit: { bool: true, main: false }, active: false, add: { bool: true, main: false }, delete: { bool: true, main: true } },)
+    nodeRef.children.push({
+      sectionID: uuidv4(),
+      active: true,
+      title: { type: 'content', contentData: 'Title2' ,titleContent:"NewSection",key:'title'},
+      children: [],
+      edit: { bool: true, main: true },
+      add: { bool: true, main: false },mode:'documentMode',
+      delete: { bool: true, main: false },
+      sectionContent: { type: 'content', contentData: { editorId: uuidv4(), menuType: 'fullMenu' },key:'sectionContent'}
+    })
     return childId
   }
 

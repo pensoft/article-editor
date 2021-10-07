@@ -59,6 +59,21 @@ app-meta-data-tree {
   scrollbar-width: none;
 }
 
+text-content-type{
+  padding:2px;
+}
+
+app-article {
+  width: calc(100% - 52px);
+  height: 443px;
+  border-top-left-radius: 20px;
+  margin-top: 20px;
+  margin-left: 0;
+  display: inline-block;
+  margin-right: 0;
+  padding: 10px;
+}
+
 app-prosemirror-editor {
   width: calc(100% - 52px);
   height: 443px;

@@ -1,0 +1,5 @@
+<!-- <formio [form]="titleContent" [submission]='{"data": {"name": "Joe Smith"}}'  ></formio>  -->
+<!-- <mat-formio class="article-section" [form]="sectionContent" (submit)='submit($event)'></mat-formio> -->
+<ng-container *ngIf='renderForm'>
+    <mat-formio  class="article-section" [form]="sectionContent" ></mat-formio>
+</ng-container>

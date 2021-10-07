@@ -37,12 +37,15 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     private editorsService: ProsemirrorEditorsService,
     private ydocSrevice: YdocService,
     private detectFocus: DetectFocusService,) {
+
+
+
       try{
         this.commentAllowdIn = commentsService.commentAllowdIn
         this.selectedTextInEditors = commentsService.selectedTextInEditors
         this.commentsMap = this.ydocSrevice.getCommentsMap()
         this.addCommentSubject = commentsService.addCommentSubject
-        this.addCommentEditorId = commentsService.addCommentData.sectionId!
+        this.addCommentEditorId = commentsService.addCommentData.sectionName!
         this.lastFocusedEditor = detectFocus.sectionName
         if(this.lastFocusedEditor){
           this.editorView = this.editorsService.editorContainers[this.lastFocusedEditor!].editorView

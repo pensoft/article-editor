@@ -1,0 +1,5 @@
+<ng-container *ngIf='reload'>
+    <ng-container *ngFor="let section of articleSectionsStructureFlat,let i = index">
+        <app-section [(section)]="articleSectionsStructure![i]"></app-section>
+    </ng-container>
+</ng-container>

@@ -1,0 +1,27 @@
+::ng-deep .article-section {
+    mat-formio-table {
+        table {
+            width: 100%;
+            table-layout: fixed;
+            tr {
+                    width: 100%;
+                td {
+                    vertical-align: top;
+                    border: 1px solid black;
+                }
+                .drag-handle {
+                    display: table-cell;
+                    position: relative;
+                    width: fit-content;
+                    vertical-align: middle;
+                    .mat-icon {
+                        vertical-align: middle;
+                    }
+                }
+            }
+        }
+    }
+    .mat-cell {
+        width: 30%;
+    }
+}

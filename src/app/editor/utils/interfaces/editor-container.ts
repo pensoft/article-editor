@@ -2,7 +2,7 @@ import { EditorState, Transaction } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 
 export interface editorContainer {
-    name: string;
+    editorID: string;
     containerDiv: HTMLDivElement;
     editorState: EditorState;
     editorView: EditorView;

@@ -1,0 +1,11 @@
+<div class='popup-menu-container'></div>
+<ng-container class="section-container" *ngIf='data'>
+    <app-section [(section)] ="data"></app-section>
+</ng-container>
+<div class='action-container'>
+    <div class="actions">
+        <arpha-button label="Cancel" (clickEvent)="cancelEdit()" class="small secondary action-button negative-button">
+        </arpha-button>
+        <arpha-button label="Save" (clickEvent)="saveSection()" class="small primary action-button"></arpha-button>
+      </div>
+</div>

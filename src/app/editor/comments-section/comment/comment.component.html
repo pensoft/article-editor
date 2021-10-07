@@ -1,16 +1,16 @@
-<mat-card class="comment" *ngFor="let userComment of userComments">
+<mat-card class="comment-box" *ngFor="let userComment of userComments">
   <mat-card-header>
     <div mat-card-avatar class="comment-avatar"></div>
     <mat-card-title class="comment-title">Nikolay Ivanov</mat-card-title>
     <mat-card-subtitle class="comment-subtitle">11:28 AM Today</mat-card-subtitle>
 
     <div class="header-actions">
-      <arpha-button label="Resolve" style="background-color: transparent;" class="small secondary resolve-button"></arpha-button>
-      <button mat-icon-button [matMenuTriggerFor]="menu">
+      <arpha-button *ngIf="!mobileVersion" label="Resolve" style="background-color: transparent;" class="small secondary resolve-button"></arpha-button>
+      <button *ngIf="!mobileVersion" mat-icon-button [matMenuTriggerFor]="menu">
         <mat-icon>more_horiz</mat-icon>
       </button>
 
-      <mat-menu #menu="matMenu">
+      <mat-menu  #menu="matMenu">
         <button (click)="editComment(userComment.id, userComment.comment)" mat-menu-item>Edit</button>
         <button (click)="deleteComment()" mat-menu-item>Delete</button>
       </mat-menu>
@@ -23,12 +23,11 @@
       <div class="selected-text-content">{{comment!.text}}</div>
     </div>
 
-    <div #content class="comment-content" [class.show]="showMore">{{userComment.comment}}</div>
+    <!-- <div #content class="comment-content" [class.show]="showMore">{{userComment.comment}}</div>
     <a *ngIf="contentHeight >= MAX_CONTENT_HEIGHT" (click)="showMore = !showMore" class="show-more-label">{{
-      showMore ? 'Show less': 'Show More' }}</a>
+      showMore ? 'Show less': 'Show More' }}</a> -->
 
     <div class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
-
     <div #ReplyDiv style="display: none;">
       <div class="reply-input">
         <div class="input_div">

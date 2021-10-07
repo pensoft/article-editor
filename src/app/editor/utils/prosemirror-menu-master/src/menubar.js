@@ -38,7 +38,9 @@ class MenuBarView {
     this.editorView = editorView
     this.options = options
     
-    this.menuContainer = document.getElementsByClassName('menu-container')[0]
+    this.menuContainer = document.getElementsByClassName(options.containerClass)[0]
+    //this.menuContainer = document.getElementsByClassName('menu-container')[0]
+    //console.log(this.menuContainer,options.containerClass);
     this.wrapper = crel("div", {class: prefix + "-wrapper"})
     this.menu = this.menuContainer.appendChild(crel("div", {class: prefix}))
     this.menu.className = prefix

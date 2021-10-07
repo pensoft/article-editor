@@ -1,42 +1,38 @@
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
 import { YdocService } from '../services/ydoc.service';
-import { ydocData } from '../utils/interfaces/ydocData';
-
-
+import { articleSection, editorData } from '../utils/interfaces/articleSection';
 
 @Component({
   selector: 'app-prosemirror-editor',
   templateUrl: './prosemirror-editor.component.html',
   styleUrls: ['./prosemirror-editor.component.scss']
 })
-export class ProsemirrorEditorComponent implements AfterViewInit {
+export class ProsemirrorEditorComponent implements AfterViewInit{
 
   @ViewChild('editor', { read: ElementRef }) editor?: ElementRef;
+  @Input('data') data?:{contentData:editorData,sectionData:articleSection}
 
+  constructor(private prosemirrorService:ProsemirrorEditorsService,
+    private ydocService:YdocService,) { }
 
-  constructor(private prosemirrorService : ProsemirrorEditorsService,private ydocService:YdocService) {
-  }
-
-  ngAfterViewInit(){
-    let ref = this.editor?.nativeElement as HTMLDivElement
-    let editorOuterDiv = ref.parentElement?.getElementsByClassName('editor-outer-div').item(0) as HTMLDivElement
-    let i =()=>{
-      let editorDiv = this.prosemirrorService.init()!;
-      ref.parentElement?.appendChild(editorDiv)
-    }
-    if(!this.ydocService.editorIsBuild){
-      
-      this.ydocService.ydocStateObservable.subscribe((event) => {
-        if (event == 'docIsBuild') {
-          return i()
+  ngAfterViewInit(): void {
+    let awaitValue = ()=>{
+      setTimeout(() => {
+        if(this.data){
+          renderEditor()
+        }else{
+          awaitValue()
         }
-      });
-    }else{
-      return i()
+      }, 100);
     }
-
-    
-    
+    let renderEditor = ()=>{
+      try{
+        this.prosemirrorService.renderEditorIn(this.editor?.nativeElement,this.data?.contentData!,this.data?.sectionData!)
+      }catch(e){
+        console.log(e);
+      }
+    }
+    awaitValue()
   }
 }

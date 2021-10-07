@@ -244,7 +244,8 @@ export class WebrtcConn {
  */
 const broadcastBcMessage = (room, m) => cryptoutils.encrypt(m, room.key).then(data =>
   room.mux(() =>
-    bc.publish(room.name, data)
+    {//console.trace();
+    bc.publish(room.name, data)}
   )
 )
 

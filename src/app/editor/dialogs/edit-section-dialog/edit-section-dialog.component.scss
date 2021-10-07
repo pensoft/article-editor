@@ -1,0 +1,54 @@
+.popup-menu-container {
+    box-shadow: 0px 1px 21px -1px rgb(0 0 0 / 20%);
+    border-radius: 18px;
+    border-bottom-left-radius: 18px;
+    margin-bottom: 18px;
+    height: 43px;
+    width: 100%;
+}
+
+::ng-deep .section-container {
+    app-section {
+        .article-section {
+            height: calc(100% - 117px);
+            display: block;
+            overflow: hidden;
+            overflow-y: scroll;
+        }
+    }
+}
+
+.action-container {
+    position: relative;
+    height: 56px;
+    width: 100%;
+}
+
+.actions {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    .action-button {
+        &:first-of-type {
+            margin-right: 21px;
+        }
+        &:last-of-type {
+            margin-right: -3px;
+        }
+        ::ng-deep {
+            button {
+                width: 100px !important;
+                height: 33px !important;
+            }
+        }
+    }
+    .negative-button {
+        ::ng-deep {
+            button {
+                color: var(--color-676767) !important;
+                border-color: var(--color-676767) !important;
+                opacity: 0.69;
+            }
+        }
+    }
+}

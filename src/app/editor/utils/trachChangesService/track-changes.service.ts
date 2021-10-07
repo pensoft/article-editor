@@ -40,7 +40,7 @@ const checkPosition = (editorP: { top: number, bottom: number }, positionToCheck
   return undefined
 }
 
-let showChanges = true;
+let showChanges = false;
 
 @Injectable({
   providedIn: 'root'

@@ -1,5 +1,5 @@
 import {HttpClientModule} from '@angular/common/http';
-import {NgModule} from '@angular/core';
+import {Injector, NgModule} from '@angular/core';
 import {initializeApp, provideFirebaseApp} from '@angular/fire/app';
 import {getFirestore, provideFirestore} from '@angular/fire/firestore';
 import {BrowserModule} from '@angular/platform-browser';
@@ -18,7 +18,6 @@ import {EditorMenuComponent} from './editor/editor-menu/editor-menu.component';
 import {MetaDataTreeComponent} from './editor/meta-data-tree/meta-data-tree.component';
 import {CommentsSectionComponent} from './editor/comments-section/comments-section.component';
 import {ChangesSectionComponent} from './editor/changes-section/changes-section.component';
-import {ProsemirrorEditorComponent} from './editor/prosemirror-editor/prosemirror-editor.component';
 import {CommentComponent} from './editor/comments-section/comment/comment.component';
 import {AddCommentDialogComponent} from './editor/add-comment-dialog/add-comment-dialog.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
@@ -47,16 +46,23 @@ import {FormioAppConfig, FormioModule} from '@formio/angular';
 import { AppConfig } from './config';
 import { AddTaxonomyComponent } from 'src/app/editor/dialogs/add-taxonomy/add-taxonomy.component';
 import { TaxonomyEditorComponent } from './editor/taxonomy-editor/taxonomy-editor.component';
-
+import { SectionComponent } from './editor/section/section.component';
+import { EditorSectionComponent } from './editor/formioComponents/editor/editor-section.component';
+import { registerFormIOComponents } from './editor/formioComponents/registerFormIOComponents';
+import { ArticleComponent } from './editor/article/article.component';
+import { EditSectionDialogComponent } from './editor/dialogs/edit-section-dialog/edit-section-dialog.component';
+import { MatFormioModule } from './formio-angular-material/angular-material-formio.module';
+import { ProsemirrorEditorComponent } from './editor/prosemirror-editor/prosemirror-editor.component';
+import { TaxonomicCoverageComponent } from './editor/formioComponents/taxonomic-coverage/taxonomic-coverage.component';
 @NgModule({
   declarations: [
     AppComponent,
     EditorComponent,
+    TaxonomicCoverageComponent,
     EditorMenuComponent,
     MetaDataTreeComponent,
     CommentsSectionComponent,
     ChangesSectionComponent,
-    ProsemirrorEditorComponent,
     CommentComponent,
     AddCommentDialogComponent,
     MainComponent,
@@ -80,6 +86,11 @@ import { TaxonomyEditorComponent } from './editor/taxonomy-editor/taxonomy-edito
     InsertSpecialSymbolDialogComponent,
     AddTaxonomyComponent,
     TaxonomyEditorComponent,
+    SectionComponent,
+    EditorSectionComponent,
+    ArticleComponent,
+    EditSectionDialogComponent,
+    ProsemirrorEditorComponent,
   ],
   imports: [
     provideFirebaseApp(() => initializeApp({
@@ -97,6 +108,7 @@ import { TaxonomyEditorComponent } from './editor/taxonomy-editor/taxonomy-edito
     MaterialModule,
     FormsModule,
     ReactiveFormsModule,
+    MatFormioModule,
     FormioModule,
     DragDropModule,
     HttpClientModule,
@@ -108,16 +120,17 @@ import { TaxonomyEditorComponent } from './editor/taxonomy-editor/taxonomy-edito
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'
     }),
-    NgxSpinnerModule
+    NgxSpinnerModule,
   ],
   providers: [
     STORAGE_PROVIDERS,
     {provide: WindowToken, useFactory: windowProvider},
     {provide: FormioAppConfig, useValue: AppConfig},
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
 })
 export class AppModule {
-  constructor(public iconsRegisterService: IconsRegisterService) {
+  constructor(public iconsRegisterService: IconsRegisterService,injector: Injector) {
+    registerFormIOComponents(injector);
   }
 }

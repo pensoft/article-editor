@@ -13,6 +13,7 @@ import { TreeService } from './meta-data-tree/tree-service/tree.service';
 import { ProsemirrorEditorsService } from './services/prosemirror-editors.service';
 import { YdocService } from './services/ydoc.service';
 import { CommentsService } from './utils/commentsService/comments.service';
+import { articleSection } from './utils/interfaces/articleSection';
 import { treeNode } from './utils/interfaces/treeNode';
 import { TrackChangesService } from './utils/trachChangesService/track-changes.service';
 
@@ -23,14 +24,13 @@ import { TrackChangesService } from './utils/trachChangesService/track-changes.s
 })
 export class EditorComponent implements OnInit, AfterViewInit {
 
-  TREE_DATA?: treeNode[];
-
+  articleSectionsStructure?: articleSection[];
 
   ydoc?: Y.Doc;
   provider?: OriginalWebRtc;
   shouldBuild: boolean = false;
   roomName?: string | null;
-  showTrachChanges?: boolean = true;
+  showTrachChanges?: boolean = false;
   active = 'editor';
 
   @ViewChild('trachChangesOnOffBtn', { read: ElementRef }) trachChangesOnOffBtn?: ElementRef;
@@ -113,12 +113,16 @@ export class EditorComponent implements OnInit, AfterViewInit {
         let data = this.ydocService.getData();
         this.ydoc = data.ydoc;
         this.provider = data.provider;
-        this.TREE_DATA = data.TREE_DATA;
+        this.articleSectionsStructure = data.articleSectionsStructure;
         this.shouldBuild = true;
+        this.prosemirrorEditorServie.init();
       }
     });
 
     this.innerWidth = window.innerWidth;
+
+    this.prosemirrorEditorServie.mobileVersionSubject.next(this.innerWidth <= 600)  // set prosemirror editors to not be editable while in movile mod
+
   }
 
   ngAfterViewInit() {
@@ -177,6 +181,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   @HostListener('window:resize', [ '$event' ])
   onResize(event: any) {
     this.innerWidth = window.innerWidth;
+    this.prosemirrorEditorServie.mobileVersionSubject.next(this.innerWidth <= 600) // pass isMobile ot isNotMobile to prosemirror editors
   }
 
   print() {

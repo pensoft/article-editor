@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-import { debug } from 'console';
 import { Plugin, PluginKey } from 'prosemirror-state';
 import { Subject } from 'rxjs';
 @Injectable({
@@ -28,12 +27,10 @@ export class DetectFocusService {
         },
         apply(tr, prev, editorState, newState) {
           let pluginMeta = detectFocusPluginKey.getState(editorState)
-          console.log('pluginMeta',pluginMeta);
           if(pluginMeta){
             let focusRN = pluginMeta.focusRN;
             prev.hasFocus = focusRN;
-            if(focusRN){
-              console.log(prev.sectionName);
+            /* if(focusRN){
               setTimeout(() => {
                 focusedE.next(prev.sectionName);
               }, 10);
@@ -41,7 +38,7 @@ export class DetectFocusService {
             }else if(!focusRN){
               focusedE.next('');
 
-            }
+            } */
           }
           return prev
         },
@@ -52,12 +49,11 @@ export class DetectFocusService {
           update: (view, prevState) => {
             let {sectionName,hasFocus} = detectFocusPluginKey.getState(view.state)
             let focusRN = view.hasFocus()
-            console.log('focusRN',focusRN);
-            console.log('hasFocus',hasFocus);
             if(focusRN){
               setTimeout(() => {
                 focusedE.next(sectionName);
               }, 10);
+              setLastEditorFocus(sectionName)
             }
             /* if(focusRN !== hasFocus){
               hasFocus = focusRN

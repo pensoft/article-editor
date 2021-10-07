@@ -4,8 +4,7 @@ import {EditorComponent} from './editor/editor.component';
 import {MainComponent} from './layout/pages/main/main.component';
 import {LandingComponent} from './layout/pages/landing/landing.component';
 import {LoginComponent} from './layout/pages/login/login.component';
-import { pathToFileURL } from 'url';
-import { MetaDataTreeComponent } from './editor/meta-data-tree/meta-data-tree.component';
+import { ArticleComponent } from './editor/article/article.component';
 
 const routes: Routes = [
   {
@@ -13,6 +12,7 @@ const routes: Routes = [
     children: [
       {path: '', component: LandingComponent},
       {path: 'login', component: LoginComponent},
+      {path: 'formio', component: ArticleComponent},
       {path: ':id', component: EditorComponent},
     ]
   },

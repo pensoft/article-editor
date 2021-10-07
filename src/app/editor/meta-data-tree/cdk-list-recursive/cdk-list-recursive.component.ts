@@ -3,18 +3,21 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddTaxonomyComponent } from 'src/app/editor/dialogs/add-taxonomy/add-taxonomy.component';
 import { TaxonomyService } from 'src/app/editor/dialogs/add-taxonomy/taxonomy.service';
+import { EditSectionDialogComponent } from '../../dialogs/edit-section-dialog/edit-section-dialog.component';
+import { YdocService } from '../../services/ydoc.service';
 import { DetectFocusService } from '../../utils/detectFocusPlugin/detect-focus.service';
+import { articleSection } from '../../utils/interfaces/articleSection';
 import { TreeService } from '../tree-service/tree.service';
 
 @Component({
   selector: 'app-cdk-list-recursive',
   templateUrl: './cdk-list-recursive.component.html',
-  styleUrls: [ './cdk-list-recursive.component.scss' ]
+  styleUrls: ['./cdk-list-recursive.component.scss']
 })
 export class CdkListRecursiveComponent implements OnInit {
 
-  @Input() TREE_DATA!: any[];
-  @Output() TREE_DATAChange = new EventEmitter<any>();
+  @Input() articleSectionsStructure!: articleSection[];
+  @Output() articleSectionsStructureChange = new EventEmitter<any>();
 
   @Input() startFromIndex!: number;
 
@@ -30,6 +33,7 @@ export class CdkListRecursiveComponent implements OnInit {
   constructor(
     private taxonomyService: TaxonomyService,
     public treeService: TreeService,
+    public ydocService:YdocService,
     public detectFocusService: DetectFocusService,
     public dialog: MatDialog
   ) {
@@ -38,8 +42,8 @@ export class CdkListRecursiveComponent implements OnInit {
         this.focusedId = focusedEditorId;
       }
 
-      if (this.id !== 'parentList' && this.TREE_DATA.some((el) => {
-        return el.id == focusedEditorId;
+      if (this.id !== 'parentList' && this.articleSectionsStructure.some((el) => {
+        return el.sectionID == focusedEditorId;
       })) {
         this.expandParentFunc();
       }
@@ -47,57 +51,56 @@ export class CdkListRecursiveComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.taxonomyService.taxonomy.subscribe(x=>{
-      this.taxonomyData =  {
+    this.taxonomyService.taxonomy.subscribe(x => {
+      this.taxonomyData = {
         'title': 'Angular Formio',
         components: [
-        {
-          type: 'textfield',
-          label: 'rank',
-          defaultValue: x.rank,
-          key: 'firstName',
-          input: true
-        },
-        {
-          type: 'textfield',
-          label: 'Scientific Name',
-          defaultValue: x.scientificName,
-          key: 'lastName',
-          input: true
-        },
-        {
-          type: 'textfield',
-          label: 'Common Name',
-          defaultValue: x.commonName,
-          key: 'email',
-          input: true
-        },
-      ]
+          {
+            type: 'textfield',
+            label: 'rank',
+            defaultValue: x.rank,
+            key: 'firstName',
+            input: true
+          },
+          {
+            type: 'textfield',
+            label: 'Scientific Name',
+            defaultValue: x.scientificName,
+            key: 'lastName',
+            input: true
+          },
+          {
+            type: 'textfield',
+            label: 'Common Name',
+            defaultValue: x.commonName,
+            key: 'email',
+            input: true
+          },
+        ]
       };
     })
-    this.TREE_DATA.forEach((node: any, index: number) => {
+    this.articleSectionsStructure.forEach((node: any, index: number) => {
       this.icons[index] = 'chevron_right';
     });
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(this.TREE_DATA, event.previousIndex, event.currentIndex);
+    moveItemInArray(this.articleSectionsStructure, event.previousIndex, event.currentIndex);
 
     this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, this.id!);
 
   }
 
-  editNodeHandle(node: any) {
-    this.treeService.editNodeChange(node.id);
-    if (node.name == 'Taxonomy') {
-      this.dialog.open(AddTaxonomyComponent, {
-        width: '250px',
-        data: this.taxonomyData
-      }).afterClosed().subscribe(result => {
-        this.taxonomyService.taxonomy.next(result)
-      });
-    }
+  editNodeHandle(node: articleSection) {
+    this.treeService.editNodeChange(node.sectionID);
+    this.dialog.open(EditSectionDialogComponent, {
+      width: '70%',
+      height: '70%',
+      data: node
+    }).afterClosed().subscribe(result => {
 
+      console.log('editdialogCloseResult', result);
+    });
   }
 
   addNodeHandle(nodeId: string) {
@@ -161,7 +164,7 @@ export class CdkListRecursiveComponent implements OnInit {
             this.focusedId = '';
             /* el.classList.add(focusClass); */
           }
-          el.className = `border ${ borderClass } `;
+          el.className = `border ${borderClass} `;
           /* el.classList.remove(borderClass+"Inactive")
 
           el.classList.remove(borderClass)
@@ -178,7 +181,7 @@ export class CdkListRecursiveComponent implements OnInit {
 
             /* el.classList.add(focusClass); */
           }
-          el.className = `border ${ borderClass }Inactive`;
+          el.className = `border ${borderClass}Inactive`;
 
 
           /* el.classList.remove(borderClass)

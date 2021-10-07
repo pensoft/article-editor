@@ -11,6 +11,7 @@ import { MatCheckboxChange } from '@angular/material/checkbox';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { TreeService } from './tree-service/tree.service';
 import { treeNode } from '../utils/interfaces/treeNode';
+import { articleSection } from '../utils/interfaces/articleSection';
 
 @Component({
   selector: 'app-meta-data-tree',
@@ -19,7 +20,7 @@ import { treeNode } from '../utils/interfaces/treeNode';
 })
 
 export class MetaDataTreeComponent implements OnInit,AfterViewInit{
-  TREE_DATA ?:treeNode[]
+  articleSectionsStructure ?:articleSection[]
   
   
   metadataMap?:YMap<any>
@@ -27,15 +28,15 @@ export class MetaDataTreeComponent implements OnInit,AfterViewInit{
   }
   ngOnInit(){
     if (this.ydocService.editorIsBuild) {
-      this.TREE_DATA = this.ydocService.editorMetadata?.get('TREE_DATA');
-      this.metadataMap=this.ydocService.editorMetadata
-      this.treeService.initTreeList(this.TREE_DATA!)
+      this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
+      this.metadataMap=this.ydocService.articleStructure
+      this.treeService.initTreeList(this.articleSectionsStructure!)
     }
     this.ydocService.ydocStateObservable.subscribe((event) => {
       if (event == 'docIsBuild') {
-        this.TREE_DATA = this.ydocService.editorMetadata?.get('TREE_DATA');
-      this.metadataMap=this.ydocService.editorMetadata
-      this.treeService.initTreeList(this.TREE_DATA!)
+        this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
+      this.metadataMap=this.ydocService.articleStructure
+      this.treeService.initTreeList(this.articleSectionsStructure!)
     }
     });
   }
