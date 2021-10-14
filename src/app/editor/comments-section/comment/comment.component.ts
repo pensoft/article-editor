@@ -68,7 +68,6 @@ export class CommentComponent implements OnInit {
   }
 
   showHideReply(replyDiv:HTMLDivElement) {
-    console.log(replyDiv);
     if(replyDiv.style.display == 'block'){
       replyDiv.style.display = 'none';
     }else{

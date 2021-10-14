@@ -59,6 +59,11 @@ export class MenuService {
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
       ['insertMenu']
+    ],
+    'SimpleMenu': [
+      ['toggleStrong', 'toggleEm', 'toggleUnderline'],
+      ['toggleSubscriptItem', 'toggleSuperscriptItem'],
+      ['undoItem', 'redoItem'],
     ]
   }
 
@@ -92,21 +97,27 @@ export class MenuService {
     let menuBuild: any[] = []
     let menuItems = m.getItems()
     let getMenuItem = (itemName: string) => {
+      let item : any;
       if (itemName == 'alignMenu') {
-        return new Dropdown(menuItems[itemName], { class: "align-icon" })
+
+        item = new Dropdown(menuItems[itemName], { class: "align-icon" })
       } else if (itemName == 'tableMenu') {
-        return new Dropdown(menuItems[itemName], { class: "table-icon" })
+        item = new Dropdown(menuItems[itemName], { class: "table-icon" })
       } else if (itemName == 'textMenu') {
         let dropdown = new Dropdown2(menuItems[itemName], { class: "text-menu-icon" })
-        return dropdown
+        item = dropdown
       } else if (itemName == 'insertMenu') {
-        return new Dropdown(menuItems[itemName], { label: 'Insert' })
+        item = new Dropdown(menuItems[itemName], { label: 'Insert' })
       } else if (itemName == 'headings') {
         //@ts-ignore
-        return Object.values(menuItems['headings'])
+        item = Object.values(menuItems['headings'])
       } else {
-        return menuItems[itemName]
+        item = menuItems[itemName]
       }
+      if(!item){
+        console.error(`Could not find menu item with name "${itemName}" !!`);
+      }
+      return item
     }
     let buildDropDown = (name: string, type: string, content: any[], label?: string) => {
 

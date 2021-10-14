@@ -1,4 +1,4 @@
-import {Component, Input, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, OnInit} from '@angular/core';
+import {Component, Input, ViewChild, ElementRef, ChangeDetectorRef, AfterViewInit, OnInit, OnDestroy} from '@angular/core';
 import FormioComponent from './Base';
 //@ts-ignore
 import Validator from 'formiojs/validator/Validator.js';
@@ -9,7 +9,7 @@ import get from 'lodash/get';
   selector: 'mat-formio-comp',
   template: '<mat-card>Unknown Component: {{ instance.component.type }}</mat-card>'
 })
-export class MaterialComponent implements AfterViewInit, OnInit {
+export class MaterialComponent implements AfterViewInit, OnInit,OnDestroy {
   @Input() instance: any;
   @ViewChild('input') input?: ElementRef;
   @Input() control: FormioControl = new FormioControl();
@@ -22,6 +22,9 @@ export class MaterialComponent implements AfterViewInit, OnInit {
     this.instance.disabled = this.instance.shouldDisabled;
     this.setVisible(this.instance.visible);
     this.renderComponents();
+  }
+
+  ngOnDestroy(){
   }
 
   ngOnInit() {
@@ -79,6 +82,7 @@ export class MaterialComponent implements AfterViewInit, OnInit {
 
   onChange(keepInputRaw?: boolean) {
     let value = this.getValue();
+
     if (value === undefined || value === null) {
       value = this.instance.emptyValue;
     }

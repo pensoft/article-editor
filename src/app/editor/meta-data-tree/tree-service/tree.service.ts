@@ -4,7 +4,7 @@ import { YdocService } from '../../services/ydoc.service';
 import { treeNode } from '../../utils/interfaces/treeNode';
 import * as Y from 'yjs'
 import { uuidv4 } from 'lib0/random';
-import { articleSection } from '../../utils/interfaces/articleSection';
+import { articleSection, editorData } from '../../utils/interfaces/articleSection';
 
 @Injectable({
   providedIn: 'root'
@@ -26,7 +26,6 @@ export class TreeService {
           if (!this.ydocService.editorIsBuild) {
             return
           }
-          //console.log('change from someone else', metadatachange);
           if (metadatachange.action == 'listNodeDrag') {
             this.applyNodeDrag(metadatachange.from, metadatachange.to, metadatachange.id)
           } else if (metadatachange.action == 'editNode') {
@@ -88,7 +87,11 @@ export class TreeService {
   }
 
   editNodeChange(nodeId: string) {
-    this.applyEditChange(nodeId)
+    try{
+      this.applyEditChange(nodeId)
+    }catch(e){
+      console.log(e);
+    }
     this.treeVisibilityChange.next({ action: 'editNode', nodeId });
   }
 
@@ -173,7 +176,7 @@ export class TreeService {
     nodeRef.children.push({
       sectionID: uuidv4(),
       active: true,
-      title: { type: 'content', contentData: 'Title2' ,titleContent:"NewSection",key:'title'},
+      title: { type: 'content', contentData: 'Title2' ,titleContent:"NewSection",key:'titleContent'},
       children: [],
       edit: { bool: true, main: true },
       add: { bool: true, main: false },mode:'documentMode',
@@ -187,6 +190,32 @@ export class TreeService {
     let nodeRef = this.findNodeById(id)!;
     if (!nodeRef.active) {
       nodeRef.active = true
+
+    }
+    if(nodeRef.sectionContent.type=='TaxonTreatmentsMaterial'){
+      let nodeJsonStructure = this.articleStructureMap?.get(nodeRef.sectionID+'TaxonTreatmentsMaterial');
+      if(nodeJsonStructure == undefined){
+        let nodeJsonFormIOStructureObj:any = {}
+        let recursiveInputDetect = (components:any[])=>{
+          components.forEach((el)=>{
+            if(el.input){
+              let imputId = uuidv4()
+              el.key = imputId + '|'+ el.key 
+              nodeJsonFormIOStructureObj[imputId] = el
+            }
+            if(el.components){
+              if(el?.components.length > 0){
+                recursiveInputDetect(el.components);
+              }
+            }
+          })
+        }
+        let formioJsonCopy = JSON.parse(JSON.stringify((nodeRef.sectionContent.contentData! as editorData).editorMeta?.formioJson));
+        recursiveInputDetect([formioJsonCopy])
+        this.articleStructureMap?.set(nodeRef.sectionID+'TaxonTreatmentsMaterial',nodeJsonFormIOStructureObj);
+        this.articleStructureMap?.set(nodeRef.sectionID+'TaxonTreatmentsMaterialFormIOJson',formioJsonCopy);
+        console.log('TaxonTreatmentsMaterialFormIOJson',formioJsonCopy);
+      }
     }
 
   }

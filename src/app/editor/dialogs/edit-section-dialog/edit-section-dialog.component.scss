@@ -8,12 +8,15 @@
 }
 
 ::ng-deep .section-container {
+    height: 418px;
+    overflow: auto;
     app-section {
         .article-section {
             height: calc(100% - 117px);
             display: block;
             overflow: hidden;
             overflow-y: scroll;
+            
         }
     }
 }

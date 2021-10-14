@@ -18,10 +18,11 @@ import {
   REGEX_BLOCK_MATH_DOLLARS,
   REGEX_INLINE_MATH_DOLLARS
 } from '@benrbray/prosemirror-math';
+import { Node as prosemirrorNode } from 'prosemirror-model';
 import { EditorView } from 'prosemirror-view';
 import { EditorState, Transaction } from 'prosemirror-state';
 import { keymap } from 'prosemirror-keymap';
-import { redo, undo, yCursorPlugin, ySyncPlugin, yUndoPlugin } from 'y-prosemirror';
+import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from 'y-prosemirror';
 import { chainCommands, deleteSelection, joinBackward, selectNodeBackward } from 'prosemirror-commands';
 import { columnResizing, goToNextCell, tableEditing } from 'prosemirror-tables';
 //@ts-ignore
@@ -41,23 +42,25 @@ import { map } from 'rxjs/operators';
 import { YMap } from 'yjs/dist/src/internals';
 import { DOMSerializer, Slice } from 'prosemirror-model';
 import { pasteRules } from 'prosemirror-paste-rules';
-import { articleSection } from '../utils/interfaces/articleSection';
+import { articleSection, sectionContent, taxonomicCoverageContentData, titleContent } from '../utils/interfaces/articleSection';
 import { editorData } from '../utils/interfaces/articleSection';
 import { YdocCopyService } from './ydoc-copy.service';
+//@ts-ignore
+import { updateYFragment } from '../../y-prosemirror-src/plugins/sync-plugin.js';
 @Injectable({
   providedIn: 'root'
 })
 export class ProsemirrorEditorsService {
 
   ydoc?: Y.Doc;
-  ydocCopy?: Y.Doc
   provider?: WebrtcProvider;
 
   articleSectionsStructure?: articleSection[];
 
   initDocumentReplace: any = {};
 
-  editorContainers:any={}
+  editorContainers: any = {}
+  xmlFragments: {[key:string]:Y.XmlFragment} = {}
 
   color = random.oneOf(userSpec.colors);
   user = random.oneOf(userSpec.testUsers);
@@ -72,9 +75,12 @@ export class ProsemirrorEditorsService {
   shouldTrackChanges = false
   treeChangesCount = 0
   showChangesSubject
+  transactionCount = 0;
 
   mobileVersionSubject = new Subject<boolean>()
   mobileVersion = false;
+
+  editorsDeleteArray: string[] = []
 
   constructor(
     private menuService: MenuService,
@@ -86,11 +92,23 @@ export class ProsemirrorEditorsService {
     private ydocCopyService: YdocCopyService,
     private trackChangesService: TrackChangesService) {
 
-    this.mobileVersionSubject.subscribe((data)=>{
+    this.ydocCopyService.addEditorForDeleteSubject.subscribe((editorId) => {
+      this.addEditorForDelete(editorId);
+    })
+
+     /*setInterval(() => {
+      console.log('TransactionPerSecond', this.transactionCount, 'EditorsCount', Object.keys(this.editorContainers).length);
+      this.transactionCount = 0;
+    }, 1000)
+    setInterval(() => {
+      console.log('Ydoc', this.ydoc);
+    }, 1000) */
+
+    this.mobileVersionSubject.subscribe((data) => {
       // data == true => mobule version
       this.mobileVersion = data
     })
-    
+
     this.showChangesSubject = this.trackChangesService.showChangesSubject
     this.changesOnOffSubject.subscribe((data) => {
       this.shouldTrackChanges = data
@@ -100,7 +118,75 @@ export class ProsemirrorEditorsService {
       this.dispatchEmptyTransaction()
     })
 
-    
+
+  }
+
+  getXmlFragment(mode:string,id:string){
+    if(this.xmlFragments[id]){
+      return this.xmlFragments[id]
+    }
+    let xmlFragment = mode == 'editMode' ? this.ydocCopyService.ydoc?.getXmlFragment(id) : this.ydocService.ydoc?.getXmlFragment(id)
+    this.xmlFragments[id] = xmlFragment;
+    return xmlFragment
+  }
+
+  deleteXmlFragment(id:string){
+    if(this.xmlFragments[id]){
+      this.xmlFragments[id].delete(0,this.xmlFragments[id].length);
+    }
+    delete this.xmlFragments[id]
+  }
+
+  deleteEditor(id:any){
+    let deleteContainer = this.editorContainers[id];
+    if(deleteContainer){
+      /* {
+        editorID: editorID,
+        containerDiv: container,
+        editorState: edState,
+        editorView: editorView,
+        dispatchTransaction: dispatchTransaction
+      }; */
+      this.editorContainers[id].editorView.destroy();
+      delete this.editorContainers[id]
+      //this.deleteXmlFragment(id)
+    }
+  }
+
+  clearDeleteArray() {
+    this.ydocCopyService.clearYdocCopy();
+    while (this.editorsDeleteArray.length > 0) {
+      let deleteId = this.editorsDeleteArray.shift()!;
+      this.deleteEditor(deleteId)
+      this.deleteXmlFragment(deleteId)
+    }
+  }
+
+  addEditorForDelete(editorId: string) {
+    this.commentsService.removeEditorComment(editorId)
+    this.editorsDeleteArray.push(editorId);
+  }
+
+  markSectionForDelete(section: articleSection) {
+    let markEditor = (editorData: editorData) => {
+      let editorId = editorData.editorId
+      this.addEditorForDelete(editorId)
+    }
+    let markContent = (content: titleContent | sectionContent) => {
+      if (content.type == 'editorContentType') {
+        markEditor(content.contentData as editorData)
+      } else if (content.type == 'taxonomicCoverageContentType') {
+        let taxonomicContentData = content.contentData as taxonomicCoverageContentData
+        markEditor(taxonomicContentData.description)
+        taxonomicContentData.taxaArray.forEach((el, i, arr) => {
+          markEditor(arr[i].commonName)
+          markEditor(arr[i].scietificName)
+        })
+      }
+    }
+    markContent(section.title)
+    markContent(section.sectionContent)
+    this.ydocCopyService.clearYdocCopy()
   }
 
   dispatchEmptyTransaction() {  // for update of view 
@@ -110,15 +196,26 @@ export class ProsemirrorEditorsService {
     })
   }
 
-  renderEditorIn(container: HTMLDivElement, editorData:editorData,sectionData:articleSection) {
+  renderEditorIn(EditorContainer: HTMLDivElement, editorData: editorData, sectionData: articleSection):{
+    editorID: string,
+    containerDiv: HTMLDivElement,
+    editorState: EditorState,
+    editorView: EditorView,
+    dispatchTransaction: any
+  } {
+    
+    if(this.editorContainers[editorData.editorId]){
+      EditorContainer.appendChild(this.editorContainers[editorData.editorId].containerDiv);
+    return this.editorContainers[editorData.editorId]
+    }
+    let container = document.createElement('div');
     let editorView: EditorView;
     let colors = this.colors
     let colorMapping = this.colorMapping
     let permanentUserData = this.permanentUserData
     let editorID = editorData.editorId;
-    //console.log('sectionData',sectionData);
     let data = editorData.editorMeta
-    if(data?.label){
+    if (data?.label) {
       let labelDIv = document.createElement('div');
       labelDIv.setAttribute('class', 'editor-container-label-div');
       labelDIv.innerHTML = data.label
@@ -127,16 +224,32 @@ export class ProsemirrorEditorsService {
     let editorMode = sectionData.mode;
     let menuContainerClass = "menu-container";
 
-    let xmlFragment = sectionData.mode=='editMode'?this.ydocCopy?.getXmlFragment(editorID):this.ydoc?.getXmlFragment(editorID)
+    //let xmlFragment = sectionData.mode == 'editMode' ? this.ydocCopyService.ydoc?.getXmlFragment(editorID) : this.ydoc?.getXmlFragment(editorID)
+    let xmlFragment = this.getXmlFragment(sectionData.mode,editorID)
+    if(editorData.editorMeta?.prosemirrorJsonTemplate){
+      let xmlProsemirrorContent = yDocToProsemirrorJSON(xmlFragment.doc,editorID)
+      if(xmlProsemirrorContent.content.length == 0){
+        const node = prosemirrorNode.fromJSON(schema, editorData.editorMeta?.prosemirrorJsonTemplate)
+        updateYFragment(xmlFragment.doc, xmlFragment, node, new Map())
+      }
+    }
+    
+    
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
-      /* yCursorPlugin(this.provider!.awareness) , */
-      yUndoPlugin()]
-    if(editorMode!=='documentMode'){
+    /* yCursorPlugin(this.provider!.awareness) , */
+    yUndoPlugin()]
+
+    if (editorMode !== 'documentMode') {
       menuContainerClass = 'popup-menu-container';
-      yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),yUndoPlugin()];
+      //yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),  yUndoPlugin()];
     }
     container.setAttribute('class', 'editor-container');
-    
+
+
+    let plugins = [...yjsPlugins,
+    this.placeholderPluginService.getPlugin(),
+    //this.detectFocusService.getPlugin(),
+    ]
     let menu1
 
     menu1 = this.menuService.attachMenuItems(this.menu, this.ydoc!, editorData.menuType, editorID);
@@ -146,10 +259,10 @@ export class ProsemirrorEditorsService {
     setTimeout(() => {
       this.initDocumentReplace[editorID] = true;
     }, 1000);
-    
+
     let edState = EditorState.create({
       schema: schema,
-      plugins: [
+      plugins:/*  [
         ...yjsPlugins,
         mathPlugin,
         keymap({
@@ -164,27 +277,34 @@ export class ProsemirrorEditorsService {
         columnResizing({}),
         tableEditing(),
         this.placeholderPluginService.getPlugin(),
-        /* trackPlugin, */
+        //trackPlugin, 
         this.detectFocusService.getPlugin(),
         this.commentsService.getPlugin(),
         this.trackChangesService.getHideShowPlugin(),
         this.linkPopUpPluginService.linkPopUpPlugin,
         //commentsPlugin,
-        /* hideShowPlugin(this.changesContainer?.nativeElement), */
+        //hideShowPlugin(this.changesContainer?.nativeElement), 
         inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
         //commentPlugin,
 
-      ].concat(exampleSetup({ schema, menuContent: menu1 ,containerClass:menuContainerClass}))
+      ] */plugins.concat(exampleSetup({ schema, menuContent: menu1, containerClass: menuContainerClass }))
       ,
       // @ts-ignore
       sectionName: editorID,
       // @ts-ignore
       data
     });
-
+    let lastStep : any
     const dispatchTransaction = (transaction: Transaction) => {
-      //console.log(transaction.steps);
+      
+      this.transactionCount++
       try {
+        if(lastStep == transaction.steps[0]){
+          if(lastStep){
+            return
+          }
+        }
+        lastStep = transaction.steps[0]
         if (!this.initDocumentReplace[editorID] || !this.shouldTrackChanges) {
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
@@ -207,37 +327,45 @@ export class ProsemirrorEditorsService {
       clipboardTextSerializer: (slice: Slice) => {
         return mathSerializer.serializeSlice(slice);
       },
-      editable:(state:EditorState)=>{
-        return !this.mobileVersion      
+      editable: (state: EditorState) => {
+        return !this.mobileVersion
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,
-      transformPastedHTML:(html)=>{
+      transformPastedHTML: (html) => {
         let startTag = false
         //let html2 = html.replace(/ [-\S]+=["']?((?:.(?!["']?\s+(?:\S+)=|\s*\/?[>"']))*.)["']|<\/?body>|<\/?html>/gm,'');
-        let htm = html.replace(/ (class|data-id|data-track|style|data-group|data-viewid|data-user|data-username|data-date|data-pm-slice)=["']?((?:.(?!["']?\s+(?:\S+)=|\s*\/?[>"']))*.)["']/gm,'');
-        let html2 = htm.replace(/<\/?body>|<\/?html>/gm,'');
-        let html3 = html2.replace(/<\/?span *>/gm,'');
+        let htm = html.replace(/ (class|data-id|data-track|style|data-group|data-viewid|data-user|data-username|data-date|data-pm-slice)=["']?((?:.(?!["']?\s+(?:\S+)=|\s*\/?[>"']))*.)["']/gm, '');
+        let html2 = htm.replace(/<\/?body>|<\/?html>/gm, '');
+        let html3 = html2.replace(/<\/?span *>/gm, '');
         return html3
       },
+      /* nodeViews:{
+        'text-input':(node,view,getPos,decorations)=>{
+          return{
+            dom:node
+          }
+        }
+      } */
     });
+    EditorContainer.appendChild(container);
 
-    let editorCont: editorContainer = {
+    let editorCont: any = {
       editorID: editorID,
       containerDiv: container,
       editorState: edState,
       editorView: editorView,
       dispatchTransaction: dispatchTransaction
     };
-
+    
     this.editorContainers[editorID] = editorCont;
+    return editorCont
   }
 
   init() {
 
     let data = this.ydocService.getData();
     this.ydoc = data.ydoc;
-    this.ydocCopy = this.ydocCopyService.ydoc;
     this.provider = data.provider;
     this.articleSectionsStructure = data.articleSectionsStructure;
     this.permanentUserData = new Y.PermanentUserData(this.ydoc);

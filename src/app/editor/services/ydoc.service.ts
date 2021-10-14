@@ -65,7 +65,6 @@ export class YdocService {
     }
     findF(articleSectionsStructure);
     
-    console.log(nodeRef);
 
     let articleSectionsStructureFlat:articleSection[] = []
     let makeFlat = (structure:articleSection[]) => {
@@ -79,14 +78,12 @@ export class YdocService {
       })
     }
     makeFlat(articleSectionsStructure)
-    console.log(articleSectionsStructureFlat);
     this.articleStructure?.set('articleSectionsStructure', articleSectionsStructure);
     this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
   }
   
   applySectionChange(value:{ contentData:editorData|string|editorData|taxonomicCoverageContentData, sectionData: articleSection ,type:string}){
     let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
-    console.log(articleSectionsStructure);
     let nodeRef: any
     let findF = (list?: articleSection[]) => {
       list?.forEach((node) => {
@@ -100,7 +97,6 @@ export class YdocService {
     findF(articleSectionsStructure);
     
     nodeRef![value.type].contentData = value.contentData
-    console.log(nodeRef);
 
     let articleSectionsStructureFlat:articleSection[] = []
     let makeFlat = (structure:articleSection[]) => {
@@ -114,7 +110,6 @@ export class YdocService {
       })
     }
     makeFlat(articleSectionsStructure)
-    console.log(articleSectionsStructureFlat);
     this.articleStructure?.set('articleSectionsStructure', articleSectionsStructure);
     this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
   }
@@ -138,8 +133,9 @@ export class YdocService {
           })
         }
         makeFlat(articleSectionsStructure)
-        console.log('flat');
         this.articleStructure?.set('articleSectionsStructure', articleSectionsStructure);
+        console.log(articleSectionsStructure);
+        console.log(articleSectionsStructureFlat);
         this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
         
       }
@@ -147,7 +143,6 @@ export class YdocService {
     }catch(e){
       console.log(e);
     }
-    console.log(articleSectionsStructureFlat);
 
     return {
       ydoc: this.ydoc,

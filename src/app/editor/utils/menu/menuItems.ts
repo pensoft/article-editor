@@ -4,7 +4,7 @@ import { toggleMark } from "prosemirror-commands";
 import { Dropdown, MenuItem } from "prosemirror-menu"
 import { EditorState, NodeSelection, Transaction } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
-import { schema } from "../schema";
+import { schema,inputConstructor } from "../schema";
 import { addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow, mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell, deleteTable } from "prosemirror-tables";
 import { icons } from 'prosemirror-menu'
 import { wrapItem, blockTypeItem, selectParentNodeItem as selectParentNodeItemPM, undoItem as undoPM, redoItem as redoPM } from "prosemirror-menu"
@@ -13,7 +13,7 @@ import { wrapInList } from "prosemirror-schema-list";
 import { Subject } from 'rxjs';
 import { canInsert, createCustomIcon } from './common-methods';
 import { insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem } from './menu-dialogs';
-import { MarkType, NodeType } from 'prosemirror-model';
+import { MarkType, Node, NodeType } from 'prosemirror-model';
 
 import * as Y from 'yjs';
 
@@ -25,7 +25,22 @@ const addCommentIcon = {
 export const cut = (arr: MenuItem<any>[]) => arr.filter(x => x)
 
 function getLinkMenuItemRun(state: EditorState, dispatch: any, view: EditorView) {
-    return true;
+    //console.log(state.doc);
+    //return
+    
+    try{
+        //let node = selectNode.create({},[selectOptionNode.create({option:'dwqdwdqdwq'}),selectOptionNode.create({option:"defaultSelection"})])
+        let node = inputConstructor('dqwd','Label','DefaultPlaceholder...')
+        console.log(node);
+        let newTr = state.tr.insert(state.selection.from,node)
+        //let newTr = state.tr.insert(state.selection.from,[textInputLabelNode.create({text:'Label'}),textInputNode.create({}, [state.schema.text('DefaultPlaceholder...')])])
+        //console.log(state.doc.toJSON());
+        //let newTr = state.tr.insert(state.selection.from,[textInputLabelNode.create({text:'Label'}),textInputNode.create({}, [state.schema.text('qwdqwd')])])
+        view.dispatch(newTr)
+        return true;
+    }catch(e){
+        console.log(e);
+    }
 }
 
 function markItem(markType: MarkType, options: any) {
@@ -243,7 +258,7 @@ const addCommentMenuItem = (ydoc: Y.Doc, addCommentSubject: Subject<any>, sectio
 const getLinkMenuItem = new MenuItem({
     title: 'Get link',
     // @ts-ignore
-    run: getLinkMenuItemRun(),
+    run: getLinkMenuItemRun,
     enable(state) { return true },
     icon: createCustomIcon('link.svg', 19)
 })
@@ -253,7 +268,7 @@ const getLinkMenuItem = new MenuItem({
 const functionItem = new MenuItem({
     title: 'Function',
     // @ts-ignore
-    run: getLinkMenuItemRun(),
+    run: getLinkMenuItemRun,
     enable(state) { return true },
     icon: createCustomIcon('symbols.svg', 20)
 })
@@ -261,7 +276,7 @@ const functionItem = new MenuItem({
 const highLightMenuItem = new MenuItem({
     title: 'HighLight text',
     // @ts-ignore
-    run: getLinkMenuItemRun(),
+    run: getLinkMenuItemRun,
     enable(state) { return true },
     icon: createCustomIcon('highlight.svg')
 })
@@ -269,7 +284,7 @@ const highLightMenuItem = new MenuItem({
 const footnoteMenuItem = new MenuItem({
     title: 'Add Footnote',
     // @ts-ignore
-    run: getLinkMenuItemRun(),
+    run: getLinkMenuItemRun,
     enable(state) { return true },
     icon: createCustomIcon('insert.svg', 20)
 })
@@ -277,7 +292,7 @@ const footnoteMenuItem = new MenuItem({
 const spellCheckMenuItem = new MenuItem({
     title: 'Turn off/on spellcheck',
     // @ts-ignore
-    run: getLinkMenuItemRun(),
+    run: getLinkMenuItemRun,
     enable(state) { return true },
     icon: createCustomIcon('spellcheck.svg', 29)
 })
@@ -336,6 +351,7 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
     'highLightMenuItem': highLightMenuItem,
     'footnoteMenuItem': footnoteMenuItem,
     'spellCheckMenuItem': spellCheckMenuItem,
+    'toggleUnderline':toggleUnderline,
     // unfinished menu : 
     'textMenu': [toggleStrong, toggleEm, toggleUnderline, 'menuseparator', wrapOrderedList, wrapBulletList, 'menuseparator', toggleSubscriptItem, toggleSuperscriptItem, spellCheckMenuItem],
     'insertMenu': [insertImageItem, insertDiagramItem, new Dropdown(tableMenu, { class: "table-icon" }), footnoteMenuItem, functionItem, insertSpecialSymbolItem]

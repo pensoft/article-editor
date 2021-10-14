@@ -1,12 +1,8 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 import { MaterialComponent } from '../MaterialComponent';
 //@ts-ignore
 import TextAreaComponent from 'formiojs/components/textarea/TextArea.js';
 import isNil from 'lodash/isNil';
-import { ProsemirrorEditorsService } from 'src/app/editor/services/prosemirror-editors.service';
-import { uuidv4 } from 'lib0/random';
-import { YdocService } from 'src/app/editor/services/ydoc.service';
-import { AbstractType } from 'yjs';
 
 @Component({
   selector: 'mat-formio-textarea',

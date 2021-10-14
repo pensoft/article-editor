@@ -4,6 +4,7 @@ import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../services/ydoc.service';
 import { articleSection } from '../utils/interfaces/articleSection';
 import { ChangeDetectorRef } from '@angular/core';
+import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
 
 @Component({
   selector: 'app-article',
@@ -16,15 +17,8 @@ export class ArticleComponent implements OnInit {
   articleSectionsStructure:articleSection[]
   articleStructureMap :YMap<any>
   reload= true
-  constructor(private ydocService:YdocService,private ref: ChangeDetectorRef) {
-    /* this.ydocService.ydocXmlCopy.subscribe((data)=>{
-      if(data!==this.copy){
-        this.copy = data
-        if(data == false){
-          this.articleSectionsStructure = this.ydocService.articleStructure!.get('articleSectionsStructureFlat'); 
-        }
-      }
-    }) */
+  constructor(private ydocService:YdocService,private ref: ChangeDetectorRef,public prosemirrorEditorsService:ProsemirrorEditorsService) {
+   
     this.articleStructureMap = this.ydocService.articleStructure!;
     this.articleStructureMap.observe((data)=>{
       this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
@@ -33,6 +27,10 @@ export class ArticleComponent implements OnInit {
     })
     this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
     this.makeFlat();
+  }
+
+  logYdoc(){
+    console.log(this.ydocService.ydoc);
   }
 
   ngOnInit(): void {

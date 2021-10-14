@@ -46,6 +46,7 @@
     "@types/prosemirror-state": "^1.2.7",
     "@types/prosemirror-transform": "^1.1.4",
     "angular-material-formio": "^1.30.0",
+    "crel": "^4.2.1",
     "document-register-element": "^1.7.2",
     "firebase": "^9.0.0",
     "formiojs": "^4.13.7",

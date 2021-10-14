@@ -160,6 +160,10 @@
     margin-bottom: 23px;
 }
 
+.editor-focus-element{
+    padding:2px;
+}
+
 ::ng-deep .ProseMirror p:first-child,
 ::ng-deep .ProseMirror h1:first-child,
 ::ng-deep .ProseMirror h2:first-child,
@@ -171,7 +175,7 @@
 }
 
 ::ng-deep .ProseMirror {
-    line-height: 1.2;
+    line-height: 1.5;
     outline: none;
 }
 

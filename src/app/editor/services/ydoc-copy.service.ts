@@ -24,6 +24,7 @@ import { editorData, titleContent, sectionContent, taxonomicCoverageContentData,
 import { articleBasicStructure, editorFactory } from '../utils/articleBasicStructure';
 import { YdocService } from './ydoc.service';
 import { AbstractType } from 'yjs';
+import { ProsemirrorEditorsService } from './prosemirror-editors.service';
 
 @Injectable({
   providedIn: 'root'
@@ -31,8 +32,9 @@ import { AbstractType } from 'yjs';
 export class YdocCopyService {
 
   ydoc = new Y.Doc();
+  addEditorForDeleteSubject:Subject<string> = new Subject<string>();
 
-  constructor(public ydocService: YdocService) {
+  constructor(public ydocService: YdocService/* ,public prosemirrorEditorsService:ProsemirrorEditorsService */) {
     
   }
 
@@ -45,6 +47,10 @@ export class YdocCopyService {
     //this.prosemirrorService.renderEditorIn(this.editor?.nativeElement,this.newValue.contentData)
     return newEditorId
 
+  }
+
+  clearYdocCopy(){
+    this.ydoc = new Y.Doc();
   }
 
   saveXmlFragmentWithId(id:string,saveId:string){ // id : id in the main ydoc   || saveId  :  id in the copy doc
@@ -60,9 +66,10 @@ export class YdocCopyService {
     //let data: articleSection = JSON.parse(JSON.stringify(section));
 
     sectionBeforeUpdate.mode = 'documentMode'
-    let updateEditorWithId = (editorDataBefore: editorData,editorDataAfter: editorData) => {
+    let updateEditorWithId = (editorDataBefore: editorData,editorDataAfter: editorData,editorMeta?:any) => {
       let oldEditorId = editorDataBefore.editorId
       let newEditorId = editorDataAfter.editorId;
+      editorMeta?editorDataBefore.editorMeta = editorMeta:editorMeta
       this.saveXmlFragmentWithId(oldEditorId,newEditorId);
     }
     let updateContent = (contentBefore: titleContent | sectionContent,contentAfter: titleContent | sectionContent) => {
@@ -72,22 +79,26 @@ export class YdocCopyService {
         let taxonomicContentDataBefore = contentBefore.contentData as taxonomicCoverageContentData
         let taxonomicContentDataAfter = contentAfter.contentData as taxonomicCoverageContentData
         updateEditorWithId(taxonomicContentDataBefore.description,taxonomicContentDataAfter.description)
-        console.log(taxonomicContentDataAfter.taxaArray);
         taxonomicContentDataAfter.taxaArray.forEach((el, i, arr) => {
           if(!taxonomicContentDataBefore.taxaArray[i]){
             taxonomicContentDataBefore.taxaArray[i] = {
-              scietificName:editorFactory({placeHolder:'ScietificName...',label:'Scietific name'}),
+              scietificName:editorFactory({placeHolder:'ScientificName...',label:'Scientific name'}),
               commonName:editorFactory({placeHolder:'CommonName...',label:'Common name'}),
               rank:{options:['kingdom','genus','genus2']}
             }
           }
-          updateEditorWithId(taxonomicContentDataBefore.taxaArray[i].commonName,arr[i].commonName)
-          updateEditorWithId(taxonomicContentDataBefore.taxaArray[i].scietificName,arr[i].scietificName)
+          updateEditorWithId(taxonomicContentDataBefore.taxaArray[i].commonName,arr[i].commonName,{placeHolder:'Common name...'})
+          updateEditorWithId(taxonomicContentDataBefore.taxaArray[i].scietificName,arr[i].scietificName,{placeHolder:'Scientific name...'})
+          taxonomicContentDataBefore.taxaArray[i].rank.defaulValue = arr[i].rank.defaulValue
         })
         let newTaxaArray:taxa[] = []
         taxonomicContentDataBefore.taxaArray.forEach((el, i, arr) => {
           if(taxonomicContentDataAfter.taxaArray[i]){
             newTaxaArray.push(el)
+          }else{
+            this.addEditorForDeleteSubject.next(el.commonName.editorId)
+            this.addEditorForDeleteSubject.next(el.scietificName.editorId)
+            
           }
         })
         taxonomicContentDataBefore.taxaArray = newTaxaArray

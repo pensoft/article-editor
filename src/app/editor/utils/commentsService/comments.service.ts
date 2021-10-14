@@ -19,7 +19,7 @@ export class CommentsService {
   commentPluginKey: PluginKey
   storeData: any;
   editorsOuterDiv?: HTMLDivElement
-  commentsObject: any
+  commentsObject: any 
   commentsVisibilityChange: Subject<any>
   addCommentData: any = {}
   commentAllowdIn?: any = {} // editor id where comment can be made RN equals ''/undefined if there is no such editor RN
@@ -183,7 +183,9 @@ export class CommentsService {
     }
   }
 
-
+  removeEditorComment(editorId:any){
+    this.commentsObject[editorId] = [];
+  }
 
   init() {
     this.editorsOuterDiv = document.getElementsByClassName('editor')[0] as HTMLDivElement

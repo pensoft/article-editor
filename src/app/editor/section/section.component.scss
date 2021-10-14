@@ -1,27 +1,51 @@
-::ng-deep .article-section {
-    mat-formio-table {
-        table {
-            width: 100%;
-            table-layout: fixed;
-            tr {
-                    width: 100%;
-                td {
-                    vertical-align: top;
-                    border: 1px solid black;
-                }
-                .drag-handle {
-                    display: table-cell;
-                    position: relative;
-                    width: fit-content;
-                    vertical-align: middle;
-                    .mat-icon {
-                        vertical-align: middle;
-                    }
-                }
+.sectioon-wrapper{
+    //border:1px solid black;
+}
+::ng-deep .section-container {
+    height: 418px;
+    overflow: auto;
+    app-section {
+        .article-section {
+            height: calc(100% - 117px);
+            display: block;
+            overflow: hidden;
+            overflow-y: scroll;
+            
+        }
+    }
+}
+
+.action-container {
+    position: relative;
+    height: 56px;
+    width: 100%;
+}
+
+.actions {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    .action-button {
+        &:first-of-type {
+            margin-right: 21px;
+        }
+        &:last-of-type {
+            margin-right: -3px;
+        }
+        ::ng-deep {
+            button {
+                width: 100px !important;
+                height: 33px !important;
             }
         }
     }
-    .mat-cell {
-        width: 30%;
+    .negative-button {
+        ::ng-deep {
+            button {
+                color: var(--color-676767) !important;
+                border-color: var(--color-676767) !important;
+                opacity: 0.69;
+            }
+        }
     }
 }

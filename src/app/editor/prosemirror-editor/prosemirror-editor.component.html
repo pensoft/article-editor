@@ -1,2 +1,10 @@
-<div #editor ></div>
 
+<div #focusElement class='editor-focus-element' (mouseover)="showEditor()" (click)="clickEditor()" (mouseout)="showXmlFragment()"> 
+    <div 
+        *ngIf='data' 
+        #editor 
+        
+    ></div>
+</div>
+
+<!-- -->

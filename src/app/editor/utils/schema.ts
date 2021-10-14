@@ -1,10 +1,13 @@
-import { MarkSpec, NodeSpec, Schema } from 'prosemirror-model';
+import { MarkSpec, Node, NodeSpec, NodeType, Schema } from 'prosemirror-model';
 import { nodes as basicnodes, marks as basicmarks } from 'prosemirror-schema-basic';
 import { tableNodes } from 'prosemirror-tables';
 //@ts-ignore
 import {trackChangesMarks,commentMark} from './trackChanges/wax-prosemirror-schema'
 //@ts-ignore
 import { SchemaHelpers } from 'wax-prosemirror-utilities';
+import { createLoweredSymbol } from '@angular/compiler';
+//@ts-ignore
+import crel from 'crel';
 
 const olDOM = ["ol", 0], ulDOM = ["ul", 0], liDOM = ["li", 0]
 
@@ -52,6 +55,72 @@ const nodes: NodeSpec = {
       'data-viewid': node.attrs.viewid,
 
     }, 0]; }
+  },
+
+  inputContainer:{
+    group:'inline',
+    content: "inline*",
+    inline:true,
+    selectable:false,
+    attrs:{
+      inputId:{
+        default:''
+      }
+    },
+    draggable:false,
+    toDOM(node:Node){
+      //let el = crel('text-input',{'style':'border:1px solid black'}) 
+      //let textNode = schema.text('PlaceHolder');
+      
+      return ['input-container',{'data-input-id':node.attrs.inputId},0]
+    },
+    parseDom:[{
+      tag: "input-container" ,getAttrs(dom: any) {
+        return { inputId:dom.dataset.inputId }
+      }
+    }]
+  },
+  textInputLabel:{
+    group:'inline',
+    content: "text*",
+    inline:true,
+    atom:true,
+    selectable:false,
+    draggable:false,
+    attrs:{
+      text:{
+        default:'defaultLabel'
+      }
+    },
+    toDOM(node:Node){
+      return crel('span',{'style':"color:gray"},node.attrs.text)
+    },
+    parseDom:[{
+      tag: "span", getAttrs(dom: any) {
+        console.log('dom',dom);
+        return { text: dom.textContent }
+      }
+    }]
+  },
+
+  textInput:{
+    group:'inline',
+    content: "text*",
+    inline:true,
+    selectable:false,
+    draggable:false,
+    toDOM(node:Node){
+      //let el = crel('text-input',{'style':'border:1px solid black'}) 
+      //let textNode = schema.text('PlaceHolder');
+      
+      return ['text-input',{'style':'border:1px solid black;margin-left:3px;margin-right:3px'},0]
+    },
+    parseDom:[{
+      tag: "text-input" ,getAttrs(dom: any) {
+        console.log('dom',dom);
+        return {  }
+      }
+    }]
   },
 
   video: {
@@ -143,6 +212,7 @@ const nodes: NodeSpec = {
     }
   }),
   //...trackChangesNodes,
+  
 }
 
 const marks: MarkSpec = {
@@ -180,3 +250,10 @@ const marks: MarkSpec = {
 
 export { nodes, marks }
 export const schema = new Schema({ nodes, marks });
+export function inputConstructor(id:string,label:string,placeholder:string){
+  let textInputLabelNode = schema.nodes.textInputLabel as NodeType
+  let textInputNode = schema.nodes.textInput as NodeType
+  let inputContainer = schema.nodes.inputContainer as NodeType
+  let node = inputContainer.create({inputId:id},[textInputLabelNode.create({text:label}),textInputNode.create({}, [schema.text(placeholder)]),textInputLabelNode.create({text:';  '})])
+  return node;
+}

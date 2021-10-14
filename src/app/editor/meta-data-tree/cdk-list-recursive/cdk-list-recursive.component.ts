@@ -4,6 +4,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddTaxonomyComponent } from 'src/app/editor/dialogs/add-taxonomy/add-taxonomy.component';
 import { TaxonomyService } from 'src/app/editor/dialogs/add-taxonomy/taxonomy.service';
 import { EditSectionDialogComponent } from '../../dialogs/edit-section-dialog/edit-section-dialog.component';
+import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
+import { YdocCopyService } from '../../services/ydoc-copy.service';
 import { YdocService } from '../../services/ydoc.service';
 import { DetectFocusService } from '../../utils/detectFocusPlugin/detect-focus.service';
 import { articleSection } from '../../utils/interfaces/articleSection';
@@ -34,7 +36,9 @@ export class CdkListRecursiveComponent implements OnInit {
     private taxonomyService: TaxonomyService,
     public treeService: TreeService,
     public ydocService:YdocService,
+    public ydocCopyService:YdocCopyService,
     public detectFocusService: DetectFocusService,
+    public prosemirrorEditorsService:ProsemirrorEditorsService,
     public dialog: MatDialog
   ) {
     detectFocusService.getSubject().subscribe((focusedEditorId) => {
@@ -96,10 +100,16 @@ export class CdkListRecursiveComponent implements OnInit {
     this.dialog.open(EditSectionDialogComponent, {
       width: '70%',
       height: '70%',
-      data: node
+      data: node,
+      disableClose: false 
     }).afterClosed().subscribe(result => {
+      console.log('EditSectionResult',result);
+      if(result.submitType == 'TaxonTreatmentsMaterial'){
 
-      console.log('editdialogCloseResult', result);
+      }else if(result.submitType =='sectionUpdate'){
+      }
+      this.prosemirrorEditorsService.markSectionForDelete(result)
+      this.prosemirrorEditorsService.clearDeleteArray();
     });
   }
 

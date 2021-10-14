@@ -33,7 +33,6 @@ export const insertImageItem = new MenuItem({
         if (!image) {
           return;
         }
-        console.log(image);
         // view?.dispatch(view.state.tr.replaceSelectionWith(state.schema.nodes.image.createAndFill(attrs)!))
         // view?.focus();
       });
@@ -60,7 +59,6 @@ export const insertDiagramItem = new MenuItem({
         if (!data) {
           return;
         }
-        console.log(data.data);
         // view?.dispatch(view.state.tr.replaceSelectionWith(state.schema.nodes.image.createAndFill(attrs)!))
         // view?.focus();
       });
@@ -87,7 +85,6 @@ export const insertSpecialSymbolItem = new MenuItem({
         if (!data) {
           return;
         }
-        console.log(data.data);
         // view?.dispatch(view.state.tr.replaceSelectionWith(state.schema.nodes.image.createAndFill(attrs)!))
         // view?.focus();
       });
@@ -151,12 +148,10 @@ export const insertLinkItem = new MenuItem({
       data: { url: url, text: text }
     });
     dialogRef.afterClosed().subscribe(result => {
-      console.log("result", result);
       if (result) {
         let { from, to } = state.selection;
         let mark = state.schema.marks.link.create({ href: result.url, title: result.text })
         let newtextNode = state.schema.text(result.text, [mark])
-        console.log('newtextNode', newtextNode);
         let tr = state.tr.replaceRangeWith(from, to, newtextNode);
         dispatch(tr);
         toggleMark(state.schema.marks.link);
@@ -204,7 +199,6 @@ export const addAnchorTagItem = new MenuItem({
     });
     dialogRef.afterClosed().subscribe(result => {
       anchorid = result;
-      console.log(anchorid);
       toggleMark(state.schema.marks.anchorTag, { id: anchorid })(state, dispatch)
     });
   },
