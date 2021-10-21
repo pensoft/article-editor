@@ -10,6 +10,10 @@ import { YdocService } from '../../services/ydoc.service';
 import { DetectFocusService } from '../../utils/detectFocusPlugin/detect-focus.service';
 import { articleSection } from '../../utils/interfaces/articleSection';
 import { TreeService } from '../tree-service/tree.service';
+import { DOMParser } from 'prosemirror-model';
+//@ts-ignore
+import { updateYFragment } from '../../../y-prosemirror-src/plugins/sync-plugin.js'
+import { schema, } from '../../utils/schema';
 
 @Component({
   selector: 'app-cdk-list-recursive',
@@ -35,10 +39,10 @@ export class CdkListRecursiveComponent implements OnInit {
   constructor(
     private taxonomyService: TaxonomyService,
     public treeService: TreeService,
-    public ydocService:YdocService,
-    public ydocCopyService:YdocCopyService,
+    public ydocService: YdocService,
+    public ydocCopyService: YdocCopyService,
     public detectFocusService: DetectFocusService,
-    public prosemirrorEditorsService:ProsemirrorEditorsService,
+    public prosemirrorEditorsService: ProsemirrorEditorsService,
     public dialog: MatDialog
   ) {
     detectFocusService.getSubject().subscribe((focusedEditorId) => {
@@ -96,20 +100,30 @@ export class CdkListRecursiveComponent implements OnInit {
   }
 
   editNodeHandle(node: articleSection) {
-    this.treeService.editNodeChange(node.sectionID);
     this.dialog.open(EditSectionDialogComponent, {
       width: '70%',
       height: '70%',
       data: node,
-      disableClose: false 
+      disableClose: false
     }).afterClosed().subscribe(result => {
-      console.log('EditSectionResult',result);
-      if(result.submitType == 'TaxonTreatmentsMaterial'){
+      let prosemirrorNodeHtml = result.data.textAreaHTMLEditor as string
+      let str = prosemirrorNodeHtml.supplant(result);
+      let sectionID = result.section.sectionID
+      let xmlFragment = this.ydocService.ydoc.getXmlFragment(sectionID);    // oldEditorXmlFragment
 
+      let templDiv = document.createElement('div');
+      templDiv.innerHTML = str!
+      let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
+      console.log(str!);
+      updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
+
+      this.treeService.editNodeChange(node.sectionID)
+      /* if(result.submitType == 'TaxonTreatmentsMaterial'){
+        
       }else if(result.submitType =='sectionUpdate'){
       }
       this.prosemirrorEditorsService.markSectionForDelete(result)
-      this.prosemirrorEditorsService.clearDeleteArray();
+      this.prosemirrorEditorsService.clearDeleteArray(); */
     });
   }
 

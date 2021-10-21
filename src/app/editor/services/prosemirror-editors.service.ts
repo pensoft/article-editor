@@ -20,7 +20,7 @@ import {
 } from '@benrbray/prosemirror-math';
 import { Node as prosemirrorNode } from 'prosemirror-model';
 import { EditorView } from 'prosemirror-view';
-import { EditorState, Transaction } from 'prosemirror-state';
+import { EditorState, Plugin, Transaction } from 'prosemirror-state';
 import { keymap } from 'prosemirror-keymap';
 import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from 'y-prosemirror';
 import { chainCommands, deleteSelection, joinBackward, selectNodeBackward } from 'prosemirror-commands';
@@ -47,6 +47,11 @@ import { editorData } from '../utils/interfaces/articleSection';
 import { YdocCopyService } from './ydoc-copy.service';
 //@ts-ignore
 import { updateYFragment } from '../../y-prosemirror-src/plugins/sync-plugin.js';
+import { SELECT_PANEL_MAX_HEIGHT } from '@angular/material/select/select';
+import { Selection } from 'prosemirror-state';
+import { GapCursor } from 'prosemirror-gapcursor';
+import { StepResult } from 'prosemirror-transform';
+import { _fixedSizeVirtualScrollStrategyFactory } from '@angular/cdk/scrolling';
 @Injectable({
   providedIn: 'root'
 })
@@ -60,7 +65,7 @@ export class ProsemirrorEditorsService {
   initDocumentReplace: any = {};
 
   editorContainers: any = {}
-  xmlFragments: {[key:string]:Y.XmlFragment} = {}
+  xmlFragments: { [key: string]: Y.XmlFragment } = {}
 
   color = random.oneOf(userSpec.colors);
   user = random.oneOf(userSpec.testUsers);
@@ -96,13 +101,13 @@ export class ProsemirrorEditorsService {
       this.addEditorForDelete(editorId);
     })
 
-     /*setInterval(() => {
-      console.log('TransactionPerSecond', this.transactionCount, 'EditorsCount', Object.keys(this.editorContainers).length);
-      this.transactionCount = 0;
-    }, 1000)
-    setInterval(() => {
-      console.log('Ydoc', this.ydoc);
-    }, 1000) */
+    /*setInterval(() => {
+     console.log('TransactionPerSecond', this.transactionCount, 'EditorsCount', Object.keys(this.editorContainers).length);
+     this.transactionCount = 0;
+   }, 1000)
+   setInterval(() => {
+     console.log('Ydoc', this.ydoc);
+   }, 1000) */
 
     this.mobileVersionSubject.subscribe((data) => {
       // data == true => mobule version
@@ -121,8 +126,8 @@ export class ProsemirrorEditorsService {
 
   }
 
-  getXmlFragment(mode:string,id:string){
-    if(this.xmlFragments[id]){
+  getXmlFragment(mode: string, id: string) {
+    if (this.xmlFragments[id]) {
       return this.xmlFragments[id]
     }
     let xmlFragment = mode == 'editMode' ? this.ydocCopyService.ydoc?.getXmlFragment(id) : this.ydocService.ydoc?.getXmlFragment(id)
@@ -130,16 +135,16 @@ export class ProsemirrorEditorsService {
     return xmlFragment
   }
 
-  deleteXmlFragment(id:string){
-    if(this.xmlFragments[id]){
-      this.xmlFragments[id].delete(0,this.xmlFragments[id].length);
+  deleteXmlFragment(id: string) {
+    if (this.xmlFragments[id]) {
+      this.xmlFragments[id].delete(0, this.xmlFragments[id].length);
     }
     delete this.xmlFragments[id]
   }
 
-  deleteEditor(id:any){
+  deleteEditor(id: any) {
     let deleteContainer = this.editorContainers[id];
-    if(deleteContainer){
+    if (deleteContainer) {
       /* {
         editorID: editorID,
         containerDiv: container,
@@ -189,24 +194,24 @@ export class ProsemirrorEditorsService {
     this.ydocCopyService.clearYdocCopy()
   }
 
-  dispatchEmptyTransaction() {  // for update of view 
+  dispatchEmptyTransaction() {  // for update of view
     Object.values(this.editorContainers).forEach((container: any) => {
       let editorState = container.editorView.state as EditorState
       container.editorView.dispatch(editorState.tr)
     })
   }
 
-  renderEditorIn(EditorContainer: HTMLDivElement, editorData: editorData, sectionData: articleSection):{
+  renderEditorIn(EditorContainer: HTMLDivElement, editorData: editorData, sectionData: articleSection): {
     editorID: string,
     containerDiv: HTMLDivElement,
     editorState: EditorState,
     editorView: EditorView,
     dispatchTransaction: any
   } {
-    
-    if(this.editorContainers[editorData.editorId]){
+
+    if (this.editorContainers[editorData.editorId]) {
       EditorContainer.appendChild(this.editorContainers[editorData.editorId].containerDiv);
-    return this.editorContainers[editorData.editorId]
+      return this.editorContainers[editorData.editorId]
     }
     let container = document.createElement('div');
     let editorView: EditorView;
@@ -225,31 +230,40 @@ export class ProsemirrorEditorsService {
     let menuContainerClass = "menu-container";
 
     //let xmlFragment = sectionData.mode == 'editMode' ? this.ydocCopyService.ydoc?.getXmlFragment(editorID) : this.ydoc?.getXmlFragment(editorID)
-    let xmlFragment = this.getXmlFragment(sectionData.mode,editorID)
-    if(editorData.editorMeta?.prosemirrorJsonTemplate){
-      let xmlProsemirrorContent = yDocToProsemirrorJSON(xmlFragment.doc,editorID)
-      if(xmlProsemirrorContent.content.length == 0){
+    let xmlFragment = this.getXmlFragment(sectionData.mode, editorID)
+    if (editorData.editorMeta?.prosemirrorJsonTemplate) {
+      let xmlProsemirrorContent = yDocToProsemirrorJSON(xmlFragment.doc, editorID)
+      if (xmlProsemirrorContent.content.length == 0) {
         const node = prosemirrorNode.fromJSON(schema, editorData.editorMeta?.prosemirrorJsonTemplate)
         updateYFragment(xmlFragment.doc, xmlFragment, node, new Map())
       }
     }
-    
-    
+
+
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
     /* yCursorPlugin(this.provider!.awareness) , */
     yUndoPlugin()]
 
+    editorData.menuType = 'fullMenuWithLog';
     if (editorMode !== 'documentMode') {
       menuContainerClass = 'popup-menu-container';
       //yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),  yUndoPlugin()];
     }
     container.setAttribute('class', 'editor-container');
+    let filterTransaction = false
 
-
-    let plugins = [...yjsPlugins,
+    /* let plugins = [...yjsPlugins,
     this.placeholderPluginService.getPlugin(),
-    //this.detectFocusService.getPlugin(),
-    ]
+    this.detectFocusService.getPlugin() ,
+    new Plugin({
+      filterTransaction(transaction,state) {
+
+
+        return true
+      }
+
+    })
+    ] */
     let menu1
 
     menu1 = this.menuService.attachMenuItems(this.menu, this.ydoc!, editorData.menuType, editorID);
@@ -258,11 +272,12 @@ export class ProsemirrorEditorsService {
 
     setTimeout(() => {
       this.initDocumentReplace[editorID] = true;
+      filterTransaction = true;
     }, 1000);
 
     let edState = EditorState.create({
       schema: schema,
-      plugins:/*  [
+      plugins: [
         ...yjsPlugins,
         mathPlugin,
         keymap({
@@ -277,30 +292,94 @@ export class ProsemirrorEditorsService {
         columnResizing({}),
         tableEditing(),
         this.placeholderPluginService.getPlugin(),
-        //trackPlugin, 
+        // new Plugin({
+        //   filterTransaction(transaction, state) {
+        //     let r = true
+        //     if (transaction.steps.length > 0) {
+        //       let result: StepResult<any>|undefined = undefined
+        //       transaction.steps.forEach((step) => {
+        //         if (result == undefined) {
+        //
+        //           result = step.apply(state.doc)
+        //         } else {
+        //           result = step.apply(result!.doc!)
+        //         }
+        //       })
+        //       /* state.doc.descendants((node,pos,parent)=>{
+        //         if(node.attrs.validations){
+        //           console.log(node.attrs.validations);
+        //         }
+        //       }) */
+        //       if (result !== undefined) {
+        //         (result as StepResult<any>).doc!.descendants((node, pos, parent) => {
+        //           if (node.attrs.validations) {
+        //             let validations :any = node.attrs.validations as string
+        //             console.log();
+        //             if(validations.includes(';')){
+        //               let valArray:any[] = validations.split(';');
+        //               valArray.forEach((val,index)=>{
+        //                 valArray[index] = val.split(':')
+        //               })
+        //               validations = valArray
+        //             }else{
+        //               validations = [validations.split(':')];
+        //             }
+        //             console.log(validations);
+        //             validations.forEach((validation:any) => {
+        //               if(validation[0] == 'max-size'){
+        //                 if(node.nodeSize>+validation[1]){
+        //                   console.log('node.nodeSize',node.nodeSize);
+        //                   console.log('validations[1]',validation[1]);
+        //
+        //                   r = false
+        //                 }
+        //               }
+        //             });
+        //           }
+        //           if(node.attrs.regex){
+        //             let regexStr = node.attrs.regex
+        //             //@ts-ignore
+        //             let text = node.content.content[0].text
+        //             console.log(regexStr);
+        //             let regex = new RegExp(regexStr)
+        //             console.log(text);
+        //             console.log(regex.test(text));
+        //             if(!regex.test(text)){
+        //               r = false
+        //             }
+        //
+        //           }
+        //         })
+        //       }
+        //     }
+        //     return r
+        //   }
+        //
+        // }),
+        //trackPlugin,
         this.detectFocusService.getPlugin(),
         this.commentsService.getPlugin(),
         this.trackChangesService.getHideShowPlugin(),
         this.linkPopUpPluginService.linkPopUpPlugin,
         //commentsPlugin,
-        //hideShowPlugin(this.changesContainer?.nativeElement), 
+        //hideShowPlugin(this.changesContainer?.nativeElement),
         inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
         //commentPlugin,
 
-      ] */plugins.concat(exampleSetup({ schema, menuContent: menu1, containerClass: menuContainerClass }))
+      ].concat(exampleSetup({ schema, menuContent: menu1, containerClass: menuContainerClass }))
       ,
       // @ts-ignore
       sectionName: editorID,
       // @ts-ignore
       data
     });
-    let lastStep : any
+    let lastStep: any
     const dispatchTransaction = (transaction: Transaction) => {
-      
+
       this.transactionCount++
       try {
-        if(lastStep == transaction.steps[0]){
-          if(lastStep){
+        if (lastStep == transaction.steps[0]) {
+          if (lastStep) {
             return
           }
         }
@@ -321,25 +400,104 @@ export class ProsemirrorEditorsService {
         console.log(err);
       }
     };
-
+    let textNodeType = schema.text('sdsd').type
     editorView = new EditorView(container, {
       state: edState,
       clipboardTextSerializer: (slice: Slice) => {
         return mathSerializer.serializeSlice(slice);
       },
       editable: (state: EditorState) => {
+
         return !this.mobileVersion
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,
-      transformPastedHTML: (html) => {
+      /* transformPastedHTML: (html) => {
         let startTag = false
         //let html2 = html.replace(/ [-\S]+=["']?((?:.(?!["']?\s+(?:\S+)=|\s*\/?[>"']))*.)["']|<\/?body>|<\/?html>/gm,'');
         let htm = html.replace(/ (class|data-id|data-track|style|data-group|data-viewid|data-user|data-username|data-date|data-pm-slice)=["']?((?:.(?!["']?\s+(?:\S+)=|\s*\/?[>"']))*.)["']/gm, '');
         let html2 = htm.replace(/<\/?body>|<\/?html>/gm, '');
         let html3 = html2.replace(/<\/?span *>/gm, '');
         return html3
-      },
+      } ,*/handleClick(view, event) {
+        return true
+
+        try {
+          let state = view.state;
+          let from = state.selection.from;
+          let nodeAt = state.doc.nodeAt(from);
+          if (nodeAt) {
+            if (nodeAt!.type == textNodeType) {
+              return true
+            }
+          }
+        } catch (e) {
+          console.log(e);
+        }
+        return false
+      }, handleKeyDown(view, event) {
+
+        let state = view.state;
+        let from = state.selection.from;
+        let to = state.selection.to;
+        let key = event.key
+        if (state.selection instanceof GapCursor) {
+          return true
+        }
+
+        if (key == 'Shift' || key == 'Backspace') {
+          return false;
+          if (key == 'Backspace') {
+            if (from == to) {
+              let nodeAtStart = state.doc.nodeAt(from - 1);
+              if (nodeAtStart!.type == textNodeType) {
+                return false;
+              }
+            } else {
+              let nodeAtStart = state.doc.nodeAt(from);
+              //let nodeAtStartMinusOne = state.doc.nodeAt(from);
+              let nodeAtEnd = state.doc.nodeAt(to - 1);
+              //let nodeAtEndPlusOne = state.doc.nodeAt(to);
+              console.log('nodeAtStart', nodeAtStart);
+              console.log('nodeAtEnd', nodeAtEnd);
+              if (nodeAtStart?.type == textNodeType &&
+                nodeAtEnd?.type == textNodeType) {
+                return false;
+              }
+            }
+            return true;
+          }
+          return false
+        } else if (key == 'ArrowRight') {
+          let nodeAt = state.doc.nodeAt(to + 1);
+          if (nodeAt!.type == textNodeType) {
+            return false;
+          }
+          return true;
+
+        } else if (key == 'ArrowLeft') {
+          let nodeAt = state.doc.nodeAt(from - 1);
+          if (nodeAt) {
+            if (nodeAt!.type == textNodeType) {
+              return false;
+
+            }
+          }
+          return true;
+
+        } else if (key == 'ArrowUp' || key == 'ArrowDown' || event.altKey) {
+          return true;
+        }
+        return false;
+
+      }/* ,createSelectionBetween(view,anchor,head){
+        let sel = new Selection(anchor,head)
+        console.log(sel);
+        view.state.selection = sel
+        return sel
+      } */
+
+
       /* nodeViews:{
         'text-input':(node,view,getPos,decorations)=>{
           return{
@@ -357,7 +515,317 @@ export class ProsemirrorEditorsService {
       editorView: editorView,
       dispatchTransaction: dispatchTransaction
     };
-    
+    this.editorContainers[editorID] = editorCont;
+    return editorCont
+  }
+
+  renderEditorInWithId(EditorContainer: HTMLDivElement, editorId: string,section:articleSection): {
+    editorID: string,
+    containerDiv: HTMLDivElement,
+    editorState: EditorState,
+    editorView: EditorView,
+    dispatchTransaction: any
+  } {
+
+    if (this.editorContainers[editorId]) {
+      EditorContainer.appendChild(this.editorContainers[editorId].containerDiv);
+      return this.editorContainers[editorId]
+    }
+    let container = document.createElement('div');
+    let editorView: EditorView;
+    let colors = this.colors
+    let colorMapping = this.colorMapping
+    let permanentUserData = this.permanentUserData
+    let editorID = editorId;
+
+    //let editorMode = section.mode;
+    let menuContainerClass = "menu-container";
+
+    //let xmlFragment = sectionData.mode == 'editMode' ? this.ydocCopyService.ydoc?.getXmlFragment(editorID) : this.ydoc?.getXmlFragment(editorID)
+    let xmlFragment = this.getXmlFragment(section.mode, editorID)
+   /*  if (editorData.editorMeta?.prosemirrorJsonTemplate) {
+      let xmlProsemirrorContent = yDocToProsemirrorJSON(xmlFragment.doc, editorID)
+      if (xmlProsemirrorContent.content.length == 0) {
+        const node = prosemirrorNode.fromJSON(schema, editorData.editorMeta?.prosemirrorJsonTemplate)
+        updateYFragment(xmlFragment.doc, xmlFragment, node, new Map())
+      }
+    } */
+
+
+    let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
+    /* yCursorPlugin(this.provider!.awareness) , */
+    yUndoPlugin()]
+
+    //editorData.menuType = ;
+    /* if (editorMode !== 'documentMode') {
+      menuContainerClass = 'popup-menu-container';
+      //yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),  yUndoPlugin()];
+    } */
+    container.setAttribute('class', 'editor-container');
+    let filterTransaction = false
+
+    /* let plugins = [...yjsPlugins,
+    this.placeholderPluginService.getPlugin(),
+    this.detectFocusService.getPlugin() ,
+    new Plugin({
+      filterTransaction(transaction,state) {
+
+
+        return true
+      }
+
+    })
+    ] */
+    let menu1
+
+    menu1 = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenuWithLog', editorID);
+
+    this.initDocumentReplace[editorID] = false;
+
+    setTimeout(() => {
+      this.initDocumentReplace[editorID] = true;
+      filterTransaction = true;
+    }, 1000);
+
+    let edState = EditorState.create({
+      schema: schema,
+      plugins: [
+        ...yjsPlugins,
+        mathPlugin,
+        keymap({
+          'Mod-z': undo,
+          'Mod-y': redo,
+          'Mod-Shift-z': redo,
+          'Mod-Space': insertMathCmd(schema.nodes.math_inline),
+          'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
+          'Tab': goToNextCell(1),
+          'Shift-Tab': goToNextCell(-1)
+        }),
+        columnResizing({}),
+        tableEditing(),
+        this.placeholderPluginService.getPlugin(),
+        new Plugin({
+          filterTransaction(transaction, state) {
+            let r = true
+            if (transaction.steps.length > 0) {
+              let result: StepResult<any>|undefined = undefined
+              transaction.steps.forEach((step) => {
+                if (result == undefined) {
+
+                  result = step.apply(state.doc)
+                } else {
+                  result = step.apply(result!.doc!)
+                }
+              })
+              /* state.doc.descendants((node,pos,parent)=>{
+                if(node.attrs.validations){
+                  console.log(node.attrs.validations);
+                }
+              }) */
+              if (result !== undefined) {
+                (result as StepResult<any>).doc!.descendants((node, pos, parent) => {
+                  if (node.attrs.validations) {
+                    let validations :any = node.attrs.validations as string
+                    console.log();
+                    if(validations.includes(';')){
+                      let valArray:any[] = validations.split(';');
+                      valArray.forEach((val,index)=>{
+                        valArray[index] = val.split(':')
+                      })
+                      validations = valArray
+                    }else{
+                      validations = [validations.split(':')];
+                    }
+                    console.log(validations);
+                    validations.forEach((validation:any) => {
+                      if(validation[0] == 'max-size'){
+                        if(node.nodeSize>+validation[1]){
+                          console.log('node.nodeSize',node.nodeSize);
+                          console.log('validations[1]',validation[1]);
+
+                          r = false
+                        }
+                      }
+                    });
+                  }
+                  if(node.attrs.regex){
+                    let regexStr = node.attrs.regex
+                    //@ts-ignore
+                    let text = node.content.content[0].text
+                    console.log(regexStr);
+                    let regex = new RegExp(regexStr)
+                    console.log(text);
+                    console.log(regex.test(text));
+                    if(!regex.test(text)){
+                      r = false
+                    }
+
+                  }
+                })
+              }
+            }
+            return r
+          }
+
+        }),
+        //trackPlugin,
+        this.detectFocusService.getPlugin(),
+        this.commentsService.getPlugin(),
+        this.trackChangesService.getHideShowPlugin(),
+        this.linkPopUpPluginService.linkPopUpPlugin,
+        //commentsPlugin,
+        //hideShowPlugin(this.changesContainer?.nativeElement),
+        inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
+        //commentPlugin,
+
+      ].concat(exampleSetup({ schema, menuContent: menu1, containerClass: menuContainerClass }))
+      ,
+      // @ts-ignore
+      sectionName: editorID,
+      // @ts-ignore
+    });
+    let lastStep: any
+    const dispatchTransaction = (transaction: Transaction) => {
+
+      this.transactionCount++
+      try {
+        if (lastStep == transaction.steps[0]) {
+          if (lastStep) {
+            return
+          }
+        }
+        lastStep = transaction.steps[0]
+        if (!this.initDocumentReplace[editorID] || !this.shouldTrackChanges) {
+          let state = editorView?.state.apply(transaction);
+          editorView?.updateState(state!);
+
+        } else {
+          const tr = trackedTransaction.default(transaction, editorView?.state,
+            {
+              userId: this.ydoc?.clientID, username: this.user.username, userColor: { addition: 'transperant', deletion: 'black' }
+            });
+          let state = editorView?.state.apply(tr);
+          editorView?.updateState(state!);
+        }
+      } catch (err) {
+        console.log(err);
+      }
+    };
+    let textNodeType = schema.text('sdsd').type
+    editorView = new EditorView(container, {
+      state: edState,
+      clipboardTextSerializer: (slice: Slice) => {
+        return mathSerializer.serializeSlice(slice);
+      },
+      editable: (state: EditorState) => {
+
+        return !this.mobileVersion
+        // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
+      },
+      dispatchTransaction,
+      /* transformPastedHTML: (html) => {
+        let startTag = false
+        //let html2 = html.replace(/ [-\S]+=["']?((?:.(?!["']?\s+(?:\S+)=|\s*\/?[>"']))*.)["']|<\/?body>|<\/?html>/gm,'');
+        let htm = html.replace(/ (class|data-id|data-track|style|data-group|data-viewid|data-user|data-username|data-date|data-pm-slice)=["']?((?:.(?!["']?\s+(?:\S+)=|\s*\/?[>"']))*.)["']/gm, '');
+        let html2 = htm.replace(/<\/?body>|<\/?html>/gm, '');
+        let html3 = html2.replace(/<\/?span *>/gm, '');
+        return html3
+      } ,*/handleClick(view, event) {
+        return true
+
+        try {
+          let state = view.state;
+          let from = state.selection.from;
+          let nodeAt = state.doc.nodeAt(from);
+          if (nodeAt) {
+            if (nodeAt!.type == textNodeType) {
+              return true
+            }
+          }
+        } catch (e) {
+          console.log(e);
+        }
+        return false
+      }, handleKeyDown(view, event) {
+
+        let state = view.state;
+        let from = state.selection.from;
+        let to = state.selection.to;
+        let key = event.key
+        if (state.selection instanceof GapCursor) {
+          return true
+        }
+
+        if (key == 'Shift' || key == 'Backspace') {
+          return false;
+          if (key == 'Backspace') {
+            if (from == to) {
+              let nodeAtStart = state.doc.nodeAt(from - 1);
+              if (nodeAtStart!.type == textNodeType) {
+                return false;
+              }
+            } else {
+              let nodeAtStart = state.doc.nodeAt(from);
+              //let nodeAtStartMinusOne = state.doc.nodeAt(from);
+              let nodeAtEnd = state.doc.nodeAt(to - 1);
+              //let nodeAtEndPlusOne = state.doc.nodeAt(to);
+              console.log('nodeAtStart', nodeAtStart);
+              console.log('nodeAtEnd', nodeAtEnd);
+              if (nodeAtStart?.type == textNodeType &&
+                nodeAtEnd?.type == textNodeType) {
+                return false;
+              }
+            }
+            return true;
+          }
+          return false
+        } else if (key == 'ArrowRight') {
+          let nodeAt = state.doc.nodeAt(to + 1);
+          if (nodeAt!.type == textNodeType) {
+            return false;
+          }
+          return true;
+
+        } else if (key == 'ArrowLeft') {
+          let nodeAt = state.doc.nodeAt(from - 1);
+          if (nodeAt) {
+            if (nodeAt!.type == textNodeType) {
+              return false;
+
+            }
+          }
+          return true;
+
+        } else if (key == 'ArrowUp' || key == 'ArrowDown' || event.altKey) {
+          return true;
+        }
+        return false;
+
+      }/* ,createSelectionBetween(view,anchor,head){
+        let sel = new Selection(anchor,head)
+        console.log(sel);
+        view.state.selection = sel
+        return sel
+      } */
+
+
+      /* nodeViews:{
+        'text-input':(node,view,getPos,decorations)=>{
+          return{
+            dom:node
+          }
+        }
+      } */
+    });
+    EditorContainer.appendChild(container);
+
+    let editorCont: any = {
+      editorID: editorID,
+      containerDiv: container,
+      editorState: edState,
+      editorView: editorView,
+      dispatchTransaction: dispatchTransaction
+    };
     this.editorContainers[editorID] = editorCont;
     return editorCont
   }

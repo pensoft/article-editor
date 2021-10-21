@@ -1,4 +1,4 @@
-import { AfterViewInit, ApplicationRef, ChangeDetectorRef, Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, ApplicationRef, ChangeDetectorRef, Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { YdocService } from '../../services/ydoc.service';
 import { articleSection } from '../../utils/interfaces/articleSection';
@@ -9,18 +9,21 @@ import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.se
 import { Node as prosemirrorNode } from 'prosemirror-model';
 //@ts-ignore
 import { updateYFragment } from '../../../y-prosemirror-src/plugins/sync-plugin.js';
-import { schema ,inputConstructor} from '../../utils/schema';
+import { schema ,inputConstructor,inputConstructor1} from '../../utils/schema';
+import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-edit-section-dialog',
   templateUrl: './edit-section-dialog.component.html',
   styleUrls: ['./edit-section-dialog.component.scss']
 })
-export class EditSectionDialogComponent implements AfterViewInit {
+export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
 
 
   //@Input() section!: articleSection;
   //@Output() sectionChange = new EventEmitter<articleSection>();
   data?: articleSection 
+
+  EditSubmitsubscription?:Subscription;
   constructor(
     private dialogRef: MatDialogRef<EditSectionDialogComponent>,
     public prosemirrorService: ProsemirrorEditorsService,
@@ -39,8 +42,9 @@ export class EditSectionDialogComponent implements AfterViewInit {
   }
   
   saveSection(){
+    console.log('SAVE');
     try{  
-      this.ydocCopyService.saveEditedSection(this.data1,this.data!,);  
+      this.ydocCopyService.saveEditedSection(this.data1,this.data!);  
       //this.dialogRef.close(this.data!);  
     }catch(e){  
       console.log(e);  
@@ -51,11 +55,13 @@ export class EditSectionDialogComponent implements AfterViewInit {
     let xmlFragment = this.prosemirrorService.getXmlFragment('documentMode',editorId);
     xmlFragment.delete(0,xmlFragment.length);
     let nodeContent:any[] = [] 
+    let nodeContent1:any[] = [] 
     array.forEach((el)=>{
       let keyData = el.key.split('|');
       let node = inputConstructor(keyData[0],keyData[1],el.value+'').toJSON()
-      
+      let node1 = inputConstructor1(keyData[0],keyData[1],el.value+'').toJSON()
       nodeContent.push(node)
+      nodeContent1.push(node1)
     })
     let node = {
       "type": "doc",
@@ -73,20 +79,33 @@ export class EditSectionDialogComponent implements AfterViewInit {
         }
       ]
     }
+    let node1 = {
+      "type": "doc",
+      "content": nodeContent1
+    }
+    console.log(node1);
     try{
       let nodes = prosemirrorNode.fromJSON(schema, node) as any
-      updateYFragment(xmlFragment.doc, xmlFragment, nodes, new Map())
+      let nodes1 = prosemirrorNode.fromJSON(schema, node1) as any
+      updateYFragment(xmlFragment.doc, xmlFragment, nodes1, new Map())
       return nodes 
     }catch(e){
       console.log(e);
     }
   }
 
+  ngOnDestroy(){
+    console.log('unsub');
+    this.EditSubmitsubscription?.unsubscribe();
+  }
+
   ngAfterViewInit(): void {
     try {
       let data: articleSection = JSON.parse(JSON.stringify(this.data1));
       this.copySection(data);
-      this.editSectionService.editChangeSubject.subscribe((submit:any) => {
+      this.EditSubmitsubscription = this.editSectionService.editChangeSubject.subscribe((submit:any) => {
+        this.dialogRef.close({...submit,section:this.data})
+        return
         console.log(submit); 
         
         if(this.data!.sectionContent.type == 'TaxonTreatmentsMaterial'){
@@ -109,6 +128,7 @@ export class EditSectionDialogComponent implements AfterViewInit {
             })
           }
           let formIOJson = this.ydocService.articleStructure?.get(this.data!.sectionID+'TaxonTreatmentsMaterialFormIOJson')
+          console.log(formIOJson);
           recursiveInputDetect([formIOJson])
           this.generateProsemirrorJsonDocument(sectionInputArray,(this.data!.sectionContent.contentData as editorData).editorId)
           this.dialogRef.close({data:this.data!,submitType:'TaxonTreatmentsMaterial'})

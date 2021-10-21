@@ -48,7 +48,7 @@ export class YdocService {
 
   findSectionById(sectionId:string){
     let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
-    
+
   }
 
   updateSection(sectionData: articleSection){
@@ -64,7 +64,7 @@ export class YdocService {
       })
     }
     findF(articleSectionsStructure);
-    
+
 
     let articleSectionsStructureFlat:articleSection[] = []
     let makeFlat = (structure:articleSection[]) => {
@@ -81,7 +81,7 @@ export class YdocService {
     this.articleStructure?.set('articleSectionsStructure', articleSectionsStructure);
     this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
   }
-  
+
   applySectionChange(value:{ contentData:editorData|string|editorData|taxonomicCoverageContentData, sectionData: articleSection ,type:string}){
     let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
     let nodeRef: any
@@ -95,7 +95,7 @@ export class YdocService {
       })
     }
     findF(articleSectionsStructure);
-    
+
     nodeRef![value.type].contentData = value.contentData
 
     let articleSectionsStructureFlat:articleSection[] = []
@@ -121,7 +121,7 @@ export class YdocService {
       if (articleSectionsStructure == undefined) {
         articleSectionsStructureFlat = []
         articleSectionsStructure = articleBasicStructure
-        
+
         let makeFlat = (structure:articleSection[]) => {
           structure.forEach((section)=>{
             if(section.active){
@@ -137,7 +137,7 @@ export class YdocService {
         console.log(articleSectionsStructure);
         console.log(articleSectionsStructureFlat);
         this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
-        
+
       }
 
     }catch(e){
@@ -179,8 +179,8 @@ export class YdocService {
           headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' }),
         };
         sendUpdateToServiceWorker(params.toString());
-        this.http.post('/products', params, httpOptions).subscribe(() => {
-        });
+        // this.http.post('/products', params, httpOptions).subscribe(() => {
+        // });
       });
 
       let sendUpdateToServiceWorker = (update: string) => {

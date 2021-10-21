@@ -16,7 +16,7 @@ const comment = {
                 id: dom.dataset.id,
                 group: dom.dataset.group,
                 viewid: dom.dataset.viewid,
-                conversation: JSON.parse(dom.dataset.conversation),
+                //conversation: JSON.parse(dom.dataset.conversation),
             }
         },
     }],

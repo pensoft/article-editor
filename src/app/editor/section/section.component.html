@@ -1,7 +1,10 @@
 <!-- <formio [form]="titleContent" [submission]='{"data": {"name": "Joe Smith"}}'  ></formio>  -->
 <!-- <mat-formio class="article-section" [form]="sectionContent" (submit)='submit($event)'></mat-formio> -->
-    <div class="sectioon-wrapper">
-        <ng-container *ngIf='renderForm'>
-            <mat-formio  [form]="sectionContent" (submit)="onSubmit($event)"></mat-formio>
-        </ng-container>
-    </div>
+<div class="sectioon-wrapper">
+    <ng-container *ngIf='renderForm'>
+        <div *ngIf='section.mode == "editMode"'>
+            <mat-formio [form]="sectionContent" (submit)="onSubmit($event)"></mat-formio>
+        </div>
+    </ng-container>
+    <div #editor></div>
+</div>

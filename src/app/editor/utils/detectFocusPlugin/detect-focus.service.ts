@@ -9,6 +9,7 @@ export class DetectFocusService {
   detectFocusPlugin:Plugin
   detectFocusPluginKey
   sectionName:string|undefined
+  sectionType?:string;
   constructor() { 
     let focusedE = new Subject<string>();
     this.focusedEditor = focusedE

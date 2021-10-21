@@ -1,4 +1,4 @@
-import { MarkSpec, Node, NodeSpec, NodeType, Schema } from 'prosemirror-model';
+import { DOMSerializer, MarkSpec, Node, NodeSpec, NodeType, Schema } from 'prosemirror-model';
 import { nodes as basicnodes, marks as basicmarks } from 'prosemirror-schema-basic';
 import { tableNodes } from 'prosemirror-tables';
 //@ts-ignore
@@ -38,6 +38,8 @@ const nodes: NodeSpec = {
       track: { default: [] },
       group: { default: '' },
       viewid: { default: '' },
+      validations: { default:'' },
+      regex: {default:''}
     },
     parseDOM: [{ tag: "p" ,getAttrs(dom:any) {
       return {
@@ -45,6 +47,8 @@ const nodes: NodeSpec = {
         track: SchemaHelpers.parseTracks(dom.dataset.track),
         group: dom.dataset.group,
         viewid: dom.dataset.viewid,
+        validations: dom.dataset.validations,
+        regex: dom.dataset.regex
       }
     },}],
     toDOM(node: any) { return ["p", {
@@ -53,15 +57,76 @@ const nodes: NodeSpec = {
       'data-track': JSON.stringify(node.attrs.track),
       'data-group': node.attrs.group,
       'data-viewid': node.attrs.viewid,
-
+      'data-validations': node.attrs.validations,
+      'data-regex': node.attrs.regex
     }, 0]; }
   },
-
+  input_container:{
+    group:'block',
+    content: "(input_label | input_placeholder)+",
+    isolating:true,
+    selectable:false,
+    dragable:false,
+    attrs:{
+      inputId:{
+        default:''
+      }
+    },
+    draggable:false,
+    toDOM(node:Node){
+      //let el = crel('text-input',{'style':'border:1px solid black'}) 
+      //let textNode = schema.text('PlaceHolder');
+      
+      return ['input_container1',{'data-input-id':node.attrs.inputId},0]
+    },
+    parseDom:[{
+      tag: "input-container1" ,getAttrs(dom: any) {
+        return { inputId:dom.dataset.inputId }
+      }
+    }]
+  },
+  input_label:{
+    group:'block',
+    selectable:true,
+    dragable:false,
+    isolating:true,
+    atom:true,
+    attrs:{
+      text:{
+        default:'defaultLabel'
+      }
+    },
+    toDOM(node:Node){
+      return ['input_label',{'style':"color:gray"},node.attrs.text]
+    },
+    parseDom:[{
+      tag: "input_label", getAttrs(dom: any) {
+        console.log('dom',dom);
+        return { text: dom.textContent }
+      }
+    }]
+  },
+  input_placeholder:{
+    content: "text*",
+    isolating:true,
+    selectable:false,
+    dragable:false,
+    toDOM(node:Node){
+      //let el = crel('text-input',{'style':'border:1px solid black'}) 
+      //let textNode = schema.text('PlaceHolder');
+      
+      return ['input_placeholder',{'style':'border:1px solid black;margin-left:3px;margin-right:3px'},0]
+    },
+    parseDom:[{
+      tag: "input_placeholder"
+    }]
+  },
   inputContainer:{
     group:'inline',
     content: "inline*",
     inline:true,
-    selectable:false,
+    selectable:true,
+    dragable:false,
     attrs:{
       inputId:{
         default:''
@@ -82,11 +147,10 @@ const nodes: NodeSpec = {
   },
   textInputLabel:{
     group:'inline',
-    content: "text*",
     inline:true,
-    atom:true,
-    selectable:false,
-    draggable:false,
+    selectable:true,
+    dragable:false,
+    arom:true,
     attrs:{
       text:{
         default:'defaultLabel'
@@ -106,9 +170,10 @@ const nodes: NodeSpec = {
   textInput:{
     group:'inline',
     content: "text*",
-    inline:true,
+    isolating:true,
     selectable:false,
-    draggable:false,
+    dragable:false,
+    inline:true,
     toDOM(node:Node){
       //let el = crel('text-input',{'style':'border:1px solid black'}) 
       //let textNode = schema.text('PlaceHolder');
@@ -116,10 +181,7 @@ const nodes: NodeSpec = {
       return ['text-input',{'style':'border:1px solid black;margin-left:3px;margin-right:3px'},0]
     },
     parseDom:[{
-      tag: "text-input" ,getAttrs(dom: any) {
-        console.log('dom',dom);
-        return {  }
-      }
+      tag: "text-input"
     }]
   },
 
@@ -215,6 +277,8 @@ const nodes: NodeSpec = {
   
 }
 
+
+
 const marks: MarkSpec = {
   math_select: {
     toDOM() { return ["math-select", 0] },
@@ -255,5 +319,13 @@ export function inputConstructor(id:string,label:string,placeholder:string){
   let textInputNode = schema.nodes.textInput as NodeType
   let inputContainer = schema.nodes.inputContainer as NodeType
   let node = inputContainer.create({inputId:id},[textInputLabelNode.create({text:label}),textInputNode.create({}, [schema.text(placeholder)]),textInputLabelNode.create({text:';  '})])
+  return node;
+}
+
+export function inputConstructor1(id:string,label:string,placeholder:string){
+  let input_label = schema.nodes.input_label as NodeType
+  let input_placeholder = schema.nodes.input_placeholder as NodeType
+  let input_container = schema.nodes.input_container as NodeType
+  let node = input_container.create({inputId:id},[input_label.create({text:label}),input_placeholder.create({}, [schema.text(placeholder)]),input_label.create({text:';  '})])
   return node;
 }

@@ -54,6 +54,7 @@ import { EditSectionDialogComponent } from './editor/dialogs/edit-section-dialog
 import { MatFormioModule } from './formio-angular-material/angular-material-formio.module';
 import { ProsemirrorEditorComponent } from './editor/prosemirror-editor/prosemirror-editor.component';
 import { TaxonomicCoverageComponent } from './editor/formioComponents/taxonomic-coverage/taxonomic-coverage.component';
+import { HtmlEditorComponent } from './editor/formioComponents/html-editor/html-editor.component';
 @NgModule({
   declarations: [
     AppComponent,
@@ -91,6 +92,7 @@ import { TaxonomicCoverageComponent } from './editor/formioComponents/taxonomic-
     ArticleComponent,
     EditSectionDialogComponent,
     ProsemirrorEditorComponent,
+    HtmlEditorComponent,
   ],
   imports: [
     provideFirebaseApp(() => initializeApp({

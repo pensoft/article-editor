@@ -59,6 +59,12 @@ export class MenuService {
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
       ['insertMenu']
+    ],'fullMenuWithLog': [
+      ['textMenu'],
+      ['alignMenu'],
+      ['undoItem', 'redoItem'],
+      ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
+      ['insertMenu','logNodesMenuItem']
     ],
     'SimpleMenu': [
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
