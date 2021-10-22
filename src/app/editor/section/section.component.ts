@@ -4,12 +4,11 @@ import { ProsemirrorEditorsService } from '../services/prosemirror-editors.servi
 import { YdocService } from '../services/ydoc.service';
 import { articleSection, editorData, sectionContentData, taxa, taxonomicCoverageContentData, titleContentData } from '../utils/interfaces/articleSection';
 
-let smallHTML = `<ul>
-<li><span>${data.textField1}</span>Morbi in sem quis dui placerat ornare. Pellentesque odio nisi, euismod in, pharetra a, ultricies in, diam. Sed arcu. Cras consequat.</li>
-<li><span>${data.textField2}</span>Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus.</li>
-<li><span>${data.textField3}</span>Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus. Nam nulla quam, gravida non, commodo a, sodales sit amet, nisi.</li>
-<li><span>${data.textField4}</span>Pellentesque fermentum dolor. Aliquam quam lectus, facilisis auctor, ultrices ut, elementum vulputate, nunc.</li>
-</ul>`
+let smallHTML = "<ul>" +
+  "<li><span>${data.textField1}</span>Morbi in sem quis dui placerat ornare. Pellentesque odio nisi, euismod in, pharetra a, ultricies in, diam. Sed arcu. Cras consequat.</li>" +
+  "<li><span>${data.textField2}</span>Praesent dapibus, neque id cursus faucibus, tortor neque egestas augue, eu vulputate magna eros eu erat. Aliquam erat volutpat. Nam dui mi, tincidunt quis, accumsan porttitor, facilisis luctus, metus.</li>" +
+  "<li><span>${data.textField3}</span>Phasellus ultrices nulla quis nibh. Quisque a lectus. Donec consectetuer ligula vulputate sem tristique cursus. Nam nulla quam, gravida non, commodo a, sodales sit amet, nisi.</li>" +
+  "<li><span>${data.textField4}</span>Pellentesque fermentum dolor. Aliquam quam lectus, facilisis auctor, ultrices ut, elementum vulputate, nunc.</li></ul>"
 
 @Component({
   selector: 'app-section',
