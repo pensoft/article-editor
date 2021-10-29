@@ -622,54 +622,29 @@ export class ProsemirrorEditorsService {
             // return value whe r = false the transaction is canseled
             trs.forEach((transaction)=>{
               if (transaction.steps.length > 0) {
-  
+
                 newState.doc!.nodesBetween(newState.selection.from, newState.selection.to, (node, pos, parent) => {     // the document after the appling of the steps
                   //@ts-ignore
                   node.parent = parent
-  
-  
+
+
                   if (node.attrs.formControlName && GroupControl[section.sectionID]) {      // validation for the formCOntrol
-                    //@ts-ignore
-                    let parent = node.parent
-                    let path: any[] = [node.attrs.formControlName]
-                    while (parent) {
-                      if (parent.attrs['ng-reflect-name']) {
-                        path.unshift(parent.attrs['ng-reflect-name'])
-                      }
-                      parent = parent.parent
-                    }
                     const fg = GroupControl[section.sectionID];
-                    const controlPath = path.join('.')
+                    const controlPath = node.attrs.controlPath;
                     const control = fg.get(controlPath) as FormControl;
                     control.setValue(node.textContent, { emitEvent: true })
-                    //control.setValue(node.textContent) // set the value from the node in the control
-                    /* const {key} = fieldControl.instance.component;
-                    const validationResult = Validator.checkComponent(
-                      //@ts-ignore
-                      fieldControl.instance,
-                      {[key]: node.textContent},
-                      {[key]: node.textContent}
-                      );
-                      
-                      if (validationResult.length) {
-                        //@ts-ignore
-                        fieldControl.instance.setCustomValidity(validationResult, false);
-                        if (!!node.textContent) {
-                          fieldControl.markAsTouched();
-                        }
-                      } */
                     control.updateValueAndValidity()
                     try {
                       const mark = schema.mark('invalid')
                       const absolutePos = pos  // Why +1 ?
                       if (control.invalid) {
-  
+
                         tr1 = newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
                       } else {
                         tr1 = newState.tr.removeMark(pos + 1, pos + node.nodeSize - 1, mark)
-  
+
                         //transaction = state.tr.setNodeMarkup(pos, node.type, {}, [])
-  
+
                       }
                     } catch (error) {
                       console.log(error);
@@ -678,7 +653,7 @@ export class ProsemirrorEditorsService {
                     // if (control.disabled) {
                     //   r = false;
                     // }
-  
+
                   }
                 })
                 /* (result as StepResult<any>).doc!.descendants() */
@@ -692,9 +667,9 @@ export class ProsemirrorEditorsService {
             let steps = transaction.steps
             if (steps.length > 0) {
               let result: StepResult<any> | undefined = undefined;
-              transaction.steps.forEach((step) => {                                       
+              transaction.steps.forEach((step) => {
                 if (result == undefined) {
-                  result = step.apply(state.doc)                                         
+                  result = step.apply(state.doc)
                 } else {
                   result = step.apply(result!.doc!)
                 }
@@ -710,7 +685,7 @@ export class ProsemirrorEditorsService {
                     let oldNode = state.doc.nodeAt(oldStart);
                     let newNode = (result as StepResult<any>).doc!.nodeAt(newStart);
                     console.log('oldNode',oldNode);
-                    console.log('newNode',newNode); 
+                    console.log('newNode',newNode);
                   }) */
                 }
               })

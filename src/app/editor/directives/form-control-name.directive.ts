@@ -1,5 +1,5 @@
-import {Directive, ElementRef, Input, forwardRef} from '@angular/core';
-import {ControlValueAccessor, NG_VALUE_ACCESSOR} from "@angular/forms";
+import {Directive, ElementRef, Input, forwardRef, Optional, Injector, Renderer2} from '@angular/core';
+import {AbstractControl, ControlValueAccessor, NG_VALUE_ACCESSOR, NgControl} from "@angular/forms";
 
 declare  var $:any;
 
@@ -15,8 +15,10 @@ export const CUSTOM_FORM_DIRECTIVE: any = {
 })
 export class FormControlNameDirective implements ControlValueAccessor {
   private innerValue: string = '';
+  //@ts-ignore
+  ngControl: NgControl;
 
-  constructor(private el: ElementRef) {
+  constructor(private el: ElementRef, private inj: Injector,  private _renderer: Renderer2) {
   }
 
   public onChange: any = () => { /*Empty*/ }
@@ -35,7 +37,10 @@ export class FormControlNameDirective implements ControlValueAccessor {
   }
 
   writeValue(val: string) : void {
+    this.ngControl = this.inj.get(NgControl)
     this.el.nativeElement.innerHTML = val;
+    // @ts-ignore
+    this._renderer.setAttribute(this.el.nativeElement, 'controlPath', this.ngControl.path.join('.'));
     this.innerValue = val;
   }
 
@@ -46,4 +51,5 @@ export class FormControlNameDirective implements ControlValueAccessor {
   registerOnTouched(fn: any): void {
     this.onTouched = fn;
   }
+
 }

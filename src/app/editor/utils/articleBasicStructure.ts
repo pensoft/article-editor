@@ -7,13 +7,13 @@ export function editorFactory(data?: editorMeta): editorData {
   return { editorId: uuidv4(), menuType: 'fullMenu', editorMeta: data }
 }
 
-let taxonomicCoverageTemplate = `<h2>Taxonomic coverage</h2>
+let taxonomicCoverageTemplate = `<h2 contenteditable="false">Taxonomic coverage</h2>
 <p class="set-align-left" formControlName="description"></p>
 <div class="tableWrapper">
   <table style="min-width: 50px;" formArrayName="taxonomicCoverage">
     <thead>
       <tr>
-        <td><b>Rank</b></td>
+        <td><inline-span><b>Rank</b></inline-span></td>
         <td><b>Scientific Name</b></td>
         <td><b>Common Name</b></td>
       </tr>
@@ -35,31 +35,30 @@ let taxonomicCoverageTemplate = `<h2>Taxonomic coverage</h2>
 </div>`;
 
 
-let collectionDataTemplate = 
-`<h2>Collection Data</h2>
-<span>
+let collectionDataTemplate = `<h2 contenteditable="false">Collection Data</h2>
+<inline-span contenteditable="false">
     <b>Collection Name:</b>
-</span>
+</inline-span>
 <inline-text style="padding-left:8px" formControlName="collectionName"></inline-text>
 <br>
-<span>
+<inline-span contenteditable="false">
     <b>Collection identifier:</b>
-</span>
+    </inline-span>
 <inline-text style="padding-left:8px" formControlName="collectionIdentifier"></inline-text>
 <br>
-<span>
+<inline-span contenteditable="false">
     <b>Parent collection identifier:</b>
-</span>
+    </inline-span>
 <inline-text style="padding-left:8px" formControlName="parentCollectionIdentifier"></inline-text>
 <br>
-<span>
+<inline-span contenteditable="false">
     <b>Specimen preservation method:</b>
-</span>
+</inline-span>
 <inline-text style="padding-left:8px" formControlName="specimenPreservationMethod"></inline-text>
 <br>
-<span>
+<inline-span contenteditable="false">
     <b>Curatorial unit:</b>
-</span>
+</inline-span>
 <inline-text style="padding-left:8px" formControlName="curatorialUnit"></inline-text>`;
 
 export const articleBasicStructure: articleSection[] = [
