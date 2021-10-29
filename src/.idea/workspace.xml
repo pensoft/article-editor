@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="1b9573ef-8116-4111-8d85-962382b3c141" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/app/editor/section/form-control.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/editor/section/form-control.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/editor/section/section.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/editor/section/section.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/editor/services/prosemirror-editors.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/editor/services/prosemirror-editors.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/editor/services/ydoc.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/app/editor/services/ydoc.service.ts" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="ProjectId" id="202M0gbN8oMuOgSRESgcAxgyONW" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">
+    <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
+    <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="1b9573ef-8116-4111-8d85-962382b3c141" name="Default Changelist" comment="" />
+      <created>1635238012952</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1635238012952</updated>
+    </task>
+    <servers />
+  </component>
+</project>

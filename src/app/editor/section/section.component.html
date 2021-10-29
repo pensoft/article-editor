@@ -1,10 +1,19 @@
 <!-- <formio [form]="titleContent" [submission]='{"data": {"name": "Joe Smith"}}'  ></formio>  -->
 <!-- <mat-formio class="article-section" [form]="sectionContent" (submit)='submit($event)'></mat-formio> -->
-<div class="sectioon-wrapper">
-    <ng-container *ngIf='renderForm'>
-        <div *ngIf='section.mode == "editMode"'>
-            <mat-formio [form]="sectionContent" (submit)="onSubmit($event)"></mat-formio>
-        </div>
-    </ng-container>
-    <div #editor></div>
+<div class="sectioon-wrapper" >
+    <div [formGroup]="sectionForm" *ngIf='section.mode == "editMode"' >
+        <button mat-raised-button (click)="hide=!hide">Hide/Show Editor</button>
+        <div #codemirror class='codemirror-editor' [ngStyle]="{'display': hide ? 'none' : 'block'}"></div>
+        <ng-container *ngIf='renderForm'>
+            <div >
+                <mat-formio #formio [form]="sectionContent" (ready)="ready($event)" (change)="onChange($event)" (submit)="onSubmit($event)"></mat-formio>
+            </div>
+        </ng-container>
+    </div>
+    <div #ProsemirrorEditor *ngIf='section.mode == "documentMode"'></div>
+</div>
+<div style="display: none;">
+    <div #container>
+
+    </div>
 </div>

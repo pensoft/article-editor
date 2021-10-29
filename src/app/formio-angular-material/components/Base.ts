@@ -4,10 +4,12 @@ import FormioComponent from 'formiojs/components/_classes/component/Component.js
 export default (() => {
   const beforeSubmit = FormioComponent.prototype.beforeSubmit;
   FormioComponent.prototype.beforeSubmit = function(...args:any) {
+    let control 
     if (this.materialComponent) {
-      this.materialComponent.beforeSubmit();
+      control = this.materialComponent.beforeSubmit();
     }
-    return beforeSubmit.call(this, ...args);
+    
+    return beforeSubmit.call(this,...args);
   };
 
   Object.defineProperty(FormioComponent.prototype, 'disabled', {

@@ -1,7 +1,6 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { AddTaxonomyComponent } from 'src/app/editor/dialogs/add-taxonomy/add-taxonomy.component';
 import { TaxonomyService } from 'src/app/editor/dialogs/add-taxonomy/taxonomy.service';
 import { EditSectionDialogComponent } from '../../dialogs/edit-section-dialog/edit-section-dialog.component';
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
@@ -14,6 +13,9 @@ import { DOMParser } from 'prosemirror-model';
 //@ts-ignore
 import { updateYFragment } from '../../../y-prosemirror-src/plugins/sync-plugin.js'
 import { schema, } from '../../utils/schema';
+import { FormBuilderService } from '../../services/form-builder.service';
+import { FormGroup } from '@angular/forms';
+import { YMap } from 'yjs/dist/src/internals';
 
 @Component({
   selector: 'app-cdk-list-recursive',
@@ -25,6 +27,9 @@ export class CdkListRecursiveComponent implements OnInit {
   @Input() articleSectionsStructure!: articleSection[];
   @Output() articleSectionsStructureChange = new EventEmitter<any>();
 
+  @Input() sectionsFromIODefaultValues!: YMap<any>
+  @Output() sectionsFromIODefaultValuesChange = new EventEmitter<any>();
+
   @Input() startFromIndex!: number;
 
   @Input() parentListData!: { expandParentFunc: any, listDiv: HTMLDivElement };
@@ -32,12 +37,19 @@ export class CdkListRecursiveComponent implements OnInit {
   focusedId?: string;
   mouseOn?: string;
 
+
   icons: string[] = [];
   focusIdHold?: string;
   taxonomyData: any;
 
+  nodesForms: FormGroup[] = [];
+  sectionContents: any[] = [];
+
+
+
   constructor(
     private taxonomyService: TaxonomyService,
+    private formBuilderService: FormBuilderService,
     public treeService: TreeService,
     public ydocService: YdocService,
     public ydocCopyService: YdocCopyService,
@@ -87,9 +99,45 @@ export class CdkListRecursiveComponent implements OnInit {
         ]
       };
     })
-    this.articleSectionsStructure.forEach((node: any, index: number) => {
+    this.articleSectionsStructure.forEach((node: articleSection, index: number) => {
+      let defaultValues = this.ydocService.sectionsFromIODefaultValues!.get(node.sectionID)
+      //let defaultValues = this.sectionsFromIODefaultValues.get(node.sectionID)
+      defaultValues = defaultValues ? defaultValues : node.defaultFormIOValues
+      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
+
+      //let sectionContent = this.enrichSectionContent(node.formIOSchema, defaultValues);
+      let nodeForm: FormGroup = new FormGroup({});
+      this.formBuilderService.buildFormGroupFromSchema(nodeForm,sectionContent);
+      nodeForm.patchValue(defaultValues);
+      nodeForm.updateValueAndValidity()
+      this.nodesForms.push(nodeForm);
+      this.sectionContents.push(sectionContent);
+      this.treeService.sectionFormGroups[node.sectionID] = nodeForm;
+
       this.icons[index] = 'chevron_right';
     });
+  }
+
+
+  enrichSectionContent(schema: any, values: any) {
+    if (!schema.components || !values) {
+      return;
+    }
+
+    Object.keys(values).forEach((valueKey: any) => {
+
+      const [componentName, index, key] = valueKey.split('.');
+      let component = schema.components.find(({ key }: any) => key == componentName);
+
+      if (!index || !key) {
+        component['defaultValue'] = values[valueKey];
+      } else {
+        component['defaultValue'] = component['defaultValue'] || [];
+        component['defaultValue'][+index] = component['defaultValue'][+index] || {};
+        component['defaultValue'][+index][key] = values[valueKey];
+      }
+    });
+    return schema;
   }
 
   drop(event: CdkDragDrop<string[]>) {
@@ -99,31 +147,42 @@ export class CdkListRecursiveComponent implements OnInit {
 
   }
 
-  editNodeHandle(node: articleSection) {
+
+
+  editNodeHandle(node: articleSection, formGroup: FormGroup,index:number) {
+    let defaultValues = this.sectionsFromIODefaultValues.get(node.sectionID)
+    defaultValues = defaultValues ? defaultValues : node.defaultFormIOValues
+    let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
+    this.sectionContents[index] = sectionContent
     this.dialog.open(EditSectionDialogComponent, {
-      width: '70%',
-      height: '70%',
-      data: node,
+      width: '95%',
+      height: '90%',
+      data: { node: node, form: formGroup, sectionContent: sectionContent },
       disableClose: false
     }).afterClosed().subscribe(result => {
-      let prosemirrorNodeHtml = result.data.textAreaHTMLEditor as string
-      let str = prosemirrorNodeHtml.supplant(result);
-      let sectionID = result.section.sectionID
-      let xmlFragment = this.ydocService.ydoc.getXmlFragment(sectionID);    // oldEditorXmlFragment
+      if (!result) {
+        return;
+      }
+
+      if (!result.compiledHtml) {
+        console.error('NO HTML returned From the popup')
+        return
+      }
+      let xmlFragment = this.ydocService.ydoc.getXmlFragment(node.sectionID);
 
       let templDiv = document.createElement('div');
-      templDiv.innerHTML = str!
+      templDiv.innerHTML = result.compiledHtml
       let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
-      console.log(str!);
+
       updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
 
       this.treeService.editNodeChange(node.sectionID)
-      /* if(result.submitType == 'TaxonTreatmentsMaterial'){
-        
-      }else if(result.submitType =='sectionUpdate'){
-      }
-      this.prosemirrorEditorsService.markSectionForDelete(result)
-      this.prosemirrorEditorsService.clearDeleteArray(); */
+      /*if(result.submitType == 'TaxonTreatmentsMaterial'){
+       
+     }else if(result.submitType =='sectionUpdate'){
+     }
+     this.prosemirrorEditorsService.markSectionForDelete(result)
+     this.prosemirrorEditorsService.clearDeleteArray(); */
     });
   }
 

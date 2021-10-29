@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import * as Y from 'yjs';
 import { WebrtcProvider } from 'y-webrtc';
 import { ColorDef } from 'y-prosemirror/dist/src/plugins/sync-plugin';
-import { editorContainer } from '../utils/interfaces/editor-container';
 import * as random from 'lib0/random.js';
 import * as userSpec from '../utils/userSpec';
 //@ts-ignore
@@ -18,11 +17,13 @@ import {
   REGEX_BLOCK_MATH_DOLLARS,
   REGEX_INLINE_MATH_DOLLARS
 } from '@benrbray/prosemirror-math';
-import { Node as prosemirrorNode } from 'prosemirror-model';
+import { Node as prosemirrorNode, Slice } from 'prosemirror-model';
+//@ts-ignore
+import Validator from 'formiojs/validator/Validator.js';
 import { EditorView } from 'prosemirror-view';
 import { EditorState, Plugin, Transaction } from 'prosemirror-state';
 import { keymap } from 'prosemirror-keymap';
-import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from 'y-prosemirror';
+import { redo, undo, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from 'y-prosemirror';
 import { chainCommands, deleteSelection, joinBackward, selectNodeBackward } from 'prosemirror-commands';
 import { columnResizing, goToNextCell, tableEditing } from 'prosemirror-tables';
 //@ts-ignore
@@ -31,27 +32,27 @@ import { CommentsService } from '../utils/commentsService/comments.service';
 import { inputRules } from 'prosemirror-inputrules';
 import { YdocService } from './ydoc.service';
 import { TrackChangesService } from '../utils/trachChangesService/track-changes.service';
-import { treeNode } from '../utils/interfaces/treeNode';
 import { PlaceholderPluginService } from '../utils/placeholderPlugin/placeholder-plugin.service';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 import { MenuService } from './menu.service';
 import { Subject } from 'rxjs';
 import { LinkPopUpPluginServiceService } from '../utils/linkPopUpPlugin/link-pop-up-plugin-service.service';
-import { ActivatedRoute, ParamMap } from '@angular/router';
-import { map } from 'rxjs/operators';
-import { YMap } from 'yjs/dist/src/internals';
-import { DOMSerializer, Slice } from 'prosemirror-model';
-import { pasteRules } from 'prosemirror-paste-rules';
-import { articleSection, sectionContent, taxonomicCoverageContentData, titleContent } from '../utils/interfaces/articleSection';
-import { editorData } from '../utils/interfaces/articleSection';
+import {
+  articleSection,
+  editorData,
+  sectionContent,
+  taxonomicCoverageContentData,
+  titleContent
+} from '../utils/interfaces/articleSection';
 import { YdocCopyService } from './ydoc-copy.service';
 //@ts-ignore
 import { updateYFragment } from '../../y-prosemirror-src/plugins/sync-plugin.js';
-import { SELECT_PANEL_MAX_HEIGHT } from '@angular/material/select/select';
-import { Selection } from 'prosemirror-state';
 import { GapCursor } from 'prosemirror-gapcursor';
 import { StepResult } from 'prosemirror-transform';
-import { _fixedSizeVirtualScrollStrategyFactory } from '@angular/cdk/scrolling';
+import { FormControlService } from '../section/form-control.service';
+import { FormControl } from '@angular/forms';
+import { TreeService } from '../meta-data-tree/tree-service/tree.service';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -95,7 +96,9 @@ export class ProsemirrorEditorsService {
     private linkPopUpPluginService: LinkPopUpPluginServiceService,
     private commentsService: CommentsService,
     private ydocCopyService: YdocCopyService,
-    private trackChangesService: TrackChangesService) {
+    private treeService: TreeService,
+    private trackChangesService: TrackChangesService,
+    private formControlService: FormControlService) {
 
     this.ydocCopyService.addEditorForDeleteSubject.subscribe((editorId) => {
       this.addEditorForDelete(editorId);
@@ -208,6 +211,7 @@ export class ProsemirrorEditorsService {
     editorView: EditorView,
     dispatchTransaction: any
   } {
+
 
     if (this.editorContainers[editorData.editorId]) {
       EditorContainer.appendChild(this.editorContainers[editorData.editorId].containerDiv);
@@ -391,7 +395,9 @@ export class ProsemirrorEditorsService {
         } else {
           const tr = trackedTransaction.default(transaction, editorView?.state,
             {
-              userId: this.ydoc?.clientID, username: this.user.username, userColor: { addition: 'transperant', deletion: 'black' }
+              userId: this.ydoc?.clientID,
+              username: this.user.username,
+              userColor: { addition: 'transperant', deletion: 'black' }
             });
           let state = editorView?.state.apply(tr);
           editorView?.updateState(state!);
@@ -519,13 +525,18 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
-  renderEditorInWithId(EditorContainer: HTMLDivElement, editorId: string,section:articleSection): {
+  renderEditorInWithId(EditorContainer: HTMLDivElement, editorId: string, section: articleSection): {
     editorID: string,
     containerDiv: HTMLDivElement,
     editorState: EditorState,
     editorView: EditorView,
     dispatchTransaction: any
   } {
+
+
+    let updateFormIoDefaultValues = (sectionID: string, data: any) => {
+      this.ydocService.sectionsFromIODefaultValues?.set(sectionID, data);
+    }
 
     if (this.editorContainers[editorId]) {
       EditorContainer.appendChild(this.editorContainers[editorId].containerDiv);
@@ -543,13 +554,13 @@ export class ProsemirrorEditorsService {
 
     //let xmlFragment = sectionData.mode == 'editMode' ? this.ydocCopyService.ydoc?.getXmlFragment(editorID) : this.ydoc?.getXmlFragment(editorID)
     let xmlFragment = this.getXmlFragment(section.mode, editorID)
-   /*  if (editorData.editorMeta?.prosemirrorJsonTemplate) {
-      let xmlProsemirrorContent = yDocToProsemirrorJSON(xmlFragment.doc, editorID)
-      if (xmlProsemirrorContent.content.length == 0) {
-        const node = prosemirrorNode.fromJSON(schema, editorData.editorMeta?.prosemirrorJsonTemplate)
-        updateYFragment(xmlFragment.doc, xmlFragment, node, new Map())
-      }
-    } */
+    /*  if (editorData.editorMeta?.prosemirrorJsonTemplate) {
+       let xmlProsemirrorContent = yDocToProsemirrorJSON(xmlFragment.doc, editorID)
+       if (xmlProsemirrorContent.content.length == 0) {
+         const node = prosemirrorNode.fromJSON(schema, editorData.editorMeta?.prosemirrorJsonTemplate)
+         updateYFragment(xmlFragment.doc, xmlFragment, node, new Map())
+       }
+     } */
 
 
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
@@ -586,7 +597,7 @@ export class ProsemirrorEditorsService {
       this.initDocumentReplace[editorID] = true;
       filterTransaction = true;
     }, 1000);
-
+    let GroupControl = this.treeService.sectionFormGroups;
     let edState = EditorState.create({
       schema: schema,
       plugins: [
@@ -605,68 +616,111 @@ export class ProsemirrorEditorsService {
         tableEditing(),
         this.placeholderPluginService.getPlugin(),
         new Plugin({
-          filterTransaction(transaction, state) {
-            let r = true
-            if (transaction.steps.length > 0) {
-              let result: StepResult<any>|undefined = undefined
-              transaction.steps.forEach((step) => {
-                if (result == undefined) {
+          appendTransaction:(trs: Transaction<any>[], oldState: EditorState, newState: EditorState)=> {
+            let tr1 = newState.tr;
 
-                  result = step.apply(state.doc)
+            // return value whe r = false the transaction is canseled
+            trs.forEach((transaction)=>{
+              if (transaction.steps.length > 0) {
+  
+                newState.doc!.nodesBetween(newState.selection.from, newState.selection.to, (node, pos, parent) => {     // the document after the appling of the steps
+                  //@ts-ignore
+                  node.parent = parent
+  
+  
+                  if (node.attrs.formControlName && GroupControl[section.sectionID]) {      // validation for the formCOntrol
+                    //@ts-ignore
+                    let parent = node.parent
+                    let path: any[] = [node.attrs.formControlName]
+                    while (parent) {
+                      if (parent.attrs['ng-reflect-name']) {
+                        path.unshift(parent.attrs['ng-reflect-name'])
+                      }
+                      parent = parent.parent
+                    }
+                    const fg = GroupControl[section.sectionID];
+                    const controlPath = path.join('.')
+                    const control = fg.get(controlPath) as FormControl;
+                    control.setValue(node.textContent, { emitEvent: true })
+                    //control.setValue(node.textContent) // set the value from the node in the control
+                    /* const {key} = fieldControl.instance.component;
+                    const validationResult = Validator.checkComponent(
+                      //@ts-ignore
+                      fieldControl.instance,
+                      {[key]: node.textContent},
+                      {[key]: node.textContent}
+                      );
+                      
+                      if (validationResult.length) {
+                        //@ts-ignore
+                        fieldControl.instance.setCustomValidity(validationResult, false);
+                        if (!!node.textContent) {
+                          fieldControl.markAsTouched();
+                        }
+                      } */
+                    control.updateValueAndValidity()
+                    try {
+                      const mark = schema.mark('invalid')
+                      const absolutePos = pos  // Why +1 ?
+                      if (control.invalid) {
+  
+                        tr1 = newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
+                      } else {
+                        tr1 = newState.tr.removeMark(pos + 1, pos + node.nodeSize - 1, mark)
+  
+                        //transaction = state.tr.setNodeMarkup(pos, node.type, {}, [])
+  
+                      }
+                    } catch (error) {
+                      console.log(error);
+                    }
+                    updateFormIoDefaultValues(editorID, fg.value)
+                    // if (control.disabled) {
+                    //   r = false;
+                    // }
+  
+                  }
+                })
+                /* (result as StepResult<any>).doc!.descendants() */
+              }
+            })
+            return tr1
+
+          },
+          filterTransaction(transaction:Transaction<any>, state:EditorState) {
+            let r = true;
+            let steps = transaction.steps
+            if (steps.length > 0) {
+              let result: StepResult<any> | undefined = undefined;
+              transaction.steps.forEach((step) => {                                       
+                if (result == undefined) {
+                  result = step.apply(state.doc)                                         
                 } else {
                   result = step.apply(result!.doc!)
                 }
-              })
-              /* state.doc.descendants((node,pos,parent)=>{
-                if(node.attrs.validations){
-                  console.log(node.attrs.validations);
-                }
-              }) */
-              if (result !== undefined) {
-                (result as StepResult<any>).doc!.descendants((node, pos, parent) => {
-                  if (node.attrs.validations) {
-                    let validations :any = node.attrs.validations as string
-                    console.log();
-                    if(validations.includes(';')){
-                      let valArray:any[] = validations.split(';');
-                      valArray.forEach((val,index)=>{
-                        valArray[index] = val.split(':')
-                      })
-                      validations = valArray
-                    }else{
-                      validations = [validations.split(':')];
-                    }
-                    console.log(validations);
-                    validations.forEach((validation:any) => {
-                      if(validation[0] == 'max-size'){
-                        if(node.nodeSize>+validation[1]){
-                          console.log('node.nodeSize',node.nodeSize);
-                          console.log('validations[1]',validation[1]);
-
-                          r = false
-                        }
+                if (result !== undefined) {
+                  /* step.getMap().forEach((oldStart, oldEnd, newStart, newEnd) => {
+                    console.log(oldStart, oldEnd, newStart, newEnd);
+                    state.doc.nodesBetween(oldStart, oldEnd, (node,pos, parentNode) => {
+                      console.log(node);
+                      if(node.attrs.formControlName == 'rank'){
+                        r = false;
                       }
-                    });
-                  }
-                  if(node.attrs.regex){
-                    let regexStr = node.attrs.regex
-                    //@ts-ignore
-                    let text = node.content.content[0].text
-                    console.log(regexStr);
-                    let regex = new RegExp(regexStr)
-                    console.log(text);
-                    console.log(regex.test(text));
-                    if(!regex.test(text)){
-                      r = false
-                    }
-
-                  }
+                    })
+                    let oldNode = state.doc.nodeAt(oldStart);
+                    let newNode = (result as StepResult<any>).doc!.nodeAt(newStart);
+                    console.log('oldNode',oldNode);
+                    console.log('newNode',newNode); 
+                  }) */
+                }
+              })
+              /* steps.forEach((step)=>{
+                step.getMap().forEach((oldStart, oldEnd, newStart, newEnd) => {
                 })
-              }
+              }) */
             }
             return r
           }
-
         }),
         //trackPlugin,
         this.detectFocusService.getPlugin(),
@@ -702,7 +756,9 @@ export class ProsemirrorEditorsService {
         } else {
           const tr = trackedTransaction.default(transaction, editorView?.state,
             {
-              userId: this.ydoc?.clientID, username: this.user.username, userColor: { addition: 'transperant', deletion: 'black' }
+              userId: this.ydoc?.clientID,
+              username: this.user.username,
+              userColor: { addition: 'transperant', deletion: 'black' }
             });
           let state = editorView?.state.apply(tr);
           editorView?.updateState(state!);

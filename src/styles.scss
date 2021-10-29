@@ -1,16 +1,14 @@
-
 /* You can add global styles to this file, and also import other style files */
-@import '../node_modules/@benrbray/prosemirror-math/style/math.css';
-@import '../node_modules/katex/dist/katex.min.css';
+@import "../node_modules/@benrbray/prosemirror-math/style/math.css";
+@import "../node_modules/katex/dist/katex.min.css";
 @import "../node_modules/prosemirror-view/style/prosemirror.css";
 
 .insertion {
   color: black;
-  background: #DFFFC9;
-
+  background: #dfffc9;
 }
 
-.formio-form{
+.formio-form {
   min-height: fit-content !important;
 }
 
@@ -27,17 +25,17 @@
   border-bottom: 2px solid royalblue;
 }
 
-.deletion{
+.deletion {
   color: black;
-  background-color: #FFD0D0;
+  background-color: #ffd0d0;
   text-decoration: line-through black;
 }
 
-@media screen and (max-width: 600px){
-  app-root{
+@media screen and (max-width: 600px) {
+  app-root {
     height: 100%;
   }
-  app-main{
+  app-main {
     height: 100%;
   }
 }
@@ -62,18 +60,24 @@
   background-color: #eefbfb;
 }
 
-.link_popup_div{
+.invalid {
+  border: 2px solid #e7abab;
+  border-radius: 5px;
+  background-color: #f9dede;
+}
+
+.link_popup_div {
   position: absolute;
-    display: inline-flex;
-    background-color: #e4f6f6;
-    border-color: #00b1b2 !important;
-    border: 1.8px solid;
-    border-radius: 17px;
-    padding: 6px;
-    z-index: 1;
-    right: 50%;
-    transform: translate(50%, 25px);
-    box-shadow: 0px 1px 5px 2px #cacdd3, 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 4px 0px rgb(0 177 178 / 20%);
+  display: inline-flex;
+  background-color: #e4f6f6;
+  border-color: #00b1b2 !important;
+  border: 1.8px solid;
+  border-radius: 17px;
+  padding: 6px;
+  z-index: 1;
+  right: 50%;
+  transform: translate(50%, 25px);
+  box-shadow: 0px 1px 5px 2px #cacdd3, 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 4px 0px rgb(0 177 178 / 20%);
 }
 
 .format-change {
@@ -89,16 +93,17 @@
   //text-decoration: line-through black;
 }
 
-
 ::ng-deep .mat-dialog-container {
   background-color: aquamarine;
 }
 
-.subtle { color: #777 }
+.subtle {
+  color: #777;
+}
 
 .comment {
   background-color: gold;
-  span{
+  span {
     background-color: transparent;
   }
 
@@ -108,22 +113,23 @@
   }
 }
 
-.commentList, .commentText {
+.commentList,
+.commentText {
   display: block;
   padding: 0;
   margin: 0;
   font-style: normal;
 }
 
-.set-align-left{
+.set-align-left {
   text-align: left;
 }
 
-.set-align-center{
+.set-align-center {
   text-align: center;
 }
 
-.set-align-right{
+.set-align-right {
   text-align: right;
 }
 
@@ -152,8 +158,6 @@
   padding: 0;
 }
 
-
-
 li.commentText {
   padding: 2px 20px 2px 5px;
   position: relative;
@@ -165,13 +169,13 @@ li.commentText + li.commentText {
   border-top: 1px solid silver;
 }
 
-.commentEdit{
+.commentEdit {
   float: right;
-    background: none;
-    border: none;
-    margin-top: auto;
-    margin-bottom: auto;
-    display: contents;
+  background: none;
+  border: none;
+  margin-top: auto;
+  margin-bottom: auto;
+  display: contents;
 }
 
 .commentDelete {
@@ -209,56 +213,56 @@ li.commentText + li.commentText {
 }
 
 .ProseMirror > .ProseMirror-yjs-cursor:first-child {
-    margin-top: 16px;
-  }
+  margin-top: 16px;
+}
 
-  .ProseMirror-yjs-cursor {
-    position: relative;
-    margin-left: -1px;
-    margin-right: -1px;
-    border-left: 1px solid black;
-    border-right: 1px solid black;
-    border-color: orange;
-    word-break: normal;
-    pointer-events: none;
-  }
+.ProseMirror-yjs-cursor {
+  position: relative;
+  margin-left: -1px;
+  margin-right: -1px;
+  border-left: 1px solid black;
+  border-right: 1px solid black;
+  border-color: orange;
+  word-break: normal;
+  pointer-events: none;
+}
 
-  .ProseMirror-yjs-cursor > div {
-    position: absolute;
-    top: -1.05em;
-    left: -1px;
-    font-size: 13px;
-    background-color: rgb(250, 129, 0);
-    font-family: serif;
-    font-style: normal;
-    font-weight: normal;
-    line-height: normal;
-    user-select: none;
-    color: white;
-    padding-left: 2px;
-    padding-right: 2px;
-    white-space: nowrap;
-  }
-  #y-functions {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-  }
+.ProseMirror-yjs-cursor > div {
+  position: absolute;
+  top: -1.05em;
+  left: -1px;
+  font-size: 13px;
+  background-color: rgb(250, 129, 0);
+  font-family: serif;
+  font-style: normal;
+  font-weight: normal;
+  line-height: normal;
+  user-select: none;
+  color: white;
+  padding-left: 2px;
+  padding-right: 2px;
+  white-space: nowrap;
+}
+#y-functions {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+}
 
-  placeholder {
-    display: inline;
-    border: 1px solid #ccc;
-    color: #ccc;
-  }
-  placeholder:after {
-    content: "☁";
-    font-size: 200%;
-    line-height: 0.1;
-    font-weight: bold;
-  }
-  #y-functions > * {
-    display: inline-block;
-  }
+placeholder {
+  display: inline;
+  border: 1px solid #ccc;
+  color: #ccc;
+}
+placeholder:after {
+  content: "☁";
+  font-size: 200%;
+  line-height: 0.1;
+  font-weight: bold;
+}
+#y-functions > * {
+  display: inline-block;
+}
 
 .doclist li {
   display: block;
@@ -279,7 +283,9 @@ li.commentText + li.commentText {
 
 .ProseMirror-report {
   position: fixed;
-  top: 0; right: 0; left: 0;
+  top: 0;
+  right: 0;
+  left: 0;
   border-width: 0;
   border-style: solid;
   border-bottom-width: 1px;
@@ -297,8 +303,14 @@ li.commentText + li.commentText {
   background: rgb(255, 255, 200);
   border-color: rgb(200, 200, 120);
 }
-html, body { height: 100%; }
-body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
 
 app-root {
   display: flex;
@@ -316,7 +328,7 @@ router-outlet {
   padding-left: 20px;
   &:first-of-type:before {
     content: "";
-    background: url('./assets/icons/align.svg');
+    background: url("./assets/icons/align.svg");
     background-size: cover;
     position: absolute;
     width: 31px;
@@ -326,14 +338,14 @@ router-outlet {
   }
 }
 
-.text-menu-icon{
+.text-menu-icon {
   display: inline;
   height: 22px;
   color: #a3a3a3;
   padding-left: 20px;
   &:first-of-type:before {
     content: "";
-    background: url('./assets/icons/text.svg');
+    background: url("./assets/icons/text.svg");
     background-size: cover;
     position: absolute;
     width: 28px;
@@ -355,13 +367,13 @@ router-outlet {
   padding-left: 20px;
   &:first-of-type:before {
     content: "";
-    background: url('./assets/icons/table.svg');
+    background: url("./assets/icons/table.svg");
     background-size: cover;
     position: absolute;
     width: 24px;
     height: 24px;
     margin-left: -24px;
-    transform: translate(2px,-2px) scale(0.75);
+    transform: translate(2px, -2px) scale(0.75);
   }
 }
 
@@ -375,4 +387,65 @@ router-outlet {
 
 .editor-dialog-container .mat-dialog-container {
   border-radius: 20px;
+}
+
+.ProseMirror-example-setup-style {
+  $base-spacing-unit: 24px;
+  $half-spacing-unit: 12px;
+
+  $color-alpha: #1772ff;
+  $color-form-highlight: #eeeeee;
+
+  *,
+  *:before,
+  *:after {
+    box-sizing: border-box;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    margin: 0;
+  }
+
+  table {
+    width: 100%;
+    border: 1px solid $color-form-highlight;
+  }
+
+  thead {
+    display: flex;
+    width: 100%;
+    background: #000;
+    padding: ($half-spacing-unit * 1.5) 0;
+  }
+
+  tr {
+    //display: flex;
+    width: 100%;
+    //padding: ($half-spacing-unit * 1.5) 0;
+
+    &:nth-of-type(odd) {
+      //background: $color-form-highlight;
+    }
+  }
+
+  td,
+  th {
+    flex: 1 1 20%;
+    text-align: center;
+  }
+
+  th {
+    text-transform: uppercase;
+  }
+}
+
+.invalid {
+  border: 2px solid #e7abab;
+  border-radius: 5px;
+  background-color: #f9dede;
 }

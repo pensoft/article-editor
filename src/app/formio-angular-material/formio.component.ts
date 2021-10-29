@@ -2,6 +2,7 @@ import { Component, Optional, ChangeDetectorRef, ViewContainerRef, ViewChild, Co
 import { FormioAppConfig, FormioBaseComponent } from '@formio/angular';
 import { Form } from './renderer';
 import { get } from 'lodash';
+import {ControlContainer, FormGroup} from "@angular/forms";
 @Component({
   selector: 'mat-formio',
   styles: [
@@ -49,6 +50,7 @@ export class FormioComponent extends FormioBaseComponent {
     private resolver: ComponentFactoryResolver,
     private cd: ChangeDetectorRef,
     public ngZone: NgZone,
+    public controlContainer: ControlContainer,
     @Optional() public config: FormioAppConfig
   ) {
     super(ngZone, config);
@@ -69,7 +71,8 @@ export class FormioComponent extends FormioBaseComponent {
     form._form = this.form;
     form.options = options;
     form.options.events = form.events;
-    form.instance = form.create(this.form?.display);
+    form.instance = form.create(this.form?.display); 
+    form.instance.formGroup = this.controlContainer.control;
     form.instance.viewContainer = () => this.formioViewContainer;
     if (this.submission && this.submission.data) {
       form.instance.data = this.submission.data;

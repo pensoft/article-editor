@@ -229,7 +229,7 @@ export class MaterialDateComponent extends MaterialComponent {
 
   beforeSubmit() {
     this.onChange();
-    super.beforeSubmit();
+    return super.beforeSubmit();
   }
 
   checkMinMax(value:any) {

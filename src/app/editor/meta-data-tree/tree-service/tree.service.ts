@@ -5,17 +5,22 @@ import { treeNode } from '../../utils/interfaces/treeNode';
 import * as Y from 'yjs'
 import { uuidv4 } from 'lib0/random';
 import { articleSection, editorData } from '../../utils/interfaces/articleSection';
+import { FormGroup } from '@angular/forms';
 
 @Injectable({
   providedIn: 'root'
 })
 export class TreeService {
+
   articleSectionsStructure?: articleSection[]
   treeVisibilityChange: Subject<any> = new Subject<any>();
   metadatachangeMap?: Y.Map<any>
   articleStructureMap?: Y.Map<any>
   guid?: string
   toggleTreeDrawer: Subject<any> = new Subject<any>();
+
+  sectionFormGroups:{[key:string]:FormGroup} = {}
+
   constructor(private ydocService: YdocService) {
     let buildFunc = () => {
       this.guid = this.metadatachangeMap?.doc?.guid;
@@ -42,8 +47,8 @@ export class TreeService {
 
       this.treeVisibilityChange.subscribe((data) => {
         let guid = this.metadatachangeMap?.doc?.guid
-        this.metadatachangeMap?.set('change', { ...data, guid })
         this.setArticleSectionStructureFlat()
+        this.metadatachangeMap?.set('change', { ...data, guid })
       })
     }
     if (this.ydocService.editorIsBuild) {
@@ -98,6 +103,12 @@ export class TreeService {
   addNodeChange(nodeId: string) {
     let newChildid = this.attachChildToNode(nodeId, uuidv4());
     this.treeVisibilityChange.next({ action: 'addNode', parentId: nodeId, childId: newChildid });
+  }
+
+  updateNodeProsemirrorHtml(newHTML:string,sectionId:string){
+    let nodeRef = this.findNodeById(sectionId)!;
+    nodeRef.prosemirrorHTMLNodesTempl = newHTML;
+    this.setArticleSectionStructureFlat()
   }
 
   deleteNodeChange(nodeId: string, parentId: string) {
@@ -192,7 +203,7 @@ export class TreeService {
       nodeRef.active = true
 
     }
-    if(nodeRef.sectionContent.type=='TaxonTreatmentsMaterial'){
+    /* if(nodeRef.sectionContent.type=='TaxonTreatmentsMaterial'){
       let nodeJsonStructure = this.articleStructureMap?.get(nodeRef.sectionID+'TaxonTreatmentsMaterial');
       if(nodeJsonStructure == undefined){
         let nodeJsonFormIOStructureObj:any = {}
@@ -216,7 +227,7 @@ export class TreeService {
         this.articleStructureMap?.set(nodeRef.sectionID+'TaxonTreatmentsMaterialFormIOJson',formioJsonCopy);
         console.log('TaxonTreatmentsMaterialFormIOJson',formioJsonCopy);
       }
-    }
+    } */
 
   }
 }

@@ -44,5 +44,8 @@ export interface articleSection {
     mode:'documentMode'|'editMode',   
     title:titleContent,
     sectionContent: sectionContent,
-    sectionStartingFormIo?:any
+    sectionStartingFormIo?:any,
+    prosemirrorHTMLNodesTempl?:string,
+    formIOSchema?:any,
+    defaultFormIOValues?:any
 }

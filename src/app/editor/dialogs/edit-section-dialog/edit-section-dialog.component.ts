@@ -11,6 +11,7 @@ import { Node as prosemirrorNode } from 'prosemirror-model';
 import { updateYFragment } from '../../../y-prosemirror-src/plugins/sync-plugin.js';
 import { schema ,inputConstructor,inputConstructor1} from '../../utils/schema';
 import { Subscription } from 'rxjs';
+import { FormGroup } from '@angular/forms';
 @Component({
   selector: 'app-edit-section-dialog',
   templateUrl: './edit-section-dialog.component.html',
@@ -21,7 +22,12 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
 
   //@Input() section!: articleSection;
   //@Output() sectionChange = new EventEmitter<articleSection>();
+  
   data?: articleSection 
+
+  data1: articleSection;
+  sectionForm: FormGroup;
+  sectionContent: any;
 
   EditSubmitsubscription?:Subscription;
   constructor(
@@ -32,8 +38,10 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
     public AppRef : ApplicationRef,
     public changeDector : ChangeDetectorRef,
     public editSectionService: EditSectionService,
-    @Inject(MAT_DIALOG_DATA) public data1: articleSection) {
-
+    @Inject(MAT_DIALOG_DATA) public sectionData: any) {
+      this.data1 = sectionData.node;
+      this.sectionForm = sectionData.form;
+      this.sectionContent = sectionData.sectionContent;
   }
 
   cancelEdit() {
@@ -95,14 +103,13 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
   }
 
   ngOnDestroy(){
-    console.log('unsub');
     this.EditSubmitsubscription?.unsubscribe();
   }
 
   ngAfterViewInit(): void {
     try {
-      let data: articleSection = JSON.parse(JSON.stringify(this.data1));
-      this.copySection(data);
+      this.data = JSON.parse(JSON.stringify(this.data1));
+      this.copySection(this.data!);
       this.EditSubmitsubscription = this.editSectionService.editChangeSubject.subscribe((submit:any) => {
         this.dialogRef.close({...submit,section:this.data})
         return
@@ -137,7 +144,7 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
           this.dialogRef.close({data:this.data!,submitType:'sectionUpdate'})
         }
       })
-      this.data = data
+      //this.data = data
     } catch (e) {
       console.log(e);
     }
@@ -145,6 +152,7 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
 
   copySection(data: articleSection) {
     data.mode = 'editMode'
+    return
     let changeEditorId = (editorData: editorData,editorMeta?:any) => {
       let oldEditorId = editorData.editorId
       editorMeta?editorData.editorMeta = editorMeta:editorMeta

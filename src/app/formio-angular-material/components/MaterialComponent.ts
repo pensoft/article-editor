@@ -16,9 +16,9 @@ export class MaterialComponent implements AfterViewInit, OnInit,OnDestroy {
   constructor(public element: ElementRef, public ref: ChangeDetectorRef) {}
 
   setInstance(instance: any) {
-    this.control.setInstance(instance);
     instance.materialComponent = this;
     this.instance = instance;
+    this.control.setInstance(instance);
     this.instance.disabled = this.instance.shouldDisabled;
     this.setVisible(this.instance.visible);
     this.renderComponents();
@@ -105,6 +105,7 @@ export class MaterialComponent implements AfterViewInit, OnInit,OnDestroy {
 
   beforeSubmit() {
     this.control.markAsTouched();
+    return this.control
   }
 
   hasError() {

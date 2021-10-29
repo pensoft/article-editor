@@ -1,6 +1,5 @@
 import { DOMSerializer, MarkSpec, Node, NodeSpec, NodeType, Schema } from 'prosemirror-model';
 import { nodes as basicnodes, marks as basicmarks } from 'prosemirror-schema-basic';
-import { tableNodes } from 'prosemirror-tables';
 //@ts-ignore
 import {trackChangesMarks,commentMark} from './trackChanges/wax-prosemirror-schema'
 //@ts-ignore
@@ -22,43 +21,185 @@ const olDOM = ["ol", 0], ulDOM = ["ul", 0], liDOM = ["li", 0]
 
 // :: NodeSpec
 // A list item (`<li>`) spec.
+function getCellAttrs(dom:any, extraAttrs:any) {
+  var widthAttr = dom.getAttribute("data-colwidth");
+  var widths = widthAttr && /^\d+(,\d+)*$/.test(widthAttr) ? widthAttr.split(",").map(function (s:any) { return Number(s); }) : null;
+  var colspan = Number(dom.getAttribute("colspan") || 1);
+  var result:any = {
+    colspan: colspan,
+    rowspan: Number(dom.getAttribute("rowspan") || 1),
+    colwidth: widths && widths.length == colspan ? widths : null,
+    formControlName: dom.getAttribute('formControlName'),
+    formArrayName: dom.getAttribute('formArrayName'),
+    formGroupName: dom.getAttribute('formGroupName'),
+    'ng-reflect-name': dom.getAttribute('ng-reflect-name'),
+  };
+  for (var prop in extraAttrs) {
+    var getter = extraAttrs[prop].getFromDOM;
+    var value = getter && getter(dom);
+    if (value != null) { result[prop] = value; }
+  }
+  return result
+}
 
+function setCellAttrs(node:any, extraAttrs:any) {
+  var attrs:any = {
+    'formControlName':node.attrs.formControlName,
+    'formArrayName':node.attrs.formArrayName,
+    'formGroupName':node.attrs.formGroupName,
+    'ng-reflect-name':node.attrs['ng-reflect-name'],
+  };
+  if (node.attrs.colspan != 1) { attrs.colspan = node.attrs.colspan; }
+  if (node.attrs.rowspan != 1) { attrs.rowspan = node.attrs.rowspan; }
+  if (node.attrs.colwidth)
+    { attrs["data-colwidth"] = node.attrs.colwidth.join(","); }
+  for (var prop in extraAttrs) {
+    var setter = extraAttrs[prop].setDOMAttr;
+    if (setter) { setter(node.attrs[prop], attrs); }
+  }
+  return attrs
+}
+
+function tableNodes(options:any) {
+  var extraAttrs = options.cellAttributes || {};
+  var cellAttrs:any = {
+    colspan: {default: 1},
+    rowspan: {default: 1},
+    colwidth: {default: null},
+    formControlName:{default:''},
+    formArrayName:{default:''},
+    formGroupName:{default:''},
+    'ng-reflect-name':{default:''},
+  };
+  for (var prop in extraAttrs)
+    { cellAttrs[prop] = {default: extraAttrs[prop].default}; }
+
+  return {
+    table: {
+      content: "table_row+",
+      tableRole: "table",
+      isolating: true,
+      attrs:{
+        formControlName:{default:''},
+        formArrayName:{default:''},
+        formGroupName:{default:''},
+        'ng-reflect-name':{default:''},
+      },
+      group: options.tableGroup,
+      parseDOM: [{tag: "table",getAttrs(dom:any) {
+        return {
+          formControlName: dom.getAttribute('formControlName'),
+          formArrayName: dom.getAttribute('formArrayName'),
+          formGroupName: dom.getAttribute('formGroupName'),
+          'ng-reflect-name': dom.getAttribute('ng-reflect-name'),
+        }
+      }}],
+      toDOM: function toDOM(node:any) { return ["table", {
+        'formControlName':node.attrs.formControlName,
+        'formArrayName':node.attrs.formArrayName,
+        'formGroupName':node.attrs.formGroupName,
+        'ng-reflect-name':node.attrs['ng-reflect-name'],
+      }, ["tbody", 0]] }
+    },
+    table_row: {
+      content: "(table_cell | table_header)*",
+      tableRole: "row",
+      attrs:{
+        formControlName:{default:''},
+        formArrayName:{default:''},
+        formGroupName:{default:''},
+        'ng-reflect-name':{default:''},
+      },
+      parseDOM: [{tag: "tr",getAttrs(dom:any) {
+        return {
+          formControlName: dom.getAttribute('formControlName'),
+          formArrayName: dom.getAttribute('formArrayName'),
+          formGroupName: dom.getAttribute('formGroupName'),
+          'ng-reflect-name': dom.getAttribute('ng-reflect-name'),
+
+        }
+      }}],
+      toDOM: function toDOM(node:any) { return ["tr", {
+        'formControlName':node.attrs.formControlName,
+        'formArrayName':node.attrs.formArrayName,
+        'formGroupName':node.attrs.formGroupName,
+        'ng-reflect-name':node.attrs['ng-reflect-name'],
+      }, 0] }
+    },
+    table_cell: {
+      content: options.cellContent,
+      attrs: cellAttrs,
+      tableRole: "cell",
+      isolating: true,
+      parseDOM: [{tag: "td", getAttrs: function (dom:any) { return getCellAttrs(dom, extraAttrs); }}],
+      toDOM: function toDOM(node:any) { return ["td", setCellAttrs(node, extraAttrs), 0] }
+    },
+    table_header: {
+      content: options.cellContent,
+      attrs: cellAttrs,
+      tableRole: "header_cell",
+      isolating: true,
+      parseDOM: [{tag: "th", getAttrs: function (dom:any) { return getCellAttrs(dom, extraAttrs); }}],
+      toDOM: function toDOM(node:any) { return ["th", setCellAttrs(node, extraAttrs), 0] }
+    }
+  }
+}
 
 const nodes: NodeSpec = {
   doc: {
     content: "block+"
   },
-  
+
   paragraph: {
     content: "inline*",
     group: "block",
-    attrs: { 
+    attrs: {
       align: { default: 'set-align-left' } ,
-      id: { default: '' },
-      track: { default: [] },
-      group: { default: '' },
-      viewid: { default: '' },
-      validations: { default:'' },
-      regex: {default:''}
+      formControlName:{default:''},
+      formArrayName:{default:''},
+      formGroupName:{default:''},
     },
     parseDOM: [{ tag: "p" ,getAttrs(dom:any) {
+      let classArray = dom.getAttribute('class')
       return {
-        id: dom.dataset.id,
-        track: SchemaHelpers.parseTracks(dom.dataset.track),
-        group: dom.dataset.group,
-        viewid: dom.dataset.viewid,
-        validations: dom.dataset.validations,
-        regex: dom.dataset.regex
+        align: classArray,
+        formControlName: dom.getAttribute('formControlName'),
+        formArrayName: dom.getAttribute('formArrayName'),
+        formGroupName: dom.getAttribute('formGroupName'),
       }
     },}],
-    toDOM(node: any) { return ["p", {
+    toDOM(node: any) {
+      return ["p", {
       class: node.attrs.align ,
-      'data-id': node.attrs.id,
-      'data-track': JSON.stringify(node.attrs.track),
-      'data-group': node.attrs.group,
-      'data-viewid': node.attrs.viewid,
-      'data-validations': node.attrs.validations,
-      'data-regex': node.attrs.regex
+      'formControlName':node.attrs.formControlName,
+      'formArrayName':node.attrs.formArrayName,
+      'formGroupName':node.attrs.formGroupName,
+    }, 0]; }
+  },
+  inline_text:{
+    group:'inline',
+    content: "inline*",
+    inline:true,
+    attrs: {
+      formControlName:{default:''},
+      formArrayName:{default:''},
+      formGroupName:{default:''},
+      style:{default:''}
+    },
+    parseDOM: [{ tag: "inline-text" ,getAttrs(dom:any) {
+      return {
+        formControlName: dom.getAttribute('formControlName'),
+        formArrayName: dom.getAttribute('formArrayName'),
+        formGroupName: dom.getAttribute('formGroupName'),
+        style: dom.getAttribute('style'),
+      }
+    },}],
+    toDOM(node: any) {
+      return ["inline-text", {
+      'formControlName':node.attrs.formControlName,
+      'formArrayName':node.attrs.formArrayName,
+      'formGroupName':node.attrs.formGroupName,
+      'style':node.attrs.style,
     }, 0]; }
   },
   input_container:{
@@ -74,9 +215,9 @@ const nodes: NodeSpec = {
     },
     draggable:false,
     toDOM(node:Node){
-      //let el = crel('text-input',{'style':'border:1px solid black'}) 
+      //let el = crel('text-input',{'style':'border:1px solid black'})
       //let textNode = schema.text('PlaceHolder');
-      
+
       return ['input_container1',{'data-input-id':node.attrs.inputId},0]
     },
     parseDom:[{
@@ -112,9 +253,9 @@ const nodes: NodeSpec = {
     selectable:false,
     dragable:false,
     toDOM(node:Node){
-      //let el = crel('text-input',{'style':'border:1px solid black'}) 
+      //let el = crel('text-input',{'style':'border:1px solid black'})
       //let textNode = schema.text('PlaceHolder');
-      
+
       return ['input_placeholder',{'style':'border:1px solid black;margin-left:3px;margin-right:3px'},0]
     },
     parseDom:[{
@@ -134,9 +275,9 @@ const nodes: NodeSpec = {
     },
     draggable:false,
     toDOM(node:Node){
-      //let el = crel('text-input',{'style':'border:1px solid black'}) 
+      //let el = crel('text-input',{'style':'border:1px solid black'})
       //let textNode = schema.text('PlaceHolder');
-      
+
       return ['input-container',{'data-input-id':node.attrs.inputId},0]
     },
     parseDom:[{
@@ -148,7 +289,7 @@ const nodes: NodeSpec = {
   textInputLabel:{
     group:'inline',
     inline:true,
-    selectable:true,
+    selectable:false,
     dragable:false,
     arom:true,
     attrs:{
@@ -175,9 +316,9 @@ const nodes: NodeSpec = {
     dragable:false,
     inline:true,
     toDOM(node:Node){
-      //let el = crel('text-input',{'style':'border:1px solid black'}) 
+      //let el = crel('text-input',{'style':'border:1px solid black'})
       //let textNode = schema.text('PlaceHolder');
-      
+
       return ['text-input',{'style':'border:1px solid black;margin-left:3px;margin-right:3px'},0]
     },
     parseDom:[{
@@ -269,12 +410,12 @@ const nodes: NodeSpec = {
         default: null,
         //@ts-ignore
         getFromDOM(dom) { return dom.style.backgroundColor || null },
-        setDOMAttr(value, attrs) { if (value) attrs.style = (attrs.style || "") + `background-color: ${value};` }
+        setDOMAttr(value:any, attrs:any) { if (value) attrs.style = (attrs.style || "") + `background-color: ${value};` }
       }
     }
-  }),
+  })
   //...trackChangesNodes,
-  
+
 }
 
 
@@ -295,6 +436,29 @@ const marks: MarkSpec = {
   comment :commentMark,
   ...trackChangesMarks,
   ...basicmarks,
+  invalid:{
+    attrs: {
+      class: { default: 'invalid' },
+    },
+    parseDOM: [
+      {
+        tag: 'span',
+        getAttrs(dom:any) {
+          return {
+            class: dom.getAttribute('class'),
+          }
+        },
+      },
+    ],
+    toDOM(node:any) {
+      return [
+        'span',
+        {
+          class: node.attrs.class,
+        },
+      ];
+    },
+  },
   anchorTag:{
     attrs: {
       class: { default: 'anchor_tag' },
@@ -309,7 +473,8 @@ const marks: MarkSpec = {
   underline:{
     parseDOM: [{tag: 'u'}, {style: 'text-decoration=underline'}],
     toDOM() { return ['u', 0] },
-  }
+  },
+
 }
 
 export { nodes, marks }

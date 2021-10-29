@@ -21,22 +21,25 @@ import { articleSection } from '../utils/interfaces/articleSection';
 
 export class MetaDataTreeComponent implements OnInit,AfterViewInit{
   articleSectionsStructure ?:articleSection[]
-  
+  sectionsFromIODefaultValues ?: YMap<any>
   
   metadataMap?:YMap<any>
   constructor(public treeService:TreeService,private ydocService:YdocService){
   }
   ngOnInit(){
     if (this.ydocService.editorIsBuild) {
+      this.sectionsFromIODefaultValues = this.ydocService.sectionsFromIODefaultValues;
       this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
       this.metadataMap=this.ydocService.articleStructure
       this.treeService.initTreeList(this.articleSectionsStructure!)
     }
     this.ydocService.ydocStateObservable.subscribe((event) => {
       if (event == 'docIsBuild') {
+        this.sectionsFromIODefaultValues = this.ydocService.sectionsFromIODefaultValues;
         this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
       this.metadataMap=this.ydocService.articleStructure
       this.treeService.initTreeList(this.articleSectionsStructure!)
+
     }
     });
   }

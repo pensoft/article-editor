@@ -21,6 +21,7 @@ import { treeNode } from '../utils/interfaces/treeNode';
 import { uuidv4 } from "lib0/random";
 import { articleSection, editorData, taxonomicCoverageContentData } from '../utils/interfaces/articleSection';
 import { articleBasicStructure } from '../utils/articleBasicStructure';
+import { FormControlService } from '../section/form-control.service';
 
 @Injectable({
   providedIn: 'root'
@@ -35,8 +36,11 @@ export class YdocService {
   provider?: OriginalWebRtc;
   roomName = 'webrtc-test3'
   providerIndexedDb?: IndexeddbPersistence
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient,
+    private formControlService:FormControlService
+    ) { }
   articleStructure?: YMap<any>
+  sectionsFromIODefaultValues?: YMap<any>
   comments?: YMap<any>
   getCommentsMap(): YMap<any> {
     return this.comments!
@@ -139,7 +143,7 @@ export class YdocService {
         this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
 
       }
-
+      this.formControlService.initFormControls(articleSectionsStructure)
     }catch(e){
       console.log(e);
     }
@@ -152,6 +156,7 @@ export class YdocService {
     }
   }
   buildEditor() {
+    this.sectionsFromIODefaultValues = this.ydoc.getMap('formIODefaultValues');
     this.articleStructure = this.ydoc.getMap('articleStructure');
     this.comments = this.ydoc.getMap('comments');
     this.ydocStateObservable.next('docIsBuild');

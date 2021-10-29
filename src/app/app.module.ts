@@ -1,7 +1,5 @@
 import {HttpClientModule} from '@angular/common/http';
-import {Injector, NgModule} from '@angular/core';
-import {initializeApp, provideFirebaseApp} from '@angular/fire/app';
-import {getFirestore, provideFirestore} from '@angular/fire/firestore';
+import {Compiler, CompilerFactory, COMPILER_OPTIONS, Injector, NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {ServiceWorkerModule} from '@angular/service-worker';
@@ -54,7 +52,13 @@ import { EditSectionDialogComponent } from './editor/dialogs/edit-section-dialog
 import { MatFormioModule } from './formio-angular-material/angular-material-formio.module';
 import { ProsemirrorEditorComponent } from './editor/prosemirror-editor/prosemirror-editor.component';
 import { TaxonomicCoverageComponent } from './editor/formioComponents/taxonomic-coverage/taxonomic-coverage.component';
-import { HtmlEditorComponent } from './editor/formioComponents/html-editor/html-editor.component';
+import { JitCompilerFactory } from '@angular/platform-browser-dynamic';
+import { FormControlNameDirective } from './editor/directives/form-control-name.directive';
+
+export function createCompiler(compilerFactory: CompilerFactory) {
+  return compilerFactory.createCompiler();
+}
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -92,20 +96,9 @@ import { HtmlEditorComponent } from './editor/formioComponents/html-editor/html-
     ArticleComponent,
     EditSectionDialogComponent,
     ProsemirrorEditorComponent,
-    HtmlEditorComponent,
+    FormControlNameDirective,
   ],
   imports: [
-    provideFirebaseApp(() => initializeApp({
-      apiKey: 'AIzaSyA3W87Y6Ph2Evh8E-YPYI3oWSdhAb6Lxus',
-      authDomain: 'arte-soft.firebaseapp.com',
-      databaseURL: 'https://arte-soft.firebaseio.com',
-      projectId: 'arte-soft',
-      storageBucket: 'arte-soft.appspot.com',
-      messagingSenderId: '776064193529',
-      appId: '1:776064193529:web:9fbf7aa008a117fc3a2328',
-      measurementId: 'G-G76VN4T29R'
-    })),
-    provideFirestore(() => getFirestore()),
     BrowserModule,
     MaterialModule,
     FormsModule,
@@ -128,6 +121,9 @@ import { HtmlEditorComponent } from './editor/formioComponents/html-editor/html-
     STORAGE_PROVIDERS,
     {provide: WindowToken, useFactory: windowProvider},
     {provide: FormioAppConfig, useValue: AppConfig},
+    {provide: COMPILER_OPTIONS, useValue: {}, multi: true},
+    {provide: CompilerFactory, useClass: JitCompilerFactory, deps: [COMPILER_OPTIONS]},
+    {provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory]}
   ],
   bootstrap: [AppComponent],
 })
