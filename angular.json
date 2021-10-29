@@ -80,7 +80,9 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "aot": false,
+              "buildOptimizer": false
             },
             "development": {
               "buildOptimizer": false,
