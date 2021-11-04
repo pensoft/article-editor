@@ -3,7 +3,7 @@ import { EditorState, Plugin, PluginKey } from 'prosemirror-state'
 import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
 import { DetectFocusService } from '../detectFocusPlugin/detect-focus.service';
-import { schema } from '../schema';
+import { schema } from '../Schema';
 
 
 @Injectable({

@@ -1,8 +1,12 @@
 import {wrapIn, setBlockType, chainCommands, toggleMark, exitCode,
-        joinUp, joinDown, lift, selectParentNode} from "prosemirror-commands"
+        joinUp, joinDown, lift, selectParentNode,selectNodeBackward,selectNodeForward} from "prosemirror-commands"
 import {wrapInList, splitListItem, liftListItem, sinkListItem} from "prosemirror-schema-list"
 import {undo, redo} from "prosemirror-history"
 import {undoInputRule} from "prosemirror-inputrules"
+import { EditorState, NodeSelection, TextSelection } from "prosemirror-state"
+import { Selection } from "prosemirror-state"
+import { ResolvedPos } from "prosemirror-model"
+import { selectParentNodeItem } from "prosemirror-menu"
 
 const mac = typeof navigator != "undefined" ? /Mac/.test(navigator.platform) : false
 
@@ -45,8 +49,64 @@ export function buildKeymap(schema, mapKeys) {
     keys[key] = cmd
   }
 
-
+  function setSelection(sel,state){
+    let newResolvedStart = sel.$from
+    let newResolvedEnd = sel.$to
+    if(sel.$anchor.nodeBefore!==null&&sel.$anchor.nodeAfter==null){
+      let nodeBeforeSize = sel.$anchor.nodeBefore.nodeSize
+      newResolvedStart = state.doc.resolve(sel.$anchor.pos - nodeBeforeSize)
+    }else if(sel.$anchor.nodeBefore==null&&sel.$anchor.nodeAfter!==null){
+      let nodeBeforeSize = sel.$anchor.nodeAfter.nodeSize
+      newResolvedEnd = state.doc.resolve(sel.$anchor.pos + nodeBeforeSize)
+    }else if(sel.$head.nodeBefore==null&&sel.$head.nodeAfter!==null){
+      let nodeBeforeSize = sel.$head.nodeAfter.nodeSize
+      newResolvedEnd = state.doc.resolve(sel.$head.pos + nodeBeforeSize)
+    }else if(sel.$head.nodeBefore!==null&&sel.$head.nodeAfter==null){
+      let nodeBeforeSize = sel.$head.nodeBefore.nodeSize
+      newResolvedStart = state.doc.resolve(sel.$head.pos - nodeBeforeSize)
+    }else{
+      let nodeBeforeSize = sel.$anchor.nodeAfter.nodeSize
+      newResolvedEnd = state.doc.resolve(sel.$anchor.pos + nodeBeforeSize)
+      let nodeAfterSize = sel.$anchor.nodeBefore.nodeSize
+      newResolvedStart = state.doc.resolve(sel.$anchor.pos - nodeAfterSize)
+    }
+    let newTr = state.tr.setSelection(new TextSelection(newResolvedStart,newResolvedEnd))
+    return newTr
+  }
+  
+  function selectNode(state,dispatch,view){
+    let sel = state.selection
+    //console.log('$anchor',sel.$anchor.nodeAfter,sel.$anchor.nodeBefore);
+    //console.log('$head',sel.$head.nodeAfter,sel.$head.nodeBefore);
+    
+    let newTr = setSelection(sel,state);
+    dispatch(newTr)
+    return true;
+  }
+  function selectTextNode(direction){
+    if(direction == 'left'){
+      return (state,dispatch,view)=>{
+        let sel = state.selection
+        if(!sel.$head.nodeBefore){
+          return true
+        }else if(sel.$head.nodeBefore.type.name == 'text'){
+          return selectNodeBackward(state,dispatch,view)
+        }
+        return true
+      }
+    }else if(direction == 'right'){
+      return (state,dispatch,view)=>{
+        if(!sel.$head.nodeAfter){
+          return true
+        }else if(sel.$head.nodeAfter.type.name == 'text'){
+          return selectNodeForward(state,dispatch,view)
+        }
+        return true
+      }
+    }
+  }
   bind("Mod-z", undo)
+  bind("Ctrl-a",selectNode)
   bind("Shift-Mod-z", redo)
   bind("Backspace", undoInputRule)
   if (!mac) bind("Mod-y", redo)
@@ -55,6 +115,8 @@ export function buildKeymap(schema, mapKeys) {
   bind("Alt-ArrowDown", joinDown)
   bind("Mod-BracketLeft", lift)
   bind("Escape", selectParentNode)
+  bind("Ctrl-Shift-ArrowLeft", selectTextNode('left'))
+  bind("Ctrl-Shift-ArrowRight", selectTextNode('right'))
 
   if (type = schema.marks.strong) {
     bind("Mod-b", toggleMark(type))

@@ -7,7 +7,6 @@ import * as Y from 'yjs'
 import { AbstractType } from 'yjs';
 import { Components, MaterialComponent, registerComponent } from 'src/app/formio-angular-material/angular-material-formio.module';
 import { articleSection, editorData, editorMeta, sectionContentData, titleContentData } from '../../utils/interfaces/articleSection';
-import { YdocCopyService } from '../../services/ydoc-copy.service';
 @Component({
   selector: 'app-editor-section',
   templateUrl: './editor-section.component.html',
@@ -25,7 +24,6 @@ export class EditorSectionComponent extends MaterialComponent implements AfterVi
   constructor(
     private prosemirrorService:ProsemirrorEditorsService,
     private ydocService:YdocService,
-    private ydocCopyService:YdocCopyService,
     public element: ElementRef, 
     public ref: ChangeDetectorRef) { 
       super(element,ref)

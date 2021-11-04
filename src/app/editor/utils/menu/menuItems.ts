@@ -4,7 +4,7 @@ import { toggleMark } from "prosemirror-commands";
 import { Dropdown, MenuItem } from "prosemirror-menu"
 import { EditorState, NodeSelection, Transaction } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
-import { schema,inputConstructor} from "../schema";
+import { schema} from "../Schema";
 import { addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow, mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell, deleteTable } from "prosemirror-tables";
 import { icons } from 'prosemirror-menu'
 import { wrapItem, blockTypeItem, selectParentNodeItem as selectParentNodeItemPM, undoItem as undoPM, redoItem as redoPM } from "prosemirror-menu"

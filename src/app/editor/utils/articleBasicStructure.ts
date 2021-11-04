@@ -1,6 +1,5 @@
 import { uuidv4 } from "lib0/random";
 import { articleSection, editorData, editorMeta } from "./interfaces/articleSection";
-import { templates } from "./formIOJsonTemplates";
 import { formIOSchema, defaultValues } from '../section/formIO.schema';
 
 export function editorFactory(data?: editorMeta): editorData {
@@ -8,30 +7,46 @@ export function editorFactory(data?: editorMeta): editorData {
 }
 
 let taxonomicCoverageTemplate = `<h2 contenteditable="false">Taxonomic coverage</h2>
-<p class="set-align-left" formControlName="description"></p>
+<p class="set-align-left" formControlName="description">
+</p>
 <div class="tableWrapper">
-  <table style="min-width: 50px;" formArrayName="taxonomicCoverage">
-    <thead>
-      <tr>
-        <td><inline-span><b>Rank</b></inline-span></td>
-        <td><b>Scientific Name</b></td>
-        <td><b>Common Name</b></td>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngFor="let control of formGroup.controls.taxonomicCoverage.controls;let i=index" formGroupName="{{i}}">
-        <td>
-          <p class="set-align-left" formControlName="rank"></p>
-        </td>
-        <td>
-          <p class="set-align-left " formControlName="scientificName"></p>
-        </td>
-        <td>
-          <p class="set-align-left " formControlName="commonName"></p>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+	<table style="min-width: 50px;" formArrayName="taxonomicCoverage">
+		<thead>
+			<tr>
+				<td>
+					<p contenteditable="false">
+						<b>Rank</b>
+					</p>
+				</td>
+				<td>
+					<p contenteditable="false">
+						<b>Scientific Name</b>
+					</p>
+				</td>
+				<td>
+					<p contenteditable="false">
+						<b>Common Name</b>
+					</p>
+				</td>
+			</tr>
+		</thead>
+		<tbody>
+			<tr *ngFor="let control of formGroup.controls.taxonomicCoverage.controls;let i=index" formGroupName="{{i}}">
+				<td>
+					<p class="set-align-left" formControlName="rank" contenteditable="false">
+					</p>
+				</td>
+				<td>
+					<p class="set-align-left " formControlName="scientificName">
+					</p>
+				</td>
+				<td>
+					<p class="set-align-left " formControlName="commonName">
+					</p>
+				</td>
+			</tr>
+		</tbody>
+	</table>
 </div>`;
 
 
@@ -70,7 +85,7 @@ export const articleBasicStructure: articleSection[] = [
           prosemirrorJsonTemplate:
           {
             "type": "doc",
-          }, formioJson: templates['TaxonTreatmentsMaterial']
+          }
         }), key: 'sectionContent'
     },
     sectionID: uuidv4(),
@@ -79,7 +94,6 @@ export const articleBasicStructure: articleSection[] = [
     add: { bool: true, main: false },
     delete: { bool: true, main: false },
     mode: 'documentMode',
-    sectionStartingFormIo: templates['TaxonTreatmentsMaterial'],
     formIOSchema: formIOSchema.taxonomicCoverage,
     defaultFormIOValues: defaultValues['taxonomicCoverage'],
     prosemirrorHTMLNodesTempl: taxonomicCoverageTemplate,
@@ -93,8 +107,7 @@ export const articleBasicStructure: articleSection[] = [
           prosemirrorJsonTemplate:
           {
             "type": "doc",
-          },
-          formioJson: templates['TaxonTreatmentsMaterial']
+          }
         }), key: 'sectionContent'
     },
     sectionID: uuidv4(),
@@ -103,7 +116,6 @@ export const articleBasicStructure: articleSection[] = [
     add: { bool: true, main: false },
     delete: { bool: true, main: false },
     mode: 'documentMode',
-    sectionStartingFormIo: templates['TaxonTreatmentsMaterial'],
     formIOSchema: formIOSchema.collectionData,
     defaultFormIOValues: defaultValues['collectionData'],
     prosemirrorHTMLNodesTempl: collectionDataTemplate,

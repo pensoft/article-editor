@@ -7,7 +7,6 @@ import * as Y from 'yjs'
 import { AbstractType } from 'yjs';
 import { Components, MaterialComponent, registerComponent } from 'src/app/formio-angular-material/angular-material-formio.module';
 import { articleSection, editorData, editorMeta, sectionContentData, titleContentData } from '../../utils/interfaces/articleSection';
-import { YdocCopyService } from '../../services/ydoc-copy.service';
 import { EditorState, EditorView, basicSetup } from "@codemirror/basic-setup"
 import { javascript } from "@codemirror/lang-javascript"
 import { html } from "@codemirror/lang-html"

@@ -203,31 +203,5 @@ export class TreeService {
       nodeRef.active = true
 
     }
-    /* if(nodeRef.sectionContent.type=='TaxonTreatmentsMaterial'){
-      let nodeJsonStructure = this.articleStructureMap?.get(nodeRef.sectionID+'TaxonTreatmentsMaterial');
-      if(nodeJsonStructure == undefined){
-        let nodeJsonFormIOStructureObj:any = {}
-        let recursiveInputDetect = (components:any[])=>{
-          components.forEach((el)=>{
-            if(el.input){
-              let imputId = uuidv4()
-              el.key = imputId + '|'+ el.key 
-              nodeJsonFormIOStructureObj[imputId] = el
-            }
-            if(el.components){
-              if(el?.components.length > 0){
-                recursiveInputDetect(el.components);
-              }
-            }
-          })
-        }
-        let formioJsonCopy = JSON.parse(JSON.stringify((nodeRef.sectionContent.contentData! as editorData).editorMeta?.formioJson));
-        recursiveInputDetect([formioJsonCopy])
-        this.articleStructureMap?.set(nodeRef.sectionID+'TaxonTreatmentsMaterial',nodeJsonFormIOStructureObj);
-        this.articleStructureMap?.set(nodeRef.sectionID+'TaxonTreatmentsMaterialFormIOJson',formioJsonCopy);
-        console.log('TaxonTreatmentsMaterialFormIOJson',formioJsonCopy);
-      }
-    } */
-
   }
 }

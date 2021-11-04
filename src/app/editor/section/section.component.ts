@@ -39,7 +39,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
   renderForm = false;
 
-  hide = false;
+  hide = true;
 
   newValue?: { contentData: editorData, sectionData: articleSection };
   value?: string;
@@ -48,7 +48,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   editorData?: editorData;
   FormStructure: any
   renderSection = false;
-  sectionsFromIODefaultValues ?: YMap<any> 
+  sectionsFromIODefaultValues ?: YMap<any>
 
   @Input() section!: articleSection;
   @Output() sectionChange = new EventEmitter<articleSection>();
@@ -58,7 +58,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   @Input() set sectionForm(val) {
     this._sectionForm = val;
     this.sectionFormClone = this.formBuilderService.cloneAbstractControl(this._sectionForm);
-  } 
+  }
   get sectionForm() { return this._sectionForm; }
   @Input() sectionContent: any;
 
@@ -87,7 +87,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
   ngOnInit() {
   }
-  
+
   onChange(data: any) {
     /* let path = data?.changed?.instance?.path;
     let value = data?.changed?.value;
@@ -97,8 +97,8 @@ export class SectionComponent implements AfterViewInit, OnInit {
       path = path.replaceAll('[', '.');
       path = path.replaceAll(']', '');
 
-      
-      // TODO if FormArray 
+
+      // TODO if FormArray
       // if(Array.isArray(value)) {
       //   this.sectionFormClone.get(path)?.setValue(new Array(value.length));
       // }
@@ -121,7 +121,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
       this.sectionForm.removeControl(key);
     })
     this.formBuilderService.buildFormGroupFromSchema(this.sectionForm, this.section.formIOSchema);
-    
+
     //this.sectionForm = nodeForm;
     this.sectionForm.patchValue(submision.data);
     this.sectionForm.updateValueAndValidity()
@@ -154,7 +154,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
       return
     }
     this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
-    
+
 
   }
 
@@ -202,7 +202,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     this.renderEditor = true;
   }
 
-  
+
 
   ngAfterViewInit(): void {
     this.sectionsFromIODefaultValues = this.ydocService.sectionsFromIODefaultValues
@@ -251,7 +251,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
         const component = Component({
           template: templateString,
           styles: [':host {table: {border: red}}'],
-          
+
         })(class implements AfterViewInit {
           data = data;
           formGroup = formGroup;

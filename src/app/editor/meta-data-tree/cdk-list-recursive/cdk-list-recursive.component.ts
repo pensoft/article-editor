@@ -1,10 +1,8 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { TaxonomyService } from 'src/app/editor/dialogs/add-taxonomy/taxonomy.service';
 import { EditSectionDialogComponent } from '../../dialogs/edit-section-dialog/edit-section-dialog.component';
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
-import { YdocCopyService } from '../../services/ydoc-copy.service';
 import { YdocService } from '../../services/ydoc.service';
 import { DetectFocusService } from '../../utils/detectFocusPlugin/detect-focus.service';
 import { articleSection } from '../../utils/interfaces/articleSection';
@@ -12,7 +10,7 @@ import { TreeService } from '../tree-service/tree.service';
 import { DOMParser } from 'prosemirror-model';
 //@ts-ignore
 import { updateYFragment } from '../../../y-prosemirror-src/plugins/sync-plugin.js'
-import { schema, } from '../../utils/schema';
+import { schema } from '../../utils/Schema/index';
 import { FormBuilderService } from '../../services/form-builder.service';
 import { FormGroup } from '@angular/forms';
 import { YMap } from 'yjs/dist/src/internals';
@@ -48,11 +46,9 @@ export class CdkListRecursiveComponent implements OnInit {
 
 
   constructor(
-    private taxonomyService: TaxonomyService,
     private formBuilderService: FormBuilderService,
     public treeService: TreeService,
     public ydocService: YdocService,
-    public ydocCopyService: YdocCopyService,
     public detectFocusService: DetectFocusService,
     public prosemirrorEditorsService: ProsemirrorEditorsService,
     public dialog: MatDialog
@@ -71,34 +67,6 @@ export class CdkListRecursiveComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.taxonomyService.taxonomy.subscribe(x => {
-      this.taxonomyData = {
-        'title': 'Angular Formio',
-        components: [
-          {
-            type: 'textfield',
-            label: 'rank',
-            defaultValue: x.rank,
-            key: 'firstName',
-            input: true
-          },
-          {
-            type: 'textfield',
-            label: 'Scientific Name',
-            defaultValue: x.scientificName,
-            key: 'lastName',
-            input: true
-          },
-          {
-            type: 'textfield',
-            label: 'Common Name',
-            defaultValue: x.commonName,
-            key: 'email',
-            input: true
-          },
-        ]
-      };
-    })
     this.articleSectionsStructure.forEach((node: articleSection, index: number) => {
       let defaultValues = this.ydocService.sectionsFromIODefaultValues!.get(node.sectionID)
       //let defaultValues = this.sectionsFromIODefaultValues.get(node.sectionID)
@@ -168,15 +136,20 @@ export class CdkListRecursiveComponent implements OnInit {
         console.error('NO HTML returned From the popup')
         return
       }
-      let xmlFragment = this.ydocService.ydoc.getXmlFragment(node.sectionID);
+      try{
 
-      let templDiv = document.createElement('div');
-      templDiv.innerHTML = result.compiledHtml
-      let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
-
-      updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
-
-      this.treeService.editNodeChange(node.sectionID)
+        let xmlFragment = this.ydocService.ydoc.getXmlFragment(node.sectionID);
+  
+        let templDiv = document.createElement('div');
+        templDiv.innerHTML = result.compiledHtml
+        let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
+  
+        updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
+  
+        this.treeService.editNodeChange(node.sectionID)
+      }catch(e){
+        console.log(e);
+      }
       /*if(result.submitType == 'TaxonTreatmentsMaterial'){
        
      }else if(result.submitType =='sectionUpdate'){

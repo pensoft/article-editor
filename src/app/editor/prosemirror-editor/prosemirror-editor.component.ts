@@ -4,11 +4,10 @@ import { EditorView } from 'prosemirror-view';
 import { XmlFragment } from 'yjs';
 import { YMap } from 'yjs/dist/src/internals';
 import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
-import { YdocCopyService } from '../services/ydoc-copy.service';
 import { YdocService } from '../services/ydoc.service';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 import { articleSection, editorData } from '../utils/interfaces/articleSection';
-import { schema } from '../utils/schema';
+import { schema } from '../utils/Schema';
 import { Node as prosemirrorNode } from 'prosemirror-model';
 
 
@@ -37,7 +36,7 @@ export class ProsemirrorEditorComponent implements AfterViewInit {
   }
 
   constructor(private prosemirrorService: ProsemirrorEditorsService, private renderer: Renderer2,
-    private ydocService: YdocService, private ydocCopyService: YdocCopyService, private detectFocusService: DetectFocusService) {
+    private ydocService: YdocService,  private detectFocusService: DetectFocusService) {
     this.renderer.listen('window', 'click', (e: Event) => {
       try {
         if(this.mode == 'editor'){
@@ -75,19 +74,12 @@ export class ProsemirrorEditorComponent implements AfterViewInit {
     let renderEditor = () => {
       try {
         if (this.mode == 'editor') {
-          this.editorContainer = this.prosemirrorService.renderEditorIn(this.editor?.nativeElement, this.data?.contentData!, this.data?.sectionData!)
-          
+          this.editorContainer = this.prosemirrorService.renderEditorInWithId(this.editor?.nativeElement, this.data?.sectionData!.sectionID!, this.data?.sectionData!)
 
         } else if (this.mode == 'editorSectionBuilder'){
-          
-        
-
-
-
-
 
         }else if (this.mode == 'editorHtmlCopy') {
-          this.editorContainer = this.prosemirrorService.renderEditorIn(this.editor?.nativeElement, this.data?.contentData!, this.data?.sectionData!)
+          this.editorContainer = this.prosemirrorService.renderEditorInWithId(this.editor?.nativeElement, this.data?.sectionData!.sectionID!, this.data?.sectionData!)
           this.editorView = this.editorContainer.editorView
           setTimeout(() => {
             (this.editor?.nativeElement).innerHTML = this.editorContainer!.containerDiv.innerHTML
@@ -99,8 +91,6 @@ export class ProsemirrorEditorComponent implements AfterViewInit {
           //this.xmlFragment = this.data?.sectionData!.mode == 'editMode' ? this.ydocCopyService.ydoc?.getXmlFragment(this.data?.contentData!.editorId) : this.ydocService.ydoc?.getXmlFragment(this.data?.contentData!.editorId)
           this.showXmlFragment();
         }
-        /* 
-        */
       } catch (e) {
         console.log(e);
       }
@@ -119,33 +109,19 @@ export class ProsemirrorEditorComponent implements AfterViewInit {
     }else if (this.mode == 'xmlcopy') {
       (this.editor?.nativeElement).innerHTML = this.xmlFragment?.toDOM()?.textContent!
     }
-
   }
-
   showXmlFragment() {
 
     if (this.mode == 'editor') {
       return;
     }  else if (this.mode == 'editorSectionBuilder'){
-      
-
-
-
-
-
-
-
-
-
     }else if (this.mode == 'editorHtmlCopy') {
       if (this.editingRN) {
         return
       }
       this.xmlFragment?.observeDeep(this.observeF);
       (this.editor?.nativeElement).innerHTML = this.editorContainer!.containerDiv.innerHTML;
-
       //console.log((this.editor?.nativeElement as HTMLDivElement).children.item(0)!);
-
       //(this.editor?.nativeElement as HTMLDivElement).replaceChild((this.editor?.nativeElement as HTMLDivElement).children.item(0)!,this.editorContainer!.containerDiv.cloneNode());
     } else if (this.mode == 'xmlcopy') {
       if (this.editingRN) {
@@ -163,35 +139,22 @@ export class ProsemirrorEditorComponent implements AfterViewInit {
       this.xmlFragment?.observeDeep(this.observeF)
     }
   }
-
   showEditor() {
     try {
       if (this.mode == 'editor') {
         return;
       }  else if (this.mode == 'editorSectionBuilder'){
-        
-
-
-
-
-
-
-
-
-
       }else if (this.mode == 'editorHtmlCopy' || this.mode == 'xmlcopy') {
         if (this.editingRN) {
           return
         }
         (this.editor?.nativeElement).innerHTML = ''
-        this.editorContainer = this.prosemirrorService.renderEditorIn(this.editor?.nativeElement, this.data?.contentData!, this.data?.sectionData!)
+        this.editorContainer = this.prosemirrorService.renderEditorInWithId(this.editor?.nativeElement, this.data?.sectionData!.sectionID!, this.data?.sectionData!)
         this.editorView = this.editorContainer.editorView;
         this.xmlFragment?.unobserveDeep(this.observeF)
       }
-
     } catch (e) {
       console.log(e);
     }
   }
-
 }

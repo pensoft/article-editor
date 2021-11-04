@@ -42,8 +42,6 @@ import { InsertDiagramDialogComponent } from './editor/dialogs/insert-diagram-di
 import { InsertSpecialSymbolDialogComponent } from './editor/dialogs/insert-special-symbol-dialog/insert-special-symbol-dialog.component';
 import {FormioAppConfig, FormioModule} from '@formio/angular';
 import { AppConfig } from './config';
-import { AddTaxonomyComponent } from 'src/app/editor/dialogs/add-taxonomy/add-taxonomy.component';
-import { TaxonomyEditorComponent } from './editor/taxonomy-editor/taxonomy-editor.component';
 import { SectionComponent } from './editor/section/section.component';
 import { EditorSectionComponent } from './editor/formioComponents/editor/editor-section.component';
 import { registerFormIOComponents } from './editor/formioComponents/registerFormIOComponents';
@@ -89,8 +87,6 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     InsertImageDialogComponent,
     InsertDiagramDialogComponent,
     InsertSpecialSymbolDialogComponent,
-    AddTaxonomyComponent,
-    TaxonomyEditorComponent,
     SectionComponent,
     EditorSectionComponent,
     ArticleComponent,

@@ -69,6 +69,10 @@ export const formIOSchema = {
           "label": "Common Name",
           "tableView": true,
           "key": "commonName",
+          "validate": {
+            "required": true,
+            "pattern": "^[\\s\\S]{3,10}$",
+          },
           "type": "textfield",
           "input": true
         },
