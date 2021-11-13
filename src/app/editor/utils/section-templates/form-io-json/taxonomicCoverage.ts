@@ -2,14 +2,13 @@ export const taxonomicCoverage = {
     'title': 'My Test Form',
     'components': [{
         "label": "Description",
-        "tableView": true,
         "key": "description",
         "validate": {
             "required": true,
         },
-        "type": "textfield",
+        "type": "prosemirror-editor-field",
         "input": true
-    }, {
+    },{
         "label": "Taxonomic coverage",
         "reorder": true,
         "addAnother": "Add",
@@ -26,11 +25,6 @@ export const taxonomicCoverage = {
             "scientificName": "",
             "commonName": "",
             "rank": ""
-        },
-        {
-            "scientificName": "",
-            "commonName": "",
-            "rank": ""
         }
         ],
         "components": [
@@ -40,10 +34,8 @@ export const taxonomicCoverage = {
                 "key": "scientificName",
                 "validate": {
                     "required": true,
-                    "maxLength": 15,
-                    "minLength": 5
                 },
-                "type": "textfield",
+                "type": "prosemirror-editor-field",
                 "input": true
             }, {
                 "label": "Common Name",
@@ -51,9 +43,8 @@ export const taxonomicCoverage = {
                 "key": "commonName",
                 "validate": {
                     "required": true,
-                    "pattern": "^[\\s\\S]{3,10}$",
                 },
-                "type": "textfield",
+                "type": "prosemirror-editor-field",
                 "input": true
             },
             {
@@ -119,6 +110,10 @@ export const taxonomicCoverageDefaultValues = {
     "description": "",
     "taxonomicCoverage": [
         {
+            "scientificName": "",
+            "commonName": "",
+            "rank": ""
+        },{
             "scientificName": "",
             "commonName": "",
             "rank": ""

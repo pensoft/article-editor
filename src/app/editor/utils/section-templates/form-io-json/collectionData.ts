@@ -4,7 +4,7 @@ export const collectionData = {
         "label": "Collection name",
         "tableView": true,
         "key": "collectionName",
-        "type": "textfield",
+        "type": "prosemirror-editor-field",
         "input": true
     },
     {
@@ -15,28 +15,28 @@ export const collectionData = {
             "maxLength": 10,
             "minLength": 3
         },
-        "type": "textfield",
+        "type": "prosemirror-editor-field",
         "input": true
     },
     {
         "label": "Parent collection identifier",
         "tableView": true,
         "key": "parentCollectionIdentifier",
-        "type": "textfield",
+        "type": "prosemirror-editor-field",
         "input": true
     },
     {
         "label": "Specimen preservstion method",
         "tableView": true,
         "key": "specimenPreservationMethod",
-        "type": "textfield",
+        "type": "prosemirror-editor-field",
         "input": true
     },
     {
         "label": "Curatorial unit",
         "tableView": true,
         "key": "curatorialUnit",
-        "type": "textarea",
+        "type": "prosemirror-editor-field",
         "input": true
     },
     {

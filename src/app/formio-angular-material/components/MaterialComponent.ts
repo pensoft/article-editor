@@ -60,7 +60,6 @@ export class MaterialComponent implements AfterViewInit, OnInit,OnDestroy {
       {[key]: validationValue},
       {[key]: validationValue}
     );
-
     if (validationResult.length) {
       this.instance.setCustomValidity(validationResult, false);
       if (!!validationValue) {

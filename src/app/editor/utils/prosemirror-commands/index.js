@@ -589,12 +589,7 @@ export function chainCommands(...commands) {
     return false
   }
 }
-let nonEditableNodesInSelection = (state,dispatch,view)=>{
-    state.doc.nodesBetween(state.selection.from,state.selection.to,(node,pos,parent)=>{
-        console.log(node);
-    })
-    return false
-}
+
 let backspace = chainCommands(deleteSelection, joinBackward, selectNodeBackward)
 let del = chainCommands(deleteSelection, joinForward, selectNodeForward)
 

@@ -1,6 +1,8 @@
 export const taxonomicCoverageTemplate = `<h2 contenteditable="false">Taxonomic coverage</h2>
-<p class="set-align-left" formControlName="description">
-</p>
+<form-field  class="set-align-left" formControlName="prosemirror-editor">
+</form-field >
+<form-field  class="set-align-left" formControlName="description">
+</form-field >
 <div class="tableWrapper">
 	<table style="min-width: 50px;" formArrayName="taxonomicCoverage">
 		<thead>
@@ -25,13 +27,16 @@ export const taxonomicCoverageTemplate = `<h2 contenteditable="false">Taxonomic 
 		<tbody>
 			<tr *ngFor="let control of formGroup.controls.taxonomicCoverage.controls;let i=index" formGroupName="{{i}}">
 				<td>
-					<form-field formControlName="rank" contenteditable="false"  commentable="true"></form-field>
+					<form-field formControlName="rank" contenteditable="false"  commentable="true">
+					</form-field>
 				</td>
 				<td>
-					<form-field formControlName="scientificName" menuType="fullMenu" commentable="true"></form-field>
+					<form-field formControlName="scientificName" menuType="fullMenu" commentable="true">
+					</form-field>
 				</td>
 				<td>
-					<form-field formControlName="commonName" ></form-field>
+					<form-field formControlName="commonName" >
+					</form-field>
 				</td>
 			</tr>
 		</tbody>

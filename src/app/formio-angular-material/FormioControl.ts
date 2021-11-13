@@ -1,4 +1,5 @@
 import { FormControl, ValidationErrors } from '@angular/forms';
+import { debug } from 'console';
 import unescape from 'lodash/unescape';
 
 // @dynamic
@@ -26,6 +27,11 @@ export class FormioControl extends FormControl {
     const setCustomValidity = instance.setCustomValidity;
     instance.setCustomValidity = (message: any, dirty:any, external:any, isWarning = false) => {
       let decodedMessage = message;
+      /* if(this.instance.component.type == "prosemirror-editor-field"){
+        setCustomValidity.call(instance, '', dirty, external, isWarning);
+        instance.validateResolve(null);
+        return null
+      } */
       if (Array.isArray(message)) {
         decodedMessage = message.map(msg => Object.assign(msg, { message: unescape(msg.message) }));
       }

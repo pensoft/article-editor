@@ -11,6 +11,7 @@ export const getGenericAttributes = () => {
         contenteditable: { default: '' },
         menuType: { default: '' },
         commentable: { default: '' },
+        invalid:{default:''}
     }
 }
 
@@ -23,6 +24,7 @@ export const parseGenericAttributes = (dom: any) => {
         contenteditable: dom.getAttribute('contenteditable'),
         menuType: dom.getAttribute('menuType'),
         commentable: dom.getAttribute('commentable'),
+        invalid: dom.getAttribute('invalid'),
     }
 }
 
@@ -30,7 +32,11 @@ export const genericAttributtesToDom = (node: Node) => {
     let toDomAttrs:any = {
     }
     Object.keys(node.attrs).forEach((key)=>{
-        if(node.attrs[key] !== ''){
+        /* if(key == 'ivalid'){
+            toDomAttrs['class']=toDomAttrs['class']?toDomAttrs['class']:'';
+            node.attrs[key] !== ''?(toDomAttrs['class'] += node.attrs[key]):undefined;
+            toDomAttrs[key] = node.attrs[key];
+        }else  */if(node.attrs[key] !== ''){
             toDomAttrs[key] = node.attrs[key]
         }
     })

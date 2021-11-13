@@ -92,7 +92,7 @@ export class MenuService {
     menu.fullMenu[8].push(menuItems.insertLink);
   }
 
-  attachMenuItems(menu: any, ydoc: Y.Doc, sectionName: string,sectionId:string) {
+  attachMenuItems(menu: any, ydoc: Y.Doc, sectionName: string,sectionId?:string) {
     let menuItemsData
     if (!this.sectionMenus[sectionName]) {
       menuItemsData = [...this.sectionMenus['fullMenu']]

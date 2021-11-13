@@ -140,8 +140,6 @@ export class YdocService {
         }
         makeFlat(articleSectionsStructure)
         this.articleStructure?.set('articleSectionsStructure', articleSectionsStructure);
-        console.log(articleSectionsStructure);
-        console.log(articleSectionsStructureFlat);
         this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
 
       }

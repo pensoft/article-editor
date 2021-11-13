@@ -12,6 +12,11 @@
   min-height: fit-content !important;
 }
 
+form-field[invalid]{
+  background-color: rgb(236, 185, 185);
+  display: flex;
+} 
+
 .selected-format-change,
 .selected-block-change {
   background-color: #eefbfb;

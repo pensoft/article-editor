@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { pmMaxLength,pmMinLength,pmPattern,pmRequired } from '../utils/pmEditorFormValidators/validators';
 
 @Injectable({
   providedIn: 'root'
@@ -72,7 +73,31 @@ export class FormBuilderService {
     }
 
     let value = component.defaultValue;
-
+    if(component.type == 'prosemirror-editor-field'){
+      let validators = component.type === 'number' ? [Validators.pattern("^[0-9]*$")] : [];
+      if (component.validate) {
+        if (component.validate.required) {
+          validators.push(pmRequired);
+        }
+        if (component.validate.minLength) {
+          validators.push(pmMinLength(component.validate.minLength));
+        }
+        if (component.validate.maxLength) {
+          validators.push(pmMaxLength(component.validate.maxLength));
+        }
+        if (component.validate.pattern) {
+          validators.push(pmPattern(component.validate.pattern)!);
+        }
+      }
+      if (component.readOnly) {
+        console.log('component.readOnly', component.readOnly);
+      }
+      let control = new FormControl(value, validators);
+      component.readOnly ? control.disable() : undefined
+      //@ts-ignore
+      control.componentType = component.type
+      return control
+    }
     let validators = component.type === 'number' ? [Validators.pattern("^[0-9]*$")] : [];
     if (component.validate) {
       if (component.validate.required) {
@@ -92,6 +117,8 @@ export class FormBuilderService {
       console.log('component.readOnly', component.readOnly);
     }
     let control = new FormControl(value, validators);
+    //@ts-ignore
+    control.componentType = component.type
     component.readOnly ? control.disable() : undefined
     return control
   }

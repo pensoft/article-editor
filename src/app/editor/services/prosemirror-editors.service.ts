@@ -17,7 +17,7 @@ import {
   REGEX_BLOCK_MATH_DOLLARS,
   REGEX_INLINE_MATH_DOLLARS
 } from '@benrbray/prosemirror-math';
-import { Slice } from 'prosemirror-model';
+import { Node, Slice } from 'prosemirror-model';
 //@ts-ignore
 import { EditorView } from 'prosemirror-view';
 import { EditorState, Plugin, PluginKey, Transaction, TextSelection } from 'prosemirror-state';
@@ -47,8 +47,12 @@ import {
 import { FormControlService } from '../section/form-control.service';
 import { FormControl } from '@angular/forms';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
+import { DOMParser } from 'prosemirror-model';
+
 //@ts-ignore
 import {menuBar} from '../utils/prosemirror-menu-master/src/menubar.js'
+import { Form } from 'formiojs';
+import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
 @Injectable({
   providedIn: 'root'
 })
@@ -225,13 +229,21 @@ export class ProsemirrorEditorsService {
                   const fg = GroupControl[section.sectionID];
                   const controlPath = node.attrs.controlPath;
                   const control = fg.get(controlPath) as FormControl;
-                  control.setValue(node.textContent, { emitEvent: true })
+                  //@ts-ignore
+
+                  if(control.componentType == "prosemirror-editor-field"){
+                    control.setValue(node.toJSON(), { emitEvent: true })
+                  }else{
+                    control.setValue(node.textContent, { emitEvent: true })
+                  }
                   control.updateValueAndValidity()
                   const mark = schema.mark('invalid')
                   if (control.invalid) {
-                    tr1 = newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
+                    // newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
+                    tr1 = newState.tr.setNodeMarkup(pos ,node.type,{...node.attrs,invalid:"true"})
                   } else {
-                    tr1 = newState.tr.removeMark(pos + 1, pos + node.nodeSize - 1, mark)
+                    tr1 = newState.tr.setNodeMarkup(pos ,node.type,{...node.attrs,invalid:""})
+
                   }
                   updateFormIoDefaultValues(editorID, fg.value);
                 } catch (error) {
@@ -388,6 +400,184 @@ export class ProsemirrorEditorsService {
       dispatchTransaction: dispatchTransaction
     };
     this.editorContainers[editorID] = editorCont;
+    return editorCont
+  }
+
+  renderEditorWithNoSync(EditorContainer: HTMLDivElement,nodesArray:Node[] = [],formIOComponentInstance:any,control:FormioControl): {
+    editorID: string,
+    containerDiv: HTMLDivElement,
+    editorState: EditorState,
+    editorView: EditorView,
+    dispatchTransaction: any
+  } {
+    let editorID = random.uuidv4()
+    let container = document.createElement('div');
+    let editorView: EditorView;
+    let doc:Node;
+    let componentLabel = formIOComponentInstance.component.label;
+    let labelTag = document.createElement('div');
+    labelTag.setAttribute('class','prosemirror-label-tag')
+    labelTag.textContent = componentLabel
+    EditorContainer.appendChild(labelTag);
+
+    if(nodesArray.length == 0){
+      doc = schema.nodes.doc.create({},schema.nodes.form_field.create({},schema.nodes.paragraph.create({})))
+    }else{
+      doc = schema.nodes.doc.create({},nodesArray)
+    }
+    let menuContainerClass = "popup-menu-container";
+
+    container.setAttribute('class', 'editor-container');
+
+    let filterTransaction = false
+    let defaultMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'SimpleMenu');
+    let fullMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenu');
+
+    let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
+
+    let GroupControl = this.treeService.sectionFormGroups;
+    let transactionControllerPlugin = new Plugin({
+      key: transactionControllerPluginKey,
+      appendTransaction: (trs: Transaction<any>[], oldState: EditorState, newState: EditorState) => {
+        formIOComponentInstance.updateValue(newState.doc.content.firstChild!.toJSON(), {modified: true});
+        control.patchValue(newState.doc.content.firstChild!.toJSON());
+        control.updateValueAndValidity()
+        
+      },
+      filterTransaction(transaction: Transaction<any>, state: EditorState) {
+        return true
+      }
+    })
+
+    
+
+    this.editorsEditableObj[editorID] = true
+
+    let edState = EditorState.create({
+      doc,
+      schema: schema,
+      plugins: [
+        mathPlugin,
+        keymap({
+          'Mod-Space': insertMathCmd(schema.nodes.math_inline),
+          'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
+          'Tab': goToNextCell(1),
+          'Shift-Tab': goToNextCell(-1)
+        }),
+        columnResizing({}),
+        tableEditing(),
+        this.placeholderPluginService.getPlugin(),
+        transactionControllerPlugin,
+        this.trackChangesService.getHideShowPlugin(),
+        inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
+        ...menuBar({floating: true,
+          content: {'main':defaultMenu,fullMenu} ,containerClass:menuContainerClass})
+      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
+      ,
+      // @ts-ignore
+      sectionName: editorID,
+    });
+    
+    let lastStep: any
+    const dispatchTransaction = (transaction: Transaction) => {
+      this.transactionCount++
+      try {
+        if (lastStep == transaction.steps[0]) {
+          if (lastStep) { return }
+        }
+        lastStep = transaction.steps[0]
+        if (!this.initDocumentReplace[editorID] || !this.shouldTrackChanges) {
+          let state = editorView?.state.apply(transaction);
+          editorView?.updateState(state!);
+
+        } else {
+          const tr = trackedTransaction.default(transaction, editorView?.state,
+            {
+              userId: this.ydoc?.clientID,
+              username: this.user.username,
+              userColor: { addition: 'transperant', deletion: 'black' }
+            });
+          let state = editorView?.state.apply(tr);
+          editorView?.updateState(state!);
+        }
+      } catch (err) { console.log(err); }
+    };
+    editorView = new EditorView(container, {
+      state: edState,
+      clipboardTextSerializer: (slice: Slice) => {
+        return mathSerializer.serializeSlice(slice);
+      },
+      editable: (state: EditorState) => {
+        return !this.mobileVersion && this.editorsEditableObj[editorID]
+        // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
+      },
+      dispatchTransaction,
+      /* handleKeyDown(view: EditorView, event: KeyboardEvent){
+        if(event.key == 'Delete'){
+
+          if(view.state.selection.$anchor.nodeAfter){
+            if(view.state.selection.$anchor.nodeAfter.attrs.contenteditable == 'false'){
+              return true
+            }
+          }else{
+            return true
+          }
+        }else if(event.key == 'Backspace'){
+          if(view.state.selection.$anchor.nodeBefore){
+            if(view.state.selection.$anchor.nodeBefore.attrs.contenteditable == 'false'){
+              return true
+            }
+          }else{
+            return true
+          }
+        }
+        return false
+      }, */
+      createSelectionBetween: (view, anchor, head) => {
+        let headRangeMin = anchor.pos
+        let headRangeMax = anchor.pos
+        if (anchor.nodeBefore) {
+          headRangeMin -= anchor.nodeBefore.nodeSize
+        }
+        if (anchor.nodeAfter) {
+          headRangeMax += anchor.nodeAfter.nodeSize
+        }
+        this.editorsEditableObj[editorID] = true
+        
+        if (headRangeMin > head.pos || headRangeMax < head.pos) {
+          let headPosition = headRangeMin > head.pos ? headRangeMin : headRangeMax
+          let newHeadResolvedPosition = view.state.doc.resolve(headPosition)
+          let from = Math.min(view.state.selection.$anchor.pos, newHeadResolvedPosition.pos)
+          let to = Math.max(view.state.selection.$anchor.pos, newHeadResolvedPosition.pos)
+          view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
+            if (node.attrs.contenteditable == 'false') {
+              this.editorsEditableObj[editorID] = false;
+
+            }
+          })
+          let newSelection = new TextSelection(anchor, newHeadResolvedPosition);
+          return newSelection
+        }
+        let from = Math.min(anchor.pos, head.pos)
+        let to = Math.max(anchor.pos, head.pos)
+        view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
+          if (node.attrs.contenteditable == 'false') {
+            this.editorsEditableObj[editorID] = false;
+          }
+        })
+        return undefined
+      },
+
+    });
+    EditorContainer.appendChild(container);
+
+    let editorCont: any = {
+      editorID: editorID,
+      containerDiv: container,
+      editorState: edState,
+      editorView: editorView,
+      dispatchTransaction: dispatchTransaction
+    };
     return editorCont
   }
 

@@ -27,24 +27,15 @@ export const marks: MarkSpec = {
     ...trackChangesMarks,
     ...basicmarks,
     invalid: {
-        attrs: {
-            class: { default: 'invalid' },
-        },
+        
         parseDOM: [
-            {
-                tag: 'span',
-                getAttrs(dom: any) {
-                    return {
-                        class: dom.getAttribute('class'),
-                    }
-                },
-            },
+            {tag: 'div.invalid'},
         ],
         toDOM(node: any) {
             return [
-                'span',
+                'div',
                 {
-                    class: node.attrs.class,
+                    class: 'invalid',
                 },
             ];
         },

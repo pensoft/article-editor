@@ -87,7 +87,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
   }
 
   onChange(data: any) {
-    console.log('dataChnage',data);
   }
 
   ready(form: any) {
@@ -105,6 +104,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   }
 
   async onSubmit(submision?: any) {
+    console.log('sectionForm',this.sectionForm);
     this.sectionsFromIODefaultValues!.set(this.section.sectionID,submision.data)
 
     this.formBuilderService.populateDefaultValues(submision.data,this.section.formIOSchema);

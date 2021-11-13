@@ -6,7 +6,7 @@ import { HtmlEditorComponent } from "./html-editor/html-editor.component";
 import { TaxonomicCoverageComponent } from "./taxonomic-coverage/taxonomic-coverage.component";
 
 export function registerFormIOComponents(injector:Injector){
-    registerComponent('editorContentType', EditorSectionComponent);
+    registerComponent('prosemirror-editor-field', EditorSectionComponent);
     registerComponent('taxonomicCoverageContentType', TaxonomicCoverageComponent);
     registerComponent('codemirror-html-editor', HtmlEditorComponent);
     registerComponent('figure-preview', FigurePreviewComponent);

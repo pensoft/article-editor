@@ -1,10 +1,12 @@
 <!-- <formio [form]="titleContent" [submission]='{"data": {"name": "Joe Smith"}}'  ></formio>  -->
 <!-- <mat-formio class="article-section" [form]="sectionContent" (submit)='submit($event)'></mat-formio> -->
+
 <div >
     <div [formGroup]="sectionForm" *ngIf='section.mode == "editMode"' >
-        <button mat-raised-button (click)="hide=!hide">Show Template</button>
+        <button mat-raised-button (click)="hide=!hide">Edit Template</button>
         <div #codemirror class='codemirror-editor' [ngStyle]="{'display': hide ? 'none' : 'block'}"></div>
         <div *ngIf="error"><pre class="errors-container">{{errorMessage}}</pre></div>
+        <div *ngIf='section.mode == "editMode"' class="popup-menu-container"></div>
         <ng-container *ngIf='renderForm'>
             <div >
                 <mat-formio #formio [form]="sectionContent" (ready)="ready($event)" (change)="onChange($event)" (submit)="onSubmit($event)"></mat-formio>

@@ -20,6 +20,7 @@ export class TreeService {
   toggleTreeDrawer: Subject<any> = new Subject<any>();
 
   sectionFormGroups:{[key:string]:FormGroup} = {}
+  sectionProsemirrorNodes:{[key:string]:string} = {} // prosemirror nodes as html 
 
   constructor(private ydocService: YdocService) {
     let buildFunc = () => {
