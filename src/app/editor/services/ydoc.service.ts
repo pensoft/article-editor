@@ -216,10 +216,7 @@ export class YdocService {
         //this.buildEditor();
         //return
         let onSubevent = fromEvent(this.provider!, 'signalingConnected').subscribe(() => {
-          console.log('signalingConnected');
-          console.log('/products/'+roomName);
           this.http.get('/products/'+roomName).subscribe((data)=>{
-            console.log('data from backedn',data);
             renderDoc(data);
           })
           /* let r = race(this.http.get('/products').pipe(delay(500), catchError((err: any) => {
@@ -265,7 +262,6 @@ export class YdocService {
         documents.forEach((doc: any) => {
           Y.applyUpdate(this.ydoc, doc);
         })
-        console.log('ready');
       } catch (e) {
         console.log('ERROR:', e);
         console.log('The editor was loaded with local document');

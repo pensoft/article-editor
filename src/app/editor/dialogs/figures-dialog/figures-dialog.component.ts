@@ -23,11 +23,22 @@ export class FiguresDialogComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.figuresMap = this.ydocService.figuresMap
     this.figures = this.figuresMap?.get('figures')
-    console.log(this.figures);
   }
 
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.figures!, event.previousIndex, event.currentIndex);
+  }
+
+  editFigure(fig:figure,figIndex:number){
+    this.dialog.open(AddFigureDialogComponent, {
+      width: '70%',
+      height: '70%',
+      data: fig,
+      disableClose: false
+    }).afterClosed().subscribe(result => {
+      console.log('Figure from edit',result);
+      this.figures?.splice(figIndex,1,result.figure)
+    })
   }
 
   addFigure(){

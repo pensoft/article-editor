@@ -148,7 +148,6 @@ export class CdkListRecursiveComponent implements OnInit {
         let templDiv = document.createElement('div');
         templDiv.innerHTML = result.compiledHtml
         let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
-  
         updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
   
         this.treeService.editNodeChange(node.sectionID)

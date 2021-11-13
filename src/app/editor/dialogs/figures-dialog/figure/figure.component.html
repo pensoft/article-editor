@@ -1,21 +1,21 @@
-<div *ngIf="figure">
+<div *ngIf="figure" class="figure">
     <div class="figure-index">Fg:№{{figureIndex}}</div>
     <div class="figure-description">
         {{figure.description}}
     </div>
     <div class="figure-components">
         <div class="component" *ngFor="let component of figure.components">
-            <div *ngIf="component.type == 'image'">
-                <img  src='{{component.url}}' height="100" />
+            <div class="component-inage" *ngIf="component.type == 'image'">
+                <img  src='{{component.url}}' height="150" />
             </div>
-            <div  *ngIf="component.type == 'video'" >
-                <iframe width="350" height="200" 
+            <div class="component-inage" *ngIf="component.type == 'video'" >
+                <iframe height="150" 
                 [src]="component.url | safe"
                 title="YouTube video player" frameborder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowfullscreen=""></iframe>
-                <div class="component-description">{{component.description}}</div>      
             </div>
+            <div class="component-description"><span>{{component.description}}</span></div>    
         </div>
     </div>
 </div>

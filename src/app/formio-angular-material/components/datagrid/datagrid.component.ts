@@ -5,6 +5,8 @@ import { MaterialNestedComponent } from '../MaterialNestedComponent';
 import DataGridComponent from 'formiojs/components/datagrid/DataGrid.js';
 import {CdkDragDrop, moveItemInArray, DragDropModule} from '@angular/cdk/drag-drop';
 import {MatTable} from '@angular/material/table';
+import { FormioEventsService } from 'src/app/editor/formioComponents/formio-events.service';
+import { ElementRef ,ChangeDetectorRef} from '@angular/core';
 @Component({
   selector: 'mat-formio-datagrid',
   template: `
@@ -89,6 +91,10 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
   columns: any;
   dataSource = new MatTableDataSource();
 
+  constructor(ref:ElementRef,changeDetection:ChangeDetectorRef,private formioEventsService:FormioEventsService){
+    super(ref,changeDetection)
+  }
+
   getColumnLabel(column:any) {
     return column.label || column.key;
   }
@@ -152,6 +158,11 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
     const prevIndex = this.dataSource.data.findIndex((d) => d === event.item.data);
     moveItemInArray(this.control.value, prevIndex, event.currentIndex);
     this.renderComponents();
+    try{
+      this.formioEventsService.events.next({event:'data-grid-drag-drop'})
+    }catch(e){
+      console.log(e);
+    }
   }
 
   renderComponents() {

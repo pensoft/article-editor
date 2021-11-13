@@ -9,7 +9,6 @@ import { first } from 'rxjs/operators';
 export class LogSwUpdatesService {
 
   constructor(appRef: ApplicationRef,updates: SwUpdate) {
-
     const appIsStable$ = appRef.isStable.pipe(first(isStable => isStable === true));
     const everySixHours$ = interval(6 * 60 * 60 * 1000);
     const everySixHoursOnceAppIsStable$ = concat(appIsStable$, everySixHours$);

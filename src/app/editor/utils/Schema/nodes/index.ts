@@ -9,6 +9,26 @@ export const nodes: NodeSpec = {
     doc: {
         content: "block+"
     },
+    form_field:{
+        content: "block*",
+        group: "block",
+        attrs: {
+            ...getGenericAttributes()
+        },
+        parseDOM: [{
+            tag: "form-field", getAttrs(dom: any) {
+                return {
+                    ...parseGenericAttributes(dom)
+                }
+            },
+        }],
+        toDOM(node: any) {
+            let attributesToDom:any = {
+                ...genericAttributtesToDom(node)
+            }
+            return ["form-field", attributesToDom, 0];
+        }
+    },
     paragraph: {
         content: "inline*",
         group: "block",
@@ -33,30 +53,6 @@ export const nodes: NodeSpec = {
                 attributesToDom['class']=node.attrs.align
             
             return ["p", attributesToDom, 0];
-        }
-    },
-    inline_text: {
-        content: "text*",
-        group: "inline",
-        inline:true,
-        attrs: {
-            //style:{default:''},
-            ...getGenericAttributes()
-        },
-        parseDOM: [{
-            tag: "inline-text", getAttrs(dom: any) {
-                return {
-                    //style:dom.getAttribute('style'),
-                    ...parseGenericAttributes(dom)
-                }
-            },
-        }],
-        toDOM(node: any) {
-            let attributesToDom:any = {
-                ...genericAttributtesToDom(node)
-            }
-            //attributesToDom['style'] = node.attrs.style
-            return ["inline-text", attributesToDom, 0];
         }
     },
     video: {

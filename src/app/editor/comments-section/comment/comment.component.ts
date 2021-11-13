@@ -26,9 +26,10 @@ export class CommentComponent implements OnInit {
   @ViewChild('content') elementView: ElementRef | undefined; 
 
   replyInputDisplay = false
-  showMore = false;
-  MAX_CONTENT_HEIGHT = 30;
-  contentHeight: number = this.MAX_CONTENT_HEIGHT;
+  showMore:any = {};
+  moreLessBtnView :any= {};
+  MAX_CONTENT_WIDTH = 290;
+  contentWidth: number = this.MAX_CONTENT_WIDTH;
   commentsMap?: YMap<any>
   userComments?: any[];
   mobileVersion:boolean
@@ -54,7 +55,11 @@ export class CommentComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    this.contentHeight = this.elementView?.nativeElement.offsetHeight;
+    this.userComments?.forEach((comment,index)=>{
+      this.showMore[index] = false
+    })
+    let s : HTMLSpanElement = document.createElement('span');
+    s.offsetWidth
   }
 
   deleteComment() {
@@ -105,6 +110,9 @@ export class CommentComponent implements OnInit {
         })
         this.userComments = commentsArray;
         this.commentsMap?.set(this.comment?.attrs.id, [...commentsArray]);
+        this.contentWidth = this.elementView?.nativeElement.firstChild.offsetWidth;
+        this.moreLessBtnView[this.comment!.attrs.id] = this.contentWidth >= this.MAX_CONTENT_WIDTH
+
       }
     });
   }

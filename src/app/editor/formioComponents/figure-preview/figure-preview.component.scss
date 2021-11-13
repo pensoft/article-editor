@@ -1,0 +1,11 @@
+.preview-component {
+    display: inline-block;
+    margin: 7px;
+}
+
+.component-description {
+    width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

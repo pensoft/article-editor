@@ -207,8 +207,8 @@ export class ProsemirrorEditorsService {
 
     container.setAttribute('class', 'editor-container');
     let filterTransaction = false
-    let SimpleMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'SimpleMenu', editorID);
-    let fullMenuWithLog = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenu', editorID);
+    let defaultMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'SimpleMenu', editorID);
+    let fullMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenu', editorID);
     this.initDocumentReplace[editorID] = false;
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
     let GroupControl = this.treeService.sectionFormGroups;
@@ -279,7 +279,7 @@ export class ProsemirrorEditorsService {
         this.linkPopUpPluginService.linkPopUpPlugin,
         inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
         ...menuBar({floating: true,
-          content: {'main':SimpleMenu,fullMenuWithLog} ,containerClass:menuContainerClass})
+          content: {'main':defaultMenu,fullMenu} ,containerClass:menuContainerClass})
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
       ,
       // @ts-ignore

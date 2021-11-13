@@ -2,7 +2,7 @@
 <!-- <mat-formio class="article-section" [form]="sectionContent" (submit)='submit($event)'></mat-formio> -->
 <div >
     <div [formGroup]="sectionForm" *ngIf='section.mode == "editMode"' >
-        <button mat-raised-button (click)="hide=!hide">Show Editor</button>
+        <button mat-raised-button (click)="hide=!hide">Show Template</button>
         <div #codemirror class='codemirror-editor' [ngStyle]="{'display': hide ? 'none' : 'block'}"></div>
         <div *ngIf="error"><pre class="errors-container">{{errorMessage}}</pre></div>
         <ng-container *ngIf='renderForm'>

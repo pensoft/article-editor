@@ -1,14 +1,8 @@
 import { AfterViewInit, Component, Input, OnInit, Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
-import { figure as f } from 'src/app/editor/utils/interfaces/figureComponent';
+import { figure as figure_interface } from 'src/app/editor/utils/interfaces/figureComponent';
 
-@Pipe({ name: 'safe' })
-export class SafePipe implements PipeTransform {
-  constructor(private sanitizer: DomSanitizer) {}
-  transform(url:string) {
-    return this.sanitizer.bypassSecurityTrustResourceUrl(url);
-  }
-}
+
 
 @Component({
   selector: 'app-figure',
@@ -16,7 +10,7 @@ export class SafePipe implements PipeTransform {
   styleUrls: ['./figure.component.scss']
 })
 export class FigureComponent implements AfterViewInit {
-  @Input() figure ?: f ;
+  @Input() figure ?: figure_interface ;
   @Input() figureIndex ?: number
 
   urlSafe?: SafeResourceUrl;

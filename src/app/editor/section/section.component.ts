@@ -87,7 +87,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   }
 
   onChange(data: any) {
-    
+    console.log('dataChnage',data);
   }
 
   ready(form: any) {

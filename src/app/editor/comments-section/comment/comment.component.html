@@ -1,4 +1,4 @@
-<mat-card class="comment-box" *ngFor="let userComment of userComments">
+<mat-card class="comment-box" *ngFor="let userComment of userComments;let index=index">
   <mat-card-header>
     <div mat-card-avatar class="comment-avatar"></div>
     <mat-card-title class="comment-title">Nikolay Ivanov</mat-card-title>
@@ -23,9 +23,15 @@
       <div class="selected-text-content">{{comment!.text}}</div>
     </div>
 
-    <!-- <div #content class="comment-content" [class.show]="showMore">{{userComment.comment}}</div>
-    <a *ngIf="contentHeight >= MAX_CONTENT_HEIGHT" (click)="showMore = !showMore" class="show-more-label">{{
-      showMore ? 'Show less': 'Show More' }}</a> -->
+    <div #content [ngClass]="{
+      'comment-content':true,
+      'comment-elipsis-content':!showMore[index],
+      'comment-full-content':showMore[index]
+    }"><span #commentSpan>{{userComment.comment}}</span></div>
+    <a (click)="showMore[index] = !showMore[index]" [ngClass]="{
+      'morelessBtn':true,
+      'comment-display-none':commentSpan.offsetWidth < 295 && commentSpan.offsetHeight < 20
+    }">{{showMore[index] ? 'Show less': 'Show More' }}</a>
 
     <div class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
     <div #ReplyDiv style="display: none;">

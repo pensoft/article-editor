@@ -55,8 +55,10 @@ import { FormControlNameDirective } from './editor/directives/form-control-name.
 import { ArticleMetadataComponent } from './editor/article-metadata/article-metadata.component';
 import { FiguresDialogComponent } from './editor/dialogs/figures-dialog/figures-dialog.component';
 import { AddFigureDialogComponent } from './editor/dialogs/figures-dialog/add-figure-dialog/add-figure-dialog.component';
-import { FigureComponent, SafePipe } from './editor/dialogs/figures-dialog/figure/figure.component';
+import { FigureComponent } from './editor/dialogs/figures-dialog/figure/figure.component';
 import { LogSwUpdatesService } from './app-services/log-sw-updates.service';
+import { PipesModule } from './shared/pipes.module';
+import { FigurePreviewComponent } from './editor/formioComponents/figure-preview/figure-preview.component';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -64,7 +66,6 @@ export function createCompiler(compilerFactory: CompilerFactory) {
 
 @NgModule({
   declarations: [
-    SafePipe,
     AppComponent,
     EditorComponent,
     TaxonomicCoverageComponent,
@@ -95,6 +96,7 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     InsertSpecialSymbolDialogComponent,
     SectionComponent,
     EditorSectionComponent,
+    FigurePreviewComponent,
     ArticleComponent,
     EditSectionDialogComponent,
     ProsemirrorEditorComponent,
@@ -105,6 +107,7 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     FigureComponent,
   ],
   imports: [
+    PipesModule,
     BrowserModule,
     MaterialModule,
     FormsModule,

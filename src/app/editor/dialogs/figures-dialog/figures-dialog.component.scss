@@ -1,20 +1,24 @@
-.example-list {
-    display: block;
-    height: calc(100% - 36px);
-}
-
 .figures-container {
     display: block;
     height: 100%;
     width: 100%;
-}
-
-.figure-buttons {
-    height: 36px;
-    margin-top: 12px;
-}
-
-.figures-list {
-    overflow-y: auto;
-    height: calc(100% - 45px);
+    .figures-list {
+        .figure-box {
+            margin: 10px;
+            border: 2px solid #98f7eb;
+            border-radius: 9px;
+            .example-custom-placeholder {
+            }
+            .figure-view {
+            }
+            .figure-control-buttons {
+            }
+        }
+        overflow-y: auto;
+        height: calc(100% - 45px);
+    }
+    .figure-buttons {
+        height: 36px;
+        margin-top: 12px;
+    }
 }

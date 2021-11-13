@@ -1,30 +1,30 @@
 export const collectionDataTemplate = `<h2 contenteditable="false">Collection Data</h2>
-<inline-text contenteditable="false">
+<p contenteditable="false">
 	<b>Collection Name:</b>
-</inline-text>
-<inline-text style="padding-left:8px" formControlName="collectionName">
-</inline-text>
-<br>
-	<inline-text contenteditable="false">
-		<b>Collection identifier:</b>
-	</inline-text>
-	<inline-text style="padding-left:8px" formControlName="collectionIdentifier" menuType="fullMenuWithLog" commentable="true">
-	</inline-text>
-	<br>
-		<inline-text contenteditable="false">
-			<b>Parent collection identifier:</b>
-		</inline-text>
-		<inline-text style="padding-left:8px" formControlName="parentCollectionIdentifier">
-		</inline-text>
-		<br>
-			<inline-text contenteditable="false">
-				<b>Specimen preservation method:</b>
-			</inline-text>
-			<inline-text style="padding-left:8px" formControlName="specimenPreservationMethod">
-			</inline-text>
-			<br>
-				<inline-text contenteditable="false">
-					<b>Curatorial unit:</b>
-				</inline-text>
-				<inline-text style="padding-left:8px" formControlName="curatorialUnit">
-				</inline-text>`
+</p>
+<form-field style="padding-left:8px" formControlName="collectionName">
+</form-field>
+
+<p contenteditable="false">
+	<b>Collection identifier:</b>
+</p>
+<form-field style="padding-left:8px" formControlName="collectionIdentifier" menuType="fullMenu" commentable="true">
+</form-field>
+
+<p contenteditable="false">
+	<b>Parent collection identifier:</b>
+</p>
+<form-field style="padding-left:8px" formControlName="parentCollectionIdentifier">
+</form-field>
+
+<p contenteditable="false">
+	<b>Specimen preservation method:</b>
+</p>
+<form-field style="padding-left:8px" formControlName="specimenPreservationMethod">
+</form-field>
+
+<p contenteditable="false">
+	<b>Curatorial unit:</b>
+</p>
+<form-field style="padding-left:8px" formControlName="curatorialUnit">
+</form-field>`

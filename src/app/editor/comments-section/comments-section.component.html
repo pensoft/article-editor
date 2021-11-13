@@ -25,7 +25,7 @@
         <button mat-button label="Cancel" (click)="cancelBtnHandle()"
           class="small  secondary cencel-button">Cancel</button>
         <button mat-button label="Comment" (click)="commentBtnHandle(input.value)"
-          [disabled]="!selectedTextInEditors[lastFocusedEditor!] || input.value.length === 0"
+          [disabled]="!selectedTextInEditors[lastFocusedEditor!] || input.value.length === 0 || !commentAllowdIn[lastFocusedEditor!]"
           class="small  secondary comment-button">Comment</button>
       </div>
     </mat-card>

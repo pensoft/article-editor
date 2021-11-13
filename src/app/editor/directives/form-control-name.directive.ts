@@ -39,6 +39,9 @@ export class FormControlNameDirective implements ControlValueAccessor {
   writeValue(val: string) : void {
     this.ngControl = this.inj.get(NgControl)
     this.el.nativeElement.innerHTML = val;
+    /* this.el.nativeElement.innerHTML = `<p class="set-align-left">
+   ${val}
+  </p>`; */
     // @ts-ignore
     this._renderer.setAttribute(this.el.nativeElement, 'controlPath', this.ngControl.path.join('.'));
     this.innerValue = val;

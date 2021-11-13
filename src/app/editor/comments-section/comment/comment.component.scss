@@ -87,6 +87,28 @@
   }
 }
 
+.comment-elipsis-content {
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 100%;
+}
+
+.morelessBtn{
+  color: #8fc0f1;
+  cursor: pointer;
+}
+
+
+.comment-display-none{
+  display: none;
+}
+
+.comment-full-content{
+  word-wrap: break-word;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
 .comment-content {
   font-family: var(--font-family-open-sans);
   font-style: var(--font-style-normal);
@@ -95,7 +117,6 @@
   line-height: var(--line-spacing-16);
   letter-spacing: var(--character-spacing-0);
   color: var(--color-192956);
-  max-height: 35px;
   overflow: hidden;
   display: inline-block;
 }
