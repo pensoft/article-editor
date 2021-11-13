@@ -64,12 +64,12 @@ export class MenuService {
       ['alignMenu'],
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
-      ['insertMenu','logNodesMenuItem']
+      ['insertMenu']
     ],
     'SimpleMenu': [
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
-      ['undoItem', 'redoItem'],
+      ['undoItem', 'redoItem','insertVideoItem'],
     ]
   }
 

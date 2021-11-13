@@ -118,26 +118,31 @@ export class CdkListRecursiveComponent implements OnInit {
 
 
   editNodeHandle(node: articleSection, formGroup: FormGroup,index:number) {
+    try{
     let defaultValues = this.sectionsFromIODefaultValues.get(node.sectionID)
     defaultValues = defaultValues ? defaultValues : node.defaultFormIOValues
     let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
     this.sectionContents[index] = sectionContent
+    let focusObj = this.ydocService.editorsFocusState?.get('focusObj')
+
+    let editorFocusArray = focusObj[node.sectionID]
+    if(editorFocusArray){
+      if(editorFocusArray.filter((el:string)=>{return el !== this.ydocService.ydoc.guid}).length > 0){
+        console.log('Cant open the section right now becouse someone else is editing it');
+        return
+      }
+      if(!editorFocusArray.includes( this.ydocService.editorsFocusState?.doc?.guid)){
+        editorFocusArray.push( this.ydocService.editorsFocusState?.doc?.guid)
+      }
+    }
+    this.ydocService.editorsFocusState?.set('focusObj',focusObj)
     this.dialog.open(EditSectionDialogComponent, {
       width: '95%',
       height: '90%',
       data: { node: node, form: formGroup, sectionContent: sectionContent },
       disableClose: false
     }).afterClosed().subscribe(result => {
-      if (!result) {
-        return;
-      }
-
-      if (!result.compiledHtml) {
-        console.error('NO HTML returned From the popup')
-        return
-      }
-      try{
-
+      if (result && result.compiledHtml) {
         let xmlFragment = this.ydocService.ydoc.getXmlFragment(node.sectionID);
   
         let templDiv = document.createElement('div');
@@ -147,16 +152,20 @@ export class CdkListRecursiveComponent implements OnInit {
         updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
   
         this.treeService.editNodeChange(node.sectionID)
-      }catch(e){
-        console.log(e);
       }
-      /*if(result.submitType == 'TaxonTreatmentsMaterial'){
-       
-     }else if(result.submitType =='sectionUpdate'){
-     }
-     this.prosemirrorEditorsService.markSectionForDelete(result)
-     this.prosemirrorEditorsService.clearDeleteArray(); */
-    });
+
+        let focusObj = this.ydocService.editorsFocusState?.get('focusObj')
+        if(!focusObj[node.sectionID]){
+          focusObj[node.sectionID] = []
+        }
+        if(focusObj[node.sectionID].includes(this.ydocService.editorsFocusState?.doc?.guid)){
+          focusObj[node.sectionID]= focusObj[node.sectionID].filter((el:any)=>{return el!==this.ydocService.editorsFocusState?.doc?.guid})
+        }
+        this.ydocService.editorsFocusState?.set('focusObj',focusObj)
+      });
+    }catch(e){
+      console.log(e);
+    }
   }
 
   addNodeHandle(nodeId: string) {

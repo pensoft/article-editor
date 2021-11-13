@@ -1,6 +1,3 @@
-.sectioon-wrapper{
-    //border:1px solid black;
-}
 ::ng-deep .section-container {
     height: 418px;
     overflow: auto;
@@ -10,22 +7,37 @@
             display: block;
             overflow: hidden;
             overflow-y: scroll;
-            
         }
     }
 }
 
-.codemirror-editor{
+.codemirror-editor {
     width: 100%;
     height: 600px;
     border: #85dfe0 2px solid;
 }
-::ng-deep .cm-editor { height: 100% }
+::ng-deep .cm-editor {
+    height: 100%;
+}
 
 .action-container {
     position: relative;
     height: 56px;
     width: 100%;
+}
+
+::ng-deep .alert-success{
+    display: none;
+}
+
+.errors-container {
+    background-color: #f8d7da;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
 }
 
 .actions {
@@ -218,8 +230,8 @@
     margin-bottom: 23px;
 }
 
-.editor-focus-element{
-    padding:2px;
+.editor-focus-element {
+    padding: 2px;
 }
 
 ::ng-deep .ProseMirror p:first-child,
@@ -341,6 +353,3 @@
     padding: 0;
     border: none;
 }
-
-
-

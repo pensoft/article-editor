@@ -14,14 +14,13 @@ import {
   ViewContainerRef
 } from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
-import {EditorState, EditorView} from '@codemirror/basic-setup';
-import {html} from '@codemirror/lang-html';
+import {basicSetup, EditorState, EditorView} from '@codemirror/basic-setup';
+import { html } from '@codemirror/lang-html';
 import {Subject} from 'rxjs';
 import {EditSectionService} from '../dialogs/edit-section-dialog/edit-section.service';
 import {ProsemirrorEditorsService} from '../services/prosemirror-editors.service';
 import {articleSection, editorData} from '../utils/interfaces/articleSection';
 import {FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {FormControlService} from './form-control.service';
 import {MaterialModule} from "../../shared/material.module";
 import {FormControlNameDirective} from "../directives/form-control-name.directive";
 import {TreeService} from '../meta-data-tree/tree-service/tree.service';
@@ -40,7 +39,8 @@ export class SectionComponent implements AfterViewInit, OnInit {
   renderForm = false;
 
   hide = true;
-
+  error = false;
+  errorMessage = '';
   newValue?: { contentData: editorData, sectionData: articleSection };
   value?: string;
   codemirrorEditor?: EditorView
@@ -49,7 +49,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
   FormStructure: any
   renderSection = false;
   sectionsFromIODefaultValues ?: YMap<any>
-
   @Input() section!: articleSection;
   @Output() sectionChange = new EventEmitter<articleSection>();
 
@@ -62,7 +61,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   get sectionForm() { return this._sectionForm; }
   @Input() sectionContent: any;
 
-
+  
   @ViewChild('codemirror', {read: ElementRef}) codemirror?: ElementRef;
   @ViewChild('ProsemirrorEditor', {read: ElementRef}) ProsemirrorEditor?: ElementRef;
   @ViewChild('container', {read: ViewContainerRef}) container?: ViewContainerRef;
@@ -74,7 +73,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
     private prosemirrorEditorsService: ProsemirrorEditorsService,
     private treeService: TreeService,
     private ydocService : YdocService,
-    private formControlService: FormControlService,
     private formBuilderService: FormBuilderService) {
 
     /* if(this.formControlService.popUpSectionConteiners[this.section.sectionID]){
@@ -89,27 +87,21 @@ export class SectionComponent implements AfterViewInit, OnInit {
   }
 
   onChange(data: any) {
-    /* let path = data?.changed?.instance?.path;
-    let value = data?.changed?.value;
-
-
-    if(path) {
-      path = path.replaceAll('[', '.');
-      path = path.replaceAll(']', '');
-
-
-      // TODO if FormArray
-      // if(Array.isArray(value)) {
-      //   this.sectionFormClone.get(path)?.setValue(new Array(value.length));
-      // }
-
-      this.sectionFormClone.get(path)?.setValue(value);
-      this.sectionFormClone.updateValueAndValidity();
-    } */
+    
   }
 
   ready(form: any) {
     this.FormStructure = form
+  }
+
+  isValidHTML(html:string) {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/xml');
+    if (doc.documentElement.querySelector('parsererror')) {
+      return doc.documentElement.querySelector('parsererror')!;
+    } else {
+      return true;
+    }
   }
 
   async onSubmit(submision?: any) {
@@ -125,37 +117,30 @@ export class SectionComponent implements AfterViewInit, OnInit {
     //this.sectionForm = nodeForm;
     this.sectionForm.patchValue(submision.data);
     this.sectionForm.updateValueAndValidity()
-    /* Object.keys(this.myForm.controls).forEach((key)=>{
-      if(submision.data[key]&&key!=='dataGrid'){
-        this.myForm.controls[key].patchValue(submision.data[key])
-      }
-    })
-    if(submision.data.dataGrid!==undefined){
-      let dataGridFormArray = this.myForm.controls.dataGrid as FormArray
-      let gridFromGroups = dataGridFormArray.controls as FormGroup[]
-      (submision.data.dataGrid as any[]).forEach((gridRow:any,i)=>{
-        let textFieldValue = gridRow.textField
-        let selectValue = gridRow.select
-        gridFromGroups[i].controls.textField.patchValue(textFieldValue)
-        gridFromGroups[i].controls.select.patchValue(textFieldValue)
-      })
-    } */
+    
     let interpolated: any
     let prosemirrorNewNodeContent: any
+    this.error = false;
+    this.errorMessage = '';
     try {
-      this.formControlService.setFormGroupBySectionId(this.section.sectionID, this.sectionForm);
       // get the text content from the codemirror editor which after compiling will be used as the new node structure for sections's Prosemirror
+      
+      let tr = this.codemirrorEditor?.state.update()
+      this.codemirrorEditor?.dispatch(tr!);
       prosemirrorNewNodeContent = this.codemirrorEditor?.state.doc.sliceString(0, this.codemirrorEditor?.state.doc.length);
+      //console.log(this.isValidHTML(prosemirrorNewNodeContent));
       interpolated = await this.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm);
       submision.compiledHtml = interpolated
       this.editSectionService.editChangeSubject.next(submision);
+      this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
     } catch (err: any) {
+      this.error = true;
+      this.errorMessage += 'An error occurred while interpolating the template.\n';
+      this.errorMessage += err.message;
+      console.log('An error occurred while interpolating the template.');
       console.error(err.message);
       return
     }
-    this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
-
-
   }
 
   formatHTML(html: string) {
@@ -192,8 +177,10 @@ export class SectionComponent implements AfterViewInit, OnInit {
     this.codemirrorEditor = new EditorView({
       state: EditorState.create({
         doc: prosemirrorNodesHtml,
-        extensions: [html()]
+        extensions: [basicSetup,html()],
+        
       }),
+      
       parent: this.codemirror?.nativeElement,
       /* dispatch: (tr) => {
         this.editor?.update([tr]);
@@ -235,10 +222,9 @@ export class SectionComponent implements AfterViewInit, OnInit {
   interpolateTemplate(htmlToCompile: string, data: any, formGroup: FormGroup) {
     let compiler = this.compiler
     let container = this.container
-
     function getRenderedHtml(templateString: string) {
       return new Promise(resolve => {
-
+        let html = {template:templateString}
         compiler.clearCache();
         let afterViewInitSubject = new Subject()
         // let regExp = new RegExp(">[^<>{{]*<*b*r*>*[^<>{{]*{{[^.}}]*.([^}}]*)}}[^<]*", "g");
@@ -249,7 +235,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
         //   templateString = templateString.replace(match, ` formControlName="${formControlName}"` + match)
         // })
         const component = Component({
-          template: templateString,
+          ...html,
           styles: [':host {table: {border: red}}'],
 
         })(class implements AfterViewInit {
@@ -293,173 +279,5 @@ export class SectionComponent implements AfterViewInit, OnInit {
     </div></ng-container>`)
   }
 
-  /* renderSection() {
-    let t = this.section.title
-    let c = this.section.sectionContent
-    return [...this.renderFormioComponent(t.type, t.key, t.contentData!), ...this.renderFormioComponent(c.type, c.key, c.contentData!)]
-  }
-
-  renderFormioComponent(type: string, key: 'titleContent' | 'sectionContent' | string, contentData: titleContentData | sectionContentData, attr?: any): any {
-    let re: any
-    if (type == 'editorContentType') {
-
-
-      re = [{
-        type: type,
-        key: key,
-        input: true,
-        'defaultValue': { contentData, sectionData: this.section },
-        ...attr
-      }]
-
-    } else if (type == 'taxonomicCoverageContentType') {
-      re = this.renderTaxonomicComponent(type, key, contentData as taxonomicCoverageContentData)
-    } else if (type == 'TaxonTreatmentsMaterial') {
-      let cd = contentData as editorData
-      if (cd.editorMeta?.formioJson && this.section.mode == 'editMode') {
-        re = [
-          this.renderContentFormioJson(type, key, contentData)
-          //cd.editorMeta?.formioJson
-        ]
-      } else {
-        re = [{
-          type: "editorContentType",
-          key: key,
-          input: true,
-          'defaultValue': { contentData, sectionData: this.section },
-          ...attr
-        }]
-      }
-    } else {
-      re = [{
-        type: type,
-        key: key,
-        input: true,
-        'defaultValue': { contentData, sectionData: this.section },
-        ...attr
-      }]
-    }
-    return re
-  }
-
-  renderContentFormioJson(type: string, key: string, contentData: titleContentData | sectionContentData) {
-    if (type == 'TaxonTreatmentsMaterial') {
-      //let nodeJsonFormIOStructureObj = this.ydocService.articleStructure?.get(this.section.sectionID+'TaxonTreatmentsMaterial')
-      let formIOJson = this.ydocService.articleStructure?.get(this.section.sectionID + 'TaxonTreatmentsMaterialFormIOJson')
-      let editorContainer = this.prosemirrorEditorsService.editorContainers[(contentData as editorData).editorId]
-      if (!editorContainer) {
-        return formIOJson
-      }
-      let editorDoc = editorContainer.editorView.state.doc
-      if (editorDoc.content.size > 1000) {
-        return formIOJson
-      }
-      let inputContainerNodesArray = editorDoc.content.content // content of the first paragrapt in the editor
-
-      let inputsInEditor: any = {
-
-      }
-
-      inputContainerNodesArray.forEach((node: any) => {
-        let inputId = node.attrs.inputId;
-
-        let labelNode = node.content.content[0];
-        let label = labelNode.attrs.text;
-
-        let placeholderNode = node.content.content[1];
-        let placeholder = placeholderNode.content.content[0].text;
-
-        inputsInEditor[inputId] = { placeholder }
-        //nodeJsonFormIOStructureObj[inputId].key = inputId+label;
-        //nodeJsonFormIOStructureObj[inputId].defaultValue = placeholder;
-      })
-      //this.ydocService.articleStructure?.set(this.section.sectionID+'TaxonTreatmentsMaterial',nodeJsonFormIOStructureObj)
-
-      let recursiveInputDetect = (components: any[]) => {
-        components.forEach((el, index, array) => {
-          if (el.input) {
-            let keyData = el.key.split('|');
-            if (inputsInEditor[keyData[0]]) {
-              el.defaultValue = inputsInEditor[keyData[0]].placeholder
-            }
-          }
-          if (el.components) {
-            if (el?.components.length > 0) {
-              recursiveInputDetect(el.components);
-            }
-          }
-        })
-      }
-      recursiveInputDetect([formIOJson])
-      this.ydocService.articleStructure?.set(this.section.sectionID + 'TaxonTreatmentsMaterialFormIOJson', formIOJson)
-
-      return formIOJson
-    }
-  }
-
-  renderRow(taxa: taxa, index: number) {
-    let selectDefaultValue = taxa.rank.defaulValue ? { 'defaultValue': taxa.rank.defaulValue } : {}
-    let rows = [
-      {
-        "components": [
-          ...this.renderFormioComponent("editorContentType", "scientificName", taxa.scietificName, { "tableView": true }),
-
-        ]
-      }, {
-        "components": [
-          ...this.renderFormioComponent("editorContentType", "commonName", taxa.commonName),
-
-        ]
-      }, {
-        "components": [
-          {
-            "label": "Rank",
-            "widget": "choicesjs",
-            "tableView": true,
-            "data": {
-              "values": taxa.rank.options.reduce<{ "label": string, "value": string }[]>((prev, curr, i, arr) => {
-                return prev.concat([{ "label": arr[i], "value": arr[i] }])
-              }, []),
-            },
-            "properties": {
-              "tableRowIndex": index,
-              "Section": this.section,
-              "TaxonomicSection": this.section.sectionContent,
-              "type": 'sectionContent'
-            },
-            "selectThreshold": 0.3,
-            "key": `rank${index}`,
-            "type": "select",
-            "indexeddb": {
-              "filter": {}
-            },
-            "input": true,
-            ...selectDefaultValue
-          }
-        ]
-      }
-    ]
-    return rows
-  }
-  renderTaxonomicComponent(type: string, key: string, contentData: taxonomicCoverageContentData) {
-    let rows: any[] = [];
-    contentData.taxaArray.forEach((taxa, index) => {
-      rows.push(this.renderRow(taxa, index));
-    })
-    return [...this.renderFormioComponent('editorContentType', 'description', contentData.description), {
-      "label": "Table",
-      "cellAlignment": "left",
-      "key": "table",
-      "type": "table",
-      "input": true,
-      'defaultValue': { contentData, sectionData: this.section, type: 'sectionContent' },
-      "tableView": false,
-      "rows": rows,
-      "numRows": rows.length,
-      "numCols": 3
-    }]
-  }
-
-  submit(value: any) {
-  } */
+  
 }

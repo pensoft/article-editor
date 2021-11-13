@@ -21,7 +21,7 @@ import { treeNode } from '../utils/interfaces/treeNode';
 import { uuidv4 } from "lib0/random";
 import { articleSection, editorData, taxonomicCoverageContentData } from '../utils/interfaces/articleSection';
 import { articleBasicStructure } from '../utils/articleBasicStructure';
-import { FormControlService } from '../section/form-control.service';
+import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 
 @Injectable({
   providedIn: 'root'
@@ -36,12 +36,14 @@ export class YdocService {
   provider?: OriginalWebRtc;
   roomName = 'webrtc-test3'
   providerIndexedDb?: IndexeddbPersistence
-  constructor(private http: HttpClient,
-    private formControlService:FormControlService
+  constructor(
+    private http: HttpClient,
     ) { }
   articleStructure?: YMap<any>
   sectionsFromIODefaultValues?: YMap<any>
   comments?: YMap<any>
+  figuresMap?: YMap<any>
+  editorsFocusState?: YMap<any>
   getCommentsMap(): YMap<any> {
     return this.comments!
   }
@@ -143,7 +145,6 @@ export class YdocService {
         this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
 
       }
-      this.formControlService.initFormControls(articleSectionsStructure)
     }catch(e){
       console.log(e);
     }
@@ -156,7 +157,14 @@ export class YdocService {
     }
   }
   buildEditor() {
+    this.editorsFocusState = this.ydoc.getMap('editorsFocusState');
+    this.editorsFocusState.set('focusObj',{})
     this.sectionsFromIODefaultValues = this.ydoc.getMap('formIODefaultValues');
+    this.figuresMap = this.ydoc.getMap('figuresMap');
+    let figures = this.figuresMap.get('figures');
+    if(!figures){
+      this.figuresMap.set('figures',[]);
+    }
     this.articleStructure = this.ydoc.getMap('articleStructure');
     this.comments = this.ydoc.getMap('comments');
     this.ydocStateObservable.next('docIsBuild');
@@ -177,15 +185,16 @@ export class YdocService {
       });
       this.provider?.on('onChange', (docArray: any) => {
         let params = new HttpParams({
-          fromObject: { document: docArray }
+          fromObject: { 
+            document: docArray,
+            articleId: roomName
+          }
         });
 
-        let httpOptions = {
-          headers: new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' }),
-        };
+        
         sendUpdateToServiceWorker(params.toString());
-        // this.http.post('/products', params, httpOptions).subscribe(() => {
-        // });
+        this.http.post('/products', params).subscribe(() => {
+        });
       });
 
       let sendUpdateToServiceWorker = (update: string) => {
@@ -204,10 +213,16 @@ export class YdocService {
       } else {
 
         // Building the editor without backend for now just for developer purpose
-        this.buildEditor();
-        return
+        //this.buildEditor();
+        //return
         let onSubevent = fromEvent(this.provider!, 'signalingConnected').subscribe(() => {
-          let r = race(this.http.get('/products').pipe(delay(500), catchError((err: any) => {
+          console.log('signalingConnected');
+          console.log('/products/'+roomName);
+          this.http.get('/products/'+roomName).subscribe((data)=>{
+            console.log('data from backedn',data);
+            renderDoc(data);
+          })
+          /* let r = race(this.http.get('/products').pipe(delay(500), catchError((err: any) => {
             console.log("ERROR", err);
             console.log("Editor build with local document");
             this.buildEditor();
@@ -219,7 +234,7 @@ export class YdocService {
             } else {
               renderDoc(data)
             }
-          })
+          }) */
         })
 
         /* this.provider?.on('signalingConnected',()=>{

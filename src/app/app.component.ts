@@ -9,6 +9,7 @@ export class AppComponent {
 
   constructor() {
     navigator.serviceWorker.ready.then(function (registration) {
+      //@ts-ignore
       return registration.sync.register('sendFormData')
     }).catch(function () {
       // system was unable to register for a sync,

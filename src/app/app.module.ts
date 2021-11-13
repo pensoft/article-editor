@@ -52,6 +52,11 @@ import { ProsemirrorEditorComponent } from './editor/prosemirror-editor/prosemir
 import { TaxonomicCoverageComponent } from './editor/formioComponents/taxonomic-coverage/taxonomic-coverage.component';
 import { JitCompilerFactory } from '@angular/platform-browser-dynamic';
 import { FormControlNameDirective } from './editor/directives/form-control-name.directive';
+import { ArticleMetadataComponent } from './editor/article-metadata/article-metadata.component';
+import { FiguresDialogComponent } from './editor/dialogs/figures-dialog/figures-dialog.component';
+import { AddFigureDialogComponent } from './editor/dialogs/figures-dialog/add-figure-dialog/add-figure-dialog.component';
+import { FigureComponent, SafePipe } from './editor/dialogs/figures-dialog/figure/figure.component';
+import { LogSwUpdatesService } from './app-services/log-sw-updates.service';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -59,6 +64,7 @@ export function createCompiler(compilerFactory: CompilerFactory) {
 
 @NgModule({
   declarations: [
+    SafePipe,
     AppComponent,
     EditorComponent,
     TaxonomicCoverageComponent,
@@ -93,6 +99,10 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     EditSectionDialogComponent,
     ProsemirrorEditorComponent,
     FormControlNameDirective,
+    ArticleMetadataComponent,
+    FiguresDialogComponent,
+    AddFigureDialogComponent,
+    FigureComponent,
   ],
   imports: [
     BrowserModule,
@@ -124,7 +134,7 @@ export function createCompiler(compilerFactory: CompilerFactory) {
   bootstrap: [AppComponent],
 })
 export class AppModule {
-  constructor(public iconsRegisterService: IconsRegisterService,injector: Injector) {
+  constructor(public iconsRegisterService: IconsRegisterService,injector: Injector,private logSWUpdates:LogSwUpdatesService) {
     registerFormIOComponents(injector);
   }
 }

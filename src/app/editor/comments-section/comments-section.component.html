@@ -17,8 +17,7 @@
           <div class="selected-commet-text-title">Selected text:</div>
           <div *ngIf="selectedTextInEditors[lastFocusedEditor!] && commentAllowdIn[lastFocusedEditor!]"
             class="selected-commet-text-content">{{selectedTextInEditors[lastFocusedEditor!]}}</div>
-          <div *ngIf="!commentAllowdIn[lastFocusedEditor!]" class="selected-commet-text-content-no-selection">Please
-            make a valid selection</div>
+          <div *ngIf="!commentAllowdIn[lastFocusedEditor!]" class="selected-commet-text-content-no-selection">{{errorMessages[lastFocusedEditor!]}}</div>
         </div>
       </mat-card-content>
       <input #input class="comment-input" type="text" placeholder="Leave a comment...">

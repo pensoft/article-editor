@@ -35,6 +35,30 @@ export const nodes: NodeSpec = {
             return ["p", attributesToDom, 0];
         }
     },
+    inline_text: {
+        content: "text*",
+        group: "inline",
+        inline:true,
+        attrs: {
+            //style:{default:''},
+            ...getGenericAttributes()
+        },
+        parseDOM: [{
+            tag: "inline-text", getAttrs(dom: any) {
+                return {
+                    //style:dom.getAttribute('style'),
+                    ...parseGenericAttributes(dom)
+                }
+            },
+        }],
+        toDOM(node: any) {
+            let attributesToDom:any = {
+                ...genericAttributtesToDom(node)
+            }
+            //attributesToDom['style'] = node.attrs.style
+            return ["inline-text", attributesToDom, 0];
+        }
+    },
     video: {
         inline: true,
         attrs: {

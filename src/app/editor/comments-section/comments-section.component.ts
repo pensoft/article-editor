@@ -25,6 +25,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
   showAddCommentBox = false;
   commentAllowdIn?: any = {} // editor id where comment can be made RN equals ''/undefined if there is no such editor RN
   selectedTextInEditors?: any = {} // selected text in every editor
+  errorMessages?:any = {} // error messages for editor selections
   selection: any
   lastFocusedEditor?: string
   commentsMap?: YMap<any>
@@ -67,6 +68,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
           } else if (data.type == 'commentAllownes') {
             this.commentAllowdIn[data.sectionId] = data.allow && isCommentAllowed(this.editorView?.state!)
             this.selectedTextInEditors[data.sectionId] = data.text
+            this.errorMessages[data.sectionId] = data.errorMessage
           }
         })
       }catch(e){
@@ -98,6 +100,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     this.commentsMap!.set(commentId, [userComment]);
     let state = this.editorView?.state;
     let dispatch = this.editorView?.dispatch
+
     toggleMark(state!.schema.marks.comment, {
       id: commentId
     })(state!, dispatch);

@@ -47,6 +47,8 @@ import {
 import { FormControlService } from '../section/form-control.service';
 import { FormControl } from '@angular/forms';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
+//@ts-ignore
+import {menuBar} from '../utils/prosemirror-menu-master/src/menubar.js'
 @Injectable({
   providedIn: 'root'
 })
@@ -90,8 +92,7 @@ export class ProsemirrorEditorsService {
     private linkPopUpPluginService: LinkPopUpPluginServiceService,
     private commentsService: CommentsService,
     private treeService: TreeService,
-    private trackChangesService: TrackChangesService,
-    private formControlService: FormControlService) {
+    private trackChangesService: TrackChangesService,) {
 
 
     this.mobileVersionSubject.subscribe((data) => {
@@ -203,10 +204,11 @@ export class ProsemirrorEditorsService {
     yCursorPlugin(this.provider!.awareness),
     yUndoPlugin()]
 
+
     container.setAttribute('class', 'editor-container');
     let filterTransaction = false
-    let menu1
-    menu1 = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenuWithLog', editorID);
+    let SimpleMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'SimpleMenu', editorID);
+    let fullMenuWithLog = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenu', editorID);
     this.initDocumentReplace[editorID] = false;
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
     let GroupControl = this.treeService.sectionFormGroups;
@@ -218,8 +220,6 @@ export class ProsemirrorEditorsService {
         trs.forEach((transaction) => {
           if (transaction.steps.length > 0) {
             newState.doc!.nodesBetween(newState.selection.from, newState.selection.to, (node, pos, parent) => {     // the document after the appling of the steps
-              //@ts-ignore
-              node.parent = parent
               if (node.attrs.formControlName && GroupControl[section.sectionID]) {      // validation for the formCOntrol
                 try {
                   const fg = GroupControl[section.sectionID];
@@ -278,8 +278,9 @@ export class ProsemirrorEditorsService {
         this.trackChangesService.getHideShowPlugin(),
         this.linkPopUpPluginService.linkPopUpPlugin,
         inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
-
-      ].concat(exampleSetup({ schema, menuContent: menu1, containerClass: menuContainerClass }))
+        ...menuBar({floating: true,
+          content: {'main':SimpleMenu,fullMenuWithLog} ,containerClass:menuContainerClass})
+      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
       ,
       // @ts-ignore
       sectionName: editorID,

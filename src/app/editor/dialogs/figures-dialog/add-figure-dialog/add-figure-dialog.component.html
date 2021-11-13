@@ -1,0 +1,8 @@
+
+<div [formGroup]="sectionForm">
+    <ng-container *ngIf='renderForm'>
+        <div >
+            <mat-formio #formio [form]="sectionContent" (submit)="onSubmit($event)"></mat-formio>
+        </div>
+    </ng-container>
+</div>

@@ -38,7 +38,6 @@ function savePostRequests(url, payload) {
         method: 'POST'
     })
     request.onsuccess = function(event) {
-        console.log('a new pos_ request has been added to indexedb')
     }
     request.onerror = function(error) {
         console.error(error)
@@ -61,7 +60,6 @@ function sendPostToServer() {
             // indexedb.
             for (let savedRequest of savedRequests) {
                 // send them to the server one after the other
-                console.log('saved request', savedRequest)
                 var requestUrl = savedRequest.url
                 var payload = savedRequest.payload
                 var method = savedRequest.method
@@ -69,13 +67,11 @@ function sendPostToServer() {
                         'Accept': 'application/json',
                         'Content-Type': 'application/x-www-form-urlencoded'
                     } // if you have any other headers put them here
-                console.log(payload);
                 fetch(requestUrl, {
                     headers: headers,
                     method: method,
                     body: payload
                 }).then(function(response) {
-                    console.log('server response', response)
                     if (response.status < 400) {
                         // If sending the POST request was successful, then
                         // remove it from the IndexedDB.
@@ -101,7 +97,6 @@ self.addEventListener('message', function(event) {
     if (event.data.hasOwnProperty('update')) {
         // receives form data from script.js upon submission
         update = event.data.update
-        console.log(update);
     }
 })
 self.addEventListener('fetch', function(event) {
@@ -110,7 +105,6 @@ self.addEventListener('fetch', function(event) {
     if (event.request.method == "POST" && event.request.url.endsWith('/products')) {
         event.respondWith(fetch(event.request.clone()).catch(function(error) {
             // only save post requests in browser, if an error occurs
-            console.log(event.request);
             savePostRequests(event.request.clone().url, update)
         }))
     }
@@ -139,10 +133,12 @@ importScripts('./ngsw-worker.js');
 
 self.addEventListener('activate', function(event) {
     console.log('activate');
-    event.waitUntil(self.clients.claim());
+    //console.log(event,self);
+    //event.waitUntil(self.clients.claim());
 });
 
 
 self.addEventListener('install', event => {
-    console.log('V1 installing…');
+    //console.log(event,self);
+    //console.log('V1 installing…');
 });

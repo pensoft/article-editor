@@ -65,11 +65,19 @@ export class CommentsService {
         apply(tr, prev, _, newState) {
           let {from,to,empty} = newState.selection ;
             let text = newState.doc.textBetween(from,to)
-            if(!empty&&from!==to){
-              addCommentSubject1.next({type:'commentAllownes',sectionId:prev.sectionName,allow:true,text})
-            }else{
-              addCommentSubject1.next({type:'commentAllownes',sectionId:prev.sectionName,allow:false,text})
+            let commentableAttr = false
+            newState.doc.nodesBetween(from,to,(node,pos,parent)=>{
+              if(node.attrs.commentable == 'true'){
+                commentableAttr = true
+              }
+            })
+            let errorMessage = ''
+            if(empty||from == to){
+              errorMessage = 'Selection is empty.'
+            }else if(!commentableAttr){
+              errorMessage = "You can't leave comment there."
             }
+            addCommentSubject1.next({type:'commentAllownes',sectionId:prev.sectionName,allow:(!empty&&from!==to&&commentableAttr),text,errorMessage})
           return prev
         },
       },

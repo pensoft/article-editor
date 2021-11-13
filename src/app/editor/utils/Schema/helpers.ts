@@ -9,7 +9,8 @@ export const getGenericAttributes = () => {
         controlPath: { default: '' },
         formControlName: { default: '' },
         contenteditable: { default: '' },
-        class: {default:''},
+        menuType: { default: '' },
+        commentable: { default: '' },
     }
 }
 
@@ -20,7 +21,8 @@ export const parseGenericAttributes = (dom: any) => {
         controlPath: dom.getAttribute('controlPath'),
         formControlName: dom.getAttribute('formControlName'),
         contenteditable: dom.getAttribute('contenteditable'),
-
+        menuType: dom.getAttribute('menuType'),
+        commentable: dom.getAttribute('commentable'),
     }
 }
 
@@ -29,7 +31,7 @@ export const genericAttributtesToDom = (node: Node) => {
     }
     Object.keys(node.attrs).forEach((key)=>{
         if(node.attrs[key] !== ''){
-            toDomAttrs[key] = node.attrs.contenteditable
+            toDomAttrs[key] = node.attrs[key]
         }
     })
     return toDomAttrs

@@ -1,80 +1,11 @@
 import { uuidv4 } from "lib0/random";
 import { articleSection, editorData, editorMeta } from "./interfaces/articleSection";
-import { formIOSchema, defaultValues } from '../section/formIO.schema';
+import { formIODefaultValues,formIOTemplates,htmlNodeTemplates } from "./section-templates";
 
 export function editorFactory(data?: editorMeta): editorData {
   return { editorId: uuidv4(), menuType: 'fullMenu', editorMeta: data }
 }
 
-let taxonomicCoverageTemplate = `<h2 contenteditable="false">Taxonomic coverage</h2>
-<p class="set-align-left" formControlName="description">
-</p>
-<div class="tableWrapper">
-	<table style="min-width: 50px;" formArrayName="taxonomicCoverage">
-		<thead>
-			<tr>
-				<td>
-					<p contenteditable="false">
-						<b>Rank</b>
-					</p>
-				</td>
-				<td>
-					<p contenteditable="false">
-						<b>Scientific Name</b>
-					</p>
-				</td>
-				<td>
-					<p contenteditable="false">
-						<b>Common Name</b>
-					</p>
-				</td>
-			</tr>
-		</thead>
-		<tbody>
-			<tr *ngFor="let control of formGroup.controls.taxonomicCoverage.controls;let i=index" formGroupName="{{i}}">
-				<td>
-					<p class="set-align-left" formControlName="rank" contenteditable="false">
-					</p>
-				</td>
-				<td>
-					<p class="set-align-left " formControlName="scientificName">
-					</p>
-				</td>
-				<td>
-					<p class="set-align-left " formControlName="commonName">
-					</p>
-				</td>
-			</tr>
-		</tbody>
-	</table>
-</div>`;
-
-
-let collectionDataTemplate = `<h2 contenteditable="false">Collection Data</h2>
-<inline-span contenteditable="false">
-    <b>Collection Name:</b>
-</inline-span>
-<inline-text style="padding-left:8px" formControlName="collectionName"></inline-text>
-<br>
-<inline-span contenteditable="false">
-    <b>Collection identifier:</b>
-    </inline-span>
-<inline-text style="padding-left:8px" formControlName="collectionIdentifier"></inline-text>
-<br>
-<inline-span contenteditable="false">
-    <b>Parent collection identifier:</b>
-    </inline-span>
-<inline-text style="padding-left:8px" formControlName="parentCollectionIdentifier"></inline-text>
-<br>
-<inline-span contenteditable="false">
-    <b>Specimen preservation method:</b>
-</inline-span>
-<inline-text style="padding-left:8px" formControlName="specimenPreservationMethod"></inline-text>
-<br>
-<inline-span contenteditable="false">
-    <b>Curatorial unit:</b>
-</inline-span>
-<inline-text style="padding-left:8px" formControlName="curatorialUnit"></inline-text>`;
 
 export const articleBasicStructure: articleSection[] = [
   {
@@ -94,9 +25,9 @@ export const articleBasicStructure: articleSection[] = [
     add: { bool: true, main: false },
     delete: { bool: true, main: false },
     mode: 'documentMode',
-    formIOSchema: formIOSchema.taxonomicCoverage,
-    defaultFormIOValues: defaultValues['taxonomicCoverage'],
-    prosemirrorHTMLNodesTempl: taxonomicCoverageTemplate,
+    formIOSchema: formIOTemplates['taxonomicCoverage'],
+    defaultFormIOValues: formIODefaultValues['taxonomicCoverage'],
+    prosemirrorHTMLNodesTempl: htmlNodeTemplates['taxonomicCoverage'],
     children: [],
   },
   {
@@ -116,8 +47,8 @@ export const articleBasicStructure: articleSection[] = [
     add: { bool: true, main: false },
     delete: { bool: true, main: false },
     mode: 'documentMode',
-    formIOSchema: formIOSchema.collectionData,
-    defaultFormIOValues: defaultValues['collectionData'],
-    prosemirrorHTMLNodesTempl: collectionDataTemplate,
+    formIOSchema: formIOTemplates['collectionData'],
+    defaultFormIOValues: formIODefaultValues['collectionData'],
+    prosemirrorHTMLNodesTempl: htmlNodeTemplates['collectionData'],
     children: []
   }];

@@ -1,0 +1,20 @@
+.example-list {
+    display: block;
+    height: calc(100% - 36px);
+}
+
+.figures-container {
+    display: block;
+    height: 100%;
+    width: 100%;
+}
+
+.figure-buttons {
+    height: 36px;
+    margin-top: 12px;
+}
+
+.figures-list {
+    overflow-y: auto;
+    height: calc(100% - 45px);
+}

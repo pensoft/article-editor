@@ -27,11 +27,18 @@ function isIOS() {
 //     the top of the viewport when the editor is partially scrolled
 //     out of view.
 export function menuBar(options) {
-  return new Plugin({
-    view(editorView) { return new MenuBarView(editorView, options) }
-  })
-}
 
+  let menuPlugins = []
+  let menus = options.content
+  Object.keys(menus).forEach((key)=>{
+    let newOptions = {...options}
+    newOptions.menuKey = key;
+    menuPlugins.push(new Plugin({
+      view(editorView) { return new MenuBarView(editorView, newOptions) }
+    }))
+  })
+  return menuPlugins
+}
 class MenuBarView {
 
   constructor(editorView, options) {
@@ -40,7 +47,6 @@ class MenuBarView {
     
     this.menuContainer = document.getElementsByClassName(options.containerClass)[0]
     //this.menuContainer = document.getElementsByClassName('menu-container')[0]
-    //console.log(this.menuContainer,options.containerClass);
     this.wrapper = crel("div", {class: prefix + "-wrapper"})
     this.menu = this.menuContainer.appendChild(crel("div", {class: prefix}))
     this.menu.className = prefix
@@ -53,8 +59,7 @@ class MenuBarView {
     this.maxHeight = 0
     this.widthForMaxHeight = 0
     this.floating = false
-
-    let {dom, update} = renderGrouped(this.editorView, this.options.content)
+    let {dom, update} = renderGrouped(this.editorView, this.options.content[this.options.menuKey])
     this.contentUpdate = update
     this.menu.appendChild(dom)
     this.update()
@@ -65,9 +70,9 @@ class MenuBarView {
       this.scrollFunc = (e) => {
         let root = this.editorView.root
         if (!(root.body || root).contains(this.wrapper)) {
-            potentialScrollers.forEach(el => el.removeEventListener("scroll", this.scrollFunc))
+          potentialScrollers.forEach(el => el.removeEventListener("scroll", this.scrollFunc))
         } else {
-            this.updateFloat(e.target.getBoundingClientRect && e.target)
+          this.updateFloat(e.target.getBoundingClientRect && e.target)
         }
       }
       potentialScrollers.forEach(el => el.addEventListener('scroll', this.scrollFunc))
@@ -77,7 +82,15 @@ class MenuBarView {
   update(editorView) {
     this.contentUpdate(this.editorView.state)
     if(editorView){
-      if(editorView.hasFocus()){
+      let {from,to} = editorView.state.selection
+      let menuKey = this.options.menuKey
+      let menuTypeOnNode = 'main';
+      editorView.state.doc.nodesBetween(from,to,(node, pos, parent, index) => {
+        if(node.attrs.menuType&&node.attrs.menuType!==''){
+          menuTypeOnNode = node.attrs.menuType
+        }
+      })
+      if(menuTypeOnNode == menuKey&&editorView.hasFocus()){
         Array.from(this.menuContainer.children).forEach((child)=>{
           child.style.display = 'none';
         })
