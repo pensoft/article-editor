@@ -65,10 +65,10 @@ export class CommentsService {
         apply(tr, prev, _, newState) {
           let {from,to,empty} = newState.selection ;
             let text = newState.doc.textBetween(from,to)
-            let commentableAttr = false
+            let commentableAttr = true
             newState.doc.nodesBetween(from,to,(node,pos,parent)=>{
-              if(node.attrs.commentable == 'true'){
-                commentableAttr = true
+              if(node.attrs.commentable == 'false'){
+                commentableAttr = false
               }
             })
             let errorMessage = ''

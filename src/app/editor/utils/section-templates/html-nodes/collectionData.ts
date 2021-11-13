@@ -8,7 +8,7 @@ export const collectionDataTemplate = `<h2 contenteditable="false">Collection Da
 <form-field contenteditable="false">
 	<b>Collection identifier:</b>
 </form-field>
-<form-field style="padding-left:8px" formControlName="collectionIdentifier" menuType="fullMenu" commentable="true">
+<form-field style="padding-left:8px" formControlName="collectionIdentifier" menuType="fullMenu" commentable="false">
 </form-field>
 
 <form-field contenteditable="false">

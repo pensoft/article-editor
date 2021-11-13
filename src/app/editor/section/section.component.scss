@@ -10,10 +10,44 @@
         }
     }
 }
+::ng-deep .formio-taxonomicComponent {
+    .mat-column-__removeRow {
+        width: 64px;
+    }
+    td{
+        vertical-align: bottom;
+    }
+    app-editor-section {
+        .wrapper {
+            margin-bottom: 18px;
+            margin-top: 22px;
+            margin-right: 16px;
+            p {
+                margin-bottom: 2px !important;
+                margin-top: 5px !important;
+            }
+        }
+    }
 
+    .cdk-drag-handle {
+        width: 24px;
+        cursor: move;
+    }
+
+    td.mat-cell {
+        width: 46%;
+    }
+}
+
+.template-buttons {
+    button {
+        margin-right: 20px;
+        margin-bottom: 10px;
+    }
+}
 .codemirror-editor {
     width: 100%;
-    height: 600px;
+    height: 350px;
     border: #85dfe0 2px solid;
 }
 ::ng-deep .cm-editor {
@@ -26,7 +60,7 @@
     width: 100%;
 }
 
-::ng-deep .alert-success{
+::ng-deep .alert-success {
     display: none;
 }
 

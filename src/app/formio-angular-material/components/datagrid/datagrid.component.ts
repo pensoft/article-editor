@@ -9,13 +9,14 @@ import { FormioEventsService } from 'src/app/editor/formioComponents/formio-even
 import { ElementRef ,ChangeDetectorRef} from '@angular/core';
 @Component({
   selector: 'mat-formio-datagrid',
+  styleUrls:['./datagrid.component.scss'],
   template: `
     <mat-formio-form-field [instance]="instance"
                            [componentTemplate]="componentTemplate"
                            [labelTemplate]="labelTemplate"
     ></mat-formio-form-field>
     <ng-template #componentTemplate let-hasLabel>
-      <mat-card fxFill>
+      <mat-card fxFill >
         <ng-container *ngIf="hasLabel">
           <ng-container *ngTemplateOutlet="labelTemplate"></ng-container>
         </ng-container>
@@ -30,7 +31,7 @@ import { ElementRef ,ChangeDetectorRef} from '@angular/core';
           <table
                   mat-table
                   [dataSource]="dataSource"
-                  class="mat-elevation-z8"
+                  class="mat-elevation-z8 datagrid-list"
                   fxFill
                   cdkDropList
                   [cdkDropListData]="dataSource"
@@ -42,6 +43,9 @@ import { ElementRef ,ChangeDetectorRef} from '@angular/core';
                 <ng-template #components></ng-template>
               </td>
             </ng-container>
+            <div class="">
+
+            </div>
             <ng-container matColumnDef="__removeRow">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let i = index;">
@@ -50,15 +54,18 @@ import { ElementRef ,ChangeDetectorRef} from '@angular/core';
                 </button>
               </td>
             </ng-container>
-            <ng-container matColumnDef="position" *ngIf="instance.component.reorder">
+            <ng-container  matColumnDef="position" *ngIf="instance.component.reorder">
               <th mat-header-cell *matHeaderCellDef> No.</th>
-              <td mat-cell *matCellDef="let element">
-                <mat-icon cdkDragHandle>reorder</mat-icon>
+              <td cdkDragHandle  mat-cell *matCellDef="let element" (mouseenter)="dragEnabled = true"
+            (mouseleave)="dragEnabled = false">
+                <mat-icon >reorder</mat-icon>
               </td>
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <div *ngIf="instance?.component?.reorder">
-              <tr class="datagrid-row" mat-row *matRowDef="let row; columns: displayedColumns;" cdkDrag
+              
+              <tr class="row-placeholder" *cdkDragPlaceholder ></tr>
+              <tr class="datagrid-row" mat-row *matRowDef="let row; columns: displayedColumns;" cdkDrag [cdkDragDisabled]="!dragEnabled"
                   [cdkDragData]="row"></tr>
             </div>
             <div *ngIf="!instance?.component?.reorder">
@@ -90,7 +97,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
   formColumns?: string[];
   columns: any;
   dataSource = new MatTableDataSource();
-
+  dragEnabled = false;
   constructor(ref:ElementRef,changeDetection:ChangeDetectorRef,private formioEventsService:FormioEventsService){
     super(ref,changeDetection)
   }
@@ -168,6 +175,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
   renderComponents() {
     this.instance.getRows();
     this.instance.setValue(this.control.value || []);
+    super.renderComponents()
   }
 
   setValue(value: [] | null) {

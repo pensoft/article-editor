@@ -10,7 +10,7 @@ export const nodes: NodeSpec = {
         content: "block+"
     },
     form_field:{
-        content: "block*",
+        content: "paragraph*",
         group: "block",
         attrs: {
             ...getGenericAttributes()
@@ -31,7 +31,6 @@ export const nodes: NodeSpec = {
     },
     paragraph: {
         content: "inline*",
-        group: "block",
         attrs: {
             align: { default: 'set-align-left' },
             ...getGenericAttributes()

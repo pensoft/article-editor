@@ -26,6 +26,7 @@ export class LogSwUpdatesService {
       updates.activateUpdate()
     });
     updates.activated.subscribe(event => {
+      console.log(event);
       console.log('old version was', event.previous);
       console.log('new version is', event.current);
     });

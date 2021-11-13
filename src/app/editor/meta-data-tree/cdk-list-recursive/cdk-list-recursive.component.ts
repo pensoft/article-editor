@@ -1,5 +1,5 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterContentInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { EditSectionDialogComponent } from '../../dialogs/edit-section-dialog/edit-section-dialog.component';
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
@@ -20,7 +20,7 @@ import { YMap } from 'yjs/dist/src/internals';
   templateUrl: './cdk-list-recursive.component.html',
   styleUrls: ['./cdk-list-recursive.component.scss']
 })
-export class CdkListRecursiveComponent implements OnInit {
+export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */ {
 
   @Input() articleSectionsStructure!: articleSection[];
   @Output() articleSectionsStructureChange = new EventEmitter<any>();
@@ -64,7 +64,30 @@ export class CdkListRecursiveComponent implements OnInit {
         this.expandParentFunc();
       }
     });
+
+
   }
+
+  /* ngAfterContentInit() {
+    this.ydocService.editorsFocusState?.observe((data) => {
+      let focusObj = this.ydocService.editorsFocusState?.get('focusObj');
+      let editorFocusArray = focusObj[node.sectionID]
+      if (editorFocusArray) {
+        this.articleSectionsStructure.forEach((value) => {
+          if(Object.keys(focusObj).includes(value.sectionID)){
+
+          }
+        })
+        if (editorFocusArray.filter((el: string) => { return el !== this.ydocService.ydoc.guid }).length > 0) {
+          console.log('Cant open the section right now becouse someone else is editing it');
+          return
+        }
+        if (!editorFocusArray.includes(this.ydocService.editorsFocusState?.doc?.guid)) {
+          editorFocusArray.push(this.ydocService.editorsFocusState?.doc?.guid)
+        }
+      }
+    })
+  } */
 
   ngOnInit(): void {
     this.articleSectionsStructure.forEach((node: articleSection, index: number) => {
@@ -75,7 +98,7 @@ export class CdkListRecursiveComponent implements OnInit {
 
       //let sectionContent = this.enrichSectionContent(node.formIOSchema, defaultValues);
       let nodeForm: FormGroup = new FormGroup({});
-      this.formBuilderService.buildFormGroupFromSchema(nodeForm,sectionContent);
+      this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
       nodeForm.patchValue(defaultValues);
       nodeForm.updateValueAndValidity()
       this.nodesForms.push(nodeForm);
@@ -117,52 +140,52 @@ export class CdkListRecursiveComponent implements OnInit {
 
 
 
-  editNodeHandle(node: articleSection, formGroup: FormGroup,index:number) {
-    try{
-    let defaultValues = this.sectionsFromIODefaultValues.get(node.sectionID)
-    defaultValues = defaultValues ? defaultValues : node.defaultFormIOValues
-    let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
-    this.sectionContents[index] = sectionContent
-    let focusObj = this.ydocService.editorsFocusState?.get('focusObj')
+  editNodeHandle(node: articleSection, formGroup: FormGroup, index: number) {
+    try {
+      let defaultValues = this.sectionsFromIODefaultValues.get(node.sectionID)
+      defaultValues = defaultValues ? defaultValues : node.defaultFormIOValues
+      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
+      this.sectionContents[index] = sectionContent
+      let focusObj = this.ydocService.editorsFocusState?.get('focusObj')
 
-    let editorFocusArray = focusObj[node.sectionID]
-    if(editorFocusArray){
-      if(editorFocusArray.filter((el:string)=>{return el !== this.ydocService.ydoc.guid}).length > 0){
-        console.log('Cant open the section right now becouse someone else is editing it');
-        return
+      let editorFocusArray = focusObj[node.sectionID]
+      if (editorFocusArray) {
+        if (editorFocusArray.filter((el: string) => { return el !== this.ydocService.ydoc.guid }).length > 0) {
+          console.log('Cant open the section right now becouse someone else is editing it');
+          return
+        }
+        if (!editorFocusArray.includes(this.ydocService.editorsFocusState?.doc?.guid)) {
+          editorFocusArray.push(this.ydocService.editorsFocusState?.doc?.guid)
+        }
       }
-      if(!editorFocusArray.includes( this.ydocService.editorsFocusState?.doc?.guid)){
-        editorFocusArray.push( this.ydocService.editorsFocusState?.doc?.guid)
-      }
-    }
-    this.ydocService.editorsFocusState?.set('focusObj',focusObj)
-    this.dialog.open(EditSectionDialogComponent, {
-      width: '95%',
-      height: '90%',
-      data: { node: node, form: formGroup, sectionContent: sectionContent },
-      disableClose: false
-    }).afterClosed().subscribe(result => {
-      if (result && result.compiledHtml) {
-        let xmlFragment = this.ydocService.ydoc.getXmlFragment(node.sectionID);
-  
-        let templDiv = document.createElement('div');
-        templDiv.innerHTML = result.compiledHtml
-        let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
-        updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
-  
-        this.treeService.editNodeChange(node.sectionID)
-      }
+      this.ydocService.editorsFocusState?.set('focusObj', focusObj)
+      this.dialog.open(EditSectionDialogComponent, {
+        width: '95%',
+        height: '90%',
+        data: { node: node, form: formGroup, sectionContent: sectionContent },
+        disableClose: false
+      }).afterClosed().subscribe(result => {
+        if (result && result.compiledHtml) {
+          let xmlFragment = this.ydocService.ydoc.getXmlFragment(node.sectionID);
+
+          let templDiv = document.createElement('div');
+          templDiv.innerHTML = result.compiledHtml
+          let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
+          updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
+
+          this.treeService.editNodeChange(node.sectionID)
+        }
 
         let focusObj = this.ydocService.editorsFocusState?.get('focusObj')
-        if(!focusObj[node.sectionID]){
+        if (!focusObj[node.sectionID]) {
           focusObj[node.sectionID] = []
         }
-        if(focusObj[node.sectionID].includes(this.ydocService.editorsFocusState?.doc?.guid)){
-          focusObj[node.sectionID]= focusObj[node.sectionID].filter((el:any)=>{return el!==this.ydocService.editorsFocusState?.doc?.guid})
+        if (focusObj[node.sectionID].includes(this.ydocService.editorsFocusState?.doc?.guid)) {
+          focusObj[node.sectionID] = focusObj[node.sectionID].filter((el: any) => { return el !== this.ydocService.editorsFocusState?.doc?.guid })
         }
-        this.ydocService.editorsFocusState?.set('focusObj',focusObj)
+        this.ydocService.editorsFocusState?.set('focusObj', focusObj)
       });
-    }catch(e){
+    } catch (e) {
       console.log(e);
     }
   }

@@ -14,8 +14,8 @@
                     </div>
                     <div class="section_btn_container">
                         <button [style.display]="'none'" [ngStyle]="node.edit.main?{'order':'1','margin': '2px'}:{}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node.edit.bool" (click)="editNodeHandle(node, nodesForms[i], i);node.active = true"><mat-icon class="matIcon" >edit</mat-icon></button>
-                        <button [style.display]="'none'" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon ></button>
-                        <button [style.display]="'none'" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
+                        <button [style.display]="'none'" [disabled]="true" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon ></button>
+                        <button [style.display]="'none'" [disabled]="true" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
                     </div>
                 </div>
             </div>
@@ -34,8 +34,8 @@
 
                     <div class="section_btn_container">
                         <button [style.display]="'none'" [ngStyle]="node.edit.main?{'order':'1','margin': '2px'}:{}" mat-icon-button class="section_btn_outerList hidden" *ngIf="node.edit.bool" (click)="editNodeHandle(node, nodesForms[i], i);node.active = true"><mat-icon class="matIcon">edit</mat-icon></button>
-                        <button [style.display]="'none'" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-icon-button class="section_btn_outerList hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon></button>
-                        <button [style.display]="'none'" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
+                        <button [style.display]="'none'" [disabled]="true" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-icon-button class="section_btn_outerList hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon></button>
+                        <button [style.display]="'none'" [disabled]="true" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
                     </div>
 
 
@@ -66,8 +66,8 @@
                     </div>
                     <div class="section_btn_container">
                         <button [style.display]="'none'" [ngStyle]="node.edit.main?{'order':'1','margin': '2px'}:{}" mat-mini-fab class="section_btn hidden" *ngIf="node.edit.bool" (click)="editNodeHandle(node, nodesForms[i], i)"><mat-icon class="matIcon">edit</mat-icon></button>
-                        <button [style.display]="'none'" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-mini-fab class="section_btn hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon></button>
-                        <button [style.display]="'none'" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
+                        <button [style.display]="'none'" [disabled]="true" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-mini-fab class="section_btn hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon></button>
+                        <button [style.display]="'none'" [disabled]="true" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
                     </div>
 
                 </div>
@@ -86,9 +86,10 @@
                         </div>
                     </div>
                     <div class="section_btn_container">
-                        <button [style.display]="'none'" [ngStyle]="node.edit.main?{'order':'1','margin': '2px'}:{}" mat-icon-button class="section_btn_nestedList hidden" *ngIf="node.edit.bool" (click)="editNodeHandle(node, nodesForms[i], i)"><mat-icon class="matIcon">edit</mat-icon></button>
-                        <button [style.display]="'none'" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-icon-button class="section_btn_nestedList hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon></button>
-                        <button [style.display]="'none'" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
+                        <button [style.display]="'none'"  [ngStyle]="node.edit.main?{'order':'1','margin': '2px'}:{}" mat-icon-button class="section_btn_nestedList hidden" *ngIf="node.edit.bool" (click)="editNodeHandle(node, nodesForms[i], i)"><mat-icon class="matIcon">edit</mat-icon></button>
+                        <button [style.display]="'none'" [disabled]="true" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-icon-button class="section_btn_nestedList hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon></button>
+                        <button [style.display]="'none'" [disabled]="true" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
+                        
                     </div>
 
 

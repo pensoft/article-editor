@@ -1,12 +1,18 @@
 import { AbstractControl, FormControl } from "@angular/forms";
 import { FormArray, FormGroup, Validators } from '@angular/forms';
 
-import { Node } from "prosemirror-model";
+import { DOMParser, Node } from "prosemirror-model";
 import { of } from "rxjs";
 import { schema } from "../Schema";
 
+let DOMPMparser = DOMParser.fromSchema(schema)
 
-
+let parseNodeHTmlStringToTextContent = (html:string) => {
+    let teml = document.createElement('div');
+    teml.innerHTML = html
+    let pmNode = schema.nodes.form_field.create({},DOMPMparser.parseSlice(teml).content);
+    return pmNode.textContent
+} 
 function isEmptyInputValue(value:string) {
     // we don't check for string here so it also works with arrays
     return value == null || value.length === 0;
@@ -20,13 +26,9 @@ function hasValidLength(value:string) {
 export function asyncPmRequired(control: AbstractControl) {
 
     if(!control.value){
-        console.log('valuenull');
         return of(null) 
     }
-    let prosemirrorNode: Node = schema.nodeFromJSON(control.value)
-    
-    let textContent = prosemirrorNode.textContent
-    console.log(textContent);
+    let textContent = parseNodeHTmlStringToTextContent(control.value)
     return of(isEmptyInputValue(textContent) ? { 'required': true } : null)
 }
 
@@ -34,10 +36,7 @@ export function pmRequired(control: AbstractControl) {
     if(!control.value){
         return null
     }
-    let prosemirrorNode: Node = schema.nodeFromJSON(control.value)
-    
-    let textContent = prosemirrorNode.textContent
-
+    let textContent = parseNodeHTmlStringToTextContent(control.value)
     return isEmptyInputValue(textContent) ? { 'required': true } : null;
 }
 
@@ -45,9 +44,8 @@ export function pmMaxLength(minLength: number) {
     return (control: AbstractControl) => {
         if(!control.value){
             return null
-        }
-        let prosemirrorNode: Node = schema.nodeFromJSON(control.value)
-        let textContent = prosemirrorNode.textContent
+        }    
+        let textContent = parseNodeHTmlStringToTextContent(control.value)
         if (isEmptyInputValue(textContent) || !hasValidLength(textContent)) {
             // don't validate empty values to allow optional controls
             // don't validate values without `length` property
@@ -63,9 +61,8 @@ export function pmMinLength(maxLength: number) {
     return (control: AbstractControl) => {
         if(!control.value){
             return null
-        }
-        let prosemirrorNode: Node = schema.nodeFromJSON(control.value)
-        let textContent = prosemirrorNode.textContent
+        } 
+        let textContent = parseNodeHTmlStringToTextContent(control.value)
         return hasValidLength(textContent) && textContent.length > maxLength ?
             { 'maxlength': { 'requiredLength': maxLength, 'actualLength': textContent.length } } :
             null;
@@ -73,7 +70,8 @@ export function pmMinLength(maxLength: number) {
 }
 
 export function asyncPmPattern(pattern: any) {
-    if (!pattern){
+    return asyncPmRequired
+    /* if (!pattern){
         return null;
     }
     let regex : any;
@@ -102,7 +100,7 @@ export function asyncPmPattern(pattern: any) {
         const value = textContent;
         return regex.test(value) ? of(null) :
             of({ 'pattern': { 'requiredPattern': regexStr, 'actualValue': value } })
-    }
+    } */
 }
 
 export function pmPattern(pattern: any) {
@@ -127,8 +125,7 @@ export function pmPattern(pattern: any) {
         if(!control.value){
             return null
         }
-        let prosemirrorNode: Node = schema.nodeFromJSON(control.value)
-        let textContent = prosemirrorNode.textContent
+        let textContent = parseNodeHTmlStringToTextContent(control.value)
         if (isEmptyInputValue(textContent)) {
             return null; // don't validate empty values to allow optional controls
         }

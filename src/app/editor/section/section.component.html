@@ -3,12 +3,16 @@
 
 <div >
     <div [formGroup]="sectionForm" *ngIf='section.mode == "editMode"' >
-        <button mat-raised-button (click)="hide=!hide">Edit Template</button>
-        <div #codemirror class='codemirror-editor' [ngStyle]="{'display': hide ? 'none' : 'block'}"></div>
+        <div class="template-buttons">
+            <button mat-raised-button (click)="hidehtml=!hidehtml">Edit Html Template</button>
+            <button mat-raised-button (click)="hidejson=!hidejson">Show Json Template</button>
+        </div>
+        <div #codemirrorHtmlTemplate class='codemirror-editor' [ngStyle]="{'display': hidehtml ? 'none' : 'block'}"></div>
+        <div #codemirrorJsonTemplate class='codemirror-editor' [ngStyle]="{'display': hidejson ? 'none' : 'block'}"></div>
         <div *ngIf="error"><pre class="errors-container">{{errorMessage}}</pre></div>
         <div *ngIf='section.mode == "editMode"' class="popup-menu-container"></div>
         <ng-container *ngIf='renderForm'>
-            <div >
+            <div [ngClass]="{'formio-taxonomicComponent':section.title.titleContent == 'Taxonomic coverage'}">
                 <mat-formio #formio [form]="sectionContent" (ready)="ready($event)" (change)="onChange($event)" (submit)="onSubmit($event)"></mat-formio>
             </div>
         </ng-container>

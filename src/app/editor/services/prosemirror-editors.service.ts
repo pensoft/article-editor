@@ -17,7 +17,7 @@ import {
   REGEX_BLOCK_MATH_DOLLARS,
   REGEX_INLINE_MATH_DOLLARS
 } from '@benrbray/prosemirror-math';
-import { Node, Slice } from 'prosemirror-model';
+import { DOMSerializer, Node, Slice } from 'prosemirror-model';
 //@ts-ignore
 import { EditorView } from 'prosemirror-view';
 import { EditorState, Plugin, PluginKey, Transaction, TextSelection } from 'prosemirror-state';
@@ -50,9 +50,10 @@ import { TreeService } from '../meta-data-tree/tree-service/tree.service';
 import { DOMParser } from 'prosemirror-model';
 
 //@ts-ignore
-import {menuBar} from '../utils/prosemirror-menu-master/src/menubar.js'
+import { menuBar } from '../utils/prosemirror-menu-master/src/menubar.js'
 import { Form } from 'formiojs';
 import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
+import { I } from '@angular/cdk/keycodes';
 @Injectable({
   providedIn: 'root'
 })
@@ -65,6 +66,8 @@ export class ProsemirrorEditorsService {
   initDocumentReplace: any = {};
   editorContainers: any = {}
   xmlFragments: { [key: string]: Y.XmlFragment } = {}
+
+  DOMPMSerializer = DOMSerializer.fromSchema(schema);
 
   color = random.oneOf(userSpec.colors);
   user = random.oneOf(userSpec.testUsers);
@@ -120,7 +123,7 @@ export class ProsemirrorEditorsService {
     if (this.xmlFragments[id]) {
       return this.xmlFragments[id]
     }
-    let xmlFragment =  this.ydocService.ydoc?.getXmlFragment(id)
+    let xmlFragment = this.ydocService.ydoc?.getXmlFragment(id)
     this.xmlFragments[id] = xmlFragment;
     return xmlFragment
   }
@@ -213,7 +216,7 @@ export class ProsemirrorEditorsService {
     let filterTransaction = false
     let defaultMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'SimpleMenu', editorID);
     let fullMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenu', editorID);
-    this.initDocumentReplace[editorID] = false;
+    this.initDocumentReplace[editorID] = true;
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
     let GroupControl = this.treeService.sectionFormGroups;
     let transactionControllerPlugin = new Plugin({
@@ -224,6 +227,8 @@ export class ProsemirrorEditorsService {
         trs.forEach((transaction) => {
           if (transaction.steps.length > 0) {
             newState.doc!.nodesBetween(newState.selection.from, newState.selection.to, (node, pos, parent) => {     // the document after the appling of the steps
+              //@ts-ignore
+              node.parent = parent
               if (node.attrs.formControlName && GroupControl[section.sectionID]) {      // validation for the formCOntrol
                 try {
                   const fg = GroupControl[section.sectionID];
@@ -231,18 +236,21 @@ export class ProsemirrorEditorsService {
                   const control = fg.get(controlPath) as FormControl;
                   //@ts-ignore
 
-                  if(control.componentType == "prosemirror-editor-field"){
-                    control.setValue(node.toJSON(), { emitEvent: true })
-                  }else{
+                  if (control.componentType == "prosemirror-editor-field") {
+                    let HTMLnodeRepresentation = this.DOMPMSerializer.serializeFragment(node.content)
+                    let temp = document.createElement('div');
+                    temp.appendChild(HTMLnodeRepresentation);
+                    control.setValue(temp.innerHTML, { emitEvent: true })
+                  } else {
                     control.setValue(node.textContent, { emitEvent: true })
                   }
                   control.updateValueAndValidity()
                   const mark = schema.mark('invalid')
                   if (control.invalid) {
                     // newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
-                    tr1 = newState.tr.setNodeMarkup(pos ,node.type,{...node.attrs,invalid:"true"})
+                    tr1 = newState.tr.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "true" })
                   } else {
-                    tr1 = newState.tr.setNodeMarkup(pos ,node.type,{...node.attrs,invalid:""})
+                    tr1 = newState.tr.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "" })
 
                   }
                   updateFormIoDefaultValues(editorID, fg.value);
@@ -290,15 +298,17 @@ export class ProsemirrorEditorsService {
         this.trackChangesService.getHideShowPlugin(),
         this.linkPopUpPluginService.linkPopUpPlugin,
         inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
-        ...menuBar({floating: true,
-          content: {'main':defaultMenu,fullMenu} ,containerClass:menuContainerClass})
+        ...menuBar({
+          floating: true,
+          content: { 'main': defaultMenu, fullMenu }, containerClass: menuContainerClass
+        })
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
       ,
       // @ts-ignore
       sectionName: editorID,
       // @ts-ignore
     });
-    
+
     let lastStep: any
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
@@ -333,23 +343,22 @@ export class ProsemirrorEditorsService {
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,
-      handleKeyDown(view: EditorView, event: KeyboardEvent){
-        if(event.key == 'Delete'){
-
-          if(view.state.selection.$anchor.nodeAfter){
-            if(view.state.selection.$anchor.nodeAfter.attrs.contenteditable == 'false'){
+      handleKeyDown(view: EditorView, event: KeyboardEvent) {
+        if (event.key == 'Delete') {
+          if (view.state.selection.$anchor.nodeAfter == null&&view.state.selection.$anchor.parent.type.name == 'paragraph') {
+            //@ts-ignore
+            let s = view.state.selection.$anchor.parent.parent.content.lastChild === view.state.selection.$anchor.parent
+            if (s) {
               return true
             }
-          }else{
-            return true
           }
-        }else if(event.key == 'Backspace'){
-          if(view.state.selection.$anchor.nodeBefore){
-            if(view.state.selection.$anchor.nodeBefore.attrs.contenteditable == 'false'){
+        } else if (event.key == 'Backspace') {
+          if (view.state.selection.$anchor.nodeBefore == null&&view.state.selection.$anchor.parent.type.name == 'paragraph') {
+            //@ts-ignore
+            let s = view.state.selection.$anchor.parent.parent.content.firstChild === view.state.selection.$anchor.parent
+            if (s) {
               return true
             }
-          }else{
-            return true
           }
         }
         return false
@@ -357,6 +366,7 @@ export class ProsemirrorEditorsService {
       createSelectionBetween: (view, anchor, head) => {
         let headRangeMin = anchor.pos
         let headRangeMax = anchor.pos
+        console.log('selection',anchor,head);
         if (anchor.nodeBefore) {
           headRangeMin -= anchor.nodeBefore.nodeSize
         }
@@ -364,7 +374,7 @@ export class ProsemirrorEditorsService {
           headRangeMax += anchor.nodeAfter.nodeSize
         }
         this.editorsEditableObj[editorID] = true
-        
+
         if (headRangeMin > head.pos || headRangeMax < head.pos) {
           let headPosition = headRangeMin > head.pos ? headRangeMin : headRangeMax
           let newHeadResolvedPosition = view.state.doc.resolve(headPosition)
@@ -403,7 +413,7 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
-  renderEditorWithNoSync(EditorContainer: HTMLDivElement,nodesArray:Node[] = [],formIOComponentInstance:any,control:FormioControl): {
+  renderEditorWithNoSync(EditorContainer: HTMLDivElement, formIOComponentInstance: any, control: FormioControl, options: any, nodesArray?: Slice): {
     editorID: string,
     containerDiv: HTMLDivElement,
     editorState: EditorState,
@@ -413,17 +423,19 @@ export class ProsemirrorEditorsService {
     let editorID = random.uuidv4()
     let container = document.createElement('div');
     let editorView: EditorView;
-    let doc:Node;
-    let componentLabel = formIOComponentInstance.component.label;
-    let labelTag = document.createElement('div');
-    labelTag.setAttribute('class','prosemirror-label-tag')
-    labelTag.textContent = componentLabel
-    EditorContainer.appendChild(labelTag);
+    let doc: Node;
+    if (!options.noLabel) {
+      let componentLabel = formIOComponentInstance.component.label;
+      let labelTag = document.createElement('div');
+      labelTag.setAttribute('class', 'prosemirror-label-tag')
+      labelTag.textContent = componentLabel
+      EditorContainer.appendChild(labelTag);
+    }
 
-    if(nodesArray.length == 0){
-      doc = schema.nodes.doc.create({},schema.nodes.form_field.create({},schema.nodes.paragraph.create({})))
-    }else{
-      doc = schema.nodes.doc.create({},nodesArray)
+    if (!nodesArray) {
+      doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, schema.nodes.paragraph.create({})))
+    } else {
+      doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, nodesArray.content))
     }
     let menuContainerClass = "popup-menu-container";
 
@@ -439,17 +451,20 @@ export class ProsemirrorEditorsService {
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
       appendTransaction: (trs: Transaction<any>[], oldState: EditorState, newState: EditorState) => {
-        formIOComponentInstance.updateValue(newState.doc.content.firstChild!.toJSON(), {modified: true});
-        control.patchValue(newState.doc.content.firstChild!.toJSON());
-        control.updateValueAndValidity()
-        
+        let containerElement = document.createElement('div');
+        let htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(newState.doc.content.firstChild!.content)
+        containerElement.appendChild(htmlNOdeRepresentation);
+        formIOComponentInstance.updateValue(containerElement.innerHTML, { modified: true });
+        control.patchValue(containerElement.innerHTML);
+        //control.updateValueAndValidity()
+
       },
       filterTransaction(transaction: Transaction<any>, state: EditorState) {
         return true
       }
     })
 
-    
+
 
     this.editorsEditableObj[editorID] = true
 
@@ -470,14 +485,16 @@ export class ProsemirrorEditorsService {
         transactionControllerPlugin,
         this.trackChangesService.getHideShowPlugin(),
         inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
-        ...menuBar({floating: true,
-          content: {'main':defaultMenu,fullMenu} ,containerClass:menuContainerClass})
+        ...menuBar({
+          floating: true,
+          content: { 'main': defaultMenu, fullMenu }, containerClass: menuContainerClass
+        })
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
       ,
       // @ts-ignore
       sectionName: editorID,
     });
-    
+
     let lastStep: any
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
@@ -543,7 +560,7 @@ export class ProsemirrorEditorsService {
           headRangeMax += anchor.nodeAfter.nodeSize
         }
         this.editorsEditableObj[editorID] = true
-        
+
         if (headRangeMin > head.pos || headRangeMax < head.pos) {
           let headPosition = headRangeMin > head.pos ? headRangeMin : headRangeMax
           let newHeadResolvedPosition = view.state.doc.resolve(headPosition)

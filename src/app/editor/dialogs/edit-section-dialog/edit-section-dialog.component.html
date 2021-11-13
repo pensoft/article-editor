@@ -1,6 +1,4 @@
 <!-- <div class='popup-menu-container'></div> -->
 <div *ngIf='data'>
-    <button mat-raised-button style="margin-bottom: 12px" (click)="showSection = !showSection">Show formio json</button>
-    <pre *ngIf="showSection"><p>{{prityJson}}</p></pre>
     <app-section [(section)]="data" [sectionForm]="sectionForm" [sectionContent]="sectionContent"></app-section>
 </div>

@@ -30,7 +30,7 @@ export class FormioControl extends FormControl {
       /* if(this.instance.component.type == "prosemirror-editor-field"){
         setCustomValidity.call(instance, '', dirty, external, isWarning);
         instance.validateResolve(null);
-        return null
+        return null 
       } */
       if (Array.isArray(message)) {
         decodedMessage = message.map(msg => Object.assign(msg, { message: unescape(msg.message) }));

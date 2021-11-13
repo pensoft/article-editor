@@ -30,17 +30,22 @@ export const taxonomicCoverage = {
         "components": [
             {
                 "label": "Scientific Name",
-                "tableView": true,
                 "key": "scientificName",
+                "properties": {
+                    "noLabel": "true"
+                },
                 "validate": {
                     "required": true,
+                    "pattern": 'asd'
                 },
                 "type": "prosemirror-editor-field",
                 "input": true
             }, {
                 "label": "Common Name",
-                "tableView": true,
                 "key": "commonName",
+                "properties": {
+                    "noLabel": "true"
+                },
                 "validate": {
                     "required": true,
                 },

@@ -38,7 +38,7 @@ export class YdocService {
   providerIndexedDb?: IndexeddbPersistence
   constructor(
     private http: HttpClient,
-    ) { }
+  ) { }
   articleStructure?: YMap<any>
   sectionsFromIODefaultValues?: YMap<any>
   comments?: YMap<any>
@@ -52,12 +52,12 @@ export class YdocService {
     return this.ydoc
   }
 
-  findSectionById(sectionId:string){
+  findSectionById(sectionId: string) {
     let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
 
   }
 
-  updateSection(sectionData: articleSection){
+  updateSection(sectionData: articleSection) {
     let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
     let nodeRef: any
     let findF = (list?: articleSection[]) => {
@@ -72,13 +72,13 @@ export class YdocService {
     findF(articleSectionsStructure);
 
 
-    let articleSectionsStructureFlat:articleSection[] = []
-    let makeFlat = (structure:articleSection[]) => {
-      structure.forEach((section)=>{
-        if(section.active){
+    let articleSectionsStructureFlat: articleSection[] = []
+    let makeFlat = (structure: articleSection[]) => {
+      structure.forEach((section) => {
+        if (section.active) {
           articleSectionsStructureFlat.push(section)
         }
-        if(section.children.length>0){
+        if (section.children.length > 0) {
           makeFlat(section.children)
         }
       })
@@ -88,7 +88,7 @@ export class YdocService {
     this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
   }
 
-  applySectionChange(value:{ contentData:editorData|string|editorData|taxonomicCoverageContentData, sectionData: articleSection ,type:string}){
+  applySectionChange(value: { contentData: editorData | string | editorData | taxonomicCoverageContentData, sectionData: articleSection, type: string }) {
     let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
     let nodeRef: any
     let findF = (list?: articleSection[]) => {
@@ -104,13 +104,13 @@ export class YdocService {
 
     nodeRef![value.type].contentData = value.contentData
 
-    let articleSectionsStructureFlat:articleSection[] = []
-    let makeFlat = (structure:articleSection[]) => {
-      structure.forEach((section)=>{
-        if(section.active){
+    let articleSectionsStructureFlat: articleSection[] = []
+    let makeFlat = (structure: articleSection[]) => {
+      structure.forEach((section) => {
+        if (section.active) {
           articleSectionsStructureFlat.push(section)
         }
-        if(section.children.length>0){
+        if (section.children.length > 0) {
           makeFlat(section.children)
         }
       })
@@ -123,17 +123,17 @@ export class YdocService {
   getData(): ydocData {
     let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
     let articleSectionsStructureFlat: articleSection[] = this.articleStructure?.get('articleSectionsStructureFlat');
-    try{
+    try {
       if (articleSectionsStructure == undefined) {
         articleSectionsStructureFlat = []
         articleSectionsStructure = articleBasicStructure
 
-        let makeFlat = (structure:articleSection[]) => {
-          structure.forEach((section)=>{
-            if(section.active){
+        let makeFlat = (structure: articleSection[]) => {
+          structure.forEach((section) => {
+            if (section.active) {
               articleSectionsStructureFlat.push(section)
             }
-            if(section.children.length>0){
+            if (section.children.length > 0) {
               makeFlat(section.children)
             }
           })
@@ -143,7 +143,7 @@ export class YdocService {
         this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
 
       }
-    }catch(e){
+    } catch (e) {
       console.log(e);
     }
 
@@ -156,12 +156,12 @@ export class YdocService {
   }
   buildEditor() {
     this.editorsFocusState = this.ydoc.getMap('editorsFocusState');
-    this.editorsFocusState.set('focusObj',{})
+    this.editorsFocusState.set('focusObj', {})
     this.sectionsFromIODefaultValues = this.ydoc.getMap('formIODefaultValues');
     this.figuresMap = this.ydoc.getMap('figuresMap');
     let figures = this.figuresMap.get('figures');
-    if(!figures){
-      this.figuresMap.set('figures',[]);
+    if (!figures) {
+      this.figuresMap.set('figures', []);
     }
     this.articleStructure = this.ydoc.getMap('articleStructure');
     this.comments = this.ydoc.getMap('comments');
@@ -183,13 +183,13 @@ export class YdocService {
       });
       this.provider?.on('onChange', (docArray: any) => {
         let params = new HttpParams({
-          fromObject: { 
+          fromObject: {
             document: docArray,
             articleId: roomName
           }
         });
 
-        
+
         sendUpdateToServiceWorker(params.toString());
         this.http.post('/products', params).subscribe(() => {
         });
@@ -211,13 +211,36 @@ export class YdocService {
       } else {
 
         // Building the editor without backend for now just for developer purpose
-        //this.buildEditor();
-        //return
+        let buildeditor = false
         let onSubevent = fromEvent(this.provider!, 'signalingConnected').subscribe(() => {
-          this.http.get('/products/'+roomName).subscribe((data)=>{
-            renderDoc(data);
+          fromEvent(this.provider!, 'synced').pipe(delay(500)).subscribe((data: any) => {
+            if(!buildeditor){
+              let synced = this.provider?.room?.synced
+              console.log('rendered with sync');
+              buildeditor = true
+              if (data.synced) {
+                this.buildEditor();
+              } else {
+                renderDoc(data)
+              }
+            }
           })
-          /* let r = race(this.http.get('/products').pipe(delay(500), catchError((err: any) => {
+          setTimeout(()=>{
+            if(!buildeditor){
+              console.log('rendered with timeout');
+              buildeditor = true
+              this.buildEditor();
+            }
+          },1500)
+          /* 
+            // render only from backednt
+            this.http.get('/products/' + roomName).subscribe((data) => {
+            renderDoc(data);
+            })
+
+
+            // race render from backend on indexdb
+          let r = race(this.http.get('/products').pipe(delay(500), catchError((err: any) => {
             console.log("ERROR", err);
             console.log("Editor build with local document");
             this.buildEditor();
@@ -229,7 +252,7 @@ export class YdocService {
             } else {
               renderDoc(data)
             }
-          }) */
+          })  */
         })
 
         /* this.provider?.on('signalingConnected',()=>{

@@ -58,7 +58,7 @@ export class MenuService {
       ['alignMenu'],
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
-      ['insertMenu']
+      ['insertMenu','logNodesMenuItem']
     ],'fullMenuWithLog': [
       ['textMenu'],
       ['alignMenu'],
@@ -70,6 +70,7 @@ export class MenuService {
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItem', 'redoItem','insertVideoItem'],
+      ['logNodesMenuItem']
     ]
   }
 

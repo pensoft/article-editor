@@ -13,18 +13,19 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
-import {basicSetup, EditorState, EditorView} from '@codemirror/basic-setup';
+import { BrowserModule } from '@angular/platform-browser';
+import { basicSetup, EditorState, EditorView } from '@codemirror/basic-setup';
 import { html } from '@codemirror/lang-html';
-import {Subject} from 'rxjs';
-import {EditSectionService} from '../dialogs/edit-section-dialog/edit-section.service';
-import {ProsemirrorEditorsService} from '../services/prosemirror-editors.service';
-import {articleSection, editorData} from '../utils/interfaces/articleSection';
-import {FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {MaterialModule} from "../../shared/material.module";
-import {FormControlNameDirective} from "../directives/form-control-name.directive";
-import {TreeService} from '../meta-data-tree/tree-service/tree.service';
-import {FormArrayNameDirective} from "../directives/form-array-name.directive";
+import { javascript } from '@codemirror/lang-javascript';
+import { Subject } from 'rxjs';
+import { EditSectionService } from '../dialogs/edit-section-dialog/edit-section.service';
+import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
+import { articleSection, editorData } from '../utils/interfaces/articleSection';
+import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
+import { MaterialModule } from "../../shared/material.module";
+import { FormControlNameDirective } from "../directives/form-control-name.directive";
+import { TreeService } from '../meta-data-tree/tree-service/tree.service';
+import { FormArrayNameDirective } from "../directives/form-array-name.directive";
 import { FormBuilderService } from '../services/form-builder.service';
 import { YdocService } from '../services/ydoc.service';
 import { YMap } from 'yjs/dist/src/internals';
@@ -38,17 +39,18 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
   renderForm = false;
 
-  hide = true;
+  hidehtml = true;
+  hidejson = true;
   error = false;
   errorMessage = '';
   newValue?: { contentData: editorData, sectionData: articleSection };
   value?: string;
-  codemirrorEditor?: EditorView
-  renderEditor = false;
+  codemirrorHTMLEditor?: EditorView
+  codemirrorJsonEditor?: EditorView
   editorData?: editorData;
   FormStructure: any
   renderSection = false;
-  sectionsFromIODefaultValues ?: YMap<any>
+  sectionsFromIODefaultValues?: YMap<any>
   @Input() section!: articleSection;
   @Output() sectionChange = new EventEmitter<articleSection>();
 
@@ -61,18 +63,19 @@ export class SectionComponent implements AfterViewInit, OnInit {
   get sectionForm() { return this._sectionForm; }
   @Input() sectionContent: any;
 
-  
-  @ViewChild('codemirror', {read: ElementRef}) codemirror?: ElementRef;
-  @ViewChild('ProsemirrorEditor', {read: ElementRef}) ProsemirrorEditor?: ElementRef;
-  @ViewChild('container', {read: ViewContainerRef}) container?: ViewContainerRef;
-  @ViewChild('formio', {read: ViewContainerRef}) formio?: ViewContainerRef;
+
+  @ViewChild('codemirrorHtmlTemplate', { read: ElementRef }) codemirrorHtmlTemplate?: ElementRef;
+  @ViewChild('codemirrorJsonTemplate', { read: ElementRef }) codemirrorJsonTemplate?: ElementRef;
+  @ViewChild('ProsemirrorEditor', { read: ElementRef }) ProsemirrorEditor?: ElementRef;
+  @ViewChild('container', { read: ViewContainerRef }) container?: ViewContainerRef;
+  @ViewChild('formio', { read: ViewContainerRef }) formio?: ViewContainerRef;
 
   constructor(
     private compiler: Compiler,
     private editSectionService: EditSectionService,
     private prosemirrorEditorsService: ProsemirrorEditorsService,
     private treeService: TreeService,
-    private ydocService : YdocService,
+    private ydocService: YdocService,
     private formBuilderService: FormBuilderService) {
 
     /* if(this.formControlService.popUpSectionConteiners[this.section.sectionID]){
@@ -93,7 +96,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     this.FormStructure = form
   }
 
-  isValidHTML(html:string) {
+  isValidHTML(html: string) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/xml');
     if (doc.documentElement.querySelector('parsererror')) {
@@ -104,12 +107,11 @@ export class SectionComponent implements AfterViewInit, OnInit {
   }
 
   async onSubmit(submision?: any) {
-    console.log('sectionForm',this.sectionForm);
-    this.sectionsFromIODefaultValues!.set(this.section.sectionID,submision.data)
+    this.sectionsFromIODefaultValues!.set(this.section.sectionID, submision.data)
 
-    this.formBuilderService.populateDefaultValues(submision.data,this.section.formIOSchema);
+    this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema);
     let nodeForm: FormGroup = new FormGroup({});
-    Object.keys(this.sectionForm.controls).forEach((key)=>{
+    Object.keys(this.sectionForm.controls).forEach((key) => {
       this.sectionForm.removeControl(key);
     })
     this.formBuilderService.buildFormGroupFromSchema(this.sectionForm, this.section.formIOSchema);
@@ -117,17 +119,17 @@ export class SectionComponent implements AfterViewInit, OnInit {
     //this.sectionForm = nodeForm;
     this.sectionForm.patchValue(submision.data);
     this.sectionForm.updateValueAndValidity()
-    
+
     let interpolated: any
     let prosemirrorNewNodeContent: any
     this.error = false;
     this.errorMessage = '';
     try {
       // get the text content from the codemirror editor which after compiling will be used as the new node structure for sections's Prosemirror
-      
-      let tr = this.codemirrorEditor?.state.update()
-      this.codemirrorEditor?.dispatch(tr!);
-      prosemirrorNewNodeContent = this.codemirrorEditor?.state.doc.sliceString(0, this.codemirrorEditor?.state.doc.length);
+
+      let tr = this.codemirrorHTMLEditor?.state.update()
+      this.codemirrorHTMLEditor?.dispatch(tr!);
+      prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
       //console.log(this.isValidHTML(prosemirrorNewNodeContent));
       interpolated = await this.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm);
       submision.compiledHtml = interpolated
@@ -164,29 +166,43 @@ export class SectionComponent implements AfterViewInit, OnInit {
   }
 
 
-  renderCodemMirrorEditor() {
-    if (!this.section.prosemirrorHTMLNodesTempl) {
-      console.error(`prosemirrorHTMLNodesTempl is ${this.section.prosemirrorHTMLNodesTempl}.Should provide such a property in the article sections structure.`)
-      return
-    }
-    let prosemirrorNodesHtml = this.section.prosemirrorHTMLNodesTempl
-    /* if (this.prosemirrorEditorsService.editorContainers[this.section.sectionID]) {
-      prosemirrorNodesHtml = this.prosemirrorEditorsService.editorContainers[this.section.sectionID].editorView.dom.parentElement?.innerHTML;
-    }*/
-    prosemirrorNodesHtml = this.formatHTML(prosemirrorNodesHtml)
-    this.codemirrorEditor = new EditorView({
-      state: EditorState.create({
-        doc: prosemirrorNodesHtml,
-        extensions: [basicSetup,html()],
-        
-      }),
+  renderCodemMirrorEditors() {
+    try {
+
       
-      parent: this.codemirror?.nativeElement,
-      /* dispatch: (tr) => {
-        this.editor?.update([tr]);
-      } */
-    })
-    this.renderEditor = true;
+      this.codemirrorJsonEditor = new EditorView({
+        state: EditorState.create({
+          doc:
+            `${JSON.stringify(this.sectionContent, null, "\t")}`,
+          extensions: [basicSetup, javascript()],
+        }),
+
+        parent: this.codemirrorJsonTemplate?.nativeElement,
+        dispatch:()=>{
+
+        },
+      })
+      if (!this.section.prosemirrorHTMLNodesTempl) {
+        console.error(`prosemirrorHTMLNodesTempl is ${this.section.prosemirrorHTMLNodesTempl}.Should provide such a property in the article sections structure.`)
+        return
+      }
+      let prosemirrorNodesHtml = this.section.prosemirrorHTMLNodesTempl
+      /* if (this.prosemirrorEditorsService.editorContainers[this.section.sectionID]) {
+        prosemirrorNodesHtml = this.prosemirrorEditorsService.editorContainers[this.section.sectionID].editorView.dom.parentElement?.innerHTML;
+      }*/
+      prosemirrorNodesHtml = this.formatHTML(prosemirrorNodesHtml)
+      this.codemirrorHTMLEditor = new EditorView({
+        state: EditorState.create({
+          doc: prosemirrorNodesHtml,
+          extensions: [basicSetup, html()],
+
+        }),
+
+        parent: this.codemirrorHtmlTemplate?.nativeElement,
+      })
+    } catch (e) {
+      console.log(e);
+    }
   }
 
 
@@ -206,7 +222,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
       return
     }
     try {
-      this.renderCodemMirrorEditor();
+      this.renderCodemMirrorEditors();
     } catch (e) {
       console.log(e);
     }
@@ -224,7 +240,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     let container = this.container
     function getRenderedHtml(templateString: string) {
       return new Promise(resolve => {
-        let html = {template:templateString}
+        let html = { template: templateString }
         compiler.clearCache();
         let afterViewInitSubject = new Subject()
         // let regExp = new RegExp(">[^<>{{]*<*b*r*>*[^<>{{]*{{[^.}}]*.([^}}]*)}}[^<]*", "g");
@@ -256,7 +272,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
           ],
           declarations: [component,
             FormControlNameDirective
-            ],
+          ],
           schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
         })(class newModule {
         });
@@ -279,5 +295,5 @@ export class SectionComponent implements AfterViewInit, OnInit {
     </div></ng-container>`)
   }
 
-  
+
 }

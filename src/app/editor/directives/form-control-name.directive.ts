@@ -11,10 +11,13 @@ export const CUSTOM_FORM_DIRECTIVE: any = {
   multi: true
 };
 
+let DOMPMParser = DOMParser.fromSchema(schema);
 @Directive({
   selector: '*:not(input):not(textarea)[formControlName]',
   providers: [CUSTOM_FORM_DIRECTIVE]
 })
+
+
 export class FormControlNameDirective implements ControlValueAccessor {
   private innerValue: string = '';
   //@ts-ignore
@@ -41,17 +44,26 @@ export class FormControlNameDirective implements ControlValueAccessor {
   writeValue(val: any) : void {
     try{
       this.ngControl = this.inj.get(NgControl)
+      console.log('value loaded i directive',val); 
+      /* if((val as string).startsWith('<form-field')){
+        let temp = document.createElement('div');
+        temp.innerHTML = val
+        //@ts-ignore
+        val=temp.firstChild?.firstChild?.innerHTML
+      }
       if(typeof val !== 'string'){
         let wrapper = document.createElement('div');
-        let prosemirrorNode = schema.nodeFromJSON(val)
-        let htmlNodeRepresentation = DOMSerializer.fromSchema(schema).serializeFragment(prosemirrorNode.content);
+        let prosemirrorNode = DOMPMParser.parse(val)
+        debugger
+        //@ts-ignore
+        let htmlNodeRepresentation = DOMSerializer.fromSchema(schema).serializeFragment(prosemirrorNode.content.content[0]);
         wrapper.appendChild(htmlNodeRepresentation)
         //@ts-ignore
         this._renderer.setAttribute(this.el.nativeElement, 'controlPath', this.ngControl.path.join('.'));
         this.el.nativeElement.innerHTML = wrapper.innerHTML
         this.innerValue = wrapper.innerHTML;
         return
-      }
+      } */
       this.el.nativeElement.innerHTML = val;
       /* this.el.nativeElement.innerHTML = `<p class="set-align-left">
      ${val}

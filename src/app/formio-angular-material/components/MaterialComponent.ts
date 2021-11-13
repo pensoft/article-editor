@@ -53,7 +53,7 @@ export class MaterialComponent implements AfterViewInit, OnInit,OnDestroy {
       return;
     }
 
-    this.instance.setPristine(false);
+    this.instance.setPristine(false)
 
     const validationResult = Validator.checkComponent(
       this.instance,

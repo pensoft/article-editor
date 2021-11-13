@@ -15,6 +15,8 @@ import { EditorView } from 'prosemirror-view';
 import { schema } from '../../utils/Schema';
 import { FormControl } from '@angular/forms';
 import { asyncPmPattern, asyncPmRequired, pmMaxLength, pmMinLength, pmPattern, pmRequired } from '../../utils/pmEditorFormValidators/validators';
+import { P } from '@angular/cdk/keycodes';
+import { DOMParser, DOMSerializer } from 'prosemirror-model';
 @Component({
   selector: 'app-editor-section',
   templateUrl: './editor-section.component.html',
@@ -23,6 +25,8 @@ import { asyncPmPattern, asyncPmRequired, pmMaxLength, pmMinLength, pmPattern, p
 export class EditorSectionComponent extends MaterialComponent implements AfterViewInit {
   renderEditor=false;
   
+  pmControl ?: FormControl ;
+
   editorContainer ?: {
     editorID: string,
     containerDiv: HTMLDivElement,
@@ -30,7 +34,7 @@ export class EditorSectionComponent extends MaterialComponent implements AfterVi
     editorView: EditorView,
     dispatchTransaction: any
   };
-  
+  DOMPMParser = DOMParser.fromSchema(schema)
   value:any
   
   @ViewChild('ProsemirrorEditor', {read: ElementRef}) ProsemirrorEditor?: ElementRef;
@@ -39,11 +43,13 @@ export class EditorSectionComponent extends MaterialComponent implements AfterVi
     private prosemirrorService:ProsemirrorEditorsService,
     private ydocService:YdocService,
     public element: ElementRef, 
+     
     public ref: ChangeDetectorRef) { 
       super(element,ref)
     }
 
     validateOnInit() {
+      console.log('validate');
       const {key} = this.instance.component;
       const validationValue = this.editorContainer?.editorView.state
   
@@ -72,13 +78,20 @@ export class EditorSectionComponent extends MaterialComponent implements AfterVi
       this.control.clearAsyncValidators();
       this.control.clearValidators();
       let validatorsSpec = instance.component.validate
-      if(validatorsSpec.required){
-        this.control.setAsyncValidators([asyncPmRequired/* ,asyncPmPattern(validatorsSpec.pattern)! */])
+      let validators :any[]= []
+      if(validatorsSpec.pattern){
+        validators.push(pmPattern(instance.component.validate.pattern+''));
+        instance.component.validate.pattern='[\\.\\S\\s]*';
       }
-      //this.control.setValidators([pmMaxLength(validatorsSpec.maxLength!), pmMinLength(validatorsSpec.minLength), pmPattern(validatorsSpec.pattern)!, pmRequired])
       
-      //let pmEditorControl: FormControl = new FormControl({},[pmMaxLength,pmMinLength,pmPattern,pmRequired]);
-     super.setInstance(instance);
+      if(validatorsSpec.required){
+        instance.component.validate.required=false;
+        validators.push(pmRequired)
+      }
+      this.pmControl = new FormControl(null,validators)
+
+      instance.error = this.pmControl.errors
+      super.setInstance(instance);
 
   }
   
@@ -92,6 +105,7 @@ export class EditorSectionComponent extends MaterialComponent implements AfterVi
         }
       }, 100);
     }
+    console.log(this.control.value );
     this.value= this.control.value 
     awaitValue()
     let renderEditor = ()=>{
@@ -104,9 +118,18 @@ export class EditorSectionComponent extends MaterialComponent implements AfterVi
   }
 
   render(editorData:any){
-    let node = editorData?[schema.nodeFromJSON(editorData)]:[];
-    this.editorContainer = this.prosemirrorService.renderEditorWithNoSync(this.ProsemirrorEditor?.nativeElement,node,this.instance,this.control)
-    this.control.updateValueAndValidity()
+    //let node = editorData?[schema.nodeFromJSON(editorData)]:[];
+    console.log(this.instance);
+    let options:any = {}
+    if(this.instance.component.properties.noLabel){
+      options.noLabel = true
+    }
+    let temp = document.createElement('div');
+    temp.innerHTML = editorData;
+    let node = editorData?this.DOMPMParser.parseSlice(temp):undefined;
+    console.log('node when rendered in popup',editorData);
+    this.editorContainer = this.prosemirrorService.renderEditorWithNoSync(this.ProsemirrorEditor?.nativeElement,this.instance,this.control,options,node);
+    this.control.updateValueAndValidity();
     this.renderEditor = true;
   }
 }
