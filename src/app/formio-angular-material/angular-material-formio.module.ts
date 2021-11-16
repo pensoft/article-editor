@@ -98,6 +98,7 @@ export {
   MaterialWellComponent,
   MaterialComponent,
   MaterialNestedComponent,
+  FormioFormFieldComponent,
   MaterialTimeComponent
 };
 
@@ -173,6 +174,7 @@ export {
     FormioComponent,
     FlexLayoutModule,
     MatInputModule,
+    FormioFormFieldComponent,
     MatFormFieldModule,
     MatCheckboxModule,
     MatRadioModule,
@@ -223,6 +225,7 @@ export {
     MaterialWellComponent,
     MaterialComponent,
     MaterialNestedComponent,
+    FormioFormFieldComponent,
     MaterialTimeComponent,
     MaterialWizardComponent
   ],

@@ -48,13 +48,13 @@ export class MaterialComponent implements AfterViewInit, OnInit,OnDestroy {
   validateOnInit() {
     const {key} = this.instance.component;
     const validationValue = this.getFormValue(this.instance.path);
+    this.instance.updateValue(this.control.value, {modified: true});
 
     if (validationValue === null) {
       return;
     }
 
     this.instance.setPristine(false)
-
     const validationResult = Validator.checkComponent(
       this.instance,
       {[key]: validationValue},
@@ -111,6 +111,7 @@ export class MaterialComponent implements AfterViewInit, OnInit,OnDestroy {
   }
 
   beforeSubmit() {
+
     this.control.markAsTouched();
     return this.control
   }

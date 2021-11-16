@@ -4,39 +4,35 @@ export const collectionData = {
         "label": "Collection name",
         "tableView": true,
         "key": "collectionName",
-        "type": "prosemirror-editor-field",
+        "type": "textarea",
         "input": true
     },
     {
         "label": "Collection identifier",
         "tableView": true,
         "key": "collectionIdentifier",
-        "validate": {
-            "maxLength": 10,
-            "minLength": 3
-        },
-        "type": "prosemirror-editor-field",
+        "type": "textarea",
         "input": true
     },
     {
         "label": "Parent collection identifier",
         "tableView": true,
         "key": "parentCollectionIdentifier",
-        "type": "prosemirror-editor-field",
+        "type": "textarea",
         "input": true
     },
     {
         "label": "Specimen preservstion method",
         "tableView": true,
         "key": "specimenPreservationMethod",
-        "type": "prosemirror-editor-field",
+        "type": "textarea",
         "input": true
     },
     {
         "label": "Curatorial unit",
         "tableView": true,
         "key": "curatorialUnit",
-        "type": "prosemirror-editor-field",
+        "type": "textarea",
         "input": true
     },
     {

@@ -8,6 +8,7 @@ import { DocumentHelpers } from 'wax-prosemirror-utilities';
 import { minBy, maxBy, last } from 'lodash';
 import { from, Subject } from 'rxjs';
 import { Observable } from 'lib0/observable';
+import { state } from '@angular/animations';
 
 @Injectable({
   providedIn: 'root'
@@ -78,7 +79,7 @@ export class CommentsService {
               errorMessage = "You can't leave comment there."
             }
             addCommentSubject1.next({type:'commentAllownes',sectionId:prev.sectionName,allow:(!empty&&from!==to&&commentableAttr),text,errorMessage})
-          return prev
+            return {...prev,commentsStatus:{type:'commentAllownes',sectionId:prev.sectionName,allow:(!empty&&from!==to&&commentableAttr),text,errorMessage}}
         },
       },
 
@@ -87,9 +88,10 @@ export class CommentsService {
           update: (view, prevState) => {
             let commentsMark = view.state.schema.marks.comment
             let editor = document.getElementsByClassName('editor-container').item(0) as HTMLDivElement
-
-            attachCommentBtn(editor, view)
-            let sectionName = commentPluginKey.getState(view.state).sectionName
+            let pluginData = commentPluginKey.getState(view.state)
+            let sectionName = pluginData.sectionName
+            let commentsStatus = pluginData.commentsStatus
+            attachCommentBtn(editor, view,commentsStatus)
 
 
             if (editor) {
@@ -161,21 +163,23 @@ export class CommentsService {
       },
 
     });
-    let attachCommentBtn = (editor: HTMLDivElement, view: EditorView) => {
+    let attachCommentBtn = (editor: HTMLDivElement, view: EditorView,commentsStatus:any) => {
       let { empty, from, to } = view.state.selection
+      let commentBtnDiv = editor.getElementsByClassName('commentBtnDiv').item(0) as HTMLDivElement;
       let commentBtn = editor.getElementsByClassName('commentsBtn').item(0) as HTMLButtonElement;
       let editorBtnsWrapper = editor.getElementsByClassName('editor_buttons_wrapper').item(0) as HTMLDivElement;
+      if(!commentsStatus.allow){
+        commentBtnDiv.style.display = 'none'
+        return
+      }
       if (!view.hasFocus()){
         return
       }
-
-      
-      
-      commentBtn.removeAllListeners!('click');
       if (empty || from == to) {
         editorBtnsWrapper.style.display = 'none'
         return
       }
+      commentBtn.removeAllListeners!('click');
       let sectionName = commentPluginKey.getState(view.state).sectionName
       
       let coordinatesAtFrom = view.coordsAtPos(from)
@@ -183,6 +187,7 @@ export class CommentsService {
       let averageValueTop = (coordinatesAtFrom.top + coordinatesAtTo.top) / 2
       let editorBtns = editor.getElementsByClassName('editor_buttons').item(0) as HTMLDivElement;
       editorBtnsWrapper.style.display = 'block'
+      commentBtnDiv.style.display = 'inline-flex'
       editorBtnsWrapper.style.top = (averageValueTop - 42) + 'px';
       editorBtnsWrapper.style.position = 'fixed'
       commentBtn.addEventListener('click',()=>{

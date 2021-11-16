@@ -44,7 +44,6 @@ export class FormControlNameDirective implements ControlValueAccessor {
   writeValue(val: any) : void {
     try{
       this.ngControl = this.inj.get(NgControl)
-      console.log('value loaded i directive',val); 
       /* if((val as string).startsWith('<form-field')){
         let temp = document.createElement('div');
         temp.innerHTML = val

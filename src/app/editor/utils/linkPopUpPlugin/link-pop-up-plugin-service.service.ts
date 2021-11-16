@@ -42,7 +42,7 @@ export class LinkPopUpPluginServiceService {
           let focusRN = detectFocusPluginKey.getState(state);
           //if(empty)  return
           if(!(focusRN.hasFocus||(lastFocusedEditor==focusRN.sectionName))) return DecorationSet.empty
-          let position = from == to ? from:(from+to)/2
+          let position = from == to ? from:Math.floor((from+to)/2)
           let node = doc.nodeAt(position)
           let mark = node?.marks.find((mark)=>mark.type == schema.marks.link)
           if(!mark) return DecorationSet.empty

@@ -73,7 +73,7 @@ export class FormBuilderService {
     }
 
     let value = component.defaultValue;
-    if(component.type == 'prosemirror-editor-field'){
+    if(component.type == 'textarea'){
       let validators = component.type === 'number' ? [Validators.pattern("^[0-9]*$")] : [];
       if (component.validate) {
         if (component.validate.required) {

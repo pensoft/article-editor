@@ -291,7 +291,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     }
 
     return getRenderedHtml(`<ng-container [formGroup]="formGroup">
-    <div contenteditable="true" translate="no" class="ProseMirror ProseMirror-example-setup-style ProseMirror-focused">${htmlToCompile}
+    <div contenteditableNode="true" translate="no" class="ProseMirror ProseMirror-example-setup-style ProseMirror-focused">${htmlToCompile}
     </div></ng-container>`)
   }
 

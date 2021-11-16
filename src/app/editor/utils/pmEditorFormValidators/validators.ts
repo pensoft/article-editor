@@ -40,7 +40,7 @@ export function pmRequired(control: AbstractControl) {
     return isEmptyInputValue(textContent) ? { 'required': true } : null;
 }
 
-export function pmMaxLength(minLength: number) {
+export function pmMaxLength(maxLength: number) {
     return (control: AbstractControl) => {
         if(!control.value){
             return null
@@ -51,20 +51,20 @@ export function pmMaxLength(minLength: number) {
             // don't validate values without `length` property
             return null;
         }
-        return textContent.length < minLength ?
-            { 'minlength': { 'requiredLength': minLength, 'actualLength': textContent.length } } :
+        return textContent.length > maxLength ?
+            { 'minlength': { 'requiredLength': maxLength, 'actualLength': textContent.length } } :
             null;
     }
 }
 
-export function pmMinLength(maxLength: number) {
+export function pmMinLength(minLength: number) {
     return (control: AbstractControl) => {
         if(!control.value){
             return null
         } 
         let textContent = parseNodeHTmlStringToTextContent(control.value)
-        return hasValidLength(textContent) && textContent.length > maxLength ?
-            { 'maxlength': { 'requiredLength': maxLength, 'actualLength': textContent.length } } :
+        return hasValidLength(textContent) && textContent.length < minLength ?
+            { 'maxlength': { 'requiredLength': minLength, 'actualLength': textContent.length } } :
             null;
     }
 }
@@ -130,7 +130,8 @@ export function pmPattern(pattern: any) {
             return null; // don't validate empty values to allow optional controls
         }
         const value = textContent;
-        return regex.test(value) ? null :
+        let result = regex.test(value) ? null :
             { 'pattern': { 'requiredPattern': regexStr, 'actualValue': value } };
+        return result
     }
 }

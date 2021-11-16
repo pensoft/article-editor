@@ -13,25 +13,17 @@
 ::ng-deep .formio-taxonomicComponent {
     .mat-column-__removeRow {
         width: 64px;
+        vertical-align: middle;
     }
-    td{
+    td {
         vertical-align: bottom;
-    }
-    app-editor-section {
-        .wrapper {
-            margin-bottom: 18px;
-            margin-top: 22px;
-            margin-right: 16px;
-            p {
-                margin-bottom: 2px !important;
-                margin-top: 5px !important;
-            }
-        }
     }
 
     .cdk-drag-handle {
         width: 24px;
         cursor: move;
+        margin-top: 7px; 
+        vertical-align: middle;
     }
 
     td.mat-cell {

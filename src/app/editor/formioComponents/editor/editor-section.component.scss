@@ -1,3 +1,10 @@
 .wrapper {
-        border-bottom: 1px solid black;
+        border-bottom: 1px solid #949494;
+}
+
+.pm-errors {
+        position: absolute;
+        font-size: 12px;
+        width: 203px;
+        transform: translate(0px, -18px);
 }

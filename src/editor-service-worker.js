@@ -108,9 +108,9 @@ self.addEventListener('fetch', function(event) {
             savePostRequests(event.request.clone().url, update)
         }))
     }
-    /* console.log('I am a request with url: ',
+    /* consol .log('I am a request with url: ',
         event.request.clone().url);
-    console.log(event.request.clone()); */
+    console .log(event.request.clone()); */
 
 });
 

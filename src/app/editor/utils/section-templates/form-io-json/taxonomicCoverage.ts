@@ -6,7 +6,7 @@ export const taxonomicCoverage = {
         "validate": {
             "required": true,
         },
-        "type": "prosemirror-editor-field",
+        "type": "textarea",
         "input": true
     },{
         "label": "Taxonomic coverage",
@@ -36,9 +36,11 @@ export const taxonomicCoverage = {
                 },
                 "validate": {
                     "required": true,
-                    "pattern": 'asd'
+                    "pattern": 'asd',
+                    "minLength": 2,
+                    "maxLength": 10
                 },
-                "type": "prosemirror-editor-field",
+                "type": "textarea",
                 "input": true
             }, {
                 "label": "Common Name",
@@ -49,7 +51,7 @@ export const taxonomicCoverage = {
                 "validate": {
                     "required": true,
                 },
-                "type": "prosemirror-editor-field",
+                "type": "textarea",
                 "input": true
             },
             {

@@ -68,7 +68,7 @@ const onconnection = (conn,request, client) => {
     pongReceived = true
   })
   conn.on('message', function message(msg) {
-    console.log(`Received message ${msg} from user ${client}`);
+    //console .log(`Received message ${msg} from user ${client}`);
   });
   conn.on('close', () => {
     subscribedTopics.forEach(topicName => {
@@ -137,4 +137,4 @@ server.on('upgrade', (request, socket, head) => {
 
 server.listen(port)
 
-console.log('Signaling server running on localhost:', port)
+//console .log('Signaling server running on localhost:', port)

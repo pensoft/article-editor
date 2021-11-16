@@ -6,3 +6,11 @@
     border-bottom: 1px solid var(--color-e3e3e3);
   }
 }
+
+.app-version {
+  position: fixed;
+  bottom: 10px;
+  right: 10px;
+  color: #00b1b2;
+  z-index: 1;
+}

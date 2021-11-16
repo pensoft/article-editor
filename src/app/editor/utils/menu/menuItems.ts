@@ -294,7 +294,6 @@ function logNodesItemRun(state: EditorState, dispatch: any, view: EditorView) {
         
         let newTr = state.tr.replaceSelectionWith(co);
         view.dispatch(newTr);
-        console.log(view.dom.parentElement?.innerHTML);
         return true;
     }catch(e){
         console.log(e);

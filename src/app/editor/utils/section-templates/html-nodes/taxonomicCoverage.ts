@@ -1,4 +1,4 @@
-export const taxonomicCoverageTemplate = `<h2 contenteditable="false">Taxonomic coverage</h2>
+export const taxonomicCoverageTemplate = `<h2 contenteditableNode="false">Taxonomic coverage</h2>
 <form-field  class="set-align-left" formControlName="description" commentable="false">
 </form-field >
 <div class="tableWrapper">
@@ -6,17 +6,17 @@ export const taxonomicCoverageTemplate = `<h2 contenteditable="false">Taxonomic 
 		<thead>
 			<tr>
 				<td>
-					<p contenteditable="false">
+					<p contenteditableNode="false">
 						<b>Rank</b>
 					</p>
 				</td>
 				<td>
-					<p contenteditable="false">
+					<p contenteditableNode="false">
 						<b>Scientific Name</b>
 					</p>
 				</td>
 				<td>
-					<p contenteditable="false"  commentable="false">
+					<p contenteditableNode="false"  commentable="false">
 						<b>Common Name</b>
 					</p>
 				</td>
@@ -25,7 +25,7 @@ export const taxonomicCoverageTemplate = `<h2 contenteditable="false">Taxonomic 
 		<tbody>
 			<tr *ngFor="let control of formGroup.controls.taxonomicCoverage.controls;let i=index" formGroupName="{{i}}">
 				<td>
-					<form-field formControlName="rank" contenteditable="false"  commentable="false">
+					<form-field formControlName="rank" contenteditableNode="false"  commentable="false">
 					</form-field>
 				</td>
 				<td>
