@@ -8,8 +8,8 @@
     "start": "npm run config -- --environment=dev && ng serve --proxy-config proxy.conf.js --open",
     "startBuild": "http-server -p 8080 -c-1 dist/article-editor ",
     "startBuildWithProxy": "http-server -P https://ps-article-editor.dev.scalewest.com/ -p 8080 -c-1 dist/article-editor ",
-    "build": "npm run config -- --environment=prod && ng build --prod --output-hashing=all",
-    "build-demo": "npm run config -- --environment=prod && ng build --base-href /demo/ --output-path demo --prod --output-hashing=all",
+    "build": "npm run config -- --environment=prod && ng build --prod",
+    "build-demo": "npm run config -- --environment=prod && ng build --base-href /demo/ --output-path demo --prod",
     "watch": "ng build --watch --configuration development",
     "test": "ng test"
   },
