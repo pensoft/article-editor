@@ -20,7 +20,7 @@ export class ArticleComponent implements OnInit {
   constructor(private ydocService:YdocService,private ref: ChangeDetectorRef,public prosemirrorEditorsService:ProsemirrorEditorsService) {
    
     this.articleStructureMap = this.ydocService.articleStructure!;
-    this.articleStructureMap.observe((data)=>{
+    this.ydocService.articleStructure!.observe((data)=>{
       this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
       this.makeFlat();
       

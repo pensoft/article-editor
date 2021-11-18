@@ -65,7 +65,6 @@ export function buildKeymap(schema, mapKeys) {
     function setSelection(sel, state) {
 
         let anchorPath = sel.$anchor.path
-        console.log(anchorPath);
         let counter = anchorPath.length - 1
         let parentNode = undefined;
         let parentNodePos = undefined;
@@ -98,14 +97,12 @@ export function buildKeymap(schema, mapKeys) {
     function selectNode(state, dispatch, view) {
         try {
             let sel = state.selection
-                //console.log('$anchor',sel.$anchor.nodeAfter,sel.$anchor.nodeBefore);
-                //console.log('$head',sel.$head.nodeAfter,sel.$head.nodeBefore);
 
             let newTr = setSelection(sel, state);
             dispatch(newTr)
             return true;
         } catch (e) {
-            console.log(e);
+            console.error(e);
         }
     }
 

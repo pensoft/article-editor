@@ -15,12 +15,12 @@ import { state } from '@angular/animations';
 })
 
 export class CommentsService {
-  addCommentSubject 
+  addCommentSubject
   commentsPlugin: Plugin
   commentPluginKey: PluginKey
   storeData: any;
   editorsOuterDiv?: HTMLDivElement
-  commentsObject: any 
+  commentsObject: any
   commentsVisibilityChange: Subject<any>
   addCommentData: any = {}
   commentAllowdIn?: any = {} // editor id where comment can be made RN equals ''/undefined if there is no such editor RN
@@ -64,22 +64,36 @@ export class CommentsService {
           return { sectionName: _.sectionName };
         },
         apply(tr, prev, _, newState) {
-          let {from,to,empty} = newState.selection ;
-            let text = newState.doc.textBetween(from,to)
-            let commentableAttr = true
-            newState.doc.nodesBetween(from,to,(node,pos,parent)=>{
-              if(node.attrs.commentable == 'false'){
+          let { from, to, empty } = newState.selection;
+          let err = false
+          let text = newState.doc.textBetween(from, to)
+          let commentableAttr = true
+          let errorMessage = ''
+          if (empty || from == to) {
+            errorMessage = 'Selection is empty.'
+            err = true
+          }
+
+          if (!err) {
+            newState.doc.nodesBetween(from, to, (node, pos, parent) => {
+              /* if (node.marks.length > 0) {
+                if (node.marks.filter((el) => { return el.type.name == 'comment' }).length > 0) {
+                  err = true
+                  errorMessage = "There is a comment here already"
+                }
+              } */
+              if (node.attrs.commentable == 'false') {
                 commentableAttr = false
               }
             })
-            let errorMessage = ''
-            if(empty||from == to){
-              errorMessage = 'Selection is empty.'
-            }else if(!commentableAttr){
-              errorMessage = "You can't leave comment there."
-            }
-            addCommentSubject1.next({type:'commentAllownes',sectionId:prev.sectionName,allow:(!empty&&from!==to&&commentableAttr),text,errorMessage})
-            return {...prev,commentsStatus:{type:'commentAllownes',sectionId:prev.sectionName,allow:(!empty&&from!==to&&commentableAttr),text,errorMessage}}
+          }
+          if (!commentableAttr && !err) {
+            errorMessage = "You can't leave comment there."
+            err = true
+          }
+          let commentdata = { type: 'commentAllownes', sectionId: prev.sectionName, allow: !err, text, errorMessage, err }
+          addCommentSubject1.next(commentdata)
+          return { ...prev, commentsStatus: commentdata }
         },
       },
 
@@ -91,7 +105,7 @@ export class CommentsService {
             let pluginData = commentPluginKey.getState(view.state)
             let sectionName = pluginData.sectionName
             let commentsStatus = pluginData.commentsStatus
-            attachCommentBtn(editor, view,commentsStatus)
+            attachCommentBtn(editor, view, commentsStatus)
 
 
             if (editor) {
@@ -163,16 +177,17 @@ export class CommentsService {
       },
 
     });
-    let attachCommentBtn = (editor: HTMLDivElement, view: EditorView,commentsStatus:any) => {
+    let attachCommentBtn = (editor: HTMLDivElement, view: EditorView, commentsStatus: any) => {
+
       let { empty, from, to } = view.state.selection
       let commentBtnDiv = editor.getElementsByClassName('commentBtnDiv').item(0) as HTMLDivElement;
       let commentBtn = editor.getElementsByClassName('commentsBtn').item(0) as HTMLButtonElement;
       let editorBtnsWrapper = editor.getElementsByClassName('editor_buttons_wrapper').item(0) as HTMLDivElement;
-      if(!commentsStatus.allow){
-        commentBtnDiv.style.display = 'none'
+      if (!view.hasFocus()) {
         return
       }
-      if (!view.hasFocus()){
+      if (!commentsStatus.allow) {
+        commentBtnDiv.style.display = 'none'
         return
       }
       if (empty || from == to) {
@@ -181,7 +196,7 @@ export class CommentsService {
       }
       commentBtn.removeAllListeners!('click');
       let sectionName = commentPluginKey.getState(view.state).sectionName
-      
+
       let coordinatesAtFrom = view.coordsAtPos(from)
       let coordinatesAtTo = view.coordsAtPos(to)
       let averageValueTop = (coordinatesAtFrom.top + coordinatesAtTo.top) / 2
@@ -190,13 +205,13 @@ export class CommentsService {
       commentBtnDiv.style.display = 'inline-flex'
       editorBtnsWrapper.style.top = (averageValueTop - 42) + 'px';
       editorBtnsWrapper.style.position = 'fixed'
-      commentBtn.addEventListener('click',()=>{
+      commentBtn.addEventListener('click', () => {
         this.addCommentSubject.next({ type: 'commentData', sectionName, showBox: true })
       })
     }
   }
 
-  removeEditorComment(editorId:any){
+  removeEditorComment(editorId: any) {
     this.commentsObject[editorId] = [];
   }
 

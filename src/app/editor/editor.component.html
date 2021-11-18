@@ -47,7 +47,7 @@
 
 
         <div class="side-navbar-actions">
-            <button #trachChangesOnOffBtn [ngClass]="showTrachChanges?'changes_on_btn':'changes_off_btn'" mat-icon-button class="changes_state_btn" [matMenuTriggerFor]="beforeMenu">
+            <button #trachChangesOnOffBtn [ngClass]="shouldTrackChanges?'changes_on_btn':'changes_off_btn'" mat-icon-button class="changes_state_btn" [matMenuTriggerFor]="beforeMenu">
         <mat-icon>border_color</mat-icon>
       </button>
             <mat-menu #beforeMenu="matMenu" xPosition="before">
@@ -114,7 +114,7 @@
                             </button>
                         </div>
                         <div class="trackChangesBtnDiv">
-                            <button [ngClass]="showTrachChanges?'changes_on_editor_side_btn':'changes_off_editor_side_btn'" (click)="turnOnOffTrachChanges()" class="trackChangesBtn" mat-icon-button>
+                            <button [ngClass]="shouldTrackChanges?'changes_on_editor_side_btn':'changes_off_editor_side_btn'" (click)="turnOnOffTrachChanges()" class="trackChangesBtn" mat-icon-button>
                               <mat-icon svgIcon="reference"></mat-icon>
                             </button>
                         </div>
@@ -134,7 +134,7 @@
   <mat-icon>more_vert</mat-icon>
 </button>
 <mat-menu #menu2="matMenu" class="floating-menu">
-    <button #trachChangesOnOffBtn [ngClass]="showTrachChanges?'changes_on_btn_mobile':'changes_off_btn_mobile'" class="changes_state_btn_mobile" mat-menu-item [matMenuTriggerFor]="beforeMenu">
+    <button #trachChangesOnOffBtn [ngClass]="shouldTrackChanges?'changes_on_btn_mobile':'changes_off_btn_mobile'" class="changes_state_btn_mobile" mat-menu-item [matMenuTriggerFor]="beforeMenu">
     <mat-icon>border_color</mat-icon>
   </button>
 

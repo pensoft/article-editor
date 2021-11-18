@@ -1337,7 +1337,6 @@ const readClientsStructRefs = (decoder, doc) => {
         }
       }
     }
-    // console.log('time to read: ', performance.now() - start) // @todo remove
   }
   return clientRefs
 };
@@ -1533,9 +1532,7 @@ const readUpdateV2 = (decoder, ydoc, transactionOrigin, structDecoder = new Upda
     const store = doc.store;
     // let start = performance.now()
     const ss = readClientsStructRefs(structDecoder, doc);
-    // console.log('time to read structs: ', performance.now() - start) // @todo remove
     // start = performance.now()
-    // console.log('time to merge: ', performance.now() - start) // @todo remove
     // start = performance.now()
     const restStructs = integrateStructs(transaction, store, ss);
     const pending = store.pendingStructs;
@@ -1560,7 +1557,6 @@ const readUpdateV2 = (decoder, ydoc, transactionOrigin, structDecoder = new Upda
     } else {
       store.pendingStructs = restStructs;
     }
-    // console.log('time to integrate: ', performance.now() - start) // @todo remove
     // start = performance.now()
     const dsRest = readAndApplyDeleteSet(structDecoder, transaction, store);
     if (store.pendingDs) {
@@ -1581,10 +1577,8 @@ const readUpdateV2 = (decoder, ydoc, transactionOrigin, structDecoder = new Upda
       // Either dsRest == null && pendingDs == null OR dsRest != null
       store.pendingDs = dsRest;
     }
-    // console.log('time to cleanup: ', performance.now() - start) // @todo remove
     // start = performance.now()
 
-    // console.log('time to resume delete readers: ', performance.now() - start) // @todo remove
     // start = performance.now()
     if (retry) {
       const update = /** @type {{update: Uint8Array}} */ (store.pendingStructs).update;
@@ -2134,7 +2128,6 @@ class PermanentUserData {
  *   // Compute the cursor position
  *   const absolutePosition = createAbsolutePositionFromRelativePosition(y, relativePosition)
  *   absolutePosition.type === yText // => true
- *   console.log('cursor location is ' + absolutePosition.index) // => cursor location is 3
  *
  */
 class RelativePosition {
@@ -2849,7 +2842,6 @@ const iterateStructs = (transaction, structs, clockStart, len, f) => {
  * const map = y.define('map', YMap)
  * // Log content when change is triggered
  * map.observe(() => {
- *   console.log('change triggered')
  * })
  * // Each change on the map type triggers a log message:
  * map.set('a', 0) // => "change triggered"
@@ -4223,7 +4215,6 @@ class YEvent {
  *   // `child` should be accessible via `type.get(path[0]).get(path[1])..`
  *   const path = type.getPathTo(child)
  *   // assuming `type instanceof YArray`
- *   console.log(path) // might look like => [2, 'key1']
  *   child === type.get(path[0]).get(path[1])
  *
  * @param {AbstractType<any>} parent
@@ -4392,7 +4383,6 @@ const findMarker = (yarray, index) => {
   //     window.getLengthes = () => window.lengthes.sort((a, b) => a - b)
   //   }
   //   window.lengthes.push(marker.index - pindex)
-  //   console.log('distance', marker.index - pindex, 'len', p && p.parent.length)
   // }
   if (marker !== null && math.abs(marker.index - pindex) < /** @type {YText|YArray<any>} */ (p.parent).length / maxSearchMarker) {
     // adjust existing marker

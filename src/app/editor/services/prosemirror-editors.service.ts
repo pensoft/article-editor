@@ -79,7 +79,7 @@ export class ProsemirrorEditorsService {
   inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, schema.nodes.math_inline);
   blockMathInputRule = makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, schema.nodes.math_display);
 
-  changesOnOffSubject = new Subject<boolean>()
+  changesOnOffTrackingChangesSubject = new Subject<boolean>()
   shouldTrackChanges = false
   treeChangesCount = 0
   showChangesSubject
@@ -100,7 +100,7 @@ export class ProsemirrorEditorsService {
     private linkPopUpPluginService: LinkPopUpPluginServiceService,
     private commentsService: CommentsService,
     private treeService: TreeService,
-    private trackChangesService: TrackChangesService,) {
+    private trackChangesService: TrackChangesService) {
 
 
     this.mobileVersionSubject.subscribe((data) => {
@@ -109,8 +109,12 @@ export class ProsemirrorEditorsService {
     })
 
     this.showChangesSubject = this.trackChangesService.showChangesSubject
-    this.changesOnOffSubject.subscribe((data) => {
+    this.changesOnOffTrackingChangesSubject.subscribe((data) => {
       this.shouldTrackChanges = data
+      let trackCHangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
+      trackCHangesMetadata.lastUpdateFromUser = this.ydoc?.guid;
+      trackCHangesMetadata.trackTransactions = data
+      this.ydocService.articleStructure?.set('trackChangesMetadata',trackCHangesMetadata);
     })
 
     this.showChangesSubject.subscribe((data) => {
@@ -178,7 +182,7 @@ export class ProsemirrorEditorsService {
     markContent(section.sectionContent)
   }
 
-  dispatchEmptyTransaction() {  // for update of view
+  dispatchEmptyTransaction() {  // for updating the view
     Object.values(this.editorContainers).forEach((container: any) => {
       let editorState = container.editorView.state as EditorState
       container.editorView.dispatch(editorState.tr)
@@ -193,7 +197,11 @@ export class ProsemirrorEditorsService {
     dispatchTransaction: any
   } {
     let updateFormIoDefaultValues = (sectionID: string, data: any) => {
-      this.ydocService.sectionsFromIODefaultValues?.set(sectionID, data);
+      try{
+        this.ydocService.sectionsFromIODefaultValues?.set(sectionID, data);
+      }catch(e){
+        console.error(e);
+      }
     }
     if (this.editorContainers[editorId]) {
       EditorContainer.appendChild(this.editorContainers[editorId].containerDiv);
@@ -209,7 +217,7 @@ export class ProsemirrorEditorsService {
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment(section.mode, editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
-    yCursorPlugin(this.provider!.awareness),
+    yCursorPlugin(this.provider!.awareness) ,
     yUndoPlugin()]
 
 
@@ -227,7 +235,7 @@ export class ProsemirrorEditorsService {
         // return value whe r = false the transaction is canseled
         trs.forEach((transaction) => {
           if (transaction.steps.length > 0) {
-            newState.doc!.nodesBetween(newState.selection.from, newState.selection.to, (node, pos, parent) => {     // the document after the appling of the steps
+            newState.doc!.descendants(/* newState.selection.from, newState.selection.to,  */(node, pos, parent) => {     // the document after the appling of the steps
               //@ts-ignore
               node.parent = parent
               if (node.attrs.formControlName && GroupControl[section.sectionID]) {      // validation for the formCOntrol
@@ -236,7 +244,6 @@ export class ProsemirrorEditorsService {
                   const controlPath = node.attrs.controlPath;
                   const control = fg.get(controlPath) as FormControl;
                   //@ts-ignore
-
                   if (control.componentType == "textarea") {
                     let HTMLnodeRepresentation = this.DOMPMSerializer.serializeFragment(node.content)
                     let temp = document.createElement('div');
@@ -249,14 +256,14 @@ export class ProsemirrorEditorsService {
                   const mark = schema.mark('invalid')
                   if (control.invalid) {
                     // newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
-                    tr1 = newState.tr.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "true" })
+                    tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "true" })
                   } else {
-                    tr1 = newState.tr.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "" })
+                    tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "" })
 
                   }
                   updateFormIoDefaultValues(editorID, fg.value);
                 } catch (error) {
-                  console.log(error);
+                  console.error(error);
                 }
               }
             })
@@ -268,13 +275,10 @@ export class ProsemirrorEditorsService {
         //@ts-ignore
         let meta = transaction.meta
         if (meta.uiEvent) {
-          console.log(meta.uiEvent);
           if (meta.uiEvent == 'cut') {
-            console.log('cut');
             let noneditableNodesOnDropPosition = false
             //@ts-ignore
             let sel = transaction.curSelection
-            console.log(sel);
             //@ts-ignore
             state.doc.nodesBetween(sel.from, sel.to, (node, pos, parent) => {
               if (node.attrs.contenteditableNode == "false") {
@@ -292,15 +296,11 @@ export class ProsemirrorEditorsService {
               return false
             }
           } else if (meta.uiEvent == 'drop') {
-            console.log();
-            console.log('drop');
             let noneditableNodesOnDropPosition = false
             //@ts-ignore
             let sel = transaction.curSelection
-            console.log(sel);
             //@ts-ignore
             state.doc.nodesBetween(sel.from, sel.from+1, (node, pos, parent) => {
-              console.log(node);
               if (node.attrs.contenteditableNode == "false") {
                 noneditableNodesOnDropPosition = true
               }
@@ -397,9 +397,8 @@ export class ProsemirrorEditorsService {
           let state = editorView?.state.apply(tr);
           editorView?.updateState(state!);
         }
-      } catch (err) { console.log(err); }
+      } catch (err) { console.error(err); }
     };
-
 
     editorView = new EditorView(container, {
       state: edState,
@@ -424,6 +423,12 @@ export class ProsemirrorEditorsService {
         }
         return false
       },
+      handleTripleClickOn(view,pos,node,nodepos,event,direct){
+        if(view.state.selection.$from.parent.type.name!=="form_field"){
+          return true;
+        }
+        return false
+      },
       handleKeyDown(view: EditorView, event: KeyboardEvent) {
         let sel = view.state.selection
         let key = event.key
@@ -433,34 +438,6 @@ export class ProsemirrorEditorsService {
             noneditableNodes = true;
           }
         })
-        /* if (!sel.empty) {
-        } else {
-          if (sel.$head.parent.attrs.contenteditableNode == "false") {
-            noneditableNodes = true;
-          }
-          //@ts-ignore
-          let anchorPath = sel.$anchor.path
-          let counter = anchorPath.length - 1
-          let parentFormFieldNode: Node | undefined = undefined;
-          while (counter > -1 && !parentFormFieldNode) {
-            let pathValue = anchorPath[counter]
-            if (typeof pathValue == 'number') {   // number
-
-            } else {                              // node       
-              let parentType = pathValue.type.name
-              if (parentType == "form_field") {
-                parentFormFieldNode = pathValue  // store the form_field node that the selection is currently in
-              }
-            }
-            counter--;
-          }
-          if (parentFormFieldNode) {
-            if (parentFormFieldNode!.attrs.contenteditableNode == "false") {
-              noneditableNodes = true;
-            }
-          }
-
-        } */
         if (key == 'Delete' || key == 'Backspace') {
           if (!sel.empty) {
             return noneditableNodes
@@ -687,7 +664,7 @@ export class ProsemirrorEditorsService {
           let state = editorView?.state.apply(tr);
           editorView?.updateState(state!);
         }
-      } catch (err) { console.log(err); }
+      } catch (err) { console.error(err); }
     };
     editorView = new EditorView(container, {
       state: edState,
@@ -773,6 +750,14 @@ export class ProsemirrorEditorsService {
     this.ydoc = data.ydoc;
     this.provider = data.provider;
     this.articleSectionsStructure = data.articleSectionsStructure;
+    let trackChangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
+    this.shouldTrackChanges = trackChangesMetadata.trackTransactions;
+    this.ydocService.articleStructure?.observe((ymap)=>{
+      let trackChangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
+      if(trackChangesMetadata.lastUpdateFromUser!==this.ydoc?.guid){
+        this.shouldTrackChanges = trackChangesMetadata.trackTransactions
+      }
+    })
     this.permanentUserData = new Y.PermanentUserData(this.ydoc);
     this.permanentUserData.setUserMapping(this.ydoc, this.ydoc.clientID, this.user.username);
     this.ydoc.gc = false;

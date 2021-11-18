@@ -67,7 +67,7 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
       })
       //this.data = data
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 

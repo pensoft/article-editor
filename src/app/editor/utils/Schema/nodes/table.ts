@@ -102,6 +102,7 @@ export function tableNodes(options: any) {
             content: options.cellContent,
             attrs: cellAttrs,
             tableRole: "cell",
+            selectable:false,
             isolating: true,
             parseDOM: [{
                 tag: "td", getAttrs: function (dom: any) {

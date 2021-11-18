@@ -168,7 +168,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
     try{
       this.formioEventsService.events.next({event:'data-grid-drag-drop'})
     }catch(e){
-      console.log(e);
+      console.error(e);
     }
   }
 

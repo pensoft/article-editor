@@ -135,7 +135,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       try {
         this.render(this.value!)
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     }
   }
@@ -182,7 +182,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       this.onChange1(true, this.editorContainer.editorView.state.doc.textContent)
       this.renderEditor = true;
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 }

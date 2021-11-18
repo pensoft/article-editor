@@ -296,7 +296,7 @@ function logNodesItemRun(state: EditorState, dispatch: any, view: EditorView) {
         view.dispatch(newTr);
         return true;
     }catch(e){
-        console.log(e);
+        console.error(e);
     }
 }
 

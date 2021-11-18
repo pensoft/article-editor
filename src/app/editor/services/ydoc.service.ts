@@ -43,7 +43,6 @@ export class YdocService {
   sectionsFromIODefaultValues?: YMap<any>
   comments?: YMap<any>
   figuresMap?: YMap<any>
-  editorsFocusState?: YMap<any>
   getCommentsMap(): YMap<any> {
     return this.comments!
   }
@@ -144,7 +143,7 @@ export class YdocService {
 
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
 
     return {
@@ -155,8 +154,6 @@ export class YdocService {
     }
   }
   buildEditor() {
-    this.editorsFocusState = this.ydoc.getMap('editorsFocusState');
-    this.editorsFocusState.set('focusObj', {})
     this.sectionsFromIODefaultValues = this.ydoc.getMap('formIODefaultValues');
     this.figuresMap = this.ydoc.getMap('figuresMap');
     let figures = this.figuresMap.get('figures');
@@ -164,6 +161,7 @@ export class YdocService {
       this.figuresMap.set('figures', []);
     }
     this.articleStructure = this.ydoc.getMap('articleStructure');
+    this.articleStructure?.set('trackChangesMetadata',{hideshowStatus:false,trackTransactions:false});
     this.comments = this.ydoc.getMap('comments');
     this.ydocStateObservable.next('docIsBuild');
     this.editorIsBuild = true;
@@ -241,8 +239,7 @@ export class YdocService {
 
             // race render from backend on indexdb
           let r = race(this.http.get('/products').pipe(delay(500), catchError((err: any) => {
-            console.log("ERROR", err);
-            console.log("Editor build with local document");
+            console.error(err);
             this.buildEditor();
             throw (err)
           })), fromEvent(this.provider!, 'synced')).subscribe((data: any) => {
@@ -251,7 +248,7 @@ export class YdocService {
               this.buildEditor();
             } else {
               renderDoc(data)
-            }
+            
           })  */
         })
 
@@ -272,7 +269,6 @@ export class YdocService {
 
       let currentState1: any;
       try {
-        // console.log(data);
         const documents = data.map((item: any) => {
           if (typeof item.document == 'string') {
             return Uint8Array.from(item.document.split(','))
@@ -284,8 +280,7 @@ export class YdocService {
           Y.applyUpdate(this.ydoc, doc);
         })
       } catch (e) {
-        console.log('ERROR:', e);
-        console.log('The editor was loaded with local document');
+        console.error(e);
       }
 
       this.buildEditor();

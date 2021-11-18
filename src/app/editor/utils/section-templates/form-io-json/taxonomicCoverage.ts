@@ -36,9 +36,8 @@ export const taxonomicCoverage = {
                 },
                 "validate": {
                     "required": true,
-                    "pattern": 'asd',
-                    "minLength": 2,
-                    "maxLength": 10
+                    "pattern": '.+\\@.+\\..+',
+                
                 },
                 "type": "textarea",
                 "input": true
@@ -50,6 +49,8 @@ export const taxonomicCoverage = {
                 },
                 "validate": {
                     "required": true,
+                    "minLength": 2,
+                    "maxLength": 10
                 },
                 "type": "textarea",
                 "input": true

@@ -59,27 +59,17 @@ export class DetectFocusService {
           update: (view, prevState) => {
             let {sectionName,hasFocus} = detectFocusPluginKey.getState(view.state)
             let focusRN = view.hasFocus()
-            let focusObj = ydocService.editorsFocusState?.get('focusObj')
-            if(!focusObj){
-              ydocService.editorsFocusState?.set('focusObj',{})
-            }
-            if(!focusObj[sectionName]){
-              focusObj[sectionName] = []
-            }
+            
+            
             if(focusRN){
-              if(!focusObj[sectionName].includes(ydocService.editorsFocusState?.doc?.guid)){
-                focusObj[sectionName].push(ydocService.editorsFocusState?.doc?.guid)
-              }
+              
               setTimeout(() => {
                 focusedE.next(sectionName);
               }, 10);
               setLastEditorFocus(sectionName)
             }else if(getLastFocus() == sectionName){
-              if(focusObj[sectionName].includes(ydocService.editorsFocusState?.doc?.guid)){
-                focusObj[sectionName]= focusObj[sectionName].filter((el:any)=>{return el!==ydocService.editorsFocusState?.doc?.guid})
-              }
+              
             }
-            ydocService.editorsFocusState?.set('focusObj',focusObj)
             /* if(focusRN !== hasFocus){
               hasFocus = focusRN
               let tr = view.state.tr.setMeta(detectFocusPluginKey,{focusRN});

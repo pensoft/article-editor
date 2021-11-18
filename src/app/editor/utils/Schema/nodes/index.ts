@@ -9,9 +9,11 @@ export const nodes: NodeSpec = {
     doc: {
         content: "block+"
     },
+    
     form_field:{
-        content: "paragraph*",
+        content: "paragraph+",
         group: "block",
+        isolating: true,
         attrs: {
             ...getGenericAttributes()
         },
@@ -29,6 +31,22 @@ export const nodes: NodeSpec = {
             return ["form-field", attributesToDom, 0];
         }
     },
+    ...tableNodes({
+        tableGroup: "block",
+        cellContent: "form_field+",
+        cellAttributes: {
+            background: {
+                default: null,
+                //@ts-ignore
+                getFromDOM(dom) {
+                    return dom.style.backgroundColor || null
+                },
+                setDOMAttr(value: any, attrs: any) {
+                    if (value) attrs.style = (attrs.style || "") + `background-color: ${value};`
+                }
+            }
+        }
+    }),
     paragraph: {
         content: "inline*",
         attrs: {
@@ -54,6 +72,13 @@ export const nodes: NodeSpec = {
             return ["p", attributesToDom, 0];
         }
     },
+    text: {
+        inline:true,
+        group: "inline"
+    },
+    ...basicNodes,
+    ...MathNodes,
+    ...listNodes,
     video: {
         inline: true,
         attrs: {
@@ -77,29 +102,7 @@ export const nodes: NodeSpec = {
             }]
         }
     },
-    text: {
-        group: "inline"
-    },
-    ...MathNodes,
-    ...listNodes,
-    ...tableNodes({
-        tableGroup: "block",
-        cellContent: "block+",
-        cellAttributes: {
-            background: {
-                default: null,
-                //@ts-ignore
-                getFromDOM(dom) {
-                    return dom.style.backgroundColor || null
-                },
-                setDOMAttr(value: any, attrs: any) {
-                    if (value) attrs.style = (attrs.style || "") + `background-color: ${value};`
-                }
-            }
-        }
-    }),
-    ...basicNodes,
-    htmlNode:{
+    /* htmlNode:{
         group: 'inline',
         content: "inline*",
         inline: true,
@@ -125,6 +128,6 @@ export const nodes: NodeSpec = {
                 ...genericAttributtesToDom(node),
             }, 0];
         }
-    }
+    } */
 }
 

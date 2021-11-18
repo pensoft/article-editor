@@ -130,7 +130,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
       let tr = this.codemirrorHTMLEditor?.state.update()
       this.codemirrorHTMLEditor?.dispatch(tr!);
       prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
-      //console.log(this.isValidHTML(prosemirrorNewNodeContent));
       interpolated = await this.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm);
       submision.compiledHtml = interpolated
       this.editSectionService.editChangeSubject.next(submision);
@@ -139,7 +138,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
       this.error = true;
       this.errorMessage += 'An error occurred while interpolating the template.\n';
       this.errorMessage += err.message;
-      console.log('An error occurred while interpolating the template.');
+      console.error(new Error('An error occurred while interpolating the template.'));
       console.error(err.message);
       return
     }
@@ -201,7 +200,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
         parent: this.codemirrorHtmlTemplate?.nativeElement,
       })
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 
@@ -217,22 +216,21 @@ export class SectionComponent implements AfterViewInit, OnInit {
       try {
         this.prosemirrorEditorsService.renderEditorInWithId(this.ProsemirrorEditor?.nativeElement, this.section.sectionID, this.section)
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
       return
     }
     try {
       this.renderCodemMirrorEditors();
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
 
     this.renderForm = true
   }
 
   log() {
-    console.log(this.sectionContent);
-    console.log(this.formio);
+    
   }
 
   interpolateTemplate(htmlToCompile: string, data: any, formGroup: FormGroup) {

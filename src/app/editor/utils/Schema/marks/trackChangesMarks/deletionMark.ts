@@ -35,6 +35,15 @@ const deletion = {
     },
   ],
   toDOM(node:Node) {
+    /* let deletionSpan = document.createElement('span');
+    Object.keys(node.attrs).forEach((key:string)=>{
+      deletionSpan.setAttribute(key,node.attrs[key]);
+    })
+    deletionSpan.addEventListener('mouseover',(e)=>{
+      let mouseX = e.clientX
+      let mouseY = e.clientY
+    })
+    return deletionSpan */
     return [
       'span',
       {

@@ -30,11 +30,11 @@ export class EditorComponent implements OnInit, AfterViewInit {
   provider?: OriginalWebRtc;
   shouldBuild: boolean = false;
   roomName?: string | null;
-  showTrachChanges?: boolean = false;
+  shouldTrackChanges?: boolean = undefined;
   active = 'editor';
 
   @ViewChild('trachChangesOnOffBtn', { read: ElementRef }) trachChangesOnOffBtn?: ElementRef;
-  changesOnOffSubject: Subject<boolean>;
+  changesOnOffTrackingChangesSubject: Subject<boolean>;
   showChangesSubject: Subject<boolean>;
 
   @ViewChild(MatDrawer) sidebarDrawer?: MatDrawer;
@@ -61,7 +61,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
       }
     });
 
-    this.changesOnOffSubject = prosemirrorEditorServie.changesOnOffSubject;
+    this.changesOnOffTrackingChangesSubject = prosemirrorEditorServie.changesOnOffTrackingChangesSubject;
     this.showChangesSubject = trackChanges.showChangesSubject;
     this.commentService.addCommentSubject.subscribe((data) => {
       if (data.type == 'commentData') {
@@ -112,6 +112,14 @@ export class EditorComponent implements OnInit, AfterViewInit {
       if (event == 'docIsBuild') {
         let data = this.ydocService.getData();
         this.ydoc = data.ydoc;
+        let trachChangesMetadata = this.ydocService.articleStructure!.get('trackChangesMetadata');
+        this.shouldTrackChanges = trachChangesMetadata.trackTransactions
+        this.ydocService.articleStructure?.observe((ymap)=>{
+          let trackChangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
+          if(trackChangesMetadata.lastUpdateFromUser!==this.ydoc?.guid){
+            this.shouldTrackChanges = trackChangesMetadata.trackTransactions
+          }
+        })
         this.provider = data.provider;
         this.articleSectionsStructure = data.articleSectionsStructure;
         this.shouldBuild = true;
@@ -140,11 +148,11 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
   turnOnOffTrachChanges(bool?: boolean) {
     if (bool) {
-      this.showTrachChanges = bool;
-      this.changesOnOffSubject.next(bool);
+      this.shouldTrackChanges = bool;
+      this.changesOnOffTrackingChangesSubject.next(bool);
     } else {
-      this.showTrachChanges = !this.showTrachChanges;
-      this.changesOnOffSubject.next(this.showTrachChanges);
+      this.shouldTrackChanges = !this.shouldTrackChanges;
+      this.changesOnOffTrackingChangesSubject.next(this.shouldTrackChanges);
     }
 
     /* let buttonElement = this.trachChangesOnOffBtn?.nativeElement as HTMLButtonElement

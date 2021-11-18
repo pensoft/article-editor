@@ -8,14 +8,23 @@
   background: #dfffc9;
 }
 
+.track_changes_placeholder {
+  position: absolute;
+  display: inline-flex;
+  background-color: #e5bcf5;
+  transform: translate(-50%, 18px);
+  border-radius: 4px;
+  z-index: 5;
+}
+
 .formio-form {
   min-height: fit-content !important;
 }
 
-form-field[invalid]{
+form-field[invalid] {
   background-color: rgb(236, 185, 185);
   display: block;
-} 
+}
 
 .selected-format-change,
 .selected-block-change {
@@ -28,6 +37,26 @@ form-field[invalid]{
 
 .format-change {
   border-bottom: 2px solid royalblue;
+}
+
+*[data-username] {
+  position: relative;
+  &:hover:before {
+    content: attr(data-user);
+    display: inline;
+    position: absolute;
+    background: #d6d6d6;
+    border-radius: 5px;
+    padding: 2px;
+    color: inherit;
+    z-index: 3;
+    right: 0;
+    width: fit-content;
+    left: 0;
+    white-space: nowrap;
+    margin: 0 auto;
+    top: -28px;
+  }
 }
 
 .deletion {
