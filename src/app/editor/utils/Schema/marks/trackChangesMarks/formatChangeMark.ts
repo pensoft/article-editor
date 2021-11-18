@@ -18,7 +18,7 @@ const format_change = {
   group: 'track',
   parseDOM: [
     {
-      tag: 'span',
+      tag: 'span.format-change',
       getAttrs(dom:any) {
         return {
           class: dom.getAttribute('class'),

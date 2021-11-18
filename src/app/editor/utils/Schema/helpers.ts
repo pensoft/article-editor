@@ -66,6 +66,5 @@ export const htmlTags = ["a",
 "samp",
 "section",
 "small",
-"span",
 "summary",
 "var"]

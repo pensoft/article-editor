@@ -15,7 +15,7 @@ const insertion = {
   inclusive: false,
   group: 'track',
   parseDOM: [{
-    tag: "span", getAttrs(dom:any) {
+    tag: "span.insertion", getAttrs(dom:any) {
       return {
         src: dom.getAttribute('class'),
         style: dom.getAttribute('style'),

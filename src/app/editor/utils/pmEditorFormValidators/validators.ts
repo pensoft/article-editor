@@ -8,9 +8,11 @@ import { schema } from "../Schema";
 let DOMPMparser = DOMParser.fromSchema(schema)
 
 let parseNodeHTmlStringToTextContent = (html:string) => {
+    let html1 = html.replace(/<span class="deletion"[\sa-zA-Z-="1-90:;]+>[\sa-zA-Z-="1-90:;]+<\/span>/gm,'');
     let teml = document.createElement('div');
-    teml.innerHTML = html
+    teml.innerHTML = html1
     let pmNode = schema.nodes.form_field.create({},DOMPMparser.parseSlice(teml).content);
+    console.log('validationInMainDocument',pmNode.textContent);
     return pmNode.textContent
 } 
 function isEmptyInputValue(value:string) {

@@ -10,7 +10,7 @@ export const comment = {
     inclusive: false,
     excludes: '',
     parseDOM: [{
-        tag: 'span',
+        tag: 'span.comment',
         getAttrs(dom:any) {
             return {
                 class: dom.getAttribute('class'),

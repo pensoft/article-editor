@@ -44,6 +44,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
   innerWidth: any;
 
+  showChanges ?: boolean
   constructor(
     private ydocService: YdocService,
     private route: ActivatedRoute,
@@ -63,6 +64,10 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
     this.changesOnOffTrackingChangesSubject = prosemirrorEditorServie.changesOnOffTrackingChangesSubject;
     this.showChangesSubject = trackChanges.showChangesSubject;
+    this.showChangesSubject.subscribe((bool)=>{
+      this.showChanges = bool
+    })
+    
     this.commentService.addCommentSubject.subscribe((data) => {
       if (data.type == 'commentData') {
         if (this.innerWidth > 600) {
@@ -86,6 +91,29 @@ export class EditorComponent implements OnInit, AfterViewInit {
         }
       }
     });
+
+    let initArtcleStructureMap = ()=>{
+
+      let hideshowData = this.ydocService.articleStructure!.get('trackChangesMetadata');
+      this.showChanges = hideshowData.hideshowStatus;
+      this.ydocService.articleStructure!.observe((ymap)=>{
+        let hideshowData = this.ydocService.articleStructure!.get('trackChangesMetadata');
+        if(hideshowData.lastUpdateFromUser!==this.ydocService.articleStructure!.doc?.guid){
+          this.showChanges = hideshowData.hideshowStatus
+          
+        }
+      })
+    }
+    if (this.ydocService.editorIsBuild) {
+      initArtcleStructureMap()
+    } else {
+      this.ydocService.ydocStateObservable.subscribe((event) => {
+        if (event == 'docIsBuild') {
+          initArtcleStructureMap()
+        }
+      });
+    }
+
     this.treeService.treeVisibilityChange.subscribe((data) => {
       if (data.action == 'editNode') {
         if (this.innerWidth <= 600) {
@@ -142,7 +170,8 @@ export class EditorComponent implements OnInit, AfterViewInit {
     } */
   }
 
-  showHideChanges(bool: boolean) {
+  showHideChanges(bool: boolean) {  
+    this.showChanges = bool
     this.showChangesSubject.next(bool);
   }
 

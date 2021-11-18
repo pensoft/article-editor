@@ -43,7 +43,6 @@ import { InsertSpecialSymbolDialogComponent } from './editor/dialogs/insert-spec
 import {FormioAppConfig, FormioModule} from '@formio/angular';
 import { AppConfig } from './config';
 import { SectionComponent } from './editor/section/section.component';
-import { EditorSectionComponent } from './editor/formioComponents/editor/editor-section.component';
 import { registerFormIOComponents } from './editor/formioComponents/registerFormIOComponents';
 import { ArticleComponent } from './editor/article/article.component';
 import { EditSectionDialogComponent } from './editor/dialogs/edit-section-dialog/edit-section-dialog.component';
@@ -95,7 +94,6 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     InsertDiagramDialogComponent,
     InsertSpecialSymbolDialogComponent,
     SectionComponent,
-    EditorSectionComponent,
     FigurePreviewComponent,
     ArticleComponent,
     EditSectionDialogComponent,

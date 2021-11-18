@@ -14,6 +14,10 @@ import { schema } from '../../utils/Schema/index';
 import { FormBuilderService } from '../../services/form-builder.service';
 import { FormGroup } from '@angular/forms';
 import { YMap } from 'yjs/dist/src/internals';
+//@ts-ignore
+import * as Y from 'yjs'
+//@ts-ignore
+import { ySyncPluginKey } from '../../../y-prosemirror-src/plugins/keys.js';
 
 @Component({
   selector: 'app-cdk-list-recursive',
@@ -66,7 +70,7 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
 
   }
 
- 
+
 
   ngOnInit(): void {
     this.articleSectionsStructure.forEach((node: articleSection, index: number) => {
@@ -133,13 +137,24 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
         disableClose: false
       }).afterClosed().subscribe(result => {
         if (result && result.compiledHtml) {
+          this.prosemirrorEditorsService.changesOnOffTrackingChangesSubject.next(false);
+          const mainDocumentSnapshot = Y.snapshot(this.ydocService.ydoc)
           let xmlFragment = this.ydocService.ydoc.getXmlFragment(node.sectionID);
-
           let templDiv = document.createElement('div');
           templDiv.innerHTML = result.compiledHtml
           let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
           updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
+          
+          const updatedSnapshot = Y.snapshot(this.ydocService.ydoc)
 
+          let editorView = this.prosemirrorEditorsService
+            .editorContainers[node.sectionID].editorView
+
+          editorView.dispatch(editorView.state.tr.setMeta(ySyncPluginKey, {
+            snapshot: Y.decodeSnapshot(Y.encodeSnapshot(updatedSnapshot)), 
+            prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(mainDocumentSnapshot))
+          }))
+          //editorview
           this.treeService.editNodeChange(node.sectionID)
         }
       });

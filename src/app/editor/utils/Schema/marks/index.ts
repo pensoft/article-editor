@@ -47,7 +47,7 @@ export const marks: MarkSpec = {
         },
         inclusive: false,
         parseDOM: [{
-            tag: "span", getAttrs(dom: any) {
+            tag: "span.anchor_tag", getAttrs(dom: any) {
                 return { id: dom.getAttribute("id"), class: dom.getAttribute('class') }
             }
         }],

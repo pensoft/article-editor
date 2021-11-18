@@ -170,6 +170,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   render(editorData: any) {
     try {
       //let node = editorData?[schema.nodeFromJSON(editorData)]:[];
+      console.log('editorData',editorData);
       let options: any = {}
       if (this.instance.component.properties.noLabel) {
         options.noLabel = true
@@ -178,8 +179,12 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       let temp = document.createElement('div');
       temp.innerHTML = editorData;
       let node = editorData ? this.DOMPMParser.parseSlice(temp) : undefined;
+      //debugger
       this.editorContainer = this.prosemirrorService.renderEditorWithNoSync(this.ProsemirrorEditor?.nativeElement, this.instance, this.control, options, node);
-      this.onChange1(true, this.editorContainer.editorView.state.doc.textContent)
+      let nodelNodesString = temp.innerHTML.replace(/<span class="deletion"[\sa-zA-Z-="1-90:;]+>[\sa-zA-Z-="1-90:;]+<\/span>/gm,'');
+      temp.innerHTML = nodelNodesString
+      console.log('firstvalidation',temp.textContent);
+      this.onChange1(true, temp.textContent!)
       this.renderEditor = true;
     } catch (e) {
       console.error(e);

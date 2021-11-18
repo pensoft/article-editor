@@ -24,7 +24,7 @@ import { EditorState, Plugin, PluginKey, Transaction, TextSelection } from 'pros
 import { keymap } from 'prosemirror-keymap';
 import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from 'y-prosemirror';
 import { chainCommands, deleteSelection, joinBackward, selectNodeBackward } from 'prosemirror-commands';
-import { columnResizing, goToNextCell, tableEditing } from 'prosemirror-tables';
+import { CellSelection, columnResizing, goToNextCell, tableEditing } from 'prosemirror-tables';
 //@ts-ignore
 import * as trackedTransaction from '../utils/trackChanges/track-changes/index.js';
 import { CommentsService } from '../utils/commentsService/comments.service';
@@ -110,6 +110,9 @@ export class ProsemirrorEditorsService {
 
     this.showChangesSubject = this.trackChangesService.showChangesSubject
     this.changesOnOffTrackingChangesSubject.subscribe((data) => {
+      if(data == false){
+        this.showChangesSubject.next(data)
+      }
       this.shouldTrackChanges = data
       let trackCHangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
       trackCHangesMetadata.lastUpdateFromUser = this.ydoc?.guid;
@@ -433,11 +436,24 @@ export class ProsemirrorEditorsService {
         let sel = view.state.selection
         let key = event.key
         let noneditableNodes = false;
-        view.state.doc.nodesBetween(sel.from, sel.to, (node, pos, parent) => {
-          if (node.attrs.contenteditableNode == "false") {
-            noneditableNodes = true;
-          }
-        })
+        if(sel instanceof CellSelection){
+          let from = Math.min(sel.$headCell.pos,sel.$anchorCell.pos);
+          let to = Math.max(sel.$headCell.pos,sel.$anchorCell.pos);
+          view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
+            console.log(node.attrs);
+            if (node.attrs.contenteditableNode == "false") {
+              noneditableNodes = true;
+            }
+          })
+        }else{
+          view.state.doc.nodesBetween(sel.from,sel.to, (node, pos, parent) => {
+            console.log(node.attrs);
+            if (node.attrs.contenteditableNode == "false") {
+              noneditableNodes = true;
+            }
+          })
+        }
+        console.log('noneditableNodes',noneditableNodes);
         if (key == 'Delete' || key == 'Backspace') {
           if (!sel.empty) {
             return noneditableNodes
@@ -597,13 +613,13 @@ export class ProsemirrorEditorsService {
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
       appendTransaction: (trs: Transaction<any>[], oldState: EditorState, newState: EditorState) => {
-        //let containerElement = document.createElement('div');
-        //let htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(newState.doc.content.firstChild!.content)
-        //containerElement.appendChild(htmlNOdeRepresentation);
-        //formIOComponentInstance.updateValue(containerElement.innerHTML, { modified: true });
-        //control.patchValue(containerElement.innerHTML);
-        //control.updateValueAndValidity()
-        options.onChange(true, newState.doc.textContent)
+        let containerElement = document.createElement('div');
+        let htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(newState.doc.content.firstChild!.content)
+        containerElement.appendChild(htmlNOdeRepresentation);
+        let nodelNodesString = containerElement.innerHTML.replace(/<span class="deletion"[\sa-zA-Z-="1-90:;]+>[\sa-zA-Z-="1-90:;]+<\/span>/gm,'');
+        containerElement.innerHTML = nodelNodesString
+        console.log('validation ',containerElement.textContent);
+        options.onChange(true, containerElement.textContent)
 
       },
       filterTransaction(transaction: Transaction<any>, state: EditorState) {

@@ -102,7 +102,7 @@
             </div>
 
             <div class="editor-container" [ngClass]="{'editorSpace': !sidebar}" style="flex-direction: column!;">
-                <app-article style="height:97%;"></app-article>
+                <app-article [ngClass]="{'display-changes-hover':showChanges}" style="height:97%;"></app-article>
                 <!-- <app-prosemirror-editor style="height:97%;"></app-prosemirror-editor> -->
                 <!-- <app-formio ></app-formio> -->
                 <!-- <app-taxonomy-editor></app-taxonomy-editor> -->

@@ -18,7 +18,7 @@ const deletion = {
   group: 'track',
   parseDOM: [
     {
-      tag: 'span',
+      tag: 'span.deletion',
       getAttrs(dom:any) {
         return {
           class: dom.getAttribute('class'),

@@ -38,8 +38,28 @@ form-field[invalid] {
 .format-change {
   border-bottom: 2px solid royalblue;
 }
+app-edit-section-dialog {
+  .insertion{
+    .show-insertion{
+      background-color: transparent;
+    }
+    background-color: transparent;
+  }
+  .deletion{
+    background-color: transparent;
+    text-decoration: none;
+    display: none;
+  }
+}
 
-*[data-username] {
+app-article:not(.display-changes-hover) .insertion{
+  .show-insertion{
+    background-color: transparent;
+  }
+  background-color: transparent;
+}
+
+.display-changes-hover  *[data-username] {
   position: relative;
   &:hover:before {
     content: attr(data-user);
