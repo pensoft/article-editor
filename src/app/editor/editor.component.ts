@@ -6,7 +6,7 @@ import { FormioAppConfig } from '@formio/angular';
 import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { WebrtcProvider as OriginalWebRtc, } from 'y-webrtc';
-
+import { WebsocketProvider } from 'y-websocket'
 import * as Y from 'yjs';
 import { EditorSidebarComponent } from '../layout/widgets/editor-sidebar/editor-sidebar.component';
 import { TreeService } from './meta-data-tree/tree-service/tree.service';
@@ -27,7 +27,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   articleSectionsStructure?: articleSection[];
 
   ydoc?: Y.Doc;
-  provider?: OriginalWebRtc;
+  provider?: WebsocketProvider;
   shouldBuild: boolean = false;
   roomName?: string | null;
   showTrachChanges?: boolean = false;

@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import * as Y from 'yjs';
 import { WebrtcProvider } from 'y-webrtc';
+import { WebsocketProvider } from 'y-websocket'
 import { ColorDef } from 'y-prosemirror/dist/src/plugins/sync-plugin';
 import * as random from 'lib0/random.js';
 import * as userSpec from '../utils/userSpec';
@@ -61,7 +62,7 @@ import { ReplaceAroundStep } from 'prosemirror-transform';
 export class ProsemirrorEditorsService {
 
   ydoc?: Y.Doc;
-  provider?: WebrtcProvider;
+  provider?: WebsocketProvider;
 
   articleSectionsStructure?: articleSection[];
   initDocumentReplace: any = {};
@@ -446,7 +447,7 @@ export class ProsemirrorEditorsService {
             let pathValue = anchorPath[counter]
             if (typeof pathValue == 'number') {   // number
 
-            } else {                              // node       
+            } else {                              // node
               let parentType = pathValue.type.name
               if (parentType == "form_field") {
                 parentFormFieldNode = pathValue  // store the form_field node that the selection is currently in
@@ -522,7 +523,7 @@ export class ProsemirrorEditorsService {
         while (counter > -1 && !formFieldParentFound) {
           let pathValue = anchorPath[counter]
           if (typeof pathValue == 'number') {   // number
-          } else {                              // node       
+          } else {                              // node
             let parentType = pathValue.type.name
             if (parentType == "form_field") {
               parentNode = pathValue   // store the form_field node that the selection is currently in

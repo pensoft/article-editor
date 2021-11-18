@@ -10,6 +10,8 @@ import * as random from 'lib0/random.js';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { fromEvent, race } from 'rxjs';
 import { catchError, delay } from 'rxjs/operators';
+import { WebsocketProvider } from 'y-websocket'
+import {environment} from 'src/environments/environment'
 //@ts-ignore
 import { WebrtcProvider } from '../utils/y-webrtc/index.js';
 import { sectionNode } from '../utils/interfaces/section-node'
@@ -33,7 +35,7 @@ export class YdocService {
 
   ydoc = new Y.Doc();
 
-  provider?: OriginalWebRtc;
+  provider?: WebsocketProvider;
   roomName = 'webrtc-test3'
   providerIndexedDb?: IndexeddbPersistence
   constructor(
@@ -173,14 +175,25 @@ export class YdocService {
     this.roomName = roomName
     this.providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
     let buildApp = () => {
-      this.provider = new WebrtcProvider(this.roomName, this.ydoc, {
-        signaling: [/* 'ws://dev.scalewest.com:4444' *//* 'ws://localhost:4444' */  'wss://y-webrtc-signaling-eu.herokuapp.com' /* , 'wss://signaling.yjs.dev'  ,'wss://y-webrtc-signaling-us.herokuapp.com' */],
+      this.provider = new WebsocketProvider(`ws://${environment.WEBSOCKET_HOST}:${environment.WEBSOCKET_PORT}`, this.roomName, this.ydoc, {
+        connect: true,
+        params: {},
+        WebSocketPolyfill: WebSocket,
+        awareness: new awarenessProtocol.Awareness(this.ydoc),
+      })
+      this.provider.on('sync', (isSynced: boolean) => {
+        console.log('IS SYNCED');
+        this.buildEditor();
+      })
+
+      /*this.provider = new WebrtcProvider(this.roomName, this.ydoc, {
+        signaling: [/!* 'ws://dev.scalewest.com:4444' *!//!* 'ws://localhost:4444' *!/  'wss://y-webrtc-signaling-eu.herokuapp.com' /!* , 'wss://signaling.yjs.dev'  ,'wss://y-webrtc-signaling-us.herokuapp.com' *!/],
         password: null,
         awareness: new awarenessProtocol.Awareness(this.ydoc),
         maxConns: 20 + Math.floor(random.rand() * 15),
         filterBcConns: false,
         peerOpts: {},
-      });
+      });*/
       this.provider?.on('onChange', (docArray: any) => {
         let params = new HttpParams({
           fromObject: {
@@ -208,14 +221,15 @@ export class YdocService {
       if (!navigator.onLine) {
         //this.buildEditorsOffline();
         this.buildEditor();
-      } else {
+      } else
+      {
 
         // Building the editor without backend for now just for developer purpose
         let buildeditor = false
         let onSubevent = fromEvent(this.provider!, 'signalingConnected').subscribe(() => {
           fromEvent(this.provider!, 'synced').pipe(delay(500)).subscribe((data: any) => {
             if(!buildeditor){
-              let synced = this.provider?.room?.synced
+              //let synced = this.provider?.room?.synced
               console.log('rendered with sync');
               buildeditor = true
               if (data.synced) {
@@ -232,7 +246,7 @@ export class YdocService {
               this.buildEditor();
             }
           },1500)
-          /* 
+          /*
             // render only from backednt
             this.http.get('/products/' + roomName).subscribe((data) => {
             renderDoc(data);

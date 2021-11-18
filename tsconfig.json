@@ -20,7 +20,10 @@
       "es2019",
       "dom"
     ],
-    "allowSyntheticDefaultImports": true
+    "allowSyntheticDefaultImports": true,
+    "paths": {
+      "@app/*": ["./src/app/*"],
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
@@ -28,5 +31,5 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": true
   },
-  "esModuleInterop": true, 
+  "esModuleInterop": true,
 }
