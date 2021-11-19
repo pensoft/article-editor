@@ -93,7 +93,7 @@ export const nodes = {
     },
     hard_break: {
         inline: true,
-        group: "inline",
+        group: "hard-break",
         attrs:{
             ...getGenericAttributes()
         },

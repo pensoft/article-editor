@@ -53,7 +53,6 @@ export class FormControlNameDirective implements ControlValueAccessor {
       if(typeof val !== 'string'){
         let wrapper = document.createElement('div');
         let prosemirrorNode = DOMPMParser.parse(val)
-        debugger
         //@ts-ignore
         let htmlNodeRepresentation = DOMSerializer.fromSchema(schema).serializeFragment(prosemirrorNode.content.content[0]);
         wrapper.appendChild(htmlNodeRepresentation)

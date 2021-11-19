@@ -15,7 +15,8 @@ import { canInsert, createCustomIcon } from './common-methods';
 import { insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem } from './menu-dialogs';
 import { MarkType, Node, NodeType,DOMParser,DOMSerializer } from 'prosemirror-model';
 
-import * as Y from 'yjs';
+//@ts-ignore
+import * as Y from 'yjs'
 
 const addCommentIcon = {
     width: 1024, height: 1024,

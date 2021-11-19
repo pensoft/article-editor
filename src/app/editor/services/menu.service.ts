@@ -5,7 +5,8 @@ import { MatDialog } from '@angular/material/dialog';
 import { Dropdown, DropdownSubmenu } from 'prosemirror-menu';
 import { CommentsService } from '../utils/commentsService/comments.service';
 
-import * as Y from 'yjs';
+//@ts-ignore
+import * as Y from 'yjs'
 import * as menuDialogs from '../utils/menu/menu-dialogs';
 import * as m from '../utils/menu/menuItems';
 

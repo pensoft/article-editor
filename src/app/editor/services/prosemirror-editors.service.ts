@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
-import * as Y from 'yjs';
+//@ts-ignore
+import * as Y from 'yjs'
 import { WebrtcProvider } from 'y-webrtc';
 import { ColorDef } from 'y-prosemirror/dist/src/plugins/sync-plugin';
 import * as random from 'lib0/random.js';
@@ -22,8 +23,10 @@ import { DOMSerializer, Node, Slice } from 'prosemirror-model';
 import { EditorView } from 'prosemirror-view';
 import { EditorState, Plugin, PluginKey, Transaction, TextSelection } from 'prosemirror-state';
 import { keymap } from 'prosemirror-keymap';
-import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from 'y-prosemirror';
+//import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from 'y-prosemirror';
 import { chainCommands, deleteSelection, joinBackward, selectNodeBackward } from 'prosemirror-commands';
+//@ts-ignore
+import {redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from '../../y-prosemirror-src/y-prosemirror.js';
 import { CellSelection, columnResizing, goToNextCell, tableEditing } from 'prosemirror-tables';
 //@ts-ignore
 import * as trackedTransaction from '../utils/trackChanges/track-changes/index.js';
@@ -79,10 +82,10 @@ export class ProsemirrorEditorsService {
   inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, schema.nodes.math_inline);
   blockMathInputRule = makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, schema.nodes.math_display);
 
-  changesOnOffTrackingChangesSubject = new Subject<boolean>()
+  OnOffTrackingChangesShowTrackingSubject = new Subject<{hideshowStatus:boolean,trackTransactions:boolean}>()
+  trackChangesMeta : any
   shouldTrackChanges = false
   treeChangesCount = 0
-  showChangesSubject
   transactionCount = 0;
 
   editorsEditableObj: { [key: string]: boolean } = {}
@@ -108,20 +111,16 @@ export class ProsemirrorEditorsService {
       this.mobileVersion = data
     })
 
-    this.showChangesSubject = this.trackChangesService.showChangesSubject
-    this.changesOnOffTrackingChangesSubject.subscribe((data) => {
-      if(data == false){
-        this.showChangesSubject.next(data)
-      }
-      this.shouldTrackChanges = data
+    //this.showChangesSubject = this.trackChangesService.showChangesSubject
+    this.OnOffTrackingChangesShowTrackingSubject.subscribe((data) => {
+
+      this.shouldTrackChanges = data.trackTransactions
       let trackCHangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
       trackCHangesMetadata.lastUpdateFromUser = this.ydoc?.guid;
-      trackCHangesMetadata.trackTransactions = data
+      trackCHangesMetadata.trackTransactions = data.trackTransactions
+      trackCHangesMetadata.hideshowStatus = data.hideshowStatus
+      console.log('trackChangesMetadata',trackCHangesMetadata);
       this.ydocService.articleStructure?.set('trackChangesMetadata',trackCHangesMetadata);
-    })
-
-    this.showChangesSubject.subscribe((data) => {
-      this.dispatchEmptyTransaction()
     })
 
 
@@ -440,20 +439,17 @@ export class ProsemirrorEditorsService {
           let from = Math.min(sel.$headCell.pos,sel.$anchorCell.pos);
           let to = Math.max(sel.$headCell.pos,sel.$anchorCell.pos);
           view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-            console.log(node.attrs);
             if (node.attrs.contenteditableNode == "false") {
               noneditableNodes = true;
             }
           })
         }else{
           view.state.doc.nodesBetween(sel.from,sel.to, (node, pos, parent) => {
-            console.log(node.attrs);
             if (node.attrs.contenteditableNode == "false") {
               noneditableNodes = true;
             }
           })
         }
-        console.log('noneditableNodes',noneditableNodes);
         if (key == 'Delete' || key == 'Backspace') {
           if (!sel.empty) {
             return noneditableNodes
@@ -618,7 +614,6 @@ export class ProsemirrorEditorsService {
         containerElement.appendChild(htmlNOdeRepresentation);
         let nodelNodesString = containerElement.innerHTML.replace(/<span class="deletion"[\sa-zA-Z-="1-90:;]+>[\sa-zA-Z-="1-90:;]+<\/span>/gm,'');
         containerElement.innerHTML = nodelNodesString
-        console.log('validation ',containerElement.textContent);
         options.onChange(true, containerElement.textContent)
 
       },
@@ -692,27 +687,7 @@ export class ProsemirrorEditorsService {
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,
-      /* handleKeyDown(view: EditorView, event: KeyboardEvent){
-        if(event.key == 'Delete'){
-
-          if(view.state.selection.$anchor.nodeAfter){
-            if(view.state.selection.$anchor.nodeAfter.attrs.contenteditableNode == 'false'){
-              return true
-            }
-          }else{
-            return true
-          }
-        }else if(event.key == 'Backspace'){
-          if(view.state.selection.$anchor.nodeBefore){
-            if(view.state.selection.$anchor.nodeBefore.attrs.contenteditableNode == 'false'){
-              return true
-            }
-          }else{
-            return true
-          }
-        }
-        return false
-      }, */
+      
       createSelectionBetween: (view, anchor, head) => {
         let headRangeMin = anchor.pos
         let headRangeMax = anchor.pos
@@ -767,13 +742,16 @@ export class ProsemirrorEditorsService {
     this.provider = data.provider;
     this.articleSectionsStructure = data.articleSectionsStructure;
     let trackChangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
+    this.trackChangesMeta = trackChangesMetadata
     this.shouldTrackChanges = trackChangesMetadata.trackTransactions;
     this.ydocService.articleStructure?.observe((ymap)=>{
       let trackChangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
       if(trackChangesMetadata.lastUpdateFromUser!==this.ydoc?.guid){
-        this.shouldTrackChanges = trackChangesMetadata.trackTransactions
       }
+        this.trackChangesMeta = trackChangesMetadata
+        this.shouldTrackChanges = trackChangesMetadata.trackTransactions
     })
+   
     this.permanentUserData = new Y.PermanentUserData(this.ydoc);
     this.permanentUserData.setUserMapping(this.ydoc, this.ydoc.clientID, this.user.username);
     this.ydoc.gc = false;

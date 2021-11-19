@@ -527,8 +527,9 @@ class Doc extends Observable {
   }
 
   /**
+   * @template T
    * @param {string} [name]
-   * @return {YMap<any>}
+   * @return {YMap<T>}
    *
    * @public
    */
@@ -1337,6 +1338,7 @@ const readClientsStructRefs = (decoder, doc) => {
         }
       }
     }
+    // console.log('time to read: ', performance.now() - start) // @todo remove
   }
   return clientRefs
 };
@@ -1532,7 +1534,9 @@ const readUpdateV2 = (decoder, ydoc, transactionOrigin, structDecoder = new Upda
     const store = doc.store;
     // let start = performance.now()
     const ss = readClientsStructRefs(structDecoder, doc);
+    // console.log('time to read structs: ', performance.now() - start) // @todo remove
     // start = performance.now()
+    // console.log('time to merge: ', performance.now() - start) // @todo remove
     // start = performance.now()
     const restStructs = integrateStructs(transaction, store, ss);
     const pending = store.pendingStructs;
@@ -1557,6 +1561,7 @@ const readUpdateV2 = (decoder, ydoc, transactionOrigin, structDecoder = new Upda
     } else {
       store.pendingStructs = restStructs;
     }
+    // console.log('time to integrate: ', performance.now() - start) // @todo remove
     // start = performance.now()
     const dsRest = readAndApplyDeleteSet(structDecoder, transaction, store);
     if (store.pendingDs) {
@@ -1577,8 +1582,10 @@ const readUpdateV2 = (decoder, ydoc, transactionOrigin, structDecoder = new Upda
       // Either dsRest == null && pendingDs == null OR dsRest != null
       store.pendingDs = dsRest;
     }
+    // console.log('time to cleanup: ', performance.now() - start) // @todo remove
     // start = performance.now()
 
+    // console.log('time to resume delete readers: ', performance.now() - start) // @todo remove
     // start = performance.now()
     if (retry) {
       const update = /** @type {{update: Uint8Array}} */ (store.pendingStructs).update;
@@ -2128,6 +2135,7 @@ class PermanentUserData {
  *   // Compute the cursor position
  *   const absolutePosition = createAbsolutePositionFromRelativePosition(y, relativePosition)
  *   absolutePosition.type === yText // => true
+ *   console.log('cursor location is ' + absolutePosition.index) // => cursor location is 3
  *
  */
 class RelativePosition {
@@ -2525,9 +2533,9 @@ const snapshot = doc => createSnapshot(createDeleteSetFromStructStore(doc.store)
  * @protected
  * @function
  */
-const isVisible = (item, snapshot) => snapshot === undefined ? !item.deleted : (
-  snapshot.sv.has(item.id.client) && (snapshot.sv.get(item.id.client) || 0) > item.id.clock && !isDeleted(snapshot.ds, item.id)
-);
+const isVisible = (item, snapshot) => snapshot === undefined
+  ? !item.deleted
+  : snapshot.sv.has(item.id.client) && (snapshot.sv.get(item.id.client) || 0) > item.id.clock && !isDeleted(snapshot.ds, item.id);
 
 /**
  * @param {Transaction} transaction
@@ -2842,6 +2850,7 @@ const iterateStructs = (transaction, structs, clockStart, len, f) => {
  * const map = y.define('map', YMap)
  * // Log content when change is triggered
  * map.observe(() => {
+ *   console.log('change triggered')
  * })
  * // Each change on the map type triggers a log message:
  * map.set('a', 0) // => "change triggered"
@@ -3275,7 +3284,7 @@ const popStackItem = (undoManager, stack, eventType) => {
         }
       });
       itemsToRedo.forEach(struct => {
-        performedChange = redoItem(transaction, struct, itemsToRedo) !== null || performedChange;
+        performedChange = redoItem(transaction, struct, itemsToRedo, itemsToDelete) !== null || performedChange;
       });
       // We want to delete in reverse order so that children are deleted before
       // parents, so we have more information available when items are filtered.
@@ -3741,6 +3750,9 @@ const sliceStruct = (left, diff) => {
  * @return {Uint8Array}
  */
 const mergeUpdatesV2 = (updates, YDecoder = UpdateDecoderV2, YEncoder = UpdateEncoderV2) => {
+  if (updates.length === 1) {
+    return updates[0]
+  }
   const updateDecoders = updates.map(update => new YDecoder(decoding.createDecoder(update)));
   let lazyStructDecoders = updateDecoders.map(decoder => new LazyStructReader(decoder, true));
 
@@ -3766,9 +3778,10 @@ const mergeUpdatesV2 = (updates, YDecoder = UpdateDecoderV2, YEncoder = UpdateEn
         if (dec1.curr.id.client === dec2.curr.id.client) {
           const clockDiff = dec1.curr.id.clock - dec2.curr.id.clock;
           if (clockDiff === 0) {
-            return dec1.curr.constructor === dec2.curr.constructor ? 0 : (
-              dec1.curr.constructor === Skip ? 1 : -1
-            )
+            // @todo remove references to skip since the structDecoders must filter Skips.
+            return dec1.curr.constructor === dec2.curr.constructor
+              ? 0
+              : dec1.curr.constructor === Skip ? 1 : -1 // we are filtering skips anyway.
           } else {
             return clockDiff
           }
@@ -4034,7 +4047,7 @@ class YEvent {
      */
     this._keys = null;
     /**
-     * @type {null | Array<{ insert?: string | Array<any>, retain?: number, delete?: number, attributes?: Object<string, any> }>}
+     * @type {null | Array<{ insert?: string | Array<any> | object | AbstractType<any>, retain?: number, delete?: number, attributes?: Object<string, any> }>}
      */
     this._delta = null;
   }
@@ -4123,7 +4136,7 @@ class YEvent {
   }
 
   /**
-   * @type {Array<{insert?: string | Array<any>, retain?: number, delete?: number, attributes?: Object<string, any>}>}
+   * @type {Array<{insert?: string | Array<any> | object | AbstractType<any>, retain?: number, delete?: number, attributes?: Object<string, any>}>}
    */
   get delta () {
     return this.changes.delta
@@ -4215,6 +4228,7 @@ class YEvent {
  *   // `child` should be accessible via `type.get(path[0]).get(path[1])..`
  *   const path = type.getPathTo(child)
  *   // assuming `type instanceof YArray`
+ *   console.log(path) // might look like => [2, 'key1']
  *   child === type.get(path[0]).get(path[1])
  *
  * @param {AbstractType<any>} parent
@@ -4373,7 +4387,6 @@ const findMarker = (yarray, index) => {
   //     start = /** @type {Item} */ (start.right)
   //   }
   //   if (pos !== pindex) {
-  //     debugger
   //     throw new Error('Gotcha position fail!')
   //   }
   // }
@@ -4383,6 +4396,7 @@ const findMarker = (yarray, index) => {
   //     window.getLengthes = () => window.lengthes.sort((a, b) => a - b)
   //   }
   //   window.lengthes.push(marker.index - pindex)
+  //   console.log('distance', marker.index - pindex, 'len', p && p.parent.length)
   // }
   if (marker !== null && math.abs(marker.index - pindex) < /** @type {YText|YArray<any>} */ (p.parent).length / maxSearchMarker) {
     // adjust existing marker
@@ -4825,7 +4839,7 @@ const typeListGet = (type, index) => {
  * @param {Transaction} transaction
  * @param {AbstractType<any>} parent
  * @param {Item?} referenceItem
- * @param {Array<Object<string,any>|Array<any>|boolean|number|string|Uint8Array>} content
+ * @param {Array<Object<string,any>|Array<any>|boolean|number|null|string|Uint8Array>} content
  *
  * @private
  * @function
@@ -4837,7 +4851,7 @@ const typeListInsertGenericsAfter = (transaction, parent, referenceItem, content
   const store = doc.store;
   const right = referenceItem === null ? parent._start : referenceItem.right;
   /**
-   * @type {Array<Object|Array<any>|number>}
+   * @type {Array<Object|Array<any>|number|null>}
    */
   let jsonContent = [];
   const packJsonContent = () => {
@@ -4848,34 +4862,38 @@ const typeListInsertGenericsAfter = (transaction, parent, referenceItem, content
     }
   };
   content.forEach(c => {
-    switch (c.constructor) {
-      case Number:
-      case Object:
-      case Boolean:
-      case Array:
-      case String:
-        jsonContent.push(c);
-        break
-      default:
-        packJsonContent();
-        switch (c.constructor) {
-          case Uint8Array:
-          case ArrayBuffer:
-            left = new Item(createID(ownClientId, getState(store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentBinary(new Uint8Array(/** @type {Uint8Array} */ (c))));
-            left.integrate(transaction, 0);
-            break
-          case Doc:
-            left = new Item(createID(ownClientId, getState(store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentDoc(/** @type {Doc} */ (c)));
-            left.integrate(transaction, 0);
-            break
-          default:
-            if (c instanceof AbstractType) {
-              left = new Item(createID(ownClientId, getState(store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentType(c));
+    if (c === null) {
+      jsonContent.push(c);
+    } else {
+      switch (c.constructor) {
+        case Number:
+        case Object:
+        case Boolean:
+        case Array:
+        case String:
+          jsonContent.push(c);
+          break
+        default:
+          packJsonContent();
+          switch (c.constructor) {
+            case Uint8Array:
+            case ArrayBuffer:
+              left = new Item(createID(ownClientId, getState(store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentBinary(new Uint8Array(/** @type {Uint8Array} */ (c))));
               left.integrate(transaction, 0);
-            } else {
-              throw new Error('Unexpected content type in insert operation')
-            }
-        }
+              break
+            case Doc:
+              left = new Item(createID(ownClientId, getState(store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentDoc(/** @type {Doc} */ (c)));
+              left.integrate(transaction, 0);
+              break
+            default:
+              if (c instanceof AbstractType) {
+                left = new Item(createID(ownClientId, getState(store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentType(c));
+                left.integrate(transaction, 0);
+              } else {
+                throw new Error('Unexpected content type in insert operation')
+              }
+          }
+      }
     }
   });
   packJsonContent();
@@ -4887,7 +4905,7 @@ const lengthExceeded = error.create('Length exceeded!');
  * @param {Transaction} transaction
  * @param {AbstractType<any>} parent
  * @param {number} index
- * @param {Array<Object<string,any>|Array<any>|number|string|Uint8Array>} content
+ * @param {Array<Object<string,any>|Array<any>|number|null|string|Uint8Array>} content
  *
  * @private
  * @function
@@ -4999,7 +5017,7 @@ const typeMapDelete = (transaction, parent, key) => {
  * @param {Transaction} transaction
  * @param {AbstractType<any>} parent
  * @param {string} key
- * @param {Object|number|Array<any>|string|Uint8Array|AbstractType<any>} value
+ * @param {Object|number|null|Array<any>|string|Uint8Array|AbstractType<any>} value
  *
  * @private
  * @function
@@ -5040,7 +5058,7 @@ const typeMapSet = (transaction, parent, key, value) => {
 /**
  * @param {AbstractType<any>} parent
  * @param {string} key
- * @return {Object<string,any>|number|Array<any>|string|Uint8Array|AbstractType<any>|undefined}
+ * @return {Object<string,any>|number|null|Array<any>|string|Uint8Array|AbstractType<any>|undefined}
  *
  * @private
  * @function
@@ -5052,7 +5070,7 @@ const typeMapGet = (parent, key) => {
 
 /**
  * @param {AbstractType<any>} parent
- * @return {Object<string,Object<string,any>|number|Array<any>|string|Uint8Array|AbstractType<any>|undefined>}
+ * @return {Object<string,Object<string,any>|number|null|Array<any>|string|Uint8Array|AbstractType<any>|undefined>}
  *
  * @private
  * @function
@@ -5087,7 +5105,7 @@ const typeMapHas = (parent, key) => {
  * @param {AbstractType<any>} parent
  * @param {string} key
  * @param {Snapshot} snapshot
- * @return {Object<string,any>|number|Array<any>|string|Uint8Array|AbstractType<any>|undefined}
+ * @return {Object<string,any>|number|null|Array<any>|string|Uint8Array|AbstractType<any>|undefined}
  *
  * @private
  * @function
@@ -5309,7 +5327,7 @@ class YArray extends AbstractType {
    * Returns an Array with the result of calling a provided function on every
    * element of this YArray.
    *
-   * @template T,M
+   * @template M
    * @param {function(T,number,YArray<T>):M} f Function that produces an element of the new Array
    * @return {Array<M>} A new array with each element being the result of the
    *                 callback function
@@ -5367,11 +5385,11 @@ class YMapEvent extends YEvent {
 }
 
 /**
- * @template T number|string|Object|Array|Uint8Array
+ * @template MapType
  * A shared Map implementation.
  *
- * @extends AbstractType<YMapEvent<T>>
- * @implements {Iterable<T>}
+ * @extends AbstractType<YMapEvent<MapType>>
+ * @implements {Iterable<MapType>}
  */
 class YMap extends AbstractType {
   /**
@@ -5416,7 +5434,7 @@ class YMap extends AbstractType {
   }
 
   /**
-   * @return {YMap<T>}
+   * @return {YMap<MapType>}
    */
   clone () {
     const map = new YMap();
@@ -5439,11 +5457,11 @@ class YMap extends AbstractType {
   /**
    * Transforms this Shared Type to a JSON object.
    *
-   * @return {Object<string,T>}
+   * @return {Object<string,any>}
    */
   toJSON () {
     /**
-     * @type {Object<string,T>}
+     * @type {Object<string,MapType>}
      */
     const map = {};
     this._map.forEach((item, key) => {
@@ -5494,11 +5512,11 @@ class YMap extends AbstractType {
   /**
    * Executes a provided function on once on every key-value pair.
    *
-   * @param {function(T,string,YMap<T>):void} f A function to execute on every element of this YArray.
+   * @param {function(MapType,string,YMap<MapType>):void} f A function to execute on every element of this YArray.
    */
   forEach (f) {
     /**
-     * @type {Object<string,T>}
+     * @type {Object<string,MapType>}
      */
     const map = {};
     this._map.forEach((item, key) => {
@@ -5510,7 +5528,7 @@ class YMap extends AbstractType {
   }
 
   /**
-   * @return {IterableIterator<T>}
+   * @return {IterableIterator<MapType>}
    */
   [Symbol.iterator] () {
     return this.entries()
@@ -5535,7 +5553,7 @@ class YMap extends AbstractType {
    * Adds or updates an element with a specified key and value.
    *
    * @param {string} key The key of the element to add to this YMap
-   * @param {T} value The value of the element to add
+   * @param {MapType} value The value of the element to add
    */
   set (key, value) {
     if (this.doc !== null) {
@@ -5552,7 +5570,7 @@ class YMap extends AbstractType {
    * Returns a specified element from this YMap.
    *
    * @param {string} key
-   * @return {T|undefined}
+   * @return {MapType|undefined}
    */
   get (key) {
     return /** @type {any} */ (typeMapGet(this, key))
@@ -5628,15 +5646,14 @@ class ItemTextListPosition {
       error.unexpectedCase();
     }
     switch (this.right.content.constructor) {
-      case ContentEmbed:
-      case ContentString:
-        if (!this.right.deleted) {
-          this.index += this.right.length;
-        }
-        break
       case ContentFormat:
         if (!this.right.deleted) {
           updateCurrentAttributes(this.currentAttributes, /** @type {ContentFormat} */ (this.right.content));
+        }
+        break
+      default:
+        if (!this.right.deleted) {
+          this.index += this.right.length;
         }
         break
     }
@@ -5657,8 +5674,12 @@ class ItemTextListPosition {
 const findNextPosition = (transaction, pos, count) => {
   while (pos.right !== null && count > 0) {
     switch (pos.right.content.constructor) {
-      case ContentEmbed:
-      case ContentString:
+      case ContentFormat:
+        if (!pos.right.deleted) {
+          updateCurrentAttributes(pos.currentAttributes, /** @type {ContentFormat} */ (pos.right.content));
+        }
+        break
+      default:
         if (!pos.right.deleted) {
           if (count < pos.right.length) {
             // split right
@@ -5666,11 +5687,6 @@ const findNextPosition = (transaction, pos, count) => {
           }
           pos.index += pos.right.length;
           count -= pos.right.length;
-        }
-        break
-      case ContentFormat:
-        if (!pos.right.deleted) {
-          updateCurrentAttributes(pos.currentAttributes, /** @type {ContentFormat} */ (pos.right.content));
         }
         break
     }
@@ -5809,7 +5825,7 @@ const insertAttributes = (transaction, parent, currPos, attributes) => {
  * @param {Transaction} transaction
  * @param {AbstractType<any>} parent
  * @param {ItemTextListPosition} currPos
- * @param {string|object} text
+ * @param {string|object|AbstractType<any>} text
  * @param {Object<string,any>} attributes
  *
  * @private
@@ -5826,7 +5842,7 @@ const insertText = (transaction, parent, currPos, text, attributes) => {
   minimizeAttributeChanges(currPos, attributes);
   const negatedAttributes = insertAttributes(transaction, parent, currPos, attributes);
   // insert content
-  const content = text.constructor === String ? new ContentString(/** @type {string} */ (text)) : new ContentEmbed(text);
+  const content = text.constructor === String ? new ContentString(/** @type {string} */ (text)) : (text instanceof AbstractType ? new ContentType(text) : new ContentEmbed(text));
   let { left, right, index } = currPos;
   if (parent._searchMarker) {
     updateMarkerChanges(parent._searchMarker, currPos.index, content.getLength());
@@ -5872,8 +5888,7 @@ const formatText = (transaction, parent, currPos, length, attributes) => {
           }
           break
         }
-        case ContentEmbed:
-        case ContentString:
+        default:
           if (length < currPos.right.length) {
             getItemCleanStart(transaction, createID(currPos.right.id.client, currPos.right.id.clock + length));
           }
@@ -5912,7 +5927,7 @@ const formatText = (transaction, parent, currPos, length, attributes) => {
  * @function
  */
 const cleanupFormattingGap = (transaction, start, end, startAttributes, endAttributes) => {
-  while (end && end.content.constructor !== ContentString && end.content.constructor !== ContentEmbed) {
+  while (end && (!end.countable || end.deleted)) {
     if (!end.deleted && end.content.constructor === ContentFormat) {
       updateCurrentAttributes(endAttributes, /** @type {ContentFormat} */ (end.content));
     }
@@ -5945,12 +5960,12 @@ const cleanupFormattingGap = (transaction, start, end, startAttributes, endAttri
  */
 const cleanupContextlessFormattingGap = (transaction, item) => {
   // iterate until item.right is null or content
-  while (item && item.right && (item.right.deleted || (item.right.content.constructor !== ContentString && item.right.content.constructor !== ContentEmbed))) {
+  while (item && item.right && (item.right.deleted || !item.right.countable)) {
     item = item.right;
   }
   const attrs = new Set();
   // iterate back until a content item is found
-  while (item && (item.deleted || (item.content.constructor !== ContentString && item.content.constructor !== ContentEmbed))) {
+  while (item && (item.deleted || !item.countable)) {
     if (!item.deleted && item.content.constructor === ContentFormat) {
       const key = /** @type {ContentFormat} */ (item.content).key;
       if (attrs.has(key)) {
@@ -5988,8 +6003,7 @@ const cleanupYTextFormatting = type => {
           case ContentFormat:
             updateCurrentAttributes(currentAttributes, /** @type {ContentFormat} */ (end.content));
             break
-          case ContentEmbed:
-          case ContentString:
+          default:
             res += cleanupFormattingGap(transaction, start, end, startAttributes, currentAttributes);
             startAttributes = map.copy(currentAttributes);
             start = end;
@@ -6018,6 +6032,7 @@ const deleteText = (transaction, currPos, length) => {
   while (length > 0 && currPos.right !== null) {
     if (currPos.right.deleted === false) {
       switch (currPos.right.content.constructor) {
+        case ContentType:
         case ContentEmbed:
         case ContentString:
           if (length < currPos.right.length) {
@@ -6104,7 +6119,7 @@ class YTextEvent extends YEvent {
   get changes () {
     if (this._changes === null) {
       /**
-       * @type {{added:Set<Item>,deleted:Set<Item>,keys:Map<string,{action:'add'|'update'|'delete',oldValue:any}>,delta:Array<{insert?:Array<any>|string, delete?:number, retain?:number}>}}
+       * @type {{added:Set<Item>,deleted:Set<Item>,keys:Map<string,{action:'add'|'update'|'delete',oldValue:any}>,delta:Array<{insert?:Array<any>|string|AbstractType<any>|object, delete?:number, retain?:number}>}}
        */
       const changes = {
         keys: this.keys,
@@ -6121,7 +6136,7 @@ class YTextEvent extends YEvent {
    * Compute the changes in the delta format.
    * A {@link https://quilljs.com/docs/delta/|Quill Delta}) that represents the changes on the document.
    *
-   * @type {Array<{insert?:string, delete?:number, retain?:number, attributes?: Object<string,any>}>}
+   * @type {Array<{insert?:string|object|AbstractType<any>, delete?:number, retain?:number, attributes?: Object<string,any>}>}
    *
    * @public
    */
@@ -6129,7 +6144,7 @@ class YTextEvent extends YEvent {
     if (this._delta === null) {
       const y = /** @type {Doc} */ (this.target.doc);
       /**
-       * @type {Array<{insert?:string, delete?:number, retain?:number, attributes?: Object<string,any>}>}
+       * @type {Array<{insert?:string|object|AbstractType<any>, delete?:number, retain?:number, attributes?: Object<string,any>}>}
        */
       const delta = [];
       transact(y, transaction => {
@@ -6190,12 +6205,13 @@ class YTextEvent extends YEvent {
         };
         while (item !== null) {
           switch (item.content.constructor) {
+            case ContentType:
             case ContentEmbed:
               if (this.adds(item)) {
                 if (!this.deletes(item)) {
                   addOp();
                   action = 'insert';
-                  insert = /** @type {ContentEmbed} */ (item.content).embed;
+                  insert = item.content.getContent()[0];
                   addOp();
                 }
               } else if (this.deletes(item)) {
@@ -6572,13 +6588,14 @@ class YText extends AbstractType {
               str += /** @type {ContentString} */ (n.content).str;
               break
             }
+            case ContentType:
             case ContentEmbed: {
               packStr();
               /**
                * @type {Object<string,any>}
                */
               const op = {
-                insert: /** @type {ContentEmbed} */ (n.content).embed
+                insert: n.content.getContent()[0]
               };
               if (currentAttributes.size > 0) {
                 const attrs = /** @type {Object<string,any>} */ ({});
@@ -6639,16 +6656,13 @@ class YText extends AbstractType {
    * Inserts an embed at a index.
    *
    * @param {number} index The index to insert the embed at.
-   * @param {Object} embed The Object that represents the embed.
+   * @param {Object | AbstractType<any>} embed The Object that represents the embed.
    * @param {TextAttributes} attributes Attribute information to apply on the
    *                                    embed
    *
    * @public
    */
   insertEmbed (index, embed, attributes = {}) {
-    if (embed.constructor !== Object) {
-      throw new Error('Embed must be an Object')
-    }
     const y = this.doc;
     if (y !== null) {
       transact(y, transaction => {
@@ -8853,12 +8867,13 @@ const splitItem = (transaction, leftItem, diff) => {
  * @param {Transaction} transaction The Yjs instance.
  * @param {Item} item
  * @param {Set<Item>} redoitems
+ * @param {Array<Item>} itemsToDelete
  *
  * @return {Item|null}
  *
  * @private
  */
-const redoItem = (transaction, item, redoitems) => {
+const redoItem = (transaction, item, redoitems, itemsToDelete) => {
   const doc = transaction.doc;
   const store = doc.store;
   const ownClientID = doc.clientID;
@@ -8898,7 +8913,7 @@ const redoItem = (transaction, item, redoitems) => {
   // make sure that parent is redone
   if (parentItem !== null && parentItem.deleted === true && parentItem.redone === null) {
     // try to undo parent if it will be undone anyway
-    if (!redoitems.has(parentItem) || redoItem(transaction, parentItem, redoitems) === null) {
+    if (!redoitems.has(parentItem) || redoItem(transaction, parentItem, redoitems, itemsToDelete) === null) {
       return null
     }
   }
@@ -8936,6 +8951,11 @@ const redoItem = (transaction, item, redoitems) => {
         break
       }
       right = right.right;
+    }
+    // Iterate right while right is in itemsToDelete
+    // If it is intended to delete right while item is redone, we can expect that item should replace right.
+    while (left !== null && left.right !== null && left.right !== right && itemsToDelete.findIndex(d => d === /** @type {Item} */ (left).right) >= 0) {
+      left = left.right;
     }
   }
   const nextClock = getState(store, ownClientID);
@@ -9488,5 +9508,29 @@ class Skip extends AbstractStruct {
   }
 }
 
-export { AbstractConnector, AbstractStruct, AbstractType, YArray as Array, ContentAny, ContentBinary, ContentDeleted, ContentEmbed, ContentFormat, ContentJSON, ContentString, ContentType, Doc, GC, ID, Item, YMap as Map, PermanentUserData, RelativePosition, Snapshot, YText as Text, Transaction, UndoManager, YXmlElement as XmlElement, YXmlFragment as XmlFragment, YXmlHook as XmlHook, YXmlText as XmlText, YArrayEvent, YEvent, YMapEvent, YTextEvent, YXmlEvent, applyUpdate, applyUpdateV2, compareIDs, compareRelativePositions, createAbsolutePositionFromRelativePosition, createDeleteSet, createDeleteSetFromStructStore, createDocFromSnapshot, createID, createRelativePositionFromJSON, createRelativePositionFromTypeIndex, createSnapshot, decodeRelativePosition, decodeSnapshot, decodeSnapshotV2, decodeStateVector, diffUpdate, diffUpdateV2, emptySnapshot, encodeRelativePosition, encodeSnapshot, encodeSnapshotV2, encodeStateAsUpdate, encodeStateAsUpdateV2, encodeStateVector, encodeStateVectorFromUpdate, encodeStateVectorFromUpdateV2, equalSnapshots, findRootTypeKey, getItem, getState, getTypeChildren, isDeleted, isParentOf, iterateDeletedStructs, logType, logUpdate, logUpdateV2, mergeUpdates, mergeUpdatesV2, parseUpdateMeta, parseUpdateMetaV2, readUpdate, readUpdateV2, relativePositionToJSON, snapshot, transact, tryGc, typeListToArraySnapshot, typeMapGetSnapshot };
+/** eslint-env browser */
+
+const glo = /** @type {any} */ (typeof window !== 'undefined'
+  ? window
+  : typeof global !== 'undefined' ? global : {});
+const importIdentifier = '__ $YJS$ __';
+
+if (glo[importIdentifier] === true) {
+  /**
+   * Dear reader of this warning message. Please take this seriously.
+   *
+   * If you see this message, please make sure that you only import one version of Yjs. In many cases,
+   * your package manager installs two versions of Yjs that are used by different packages within your project.
+   * Another reason for this message is that some parts of your project use the commonjs version of Yjs
+   * and others use the EcmaScript version of Yjs.
+   *
+   * This often leads to issues that are hard to debug. We often need to perform constructor checks,
+   * e.g. `struct instanceof GC`. If you imported different versions of Yjs, it is impossible for us to
+   * do the constructor checks anymore - which might break the CRDT algorithm.
+   */
+  console.warn('Yjs was already imported. Importing different versions of Yjs often leads to issues.');
+}
+glo[importIdentifier] = true;
+
+export { AbstractConnector, AbstractStruct, AbstractType, YArray as Array, ContentAny, ContentBinary, ContentDeleted, ContentEmbed, ContentFormat, ContentJSON, ContentString, ContentType, Doc, GC, ID, Item, YMap as Map, PermanentUserData, RelativePosition, Snapshot, YText as Text, Transaction, UndoManager, YXmlElement as XmlElement, YXmlFragment as XmlFragment, YXmlHook as XmlHook, YXmlText as XmlText, YArrayEvent, YEvent, YMapEvent, YTextEvent, YXmlEvent, applyUpdate, applyUpdateV2, compareIDs, compareRelativePositions, createAbsolutePositionFromRelativePosition, createDeleteSet, createDeleteSetFromStructStore, createDocFromSnapshot, createID, createRelativePositionFromJSON, createRelativePositionFromTypeIndex, createSnapshot, decodeRelativePosition, decodeSnapshot, decodeSnapshotV2, decodeStateVector, diffUpdate, diffUpdateV2, emptySnapshot, encodeRelativePosition, encodeSnapshot, encodeSnapshotV2, encodeStateAsUpdate, encodeStateAsUpdateV2, encodeStateVector, encodeStateVectorFromUpdate, encodeStateVectorFromUpdateV2, equalSnapshots, findIndexSS, findRootTypeKey, getItem, getState, getTypeChildren, isDeleted, isParentOf, iterateDeletedStructs, logType, logUpdate, logUpdateV2, mergeUpdates, mergeUpdatesV2, parseUpdateMeta, parseUpdateMetaV2, readUpdate, readUpdateV2, relativePositionToJSON, snapshot, transact, tryGc, typeListToArraySnapshot, typeMapGetSnapshot };
 //# sourceMappingURL=yjs.mjs.map

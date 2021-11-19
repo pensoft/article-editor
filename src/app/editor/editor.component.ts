@@ -7,7 +7,8 @@ import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { WebrtcProvider as OriginalWebRtc, } from 'y-webrtc';
 
-import * as Y from 'yjs';
+//@ts-ignore
+import * as Y from 'yjs'
 import { EditorSidebarComponent } from '../layout/widgets/editor-sidebar/editor-sidebar.component';
 import { TreeService } from './meta-data-tree/tree-service/tree.service';
 import { ProsemirrorEditorsService } from './services/prosemirror-editors.service';
@@ -34,8 +35,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   active = 'editor';
 
   @ViewChild('trachChangesOnOffBtn', { read: ElementRef }) trachChangesOnOffBtn?: ElementRef;
-  changesOnOffTrackingChangesSubject: Subject<boolean>;
-  showChangesSubject: Subject<boolean>;
+  OnOffTrackingChangesShowTrackingSubject: Subject<{hideshowStatus:boolean,trackTransactions:boolean}>;
 
   @ViewChild(MatDrawer) sidebarDrawer?: MatDrawer;
   sidebar = '';
@@ -43,7 +43,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   @ViewChild('metaDataTreeDrawer') metaDataTreeDrawer?: MatDrawer;
 
   innerWidth: any;
-
+  trackChangesData ?:any
   showChanges ?: boolean
   constructor(
     private ydocService: YdocService,
@@ -62,11 +62,8 @@ export class EditorComponent implements OnInit, AfterViewInit {
       }
     });
 
-    this.changesOnOffTrackingChangesSubject = prosemirrorEditorServie.changesOnOffTrackingChangesSubject;
-    this.showChangesSubject = trackChanges.showChangesSubject;
-    this.showChangesSubject.subscribe((bool)=>{
-      this.showChanges = bool
-    })
+    this.OnOffTrackingChangesShowTrackingSubject = prosemirrorEditorServie.OnOffTrackingChangesShowTrackingSubject;
+    
     
     this.commentService.addCommentSubject.subscribe((data) => {
       if (data.type == 'commentData') {
@@ -94,14 +91,17 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
     let initArtcleStructureMap = ()=>{
 
-      let hideshowData = this.ydocService.articleStructure!.get('trackChangesMetadata');
-      this.showChanges = hideshowData.hideshowStatus;
+      let hideshowDataInit = this.ydocService.articleStructure!.get('trackChangesMetadata');
+      this.trackChangesData = hideshowDataInit
+      this.showChanges = hideshowDataInit.hideshowStatus;
+
       this.ydocService.articleStructure!.observe((ymap)=>{
         let hideshowData = this.ydocService.articleStructure!.get('trackChangesMetadata');
         if(hideshowData.lastUpdateFromUser!==this.ydocService.articleStructure!.doc?.guid){
-          this.showChanges = hideshowData.hideshowStatus
-          
         }
+          this.showChanges = hideshowData.hideshowStatus
+          this.shouldTrackChanges = hideshowData.trackTransactions
+          this.trackChangesData = hideshowData
       })
     }
     if (this.ydocService.editorIsBuild) {
@@ -142,12 +142,12 @@ export class EditorComponent implements OnInit, AfterViewInit {
         this.ydoc = data.ydoc;
         let trachChangesMetadata = this.ydocService.articleStructure!.get('trackChangesMetadata');
         this.shouldTrackChanges = trachChangesMetadata.trackTransactions
-        this.ydocService.articleStructure?.observe((ymap)=>{
+        /* this.ydocService.articleStructure?.observe((ymap)=>{
           let trackChangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
           if(trackChangesMetadata.lastUpdateFromUser!==this.ydoc?.guid){
             this.shouldTrackChanges = trackChangesMetadata.trackTransactions
           }
-        })
+        }) */
         this.provider = data.provider;
         this.articleSectionsStructure = data.articleSectionsStructure;
         this.shouldBuild = true;
@@ -172,16 +172,19 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
   showHideChanges(bool: boolean) {  
     this.showChanges = bool
-    this.showChangesSubject.next(bool);
+    this.trackChangesData!.hideshowStatus = bool
+    this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
   }
 
   turnOnOffTrachChanges(bool?: boolean) {
     if (bool) {
-      this.shouldTrackChanges = bool;
-      this.changesOnOffTrackingChangesSubject.next(bool);
+      this.shouldTrackChanges = bool
+      this.trackChangesData!.trackTransactions= bool
+      this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
     } else {
-      this.shouldTrackChanges = !this.shouldTrackChanges;
-      this.changesOnOffTrackingChangesSubject.next(this.shouldTrackChanges);
+      this.shouldTrackChanges = !this.shouldTrackChanges
+      this.trackChangesData!.trackTransactions = !this.trackChangesData!.trackTransactions;
+      this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
     }
 
     /* let buttonElement = this.trachChangesOnOffBtn?.nativeElement as HTMLButtonElement

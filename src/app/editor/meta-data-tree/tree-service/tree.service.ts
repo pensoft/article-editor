@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { YdocService } from '../../services/ydoc.service';
 import { treeNode } from '../../utils/interfaces/treeNode';
+//@ts-ignore
 import * as Y from 'yjs'
 import { uuidv4 } from 'lib0/random';
 import { articleSection, editorData } from '../../utils/interfaces/articleSection';
@@ -26,7 +27,7 @@ export class TreeService {
     let buildFunc = () => {
       this.guid = this.metadatachangeMap?.doc?.guid;
       this.articleStructureMap = ydocService.ydoc.getMap('articleStructure');
-      this.metadatachangeMap?.observe((event, transaction) => {
+      this.metadatachangeMap?.observe((event:any, transaction:any) => {
         let metadatachange = this.metadatachangeMap?.get('change')
         if (this.guid != metadatachange.guid) {
           if (!this.ydocService.editorIsBuild) {

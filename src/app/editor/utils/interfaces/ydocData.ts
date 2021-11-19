@@ -1,4 +1,5 @@
-import * as Y from 'yjs';
+//@ts-ignore
+import * as Y from 'yjs'
 import { WebrtcProvider as OriginalWebRtc } from 'y-webrtc';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import { sectionNode } from './section-node';

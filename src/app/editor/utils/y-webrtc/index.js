@@ -12,6 +12,7 @@ import * as buffer from 'lib0/buffer'
 import * as math from 'lib0/math'
 import { createMutex } from 'lib0/mutex'
 
+//@ts-ignore
 import * as Y from 'yjs' // eslint-disable-line
 import Peer from 'simple-peer/simplepeer.min.js'
 

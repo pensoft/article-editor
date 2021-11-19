@@ -3,6 +3,7 @@ import { FormioCustomComponent } from '@formio/angular';
 import { uuidv4 } from 'lib0/random';
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
 import { YdocService } from '../../services/ydoc.service';
+//@ts-ignore
 import * as Y from 'yjs'
 import { AbstractType } from 'yjs';
 import { Components, MaterialComponent, registerComponent } from 'src/app/formio-angular-material/angular-material-formio.module';

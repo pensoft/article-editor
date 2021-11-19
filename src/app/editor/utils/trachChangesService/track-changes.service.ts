@@ -42,7 +42,7 @@ const checkPosition = (editorP: { top: number, bottom: number }, positionToCheck
   return undefined
 }
 
-let showChanges:boolean|undefined = undefined;
+//let showChanges:boolean|undefined = undefined;
 
 @Injectable({
   providedIn: 'root'
@@ -51,7 +51,6 @@ export class TrackChangesService {
   changesVisibilityChange
   changesObject
   hideShowPlugin
-  showChangesSubject = new Subject<boolean>()
   constructor(
     private ydocService: YdocService
   ) {
@@ -60,19 +59,19 @@ export class TrackChangesService {
     let changesVisibilityChange: Subject<any> = new Subject<any>();
     this.changesVisibilityChange = changesVisibilityChange
 
-    let changesObject: any = {};
+     let changesObject: any = {};
     this.changesObject = changesObject;
-    let initArtcleStructureMap = ()=>{
+    /*let initArtcleStructureMap = ()=>{
 
-      let hideshowData = this.ydocService.articleStructure!.get('trackChangesMetadata');
+     let hideshowData = this.ydocService.articleStructure!.get('trackChangesMetadata');
       showChanges = hideshowData.hideshowStatus;
-      this.ydocService.articleStructure!.observe((ymap)=>{
+       this.ydocService.articleStructure!.observe((ymap)=>{
         let hideshowData = this.ydocService.articleStructure!.get('trackChangesMetadata');
         if(hideshowData.lastUpdateFromUser!==this.ydocService.articleStructure!.doc?.guid){
           showChanges = hideshowData.hideshowStatus
           
         }
-      })
+      }) 
     }
     if (this.ydocService.editorIsBuild) {
       initArtcleStructureMap()
@@ -82,15 +81,14 @@ export class TrackChangesService {
           initArtcleStructureMap()
         }
       });
-    }
-    this.showChangesSubject.subscribe((data) => {
+    }*/
+    /* this.showChangesSubject.subscribe((data) => {
       let hideshowData = this.ydocService.articleStructure!.get('trackChangesMetadata');
-      showChanges = !hideshowData.hideshowStatus;
-      hideshowData.hideshowStatus = !hideshowData.hideshowStatus
+      hideshowData.hideshowStatus = data
       hideshowData.lastUpdateFromUser = this.ydocService.articleStructure!.doc?.guid;
       this.ydocService.articleStructure!.set('trackChangesMetadata',hideshowData);
       showChanges = data
-    })
+    }) */
 
     let hideShowPlugin = new Plugin({
       key: hideShowPluginKey,
@@ -106,8 +104,8 @@ export class TrackChangesService {
 
           let decorations;
           let createdDecorations = DecorationSet.empty;
-          const allMatches = getTrackChanges(newState);
-          if (allMatches.length > 0 && !showChanges) {
+           const allMatches = getTrackChanges(newState);
+          /*if (allMatches.length > 0 && !showChanges) {
 
             decorations = allMatches.map((result, index) => {
 
@@ -119,7 +117,6 @@ export class TrackChangesService {
                   result.pos,
                   'insertion',
                 );
-                //createChangeDiv(result, position, result.type.name, tr.doc)
                 return Decoration.inline(position.from, position.to, {
                   class: 'show-insertion',
                 });
@@ -130,7 +127,6 @@ export class TrackChangesService {
                   result.pos,
                   'deletion',
                 );
-                //createChangeDiv(result, position, result.type.name, tr.doc)
                 return Decoration.inline(position.from, position.to, {
                   class: 'hide-deletion',
                 });
@@ -142,7 +138,7 @@ export class TrackChangesService {
             } else {
               createdDecorations = DecorationSet.empty
             }
-          }
+          } */
 
           return {
             sectionName: prev.sectionName,

@@ -38,7 +38,7 @@ form-field[invalid] {
 .format-change {
   border-bottom: 2px solid royalblue;
 }
-app-edit-section-dialog {
+/* app-edit-section-dialog {
   .insertion{
     .show-insertion{
       background-color: transparent;
@@ -50,13 +50,40 @@ app-edit-section-dialog {
     text-decoration: none;
     display: none;
   }
-}
+} */
 
 app-article:not(.display-changes-hover) .insertion{
   .show-insertion{
     background-color: transparent;
   }
   background-color: transparent;
+
+}
+
+app-article:not(.display-changes-hover) .deletion{
+  .hide-deletion{
+    background-color: transparent;
+  }
+  display: none;
+}
+
+[ychange_type] {
+  position: relative;
+}
+.ychange-hover {
+  display: none;
+}
+*:hover > .ychange-hover {
+  display: inline;
+  position: absolute;
+  top: -14px;
+  left: 0;
+  font-size: 12px;
+  padding: 0 2px;
+  border-radius: 3px 3px 0 0;
+  color: #fdfdfe;
+  user-select: none;
+  word-break: normal;
 }
 
 .display-changes-hover  *[data-username] {
@@ -77,6 +104,25 @@ app-article:not(.display-changes-hover) .insertion{
     margin: 0 auto;
     top: -28px;
   }
+}
+ychange[ychange_type='removed'], p[ychange_type='removed'] {
+  text-decoration: line-through;
+}
+
+ychange[ychange_type='added'], p[ychange_type='added'] {
+  background: #b2e6bd;
+}
+/*
+p[ychange_type='removed'] > span > br {
+  display: none;
+}
+*/
+*:not(ychange)[ychange_type='removed'] {
+  background-color: #ff5a56;
+  color: inherit !important;
+}
+img[ychange_type='removed'] {
+  padding: 2px;
 }
 
 .deletion {

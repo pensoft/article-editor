@@ -12,7 +12,6 @@ let parseNodeHTmlStringToTextContent = (html:string) => {
     let teml = document.createElement('div');
     teml.innerHTML = html1
     let pmNode = schema.nodes.form_field.create({},DOMPMparser.parseSlice(teml).content);
-    console.log('validationInMainDocument',pmNode.textContent);
     return pmNode.textContent
 } 
 function isEmptyInputValue(value:string) {

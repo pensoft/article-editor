@@ -137,25 +137,33 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
         disableClose: false
       }).afterClosed().subscribe(result => {
         if (result && result.compiledHtml) {
-          this.prosemirrorEditorsService.changesOnOffTrackingChangesSubject.next(false);
+          let trackStatus = this.prosemirrorEditorsService.trackChangesMeta.trackTransactions
+          this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = false
+          this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
+            this.prosemirrorEditorsService.trackChangesMeta
+          )
           const mainDocumentSnapshot = Y.snapshot(this.ydocService.ydoc)
           let xmlFragment = this.ydocService.ydoc.getXmlFragment(node.sectionID);
           let templDiv = document.createElement('div');
           templDiv.innerHTML = result.compiledHtml
           let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
           updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
-          
           const updatedSnapshot = Y.snapshot(this.ydocService.ydoc)
-
           let editorView = this.prosemirrorEditorsService
             .editorContainers[node.sectionID].editorView
-
           editorView.dispatch(editorView.state.tr.setMeta(ySyncPluginKey, {
             snapshot: Y.decodeSnapshot(Y.encodeSnapshot(updatedSnapshot)), 
-            prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(mainDocumentSnapshot))
+            prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(mainDocumentSnapshot)),
+            renderingFromPopUp:true,
           }))
           //editorview
           this.treeService.editNodeChange(node.sectionID)
+          setTimeout(()=>{
+            this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = trackStatus
+            this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
+              this.prosemirrorEditorsService.trackChangesMeta
+            )
+          },30)
         }
       });
     } catch (e) {

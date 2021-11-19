@@ -11,6 +11,7 @@ import * as set from 'lib0/set.js'
 import { simpleDiff } from 'lib0/diff.js'
 import * as error from 'lib0/error.js'
 import { ySyncPluginKey } from './keys.js'
+//@ts-ignore
 import * as Y from 'yjs'
 import { absolutePositionToRelativePosition, relativePositionToAbsolutePosition } from '../lib.js'
 import * as random from 'lib0/random.js'
@@ -77,10 +78,10 @@ export const ySyncPlugin = (yXmlFragment, { colors = defaultColors, colorMapping
   let changedInitialContent = false
   const plugin = new Plugin({
     props: {
-      editable: (state) => {
+      /* editable: (state) => {
         const syncState = ySyncPluginKey.getState(state)
         return syncState.snapshot == null && syncState.prevSnapshot == null
-      }
+      } */
     },
     key: ySyncPluginKey,
     state: {
@@ -106,21 +107,17 @@ export const ySyncPlugin = (yXmlFragment, { colors = defaultColors, colorMapping
           }
         }
         // always set isChangeOrigin. If undefined, this is not change origin.
-        pluginState.isChangeOrigin = change !== undefined && !!change.isChangeOrigin
+        pluginState.isChangeOrigin = (change !== undefined && (!!change.isChangeOrigin||change.renderingFromPopUp) )
         if (pluginState.binding !== null) {
-          if (change !== undefined && (change.snapshot != null || change.prevSnapshot != null)) {
+          if (change !== undefined && (change.snapshot != null || change.prevSnapshot != null)&&change.renderingFromPopUp) {
             // snapshot changed, rerender next
             setTimeout(() => {
-              if (change.restore == null) {
                 pluginState.binding._renderSnapshot(change.snapshot, change.prevSnapshot, pluginState)
-              } else {
-                pluginState.binding._renderSnapshot(change.snapshot, change.snapshot, pluginState)
                 // reset to current prosemirror state
                 delete pluginState.restore
                 delete pluginState.snapshot
                 delete pluginState.prevSnapshot
-                pluginState.binding._prosemirrorChanged(pluginState.binding.prosemirrorView.state.doc)
-              }
+                pluginState.binding._prosemirrorChanged(pluginState.binding.prosemirrorView.state.doc) 
             }, 0)
           }
         }
@@ -473,7 +470,22 @@ const createTextNodesFromYText = (text, schema, mapping, snapshot, prevSnapshot,
       const delta = deltas[i]
       const marks = []
       for (const markName in delta.attributes) {
-        marks.push(schema.mark(markName, delta.attributes[markName]))
+        if(markName == 'ychange'){
+          let markAttrs = delta.attributes[markName]
+          if(markAttrs.type == 'added'){
+            marks.push(schema.mark('insertion', {
+              user:text.doc.clientID,
+              username:markAttrs.user
+            }))
+          }else if(markAttrs.type == 'removed'){
+            marks.push(schema.mark('deletion',{
+              user:text.doc.clientID,
+              username:markAttrs.user
+            }))
+          }
+        }else{
+          marks.push(schema.mark(markName, delta.attributes[markName]))
+        }
       }
       nodes.push(schema.text(delta.insert, marks))
     }

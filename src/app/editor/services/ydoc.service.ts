@@ -1,5 +1,6 @@
 import { Component, Injectable, OnInit } from '@angular/core';
-import * as Y from 'yjs';
+//@ts-ignore
+import * as Y from 'yjs'
 import { WebrtcConn, WebrtcProvider as OriginalWebRtc, } from 'y-webrtc';
 import { IndexeddbPersistence } from 'y-indexeddb';
 import { YXmlFragment } from 'yjs/dist/src/types/YXmlFragment';
@@ -156,9 +157,9 @@ export class YdocService {
   buildEditor() {
     this.sectionsFromIODefaultValues = this.ydoc.getMap('formIODefaultValues');
     this.figuresMap = this.ydoc.getMap('figuresMap');
-    let figures = this.figuresMap.get('figures');
+    let figures = this.figuresMap!.get('figures');
     if (!figures) {
-      this.figuresMap.set('figures', []);
+      this.figuresMap!.set('figures', []);
     }
     this.articleStructure = this.ydoc.getMap('articleStructure');
     this.articleStructure?.set('trackChangesMetadata',{hideshowStatus:false,trackTransactions:false});
@@ -188,9 +189,9 @@ export class YdocService {
         });
 
 
-        sendUpdateToServiceWorker(params.toString());
+        /* sendUpdateToServiceWorker(params.toString());
         this.http.post('/products', params).subscribe(() => {
-        });
+        }); */
       });
 
       let sendUpdateToServiceWorker = (update: string) => {
@@ -210,6 +211,8 @@ export class YdocService {
 
         // Building the editor without backend for now just for developer purpose
         let buildeditor = false
+        this.buildEditor();
+        return
         let onSubevent = fromEvent(this.provider!, 'signalingConnected').subscribe(() => {
           fromEvent(this.provider!, 'synced').pipe(delay(500)).subscribe((data: any) => {
             if(!buildeditor){

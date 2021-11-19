@@ -1,4 +1,5 @@
 
+//@ts-ignore
 import * as Y from 'yjs'
 import { Decoration, DecorationSet } from 'prosemirror-view' // eslint-disable-line
 import { Plugin } from 'prosemirror-state' // eslint-disable-line
