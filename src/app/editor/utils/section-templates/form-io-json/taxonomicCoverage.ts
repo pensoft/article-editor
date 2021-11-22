@@ -1,3 +1,4 @@
+import { environment } from '../../../../../environments/environment';
 export const taxonomicCoverage = {
     'title': 'My Test Form',
     'components': [{
@@ -114,17 +115,53 @@ export const taxonomicCoverage = {
     }]
 }
 
-export const taxonomicCoverageDefaultValues = {
+let taxonomicCoverageDefaultValues1 :any
+if(!environment.production){
+    taxonomicCoverageDefaultValues1 = {
+        "description": "<p align=\"set-align-left\" class=\"set-align-left\"><span class=\"insertion\" data-id=\"\" data-user=\"3959162350\" data-username=\"Alice\" data-date=\"0\" data-group=\"\" data-viewid=\"\">qwd</span></p>",
+        "taxonomicCoverage": [
+            {
+                "scientificName": "<p align=\"set-align-left\" class=\"set-align-left\"><span class=\"insertion\" data-id=\"\" data-user=\"3959162350\" data-username=\"Alice\" data-date=\"0\" data-group=\"\" data-viewid=\"\">w@s.w</span></p>",
+                "commonName": "<p align=\"set-align-left\" class=\"set-align-left\"><span class=\"insertion\" data-id=\"\" data-user=\"3959162350\" data-username=\"Alice\" data-date=\"0\" data-group=\"\" data-viewid=\"\">dqwd</span></p>",
+                "rank": "phylum"
+            },
+            {
+                "scientificName": "<p align=\"set-align-left\" class=\"set-align-left\"><span class=\"insertion\" data-id=\"\" data-user=\"3959162350\" data-username=\"Alice\" data-date=\"0\" data-group=\"\" data-viewid=\"\">w@s.w</span></p>",
+                "commonName": "<p align=\"set-align-left\" class=\"set-align-left\"><span class=\"insertion\" data-id=\"\" data-user=\"3959162350\" data-username=\"Alice\" data-date=\"0\" data-group=\"\" data-viewid=\"\">asdwd</span></p>",
+                "rank": "kingdom"
+            }
+        ],
+    }
+}else{
+    taxonomicCoverageDefaultValues1 = {
+        "description": "",
+         "taxonomicCoverage": [
+            {
+                "scientificName": "",
+                "commonName": "",
+                "rank": ""
+            },
+            {
+                "scientificName": "",
+                "commonName": "",
+                "rank": ""
+            }
+        ],
+    }
+}
+export const taxonomicCoverageDefaultValues = taxonomicCoverageDefaultValues1
+/* export const taxonomicCoverageDefaultValues = {
     "description": "",
-    "taxonomicCoverage": [
+     "taxonomicCoverage": [
         {
             "scientificName": "",
             "commonName": "",
             "rank": ""
-        },{
+        },
+        {
             "scientificName": "",
             "commonName": "",
             "rank": ""
         }
     ],
-}
+} */

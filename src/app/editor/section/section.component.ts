@@ -50,7 +50,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
   editorData?: editorData;
   FormStructure: any
   renderSection = false;
-  sectionsFromIODefaultValues?: YMap<any>
   @Input() section!: articleSection;
   @Output() sectionChange = new EventEmitter<articleSection>();
 
@@ -107,15 +106,16 @@ export class SectionComponent implements AfterViewInit, OnInit {
   }
 
   async onSubmit(submision?: any) {
-    this.sectionsFromIODefaultValues!.set(this.section.sectionID, submision.data)
 
+    //this.prosemirrorEditorsService.updateFormIoDefaultValues(this.section.sectionID, submision.data)
+    this.ydocService.sectionsFromIODefaultValues!.set(this.section.sectionID, submision.data)
     this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema);
-    let nodeForm: FormGroup = new FormGroup({});
+    this.sectionForm = new FormGroup({});
     Object.keys(this.sectionForm.controls).forEach((key) => {
       this.sectionForm.removeControl(key);
     })
     this.formBuilderService.buildFormGroupFromSchema(this.sectionForm, this.section.formIOSchema);
-
+    this.treeService.sectionFormGroups[this.section.sectionID] = this.sectionForm;
     //this.sectionForm = nodeForm;
     this.sectionForm.patchValue(submision.data);
     this.sectionForm.updateValueAndValidity()
@@ -177,9 +177,9 @@ export class SectionComponent implements AfterViewInit, OnInit {
         }),
 
         parent: this.codemirrorJsonTemplate?.nativeElement,
-        dispatch:()=>{
+        /* dispatch:()=>{
 
-        },
+        }, */
       })
       if (!this.section.prosemirrorHTMLNodesTempl) {
         console.error(`prosemirrorHTMLNodesTempl is ${this.section.prosemirrorHTMLNodesTempl}.Should provide such a property in the article sections structure.`)
@@ -207,7 +207,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
 
   ngAfterViewInit(): void {
-    this.sectionsFromIODefaultValues = this.ydocService.sectionsFromIODefaultValues
     // const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
     this.sectionContent = this.section.formIOSchema;
     this.renderSection = true

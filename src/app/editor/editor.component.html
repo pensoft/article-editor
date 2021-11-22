@@ -47,7 +47,7 @@
 
 
         <div class="side-navbar-actions">
-            <button #trachChangesOnOffBtn [ngClass]="shouldTrackChanges?'changes_on_btn':'changes_off_btn'" mat-icon-button class="changes_state_btn" [matMenuTriggerFor]="beforeMenu">
+            <button #trachChangesOnOffBtn mat-icon-button class="changes_state_btn" [matMenuTriggerFor]="beforeMenu">
         <mat-icon>border_color</mat-icon>
       </button>
             <mat-menu #beforeMenu="matMenu" xPosition="before">
@@ -60,16 +60,6 @@
                 <button (click)="turnOnOffTrachChanges(false)" mat-menu-item>
           <mat-icon class='changes_off_btn'>edit_off</mat-icon>
           <span>Changes off</span>
-        </button>
-
-                <button (click)="showHideChanges(true)" mat-menu-item>
-          <mat-icon [ngStyle]="{'color':'#192956'}">visibility</mat-icon>
-          <span>Show changes</span>
-        </button>
-
-                <button (click)="showHideChanges(false)" mat-menu-item>
-          <mat-icon [ngStyle]="{'color':'#192956'}">visibility_off</mat-icon>
-          <span>Hide changes</span>
         </button>
 
             </mat-menu>
@@ -161,14 +151,6 @@
     <span>Changes off</span>
   </button>
 
-    <button (click)="showHideChanges(true)" mat-menu-item>
-    <mat-icon [ngStyle]="{'color':'#192956'}">visibility</mat-icon>
-    <span>Show changes</span>
-  </button>
-
-    <button (click)="showHideChanges(false)" mat-menu-item>
-    <mat-icon [ngStyle]="{'color':'#192956'}">visibility_off</mat-icon>
-    <span>Hide changes</span>
-  </button>
+    
 
 </mat-menu>

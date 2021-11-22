@@ -155,6 +155,9 @@ export class TrackChangesService {
       view: (editorView) => {
         return {
           update: (view, prevState) => {
+            if(JSON.stringify(view.state.doc)== JSON.stringify(prevState.doc)){
+              return;
+            }
             let deletionMark = view.state.schema.marks.deletion
             let insertionMark = view.state.schema.marks.insertion
             let format_changeMark = view.state.schema.marks.format_change
@@ -227,8 +230,8 @@ export class TrackChangesService {
                     } */
                   }
                 });
-
-                changesObject[sectionName] = allChangesMarksFound;
+                
+                  changesObject[sectionName] = allChangesMarksFound;
               }
               changesVisibilityChange.next(changesObject);
             }

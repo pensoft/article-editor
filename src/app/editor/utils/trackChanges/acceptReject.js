@@ -27,7 +27,7 @@ export function acceptChange(view,position/* user:any,config:any */){
     } = position
 
     tr.setMeta('AcceptReject', true);
-    const map = new Mapping();
+    const map = view.state.tr.mapping;
     view?.state?.doc.nodesBetween(from, to, (node, pos) => {
       if (
         node.attrs.track &&

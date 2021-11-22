@@ -8,9 +8,12 @@ import { schema } from "../Schema";
 let DOMPMparser = DOMParser.fromSchema(schema)
 
 let parseNodeHTmlStringToTextContent = (html:string) => {
-    let html1 = html.replace(/<span class="deletion"[\sa-zA-Z-="1-90:;]+>[\sa-zA-Z-="1-90:;]+<\/span>/gm,'');
+    let html1 = html.match(/<span class="(deletion|insertion|format-change)"[\sa-zA-Z-="1-90:;]+>[\sa-zA-Z-="1-90:;]+<\/span>/gm);
+    if(html1){
+        return true
+    }
     let teml = document.createElement('div');
-    teml.innerHTML = html1
+    teml.innerHTML = html
     let pmNode = schema.nodes.form_field.create({},DOMPMparser.parseSlice(teml).content);
     return pmNode.textContent
 } 
@@ -24,20 +27,23 @@ function hasValidLength(value:string) {
     return value != null && typeof value.length === 'number';
 }
 
-export function asyncPmRequired(control: AbstractControl) {
+/* export function asyncPmRequired(control: AbstractControl) {
 
     if(!control.value){
         return of(null) 
     }
     let textContent = parseNodeHTmlStringToTextContent(control.value)
     return of(isEmptyInputValue(textContent) ? { 'required': true } : null)
-}
+} */
 
 export function pmRequired(control: AbstractControl) {
     if(!control.value){
         return null
     }
     let textContent = parseNodeHTmlStringToTextContent(control.value)
+    if(textContent == true){
+        return null
+    }
     return isEmptyInputValue(textContent) ? { 'required': true } : null;
 }
 
@@ -47,6 +53,9 @@ export function pmMaxLength(maxLength: number) {
             return null
         }    
         let textContent = parseNodeHTmlStringToTextContent(control.value)
+        if(textContent == true){
+            return null
+        }
         if (isEmptyInputValue(textContent) || !hasValidLength(textContent)) {
             // don't validate empty values to allow optional controls
             // don't validate values without `length` property
@@ -64,15 +73,18 @@ export function pmMinLength(minLength: number) {
             return null
         } 
         let textContent = parseNodeHTmlStringToTextContent(control.value)
+        if(textContent == true){
+            return null
+        }
         return hasValidLength(textContent) && textContent.length < minLength ?
             { 'maxlength': { 'requiredLength': minLength, 'actualLength': textContent.length } } :
             null;
     }
 }
 
-export function asyncPmPattern(pattern: any) {
+/*export function asyncPmPattern(pattern: any) {
     return asyncPmRequired
-    /* if (!pattern){
+     if (!pattern){
         return null;
     }
     let regex : any;
@@ -101,8 +113,8 @@ export function asyncPmPattern(pattern: any) {
         const value = textContent;
         return regex.test(value) ? of(null) :
             of({ 'pattern': { 'requiredPattern': regexStr, 'actualValue': value } })
-    } */
-}
+    }
+} */
 
 export function pmPattern(pattern: any) {
     if (!pattern){
@@ -127,6 +139,9 @@ export function pmPattern(pattern: any) {
             return null
         }
         let textContent = parseNodeHTmlStringToTextContent(control.value)
+        if(textContent == true){
+            return null
+        }
         if (isEmptyInputValue(textContent)) {
             return null; // don't validate empty values to allow optional controls
         }

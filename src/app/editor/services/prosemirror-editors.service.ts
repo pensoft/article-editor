@@ -21,12 +21,12 @@ import {
 import { DOMSerializer, Node, Slice } from 'prosemirror-model';
 //@ts-ignore
 import { EditorView } from 'prosemirror-view';
-import { EditorState, Plugin, PluginKey, Transaction, TextSelection } from 'prosemirror-state';
+import { EditorState, Plugin, PluginKey, Transaction, TextSelection, Selection } from 'prosemirror-state';
 import { keymap } from 'prosemirror-keymap';
 //import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from 'y-prosemirror';
 import { chainCommands, deleteSelection, joinBackward, selectNodeBackward } from 'prosemirror-commands';
 //@ts-ignore
-import {redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from '../../y-prosemirror-src/y-prosemirror.js';
+import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from '../../y-prosemirror-src/y-prosemirror.js';
 import { CellSelection, columnResizing, goToNextCell, tableEditing } from 'prosemirror-tables';
 //@ts-ignore
 import * as trackedTransaction from '../utils/trackChanges/track-changes/index.js';
@@ -82,8 +82,8 @@ export class ProsemirrorEditorsService {
   inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, schema.nodes.math_inline);
   blockMathInputRule = makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, schema.nodes.math_display);
 
-  OnOffTrackingChangesShowTrackingSubject = new Subject<{hideshowStatus:boolean,trackTransactions:boolean}>()
-  trackChangesMeta : any
+  OnOffTrackingChangesShowTrackingSubject = new Subject<{  trackTransactions: boolean }>()
+  trackChangesMeta: any
   shouldTrackChanges = false
   treeChangesCount = 0
   transactionCount = 0;
@@ -93,6 +93,7 @@ export class ProsemirrorEditorsService {
   mobileVersionSubject = new Subject<boolean>()
   mobileVersion = false;
 
+  defaultValuesObj:any = {}
   editorsDeleteArray: string[] = []
 
   constructor(
@@ -118,9 +119,8 @@ export class ProsemirrorEditorsService {
       let trackCHangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
       trackCHangesMetadata.lastUpdateFromUser = this.ydoc?.guid;
       trackCHangesMetadata.trackTransactions = data.trackTransactions
-      trackCHangesMetadata.hideshowStatus = data.hideshowStatus
-      console.log('trackChangesMetadata',trackCHangesMetadata);
-      this.ydocService.articleStructure?.set('trackChangesMetadata',trackCHangesMetadata);
+      
+      this.ydocService.articleStructure?.set('trackChangesMetadata', trackCHangesMetadata);
     })
 
 
@@ -191,6 +191,14 @@ export class ProsemirrorEditorsService {
     })
   }
 
+  updateFormIoDefaultValues(sectionID: string, data: any){
+    try {
+      //this.defaultValuesObj[sectionID] = data
+      this.ydocService.sectionsFromIODefaultValues?.set(sectionID, data);
+    } catch (e) {
+      console.error(e);
+    }
+  }
   renderEditorInWithId(EditorContainer: HTMLDivElement, editorId: string, section: articleSection): {
     editorID: string,
     containerDiv: HTMLDivElement,
@@ -198,13 +206,6 @@ export class ProsemirrorEditorsService {
     editorView: EditorView,
     dispatchTransaction: any
   } {
-    let updateFormIoDefaultValues = (sectionID: string, data: any) => {
-      try{
-        this.ydocService.sectionsFromIODefaultValues?.set(sectionID, data);
-      }catch(e){
-        console.error(e);
-      }
-    }
     if (this.editorContainers[editorId]) {
       EditorContainer.appendChild(this.editorContainers[editorId].containerDiv);
       return this.editorContainers[editorId]
@@ -246,7 +247,8 @@ export class ProsemirrorEditorsService {
                   const controlPath = node.attrs.controlPath;
                   const control = fg.get(controlPath) as FormControl;
                   //@ts-ignore
-                  if (control.componentType == "textarea") {
+                  
+                  if (control.componentType&&control.componentType == "textarea") {
                     let HTMLnodeRepresentation = this.DOMPMSerializer.serializeFragment(node.content)
                     let temp = document.createElement('div');
                     temp.appendChild(HTMLnodeRepresentation);
@@ -263,7 +265,7 @@ export class ProsemirrorEditorsService {
                     tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "" })
 
                   }
-                  updateFormIoDefaultValues(editorID, fg.value);
+                  this.updateFormIoDefaultValues(editorID, fg.value);
                 } catch (error) {
                   console.error(error);
                 }
@@ -286,8 +288,8 @@ export class ProsemirrorEditorsService {
               if (node.attrs.contenteditableNode == "false") {
                 noneditableNodesOnDropPosition = true
               }
-              if(node.type.name == "form_field"&&!noneditableNodesOnDropPosition){
-                node.descendants((node)=>{
+              if (node.type.name == "form_field" && !noneditableNodesOnDropPosition) {
+                node.descendants((node) => {
                   if (node.attrs.contenteditableNode == "false") {
                     noneditableNodesOnDropPosition = true
                   }
@@ -302,24 +304,24 @@ export class ProsemirrorEditorsService {
             //@ts-ignore
             let sel = transaction.curSelection
             //@ts-ignore
-            state.doc.nodesBetween(sel.from, sel.from+1, (node, pos, parent) => {
+            state.doc.nodesBetween(sel.from, sel.from + 1, (node, pos, parent) => {
               if (node.attrs.contenteditableNode == "false") {
                 noneditableNodesOnDropPosition = true
               }
-              if(node.type.name == "form_field"&&!noneditableNodesOnDropPosition){
-                node.descendants((node)=>{
+              if (node.type.name == "form_field" && !noneditableNodesOnDropPosition) {
+                node.descendants((node) => {
                   if (node.attrs.contenteditableNode == "false") {
                     noneditableNodesOnDropPosition = true
                   }
                 })
               }
             })
-            state.doc.nodesBetween(sel.to-1, sel.to, (node, pos, parent) => {
+            state.doc.nodesBetween(sel.to - 1, sel.to, (node, pos, parent) => {
               if (node.attrs.contenteditableNode == "false") {
                 noneditableNodesOnDropPosition = true
               }
-              if(node.type.name == "form_field"&&!noneditableNodesOnDropPosition){
-                node.descendants((node)=>{
+              if (node.type.name == "form_field" && !noneditableNodesOnDropPosition) {
+                node.descendants((node) => {
                   if (node.attrs.contenteditableNode == "false") {
                     noneditableNodesOnDropPosition = true
                   }
@@ -425,32 +427,40 @@ export class ProsemirrorEditorsService {
         }
         return false
       },
-      handleTripleClickOn(view,pos,node,nodepos,event,direct){
-        if(view.state.selection.$from.parent.type.name!=="form_field"){
+      handleTripleClickOn(view, pos, node, nodepos, event, direct) {
+        if (view.state.selection.$from.parent.type.name !== "form_field") {
           return true;
         }
         return false
       },
       handleKeyDown(view: EditorView, event: KeyboardEvent) {
         let sel = view.state.selection
+        let { from, to, empty } = sel
         let key = event.key
         let noneditableNodes = false;
-        if(sel instanceof CellSelection){
-          let from = Math.min(sel.$headCell.pos,sel.$anchorCell.pos);
-          let to = Math.max(sel.$headCell.pos,sel.$anchorCell.pos);
-          view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-            if (node.attrs.contenteditableNode == "false") {
-              noneditableNodes = true;
-            }
-          })
-        }else{
-          view.state.doc.nodesBetween(sel.from,sel.to, (node, pos, parent) => {
-            if (node.attrs.contenteditableNode == "false") {
-              noneditableNodes = true;
-            }
-          })
+        if (sel instanceof CellSelection) {
+          from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
+          to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);
         }
-        if (key == 'Delete' || key == 'Backspace') {
+        view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
+          if (node.attrs.contenteditableNode == "false") {
+            noneditableNodes = true;
+          }
+          if (node.type.name == "form_field") {
+            let nodeEnd = node.nodeSize + pos
+            // there is a form_field that is in the selection we should not edit if or outside of it 
+            if ((from <= pos && pos <= to) || (from <= nodeEnd && nodeEnd <= to)) {
+              if ((from <= pos && pos <= to)) {
+                from = pos + 2
+              }
+              if ((from <= nodeEnd && nodeEnd <= to)) {
+                to = nodeEnd - 2
+              }
+              view.dispatch(view.state.tr.setSelection(new Selection(view.state.doc.resolve(from),view.state.doc.resolve(to))))
+            }
+          }
+        })
+        /* if (key == 'Delete' || key == 'Backspace') {
           if (!sel.empty) {
             return noneditableNodes
           } else {
@@ -476,11 +486,11 @@ export class ProsemirrorEditorsService {
               }
             }
 
-          }
+          } 
           if (noneditableNodes) {
             return noneditableNodes
           }
-        }
+        }*/
         if (noneditableNodes) {
           if (key == 'ArrowRight' ||
             key == 'ArrowLeft' ||
@@ -612,9 +622,9 @@ export class ProsemirrorEditorsService {
         let containerElement = document.createElement('div');
         let htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(newState.doc.content.firstChild!.content)
         containerElement.appendChild(htmlNOdeRepresentation);
-        let nodelNodesString = containerElement.innerHTML.replace(/<span class="deletion"[\sa-zA-Z-="1-90:;]+>[\sa-zA-Z-="1-90:;]+<\/span>/gm,'');
-        containerElement.innerHTML = nodelNodesString
-        options.onChange(true, containerElement.textContent)
+        /* let nodelNodesString = containerElement.innerHTML.replace(/<span class="deletion"[\sa-zA-Z-="1-90:;]+>[\sa-zA-Z-="1-90:;]+<\/span>/gm, '');
+        containerElement.innerHTML = nodelNodesString */
+        options.onChange(true, containerElement.innerHTML)
 
       },
       filterTransaction(transaction: Transaction<any>, state: EditorState) {
@@ -687,7 +697,7 @@ export class ProsemirrorEditorsService {
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,
-      
+
       createSelectionBetween: (view, anchor, head) => {
         let headRangeMin = anchor.pos
         let headRangeMax = anchor.pos
@@ -744,14 +754,14 @@ export class ProsemirrorEditorsService {
     let trackChangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
     this.trackChangesMeta = trackChangesMetadata
     this.shouldTrackChanges = trackChangesMetadata.trackTransactions;
-    this.ydocService.articleStructure?.observe((ymap)=>{
+    this.ydocService.articleStructure?.observe((ymap) => {
       let trackChangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
-      if(trackChangesMetadata.lastUpdateFromUser!==this.ydoc?.guid){
+      if (trackChangesMetadata.lastUpdateFromUser !== this.ydoc?.guid) {
       }
-        this.trackChangesMeta = trackChangesMetadata
-        this.shouldTrackChanges = trackChangesMetadata.trackTransactions
+      this.trackChangesMeta = trackChangesMetadata
+      this.shouldTrackChanges = trackChangesMetadata.trackTransactions
     })
-   
+
     this.permanentUserData = new Y.PermanentUserData(this.ydoc);
     this.permanentUserData.setUserMapping(this.ydoc, this.ydoc.clientID, this.user.username);
     this.ydoc.gc = false;

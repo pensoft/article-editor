@@ -87,8 +87,8 @@ export function buildKeymap(schema, mapKeys) {
         }
         let newResolvedStart = sel.$from
         let newResolvedEnd = sel.$to
-        newResolvedStart = state.doc.resolve(parentNodePos + 1)
-        newResolvedEnd = state.doc.resolve(parentNodePos + 1 + parentNode.nodeSize)
+        newResolvedStart = state.doc.resolve(parentNodePos + 2)
+        newResolvedEnd = state.doc.resolve(parentNodePos + 1 + parentNode.nodeSize-3)
         let newSelection = new TextSelection(newResolvedStart, newResolvedEnd)
         let newTr = state.tr.setSelection(newSelection)
         return newTr

@@ -35,7 +35,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   active = 'editor';
 
   @ViewChild('trachChangesOnOffBtn', { read: ElementRef }) trachChangesOnOffBtn?: ElementRef;
-  OnOffTrackingChangesShowTrackingSubject: Subject<{hideshowStatus:boolean,trackTransactions:boolean}>;
+  OnOffTrackingChangesShowTrackingSubject: Subject<{trackTransactions:boolean}>;
 
   @ViewChild(MatDrawer) sidebarDrawer?: MatDrawer;
   sidebar = '';
@@ -170,11 +170,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     } */
   }
 
-  showHideChanges(bool: boolean) {  
-    this.showChanges = bool
-    this.trackChangesData!.hideshowStatus = bool
-    this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
-  }
+
 
   turnOnOffTrachChanges(bool?: boolean) {
     if (bool) {

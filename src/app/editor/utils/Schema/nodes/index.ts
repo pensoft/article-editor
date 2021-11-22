@@ -33,7 +33,7 @@ export const nodes: NodeSpec = {
     },
     ...tableNodes({
         tableGroup: "block",
-        cellContent: "form_field+",
+        cellContent: "form_field{1}",
         cellAttributes: {
             background: {
                 default: null,

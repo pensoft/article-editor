@@ -42,7 +42,8 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
   focusIdHold?: string;
   taxonomyData: any;
 
-  nodesForms: FormGroup[] = [];
+  //nodesForms:{[key:string]:FormGroup} = {}
+  nodesForms:FormGroup[] = []
   sectionContents: any[] = [];
 
 
@@ -74,8 +75,9 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
 
   ngOnInit(): void {
     this.articleSectionsStructure.forEach((node: articleSection, index: number) => {
+      console.log(this.prosemirrorEditorsService.defaultValuesObj);
+      //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
       let defaultValues = this.ydocService.sectionsFromIODefaultValues!.get(node.sectionID)
-      //let defaultValues = this.sectionsFromIODefaultValues.get(node.sectionID)
       defaultValues = defaultValues ? defaultValues : node.defaultFormIOValues
       let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
 
@@ -84,7 +86,7 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
       this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
       nodeForm.patchValue(defaultValues);
       nodeForm.updateValueAndValidity()
-      this.nodesForms.push(nodeForm);
+      this.nodesForms.push(nodeForm)
       this.sectionContents.push(sectionContent);
       this.treeService.sectionFormGroups[node.sectionID] = nodeForm;
 
@@ -125,10 +127,15 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
 
   editNodeHandle(node: articleSection, formGroup: FormGroup, index: number) {
     try {
+      //console.log(this.prosemirrorEditorsService.defaultValuesObj);
+      //let defaultValuesFromProsmeirroNodes = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
       let defaultValues = this.ydocService.sectionsFromIODefaultValues!.get(node.sectionID)
+      //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
+      
       defaultValues = defaultValues ? defaultValues : node.defaultFormIOValues
-
       let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
+      //this.formBuilderService.buildFormGroupFromSchema(formGroup, sectionContent);
+      console.log(defaultValues);
       this.sectionContents[index] = sectionContent
       this.dialog.open(EditSectionDialogComponent, {
         width: '95%',
@@ -152,18 +159,18 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
           let editorView = this.prosemirrorEditorsService
             .editorContainers[node.sectionID].editorView
           editorView.dispatch(editorView.state.tr.setMeta(ySyncPluginKey, {
-            snapshot: Y.decodeSnapshot(Y.encodeSnapshot(updatedSnapshot)), 
+            snapshot: Y.decodeSnapshot(Y.encodeSnapshot(updatedSnapshot)),
             prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(mainDocumentSnapshot)),
-            renderingFromPopUp:true,
+            renderingFromPopUp: true,
           }))
           //editorview
           this.treeService.editNodeChange(node.sectionID)
-          setTimeout(()=>{
+          setTimeout(() => {
             this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = trackStatus
             this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
               this.prosemirrorEditorsService.trackChangesMeta
             )
-          },30)
+          }, 30)
         }
       });
     } catch (e) {

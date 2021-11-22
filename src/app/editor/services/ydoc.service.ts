@@ -162,7 +162,7 @@ export class YdocService {
       this.figuresMap!.set('figures', []);
     }
     this.articleStructure = this.ydoc.getMap('articleStructure');
-    this.articleStructure?.set('trackChangesMetadata',{hideshowStatus:false,trackTransactions:false});
+    this.articleStructure?.set('trackChangesMetadata',{trackTransactions:false});
     this.comments = this.ydoc.getMap('comments');
     this.ydocStateObservable.next('docIsBuild');
     this.editorIsBuild = true;

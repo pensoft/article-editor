@@ -7,7 +7,9 @@ import { EditorView } from "prosemirror-view"
 import { schema} from "../Schema";
 import { addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow, mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell, deleteTable } from "prosemirror-tables";
 import { icons } from 'prosemirror-menu'
-import { wrapItem, blockTypeItem, selectParentNodeItem as selectParentNodeItemPM, undoItem as undoPM, redoItem as redoPM } from "prosemirror-menu"
+//@ts-ignore'../../y-prosemirror-src/y-prosemirror.js'
+import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from '../../../y-prosemirror-src/y-prosemirror.js';
+import { wrapItem, blockTypeItem, selectParentNodeItem as selectParentNodeItemPM } from "prosemirror-menu"
 import { YMap } from "yjs/dist/src/internals";
 import { wrapInList } from "prosemirror-schema-list";
 import { Subject } from 'rxjs';
@@ -17,6 +19,15 @@ import { MarkType, Node, NodeType,DOMParser,DOMSerializer } from 'prosemirror-mo
 
 //@ts-ignore
 import * as Y from 'yjs'
+
+const undoIcon = {
+    width: 1024, height: 1024,
+    path: "M761 1024c113-206 132-520-313-509v253l-384-384 384-384v248c534-13 594 472 313 775z"
+  }
+const redoIcon = {
+    width: 1024, height: 1024,
+    path: "M576 248v-248l384 384-384 384v-253c-446-10-427 303-313 509-280-303-221-789 313-775z"
+}
 
 const addCommentIcon = {
     width: 1024, height: 1024,
@@ -191,6 +202,22 @@ const insertHorizontalRule = new MenuItem({
     run(state, dispatch) { dispatch(state.tr.replaceSelectionWith(schema.nodes.horizontal_rule.create())) }
 })
 
+const undoYJS = new MenuItem({
+    icon: undoIcon,
+    label: "undo",
+    enable(state) { return true },
+    //@ts-ignore
+    run:undo
+})
+
+const redoYJS = new MenuItem({
+    icon: redoIcon,
+    label: "redo",
+    enable(state) { return true },
+    //@ts-ignore
+    run:redo
+})
+
 const toggleSuperscriptItem = markItem(schema.marks.superscript, { title: 'Toggle superscript', icon: createCustomIcon('superscript.svg', 20) })
 
 const toggleSubscriptItem = markItem(schema.marks.subscript, { title: 'Toggle subscript', icon: createCustomIcon('subscript.svg', 20) })
@@ -342,8 +369,8 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
     'makeCodeBlock': makeCodeBlock,
     'headings': headings,
     'insertHorizontalRule': insertHorizontalRule,
-    'undoItem': undoPM,
-    'redoItem': redoPM,
+    'undoItem': undoYJS,
+    'redoItem': redoYJS,
     'toggleSuperscriptItem': toggleSuperscriptItem,
     'toggleSubscriptItem': toggleSubscriptItem,
     'insertLink': insertLinkItem,

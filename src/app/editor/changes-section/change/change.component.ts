@@ -32,4 +32,6 @@ export class ChangeComponent implements OnInit {
     rejectChange(view, position);
   }
 
+
+  
 }

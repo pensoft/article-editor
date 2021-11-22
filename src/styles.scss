@@ -52,7 +52,7 @@ form-field[invalid] {
   }
 } */
 
-app-article:not(.display-changes-hover) .insertion{
+/* app-article:not(.display-changes-hover) .insertion{
   .show-insertion{
     background-color: transparent;
   }
@@ -65,7 +65,7 @@ app-article:not(.display-changes-hover) .deletion{
     background-color: transparent;
   }
   display: none;
-}
+} */
 
 [ychange_type] {
   position: relative;

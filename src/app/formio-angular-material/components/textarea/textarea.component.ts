@@ -21,9 +21,9 @@ import Validator from 'formiojs/validator/Validator.js';
     <div #ProsemirrorEditor></div>
   </div>
   <textarea [ngStyle]="{'display':'none'}" #textarea></textarea>
-  <mat-error class="pm-errors" >
+  <mat-error  class="pm-errors" >
     <div *ngIf="instance.error">
-      {{ instance.error.message }}
+      {{ instance.error.message  }}
     </div>
   </mat-error>
   <!-- <mat-error class="pm-errors" [ngStyle]="{'display':instance.error?'none':'block'}"]>{{ instance.error.message }}</mat-error> -->
@@ -47,7 +47,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   };
   DOMPMParser = DOMParser.fromSchema(schema)
   value: any
-
+  instanceValidations:any
 
   @ViewChild('ProsemirrorEditor', { read: ElementRef }) ProsemirrorEditor?: ElementRef;
 
@@ -59,9 +59,46 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
 
     public ref: ChangeDetectorRef) {
     super(element, ref)
+    this.editorContainer = undefined;
+    this.renderEditor=  false
   }
 
-  onChange1 = (keepInputRaw: boolean, value?: string) => {
+  setInstance(instance: any) {
+    instance.materialComponent = this;
+    this.instance = instance;
+    this.control.setInstance(instance);
+    //this.instance.updateValue(value, { modified: true });
+    this.instanceValidations = this.instance.component.validate
+    this.instance.component.validate = {}
+    this.instance.disabled = this.instance.shouldDisabled;
+    this.setVisible(this.instance.visible);
+    this.renderComponents();
+  }
+
+  ngOnInit() {
+    return
+    if (this.instance) {
+      
+      this.control.value ? this.onChange1(true,this.control.value) : '';
+    }
+  }
+
+  onChange(keepInputRaw?: boolean) {
+    return
+  }
+
+  onChange1 = (keepInputRaw: boolean, value1?: string) => {
+    let hasChanges = value1?.match(/<span class="(deletion|insertion|format-change)"[\sa-zA-Z-="1-90:;]+>[\sa-zA-Z-="1-90:;]+<\/span>/gm);
+    if(hasChanges&&Object.keys(this.instance.component.validate).length>2){
+      this.instanceValidations = this.instance.component.validate
+      this.instance.component.validate = {}
+    }else if(!hasChanges&&Object.keys(this.instance.component.validate).length==2){
+      this.instance.component.validate =  this.instanceValidations
+    }
+
+    let temp = document.createElement('div');
+    temp.innerHTML = value1!
+    let value = temp.textContent!
 
     if (value === undefined || value === null) {
       value = this.instance.emptyValue;
@@ -70,10 +107,9 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     if (this.input && this.input.nativeElement.mask && value && !keepInputRaw) {
       this.input.nativeElement.mask.textMaskInputElement.update(value);
       this.control.setValue(this.input.nativeElement.value);
-      value = this.getValue();
+      value = this.getValue()!;
     }
     this.instance.updateValue(value, { modified: true });
-
   }
 
   beforeSubmit() {
@@ -121,6 +157,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     let awaitValue = () => {
       setTimeout(() => {
         if (this.value !== undefined) {
+          
           renderEditor()
         } else {
           this.value = this.control.value
@@ -141,6 +178,8 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   }
 
   validateOnInit() {
+    
+    return
     const { key } = this.instance.component;
     const validationValue = this.editorContainer?.editorView.state
 
@@ -176,12 +215,12 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       }
       options.onChange = this.onChange1
       let temp = document.createElement('div');
+      console.log(editorData);
       temp.innerHTML = editorData;
       let node = editorData ? this.DOMPMParser.parseSlice(temp) : undefined;
       this.editorContainer = this.prosemirrorService.renderEditorWithNoSync(this.ProsemirrorEditor?.nativeElement, this.instance, this.control, options, node);
-      let nodelNodesString = temp.innerHTML.replace(/<span class="deletion"[\sa-zA-Z-="1-90:;]+>[\sa-zA-Z-="1-90:;]+<\/span>/gm,'');
-      temp.innerHTML = nodelNodesString
-      this.onChange1(true, temp.textContent!)
+      this.onChange1(true,editorData)
+      
       this.renderEditor = true;
     } catch (e) {
       console.error(e);
