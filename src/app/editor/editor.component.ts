@@ -21,7 +21,7 @@ import { TrackChangesService } from './utils/trachChangesService/track-changes.s
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
-  styleUrls: [ './editor.component.scss' ]
+  styleUrls: ['./editor.component.scss']
 })
 export class EditorComponent implements OnInit, AfterViewInit {
 
@@ -31,11 +31,11 @@ export class EditorComponent implements OnInit, AfterViewInit {
   provider?: OriginalWebRtc;
   shouldBuild: boolean = false;
   roomName?: string | null;
-  shouldTrackChanges?: boolean = undefined;
+  shouldTrackChanges?: boolean;
   active = 'editor';
 
   @ViewChild('trachChangesOnOffBtn', { read: ElementRef }) trachChangesOnOffBtn?: ElementRef;
-  OnOffTrackingChangesShowTrackingSubject: Subject<{trackTransactions:boolean}>;
+  OnOffTrackingChangesShowTrackingSubject: Subject<{ trackTransactions: boolean }>;
 
   @ViewChild(MatDrawer) sidebarDrawer?: MatDrawer;
   sidebar = '';
@@ -43,8 +43,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   @ViewChild('metaDataTreeDrawer') metaDataTreeDrawer?: MatDrawer;
 
   innerWidth: any;
-  trackChangesData ?:any
-  showChanges ?: boolean
+  trackChangesData?: any
   constructor(
     private ydocService: YdocService,
     private route: ActivatedRoute,
@@ -63,8 +62,8 @@ export class EditorComponent implements OnInit, AfterViewInit {
     });
 
     this.OnOffTrackingChangesShowTrackingSubject = prosemirrorEditorServie.OnOffTrackingChangesShowTrackingSubject;
-    
-    
+
+
     this.commentService.addCommentSubject.subscribe((data) => {
       if (data.type == 'commentData') {
         if (this.innerWidth > 600) {
@@ -89,19 +88,17 @@ export class EditorComponent implements OnInit, AfterViewInit {
       }
     });
 
-    let initArtcleStructureMap = ()=>{
+    let initArtcleStructureMap = () => {
 
       let hideshowDataInit = this.ydocService.articleStructure!.get('trackChangesMetadata');
       this.trackChangesData = hideshowDataInit
-      this.showChanges = hideshowDataInit.hideshowStatus;
 
-      this.ydocService.articleStructure!.observe((ymap)=>{
+      this.ydocService.articleStructure!.observe((ymap) => {
         let hideshowData = this.ydocService.articleStructure!.get('trackChangesMetadata');
-        if(hideshowData.lastUpdateFromUser!==this.ydocService.articleStructure!.doc?.guid){
+        if (hideshowData.lastUpdateFromUser !== this.ydocService.articleStructure!.doc?.guid) {
         }
-          this.showChanges = hideshowData.hideshowStatus
-          this.shouldTrackChanges = hideshowData.trackTransactions
-          this.trackChangesData = hideshowData
+        this.shouldTrackChanges = hideshowData.trackTransactions
+        this.trackChangesData = hideshowData
       })
     }
     if (this.ydocService.editorIsBuild) {
@@ -142,12 +139,13 @@ export class EditorComponent implements OnInit, AfterViewInit {
         this.ydoc = data.ydoc;
         let trachChangesMetadata = this.ydocService.articleStructure!.get('trackChangesMetadata');
         this.shouldTrackChanges = trachChangesMetadata.trackTransactions
-        /* this.ydocService.articleStructure?.observe((ymap)=>{
+        
+        this.ydocService.articleStructure?.observe((ymap) => {
           let trackChangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
-          if(trackChangesMetadata.lastUpdateFromUser!==this.ydoc?.guid){
+          if (trackChangesMetadata.lastUpdateFromUser !== this.ydoc?.guid) {
             this.shouldTrackChanges = trackChangesMetadata.trackTransactions
           }
-        }) */
+        })
         this.provider = data.provider;
         this.articleSectionsStructure = data.articleSectionsStructure;
         this.shouldBuild = true;
@@ -162,12 +160,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-    let buttonElement = this.trachChangesOnOffBtn?.nativeElement;
-    /* if(this.showTrachChanges){
-      buttonElement.style.color = '#19d928'
-    }else{
-      buttonElement.style.color = '#f37b4a'
-    } */
+
   }
 
 
@@ -175,7 +168,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   turnOnOffTrachChanges(bool?: boolean) {
     if (bool) {
       this.shouldTrackChanges = bool
-      this.trackChangesData!.trackTransactions= bool
+      this.trackChangesData!.trackTransactions = bool
       this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
     } else {
       this.shouldTrackChanges = !this.shouldTrackChanges
@@ -183,12 +176,8 @@ export class EditorComponent implements OnInit, AfterViewInit {
       this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
     }
 
-    /* let buttonElement = this.trachChangesOnOffBtn?.nativeElement as HTMLButtonElement
-    if(bool){
-      buttonElement.style.color = '#19d928'
-    }else{
-      buttonElement.style.color = '#f37b4a'
-    } */
+    let buttonElement = this.trachChangesOnOffBtn?.nativeElement as HTMLButtonElement
+    
   }
 
   toggleSidebar(section: string) {
@@ -214,7 +203,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     }
   }
 
-  @HostListener('window:resize', [ '$event' ])
+  @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.innerWidth = window.innerWidth;
     this.prosemirrorEditorServie.mobileVersionSubject.next(this.innerWidth <= 600) // pass isMobile ot isNotMobile to prosemirror editors

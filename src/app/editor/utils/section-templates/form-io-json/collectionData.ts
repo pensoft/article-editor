@@ -45,7 +45,7 @@ export const collectionData = {
     }]
 }
 
-export const collectionDataDefaultValues = {
+export const collectionDataDefaultValues = {// form group structure for the section
     "collectionName": "",
     "collectionIdentifier": "",
     "parentCollectionIdentifier": "",

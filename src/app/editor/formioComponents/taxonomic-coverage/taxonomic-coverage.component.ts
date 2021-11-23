@@ -52,7 +52,7 @@ export class TaxonomicCoverageComponent extends MaterialComponent implements Aft
           //this.prosemirrorService.renderEditorIn(this.editor?.nativeElement,this.value.contentData)
         }
       }catch(e){
-        console.log(e);
+        console.error(e);
       }
     }
   }

@@ -117,7 +117,7 @@ export const taxonomicCoverage = {
 
 let taxonomicCoverageDefaultValues1 :any
 if(!environment.production){
-    taxonomicCoverageDefaultValues1 = {
+    taxonomicCoverageDefaultValues1 = { // form group structure for the section
         "description": "<p align=\"set-align-left\" class=\"set-align-left\"><span class=\"insertion\" data-id=\"\" data-user=\"3959162350\" data-username=\"Alice\" data-date=\"0\" data-group=\"\" data-viewid=\"\">qwd</span></p>",
         "taxonomicCoverage": [
             {
@@ -133,7 +133,7 @@ if(!environment.production){
         ],
     }
 }else{
-    taxonomicCoverageDefaultValues1 = {
+    taxonomicCoverageDefaultValues1 = { // form group structure for the section
         "description": "",
          "taxonomicCoverage": [
             {

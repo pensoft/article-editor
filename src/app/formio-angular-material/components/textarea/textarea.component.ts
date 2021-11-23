@@ -12,6 +12,7 @@ import { ProsemirrorEditorsService } from 'src/app/editor/services/prosemirror-e
 import { YdocService } from 'src/app/editor/services/ydoc.service';
 //@ts-ignore
 import Validator from 'formiojs/validator/Validator.js';
+import { ClientRequest } from 'http';
 
 @Component({
   selector: 'mat-formio-textarea',
@@ -48,7 +49,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   DOMPMParser = DOMParser.fromSchema(schema)
   value: any
   instanceValidations:any
-
+  rerender = false;
   @ViewChild('ProsemirrorEditor', { read: ElementRef }) ProsemirrorEditor?: ElementRef;
 
   constructor(
@@ -60,7 +61,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     public ref: ChangeDetectorRef) {
     super(element, ref)
     this.editorContainer = undefined;
-    this.renderEditor=  false
+    this.renderEditor=  true
   }
 
   setInstance(instance: any) {
@@ -72,15 +73,9 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     this.instance.component.validate = {}
     this.instance.disabled = this.instance.shouldDisabled;
     this.setVisible(this.instance.visible);
-    this.renderComponents();
   }
 
   ngOnInit() {
-    return
-    if (this.instance) {
-      
-      this.control.value ? this.onChange1(true,this.control.value) : '';
-    }
   }
 
   onChange(keepInputRaw?: boolean) {
@@ -88,14 +83,14 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   }
 
   onChange1 = (keepInputRaw: boolean, value1?: string) => {
-    let hasChanges = value1?.match(/<span class="(deletion|insertion|format-change)"[\sa-zA-Z-="1-90:;]+>[\sa-zA-Z-="1-90:;]+<\/span>/gm);
+    console.log(value1);
+    let hasChanges = value1?.match(/<span class="(deletion|insertion|format-change)"\s*[a-zA-Z1-90'-=" ]*>\s*[\@a-zA-Z1-90'-=" ]*<\/span>/gm);
     if(hasChanges&&Object.keys(this.instance.component.validate).length>2){
       this.instanceValidations = this.instance.component.validate
       this.instance.component.validate = {}
     }else if(!hasChanges&&Object.keys(this.instance.component.validate).length==2){
       this.instance.component.validate =  this.instanceValidations
     }
-
     let temp = document.createElement('div');
     temp.innerHTML = value1!
     let value = temp.textContent!
@@ -141,6 +136,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     let htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(this.editorContainer?.editorView.state.doc.content.firstChild!.content!)
     containerElement.appendChild(htmlNOdeRepresentation);
     this.instance.updateValue(containerElement.innerHTML, { modified: true });
+    this.control.setValue(containerElement.innerHTML);
     return this.control
   }
 
@@ -152,13 +148,55 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     this.control.setValue(value);
   }
 
+  setRealValue(){
+    this.rerender = true;
+    this.instanceValidations = this.instance.component.validate
+    this.instance.component.validate = {}
+    let containerElement = document.createElement('div');this.control.markAsTouched();
+    let htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(this.editorContainer?.editorView.state.doc.content.firstChild!.content!)
+    containerElement.appendChild(htmlNOdeRepresentation);
+    this.instance.updateValue(containerElement.innerHTML, { modified: true });
+    this.control.setValue(containerElement.innerHTML);
+  }
+
+  renderComponents() {
+    if(!this.rerender){
+      return
+    }
+    try {
+      this.value = this.control.value; 
+      //let node = editorData?[schema.nodeFromJSON(editorData)]:[];
+      let options: any = {}
+      if (this.instance.component.properties.noLabel) {
+        options.noLabel = true
+      }
+      options.onChange = this.onChange1
+      let temp = document.createElement('div');
+      temp.innerHTML = this.value!;
+      let node = this.value! ? this.DOMPMParser.parseSlice(temp) : undefined;
+
+      this.editorContainer = this.prosemirrorService.renderEditorWithNoSync(this.ProsemirrorEditor?.nativeElement, this.instance, this.control, options, node);
+      this.instance.component.validate= this.instanceValidations 
+      this.onChange1(true,this.value!)
+      
+      this.renderEditor = true;
+    
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   ngAfterViewInit() {
     // Attach the element so the wysiwyg will work.
     let awaitValue = () => {
       setTimeout(() => {
         if (this.value !== undefined) {
-          
-          renderEditor()
+          try{
+            this.rerender = true
+            this.renderComponents()
+          }catch(e){
+            console.error(e);
+          }
         } else {
           this.value = this.control.value
 
@@ -207,24 +245,8 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
 
 
   render(editorData: any) {
-    try {
-      //let node = editorData?[schema.nodeFromJSON(editorData)]:[];
-      let options: any = {}
-      if (this.instance.component.properties.noLabel) {
-        options.noLabel = true
-      }
-      options.onChange = this.onChange1
-      let temp = document.createElement('div');
-      console.log(editorData);
-      temp.innerHTML = editorData;
-      let node = editorData ? this.DOMPMParser.parseSlice(temp) : undefined;
-      this.editorContainer = this.prosemirrorService.renderEditorWithNoSync(this.ProsemirrorEditor?.nativeElement, this.instance, this.control, options, node);
-      this.onChange1(true,editorData)
-      
-      this.renderEditor = true;
-    } catch (e) {
-      console.error(e);
-    }
+    console.log('render');
+    
   }
 }
 TextAreaComponent.MaterialComponent = MaterialTextareaComponent;

@@ -191,14 +191,6 @@ export class ProsemirrorEditorsService {
     })
   }
 
-  updateFormIoDefaultValues(sectionID: string, data: any){
-    try {
-      //this.defaultValuesObj[sectionID] = data
-      this.ydocService.sectionsFromIODefaultValues?.set(sectionID, data);
-    } catch (e) {
-      console.error(e);
-    }
-  }
   renderEditorInWithId(EditorContainer: HTMLDivElement, editorId: string, section: articleSection): {
     editorID: string,
     containerDiv: HTMLDivElement,
@@ -265,7 +257,6 @@ export class ProsemirrorEditorsService {
                     tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "" })
 
                   }
-                  this.updateFormIoDefaultValues(editorID, fg.value);
                 } catch (error) {
                   console.error(error);
                 }
@@ -588,6 +579,7 @@ export class ProsemirrorEditorsService {
     editorView: EditorView,
     dispatchTransaction: any
   } {
+    EditorContainer.innerHTML = ''
     let editorID = random.uuidv4()
     let container = document.createElement('div');
     let editorView: EditorView;

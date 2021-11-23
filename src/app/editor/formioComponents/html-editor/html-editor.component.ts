@@ -50,7 +50,7 @@ export class HtmlEditorComponent extends MaterialComponent implements AfterViewI
       try {
         this.render(this.value!)
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     }
   }

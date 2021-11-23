@@ -49,7 +49,7 @@ export class ProsemirrorEditorComponent implements AfterViewInit {
           }
         }
       } catch (err) {
-        console.log(err);
+        console.error(err);
       }
     });
   }
@@ -92,7 +92,7 @@ export class ProsemirrorEditorComponent implements AfterViewInit {
           this.showXmlFragment();
         }
       } catch (e) {
-        console.log(e);
+        console.error(e);
       }
     }
     awaitValue()
@@ -104,8 +104,6 @@ export class ProsemirrorEditorComponent implements AfterViewInit {
         return
       }
       (this.editor?.nativeElement).innerHTML = this.editorContainer!.containerDiv.innerHTML;
-      //console.log((this.editor?.nativeElement as HTMLDivElement).children.item(0)!);
-      //(this.editor?.nativeElement as HTMLDivElement).replaceChild((this.editor?.nativeElement as HTMLDivElement).children.item(0)!,this.editorContainer!.containerDiv.cloneNode());
     }else if (this.mode == 'xmlcopy') {
       (this.editor?.nativeElement).innerHTML = this.xmlFragment?.toDOM()?.textContent!
     }
@@ -154,7 +152,7 @@ export class ProsemirrorEditorComponent implements AfterViewInit {
         this.xmlFragment?.unobserveDeep(this.observeF)
       }
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 }

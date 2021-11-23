@@ -70,7 +70,7 @@ export class FormControlNameDirective implements ControlValueAccessor {
       this._renderer.setAttribute(this.el.nativeElement, 'controlPath', this.ngControl.path.join('.'));
       this.innerValue = val;
     }catch(e){
-      console.log(e);
+      console.error(e);
     }
   }
 

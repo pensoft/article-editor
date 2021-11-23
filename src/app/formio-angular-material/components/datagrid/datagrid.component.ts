@@ -7,6 +7,8 @@ import {CdkDragDrop, moveItemInArray, DragDropModule} from '@angular/cdk/drag-dr
 import {MatTable} from '@angular/material/table';
 import { FormioEventsService } from 'src/app/editor/formioComponents/formio-events.service';
 import { ElementRef ,ChangeDetectorRef} from '@angular/core';
+import { ViewFlags } from '@angular/compiler/src/core';
+import { T } from '@angular/cdk/keycodes';
 @Component({
   selector: 'mat-formio-datagrid',
   styleUrls:['./datagrid.component.scss'],
@@ -162,10 +164,16 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
   }
 
   dropTable(event: CdkDragDrop<any>) {
-    const prevIndex = this.dataSource.data.findIndex((d) => d === event.item.data);
-    moveItemInArray(this.control.value, prevIndex, event.currentIndex);
-    this.renderComponents();
     try{
+      const prevIndex = this.dataSource.data.findIndex((d) => d === event.item.data);
+      
+      
+      console.log(JSON.parse(JSON.stringify(this.control.value)));
+      moveItemInArray(this.control.value, prevIndex, event.currentIndex);
+      console.log(JSON.parse(JSON.stringify(this.control.value)));
+
+      this.renderComponents();
+
       this.formioEventsService.events.next({event:'data-grid-drag-drop'})
     }catch(e){
       console.error(e);
@@ -173,9 +181,22 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
   }
 
   renderComponents() {
-    this.instance.getRows();
-    this.instance.setValue(this.control.value || []);
-    super.renderComponents()
+    try{
+      console.log(JSON.parse(JSON.stringify(this.control.value)));
+      this.instance.components.forEach((el:any)=>{
+        if(el.component.type == 'textarea'){
+          if(el.materialComponent){
+            el.materialComponent.setRealValue();
+          }
+        }
+      })
+      //this.instance.getRows();
+      //this.instance.updateValue(this.control.value || [], { modified: true });
+      this.instance.setValue(this.control.value || []);
+      super.renderComponents()
+    }catch(e){
+      console.error(e);
+    }
   }
 
   setValue(value: [] | null) {

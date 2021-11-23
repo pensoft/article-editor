@@ -41,7 +41,7 @@ export class YdocService {
     private http: HttpClient,
   ) { }
   articleStructure?: YMap<any>
-  sectionsFromIODefaultValues?: YMap<any>
+  sectionFormGroupsStructures?: YMap<any>
   comments?: YMap<any>
   figuresMap?: YMap<any>
   getCommentsMap(): YMap<any> {
@@ -155,7 +155,7 @@ export class YdocService {
     }
   }
   buildEditor() {
-    this.sectionsFromIODefaultValues = this.ydoc.getMap('formIODefaultValues');
+    this.sectionFormGroupsStructures = this.ydoc.getMap('sectionFormGroupsStructures');
     this.figuresMap = this.ydoc.getMap('figuresMap');
     let figures = this.figuresMap!.get('figures');
     if (!figures) {

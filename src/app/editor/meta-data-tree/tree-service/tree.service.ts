@@ -97,7 +97,7 @@ export class TreeService {
     try{
       this.applyEditChange(nodeId)
     }catch(e){
-      console.log(e);
+      console.error(e);
     }
     this.treeVisibilityChange.next({ action: 'editNode', nodeId });
   }

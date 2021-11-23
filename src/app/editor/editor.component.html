@@ -47,8 +47,8 @@
 
 
         <div class="side-navbar-actions">
-            <button #trachChangesOnOffBtn mat-icon-button class="changes_state_btn" [matMenuTriggerFor]="beforeMenu">
-        <mat-icon>border_color</mat-icon>
+            <button #trachChangesOnOffBtn [ngStyle]="{'color':this.shouldTrackChanges?'#19d928':'#f37b4a'}" mat-icon-button class="changes_state_btn" [matMenuTriggerFor]="beforeMenu">
+        <mat-icon>{{this.shouldTrackChanges?'mode_edit':'edit_off'}}</mat-icon>
       </button>
             <mat-menu #beforeMenu="matMenu" xPosition="before">
 
@@ -92,7 +92,7 @@
             </div>
 
             <div class="editor-container" [ngClass]="{'editorSpace': !sidebar}" style="flex-direction: column!;">
-                <app-article [ngClass]="{'display-changes-hover':showChanges}" style="height:97%;"></app-article>
+                <app-article style="height:97%;"></app-article>
                 <!-- <app-prosemirror-editor style="height:97%;"></app-prosemirror-editor> -->
                 <!-- <app-formio ></app-formio> -->
                 <!-- <app-taxonomy-editor></app-taxonomy-editor> -->

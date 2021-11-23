@@ -87,7 +87,8 @@ app-article:not(.display-changes-hover) .deletion{
 }
 
 *[data-username] {
-  position: relative;
+  //position: relative;
+  
   &:hover:before {
     content: attr(data-user);
     display: inline;

@@ -106,25 +106,24 @@ export class SectionComponent implements AfterViewInit, OnInit {
   }
 
   async onSubmit(submision?: any) {
-
-    //this.prosemirrorEditorsService.updateFormIoDefaultValues(this.section.sectionID, submision.data)
-    this.ydocService.sectionsFromIODefaultValues!.set(this.section.sectionID, submision.data)
-    this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema);
-    this.sectionForm = new FormGroup({});
-    Object.keys(this.sectionForm.controls).forEach((key) => {
-      this.sectionForm.removeControl(key);
-    })
-    this.formBuilderService.buildFormGroupFromSchema(this.sectionForm, this.section.formIOSchema);
-    this.treeService.sectionFormGroups[this.section.sectionID] = this.sectionForm;
-    //this.sectionForm = nodeForm;
-    this.sectionForm.patchValue(submision.data);
-    this.sectionForm.updateValueAndValidity()
-
-    let interpolated: any
-    let prosemirrorNewNodeContent: any
-    this.error = false;
-    this.errorMessage = '';
     try {
+      //this.prosemirrorEditorsService.updateFormIoDefaultValues(this.section.sectionID, submision.data)
+      this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, { data: submision.data, updatedFrom: this.ydocService.ydoc?.guid })
+      this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema);
+      //this.sectionForm = new FormGroup({});
+      Object.keys(this.sectionForm.controls).forEach((key) => {
+        this.sectionForm.removeControl(key);
+      })
+      this.formBuilderService.buildFormGroupFromSchema(this.sectionForm, this.section.formIOSchema);
+      //this.treeService.sectionFormGroups[this.section.sectionID] = this.sectionForm;
+      //this.sectionForm = nodeForm;
+      this.sectionForm.patchValue(submision.data);
+      this.sectionForm.updateValueAndValidity()
+
+      let interpolated: any
+      let prosemirrorNewNodeContent: any
+      this.error = false;
+      this.errorMessage = '';
       // get the text content from the codemirror editor which after compiling will be used as the new node structure for sections's Prosemirror
 
       let tr = this.codemirrorHTMLEditor?.state.update()
@@ -168,7 +167,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   renderCodemMirrorEditors() {
     try {
 
-      
+
       this.codemirrorJsonEditor = new EditorView({
         state: EditorState.create({
           doc:
@@ -229,7 +228,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   }
 
   log() {
-    
+
   }
 
   interpolateTemplate(htmlToCompile: string, data: any, formGroup: FormGroup) {

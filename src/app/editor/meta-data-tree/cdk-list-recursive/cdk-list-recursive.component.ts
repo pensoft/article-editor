@@ -75,15 +75,15 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
 
   ngOnInit(): void {
     this.articleSectionsStructure.forEach((node: articleSection, index: number) => {
-      console.log(this.prosemirrorEditorsService.defaultValuesObj);
       //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
-      let defaultValues = this.ydocService.sectionsFromIODefaultValues!.get(node.sectionID)
-      defaultValues = defaultValues ? defaultValues : node.defaultFormIOValues
+      let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID)
+      let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
       let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
 
       //let sectionContent = this.enrichSectionContent(node.formIOSchema, defaultValues);
       let nodeForm: FormGroup = new FormGroup({});
       this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
+
       nodeForm.patchValue(defaultValues);
       nodeForm.updateValueAndValidity()
       this.nodesForms.push(nodeForm)
@@ -91,6 +91,18 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
       this.treeService.sectionFormGroups[node.sectionID] = nodeForm;
 
       this.icons[index] = 'chevron_right';
+      this.ydocService.sectionFormGroupsStructures!.observe((ymap)=>{
+        let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID)
+        if(!dataFromYMap||dataFromYMap.updatedFrom==this.ydocService.ydoc.guid){
+          return
+        } 
+        Object.keys(nodeForm.controls).forEach((key) => {
+          nodeForm.removeControl(key);
+        })
+        let defaultValues = dataFromYMap.data
+        let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
+        this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
+      })
     });
   }
 
@@ -127,16 +139,13 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
 
   editNodeHandle(node: articleSection, formGroup: FormGroup, index: number) {
     try {
-      //console.log(this.prosemirrorEditorsService.defaultValuesObj);
       //let defaultValuesFromProsmeirroNodes = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
-      let defaultValues = this.ydocService.sectionsFromIODefaultValues!.get(node.sectionID)
       //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
+      let defaultValues = formGroup.value;
       
-      defaultValues = defaultValues ? defaultValues : node.defaultFormIOValues
-      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
       //this.formBuilderService.buildFormGroupFromSchema(formGroup, sectionContent);
-      console.log(defaultValues);
-      this.sectionContents[index] = sectionContent
+      let sectionContent = this.sectionContents[index]
+      this.sectionContents[index] = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
       this.dialog.open(EditSectionDialogComponent, {
         width: '95%',
         height: '90%',
@@ -174,7 +183,7 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
         }
       });
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 
