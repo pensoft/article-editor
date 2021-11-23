@@ -11,7 +11,7 @@ const targetPath = isProduction
   : `./src/environments/environment.ts`;
 const websocket = {
   host: process.env.WEBSOCKET_HOST || 'ps-article-storage.dev.scalewest.com',
-  port: process.env.WEBSOCKET_PORT || 8080,
+  port: process.env.WEBSOCKET_PORT || 443,
 }
 // we have access to our environment variables
 // in the process.env object thanks to dotenv

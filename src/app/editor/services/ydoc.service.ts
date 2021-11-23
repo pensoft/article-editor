@@ -175,7 +175,7 @@ export class YdocService {
     this.roomName = roomName
     this.providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
     let buildApp = () => {
-      this.provider = new WebsocketProvider(`ws://${environment.WEBSOCKET_HOST}:${environment.WEBSOCKET_PORT}`, this.roomName, this.ydoc, {
+      this.provider = new WebsocketProvider(`wss://${environment.WEBSOCKET_HOST}:${environment.WEBSOCKET_PORT}`, this.roomName, this.ydoc, {
         connect: true,
         params: {},
         WebSocketPolyfill: WebSocket,

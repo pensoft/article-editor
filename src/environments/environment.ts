@@ -1,8 +1,8 @@
 
 export const environment = {
    production: false,
-   BUILD_NUMBER: '1',
+   BUILD_NUMBER: 'undefined',
    VERSION: '0.0.0',
-   WEBSOCKET_HOST: 'localhost',
-   WEBSOCKET_PORT: '8080'
+   WEBSOCKET_HOST: 'ps-article-storage.dev.scalewest.com',
+   WEBSOCKET_PORT: '443'
 };
