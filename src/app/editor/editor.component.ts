@@ -5,7 +5,7 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
 import { FormioAppConfig } from '@formio/angular';
 import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
-import { WebrtcProvider as OriginalWebRtc, } from 'y-webrtc';
+//import { WebrtcProvider as OriginalWebRtc, } from 'y-webrtc';
 
 //@ts-ignore
 import * as Y from 'yjs'
@@ -28,7 +28,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   articleSectionsStructure?: articleSection[];
 
   ydoc?: Y.Doc;
-  provider?: OriginalWebRtc;
+  //provider?: OriginalWebRtc;
   shouldBuild: boolean = false;
   roomName?: string | null;
   shouldTrackChanges?: boolean;
@@ -90,11 +90,11 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
     let initArtcleStructureMap = () => {
 
-      let hideshowDataInit = this.ydocService.articleStructure!.get('trackChangesMetadata');
+      let hideshowDataInit = this.ydocService.trackChangesMetadata!.get('trackChangesMetadata');
       this.trackChangesData = hideshowDataInit
 
-      this.ydocService.articleStructure!.observe((ymap) => {
-        let hideshowData = this.ydocService.articleStructure!.get('trackChangesMetadata');
+      this.ydocService.trackChangesMetadata!.observe((ymap) => {
+        let hideshowData = this.ydocService.trackChangesMetadata!.get('trackChangesMetadata');
         if (hideshowData.lastUpdateFromUser !== this.ydocService.articleStructure!.doc?.guid) {
         }
         this.shouldTrackChanges = hideshowData.trackTransactions
@@ -137,16 +137,16 @@ export class EditorComponent implements OnInit, AfterViewInit {
       if (event == 'docIsBuild') {
         let data = this.ydocService.getData();
         this.ydoc = data.ydoc;
-        let trachChangesMetadata = this.ydocService.articleStructure!.get('trackChangesMetadata');
+        let trachChangesMetadata = this.ydocService.trackChangesMetadata!.get('trackChangesMetadata');
         this.shouldTrackChanges = trachChangesMetadata.trackTransactions
         
-        this.ydocService.articleStructure?.observe((ymap) => {
-          let trackChangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
+        this.ydocService.trackChangesMetadata?.observe((ymap) => {
+          let trackChangesMetadata = this.ydocService.trackChangesMetadata?.get('trackChangesMetadata');
           if (trackChangesMetadata.lastUpdateFromUser !== this.ydoc?.guid) {
             this.shouldTrackChanges = trackChangesMetadata.trackTransactions
           }
         })
-        this.provider = data.provider;
+        //this.provider = data.provider;
         this.articleSectionsStructure = data.articleSectionsStructure;
         this.shouldBuild = true;
         this.prosemirrorEditorServie.init();

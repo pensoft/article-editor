@@ -1,7 +1,7 @@
 //@ts-ignore
 import { DocumentHelpers } from 'wax-prosemirror-utilities';
 import { toggleMark } from "prosemirror-commands";
-import { Dropdown, MenuItem } from "prosemirror-menu"
+import { Dropdown, MenuItem,undoItem as undoItemPM,redoItem as redoItemPM} from "prosemirror-menu"
 import { EditorState, NodeSelection, Transaction } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
 import { schema} from "../Schema";
@@ -371,6 +371,8 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
     'insertHorizontalRule': insertHorizontalRule,
     'undoItem': undoYJS,
     'redoItem': redoYJS,
+    'undoItemPM': undoItemPM,
+    'redoItemPM': redoItemPM,
     'toggleSuperscriptItem': toggleSuperscriptItem,
     'toggleSubscriptItem': toggleSubscriptItem,
     'insertLink': insertLinkItem,

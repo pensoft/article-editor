@@ -76,7 +76,8 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
   ngOnInit(): void {
     this.articleSectionsStructure.forEach((node: articleSection, index: number) => {
       //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
-      let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID)
+      let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID);
+      console.log('initData',dataFromYMap);
       let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
       let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
 

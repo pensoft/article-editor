@@ -3,14 +3,37 @@ import { NodeSpec } from 'prosemirror-model';
 import { MathNodes } from './math';
 import { tableNodes } from './table';
 import { listNodes } from './lists';
-import { parseGenericAttributes, getGenericAttributes, genericAttributtesToDom,htmlTags } from '../helpers';
-import { nodes as basicNodes} from './basic-nodes'
+import { parseGenericAttributes, getGenericAttributes, genericAttributtesToDom, htmlTags } from '../helpers';
+import { nodes as basicNodes } from './basic-nodes'
 export const nodes: NodeSpec = {
     doc: {
         content: "block+"
     },
-    
-    form_field:{
+
+    inline_block_container: {
+        content: "block*",
+        group: "block",
+        attrs: {
+            ...getGenericAttributes()
+        },
+        parseDOM: [{
+            tag: "inline-block-container", getAttrs(dom: any) {
+                return {
+                    ...parseGenericAttributes(dom),
+                }
+            },
+        }],
+        toDOM(node: any) {
+            let attributesToDom: any = {
+                ...genericAttributtesToDom(node),
+                style:'display:flex;'
+
+            }
+            return ["inline-block-container", attributesToDom, 0];
+        }
+    },
+
+    form_field: {
         content: "paragraph+",
         group: "block",
         isolating: true,
@@ -20,13 +43,14 @@ export const nodes: NodeSpec = {
         parseDOM: [{
             tag: "form-field", getAttrs(dom: any) {
                 return {
-                    ...parseGenericAttributes(dom)
+                    ...parseGenericAttributes(dom),
                 }
             },
         }],
         toDOM(node: any) {
-            let attributesToDom:any = {
-                ...genericAttributtesToDom(node)
+            let attributesToDom: any = {
+                ...genericAttributtesToDom(node),
+
             }
             return ["form-field", attributesToDom, 0];
         }
@@ -55,25 +79,25 @@ export const nodes: NodeSpec = {
         },
         parseDOM: [{
             tag: "p", getAttrs(dom: any) {
-                let classArray = dom.getAttribute('class') 
+                let classArray = dom.getAttribute('class')
                 return {
-                    align:classArray,
+                    align: classArray,
                     ...parseGenericAttributes(dom)
                 }
             },
         }],
         toDOM(node: any) {
-            let attributesToDom:any = {
+            let attributesToDom: any = {
                 ...genericAttributtesToDom(node)
             }
-            
-                attributesToDom['class']=node.attrs.align
-            
+
+            attributesToDom['class'] = node.attrs.align
+
             return ["p", attributesToDom, 0];
         }
     },
     text: {
-        inline:true,
+        inline: true,
         group: "inline"
     },
     ...basicNodes,

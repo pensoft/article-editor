@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 //@ts-ignore
 import * as Y from 'yjs'
 import { WebrtcProvider } from 'y-webrtc';
+import { WebsocketProvider } from 'y-websocket'
 import { ColorDef } from 'y-prosemirror/dist/src/plugins/sync-plugin';
 import * as random from 'lib0/random.js';
 import * as userSpec from '../utils/userSpec';
@@ -58,13 +59,15 @@ import { Form } from 'formiojs';
 import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
 import { I } from '@angular/cdk/keycodes';
 import { ReplaceAroundStep } from 'prosemirror-transform';
+import { ViewFlags } from '@angular/compiler/src/core';
 @Injectable({
   providedIn: 'root'
 })
 export class ProsemirrorEditorsService {
 
   ydoc?: Y.Doc;
-  provider?: WebrtcProvider;
+  //provider?: WebrtcProvider;
+  provider?: WebsocketProvider;
 
   articleSectionsStructure?: articleSection[];
   initDocumentReplace: any = {};
@@ -82,7 +85,7 @@ export class ProsemirrorEditorsService {
   inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, schema.nodes.math_inline);
   blockMathInputRule = makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, schema.nodes.math_display);
 
-  OnOffTrackingChangesShowTrackingSubject = new Subject<{  trackTransactions: boolean }>()
+  OnOffTrackingChangesShowTrackingSubject = new Subject<{ trackTransactions: boolean }>()
   trackChangesMeta: any
   shouldTrackChanges = false
   treeChangesCount = 0
@@ -93,7 +96,7 @@ export class ProsemirrorEditorsService {
   mobileVersionSubject = new Subject<boolean>()
   mobileVersion = false;
 
-  defaultValuesObj:any = {}
+  defaultValuesObj: any = {}
   editorsDeleteArray: string[] = []
 
   constructor(
@@ -106,26 +109,18 @@ export class ProsemirrorEditorsService {
     private treeService: TreeService,
     private trackChangesService: TrackChangesService) {
 
-
     this.mobileVersionSubject.subscribe((data) => {
       // data == true => mobule version
       this.mobileVersion = data
     })
-
-    //this.showChangesSubject = this.trackChangesService.showChangesSubject
     this.OnOffTrackingChangesShowTrackingSubject.subscribe((data) => {
-
       this.shouldTrackChanges = data.trackTransactions
-      let trackCHangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
+      let trackCHangesMetadata = this.ydocService.trackChangesMetadata?.get('trackChangesMetadata');
       trackCHangesMetadata.lastUpdateFromUser = this.ydoc?.guid;
       trackCHangesMetadata.trackTransactions = data.trackTransactions
-      
-      this.ydocService.articleStructure?.set('trackChangesMetadata', trackCHangesMetadata);
+      this.ydocService.trackChangesMetadata?.set('trackChangesMetadata', trackCHangesMetadata);
     })
-
-
   }
-
   getXmlFragment(mode: string, id: string) {
     if (this.xmlFragments[id]) {
       return this.xmlFragments[id]
@@ -134,14 +129,12 @@ export class ProsemirrorEditorsService {
     this.xmlFragments[id] = xmlFragment;
     return xmlFragment
   }
-
   deleteXmlFragment(id: string) {
     if (this.xmlFragments[id]) {
       this.xmlFragments[id].delete(0, this.xmlFragments[id].length);
     }
     delete this.xmlFragments[id]
   }
-
   deleteEditor(id: any) {
     let deleteContainer = this.editorContainers[id];
     if (deleteContainer) {
@@ -149,7 +142,6 @@ export class ProsemirrorEditorsService {
       delete this.editorContainers[id]
     }
   }
-
   clearDeleteArray() {
     while (this.editorsDeleteArray.length > 0) {
       let deleteId = this.editorsDeleteArray.shift()!;
@@ -157,12 +149,10 @@ export class ProsemirrorEditorsService {
       this.deleteXmlFragment(deleteId)
     }
   }
-
   addEditorForDelete(editorId: string) {
     this.commentsService.removeEditorComment(editorId)
     this.editorsDeleteArray.push(editorId);
   }
-
   markSectionForDelete(section: articleSection) {
     let markEditor = (editorData: editorData) => {
       let editorId = editorData.editorId
@@ -198,10 +188,14 @@ export class ProsemirrorEditorsService {
     editorView: EditorView,
     dispatchTransaction: any
   } {
+
+    let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
+
     if (this.editorContainers[editorId]) {
       EditorContainer.appendChild(this.editorContainers[editorId].containerDiv);
       return this.editorContainers[editorId]
     }
+
     let container = document.createElement('div');
     let editorView: EditorView;
     let colors = this.colors
@@ -212,7 +206,7 @@ export class ProsemirrorEditorsService {
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment(section.mode, editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
-    yCursorPlugin(this.provider!.awareness) ,
+    yCursorPlugin(this.provider!.awareness),
     yUndoPlugin()]
 
 
@@ -239,8 +233,8 @@ export class ProsemirrorEditorsService {
                   const controlPath = node.attrs.controlPath;
                   const control = fg.get(controlPath) as FormControl;
                   //@ts-ignore
-                  
-                  if (control.componentType&&control.componentType == "textarea") {
+
+                  if (control.componentType && control.componentType == "textarea") {
                     let HTMLnodeRepresentation = this.DOMPMSerializer.serializeFragment(node.content)
                     let temp = document.createElement('div');
                     temp.appendChild(HTMLnodeRepresentation);
@@ -372,6 +366,7 @@ export class ProsemirrorEditorsService {
 
     let lastStep: any
     const dispatchTransaction = (transaction: Transaction) => {
+
       this.transactionCount++
       try {
         if (lastStep == transaction.steps[0]) {
@@ -418,9 +413,34 @@ export class ProsemirrorEditorsService {
         }
         return false
       },
+      handleClick(view: EditorView, pos: number, event: Event) {
+        if (((event.target as HTMLElement).className == 'changes-placeholder')) {
+          setTimeout(() => {
+            view.dispatch(view.state.tr)
+          }, 0)
+          return true
+        }
+        let tr1 = view.state.tr.setMeta(hideshowPluginKEey, {})
+        view.dispatch(tr1)
+        return false
+      },
       handleTripleClickOn(view, pos, node, nodepos, event, direct) {
         if (view.state.selection.$from.parent.type.name !== "form_field") {
           return true;
+        }
+        return false
+      },
+      handleDoubleClick(view: EditorView, pos: number, event: Event) {
+        let node = view.state.doc.nodeAt(pos)
+        let marks = node?.marks
+        let hasTrackChnagesMark = node?.marks.some((mark) => {
+          return mark!.type.name == 'insertion' || mark!.type.name == 'deletion' || mark!.type.name == 'format-change'
+        })
+        if (hasTrackChnagesMark) {
+          console.log(marks);
+          let tr1 = view.state.tr.setMeta(hideshowPluginKEey, { marks, focus: view.hasFocus() })
+          view.dispatch(tr1)
+          return true
         }
         return false
       },
@@ -447,7 +467,7 @@ export class ProsemirrorEditorsService {
               if ((from <= nodeEnd && nodeEnd <= to)) {
                 to = nodeEnd - 2
               }
-              view.dispatch(view.state.tr.setSelection(new Selection(view.state.doc.resolve(from),view.state.doc.resolve(to))))
+              view.dispatch(view.state.tr.setSelection(new Selection(view.state.doc.resolve(from), view.state.doc.resolve(to))))
             }
           }
         })
@@ -579,6 +599,7 @@ export class ProsemirrorEditorsService {
     editorView: EditorView,
     dispatchTransaction: any
   } {
+    let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
     EditorContainer.innerHTML = ''
     let editorID = random.uuidv4()
     let container = document.createElement('div');
@@ -602,12 +623,11 @@ export class ProsemirrorEditorsService {
     container.setAttribute('class', 'editor-container');
 
     let filterTransaction = false
-    let defaultMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'SimpleMenu');
-    let fullMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenu');
+    let defaultMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'SimpleMenuPMundoRedo');
+    let fullMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenuPMundoRedo');
 
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
 
-    let GroupControl = this.treeService.sectionFormGroups;
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
       appendTransaction: (trs: Transaction<any>[], oldState: EditorState, newState: EditorState) => {
@@ -653,6 +673,7 @@ export class ProsemirrorEditorsService {
       ,
       // @ts-ignore
       sectionName: editorID,
+      editorType:'popupEditor'
     });
 
     let lastStep: any
@@ -689,17 +710,89 @@ export class ProsemirrorEditorsService {
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,
-
+      /* handlePaste(view: EditorView, event, slice) {
+        let sel = view.state.selection
+        let noneditableNodes = false;
+        view.state.doc.nodesBetween(sel.from, sel.to, (node, pos, parent) => {
+          if (node.attrs.contenteditableNode == "false") {
+            noneditableNodes = true;
+          }
+        })
+        if (noneditableNodes) {
+          return true
+        }
+        return false
+      }, */
+      handleClick(view: EditorView, pos: number, event: Event) {
+        if (((event.target as HTMLElement).className == 'changes-placeholder')) {
+          setTimeout(() => {
+            view.dispatch(view.state.tr)
+          }, 0)
+          return true
+        }
+        let tr1 = view.state.tr.setMeta(hideshowPluginKEey, {})
+        view.dispatch(tr1)
+        return false
+      },
+      handleTripleClickOn(view, pos, node, nodepos, event, direct) {
+        if (view.state.selection.$from.parent.type.name !== "form_field") {
+          return true;
+        }
+        return false
+      },
+      handleDoubleClick(view: EditorView, pos: number, event: Event) {
+        let node = view.state.doc.nodeAt(pos)
+        let marks = node?.marks
+        let hasTrackChnagesMark = node?.marks.some((mark) => {
+          return mark!.type.name == 'insertion' || mark!.type.name == 'deletion' || mark!.type.name == 'format-change'
+        })
+        if (hasTrackChnagesMark) {
+          console.log(marks);
+          let tr1 = view.state.tr.setMeta(hideshowPluginKEey, { marks, focus: view.hasFocus() })
+          view.dispatch(tr1)
+          return true
+        }
+        return false
+      },
       createSelectionBetween: (view, anchor, head) => {
+        if (anchor.pos == head.pos) {
+          return new TextSelection(anchor, head);
+        }
         let headRangeMin = anchor.pos
         let headRangeMax = anchor.pos
-        if (anchor.nodeBefore) {
-          headRangeMin -= anchor.nodeBefore.nodeSize
+        let sel = view.state.selection
+
+
+        //@ts-ignore
+        let anchorPath = sel.$anchor.path
+        let counter = anchorPath.length - 1
+        let parentNode: Node | undefined = undefined;
+        let parentNodePos: number | undefined = undefined;
+        let formFieldParentFound = false
+        while (counter > -1 && !formFieldParentFound) {
+          let pathValue = anchorPath[counter]
+          if (typeof pathValue == 'number') {   // number
+          } else {                              // node       
+            let parentType = pathValue.type.name
+            if (parentType == "form_field") {
+              parentNode = pathValue   // store the form_field node that the selection is currently in
+              parentNodePos = anchorPath[counter - 1];
+              formFieldParentFound = true
+            } else if (parentType !== "doc") {
+              parentNode = pathValue   // store last node in the path that is diffetant than the doc node
+              parentNodePos = anchorPath[counter - 1];
+            }
+          }
+          counter--;
         }
-        if (anchor.nodeAfter) {
-          headRangeMax += anchor.nodeAfter.nodeSize
+
+        if (parentNode) {
+
+          headRangeMin = parentNodePos! + 1 // the parents inner start position
+          headRangeMax = parentNodePos! + parentNode?.nodeSize! - 1 // the parent inner end position
         }
-        this.editorsEditableObj[editorID] = true
+
+        //this.editorsEditableObj[editorID] = true
 
         if (headRangeMin > head.pos || headRangeMax < head.pos) {
           let headPosition = headRangeMin > head.pos ? headRangeMin : headRangeMax
@@ -743,11 +836,11 @@ export class ProsemirrorEditorsService {
     this.ydoc = data.ydoc;
     this.provider = data.provider;
     this.articleSectionsStructure = data.articleSectionsStructure;
-    let trackChangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
+    let trackChangesMetadata = this.ydocService.trackChangesMetadata?.get('trackChangesMetadata');
     this.trackChangesMeta = trackChangesMetadata
     this.shouldTrackChanges = trackChangesMetadata.trackTransactions;
-    this.ydocService.articleStructure?.observe((ymap) => {
-      let trackChangesMetadata = this.ydocService.articleStructure?.get('trackChangesMetadata');
+    this.ydocService.trackChangesMetadata?.observe((ymap) => {
+      let trackChangesMetadata = this.ydocService.trackChangesMetadata?.get('trackChangesMetadata');
       if (trackChangesMetadata.lastUpdateFromUser !== this.ydoc?.guid) {
       }
       this.trackChangesMeta = trackChangesMetadata

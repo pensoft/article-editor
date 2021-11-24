@@ -60,7 +60,15 @@ export class MenuService {
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
       ['insertMenu','logNodesMenuItem']
-    ],'fullMenuWithLog': [
+    ],
+    'fullMenuPMundoRedo':[
+      ['textMenu'],
+      ['alignMenu'],
+      ['undoItemPM', 'redoItemPM'],
+      ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
+      ['insertMenu','logNodesMenuItem']
+    ],
+    'fullMenuWithLog': [
       ['textMenu'],
       ['alignMenu'],
       ['undoItem', 'redoItem'],
@@ -71,6 +79,12 @@ export class MenuService {
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItem', 'redoItem','insertVideoItem'],
+      ['logNodesMenuItem']
+    ],
+    'SimpleMenuPMundoRedo':[
+      ['toggleStrong', 'toggleEm', 'toggleUnderline'],
+      ['toggleSubscriptItem', 'toggleSuperscriptItem'],
+      ['undoItemPM', 'redoItemPM','insertVideoItem'],
       ['logNodesMenuItem']
     ]
   }

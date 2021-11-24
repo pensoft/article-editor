@@ -98,12 +98,10 @@ app-article:not(.display-changes-hover) .deletion{
     padding: 2px;
     color: inherit;
     z-index: 3;
-    right: 0;
+    transform: translate(20%, -25px);
     width: fit-content;
-    left: 0;
     white-space: nowrap;
     margin: 0 auto;
-    top: -28px;
   }
 }
 ychange[ychange_type='removed'], p[ychange_type='removed'] {

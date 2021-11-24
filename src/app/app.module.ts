@@ -47,7 +47,6 @@ import { registerFormIOComponents } from './editor/formioComponents/registerForm
 import { ArticleComponent } from './editor/article/article.component';
 import { EditSectionDialogComponent } from './editor/dialogs/edit-section-dialog/edit-section-dialog.component';
 import { MatFormioModule } from './formio-angular-material/angular-material-formio.module';
-import { ProsemirrorEditorComponent } from './editor/prosemirror-editor/prosemirror-editor.component';
 import { TaxonomicCoverageComponent } from './editor/formioComponents/taxonomic-coverage/taxonomic-coverage.component';
 import { JitCompilerFactory } from '@angular/platform-browser-dynamic';
 import { FormControlNameDirective } from './editor/directives/form-control-name.directive';
@@ -97,7 +96,6 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     FigurePreviewComponent,
     ArticleComponent,
     EditSectionDialogComponent,
-    ProsemirrorEditorComponent,
     FormControlNameDirective,
     ArticleMetadataComponent,
     FiguresDialogComponent,

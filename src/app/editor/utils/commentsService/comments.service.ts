@@ -100,9 +100,10 @@ export class CommentsService {
       view: function () {
         return {
           update: (view, prevState) => {
-            /* if(JSON.stringify(view.state.doc)== JSON.stringify(prevState.doc)){
+            
+            if(JSON.stringify(view.state.doc)== JSON.stringify(prevState.doc)&&!view.hasFocus()){
               return;
-            } */
+            }
             let commentsMark = view.state.schema.marks.comment
             let editor = document.getElementsByClassName('editor-container').item(0) as HTMLDivElement
             let pluginData = commentPluginKey.getState(view.state)

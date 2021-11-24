@@ -11,6 +11,8 @@ import * as random from 'lib0/random.js';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { fromEvent, race } from 'rxjs';
 import { catchError, delay } from 'rxjs/operators';
+import { WebsocketProvider } from 'y-websocket'
+import {environment} from 'src/environments/environment'
 //@ts-ignore
 import { WebrtcProvider } from '../utils/y-webrtc/index.js';
 import { sectionNode } from '../utils/interfaces/section-node'
@@ -34,7 +36,8 @@ export class YdocService {
 
   ydoc = new Y.Doc();
 
-  provider?: OriginalWebRtc;
+  //provider?: OriginalWebRtc;
+  provider?: WebsocketProvider;
   roomName = 'webrtc-test3'
   providerIndexedDb?: IndexeddbPersistence
   constructor(
@@ -44,6 +47,7 @@ export class YdocService {
   sectionFormGroupsStructures?: YMap<any>
   comments?: YMap<any>
   figuresMap?: YMap<any>
+  trackChangesMetadata?: YMap<any>
   getCommentsMap(): YMap<any> {
     return this.comments!
   }
@@ -162,7 +166,8 @@ export class YdocService {
       this.figuresMap!.set('figures', []);
     }
     this.articleStructure = this.ydoc.getMap('articleStructure');
-    this.articleStructure?.set('trackChangesMetadata',{trackTransactions:false});
+    this.trackChangesMetadata = this.ydoc.getMap('trackChangesMetadata');
+    this.trackChangesMetadata?.set('trackChangesMetadata',{trackTransactions:false});
     this.comments = this.ydoc.getMap('comments');
     this.ydocStateObservable.next('docIsBuild');
     this.editorIsBuild = true;
@@ -172,15 +177,25 @@ export class YdocService {
     this.roomName = roomName
     this.providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
     let buildApp = () => {
-      this.provider = new WebrtcProvider(this.roomName, this.ydoc, {
-        signaling: [/* 'ws://dev.scalewest.com:4444' *//* 'ws://localhost:4444' */  'wss://y-webrtc-signaling-eu.herokuapp.com' /* , 'wss://signaling.yjs.dev'  ,'wss://y-webrtc-signaling-us.herokuapp.com' */],
+      this.provider = new WebsocketProvider(`wss://${environment.WEBSOCKET_HOST}:${environment.WEBSOCKET_PORT}`, this.roomName, this.ydoc, {
+        connect: true,
+        params: {},
+        WebSocketPolyfill: WebSocket,
+        awareness: new awarenessProtocol.Awareness(this.ydoc),
+      })
+      /* this.provider.on('sync', (isSynced: boolean) => {
+        console.log('IS SYNCED');
+        this.buildEditor();
+      }) */
+      /* this.provider = new WebrtcProvider(this.roomName, this.ydoc, {
+        signaling: ['ws://dev.scalewest.com:4444','ws://localhost:4444',  'wss://y-webrtc-signaling-eu.herokuapp.com' , 'wss://signaling.yjs.dev'  ,'wss://y-webrtc-signaling-us.herokuapp.com'],
         password: null,
         awareness: new awarenessProtocol.Awareness(this.ydoc),
         maxConns: 20 + Math.floor(random.rand() * 15),
         filterBcConns: false,
         peerOpts: {},
-      });
-      this.provider?.on('onChange', (docArray: any) => {
+      }); */
+      /*this.provider?.on('onChange', (docArray: any) => {
         let params = new HttpParams({
           fromObject: {
             document: docArray,
@@ -189,10 +204,10 @@ export class YdocService {
         });
 
 
-        /* sendUpdateToServiceWorker(params.toString());
+         sendUpdateToServiceWorker(params.toString());
         this.http.post('/products', params).subscribe(() => {
-        }); */
-      });
+        }); 
+      });*/
 
       let sendUpdateToServiceWorker = (update: string) => {
         if (navigator.onLine) {
@@ -211,12 +226,25 @@ export class YdocService {
 
         // Building the editor without backend for now just for developer purpose
         let buildeditor = false
-        this.buildEditor();
+        //this.buildEditor();
+        //return
+        let r = race(this.http.get('/products').pipe(delay(500), catchError((err: any) => {
+          console.error(err);
+          this.buildEditor();
+          throw (err)
+        })), fromEvent(this.provider!, 'synced')).subscribe((data: any) => {
+          if (data.synced) {
+            this.buildEditor();
+          } else {
+            renderDoc(data)
+          }
+        });
         return
-        let onSubevent = fromEvent(this.provider!, 'signalingConnected').subscribe(() => {
+        let onSubevent = fromEvent(this.provider!, 'connected').subscribe(() => {
           fromEvent(this.provider!, 'synced').pipe(delay(500)).subscribe((data: any) => {
             if(!buildeditor){
-              let synced = this.provider?.room?.synced
+              //let synced = this.provider?.room?.synced
+              console.log('synced');
               console.log('rendered with sync');
               buildeditor = true
               if (data.synced) {
@@ -241,18 +269,7 @@ export class YdocService {
 
 
             // race render from backend on indexdb
-          let r = race(this.http.get('/products').pipe(delay(500), catchError((err: any) => {
-            console.error(err);
-            this.buildEditor();
-            throw (err)
-          })), fromEvent(this.provider!, 'synced')).subscribe((data: any) => {
-            let synced = this.provider?.room?.synced
-            if (data.synced) {
-              this.buildEditor();
-            } else {
-              renderDoc(data)
-            
-          })  */
+            */
         })
 
         /* this.provider?.on('signalingConnected',()=>{
