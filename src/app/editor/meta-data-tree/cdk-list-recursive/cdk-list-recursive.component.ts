@@ -77,7 +77,6 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
     this.articleSectionsStructure.forEach((node: articleSection, index: number) => {
       //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
       let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID);
-      console.log('initData',dataFromYMap);
       let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
       let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
 
@@ -172,6 +171,7 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
             snapshot: Y.decodeSnapshot(Y.encodeSnapshot(updatedSnapshot)),
             prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(mainDocumentSnapshot)),
             renderingFromPopUp: true,
+            trackStatus
           }))
           //editorview
           this.treeService.editNodeChange(node.sectionID)

@@ -66,6 +66,8 @@ const getUserColor = (colorMapping, colors, user) => {
   return /** @type {ColorDef} */ (colorMapping.get(user))
 }
 
+let trackStatus = undefined
+
 /**
  * This plugin listens to changes in prosemirror view and keeps yXmlState and view in sync.
  *
@@ -111,8 +113,11 @@ export const ySyncPlugin = (yXmlFragment, { colors = defaultColors, colorMapping
         if (pluginState.binding !== null) {
           if (change !== undefined && (change.snapshot != null || change.prevSnapshot != null)&&change.renderingFromPopUp) {
             // snapshot changed, rerender next
+            if(pluginState.trackStatus!==undefined){
+              trackStatus = pluginState.trackStatus
+            }
             setTimeout(() => {
-                pluginState.binding._renderSnapshot(change.snapshot, change.prevSnapshot, pluginState)
+              pluginState.binding._renderSnapshot(change.snapshot, change.prevSnapshot, pluginState)
                 // reset to current prosemirror state
                 delete pluginState.restore
                 delete pluginState.snapshot
@@ -471,13 +476,14 @@ const createTextNodesFromYText = (text, schema, mapping, snapshot, prevSnapshot,
       const marks = []
       for (const markName in delta.attributes) {
         if(markName == 'ychange'){
+          console.log(trackStatus);
           let markAttrs = delta.attributes[markName]
-          if(markAttrs.type == 'added'){
+          if(markAttrs.type == 'added'&&trackStatus){
             marks.push(schema.mark('insertion', {
               user:text.doc.clientID,
               username:markAttrs.user
             }))
-          }else if(markAttrs.type == 'removed'){
+          }else if(markAttrs.type == 'removed'&&trackStatus){
             marks.push(schema.mark('deletion',{
               user:text.doc.clientID,
               username:markAttrs.user

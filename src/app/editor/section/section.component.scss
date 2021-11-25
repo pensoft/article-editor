@@ -304,14 +304,14 @@
     }
 
     .ProseMirror .tableWrapper {
-        overflow-x: auto;
+        //overflow-x: auto;
     }
 
     .ProseMirror table {
         border-collapse: collapse;
         table-layout: fixed;
         width: 100%;
-        overflow: hidden;
+        //overflow: hidden;
     }
 
     .ProseMirror td,

@@ -8,7 +8,7 @@ import { schema } from "../Schema";
 let DOMPMparser = DOMParser.fromSchema(schema)
 
 let parseNodeHTmlStringToTextContent = (html:string) => {
-    let html1 = html.match(/<span class="(deletion|insertion|format-change)"\s*[\w\d'-=" ]*>\s*[\w\dа-яА-Яa-zA-Z1-90'-=" ]*<\/span>/gm);
+    let html1 = html.match(/<span class="(deletion|insertion|format-change)"[а-яА-Я\s\w\-="\d]*>[а-яА-Я\s\w\-="\d<>\/]*<\/span>/gm);
     if(html1){
         return true
     }

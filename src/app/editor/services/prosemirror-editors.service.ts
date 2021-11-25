@@ -211,7 +211,7 @@ export class ProsemirrorEditorsService {
 
 
     container.setAttribute('class', 'editor-container');
-    let filterTransaction = false
+    let filterTr = false
     let defaultMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'SimpleMenu', editorID);
     let fullMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenu', editorID);
     this.initDocumentReplace[editorID] = true;
@@ -324,9 +324,9 @@ export class ProsemirrorEditorsService {
     })
 
     setTimeout(() => {
-      this.initDocumentReplace[editorID] = true;
-      filterTransaction = true;
-    }, 1000);
+      this.initDocumentReplace[editorID] = false;
+      filterTr = true;
+    }, 600);
 
     this.editorsEditableObj[editorID] = true
 
@@ -373,7 +373,7 @@ export class ProsemirrorEditorsService {
           if (lastStep) { return }
         }
         lastStep = transaction.steps[0]
-        if (!this.initDocumentReplace[editorID] || !this.shouldTrackChanges) {
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges) {
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
 
@@ -434,11 +434,12 @@ export class ProsemirrorEditorsService {
         let node = view.state.doc.nodeAt(pos)
         let marks = node?.marks
         let hasTrackChnagesMark = node?.marks.some((mark) => {
-          return mark!.type.name == 'insertion' || mark!.type.name == 'deletion' || mark!.type.name == 'format-change'
+          console.log(mark.type.name);
+          return mark!.type.name == 'insertion' || mark!.type.name == 'deletion' /* || mark!.type.name == 'format_change' */
         })
         if (hasTrackChnagesMark) {
-          console.log(marks);
-          let tr1 = view.state.tr.setMeta(hideshowPluginKEey, { marks, focus: view.hasFocus() })
+          let cursurCoord = view.coordsAtPos(pos);
+          let tr1 = view.state.tr.setMeta(hideshowPluginKEey, { marks, focus: view.hasFocus(),coords:cursurCoord })
           view.dispatch(tr1)
           return true
         }
@@ -747,8 +748,8 @@ export class ProsemirrorEditorsService {
           return mark!.type.name == 'insertion' || mark!.type.name == 'deletion' || mark!.type.name == 'format-change'
         })
         if (hasTrackChnagesMark) {
-          console.log(marks);
-          let tr1 = view.state.tr.setMeta(hideshowPluginKEey, { marks, focus: view.hasFocus() })
+          let cursurCoord = view.coordsAtPos(pos);
+          let tr1 = view.state.tr.setMeta(hideshowPluginKEey, { marks, focus: view.hasFocus(),coords:cursurCoord })
           view.dispatch(tr1)
           return true
         }

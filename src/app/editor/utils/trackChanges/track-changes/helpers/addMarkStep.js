@@ -24,7 +24,7 @@ const addMarkStep = (
       Math.min(step.to, pos + node.nodeSize),
       step.mark,
     );
-
+      return
     if (
       !['comment', 'deletion'].includes(step.mark.type.name) &&
       !node.marks.find(mark => mark.type === step.mark.type)

@@ -83,7 +83,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   }
 
   onChange1 = (keepInputRaw: boolean, value1?: string) => {
-    let hasChanges = value1?.match(/<span class="(deletion|insertion|format-change)"\s*[\w\d'-=" ]*>\s*[\w\dа-яА-Яa-zA-Z1-90'-=" ]*<\/span>/gm);
+    let hasChanges = value1?.match(/<span class="(deletion|insertion|format-change)"[а-яА-Я\s\w\-="\d]*>[а-яА-Я\s\w\-="\d<>\/]*<\/span>/gm);
     if(hasChanges&&Object.keys(this.instance.component.validate).length>2){
       this.instanceValidations = this.instance.component.validate
       this.instance.component.validate = {}

@@ -86,9 +86,27 @@ app-article:not(.display-changes-hover) .deletion{
   word-break: normal;
 }
 
+.math-node{
+  font-size: 14px ;
+  .math-render{
+    font-size: 14px ;
+  }
+}
+
+.popup-menu-container {
+  border: 2px solid #00b1b2;
+  border-radius: 15px;
+  width: fit-content;
+  min-height: 40px;
+  align-self: center;
+  min-width: 400px;
+  text-align: center;
+  margin: 0 auto;
+}
+
 *[data-username] {
   //position: relative;
-  
+
   &:hover:before {
     content: attr(data-user);
     display: inline;
@@ -104,11 +122,13 @@ app-article:not(.display-changes-hover) .deletion{
     margin: 0 auto;
   }
 }
-ychange[ychange_type='removed'], p[ychange_type='removed'] {
+ychange[ychange_type="removed"],
+p[ychange_type="removed"] {
   text-decoration: line-through;
 }
 
-ychange[ychange_type='added'], p[ychange_type='added'] {
+ychange[ychange_type="added"],
+p[ychange_type="added"] {
   background: #b2e6bd;
 }
 /*
@@ -116,11 +136,11 @@ p[ychange_type='removed'] > span > br {
   display: none;
 }
 */
-*:not(ychange)[ychange_type='removed'] {
+*:not(ychange)[ychange_type="removed"] {
   background-color: #ff5a56;
   color: inherit !important;
 }
-img[ychange_type='removed'] {
+img[ychange_type="removed"] {
   padding: 2px;
 }
 

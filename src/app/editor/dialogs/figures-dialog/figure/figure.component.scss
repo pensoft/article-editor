@@ -1,28 +1,18 @@
-.figure-components{
-    display: flex;
-    .component{
-        margin: 18px;
+.figure {
+    .figure-index {
     }
-}
-
-.component-description {
-    width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-
-.figure{
-    .figure-index{
-
+    .figure-description {
+        width: 100%;
     }
-    .figure-description{
-
-    }
-    .figure-components{
-        .component{
-            
+    .figure-components {
+        display: flex;
+        .component-image {
+            margin: 18px;
+            max-width: 200px;
+        }
+        .component-video {
+            margin: 18px;
+            max-width: 300px;
         }
     }
-
 }

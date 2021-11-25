@@ -160,14 +160,18 @@ export class YdocService {
   }
   buildEditor() {
     this.sectionFormGroupsStructures = this.ydoc.getMap('sectionFormGroupsStructures');
-    this.figuresMap = this.ydoc.getMap('figuresMap');
-    let figures = this.figuresMap!.get('figures');
+    this.figuresMap = this.ydoc.getMap('ArticleFiguresMap');
+    let figures = this.figuresMap!.get('ArticleFigures');
     if (!figures) {
+      console.log('set empty figures');
       this.figuresMap!.set('figures', []);
     }
     this.articleStructure = this.ydoc.getMap('articleStructure');
     this.trackChangesMetadata = this.ydoc.getMap('trackChangesMetadata');
-    this.trackChangesMetadata?.set('trackChangesMetadata',{trackTransactions:false});
+    let trackChangesData = this.trackChangesMetadata?.get('trackChangesMetadata')
+    if(!trackChangesData){
+      this.trackChangesMetadata?.set('trackChangesMetadata',{trackTransactions:false});
+    }
     this.comments = this.ydoc.getMap('comments');
     this.ydocStateObservable.next('docIsBuild');
     this.editorIsBuild = true;
@@ -183,10 +187,10 @@ export class YdocService {
         WebSocketPolyfill: WebSocket,
         awareness: new awarenessProtocol.Awareness(this.ydoc),
       })
-      /* this.provider.on('sync', (isSynced: boolean) => {
+      this.provider.on('sync', (isSynced: boolean) => {
         console.log('IS SYNCED');
         this.buildEditor();
-      }) */
+      })
       /* this.provider = new WebrtcProvider(this.roomName, this.ydoc, {
         signaling: ['ws://dev.scalewest.com:4444','ws://localhost:4444',  'wss://y-webrtc-signaling-eu.herokuapp.com' , 'wss://signaling.yjs.dev'  ,'wss://y-webrtc-signaling-us.herokuapp.com'],
         password: null,
@@ -195,6 +199,7 @@ export class YdocService {
         filterBcConns: false,
         peerOpts: {},
       }); */
+
       /*this.provider?.on('onChange', (docArray: any) => {
         let params = new HttpParams({
           fromObject: {
@@ -223,23 +228,11 @@ export class YdocService {
         //this.buildEditorsOffline();
         this.buildEditor();
       } else {
-
+        return
         // Building the editor without backend for now just for developer purpose
         let buildeditor = false
         //this.buildEditor();
         //return
-        let r = race(this.http.get('/products').pipe(delay(500), catchError((err: any) => {
-          console.error(err);
-          this.buildEditor();
-          throw (err)
-        })), fromEvent(this.provider!, 'synced')).subscribe((data: any) => {
-          if (data.synced) {
-            this.buildEditor();
-          } else {
-            renderDoc(data)
-          }
-        });
-        return
         let onSubevent = fromEvent(this.provider!, 'connected').subscribe(() => {
           fromEvent(this.provider!, 'synced').pipe(delay(500)).subscribe((data: any) => {
             if(!buildeditor){

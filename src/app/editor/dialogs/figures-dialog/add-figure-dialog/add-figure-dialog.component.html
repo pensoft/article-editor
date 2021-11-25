@@ -1,6 +1,7 @@
 
 <div [formGroup]="sectionForm">
     <ng-container *ngIf='renderForm'>
+        <div *ngIf='section.mode == "editMode"' class="popup-menu-container"></div>
         <div >
             <mat-formio #formio [form]="sectionContent" (submit)="onSubmit($event)"></mat-formio>
         </div>

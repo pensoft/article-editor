@@ -315,13 +315,14 @@ function logNodesItemRun(state: EditorState, dispatch: any, view: EditorView) {
         let input_label = state.schema.nodes.input_label as NodeType;
         let input_placeholder = state.schema.nodes.input_placeholder as NodeType;
 
-        let leb = input_label.create({text:'label'})
+        /* let leb = input_label.create({text:'label'})
         let pl = input_placeholder.create({},schema.text('placeholder'))
-        let co = input_container.create({},[leb,pl]);
+        let co = input_container.create({},[leb,pl]); 
 
         
         let newTr = state.tr.replaceSelectionWith(co);
-        view.dispatch(newTr);
+        view.dispatch(newTr);*/
+        console.log('currentDocument',state.doc.toJSON());
         return true;
     }catch(e){
         console.error(e);

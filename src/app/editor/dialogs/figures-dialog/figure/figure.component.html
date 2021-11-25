@@ -1,21 +1,26 @@
 <div *ngIf="figure" class="figure">
-    <div class="figure-index">Fg:№{{figureIndex}}</div>
+    <div class="figure-index">Figure №{{figureIndex!+1}} :</div>
     <div class="figure-description">
-        {{figure.description}}
+        <span [outerHTML]="figure.description">
+        </span>
     </div>
     <div class="figure-components">
-        <div class="component" *ngFor="let component of figure.components">
-            <div class="component-inage" *ngIf="component.type == 'image'">
+        <div [ngClass]="{'component-image':component.type == 'image','component-video':component.type == 'video'}" *ngFor="let component of figure.components">
+            <div *ngIf="component.type == 'image'">
                 <img  src='{{component.url}}' height="150" />
             </div>
-            <div class="component-inage" *ngIf="component.type == 'video'" >
+            <div *ngIf="component.type == 'video'" >
                 <iframe height="150" 
                 [src]="component.url | safe"
                 title="YouTube video player" frameborder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                 allowfullscreen=""></iframe>
             </div>
-            <div class="component-description"><span>{{component.description}}</span></div>    
+            <div class="component-description"><span>
+                <span [outerHTML]="component.description"> 
+
+                </span>
+            </span></div>    
         </div>
     </div>
 </div>

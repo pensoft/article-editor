@@ -183,13 +183,19 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
   renderComponents() {
     try{
       console.log(JSON.parse(JSON.stringify(this.control.value)));
-      this.instance.components.forEach((el:any)=>{
-        if(el.component.type == 'textarea'){
-          if(el.materialComponent){
-            el.materialComponent.setRealValue();
+      let recursiveSetRealValue = (instance:any)=>{
+        instance.components.forEach((el:any)=>{
+          if(el.component.type == 'textarea'){
+            if(el.materialComponent){
+              el.materialComponent.setRealValue();
+            }
           }
-        }
-      })
+          if(el.components&&el.components.length>0){
+            recursiveSetRealValue(el);
+          }
+        })
+      }
+      recursiveSetRealValue(this.instance);
       //this.instance.getRows();
       //this.instance.updateValue(this.control.value || [], { modified: true });
       this.instance.setValue(this.control.value || []);

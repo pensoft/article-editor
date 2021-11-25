@@ -50,8 +50,8 @@ export const taxonomicCoverage = {
                 },
                 "validate": {
                     "required": true,
-                    "minLength": 2,
-                    "maxLength": 10
+                    "minLength": 10,
+                    "maxLength": 255
                 },
                 "type": "textarea",
                 "input": true

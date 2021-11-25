@@ -22,6 +22,7 @@ export class AddFigureDialogComponent implements AfterViewInit {
                 "label": "Figure description : ",
                 "autoExpand": false,
                 "tableView": true,
+                "defaultValue":`<p align="set-align-left" class="set-align-left">Линкин Парк</p>`,
                 "validate": {
                     "required": true
                 },
@@ -42,9 +43,16 @@ export class AddFigureDialogComponent implements AfterViewInit {
                 "defaultValue": [
                     {
                         "container": {
-                            "url": "",
-                            "description": "",
-                            "componentType": "",
+                            "url": "https://www.youtube.com/embed/v2H4l9RpkwM",
+                            "description": `<p align="set-align-left" class="set-align-left">Линкин Парк е американска музикална група. Повечето критици ги определят като ню метъл. Linkin Park добавят, че главната им цел е да създават нещо между рок и рап.</p>`,
+                            "componentType": "video",
+                        }
+                    },
+                    {
+                        "container": {
+                            "url": "https://imjeffreyrex.files.wordpress.com/2014/06/linkin-park.png",
+                            "description": `<p align="set-align-left" class="set-align-left">Първият им албум се казва „Hybrid Theory“, като издаден.</p>`,
+                            "componentType": "image",
                         }
                     }
                 ],
@@ -184,6 +192,7 @@ export class AddFigureDialogComponent implements AfterViewInit {
     }
 
     onSubmit(submision?: any) {
+        console.log(submision);
         let newFigure: figure = {
             description: submision.data.figureDescription,
             components: submision.data.figureComponents.reduce((prev: any, curr: any, index: number, array: any) => {

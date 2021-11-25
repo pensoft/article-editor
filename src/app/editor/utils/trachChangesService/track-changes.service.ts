@@ -6,6 +6,7 @@ import { Decoration, DecorationSet } from 'prosemirror-view';
 import { Subject } from 'rxjs';
 //@ts-ignore
 import { DocumentHelpers } from 'wax-prosemirror-utilities';
+import { createPopper } from '@popperjs/core';
 import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../../services/ydoc.service';
 //@ts-ignore
@@ -55,7 +56,10 @@ export class TrackChangesService {
   changesObject
   hideShowPlugin
   hideshowPluginKey: PluginKey;
-  acceptReject:any = {}
+  acceptReject: any = {}
+
+  editorCenter: { top: number | undefined, left: number | undefined } = { top: undefined, left: undefined }
+
   constructor(
     private ydocService: YdocService
   ) {
@@ -67,8 +71,8 @@ export class TrackChangesService {
     let changesObject: any = {};
     this.changesObject = changesObject;
 
-    let acceptReject = this.acceptReject 
-
+    let acceptReject = this.acceptReject
+    let editorCenter = this.editorCenter
     let hideShowPlugin = new Plugin({
       key: hideShowPluginKey,
       state: {
@@ -77,12 +81,12 @@ export class TrackChangesService {
             sectionName: _.sectionName,
             createdDecorations: DecorationSet.empty,
             allMatches: undefined,
-            editorType:_.editorType?_.editorType:undefined
+            editorType: _.editorType ? _.editorType : undefined
           };
         },
         apply(tr, prev, oldState, newState) {
           let meta = tr.getMeta(hideShowPluginKey)
-          
+
           /*let decorations;
           let createdDecorations = DecorationSet.empty;
           const allMatches = getTrackChanges(newState);
@@ -121,9 +125,9 @@ export class TrackChangesService {
             }
           } */
           let pluginState = { ...prev };
-          if (acceptReject.action){
+          if (acceptReject.action) {
             pluginState.createdDecorations = DecorationSet.empty
-          } 
+          }
           if (meta) {
             try {
               if (oldState.selection.empty) {
@@ -132,33 +136,35 @@ export class TrackChangesService {
                 let nodeAtSelect = oldState.doc.nodeAt(markPos)
                 let sameMarks = nodeAtSelect?.marks == meta.marks;
                 if (sameMarks && meta.focus) {
+
                   pluginState.createdDecorations = DecorationSet.create(oldState.doc, [Decoration.widget(oldState.selection.from, (view) => {
                     let relativeElement = document.createElement('div');
-                    relativeElement.setAttribute('style', 'position: relative;display: inline;')
+                    relativeElement.setAttribute('style', 'position: relative;display: inline;line-height: 21px;font-size: 14px;')
                     relativeElement.setAttribute('class', 'changes-placeholder')
-                    
+
+                    let absElPosition = document.createElement('div');
+                    absElPosition.setAttribute('class', 'changes-placeholder')
+
                     let changePlaceholder = document.createElement('div');
                     let markContent = document.createElement('div');
-                    nodeAtSelect?.marks.forEach((mark) => {
+
                       let markData = document.createElement('div');
-                      let attr = mark.attrs
-                      let content = `${attr.class} from ${attr.username} \nUserId = ${attr.user}`;
-                      markData.textContent = content
+                      let attr = nodeAtSelect?.marks.filter((mark)=>{return mark.attrs.class=='insertion'||mark.attrs.class=='deletion'})[0].attrs!
+                      if(attr.class == 'insertion'){
+                        markData.textContent = `Insertion from ${attr.username} \nUserId = ${attr.user}`;
+                      }else if(attr.class == 'deletion'){
+                        markData.textContent = `Deletion from ${attr.username} \nUserId = ${attr.user}`;
+                      }/* else if(attr.class == 'format-change'){
+                        markData.textContent = `Format Change from ${attr.username} \nUserId = ${attr.user}`;
+                      } */
                       markData.setAttribute('class', 'changes-placeholder')
 
                       markContent.append(markData)
-                    })
+
                     changePlaceholder.append(markContent)
                     changePlaceholder.style.position = 'absolute';
                     changePlaceholder.setAttribute('class', 'changes-placeholder')
-                    changePlaceholder.setAttribute('style', `position: fixed;
-                    display: inline;
-                    transform: translate(-50%, -111%);
-                    background-color: #47d2d3;
-                    border-radius: 2px;
-                    width: fit-content;
-                    z-index: 10;
-                    padding: 6px;`)
+
 
                     let buttonsContainer = document.createElement('div');
                     buttonsContainer.setAttribute('class', 'changes-placeholder')
@@ -185,14 +191,14 @@ export class TrackChangesService {
                     padding-right: 9px;
                     margin-left: 7px;
                     border: 1.4px solid black;`)
-                    
-                    acceptBtn.addEventListener('click',()=>{
+
+                    acceptBtn.addEventListener('click', () => {
                       acceptReject.action = 'accept';
                       acceptReject.pos = markPos;
                       acceptReject.editorId = pluginState.sectionName;
                       relativeElement.style.display = 'none';
                     })
-                    rejectBtn.addEventListener('click',()=>{
+                    rejectBtn.addEventListener('click', () => {
                       acceptReject.action = 'reject';
                       acceptReject.pos = markPos;
                       acceptReject.editorId = pluginState.sectionName;
@@ -203,24 +209,138 @@ export class TrackChangesService {
 
                     let arrow = document.createElement('div');
                     arrow.setAttribute('class', 'changes-placeholder')
-                    arrow.setAttribute('style',`
-                    position: absolute;
-                    right: 50%;
-                    border-bottom: 10px solid #47d2d3;
-                    border-left: 6px solid rgba(0, 0, 0, 0);
-                    border-right: 6px solid rgba(0, 0, 0, 0);
-                    content: "";
-                    display: inline-block;
-                    height: 0;
-                    vertical-align: top;
-                    width: 0;
-                    transform: rotate(180deg) translate(-50%, -5px);
-                    `)
-
-                    changePlaceholder.append(buttonsContainer,arrow);
 
 
+                    changePlaceholder.append(buttonsContainer, arrow);
+
+                    let backgroundColor = '#00b1b2eb'
                     relativeElement.appendChild(changePlaceholder);
+                    if (editorCenter.top && editorCenter.left) {
+                      /* createPopper(absElPosition, changePlaceholder , {
+                        placement: 'top-start',
+                        strategy:'absolute'
+                      }); */
+                      if (meta.coords.top <= editorCenter.top && meta.coords.left <= editorCenter.left) {
+                        //topleft
+                        changePlaceholder.setAttribute('style', `    
+                        position: absolute;
+                        display: inline;
+                        transform: translate(-8%, 34%);
+                        background-color: ${backgroundColor};
+                        border-radius: 2px;
+                        width: 150px;
+                        z-index: 10;
+                        padding: 6px;`)
+                        arrow.setAttribute('style', `
+                        position: absolute;
+                        
+                        border-bottom: 10px solid ${backgroundColor};
+                        border-left: 6px solid rgba(0, 0, 0, 0);
+                        border-right: 6px solid rgba(0, 0, 0, 0);
+                        content: "";
+                        display: inline-block;
+                        height: 0;
+                        vertical-align: top;
+                        width: 0;
+                        top: -6%;
+                        transform: translate(0, -36%);
+                        `)
+                      } else if (meta.coords.top <= editorCenter.top && meta.coords.left > editorCenter.left) {
+                        //topright
+                        changePlaceholder.setAttribute('style', `    
+                        position: absolute;
+                        display: inline;
+                        transform: translate(-92%, 34%);
+                        background-color: ${backgroundColor};
+                        border-radius: 2px;
+                        width: 150px;
+                        z-index: 10;
+                        padding: 6px;`)
+                        arrow.setAttribute('style', `
+                        position: absolute;
+                        left: 132px;
+                        border-bottom: 10px solid ${backgroundColor};
+                        border-left: 6px solid rgba(0, 0, 0, 0);
+                        border-right: 6px solid rgba(0, 0, 0, 0);
+                        content: "";
+                        display: inline-block;
+                        height: 0;
+                        vertical-align: top;
+                        width: 0;
+                        top: -6%;
+                        transform: translate(0, -36%);
+                        `)
+                      } else if (meta.coords.top > editorCenter.top && meta.coords.left <= editorCenter.left) {
+                        //bottomleft
+                        changePlaceholder.setAttribute('style', `    position: absolute;
+                        display: inline;
+                        transform: translate(-10%, -111%);
+                        background-color: ${backgroundColor};
+                        border-radius: 2px;
+                        width: 150px;
+                        z-index: 10;
+                        padding: 6px;`)
+                        arrow.setAttribute('style', `    position: absolute;
+                        border-bottom: 10px solid ${backgroundColor};
+                        border-left: 6px solid rgba(0, 0, 0, 0);
+                        border-right: 6px solid rgba(0, 0, 0, 0);
+                        content: "";
+                        display: inline-block;
+                        height: 0;
+                        vertical-align: top;
+                        width: 0;
+                        transform: rotate(
+                        180deg) translate(-26%, -5px);
+                        `)
+                      } else if (meta.coords.top > editorCenter.top && meta.coords.left > editorCenter.left) {
+                        //bottomright
+                        changePlaceholder.setAttribute('style', `    position: absolute;
+                        display: inline;
+                        transform: translate(-91%, -111%);
+                        background-color: ${backgroundColor};
+                        border-radius: 2px;
+                        width: 150px;
+                        z-index: 10;
+                        padding: 6px;`)
+                        arrow.setAttribute('style', `    position: absolute;
+                        right: 9%;
+                        border-bottom: 10px solid ${backgroundColor};
+                        border-left: 6px solid rgba(0, 0, 0, 0);
+                        border-right: 6px solid rgba(0, 0, 0, 0);
+                        content: "";
+                        display: inline-block;
+                        height: 0;
+                        vertical-align: top;
+                        width: 0;
+                        transform: rotate(
+                    180deg) translate(-50%, -5px);
+                        `)
+                      }
+
+                      /* topleft
+                            position: absolute;
+    display: inline;
+    transform: translate(-8%, 18%);
+    background-color: #47d2d3;
+    border-radius: 2px;
+    width: 150px;
+    z-index: 10;
+    padding: 6px;
+                      arrow
+                      position: absolute;
+    border-bottom: 10px solid #47d2d3;
+    border-left: 6px solid rgba(0, 0, 0, 0);
+    border-right: 6px solid rgba(0, 0, 0, 0);
+    content: "";
+    display: inline-block;
+    height: 0;
+    vertical-align: top;
+    width: 0;
+    top: -6%;
+    transform: translate(15%, 0%);
+                      */
+
+                    }
                     return relativeElement;
                   })]);
                 } else {
@@ -247,38 +367,46 @@ export class TrackChangesService {
             try {
               let pluginState = hideShowPluginKey.getState(view.state)
               let sectionName = pluginState.sectionName
-              if(this.acceptReject.action && this.acceptReject.editorId == sectionName){
-                let marks = (changesObject[sectionName] as Array<any>).filter((el)=>{return el.from<=acceptReject.pos&&el.to>=acceptReject.pos});
+              if (this.acceptReject.action && this.acceptReject.editorId == sectionName) {
+                let marks = (changesObject[sectionName] as Array<any>).filter((el) => { return el.from <= acceptReject.pos && el.to >= acceptReject.pos });
                 console.log(changesObject[sectionName]);
-                if(marks.length==0){
+                if (marks.length == 0) {
                   return
                 }
-                if(this.acceptReject.action == 'accept'){
-                  acceptChange(view,{from:marks[0].from,to:marks[0].to})
-                }else if(this.acceptReject.action == 'reject'){
-                  rejectChange(view,{from:marks[0].from,to:marks[0].to})
+                if (this.acceptReject.action == 'accept') {
+                  acceptChange(view, { from: marks[0].from, to: marks[0].to })
+                } else if (this.acceptReject.action == 'reject') {
+                  rejectChange(view, { from: marks[0].from, to: marks[0].to })
                 }
                 this.acceptReject.action = undefined
                 this.acceptReject.editorId = undefined
                 this.acceptReject.pos = undefined
               }
-              if(JSON.stringify(view.state.doc)== JSON.stringify(prevState.doc)&&!view.hasFocus()){
+              if (JSON.stringify(view.state.doc) == JSON.stringify(prevState.doc) && !view.hasFocus()) {
                 return;
               }
               let deletionMark = view.state.schema.marks.deletion
               let insertionMark = view.state.schema.marks.insertion
               let format_changeMark = view.state.schema.marks.format_change
-              let editor = document.getElementsByClassName('editor-container').item(0) as HTMLDivElement
+              let editor
+              if(pluginState.editorType == 'popupEditor'){
+                editor = document.getElementsByTagName('mat-dialog-container').item(0) as HTMLDivElement
+              }else{
+                editor = document.getElementsByClassName('editor-container').item(0) as HTMLDivElement
+              }
               if (editor) {
                 let elemRect = editor.getBoundingClientRect();
+                console.log(elemRect);
                 let editorCoordinatesObj = {
                   top: elemRect.top,
                   //left: elemRect.left,
                   //right: elemRect.right,
                   bottom: elemRect.bottom,
                 }
-                let coords = { left: elemRect.left + 47, top: elemRect.top + 24 }
-                let coords2 = { left: elemRect.right - 80, top: elemRect.bottom - 80 }
+                this.editorCenter.top = (elemRect.top + elemRect.bottom) / 2
+                this.editorCenter.left = (elemRect.left + elemRect.right) / 2
+                let coords = { left: elemRect.left + 17, top: elemRect.top + 11 }
+                let coords2 = { left: elemRect.right - 80, top: elemRect.bottom - 9 }
                 //let startOfEditor = view.posAtCoords(coords);
                 //let endOfEditor = view.posAtCoords(coords2);
                 let startCoords = view.coordsAtPos(0)
@@ -286,7 +414,7 @@ export class TrackChangesService {
                 let endOfEditor = view.state.doc.content.size
                 let endCoords = view.coordsAtPos(endOfEditor)
                 let endPosition = checkPosition(editorCoordinatesObj, { top: endCoords.top, bottom: endCoords.bottom })
-                if ((startPosition == endPosition && endPosition == 'above' || startPosition == endPosition && endPosition == 'under')&&pluginState.editorType!=='popupEditor') {
+                if ((startPosition == endPosition && endPosition == 'above' || startPosition == endPosition && endPosition == 'under') && pluginState.editorType !== 'popupEditor') {
 
                   changesObject[sectionName] = [];
 
@@ -294,10 +422,10 @@ export class TrackChangesService {
                 } else {
                   let displayChangesFrom = 0;
                   let displayChangesTo = endOfEditor;
-                  if (startPosition == 'above'&&pluginState.editorType!=='popupEditor') {
+                  if (startPosition == 'above' && pluginState.editorType !== 'popupEditor') {
                     displayChangesFrom = view.posAtCoords(coords)?.pos!;
                   }
-                  if (endPosition == 'under'&&pluginState.editorType!=='popupEditor') {
+                  if (endPosition == 'under' && pluginState.editorType !== 'popupEditor') {
                     displayChangesTo = view.posAtCoords(coords2)?.pos!;
                   }
                   let allChangesMarksFound: any[] = []
