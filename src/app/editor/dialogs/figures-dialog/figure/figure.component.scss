@@ -5,7 +5,8 @@
         width: 100%;
     }
     .figure-components {
-        display: flex;
+        display: grid;
+        grid-template-columns: 2fr 2fr 2fr;
         .component-image {
             margin: 18px;
             max-width: 200px;

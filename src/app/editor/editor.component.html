@@ -88,7 +88,7 @@
                 </mat-drawer>
                 <div #treeDataDiv *ngIf="innerWidth > 600" class="data-tree">
                   <app-meta-data-tree></app-meta-data-tree>
-                  <app-article-metadata></app-article-metadata>
+                  <app-article-metadata style="display: none;"></app-article-metadata>
             </div>
 
             <div class="editor-container" [ngClass]="{'editorSpace': !sidebar}" style="flex-direction: column!;">

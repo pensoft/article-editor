@@ -130,6 +130,7 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
 
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.articleSectionsStructure, event.previousIndex, event.currentIndex);
+    moveItemInArray(this.nodesForms, event.previousIndex, event.currentIndex);
 
     this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, this.id!);
 

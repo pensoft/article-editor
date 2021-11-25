@@ -164,7 +164,7 @@ export class YdocService {
     let figures = this.figuresMap!.get('ArticleFigures');
     if (!figures) {
       console.log('set empty figures');
-      this.figuresMap!.set('figures', []);
+      this.figuresMap!.set('ArticleFigures', []);
     }
     this.articleStructure = this.ydoc.getMap('articleStructure');
     this.trackChangesMetadata = this.ydoc.getMap('trackChangesMetadata');
