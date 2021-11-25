@@ -1,17 +1,17 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AfterContentInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { EditSectionDialogComponent } from '../../dialogs/edit-section-dialog/edit-section-dialog.component';
-import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
-import { YdocService } from '../../services/ydoc.service';
-import { DetectFocusService } from '../../utils/detectFocusPlugin/detect-focus.service';
-import { articleSection } from '../../utils/interfaces/articleSection';
-import { TreeService } from '../tree-service/tree.service';
+import { EditSectionDialogComponent } from '../../../dialogs/edit-section-dialog/edit-section-dialog.component';
+import { ProsemirrorEditorsService } from '../../../services/prosemirror-editors.service';
+import { YdocService } from '../../../services/ydoc.service';
+import { DetectFocusService } from '../../../utils/detectFocusPlugin/detect-focus.service';
+import { articleSection } from '../../../utils/interfaces/articleSection';
+import { TreeService } from '../../tree-service/tree.service';
 import { DOMParser } from 'prosemirror-model';
 //@ts-ignore
 import { updateYFragment } from '../../../y-prosemirror-src/plugins/sync-plugin.js'
-import { schema } from '../../utils/Schema/index';
-import { FormBuilderService } from '../../services/form-builder.service';
+import { schema } from '../../../utils/Schema/index';
+import { FormBuilderService } from '../../../services/form-builder.service';
 import { FormGroup } from '@angular/forms';
 import { YMap } from 'yjs/dist/src/internals';
 //@ts-ignore
@@ -20,16 +20,16 @@ import * as Y from 'yjs'
 import { ySyncPluginKey } from '../../../y-prosemirror-src/plugins/keys.js';
 
 @Component({
-  selector: 'app-cdk-list-recursive',
-  templateUrl: './cdk-list-recursive.component.html',
-  styleUrls: ['./cdk-list-recursive.component.scss']
+  selector: 'app-section-leaf',
+  templateUrl: './section-leaf.component.html',
+  styleUrls: ['./section-leaf.component.scss']
 })
-export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */ {
+export class SectionLeafComponent implements OnInit {
 
   @Input() articleSectionsStructure!: articleSection[];
   @Output() articleSectionsStructureChange = new EventEmitter<any>();
 
-
+  i = 0;
   @Input() startFromIndex!: number;
 
   @Input() parentListData!: { expandParentFunc: any, listDiv: HTMLDivElement };
@@ -45,67 +45,10 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
   //nodesForms:{[key:string]:FormGroup} = {}
   nodesForms:FormGroup[] = []
   sectionContents: any[] = [];
+  @Input() node!: articleSection;
+  @Output() nodeChange = new EventEmitter<any>();
 
-
-
-  constructor(
-    private formBuilderService: FormBuilderService,
-    public treeService: TreeService,
-    public ydocService: YdocService,
-    public detectFocusService: DetectFocusService,
-    public prosemirrorEditorsService: ProsemirrorEditorsService,
-    public dialog: MatDialog
-  ) {
-    detectFocusService.getSubject().subscribe((focusedEditorId) => {
-      if (focusedEditorId) {
-        this.focusedId = focusedEditorId;
-      }
-
-      if (this.id !== 'parentList' && this.articleSectionsStructure.some((el) => {
-        return el.sectionID == focusedEditorId;
-      })) {
-        this.expandParentFunc();
-      }
-    });
-
-
-  }
-
-
-
-  ngOnInit(): void {
-    this.articleSectionsStructure.forEach((node: articleSection, index: number) => {
-      //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
-      let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID);
-      let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
-      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
-
-      //let sectionContent = this.enrichSectionContent(node.formIOSchema, defaultValues);
-      let nodeForm: FormGroup = new FormGroup({});
-      this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
-
-      nodeForm.patchValue(defaultValues);
-      nodeForm.updateValueAndValidity()
-      this.nodesForms.push(nodeForm)
-      this.sectionContents.push(sectionContent);
-      this.treeService.sectionFormGroups[node.sectionID] = nodeForm;
-
-      this.icons[index] = 'chevron_right';
-      this.ydocService.sectionFormGroupsStructures!.observe((ymap)=>{
-        let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID)
-        if(!dataFromYMap||dataFromYMap.updatedFrom==this.ydocService.ydoc.guid){
-          return
-        } 
-        Object.keys(nodeForm.controls).forEach((key) => {
-          nodeForm.removeControl(key);
-        })
-        let defaultValues = dataFromYMap.data
-        let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
-        this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
-      })
-    });
-  }
-
+  constructor() { }
 
   enrichSectionContent(schema: any, values: any) {
     if (!schema.components || !values) {
@@ -132,21 +75,21 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
     moveItemInArray(this.articleSectionsStructure, event.previousIndex, event.currentIndex);
     moveItemInArray(this.nodesForms, event.previousIndex, event.currentIndex);
 
-    this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, this.id!);
+    //this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, this.id!);
 
   }
 
 
 
   editNodeHandle(node: articleSection, formGroup: FormGroup, index: number) {
-    try {
+    /*try {
       //let defaultValuesFromProsmeirroNodes = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
       //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
       let defaultValues = formGroup.value;
       
       //this.formBuilderService.buildFormGroupFromSchema(formGroup, sectionContent);
       let sectionContent = this.sectionContents[index]
-      this.sectionContents[index] = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
+       this.sectionContents[index] = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
       this.dialog.open(EditSectionDialogComponent, {
         width: '95%',
         height: '90%',
@@ -154,8 +97,6 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
         disableClose: false
       }).afterClosed().subscribe(result => {
         if (result && result.compiledHtml) {
-          this.treeService.editNodeChange(node.sectionID)
-
           let trackStatus = this.prosemirrorEditorsService.trackChangesMeta.trackTransactions
           this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = false
           this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
@@ -177,7 +118,7 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
             trackStatus
           }))
           //editorview
-          debugger
+          this.treeService.editNodeChange(node.sectionID)
           setTimeout(() => {
             this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = trackStatus
             this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
@@ -188,15 +129,15 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
       });
     } catch (e) {
       console.error(e);
-    }
+    } */
   }
 
   addNodeHandle(nodeId: string) {
-    this.treeService.addNodeChange(nodeId);
+    //this.treeService.addNodeChange(nodeId);
   }
 
   deleteNodeHandle(nodeId: string) {
-    this.treeService.deleteNodeChange(nodeId, this.id!);
+    //this.treeService.deleteNodeChange(nodeId, this.id!);
   }
 
   changeDisplay(div: HTMLDivElement) {
@@ -281,6 +222,8 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
       }
     });
   }
-
+  
+  ngOnInit(): void {
+  }
 
 }

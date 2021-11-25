@@ -5,6 +5,9 @@ export const collectionData = {
         "tableView": true,
         "key": "collectionName",
         "type": "textarea",
+        "properties": {
+            "autoFocus": "true"
+        },
         "input": true
     },
     {

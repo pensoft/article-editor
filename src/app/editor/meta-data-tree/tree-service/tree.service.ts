@@ -7,6 +7,8 @@ import * as Y from 'yjs'
 import { uuidv4 } from 'lib0/random';
 import { articleSection, editorData } from '../../utils/interfaces/articleSection';
 import { FormGroup } from '@angular/forms';
+import { editorFactory } from '@app/editor/utils/articleBasicStructure';
+import { formIODefaultValues, formIOTemplates, htmlNodeTemplates } from '@app/editor/utils/section-templates';
 
 @Injectable({
   providedIn: 'root'
@@ -94,6 +96,7 @@ export class TreeService {
   }
 
   editNodeChange(nodeId: string) {
+    console.log('editNode');
     try{
       this.applyEditChange(nodeId)
     }catch(e){
@@ -187,20 +190,33 @@ export class TreeService {
       nodeRef.children = []
     }
     nodeRef.children.push({
+      title: { type: 'content', contentData: 'Title233', titleContent: 'Colection Data', key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+      sectionContent: {
+        type: 'TaxonTreatmentsMaterial', contentData: editorFactory(
+          {
+            prosemirrorJsonTemplate:
+            {
+              "type": "doc",
+            }
+          }), key: 'sectionContent'
+      },
       sectionID: uuidv4(),
-      active: true,
-      title: { type: 'content', contentData: 'Title2' ,titleContent:"NewSection",key:'titleContent'},
-      children: [],
+      active: false,
       edit: { bool: true, main: true },
-      add: { bool: true, main: false },mode:'documentMode',
+      add: { bool: true, main: false },
       delete: { bool: true, main: false },
-      sectionContent: { type: 'content', contentData: { editorId: uuidv4(), menuType: 'fullMenu' },key:'sectionContent'}
+      mode: 'documentMode',
+      formIOSchema: formIOTemplates['collectionData'],
+      defaultFormIOValues: formIODefaultValues['collectionData'],
+      prosemirrorHTMLNodesTempl: htmlNodeTemplates['collectionData'],
+      children: []
     })
     return childId
   }
 
   applyEditChange(id: string) {
     let nodeRef = this.findNodeById(id)!;
+    console.log('nodefound',nodeRef);
     if (!nodeRef.active) {
       nodeRef.active = true
 

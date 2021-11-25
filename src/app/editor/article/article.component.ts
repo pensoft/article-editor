@@ -52,6 +52,7 @@ export class ArticleComponent implements OnInit {
     this.articleSectionsStructureFlat = []
     setTimeout(()=>{
       this.articleSectionsStructureFlat = articleSectionsStructureFlat
+      console.log(this.articleSectionsStructureFlat);
     },10)
   }
 

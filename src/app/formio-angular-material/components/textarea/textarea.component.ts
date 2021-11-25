@@ -166,9 +166,9 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       this.value = this.control.value; 
       //let node = editorData?[schema.nodeFromJSON(editorData)]:[];
       let options: any = {}
-      if (this.instance.component.properties.noLabel) {
-        options.noLabel = true
-      }
+      Object.keys(this.instance.component.properties).forEach((key)=>{
+        options[key] = this.instance.component.properties[key]
+      })
       options.onChange = this.onChange1
       let temp = document.createElement('div');
       temp.innerHTML = this.value!;

@@ -369,7 +369,6 @@ export class TrackChangesService {
               let sectionName = pluginState.sectionName
               if (this.acceptReject.action && this.acceptReject.editorId == sectionName) {
                 let marks = (changesObject[sectionName] as Array<any>).filter((el) => { return el.from <= acceptReject.pos && el.to >= acceptReject.pos });
-                console.log(changesObject[sectionName]);
                 if (marks.length == 0) {
                   return
                 }
@@ -396,7 +395,6 @@ export class TrackChangesService {
               }
               if (editor) {
                 let elemRect = editor.getBoundingClientRect();
-                console.log(elemRect);
                 let editorCoordinatesObj = {
                   top: elemRect.top,
                   //left: elemRect.left,

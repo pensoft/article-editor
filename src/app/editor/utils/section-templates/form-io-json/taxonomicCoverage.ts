@@ -7,6 +7,9 @@ export const taxonomicCoverage = {
         "validate": {
             "required": true,
         },
+        "properties": {
+            "autoFocus": "true"
+        },
         "type": "textarea",
         "input": true
     },{

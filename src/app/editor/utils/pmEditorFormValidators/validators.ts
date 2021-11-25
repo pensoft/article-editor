@@ -62,7 +62,7 @@ export function pmMaxLength(maxLength: number) {
             return null;
         }
         return textContent.length > maxLength ?
-            { 'minlength': { 'requiredLength': maxLength, 'actualLength': textContent.length } } :
+            { 'maxlength': { 'requiredLength': maxLength, 'actualLength': textContent.length } } :
             null;
     }
 }
@@ -77,7 +77,7 @@ export function pmMinLength(minLength: number) {
             return null
         }
         return hasValidLength(textContent) && textContent.length < minLength ?
-            { 'maxlength': { 'requiredLength': minLength, 'actualLength': textContent.length } } :
+            { 'minlength': { 'requiredLength': minLength, 'actualLength': textContent.length } } :
             null;
     }
 }

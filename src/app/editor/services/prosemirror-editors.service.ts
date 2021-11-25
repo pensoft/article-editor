@@ -829,6 +829,12 @@ export class ProsemirrorEditorsService {
       editorView: editorView,
       dispatchTransaction: dispatchTransaction
     };
+    if(options.autoFocus){
+      setTimeout(()=>{
+        (editorCont.editorView as EditorView).focus();
+        (editorCont.editorView as EditorView).dispatch((editorCont.editorView as EditorView).state.tr)
+      },200)
+    }
     return editorCont
   }
 
