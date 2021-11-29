@@ -350,7 +350,7 @@ export class TrackChangesService {
                 pluginState.createdDecorations = DecorationSet.empty;
               }
             } catch (e) {
-              console.log(e);
+              console.error(e);
             }
           }
           return pluginState

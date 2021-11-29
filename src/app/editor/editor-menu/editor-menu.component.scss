@@ -155,8 +155,9 @@
   }
 
   .ProseMirror-icon {
-    display: inline-block;
-    line-height: 0.8;
+    display: flex;
+    height: 22px;
+    align-items: center;
     vertical-align: -2px; /* Compensate for padding */
     padding: 0px 8px;
     cursor: pointer;
@@ -201,9 +202,9 @@
 
   .ProseMirror-menu-dropdown-item {
     display: inline;
-    div{
+    /* div{
       display: inherit;
-    }
+    } */
   }
 
   .menu-container {

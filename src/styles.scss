@@ -87,14 +87,50 @@ app-article:not(.display-changes-hover) .deletion{
 }
 
 .math-node{
-  font-size: 14px ;
+  font-size: 18px ;
   .math-render{
-    font-size: 14px ;
+    font-size: 18px ;
+  }
+  .math-src{
+    div{
+      font-size: 18px;
+    }
   }
 }
 
+.vertival-dropdown{
+  .ProseMirror-menu-dropdown-item{
+    display: block !important;
+    height: 25px !important;
+    align-content: center !important;
+    border-radius: 6px !important;
+    .div{
+      display: block;
+    }
+  }
+}
+
+.horizontal-dropdown{
+  .ProseMirror-menu-dropdown-item{
+    display: inline-flex;
+    height: 25px;
+    vertical-align: middle;
+    border-radius: 6px;
+  }
+  /* .vertival-dropdown{
+    .ProseMirror-menu-dropdown-item{
+      display: block !important;
+      height: 25px !important;
+      align-content: center !important;
+      border-radius: 6px !important;
+      .div{
+        display: block;
+      }
+    }
+  } */
+}
+
 .popup-menu-container {
-  border: 2px solid #00b1b2;
   border-radius: 15px;
   width: fit-content;
   min-height: 40px;

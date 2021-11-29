@@ -1,24 +1,40 @@
 import { Injectable } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
-import { pmMaxLength,pmMinLength,pmPattern,pmRequired } from '../utils/pmEditorFormValidators/validators';
+import { pmMaxLength, pmMinLength, pmPattern, pmRequired } from '../utils/pmEditorFormValidators/validators';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FormBuilderService {
 
-  populateDefaultValues(savedForm: any, schema: any) {
+  populateDefaultValues(savedForm: any, schema: any, sectionID: string) {
+    let attachSectionId = (componentArray: any[]) => {
+      componentArray.forEach((component) => {
+        if (component.properties) {
+          component.properties.sectionID = sectionID
+        } else {
+          component.properties = { sectionID }
+        }
+        if(component.components&&component.components instanceof Array&&component.components.length>0){
+          attachSectionId(component.components)
+        }
+      })
+    }
+    if(schema.components.length>0){
+      attachSectionId(schema.components)
+    }
     for (let index = 0; index < schema.components.length; index++) {
-      const component:any = schema.components[index];
-      const componentKey:string = component['key'];
-      const componentType:string = (component['type'] as string).toLocaleLowerCase();
+      const component: any = schema.components[index];
+      const componentKey: string = component['key'];
+      const componentType: string = (component['type'] as string).toLocaleLowerCase();
 
-      if( //avoids non-dynamic (non-filled) elements
+      if ( //avoids non-dynamic (non-filled) elements
         componentType === 'button' || // a button
         componentType === 'content')  // plain text and not an input field
-      { continue;}
-      if(savedForm[componentKey]){
+      { continue; }
+      if (savedForm[componentKey]) {
         component.defaultValue = savedForm[componentKey];
+        
       }
     }
     return schema;
@@ -73,7 +89,7 @@ export class FormBuilderService {
     }
 
     let value = component.defaultValue;
-    if(component.type == 'textarea'){
+    if (component.type == 'textarea') {
       let validators = component.type === 'number' ? [Validators.pattern("^[0-9]*$")] : [];
       if (component.validate) {
         if (component.validate.required) {

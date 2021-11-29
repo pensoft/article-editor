@@ -5,11 +5,11 @@
         </span>
     </div>
     <div class="figure-components">
-        <div [ngClass]="{'component-image':component.type == 'image','component-video':component.type == 'video'}" *ngFor="let component of figure.components">
-            <div *ngIf="component.type == 'image'">
+        <div [ngClass]="{'component-image':component.componentType == 'image','component-video':component.componentType == 'video'}" *ngFor="let component of figure.components">
+            <div *ngIf="component.componentType == 'image'">
                 <img  src='{{component.url}}' height="150" />
             </div>
-            <div *ngIf="component.type == 'video'" >
+            <div *ngIf="component.componentType == 'video'" >
                 <iframe height="150" 
                 [src]="component.url | safe"
                 title="YouTube video player" frameborder="0" 

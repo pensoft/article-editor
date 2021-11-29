@@ -101,7 +101,7 @@ export class MenuService {
     menu.fullMenu[5].push(menuItems.subscriptItem);
     menu.fullMenu[6] = [];
     menu.fullMenu[6].push(menuItems.insertVideoItem);
-    menu.fullMenu[6].push(new Dropdown(m.cut([menuItems.mathInlineItem, menuItems.mathBlockItem]), { label: "Math" }));
+    menu.fullMenu[6].push(new Dropdown(m.cut([menuItems.mathInlineItem, menuItems.mathBlockItem]), { label: "Math",class:'horizontal-dropdown' }));
     menu.fullMenu[7] = [];
     menu.fullMenu[7].push(new Dropdown(menuItems.tableMenu, { label: "Table", title: "Table" }));
     menu.fullMenu[8] = [];
@@ -122,14 +122,14 @@ export class MenuService {
       let item : any;
       if (itemName == 'alignMenu') {
 
-        item = new Dropdown(menuItems[itemName], { class: "align-icon" })
+        item = new Dropdown(menuItems[itemName], { class: "align-icon horizontal-dropdown" })
       } else if (itemName == 'tableMenu') {
-        item = new Dropdown(menuItems[itemName], { class: "table-icon" })
+        item = new Dropdown(menuItems[itemName], { class: "table-icon vertival-dropdown" })
       } else if (itemName == 'textMenu') {
-        let dropdown = new Dropdown2(menuItems[itemName], { class: "text-menu-icon" })
+        let dropdown = new Dropdown2(menuItems[itemName], { class: "text-menu-icon horizontal-dropdown" })
         item = dropdown
       } else if (itemName == 'insertMenu') {
-        item = new Dropdown(menuItems[itemName], { label: 'Insert' })
+        item = new Dropdown(menuItems[itemName], { label: 'Insert',class:'horizontal-dropdown' })
       } else if (itemName == 'headings') {
         //@ts-ignore
         item = Object.values(menuItems['headings'])

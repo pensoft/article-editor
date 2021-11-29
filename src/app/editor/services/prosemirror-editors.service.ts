@@ -60,6 +60,9 @@ import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
 import { I } from '@angular/cdk/keycodes';
 import { ReplaceAroundStep } from 'prosemirror-transform';
 import { ViewFlags } from '@angular/compiler/src/core';
+import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, validateTransactions } from '../utils/prosemirrorHelpers';
+//@ts-ignore
+import { recreateTransform } from "prosemirror-recreate-steps"
 @Injectable({
   providedIn: 'root'
 })
@@ -211,7 +214,6 @@ export class ProsemirrorEditorsService {
 
 
     container.setAttribute('class', 'editor-container');
-    let filterTr = false
     let defaultMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'SimpleMenu', editorID);
     let fullMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenu', editorID);
     this.initDocumentReplace[editorID] = true;
@@ -219,113 +221,12 @@ export class ProsemirrorEditorsService {
     let GroupControl = this.treeService.sectionFormGroups;
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: (trs: Transaction<any>[], oldState: EditorState, newState: EditorState) => {
-        let tr1 = newState.tr;
-        // return value whe r = false the transaction is canseled
-        trs.forEach((transaction) => {
-          if (transaction.steps.length > 0) {
-            newState.doc!.descendants(/* newState.selection.from, newState.selection.to,  */(node, pos, parent) => {     // the document after the appling of the steps
-              //@ts-ignore
-              node.parent = parent
-              if (node.attrs.formControlName && GroupControl[section.sectionID]) {      // validation for the formCOntrol
-                try {
-                  const fg = GroupControl[section.sectionID];
-                  const controlPath = node.attrs.controlPath;
-                  const control = fg.get(controlPath) as FormControl;
-                  //@ts-ignore
-
-                  if (control.componentType && control.componentType == "textarea") {
-                    let HTMLnodeRepresentation = this.DOMPMSerializer.serializeFragment(node.content)
-                    let temp = document.createElement('div');
-                    temp.appendChild(HTMLnodeRepresentation);
-                    control.setValue(temp.innerHTML, { emitEvent: true })
-                  } else {
-                    control.setValue(node.textContent, { emitEvent: true })
-                  }
-                  control.updateValueAndValidity()
-                  const mark = schema.mark('invalid')
-                  if (control.invalid) {
-                    // newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
-                    tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "true" })
-                  } else {
-                    tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "" })
-
-                  }
-                } catch (error) {
-                  console.error(error);
-                }
-              }
-            })
-          }
-        })
-        return tr1
-      },
-      filterTransaction(transaction: Transaction<any>, state: EditorState) {
-        //@ts-ignore
-        let meta = transaction.meta
-        if (meta.uiEvent) {
-          if (meta.uiEvent == 'cut') {
-            let noneditableNodesOnDropPosition = false
-            //@ts-ignore
-            let sel = transaction.curSelection
-            //@ts-ignore
-            state.doc.nodesBetween(sel.from, sel.to, (node, pos, parent) => {
-              if (node.attrs.contenteditableNode == "false") {
-                noneditableNodesOnDropPosition = true
-              }
-              if (node.type.name == "form_field" && !noneditableNodesOnDropPosition) {
-                node.descendants((node) => {
-                  if (node.attrs.contenteditableNode == "false") {
-                    noneditableNodesOnDropPosition = true
-                  }
-                })
-              }
-            })
-            if (noneditableNodesOnDropPosition) {
-              return false
-            }
-          } else if (meta.uiEvent == 'drop') {
-            let noneditableNodesOnDropPosition = false
-            //@ts-ignore
-            let sel = transaction.curSelection
-            //@ts-ignore
-            state.doc.nodesBetween(sel.from, sel.from + 1, (node, pos, parent) => {
-              if (node.attrs.contenteditableNode == "false") {
-                noneditableNodesOnDropPosition = true
-              }
-              if (node.type.name == "form_field" && !noneditableNodesOnDropPosition) {
-                node.descendants((node) => {
-                  if (node.attrs.contenteditableNode == "false") {
-                    noneditableNodesOnDropPosition = true
-                  }
-                })
-              }
-            })
-            state.doc.nodesBetween(sel.to - 1, sel.to, (node, pos, parent) => {
-              if (node.attrs.contenteditableNode == "false") {
-                noneditableNodesOnDropPosition = true
-              }
-              if (node.type.name == "form_field" && !noneditableNodesOnDropPosition) {
-                node.descendants((node) => {
-                  if (node.attrs.contenteditableNode == "false") {
-                    noneditableNodesOnDropPosition = true
-                  }
-                })
-              }
-            })
-            if (noneditableNodesOnDropPosition) {
-              return false
-            }
-          }
-        }
-        return true
-      },
-
+      appendTransaction: validateTransactions(GroupControl, section, schema),
+      filterTransaction: preventDragDropCutOnNoneditablenodes,
     })
 
     setTimeout(() => {
       this.initDocumentReplace[editorID] = false;
-      filterTr = true;
     }, 600);
 
     this.editorsEditableObj[editorID] = true
@@ -366,7 +267,6 @@ export class ProsemirrorEditorsService {
 
     let lastStep: any
     const dispatchTransaction = (transaction: Transaction) => {
-
       this.transactionCount++
       try {
         if (lastStep == transaction.steps[0]) {
@@ -400,185 +300,12 @@ export class ProsemirrorEditorsService {
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,
-      handlePaste(view: EditorView, event, slice) {
-        let sel = view.state.selection
-        let noneditableNodes = false;
-        view.state.doc.nodesBetween(sel.from, sel.to, (node, pos, parent) => {
-          if (node.attrs.contenteditableNode == "false") {
-            noneditableNodes = true;
-          }
-        })
-        if (noneditableNodes) {
-          return true
-        }
-        return false
-      },
-      handleClick(view: EditorView, pos: number, event: Event) {
-        if (((event.target as HTMLElement).className == 'changes-placeholder')) {
-          setTimeout(() => {
-            view.dispatch(view.state.tr)
-          }, 0)
-          return true
-        }
-        let tr1 = view.state.tr.setMeta(hideshowPluginKEey, {})
-        view.dispatch(tr1)
-        return false
-      },
-      handleTripleClickOn(view, pos, node, nodepos, event, direct) {
-        if (view.state.selection.$from.parent.type.name !== "form_field") {
-          return true;
-        }
-        return false
-      },
-      handleDoubleClick(view: EditorView, pos: number, event: Event) {
-        let node = view.state.doc.nodeAt(pos)
-        let marks = node?.marks
-        let hasTrackChnagesMark = node?.marks.some((mark) => {
-          console.log(mark.type.name);
-          return mark!.type.name == 'insertion' || mark!.type.name == 'deletion' /* || mark!.type.name == 'format_change' */
-        })
-        if (hasTrackChnagesMark) {
-          let cursurCoord = view.coordsAtPos(pos);
-          let tr1 = view.state.tr.setMeta(hideshowPluginKEey, { marks, focus: view.hasFocus(),coords:cursurCoord })
-          view.dispatch(tr1)
-          return true
-        }
-        return false
-      },
-      handleKeyDown(view: EditorView, event: KeyboardEvent) {
-        let sel = view.state.selection
-        let { from, to, empty } = sel
-        let key = event.key
-        let noneditableNodes = false;
-        if (sel instanceof CellSelection) {
-          from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
-          to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);
-        }
-        view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-          if (node.attrs.contenteditableNode == "false") {
-            noneditableNodes = true;
-          }
-          if (node.type.name == "form_field") {
-            let nodeEnd = node.nodeSize + pos
-            // there is a form_field that is in the selection we should not edit if or outside of it 
-            if ((from <= pos && pos <= to) || (from <= nodeEnd && nodeEnd <= to)) {
-              if ((from <= pos && pos <= to)) {
-                from = pos + 2
-              }
-              if ((from <= nodeEnd && nodeEnd <= to)) {
-                to = nodeEnd - 2
-              }
-              view.dispatch(view.state.tr.setSelection(new Selection(view.state.doc.resolve(from), view.state.doc.resolve(to))))
-            }
-          }
-        })
-        /* if (key == 'Delete' || key == 'Backspace') {
-          if (!sel.empty) {
-            return noneditableNodes
-          } else {
-            if (noneditableNodes) {
-              return noneditableNodes
-            } else {
-              if (key == 'Delete') {
-                if (sel.$anchor.nodeAfter == null && sel.$anchor.parent.type.name == 'paragraph') {
-                  //@ts-ignore
-                  let s = sel.$anchor.parent.parent.content.lastChild === sel.$anchor.parent
-                  if (s) {
-                    return true
-                  }
-                }
-              } else if (key == 'Backspace') {
-                if (sel.$anchor.nodeBefore == null && sel.$anchor.parent.type.name == 'paragraph') {
-                  //@ts-ignore
-                  let s = sel.$anchor.parent.parent.content.firstChild === sel.$anchor.parent
-                  if (s) {
-                    return true
-                  }
-                }
-              }
-            }
-
-          } 
-          if (noneditableNodes) {
-            return noneditableNodes
-          }
-        }*/
-        if (noneditableNodes) {
-          if (key == 'ArrowRight' ||
-            key == 'ArrowLeft' ||
-            key == 'ArrowDown' ||
-            key == 'ArrowUp') {
-            return false
-          } else {
-            return true
-          }
-        }
-        return false
-      },
-      createSelectionBetween: (view, anchor, head) => {
-        if (anchor.pos == head.pos) {
-          return new TextSelection(anchor, head);
-        }
-        let headRangeMin = anchor.pos
-        let headRangeMax = anchor.pos
-        let sel = view.state.selection
-
-
-        //@ts-ignore
-        let anchorPath = sel.$anchor.path
-        let counter = anchorPath.length - 1
-        let parentNode: Node | undefined = undefined;
-        let parentNodePos: number | undefined = undefined;
-        let formFieldParentFound = false
-        while (counter > -1 && !formFieldParentFound) {
-          let pathValue = anchorPath[counter]
-          if (typeof pathValue == 'number') {   // number
-          } else {                              // node       
-            let parentType = pathValue.type.name
-            if (parentType == "form_field") {
-              parentNode = pathValue   // store the form_field node that the selection is currently in
-              parentNodePos = anchorPath[counter - 1];
-              formFieldParentFound = true
-            } else if (parentType !== "doc") {
-              parentNode = pathValue   // store last node in the path that is diffetant than the doc node
-              parentNodePos = anchorPath[counter - 1];
-            }
-          }
-          counter--;
-        }
-
-        if (parentNode) {
-
-          headRangeMin = parentNodePos! + 1 // the parents inner start position
-          headRangeMax = parentNodePos! + parentNode?.nodeSize! - 1 // the parent inner end position
-        }
-
-        //this.editorsEditableObj[editorID] = true
-
-        if (headRangeMin > head.pos || headRangeMax < head.pos) {
-          let headPosition = headRangeMin > head.pos ? headRangeMin : headRangeMax
-          let newHeadResolvedPosition = view.state.doc.resolve(headPosition)
-          let from = Math.min(view.state.selection.$anchor.pos, newHeadResolvedPosition.pos)
-          let to = Math.max(view.state.selection.$anchor.pos, newHeadResolvedPosition.pos)
-          view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-            if (node.attrs.contenteditableNode == 'false') {
-              this.editorsEditableObj[editorID] = false;
-
-            }
-          })
-          let newSelection = new TextSelection(anchor, newHeadResolvedPosition);
-          return newSelection
-        }
-        let from = Math.min(anchor.pos, head.pos)
-        let to = Math.max(anchor.pos, head.pos)
-        view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-          if (node.attrs.contenteditableNode == 'false') {
-            this.editorsEditableObj[editorID] = false;
-          }
-        })
-        return undefined
-      },
-
+      handlePaste,
+      handleClick: handleClick(hideshowPluginKEey),
+      handleTripleClickOn,
+      handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
+      handleKeyDown,
+      //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
     });
     EditorContainer.appendChild(container);
 
@@ -600,6 +327,11 @@ export class ProsemirrorEditorsService {
     editorView: EditorView,
     dispatchTransaction: any
   } {
+    let fieldFormControl = this.treeService.sectionFormGroups[options.sectionID].get(options.path.replace('].', '.').replace('[', '.'))
+
+
+
+
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
     EditorContainer.innerHTML = ''
     let editorID = random.uuidv4()
@@ -635,17 +367,23 @@ export class ProsemirrorEditorsService {
         let containerElement = document.createElement('div');
         let htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(newState.doc.content.firstChild!.content)
         containerElement.appendChild(htmlNOdeRepresentation);
-        /* let nodelNodesString = containerElement.innerHTML.replace(/<span class="deletion"[\sa-zA-Z-="1-90:;]+>[\sa-zA-Z-="1-90:;]+<\/span>/gm, '');
-        containerElement.innerHTML = nodelNodesString */
         options.onChange(true, containerElement.innerHTML)
-
       },
       filterTransaction(transaction: Transaction<any>, state: EditorState) {
         return true
       }
     })
 
+    /*fieldFormControl?.valueChanges.subscribe((data) => {
+      console.log('value changes for ' + options.path, data);
 
+       let tr = recreateTransform(
+        doc ,
+        endDoc,
+        complexSteps = true, // Whether step types other than ReplaceStep are allowed.
+        wordDiffs = false // Whether diffs in text nodes should cover entire words.
+      ) 
+    })*/
 
     this.editorsEditableObj[editorID] = true
 
@@ -674,9 +412,13 @@ export class ProsemirrorEditorsService {
       ,
       // @ts-ignore
       sectionName: editorID,
-      editorType:'popupEditor'
+      editorType: 'popupEditor'
     });
+    setTimeout(() => {
+      this.initDocumentReplace[editorID] = false;
+    }, 600);
 
+    this.editorsEditableObj[editorID] = true
     let lastStep: any
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
@@ -685,7 +427,7 @@ export class ProsemirrorEditorsService {
           if (lastStep) { return }
         }
         lastStep = transaction.steps[0]
-        if (!this.initDocumentReplace[editorID] || !this.shouldTrackChanges) {
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges) {
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
 
@@ -711,113 +453,10 @@ export class ProsemirrorEditorsService {
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,
-      /* handlePaste(view: EditorView, event, slice) {
-        let sel = view.state.selection
-        let noneditableNodes = false;
-        view.state.doc.nodesBetween(sel.from, sel.to, (node, pos, parent) => {
-          if (node.attrs.contenteditableNode == "false") {
-            noneditableNodes = true;
-          }
-        })
-        if (noneditableNodes) {
-          return true
-        }
-        return false
-      }, */
-      handleClick(view: EditorView, pos: number, event: Event) {
-        if (((event.target as HTMLElement).className == 'changes-placeholder')) {
-          setTimeout(() => {
-            view.dispatch(view.state.tr)
-          }, 0)
-          return true
-        }
-        let tr1 = view.state.tr.setMeta(hideshowPluginKEey, {})
-        view.dispatch(tr1)
-        return false
-      },
-      handleTripleClickOn(view, pos, node, nodepos, event, direct) {
-        if (view.state.selection.$from.parent.type.name !== "form_field") {
-          return true;
-        }
-        return false
-      },
-      handleDoubleClick(view: EditorView, pos: number, event: Event) {
-        let node = view.state.doc.nodeAt(pos)
-        let marks = node?.marks
-        let hasTrackChnagesMark = node?.marks.some((mark) => {
-          return mark!.type.name == 'insertion' || mark!.type.name == 'deletion' || mark!.type.name == 'format-change'
-        })
-        if (hasTrackChnagesMark) {
-          let cursurCoord = view.coordsAtPos(pos);
-          let tr1 = view.state.tr.setMeta(hideshowPluginKEey, { marks, focus: view.hasFocus(),coords:cursurCoord })
-          view.dispatch(tr1)
-          return true
-        }
-        return false
-      },
-      createSelectionBetween: (view, anchor, head) => {
-        if (anchor.pos == head.pos) {
-          return new TextSelection(anchor, head);
-        }
-        let headRangeMin = anchor.pos
-        let headRangeMax = anchor.pos
-        let sel = view.state.selection
-
-
-        //@ts-ignore
-        let anchorPath = sel.$anchor.path
-        let counter = anchorPath.length - 1
-        let parentNode: Node | undefined = undefined;
-        let parentNodePos: number | undefined = undefined;
-        let formFieldParentFound = false
-        while (counter > -1 && !formFieldParentFound) {
-          let pathValue = anchorPath[counter]
-          if (typeof pathValue == 'number') {   // number
-          } else {                              // node       
-            let parentType = pathValue.type.name
-            if (parentType == "form_field") {
-              parentNode = pathValue   // store the form_field node that the selection is currently in
-              parentNodePos = anchorPath[counter - 1];
-              formFieldParentFound = true
-            } else if (parentType !== "doc") {
-              parentNode = pathValue   // store last node in the path that is diffetant than the doc node
-              parentNodePos = anchorPath[counter - 1];
-            }
-          }
-          counter--;
-        }
-
-        if (parentNode) {
-
-          headRangeMin = parentNodePos! + 1 // the parents inner start position
-          headRangeMax = parentNodePos! + parentNode?.nodeSize! - 1 // the parent inner end position
-        }
-
-        //this.editorsEditableObj[editorID] = true
-
-        if (headRangeMin > head.pos || headRangeMax < head.pos) {
-          let headPosition = headRangeMin > head.pos ? headRangeMin : headRangeMax
-          let newHeadResolvedPosition = view.state.doc.resolve(headPosition)
-          let from = Math.min(view.state.selection.$anchor.pos, newHeadResolvedPosition.pos)
-          let to = Math.max(view.state.selection.$anchor.pos, newHeadResolvedPosition.pos)
-          view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-            if (node.attrs.contenteditableNode == 'false') {
-              this.editorsEditableObj[editorID] = false;
-
-            }
-          })
-          let newSelection = new TextSelection(anchor, newHeadResolvedPosition);
-          return newSelection
-        }
-        let from = Math.min(anchor.pos, head.pos)
-        let to = Math.max(anchor.pos, head.pos)
-        view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-          if (node.attrs.contenteditableNode == 'false') {
-            this.editorsEditableObj[editorID] = false;
-          }
-        })
-        return undefined
-      },
+      handleClick: handleClick(hideshowPluginKEey),
+      handleTripleClickOn,
+      handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
+      //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
 
     });
     EditorContainer.appendChild(container);
@@ -829,11 +468,11 @@ export class ProsemirrorEditorsService {
       editorView: editorView,
       dispatchTransaction: dispatchTransaction
     };
-    if(options.autoFocus){
-      setTimeout(()=>{
+    if (options.autoFocus) {
+      setTimeout(() => {
         (editorCont.editorView as EditorView).focus();
         (editorCont.editorView as EditorView).dispatch((editorCont.editorView as EditorView).state.tr)
-      },200)
+      }, 200)
     }
     return editorCont
   }
@@ -861,3 +500,5 @@ export class ProsemirrorEditorsService {
 
 
 }
+
+

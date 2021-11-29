@@ -9,6 +9,7 @@ import { articleSection, editorData } from '../../utils/interfaces/articleSectio
 import { FormGroup } from '@angular/forms';
 import { editorFactory } from '@app/editor/utils/articleBasicStructure';
 import { formIODefaultValues, formIOTemplates, htmlNodeTemplates } from '@app/editor/utils/section-templates';
+import { FormBuilderService } from '@app/editor/services/form-builder.service';
 
 @Injectable({
   providedIn: 'root'
@@ -25,7 +26,10 @@ export class TreeService {
   sectionFormGroups:{[key:string]:FormGroup} = {}
   sectionProsemirrorNodes:{[key:string]:string} = {} // prosemirror nodes as html 
 
-  constructor(private ydocService: YdocService) {
+  constructor(
+    private ydocService: YdocService,
+    private formBuilderService:FormBuilderService
+    ) {
     let buildFunc = () => {
       this.guid = this.metadatachangeMap?.doc?.guid;
       this.articleStructureMap = ydocService.ydoc.getMap('articleStructure');
@@ -96,7 +100,6 @@ export class TreeService {
   }
 
   editNodeChange(nodeId: string) {
-    console.log('editNode');
     try{
       this.applyEditChange(nodeId)
     }catch(e){
@@ -106,8 +109,20 @@ export class TreeService {
   }
 
   addNodeChange(nodeId: string) {
-    let newChildid = this.attachChildToNode(nodeId, uuidv4());
-    this.treeVisibilityChange.next({ action: 'addNode', parentId: nodeId, childId: newChildid });
+    let newChild = this.attachChildToNode(nodeId, uuidv4());
+    this.sectionFormGroups
+    let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(newChild.sectionID);
+      let defaultValues = dataFromYMap ? dataFromYMap.data : newChild.defaultFormIOValues
+      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, newChild.formIOSchema,newChild.sectionID);
+
+      //let sectionContent = this.enrichSectionContent(node.formIOSchema, defaultValues);
+      let nodeForm: FormGroup = new FormGroup({});
+      this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
+
+      nodeForm.patchValue(defaultValues);
+      nodeForm.updateValueAndValidity()
+      this.sectionFormGroups[newChild.sectionID] = nodeForm;
+    this.treeVisibilityChange.next({ action: 'addNode', parentId: nodeId, childId: newChild.sectionID });
   }
 
   updateNodeProsemirrorHtml(newHTML:string,sectionId:string){
@@ -189,7 +204,7 @@ export class TreeService {
     if (!nodeRef.children) {
       nodeRef.children = []
     }
-    nodeRef.children.push({
+    let newChild = {
       title: { type: 'content', contentData: 'Title233', titleContent: 'Colection Data', key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
       sectionContent: {
         type: 'TaxonTreatmentsMaterial', contentData: editorFactory(
@@ -205,18 +220,19 @@ export class TreeService {
       edit: { bool: true, main: true },
       add: { bool: true, main: false },
       delete: { bool: true, main: false },
-      mode: 'documentMode',
+      mode: "documentMode",
       formIOSchema: formIOTemplates['collectionData'],
       defaultFormIOValues: formIODefaultValues['collectionData'],
       prosemirrorHTMLNodesTempl: htmlNodeTemplates['collectionData'],
       children: []
-    })
-    return childId
+    }
+    //@ts-ignore
+    nodeRef.children.push(newChild)
+    return newChild
   }
 
   applyEditChange(id: string) {
     let nodeRef = this.findNodeById(id)!;
-    console.log('nodefound',nodeRef);
     if (!nodeRef.active) {
       nodeRef.active = true
 

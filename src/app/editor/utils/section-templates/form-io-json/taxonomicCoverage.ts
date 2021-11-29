@@ -1,6 +1,5 @@
 import { environment } from '../../../../../environments/environment';
 export const taxonomicCoverage = {
-    'title': 'My Test Form',
     'components': [{
         "label": "Description",
         "key": "description",

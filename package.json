@@ -33,6 +33,7 @@
     "@codemirror/lang-html": "^0.19.3",
     "@codemirror/lang-javascript": "^0.19.2",
     "@formio/angular": "^5.2.0",
+    "@manuscripts/prosemirror-recreate-steps": "^0.1.4",
     "@types/codemirror": "^5.60.5",
     "@types/katex": "^0.11.1",
     "@types/lodash": "^4.14.175",

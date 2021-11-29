@@ -27,7 +27,7 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
 
   data1: articleSection;
   sectionForm: FormGroup;
-  sectionContent: any;
+  formIOJson: any;
   prityJson:string;
 
   EditSubmitsubscription?:Subscription;
@@ -41,8 +41,8 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
     @Inject(MAT_DIALOG_DATA) public sectionData: any) {
       this.data1 = sectionData.node;
       this.sectionForm = sectionData.form;
-      this.sectionContent = sectionData.sectionContent;
-      this.prityJson = JSON.stringify(sectionData.sectionContent,null,"\t")
+      this.formIOJson = sectionData.formIOJson;
+      this.prityJson = JSON.stringify(sectionData.formIOJson,null,"\t")
 
   }
 
@@ -77,6 +77,6 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
   }
 
   onNoClick(): void {
-    console.log('CLOSED');
+    //console.log('CLOSED');
   }
 }

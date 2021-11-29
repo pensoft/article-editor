@@ -172,6 +172,7 @@ export class AddFigureDialogComponent implements AfterViewInit {
     }
 
     ngAfterViewInit(): void {
+        
         if (!this.figure) {
             this.renderForm = true
         } else {
@@ -179,10 +180,10 @@ export class AddFigureDialogComponent implements AfterViewInit {
             this.sectionContent.components[1].defaultValue = this.figure.description
             let componentsDefaultValues:any = []
             this.figure.components.forEach((component) => {
-                let componentDefault = {"container":{
-                    "url":component.url,
-                    "description":component.description,
-                    "componentType":component.type
+                let componentDefault = {container:{
+                    url:component.url,
+                    description:component.description,
+                    componentType:component.componentType
                 }}
                 componentsDefaultValues.push(componentDefault)
             })
@@ -198,7 +199,7 @@ export class AddFigureDialogComponent implements AfterViewInit {
             components: submision.data.figureComponents.reduce((prev: any, curr: any, index: number, array: any) => {
                 let newFigureComponent: figure_component = {
                     description: curr.container.description,
-                    type: curr.container.componentType,
+                    componentType: curr.container.componentType,
                     url: curr.container.url,
                 }
                 return prev.concat([newFigureComponent])

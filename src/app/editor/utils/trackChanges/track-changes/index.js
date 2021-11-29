@@ -39,11 +39,12 @@ const trackedTransaction = (
   if (state.selection.node && state.selection.node.type.name === 'figure') {
     return tr;
   }
+  
   if (
     !tr.steps.length ||
     (tr.meta &&
       !Object.keys(tr.meta).every(meta =>
-         ['inputType', 'uiEvent', 'paste'].includes(meta),
+         ['inputType', 'uiEvent', 'paste','drop','cut'].includes(meta),
       )) ||
     ['AcceptReject', 'Undo', 'Redo'].includes(tr.getMeta('inputType'))
   ) {
@@ -117,10 +118,12 @@ const trackedTransaction = (
       default:
     }
   });
-
-  if (tr.getMeta('inputType')) newTr.setMeta(tr.getMeta('inputType'));
-
-  if (tr.getMeta('uiEvent')) newTr.setMeta(tr.getMeta('uiEvent'));
+  Object.keys(tr.meta).forEach((key)=>{
+    newTr.setMeta(key,tr.getMeta(key));
+  })
+  /*  if (tr.getMeta('inputType')) newTr.setMeta('inputType',tr.getMeta('inputType'));
+ 
+  if (tr.getMeta('uiEvent')) newTr.setMeta('uiEvent',tr.getMeta('uiEvent')); */
 
   if (tr.selectionSet) {
     const deletionMarkSchema = state.schema.marks.deletion;

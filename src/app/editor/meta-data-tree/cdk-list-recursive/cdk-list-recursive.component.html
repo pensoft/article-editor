@@ -1,80 +1,16 @@
-<ng-container *ngIf="startFromIndex == 0">
-    <div cdkDropList [ngClass]="{'outer-list':startFromIndex == 0,'nested-list':startFromIndex > 0}" (cdkDropListDropped)="drop($event)">
+<ng-container >
+    <div *ngIf="renderList" cdkDropList [ngClass]="{'outer-list':!nestedList,'nested-list':nestedList}" (cdkDropListDropped)="drop($event)">
         <ng-container *ngFor="let node of articleSectionsStructure;index as i">
-            <div [ngClass]="{
-                'node-box':node.children.length == 0,
-                'node-box-dropdownbox':node.children.length > 0}" cdkDrag>
-                <div [style.position]='"relative"' (mouseover)="showButtons(cdkDragSection,true,node.children.length == 0?'sectionBorder':'sectionBorderListItem','selectedEditor',node)" (mouseout)="showButtons(cdkDragSection,false,node.children.length == 0?'sectionBorder':'sectionBorderListItem','selectedEditor',node)"
-                    #cdkDragSection>
-                    <div class="border-placeholder" *cdkDragPlaceholder>
-                        <div class="border-view"></div>
-                    </div>
-                    <div class=' border' [ngClass]="{
-                        'sectionBorderInactive':node.children.length == 0 && mouseOn!==node.sectionID,
-                        'sectionBorderListItemInactive':node.children.length > 0 && mouseOn!==node.sectionID,
-                        'selectedEditor' : node.sectionID == focusedId&&mouseOn!==node.sectionID&&node.children.length == 0,
-                        'sectionBorderListItem':node.sectionID == focusedId&&mouseOn!==node.sectionID&&node.children.length >0}">
-                        <button [style.display]="'none'" mat-icon-button cdkDragHandle class="drag_btn hidden " [ngClass]="{
-                            'drag_btn_leaf_node':node.children.length == 0,
-                            'drag_btn_list_node':node.children.length > 0}"><mat-icon >drag_indicator</mat-icon></button>
-                        <button *ngIf="node.children.length > 0" #expandBtn mat-icon-button class="expandBTN" (click)="changeDisplay(childrenDiv);listDiv.style.display == 'none'?icons[i]='chevron_right':icons[i]='expand_more'"><mat-icon class="{{icons[i]}}"  #icon>{{icons[i]}}</mat-icon></button>
-                        <div class="text-section-div">
-                            {{node.title.titleContent}}
-                        </div>
-                    </div>
-                    <div class="section_btn_container">
-                        <button [style.display]="'none'"  [ngStyle]="node.edit.main?{'order':'1','margin': '2px'}:{}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node.edit.bool" (click)="editNodeHandle(node, nodesForms[i], i);node.active = true"><mat-icon class="matIcon" >edit</mat-icon></button>
-                        <button [style.display]="'none'" [disabled]="true" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon ></button>
-                        <button [style.display]="'none'" [disabled]="true" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
-                    </div>
-                </div>
-                <div #listDiv class="example-list-dropdownbox" [style.display]="'none'" #childrenDiv>
-                    <app-cdk-list-recursive *ngIf="node.children.length > 0" [(articleSectionsStructure)]="node.children" [parentListData]="{expandParentFunc,listDiv}" [startFromIndex]="startFromIndex+i+1" [id]='node.sectionID'></app-cdk-list-recursive>
-                </div>
-            </div>
+            <app-section-leaf 
+            [(node)]="node!" 
+            [parentListData]="listData" 
+            [nodeFormGroup]="sectionsFormGroups[node.sectionID]"
+            [sectionsFormGroupsRef]="sectionsFormGroups"
+            [parentId]="listParentId"
+            [lastNestedChild]="i==articleSectionsStructure.length-1"
+            [nestedNode]="nestedList"
+            [hasChildren]="node.children.length>0"
+            ></app-section-leaf>
         </ng-container>
-    </div>
-</ng-container>
-<ng-container *ngIf="startFromIndex >= 1">
-    <div cdkDropList class="nested-list" (cdkDropListDropped)="drop($event)">
-        <ng-container *ngFor="let node of articleSectionsStructure;index as i">
-            <div [ngClass]="{
-                'node-box-nested':node.children.length == 0,
-                'node-box-dropdownbox-nested':node.children.length > 0}" cdkDrag>
-                <div [style.position]='"relative"' (mouseover)="showButtons(cdkDragSection,true,
-                node.children.length == 0?'sectionBorderNested':'sectionBorderListNested',
-                node.children.length == 0?'selectedEditorNestedLeaf':'selectedEditorNestedList',node)" (mouseout)="showButtons(cdkDragSection,false,
-                node.children.length == 0?'sectionBorderNested':'sectionBorderListNested',
-                node.children.length == 0?'selectedEditorNestedLeaf':'selectedEditorNestedList',node)" #cdkDragSection>
-                    <div class="text-placeholder"></div>
-                    <div class="border-placeholder-nested" *cdkDragPlaceholder>
-                        <div class="border-view"></div>
-                    </div>
-                    <div class=' border' [ngClass]="{
-                        'sectionBorderNestedInactive':node.children.length == 0 && mouseOn!==node.sectionID,
-                        'sectionBorderListNestedInactive' : mouseOn!==node.sectionID&&node.children.length > 0,
-                        'selectedEditorNestedLeaf' : node.sectionID == focusedId&&mouseOn!==node.sectionID&&node.children.length == 0,
-                        'selectedEditorNestedList' : node.sectionID == focusedId&&mouseOn!==node.sectionID&&node.children.length > 0}">
-                        <button [style.display]="'none'" mat-icon-button cdkDragHandle class="drag_btn hidden" [ngClass]="{
-                            'drag_btn_leaf_node_nested':node.children.length == 0,
-                            'drag_btn_list_node_nested':node.children.length > 0}"><mat-icon >drag_indicator</mat-icon></button>
-                        <button *ngIf="node.children.length > 0" #expandBtn mat-icon-button class="expandBTNNested" (click)="changeDisplay(childrenDiv);listDiv.style.display == 'none'?icons[i]='chevron_right':icons[i]='expand_more'"><mat-icon class="{{icons[i]}}" #icon>{{icons[i]}}</mat-icon></button>
-                        <div class="text-section-div-nested">
-                            {{node.title.titleContent}}
-                        </div>
-                    </div>
-                    <div class="section_btn_container">
-                        <button [style.display]="'none'" [ngStyle]="node.edit.main?{'order':'1','margin': '2px'}:{}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node.edit.bool" (click)="editNodeHandle(node, nodesForms[i], i)"><mat-icon class="matIcon">edit</mat-icon></button>
-                        <button [style.display]="'none'" [disabled]="true" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon></button>
-                        <button [style.display]="'none'" [disabled]="true" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
-                    </div>
-                </div>
-                <div #listDiv class="example-list-dropdownbox-nested" [style.display]="'none'" #childrenDiv>
-                    <div *ngIf="i!==articleSectionsStructure.length-1&&node.children.length > 0" class="vertical_line_nestedList"></div>
-                    <app-cdk-list-recursive *ngIf="node.children.length > 0" [(articleSectionsStructure)]="node.children" [parentListData]="{expandParentFunc,listDiv}" [startFromIndex]="startFromIndex+i+1" [id]='node.sectionID'></app-cdk-list-recursive>
-                </div>
-            </div>
-        </ng-container>
-
     </div>
 </ng-container>

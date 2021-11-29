@@ -109,7 +109,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     try {
       //this.prosemirrorEditorsService.updateFormIoDefaultValues(this.section.sectionID, submision.data)
       this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, { data: submision.data, updatedFrom: this.ydocService.ydoc?.guid })
-      this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema);
+      this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema,this.section.sectionID);
       //this.sectionForm = new FormGroup({});
       Object.keys(this.sectionForm.controls).forEach((key) => {
         this.sectionForm.removeControl(key);

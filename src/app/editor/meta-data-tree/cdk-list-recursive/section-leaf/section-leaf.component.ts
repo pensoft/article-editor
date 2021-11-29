@@ -1,5 +1,5 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { AfterContentInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterContentInit, AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { EditSectionDialogComponent } from '../../../dialogs/edit-section-dialog/edit-section-dialog.component';
 import { ProsemirrorEditorsService } from '../../../services/prosemirror-editors.service';
@@ -9,7 +9,7 @@ import { articleSection } from '../../../utils/interfaces/articleSection';
 import { TreeService } from '../../tree-service/tree.service';
 import { DOMParser } from 'prosemirror-model';
 //@ts-ignore
-import { updateYFragment } from '../../../y-prosemirror-src/plugins/sync-plugin.js'
+import { updateYFragment } from '../../../../y-prosemirror-src/plugins/sync-plugin.js'
 import { schema } from '../../../utils/Schema/index';
 import { FormBuilderService } from '../../../services/form-builder.service';
 import { FormGroup } from '@angular/forms';
@@ -17,7 +17,8 @@ import { YMap } from 'yjs/dist/src/internals';
 //@ts-ignore
 import * as Y from 'yjs'
 //@ts-ignore
-import { ySyncPluginKey } from '../../../y-prosemirror-src/plugins/keys.js';
+import { ySyncPluginKey } from '../../../../y-prosemirror-src/plugins/keys.js';
+import { I } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-section-leaf',
@@ -26,99 +27,98 @@ import { ySyncPluginKey } from '../../../y-prosemirror-src/plugins/keys.js';
 })
 export class SectionLeafComponent implements OnInit {
 
-  @Input() articleSectionsStructure!: articleSection[];
-  @Output() articleSectionsStructureChange = new EventEmitter<any>();
-
-  i = 0;
-  @Input() startFromIndex!: number;
-
   @Input() parentListData!: { expandParentFunc: any, listDiv: HTMLDivElement };
-  @Input() id?: string; // the id of the parent of this node
+  @Input() parentId?: string; // the id of the parent of this node
   focusedId?: string;
   mouseOn?: string;
 
 
-  icons: string[] = [];
+  expandIcon?: string;
   focusIdHold?: string;
   taxonomyData: any;
 
   //nodesForms:{[key:string]:FormGroup} = {}
-  nodesForms:FormGroup[] = []
-  sectionContents: any[] = [];
   @Input() node!: articleSection;
   @Output() nodeChange = new EventEmitter<any>();
 
-  constructor() { }
+  @Input() nodeFormGroup!: FormGroup;
+  @Output() nodeFormGroupChange = new EventEmitter<FormGroup>();
 
-  enrichSectionContent(schema: any, values: any) {
-    if (!schema.components || !values) {
-      return;
-    }
+  @Input() lastNestedChild!: boolean;
+  @Input() nestedNode!: boolean;
 
-    Object.keys(values).forEach((valueKey: any) => {
+  @Input() hasChildren!: boolean;
 
-      const [componentName, index, key] = valueKey.split('.');
-      let component = schema.components.find(({ key }: any) => key == componentName);
+  @Input() sectionsFormGroupsRef!:{[key:string]:FormGroup}
+  @Output() sectionsFormGroupsRefChange = new EventEmitter<FormGroup>();
 
-      if (!index || !key) {
-        component['defaultValue'] = values[valueKey];
-      } else {
-        component['defaultValue'] = component['defaultValue'] || [];
-        component['defaultValue'][+index] = component['defaultValue'][+index] || {};
-        component['defaultValue'][+index][key] = values[valueKey];
+  constructor(
+    private formBuilderService: FormBuilderService,
+    public treeService: TreeService,
+    public ydocService: YdocService,
+    public detectFocusService: DetectFocusService,
+    public prosemirrorEditorsService: ProsemirrorEditorsService,
+    public dialog: MatDialog) {
+    detectFocusService.getSubject().subscribe((focusedEditorId) => {
+      if (focusedEditorId) {
+        this.focusedId = focusedEditorId;
+      }
+
+      if (this.parentId !== 'parentList' && this.node.sectionID == this.focusedId){
+        this.expandParentFunc();
       }
     });
-    return schema;
   }
 
-  drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(this.articleSectionsStructure, event.previousIndex, event.currentIndex);
-    moveItemInArray(this.nodesForms, event.previousIndex, event.currentIndex);
-
-    //this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, this.id!);
-
+  ngOnInit(){
+    this.expandIcon = 'chevron_right';
   }
 
+  
 
-
-  editNodeHandle(node: articleSection, formGroup: FormGroup, index: number) {
-    /*try {
+  editNodeHandle(node: articleSection, formGroup: FormGroup) {
+    try {
       //let defaultValuesFromProsmeirroNodes = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
       //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
       let defaultValues = formGroup.value;
-      
+
       //this.formBuilderService.buildFormGroupFromSchema(formGroup, sectionContent);
-      let sectionContent = this.sectionContents[index]
-       this.sectionContents[index] = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
+      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema,node.sectionID);
+      node.formIOSchema = sectionContent
       this.dialog.open(EditSectionDialogComponent, {
         width: '95%',
         height: '90%',
-        data: { node: node, form: formGroup, sectionContent: sectionContent },
+        data: { node: node, form: formGroup, sectionContent },
         disableClose: false
       }).afterClosed().subscribe(result => {
         if (result && result.compiledHtml) {
+          this.treeService.editNodeChange(node.sectionID)
+
           let trackStatus = this.prosemirrorEditorsService.trackChangesMeta.trackTransactions
           this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = false
           this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
             this.prosemirrorEditorsService.trackChangesMeta
           )
-          const mainDocumentSnapshot = Y.snapshot(this.ydocService.ydoc)
           let xmlFragment = this.ydocService.ydoc.getXmlFragment(node.sectionID);
           let templDiv = document.createElement('div');
           templDiv.innerHTML = result.compiledHtml
           let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
-          updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
-          const updatedSnapshot = Y.snapshot(this.ydocService.ydoc)
-          let editorView = this.prosemirrorEditorsService
+          if(trackStatus){
+            const mainDocumentSnapshot = Y.snapshot(this.ydocService.ydoc)
+            updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
+            const updatedSnapshot = Y.snapshot(this.ydocService.ydoc)
+            let editorView = this.prosemirrorEditorsService
             .editorContainers[node.sectionID].editorView
-          editorView.dispatch(editorView.state.tr.setMeta(ySyncPluginKey, {
-            snapshot: Y.decodeSnapshot(Y.encodeSnapshot(updatedSnapshot)),
-            prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(mainDocumentSnapshot)),
-            renderingFromPopUp: true,
-            trackStatus
-          }))
+            editorView.dispatch(editorView.state.tr.setMeta(ySyncPluginKey, {
+              snapshot: Y.decodeSnapshot(Y.encodeSnapshot(updatedSnapshot)),
+              prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(mainDocumentSnapshot)),
+              renderingFromPopUp: true,
+              trackStatus:true
+            }))
+          }else{
+            updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
+          }
           //editorview
-          this.treeService.editNodeChange(node.sectionID)
           setTimeout(() => {
             this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = trackStatus
             this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
@@ -129,15 +129,15 @@ export class SectionLeafComponent implements OnInit {
       });
     } catch (e) {
       console.error(e);
-    } */
+    }
   }
 
   addNodeHandle(nodeId: string) {
-    //this.treeService.addNodeChange(nodeId);
+    this.treeService.addNodeChange(nodeId);
   }
 
   deleteNodeHandle(nodeId: string) {
-    //this.treeService.deleteNodeChange(nodeId, this.id!);
+    this.treeService.deleteNodeChange(nodeId, this.parentId!);
   }
 
   changeDisplay(div: HTMLDivElement) {
@@ -149,7 +149,7 @@ export class SectionLeafComponent implements OnInit {
   }
 
   expandParentFunc = () => {
-    if (this.id !== 'parentList') {
+    if (this.parentId !== 'parentList') {
       if (this.parentListData) {
         if (this.parentListData.listDiv.style.display == 'none') {
           this.parentListData.listDiv.style.display = 'block';
@@ -221,9 +221,6 @@ export class SectionLeafComponent implements OnInit {
 
       }
     });
-  }
-  
-  ngOnInit(): void {
   }
 
 }

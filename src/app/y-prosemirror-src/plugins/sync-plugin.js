@@ -476,7 +476,6 @@ const createTextNodesFromYText = (text, schema, mapping, snapshot, prevSnapshot,
       const marks = []
       for (const markName in delta.attributes) {
         if(markName == 'ychange'){
-          console.log(trackStatus);
           let markAttrs = delta.attributes[markName]
           if(markAttrs.type == 'added'&&trackStatus){
             marks.push(schema.mark('insertion', {

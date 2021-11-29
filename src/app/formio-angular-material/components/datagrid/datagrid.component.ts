@@ -168,9 +168,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
       const prevIndex = this.dataSource.data.findIndex((d) => d === event.item.data);
       
       
-      console.log(JSON.parse(JSON.stringify(this.control.value)));
       moveItemInArray(this.control.value, prevIndex, event.currentIndex);
-      console.log(JSON.parse(JSON.stringify(this.control.value)));
 
       this.renderComponents();
 
@@ -182,7 +180,6 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
 
   renderComponents() {
     try{
-      console.log(JSON.parse(JSON.stringify(this.control.value)));
       let recursiveSetRealValue = (instance:any)=>{
         instance.components.forEach((el:any)=>{
           if(el.component.type == 'textarea'){

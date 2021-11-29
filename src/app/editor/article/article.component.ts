@@ -30,7 +30,7 @@ export class ArticleComponent implements OnInit {
   }
 
   logYdoc(){
-    console.log(this.ydocService.ydoc);
+    //console.log(this.ydocService.ydoc);
   }
 
   ngOnInit(): void {
@@ -52,7 +52,6 @@ export class ArticleComponent implements OnInit {
     this.articleSectionsStructureFlat = []
     setTimeout(()=>{
       this.articleSectionsStructureFlat = articleSectionsStructureFlat
-      console.log(this.articleSectionsStructureFlat);
     },10)
   }
 

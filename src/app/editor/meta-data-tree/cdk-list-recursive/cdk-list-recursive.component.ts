@@ -1,5 +1,5 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { AfterContentInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterContentInit, AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { EditSectionDialogComponent } from '../../dialogs/edit-section-dialog/edit-section-dialog.component';
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
@@ -24,29 +24,26 @@ import { ySyncPluginKey } from '../../../y-prosemirror-src/plugins/keys.js';
   templateUrl: './cdk-list-recursive.component.html',
   styleUrls: ['./cdk-list-recursive.component.scss']
 })
-export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */ {
+export class CdkListRecursiveComponent implements OnInit, AfterViewInit {
 
   @Input() articleSectionsStructure!: articleSection[];
   @Output() articleSectionsStructureChange = new EventEmitter<any>();
 
+  renderList = false;
 
-  @Input() startFromIndex!: number;
+  @Input() nestedList!: boolean;
 
-  @Input() parentListData!: { expandParentFunc: any, listDiv: HTMLDivElement };
-  @Input() id?: string; // the id of the parent of this node
+  @Input() listData!: { expandParentFunc: any, listDiv: HTMLDivElement };
+  @Input() listParentId?: string; // the id of the parent of this node
   focusedId?: string;
   mouseOn?: string;
 
+  sectionsFormGroups:{[key:string]:FormGroup} = {};
 
-  icons: string[] = [];
   focusIdHold?: string;
   taxonomyData: any;
 
   //nodesForms:{[key:string]:FormGroup} = {}
-  nodesForms:FormGroup[] = []
-  sectionContents: any[] = [];
-
-
 
   constructor(
     private formBuilderService: FormBuilderService,
@@ -56,29 +53,18 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
     public prosemirrorEditorsService: ProsemirrorEditorsService,
     public dialog: MatDialog
   ) {
-    detectFocusService.getSubject().subscribe((focusedEditorId) => {
-      if (focusedEditorId) {
-        this.focusedId = focusedEditorId;
-      }
-
-      if (this.id !== 'parentList' && this.articleSectionsStructure.some((el) => {
-        return el.sectionID == focusedEditorId;
-      })) {
-        this.expandParentFunc();
-      }
-    });
-
-
+  }
+  ngAfterViewInit(){
+    this.renderList = true;
   }
 
-
-
   ngOnInit(): void {
+    this.sectionsFormGroups = this.treeService.sectionFormGroups
     this.articleSectionsStructure.forEach((node: articleSection, index: number) => {
       //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
       let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID);
       let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
-      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
+      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema,node.sectionID);
 
       //let sectionContent = this.enrichSectionContent(node.formIOSchema, defaultValues);
       let nodeForm: FormGroup = new FormGroup({});
@@ -86,11 +72,9 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
 
       nodeForm.patchValue(defaultValues);
       nodeForm.updateValueAndValidity()
-      this.nodesForms.push(nodeForm)
-      this.sectionContents.push(sectionContent);
       this.treeService.sectionFormGroups[node.sectionID] = nodeForm;
 
-      this.icons[index] = 'chevron_right';
+      
       this.ydocService.sectionFormGroupsStructures!.observe((ymap)=>{
         let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID)
         if(!dataFromYMap||dataFromYMap.updatedFrom==this.ydocService.ydoc.guid){
@@ -100,187 +84,15 @@ export class CdkListRecursiveComponent implements OnInit/* , AfterContentInit */
           nodeForm.removeControl(key);
         })
         let defaultValues = dataFromYMap.data
-        let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
+        let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema,node.sectionID);
         this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
       })
     });
   }
 
-
-  enrichSectionContent(schema: any, values: any) {
-    if (!schema.components || !values) {
-      return;
-    }
-
-    Object.keys(values).forEach((valueKey: any) => {
-
-      const [componentName, index, key] = valueKey.split('.');
-      let component = schema.components.find(({ key }: any) => key == componentName);
-
-      if (!index || !key) {
-        component['defaultValue'] = values[valueKey];
-      } else {
-        component['defaultValue'] = component['defaultValue'] || [];
-        component['defaultValue'][+index] = component['defaultValue'][+index] || {};
-        component['defaultValue'][+index][key] = values[valueKey];
-      }
-    });
-    return schema;
-  }
-
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.articleSectionsStructure, event.previousIndex, event.currentIndex);
-    moveItemInArray(this.nodesForms, event.previousIndex, event.currentIndex);
-
-    this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, this.id!);
-
+    this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, this.listParentId!);
   }
-
-
-
-  editNodeHandle(node: articleSection, formGroup: FormGroup, index: number) {
-    try {
-      //let defaultValuesFromProsmeirroNodes = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
-      //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
-      let defaultValues = formGroup.value;
-      
-      //this.formBuilderService.buildFormGroupFromSchema(formGroup, sectionContent);
-      let sectionContent = this.sectionContents[index]
-      this.sectionContents[index] = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema);
-      this.dialog.open(EditSectionDialogComponent, {
-        width: '95%',
-        height: '90%',
-        data: { node: node, form: formGroup, sectionContent: sectionContent },
-        disableClose: false
-      }).afterClosed().subscribe(result => {
-        if (result && result.compiledHtml) {
-          this.treeService.editNodeChange(node.sectionID)
-
-          let trackStatus = this.prosemirrorEditorsService.trackChangesMeta.trackTransactions
-          this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = false
-          this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
-            this.prosemirrorEditorsService.trackChangesMeta
-          )
-          const mainDocumentSnapshot = Y.snapshot(this.ydocService.ydoc)
-          let xmlFragment = this.ydocService.ydoc.getXmlFragment(node.sectionID);
-          let templDiv = document.createElement('div');
-          templDiv.innerHTML = result.compiledHtml
-          let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
-          updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
-          const updatedSnapshot = Y.snapshot(this.ydocService.ydoc)
-          let editorView = this.prosemirrorEditorsService
-            .editorContainers[node.sectionID].editorView
-          editorView.dispatch(editorView.state.tr.setMeta(ySyncPluginKey, {
-            snapshot: Y.decodeSnapshot(Y.encodeSnapshot(updatedSnapshot)),
-            prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(mainDocumentSnapshot)),
-            renderingFromPopUp: true,
-            trackStatus
-          }))
-          //editorview
-          debugger
-          setTimeout(() => {
-            this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = trackStatus
-            this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
-              this.prosemirrorEditorsService.trackChangesMeta
-            )
-          }, 30)
-        }
-      });
-    } catch (e) {
-      console.error(e);
-    }
-  }
-
-  addNodeHandle(nodeId: string) {
-    this.treeService.addNodeChange(nodeId);
-  }
-
-  deleteNodeHandle(nodeId: string) {
-    this.treeService.deleteNodeChange(nodeId, this.id!);
-  }
-
-  changeDisplay(div: HTMLDivElement) {
-    if (div.style.display == 'none') {
-      div.style.display = 'block';
-    } else {
-      div.style.display = 'none';
-    }
-  }
-
-  expandParentFunc = () => {
-    if (this.id !== 'parentList') {
-      if (this.parentListData) {
-        if (this.parentListData.listDiv.style.display == 'none') {
-          this.parentListData.listDiv.style.display = 'block';
-        }
-        this.parentListData.expandParentFunc();
-      }
-    }
-  };
-
-  showButtons(div: HTMLDivElement, mouseOn: boolean, borderClass: string, focusClass: string, node: any) {
-    if (mouseOn) {
-      this.mouseOn = node.id;
-    } else {
-      this.mouseOn = '';
-    }
-    Array.from(div.children).forEach((el: any) => {
-      if (el.classList.contains('section_btn_container')) {
-        Array.from(el.children).forEach((el: any) => {
-          if (el.classList.contains('hidden')) {
-
-            if (mouseOn) {
-              el.style.display = 'inline';
-            } else {
-              el.style.display = 'none';
-            }
-
-          }
-        });
-      } else if (el.classList.contains('hidden')) {
-
-        if (mouseOn) {
-          el.style.display = 'inline';
-        } else {
-          el.style.display = 'none';
-        }
-
-      } else if (el.classList.contains('border')) {
-        if (mouseOn) {
-          if (this.focusedId == node.id) {
-            this.focusIdHold = node.id;
-            this.focusedId = '';
-            /* el.classList.add(focusClass); */
-          }
-          el.className = `border ${borderClass} `;
-          /* el.classList.remove(borderClass+"Inactive")
-
-          el.classList.remove(borderClass)
-          el.classList.add(borderClass)
-
-          el.classList.remove(focusClass) */
-
-          el.children.item(0).style.display = 'inline';
-        } else {
-          if (this.focusIdHold == node.id) {
-
-            this.focusedId = this.focusIdHold;
-            this.focusIdHold = '';
-
-            /* el.classList.add(focusClass); */
-          }
-          el.className = `border ${borderClass}Inactive`;
-
-
-          /* el.classList.remove(borderClass)
-          el.classList.remove(borderClass)
-          el.classList.add(borderClass+"Inactive") */
-          el.children.item(0).style.display = 'none';
-        }
-
-      }
-    });
-  }
-
 
 }

@@ -396,7 +396,7 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
     'logNodesMenuItem':logNodesMenuItem,
     // unfinished menu : 
     'textMenu': [toggleStrong, toggleEm, toggleUnderline, 'menuseparator', wrapOrderedList, wrapBulletList, 'menuseparator', toggleSubscriptItem, toggleSuperscriptItem, spellCheckMenuItem],
-    'insertMenu': [insertImageItem, insertDiagramItem, new Dropdown(tableMenu, { class: "table-icon" }), footnoteMenuItem, functionItem, insertSpecialSymbolItem]
+    'insertMenu': [insertImageItem, insertDiagramItem, new Dropdown(tableMenu, { class: "table-icon vertival-dropdown" }), footnoteMenuItem, functionItem, insertSpecialSymbolItem]
     // should do some missing menu items : 
     /* 'textMenu':[[toggleStrong,toggleEm,toggleUnderLine],
     [wrapOrderedList,wrapBulletList],

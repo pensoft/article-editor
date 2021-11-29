@@ -1,6 +1,7 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { FiguresFormgroupsService } from '@app/editor/services/figures-formgroups.service';
 import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../../services/ydoc.service';
 import { figure } from '../../utils/interfaces/figureComponent';
@@ -17,7 +18,8 @@ export class FiguresDialogComponent implements AfterViewInit {
   figures ?: figure[] 
   constructor(
     private ydocService:YdocService,
-    public dialog: MatDialog
+    public dialog: MatDialog,
+    private figuresFormGroupsService:FiguresFormgroupsService
   ) { }
 
   ngAfterViewInit(): void {
@@ -26,6 +28,8 @@ export class FiguresDialogComponent implements AfterViewInit {
 
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.figures!, event.previousIndex, event.currentIndex);
+    this.ydocService.figuresMap?.set('ArticleFigures',this.figures)
+
     //this.ydocService.figuresMap?.set('ArticleFigures',)
   }
 
@@ -36,8 +40,9 @@ export class FiguresDialogComponent implements AfterViewInit {
       data: fig,
       disableClose: false
     }).afterClosed().subscribe(result => {
-      console.log('Figure from edit',result);
+      //console.log('Figure from edit',result);
       this.figures?.splice(figIndex,1,result.figure)
+      this.ydocService.figuresMap?.set('ArticleFigures',this.figures)
     })
   }
 
@@ -49,6 +54,7 @@ export class FiguresDialogComponent implements AfterViewInit {
       disableClose: false
     }).afterClosed().subscribe(result => {
       this.figures?.push(result.figure)
+      this.ydocService.figuresMap?.set('ArticleFigures',this.figures)
     })
   }
 }
