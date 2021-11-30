@@ -1,20 +1,19 @@
 import { Selection, TextSelection } from 'prosemirror-state';
 import { Slice } from 'prosemirror-model';
 import { ReplaceStep, Mapping } from 'prosemirror-transform';
-import { v4 as uuidv4 } from 'uuid';
-
+import { uuidv4 } from 'lib0/random';
 
 const markDeletion = (tr, from, to, user, date, group, viewId) => {
-    const deletionMark = tr.doc.type.schema.marks.deletion.create({
+  const deletionMark = tr.doc.type.schema.marks.deletion.create({
     user: user.userId,
     username: user.username,
     style: `color: ${user.userColor.deletion};`,
-    // date
+    // dates
   });
+
   const deletionMap = new Mapping();
 
   tr.doc.nodesBetween(from, to, (node, pos) => {
-    
     if (node.type.name.includes('table')) {
       return;
     }
@@ -22,11 +21,10 @@ const markDeletion = (tr, from, to, user, date, group, viewId) => {
       node.isInline &&
       node.marks.find(
         mark =>
-        mark.type.name === 'insertion' &&
-        mark.attrs.user.toString() === user.userId.toString(),
-        )
+          mark.type.name === 'insertion' &&
+          mark.attrs.user.toString() === user.userId.toString(),
+      )
     ) {
-      
       const removeStep = new ReplaceStep(
         deletionMap.map(Math.max(from, pos)),
         deletionMap.map(Math.min(to, pos + node.nodeSize)),
@@ -100,7 +98,7 @@ const markDeletion = (tr, from, to, user, date, group, viewId) => {
         tr.setNodeMarkup(
           deletionMap.map(pos),
           null,
-          Object.assign(node.attrs, { track }),
+          Object.assign(node.attrs.track, { track }),
           node.marks,
         );
       }

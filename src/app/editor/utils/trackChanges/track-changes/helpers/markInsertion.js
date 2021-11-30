@@ -3,14 +3,14 @@ import { v4 as uuidv4 } from 'uuid';
 const markInsertion = (tr, from, to, user, date, group, viewId) => {
   tr.removeMark(from, to, tr.doc.type.schema.marks.deletion);
   tr.removeMark(from, to, tr.doc.type.schema.marks.insertion);
-
   const insertionMark = tr.doc.type.schema.marks.insertion.create({
     user: user.userId,
     username: user.username,
-    
+    style: `color: ${user.userColor.addition};`,
     // date
   });
-  tr = tr.addMark(from, to, insertionMark);
+
+  tr.addMark(from, to, insertionMark);
   // Add insertion mark also to block nodes (figures, text blocks) but not table cells/rows and lists.
   tr.doc.nodesBetween(from, to, (node, pos) => {
     if (

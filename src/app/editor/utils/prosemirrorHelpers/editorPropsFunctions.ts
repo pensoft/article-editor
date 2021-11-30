@@ -43,7 +43,10 @@ export const handleDoubleClick = (hideshowPluginKEey:PluginKey)=>{
         let node = view.state.doc.nodeAt(pos)
         let marks = node?.marks
         let hasTrackChnagesMark = node?.marks.some((mark) => {
-            return mark!.type.name == 'insertion' || mark!.type.name == 'deletion' /* || mark!.type.name == 'format_change' */
+            return mark!.type.name == 'insertion' 
+            || mark!.type.name == 'deletion'  
+            || mark!.type.name == 'insFromPopup' 
+            || mark!.type.name == 'delFromPopup' 
         })
         if (hasTrackChnagesMark) {
             let cursurCoord = view.coordsAtPos(pos);

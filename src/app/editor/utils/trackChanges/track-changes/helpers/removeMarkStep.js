@@ -25,7 +25,7 @@ const removeMarkStep = (
     );
 
     if (
-      ['em', 'strong', 'underline','subscript','superscript'].includes(step.mark.type.name) &&
+      ['em', 'strong', 'underline'].includes(step.mark.type.name) &&
       node.marks.find(mark => mark.type === step.mark.type)
     ) {
       const formatChangeMark = node.marks.find(

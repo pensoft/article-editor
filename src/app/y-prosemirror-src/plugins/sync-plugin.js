@@ -475,21 +475,35 @@ const createTextNodesFromYText = (text, schema, mapping, snapshot, prevSnapshot,
       const delta = deltas[i]
       const marks = []
       for (const markName in delta.attributes) {
-        if(markName == 'ychange'){
-          let markAttrs = delta.attributes[markName]
+        let markAttrs = delta.attributes[markName]
+        if(markName == 'ychange'&&!delta.attributes.insertion&&!delta.attributes.deletion){
           if(markAttrs.type == 'added'&&trackStatus){
-            marks.push(schema.mark('insertion', {
+            marks.push(schema.mark('insFromPopup', {
               user:text.doc.clientID,
               username:markAttrs.user
             }))
           }else if(markAttrs.type == 'removed'&&trackStatus){
-            marks.push(schema.mark('deletion',{
+            marks.push(schema.mark('delFromPopup',{
               user:text.doc.clientID,
               username:markAttrs.user
             }))
           }
         }else{
-          marks.push(schema.mark(markName, delta.attributes[markName]))
+          if(markName !== 'ychange'){
+            marks.push(schema.mark(markName, delta.attributes[markName]))
+           }/*else{
+            if(markAttrs.type == 'added'&&trackStatus){
+              marks.push(schema.mark('insFromPopup', {
+                user:text.doc.clientID,
+                username:markAttrs.user
+              }))
+            }else if(markAttrs.type == 'removed'&&trackStatus){
+              marks.push(schema.mark('delFromPopup',{
+                user:text.doc.clientID,
+                username:markAttrs.user
+              }))
+            }
+          } */
         }
       }
       nodes.push(schema.text(delta.insert, marks))
@@ -499,6 +513,7 @@ const createTextNodesFromYText = (text, schema, mapping, snapshot, prevSnapshot,
     /** @type {Y.Doc} */ (text.doc).transact(transaction => {
       /** @type {Y.Item} */ (text._item).delete(transaction)
     }, ySyncPluginKey)
+    console.error(e)
     return null
   }
   // @ts-ignore

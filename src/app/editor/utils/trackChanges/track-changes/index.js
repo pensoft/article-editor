@@ -8,10 +8,10 @@ import {
 } from 'prosemirror-transform';
 
 import { DocumentHelpers } from 'wax-prosemirror-utilities';
-import replaceStep from './helpers/replaceStep';
-import replaceAroundStep from './helpers/replaceAroundStep';
-import addMarkStep from './helpers/addMarkStep';
-import removeMarkStep from './helpers/removeMarkStep';
+import replaceStep from './helpers/replaceStep.js';
+import replaceAroundStep from './helpers/replaceAroundStep.js';
+import addMarkStep from './helpers/addMarkStep.js';
+import removeMarkStep from './helpers/removeMarkStep.js';
 
 const trackedTransaction = (
   tr,
@@ -34,30 +34,32 @@ const trackedTransaction = (
   if (state.selection.node && state.selection.node.type.name === 'image') {
     return tr;
   }
-
   // images
   if (state.selection.node && state.selection.node.type.name === 'figure') {
     return tr;
   }
-  
+
   if (
     !tr.steps.length ||
     (tr.meta &&
       !Object.keys(tr.meta).every(meta =>
-         ['inputType', 'uiEvent', 'paste','drop','cut'].includes(meta),
+        ['inputType', 'uiEvent', 'paste'].includes(meta),
       )) ||
     ['AcceptReject', 'Undo', 'Redo'].includes(tr.getMeta('inputType'))
   ) {
     return tr;
   }
+
   // const group = tr.getMeta('outsideView') ? tr.getMeta('outsideView') : 'main';
   const newTr = state.tr;
   const map = new Mapping();
   const date = Math.floor(Date.now());
+
   tr.steps.forEach(originalStep => {
     const step = originalStep.map(map);
     const { doc } = newTr;
     if (!step) return;
+
     switch (step.constructor) {
       case ReplaceStep:
         replaceStep(
@@ -118,12 +120,10 @@ const trackedTransaction = (
       default:
     }
   });
-  Object.keys(tr.meta).forEach((key)=>{
-    newTr.setMeta(key,tr.getMeta(key));
-  })
-  /*  if (tr.getMeta('inputType')) newTr.setMeta('inputType',tr.getMeta('inputType'));
- 
-  if (tr.getMeta('uiEvent')) newTr.setMeta('uiEvent',tr.getMeta('uiEvent')); */
+
+  if (tr.getMeta('inputType')) newTr.setMeta(tr.getMeta('inputType'));
+
+  if (tr.getMeta('uiEvent')) newTr.setMeta(tr.getMeta('uiEvent'));
 
   if (tr.selectionSet) {
     const deletionMarkSchema = state.schema.marks.deletion;
@@ -132,6 +132,7 @@ const trackedTransaction = (
       deletionMarkSchema,
       false,
     );
+
     if (
       tr.selection instanceof TextSelection &&
       (tr.selection.from < state.selection.from ||

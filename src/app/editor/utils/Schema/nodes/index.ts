@@ -9,30 +9,6 @@ export const nodes: NodeSpec = {
     doc: {
         content: "block+"
     },
-
-    inline_block_container: {
-        content: "block*",
-        group: "block",
-        attrs: {
-            ...getGenericAttributes()
-        },
-        parseDOM: [{
-            tag: "inline-block-container", getAttrs(dom: any) {
-                return {
-                    ...parseGenericAttributes(dom),
-                }
-            },
-        }],
-        toDOM(node: any) {
-            let attributesToDom: any = {
-                ...genericAttributtesToDom(node),
-                style:'display:flex;'
-
-            }
-            return ["inline-block-container", attributesToDom, 0];
-        }
-    },
-
     form_field: {
         content: "paragraph+",
         group: "block",
@@ -55,6 +31,30 @@ export const nodes: NodeSpec = {
             return ["form-field", attributesToDom, 0];
         }
     },
+    inline_block_container: {
+        content: "block+",
+        group: "block",
+        attrs: {
+            ...getGenericAttributes()
+        },
+        parseDOM: [{
+            tag: "inline-block-container", getAttrs(dom: any) {
+                return {
+                    ...parseGenericAttributes(dom),
+                }
+            },
+        }],
+        toDOM(node: any) {
+            let attributesToDom: any = {
+                ...genericAttributtesToDom(node),
+                style:'display:flex;'
+
+            }
+            return ["inline-block-container", attributesToDom, 0];
+        }
+    },
+
+    
     ...tableNodes({
         tableGroup: "block",
         cellContent: "form_field{1}",

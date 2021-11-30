@@ -1,7 +1,7 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { FiguresFormgroupsService } from '@app/editor/services/figures-formgroups.service';
+import { FiguresControllerService } from '@app/editor/services/figures-controller.service';
 import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../../services/ydoc.service';
 import { figure } from '../../utils/interfaces/figureComponent';
@@ -19,7 +19,7 @@ export class FiguresDialogComponent implements AfterViewInit {
   constructor(
     private ydocService:YdocService,
     public dialog: MatDialog,
-    private figuresFormGroupsService:FiguresFormgroupsService
+    private figuresControllerService:FiguresControllerService
   ) { }
 
   ngAfterViewInit(): void {

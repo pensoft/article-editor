@@ -5,6 +5,8 @@ import { YdocService } from '../services/ydoc.service';
 import { articleSection } from '../utils/interfaces/articleSection';
 import { ChangeDetectorRef } from '@angular/core';
 import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
+import { FiguresControllerService } from '../services/figures-controller.service';
+import { figure } from '../utils/interfaces/figureComponent';
 
 @Component({
   selector: 'app-article',
@@ -16,8 +18,14 @@ export class ArticleComponent implements OnInit {
   articleSectionsStructureFlat ?: articleSection[]  
   articleSectionsStructure:articleSection[]
   articleStructureMap :YMap<any>
+  articleFigures?:figure[]
   reload= true
-  constructor(private ydocService:YdocService,private ref: ChangeDetectorRef,public prosemirrorEditorsService:ProsemirrorEditorsService) {
+  constructor(
+    private ydocService:YdocService,
+    private ref: ChangeDetectorRef,
+    public prosemirrorEditorsService:ProsemirrorEditorsService,
+    public figuresControllerService:FiguresControllerService
+    ) {
    
     this.articleStructureMap = this.ydocService.articleStructure!;
     this.ydocService.articleStructure!.observe((data)=>{
@@ -27,6 +35,7 @@ export class ArticleComponent implements OnInit {
     })
     this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
     this.makeFlat();
+    this.articleFigures = this.ydocService.figuresMap?.get('ArticleFigures');
   }
 
   logYdoc(){

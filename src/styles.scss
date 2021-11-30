@@ -3,10 +3,15 @@
 @import "../node_modules/katex/dist/katex.min.css";
 @import "../node_modules/prosemirror-view/style/prosemirror.css";
 
-.insertion {
+.insertion ,.ins-from-popup{
   color: black;
   background: #dfffc9;
 }
+
+/* .ins-from-popup{
+  color: black;
+  background-color: #dfffc9;
+} */
 
 .track_changes_placeholder {
   position: absolute;
@@ -180,11 +185,17 @@ img[ychange_type="removed"] {
   padding: 2px;
 }
 
-.deletion {
+.deletion ,.del-from-popup{
   color: black;
   background-color: #ffd0d0;
   text-decoration: line-through black;
 }
+
+/* .del-from-popup{
+  color: black;
+  background-color: #ffd0d0;
+  text-decoration: line-through black 2px;
+} */
 
 @media screen and (max-width: 600px) {
   app-root {

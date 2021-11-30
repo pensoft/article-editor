@@ -3,6 +3,8 @@ import { trackChangesMarks } from './trackChangesMarks';
 import { comment } from './comment';
 import { marks as basicmarks } from './basic-marks';
 import { Node } from "prosemirror-model";
+import delFromPopup from "./trackChangesMarks/delFromPopupMark";
+import insFromPopup from "./trackChangesMarks/insFromPopup";
 
 const calcYChangeStyle = (ychange: any) => {
     switch (ychange.type) {
@@ -51,6 +53,8 @@ export const marks: MarkSpec = {
     },
     comment,
     ...trackChangesMarks,
+    delFromPopup,
+    insFromPopup,
     ...basicmarks,
     invalid: {
 

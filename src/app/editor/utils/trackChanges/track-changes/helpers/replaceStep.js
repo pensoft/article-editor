@@ -30,7 +30,7 @@ const replaceStep = (
     step.slice,
     step.structure,
   );
-  
+
   // We didn't apply the original step in its original place. We adjust the map accordingly.
   map.appendMap(step.invert(doc).getMap());
   if (newStep) {
@@ -46,7 +46,8 @@ const replaceStep = (
       newStep.from,
       newStep.to,
       trTemp.doc.slice(newStep.from, mappedNewStepTo),
-      );
+    );
+
     newTr.step(condensedStep);
     const mirrorIndex = map.maps.length - 1;
     map.appendMap(condensedStep.getMap(), mirrorIndex);

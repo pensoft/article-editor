@@ -120,16 +120,16 @@ export const taxonomicCoverage = {
 let taxonomicCoverageDefaultValues1 :any
 if(!environment.production){
     taxonomicCoverageDefaultValues1 = { // form group structure for the section
-        "description": "<p align=\"set-align-left\" class=\"set-align-left\"><span class=\"insertion\" data-id=\"\" data-user=\"3959162350\" data-username=\"Alice\" data-date=\"0\" data-group=\"\" data-viewid=\"\">qwd</span></p>",
+        "description": "<p align=\"set-align-left\" class=\"set-align-left\">qwd</p>",
         "taxonomicCoverage": [
             {
-                "scientificName": "<p align=\"set-align-left\" class=\"set-align-left\"><span class=\"insertion\" data-id=\"\" data-user=\"3959162350\" data-username=\"Alice\" data-date=\"0\" data-group=\"\" data-viewid=\"\">w@s.w</span></p>",
-                "commonName": "<p align=\"set-align-left\" class=\"set-align-left\"><span class=\"insertion\" data-id=\"\" data-user=\"3959162350\" data-username=\"Alice\" data-date=\"0\" data-group=\"\" data-viewid=\"\">dqwd</span></p>",
+                "scientificName": "<p align=\"set-align-left\" class=\"set-align-left\">w@s.w</p>",
+                "commonName": "<p align=\"set-align-left\" class=\"set-align-left\">dqwdqweqweeewq</p>",
                 "rank": "phylum"
             },
             {
-                "scientificName": "<p align=\"set-align-left\" class=\"set-align-left\"><span class=\"insertion\" data-id=\"\" data-user=\"3959162350\" data-username=\"Alice\" data-date=\"0\" data-group=\"\" data-viewid=\"\">w@s.w</span></p>",
-                "commonName": "<p align=\"set-align-left\" class=\"set-align-left\"><span class=\"insertion\" data-id=\"\" data-user=\"3959162350\" data-username=\"Alice\" data-date=\"0\" data-group=\"\" data-viewid=\"\">asdwd</span></p>",
+                "scientificName": "<p align=\"set-align-left\" class=\"set-align-left\">w@s.w</p>",
+                "commonName": "<p align=\"set-align-left\" class=\"set-align-left\">dqwdqweqweeewq</p>",
                 "rank": "kingdom"
             }
         ],

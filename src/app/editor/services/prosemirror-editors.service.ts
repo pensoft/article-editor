@@ -63,6 +63,7 @@ import { ViewFlags } from '@angular/compiler/src/core';
 import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, validateTransactions } from '../utils/prosemirrorHelpers';
 //@ts-ignore
 import { recreateTransform } from "prosemirror-recreate-steps"
+import { figure } from '../utils/interfaces/figureComponent';
 @Injectable({
   providedIn: 'root'
 })
@@ -124,7 +125,7 @@ export class ProsemirrorEditorsService {
       this.ydocService.trackChangesMetadata?.set('trackChangesMetadata', trackCHangesMetadata);
     })
   }
-  getXmlFragment(mode: string, id: string) {
+  getXmlFragment(mode: string = 'documentMode', id: string) {
     if (this.xmlFragments[id]) {
       return this.xmlFragments[id]
     }
@@ -320,6 +321,140 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
+  renderDocumentEndEditor(EditorContainer: HTMLDivElement,figures:figure[]): {
+    editorID: string,
+    containerDiv: HTMLDivElement,
+    editorState: EditorState,
+    editorView: EditorView,
+    dispatchTransaction: any
+  }{
+    let editorId = 'endEditor'
+    let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
+
+    if (this.editorContainers[editorId]) {
+      EditorContainer.appendChild(this.editorContainers[editorId].containerDiv);
+      return this.editorContainers[editorId]
+    }
+
+    let container = document.createElement('div');
+    let editorView: EditorView;
+    let colors = this.colors
+    let colorMapping = this.colorMapping
+    let permanentUserData = this.permanentUserData
+    let editorID = editorId;
+
+    let menuContainerClass = "menu-container";
+    let xmlFragment = this.getXmlFragment('documentMode', editorID)
+    let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
+    yCursorPlugin(this.provider!.awareness),
+    yUndoPlugin()]
+
+    container.setAttribute('class', 'editor-container');
+    let defaultMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'SimpleMenu', editorID);
+    this.initDocumentReplace[editorID] = true;
+    let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
+    let GroupControl = this.treeService.sectionFormGroups;
+    /* let transactionControllerPlugin = new Plugin({
+      key: transactionControllerPluginKey,
+      appendTransaction: validateTransactions(GroupControl, section, schema),
+      filterTransaction: preventDragDropCutOnNoneditablenodes,
+    }) */
+
+    setTimeout(() => {
+      this.initDocumentReplace[editorID] = false;
+    }, 600);
+
+    this.editorsEditableObj[editorID] = true
+
+    let edState = EditorState.create({
+      schema: schema,
+      plugins: [
+        ...yjsPlugins,
+        mathPlugin,
+        keymap({
+          'Mod-z': undo,
+          'Mod-y': redo,
+          'Mod-Shift-z': redo,
+          'Mod-Space': insertMathCmd(schema.nodes.math_inline),
+          'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
+          'Tab': goToNextCell(1),
+          'Shift-Tab': goToNextCell(-1)
+        }),
+        columnResizing({}),
+        tableEditing(),
+        this.placeholderPluginService.getPlugin(),
+        //transactionControllerPlugin,
+        this.detectFocusService.getPlugin(),
+        this.commentsService.getPlugin(),
+        this.trackChangesService.getHideShowPlugin(),
+        this.linkPopUpPluginService.linkPopUpPlugin,
+        inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
+        ...menuBar({
+          floating: true,
+          content: { 'main': defaultMenu/* , fullMenu */ }, containerClass: menuContainerClass
+        })
+      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
+      ,
+      // @ts-ignore
+      sectionName: editorID,
+      // @ts-ignore
+    });
+
+    let lastStep: any
+    const dispatchTransaction = (transaction: Transaction) => {
+      this.transactionCount++
+      try {
+        if (lastStep == transaction.steps[0]) {
+          if (lastStep) { return }
+        }
+        lastStep = transaction.steps[0]
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges) {
+          let state = editorView?.state.apply(transaction);
+          editorView?.updateState(state!);
+
+        } else {
+          const tr = trackedTransaction.default(transaction, editorView?.state,
+            {
+              userId: this.ydoc?.clientID,
+              username: this.user.username,
+              userColor: { addition: 'transperant', deletion: 'black' }
+            });
+          let state = editorView?.state.apply(tr);
+          editorView?.updateState(state!);
+        }
+      } catch (err) { console.error(err); }
+    };
+
+    editorView = new EditorView(container, {
+      state: edState,
+      clipboardTextSerializer: (slice: Slice) => {
+        return mathSerializer.serializeSlice(slice);
+      },
+      editable: (state: EditorState) => {
+        return !this.mobileVersion /* && this.editorsEditableObj[editorID] */
+        // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
+      },
+      dispatchTransaction,
+      handlePaste,
+      handleClick: handleClick(hideshowPluginKEey),
+      handleTripleClickOn,
+      handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
+      handleKeyDown,
+      //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
+    });
+    EditorContainer.appendChild(container);
+
+    let editorCont: any = {
+      editorID: editorID,
+      containerDiv: container,
+      editorState: edState,
+      editorView: editorView,
+      dispatchTransaction: dispatchTransaction
+    };
+    this.editorContainers[editorID] = editorCont;
+    return editorCont
+  }
+  
   renderEditorWithNoSync(EditorContainer: HTMLDivElement, formIOComponentInstance: any, control: FormioControl, options: any, nodesArray?: Slice): {
     editorID: string,
     containerDiv: HTMLDivElement,
@@ -327,11 +462,6 @@ export class ProsemirrorEditorsService {
     editorView: EditorView,
     dispatchTransaction: any
   } {
-    let fieldFormControl = this.treeService.sectionFormGroups[options.sectionID].get(options.path.replace('].', '.').replace('[', '.'))
-
-
-
-
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
     EditorContainer.innerHTML = ''
     let editorID = random.uuidv4()
@@ -386,6 +516,8 @@ export class ProsemirrorEditorsService {
     })*/
 
     this.editorsEditableObj[editorID] = true
+
+    
 
     let edState = EditorState.create({
       doc,

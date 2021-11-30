@@ -148,18 +148,25 @@ export class TrackChangesService {
                     let changePlaceholder = document.createElement('div');
                     let markContent = document.createElement('div');
 
-                      let markData = document.createElement('div');
-                      let attr = nodeAtSelect?.marks.filter((mark)=>{return mark.attrs.class=='insertion'||mark.attrs.class=='deletion'})[0].attrs!
-                      if(attr.class == 'insertion'){
-                        markData.textContent = `Insertion from ${attr.username} \nUserId = ${attr.user}`;
-                      }else if(attr.class == 'deletion'){
-                        markData.textContent = `Deletion from ${attr.username} \nUserId = ${attr.user}`;
-                      }/* else if(attr.class == 'format-change'){
-                        markData.textContent = `Format Change from ${attr.username} \nUserId = ${attr.user}`;
-                      } */
-                      markData.setAttribute('class', 'changes-placeholder')
+                    let markData = document.createElement('div');
+                    let attr = nodeAtSelect?.marks.filter((mark) => {
+                      return mark.attrs.class == 'insertion'
+                        || mark.attrs.class == 'deletion'
+                        || mark!.type.name == 'insFromPopup'
+                        || mark!.type.name == 'delFromPopup'
+                    })[0].attrs!
+                    if (attr.class == 'insertion') {
+                      markData.textContent = `Insertion from ${attr.username} \nUserId = ${attr.user}`;
+                    } else if (attr.class == 'deletion') {
+                      markData.textContent = `Deletion from ${attr.username} \nUserId = ${attr.user}`;
+                    } else if (attr.class == 'ins-from-popup') {
+                      markData.textContent = `Isertion Change from dialog save made by ${attr.username} \nUserId = ${attr.user}`;
+                    } else if (attr.class == 'del-from-popup') {
+                      markData.textContent = `Deletion Change from dialog save made by ${attr.username} \nUserId = ${attr.user}`;
+                    }
+                    markData.setAttribute('class', 'changes-placeholder')
 
-                      markContent.append(markData)
+                    markContent.append(markData)
 
                     changePlaceholder.append(markContent)
                     changePlaceholder.style.position = 'absolute';
@@ -242,8 +249,8 @@ export class TrackChangesService {
                         height: 0;
                         vertical-align: top;
                         width: 0;
-                        top: -6%;
-                        transform: translate(0, -36%);
+                        top: 0;
+                        transform: translate(0, -9px);
                         `)
                       } else if (meta.coords.top <= editorCenter.top && meta.coords.left > editorCenter.left) {
                         //topright
@@ -267,8 +274,8 @@ export class TrackChangesService {
                         height: 0;
                         vertical-align: top;
                         width: 0;
-                        top: -6%;
-                        transform: translate(0, -36%);
+                        top: 0;
+                        transform: translate(0, -9px);
                         `)
                       } else if (meta.coords.top > editorCenter.top && meta.coords.left <= editorCenter.left) {
                         //bottomleft
@@ -387,10 +394,14 @@ export class TrackChangesService {
               let deletionMark = view.state.schema.marks.deletion
               let insertionMark = view.state.schema.marks.insertion
               let format_changeMark = view.state.schema.marks.format_change
+
+              let delFromPopup = view.state.schema.marks.delFromPopup
+              let insFromPopup = view.state.schema.marks.insFromPopup
+
               let editor
-              if(pluginState.editorType == 'popupEditor'){
+              if (pluginState.editorType == 'popupEditor') {
                 editor = document.getElementsByTagName('mat-dialog-container').item(0) as HTMLDivElement
-              }else{
+              } else {
                 editor = document.getElementsByClassName('editor-container').item(0) as HTMLDivElement
               }
               if (editor) {
@@ -430,7 +441,13 @@ export class TrackChangesService {
                   let doc = view.state.doc
                   doc.nodesBetween(displayChangesFrom, displayChangesTo, (node, from) => {
                     if (node.marks) {
-                      const actualMarks = node.marks.filter(mark => mark.type === deletionMark || mark.type === insertionMark || mark.type === format_changeMark);
+                      const actualMarks = node.marks.filter(mark => 
+                        mark.type === deletionMark || 
+                        mark.type === insertionMark ||
+                        mark.type === delFromPopup ||
+                        mark.type === insFromPopup ||
+                        mark.type === format_changeMark
+                        );
                       actualMarks.forEach((mark) => {
                         allChangesMarksFound.push({
                           mark: mark,

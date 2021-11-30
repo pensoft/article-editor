@@ -4,4 +4,4 @@ import { nodes } from './nodes';
 import { marks } from './marks';
 
 export { nodes, marks }
-export const schema = new Schema({ nodes, marks });
+export const schema = new Schema({ nodes, marks }); // default schema
