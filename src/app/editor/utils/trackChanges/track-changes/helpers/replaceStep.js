@@ -23,7 +23,7 @@ const replaceStep = (
     false,
   );
   const positionTo = deletionMark ? deletionMark.to : step.to;
-
+  
   const newStep = new ReplaceStep(
     positionTo, // We insert all the same steps, but with "from"/"to" both set to "to" in order not to delete content. Mapped as needed.
     positionTo,

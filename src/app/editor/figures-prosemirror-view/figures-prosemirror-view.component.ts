@@ -1,7 +1,9 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
+import { FiguresControllerService } from '../services/figures-controller.service';
 import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
+import { YdocService } from '../services/ydoc.service';
 import { figure } from '../utils/interfaces/figureComponent';
 
 @Component({
@@ -21,10 +23,32 @@ export class FiguresProsemirrorViewComponent implements AfterViewInit {
     dispatchTransaction: any
   }
   
-  constructor(private prosemirrEditorsService:ProsemirrorEditorsService) {}
+  constructor(
+    private prosemirrEditorsService:ProsemirrorEditorsService,
+    private figuresControllerService:FiguresControllerService,
+    private ydocService:YdocService
+    ) {}
 
   ngAfterViewInit(): void {
-    this.endEditorContainer = this.prosemirrEditorsService.renderDocumentEndEditor(this.ProsemirrorEditor?.nativeElement,this.figures);
+    try{
+      //this.figuresControllerService.setRenderEndEditorFunction(this.renderEndEditor)
+      if (this.ydocService.editorIsBuild) {
+        this.renderEndEditor()
+      } else {
+        this.ydocService.ydocStateObservable.subscribe((event) => {
+          if (event == 'docIsBuild') {
+            this.renderEndEditor()
+          }
+        });
+      }
+    }catch(e){
+      console.error(e)
+    }
+  }
+  
+  renderEndEditor = ()=>{
+      this.endEditorContainer = this.prosemirrEditorsService.renderDocumentEndEditor(this.ProsemirrorEditor?.nativeElement,this.figures);
+      this.figuresControllerService.endEditorContainer = this.endEditorContainer
   }
 
 }

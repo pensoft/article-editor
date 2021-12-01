@@ -75,7 +75,13 @@ export class ProsemirrorEditorsService {
 
   articleSectionsStructure?: articleSection[];
   initDocumentReplace: any = {};
-  editorContainers: any = {}
+  editorContainers: {[key:string]:{
+    editorID: string,
+    containerDiv: HTMLDivElement,
+    editorState: EditorState,
+    editorView: EditorView,
+    dispatchTransaction: any
+  } } = {}
   xmlFragments: { [key: string]: Y.XmlFragment } = {}
 
   DOMPMSerializer = DOMSerializer.fromSchema(schema);
@@ -336,6 +342,9 @@ export class ProsemirrorEditorsService {
       return this.editorContainers[editorId]
     }
 
+    //let inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, endEditorSchema!.nodes.math_inline);
+    //let blockMathInputRule = makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, endEditorSchema!.nodes.math_display);
+
     let container = document.createElement('div');
     let editorView: EditorView;
     let colors = this.colors
@@ -345,15 +354,17 @@ export class ProsemirrorEditorsService {
 
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment('documentMode', editorID)
+    console.log(xmlFragment.toArray());
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
     yCursorPlugin(this.provider!.awareness),
     yUndoPlugin()]
 
     container.setAttribute('class', 'editor-container');
-    let defaultMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'SimpleMenu', editorID);
+    let menu = buildMenuItems(schema);
+    let defaultMenu = this.menuService.attachMenuItems(menu, this.ydoc!, 'SimpleMenu', editorID);
     this.initDocumentReplace[editorID] = true;
-    let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
-    let GroupControl = this.treeService.sectionFormGroups;
+    //let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
+    //let GroupControl = this.treeService.sectionFormGroups;
     /* let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
       appendTransaction: validateTransactions(GroupControl, section, schema),
@@ -365,7 +376,7 @@ export class ProsemirrorEditorsService {
     }, 600);
 
     this.editorsEditableObj[editorID] = true
-
+    console.log(schema);
     let edState = EditorState.create({
       schema: schema,
       plugins: [
@@ -375,20 +386,20 @@ export class ProsemirrorEditorsService {
           'Mod-z': undo,
           'Mod-y': redo,
           'Mod-Shift-z': redo,
-          'Mod-Space': insertMathCmd(schema.nodes.math_inline),
+          //'Mod-Space': insertMathCmd(endEditorSchema!.nodes.math_inline),
           'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
           'Tab': goToNextCell(1),
           'Shift-Tab': goToNextCell(-1)
         }),
-        columnResizing({}),
-        tableEditing(),
+        //columnResizing({}),
+        //tableEditing(),
         this.placeholderPluginService.getPlugin(),
         //transactionControllerPlugin,
         this.detectFocusService.getPlugin(),
         this.commentsService.getPlugin(),
         this.trackChangesService.getHideShowPlugin(),
         this.linkPopUpPluginService.linkPopUpPlugin,
-        inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
+        //inputRules({ rules: [inlineMathInputRule, blockMathInputRule] }),
         ...menuBar({
           floating: true,
           content: { 'main': defaultMenu/* , fullMenu */ }, containerClass: menuContainerClass

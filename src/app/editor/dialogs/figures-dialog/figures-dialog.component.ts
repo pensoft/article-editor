@@ -20,16 +20,18 @@ export class FiguresDialogComponent implements AfterViewInit {
     private ydocService:YdocService,
     public dialog: MatDialog,
     private figuresControllerService:FiguresControllerService
-  ) { }
+  ) { 
+    this.figures = figuresControllerService.figuresData
+  }
 
   ngAfterViewInit(): void {
-    this.figures = this.ydocService.figuresMap?.get('ArticleFigures')
+    //this.figures = this.ydocService.figuresMap?.get('ArticleFigures')
   }
 
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.figures!, event.previousIndex, event.currentIndex);
-    this.ydocService.figuresMap?.set('ArticleFigures',this.figures)
-
+    //this.ydocService.figuresMap?.set('ArticleFigures',this.figures)
+    this.figuresControllerService.writeFiguresDataGlobal(this.figures!)
     //this.ydocService.figuresMap?.set('ArticleFigures',)
   }
 
@@ -42,7 +44,7 @@ export class FiguresDialogComponent implements AfterViewInit {
     }).afterClosed().subscribe(result => {
       //console.log('Figure from edit',result);
       this.figures?.splice(figIndex,1,result.figure)
-      this.ydocService.figuresMap?.set('ArticleFigures',this.figures)
+      this.figuresControllerService.writeFiguresDataGlobal(this.figures!)
     })
   }
 
@@ -54,7 +56,15 @@ export class FiguresDialogComponent implements AfterViewInit {
       disableClose: false
     }).afterClosed().subscribe(result => {
       this.figures?.push(result.figure)
-      this.ydocService.figuresMap?.set('ArticleFigures',this.figures)
+      this.figuresControllerService.writeFiguresDataGlobal(this.figures!)
     })
+  }
+
+  saveFigures(){
+
+  }
+
+  cancelFiguresEdit(){
+
   }
 }

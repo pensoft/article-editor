@@ -44,7 +44,7 @@ export class LinkPopUpPluginServiceService {
           if(!(focusRN.hasFocus||(lastFocusedEditor==focusRN.sectionName))) return DecorationSet.empty
           let position = from == to ? from:Math.floor((from+to)/2)
           let node = doc.nodeAt(position)
-          let mark = node?.marks.find((mark)=>mark.type == schema.marks.link)
+          let mark = node?.marks.find((mark)=>mark.type == state.schema.marks.link)
           if(!mark) return DecorationSet.empty
           let linkPopUp = document.createElement('div')
           linkPopUp.classList.add('link_popup_div');

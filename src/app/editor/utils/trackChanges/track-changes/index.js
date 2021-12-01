@@ -120,7 +120,8 @@ const trackedTransaction = (
       default:
     }
   });
-
+  let {$head,$anchor} = tr.curSelection
+  
   if (tr.getMeta('inputType')) newTr.setMeta(tr.getMeta('inputType'));
 
   if (tr.getMeta('uiEvent')) newTr.setMeta(tr.getMeta('uiEvent'));
@@ -150,6 +151,9 @@ const trackedTransaction = (
     state.selection.from - tr.selection.from > 1 &&
     tr.selection.$head.depth > 1
   ) {
+    if($head.pos == $anchor.pos&&$head.nodeBefore == null&&$head.parent.type.name == "paragraph"){
+      return tr
+    }
     const caretPos = map.map(tr.selection.from - 2, -1);
     newTr.setSelection(new TextSelection(newTr.doc.resolve(caretPos)));
   } else {

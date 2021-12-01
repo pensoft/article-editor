@@ -203,7 +203,8 @@ export class AddFigureDialogComponent implements AfterViewInit {
                     url: curr.container.url,
                 }
                 return prev.concat([newFigureComponent])
-            }, [])
+            }, []),
+            path:this.figure?.path||'endEditor'
         }
         this.dialogRef.close({ figure: newFigure })
     }

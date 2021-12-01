@@ -55,6 +55,7 @@ export const preventDragDropCutOnNoneditablenodes = (transaction: Transaction<an
       let meta = transaction.meta
       if (meta.uiEvent || Object.keys(meta).includes('cut') || Object.keys(meta).includes('drop')) {
         let noneditableNodesOnDropPosition = false
+        let dropIsInTable = false;
         let stateSel:any = state.selection
         //@ts-ignore
         let trSel = transaction.curSelection
@@ -69,6 +70,9 @@ export const preventDragDropCutOnNoneditablenodes = (transaction: Transaction<an
             if(element.type.name == 'form_field'){
               headFormField  = element
             }
+            if(element.type.name == "table_cell"||element.type.name == "table_row"||element.type.name == "table"){
+              dropIsInTable = true
+            }
           }
         });
         stateSel.$anchor.path.forEach((element:number|Node) => {
@@ -78,6 +82,9 @@ export const preventDragDropCutOnNoneditablenodes = (transaction: Transaction<an
             }
             if(element.type.name == 'form_field'){
               anchorFormField = element
+            }
+            if(element.type.name == "table_cell"||element.type.name == "table_row"||element.type.name == "table"){
+              dropIsInTable = true
             }
           }
         });
@@ -93,7 +100,7 @@ export const preventDragDropCutOnNoneditablenodes = (transaction: Transaction<an
           }
         } else if (meta.uiEvent == 'drop' || Object.keys(meta).includes('drop')) {
           let dropPosPath:Array<number|Node> = trSel.$anchor.path
-          let dropIsInTable = false;
+          
           let index = dropPosPath.length-1
           while(index>=0&&!dropIsInTable){
             let arrayElement = dropPosPath[index]

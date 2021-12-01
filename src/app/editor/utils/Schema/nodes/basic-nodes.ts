@@ -48,7 +48,7 @@ export const nodes = {
         })(),
         toDOM: function toDOM(node: Node) { return [node.attrs.tagName,{...genericAttributtesToDom(node)}, 0] }
     },
-     code_block: {
+    code_block: {
         content: "text*",
         attrs:{
             ...getGenericAttributes()
@@ -64,33 +64,7 @@ export const nodes = {
         }}],
         toDOM: function toDOM(node:Node) { return ["pre", {...genericAttributtesToDom(node)},["code", 0]] }
     },
-    image: {
-        inline: true,
-        attrs: {
-            src: {},
-            ...getGenericAttributes(),
-            alt: { default: null },
-            title: { default: null },
-        },
-        group: "inline",
-        draggable: true,
-        parseDOM: [{
-            tag: "img[src]", getAttrs: function getAttrs(dom: any) {
-                return {
-                    src: dom.getAttribute("src"),
-                    title: dom.getAttribute("title"),
-                    alt: dom.getAttribute("alt"),
-                    ...parseGenericAttributes(dom),
-                }
-            }
-        }],
-        toDOM: function toDOM(node: Node) {
-            var ref = node.attrs;
-            var src = ref.src;
-            var alt = ref.alt;
-            var title = ref.title; return ["img", { src: src, alt: alt, title: title ,...genericAttributtesToDom(node)}]
-        }
-    },
+    
     hard_break: {
         inline: true,
         group: "hard-break",

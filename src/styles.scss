@@ -3,7 +3,56 @@
 @import "../node_modules/katex/dist/katex.min.css";
 @import "../node_modules/prosemirror-view/style/prosemirror.css";
 
-.insertion ,.ins-from-popup{
+//figures
+figure-block {
+  display: block;
+  padding: 20px;
+  figure-components-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    padding-left: 8%;
+    padding-right: 8%;
+    column-gap: calc(100% - 640px);
+    row-gap: 15px ;
+    figure-component {
+      padding: 9px;
+      padding-top: 40px;
+      padding-bottom: 40px;
+      border: 2px solid #e2e2dc;
+      border-radius: 7px;
+    }
+    figure-component {
+      $item: &;
+      
+      $first-child-in-any-row: ":nth-child(2n + 1)";
+      
+      $any-child-in-the-last-row: ":nth-last-child(-n + 2)";
+      
+      $first-child-in-last-row: "&#{$any-child-in-the-last-row}";
+    
+      #{$first-child-in-last-row},
+      #{$first-child-in-last-row} ~ & {
+        border-bottom-right-radius: 0px;
+        border-bottom-left-radius: 0px;
+      }
+    }
+  }
+  figure-descriptions-container{
+    padding: 7px;
+    background-color: #FAFAF8;
+    display: block;
+    border: 2px solid #E2E2DC;
+    border-bottom-right-radius: 6px;
+    border-bottom-left-radius: 6px;
+    p {
+      margin-top: 4px !important;
+      margin-bottom: 4px !important;
+    }
+  }
+}
+
+.insertion,
+.ins-from-popup {
   color: black;
   background: #dfffc9;
 }
@@ -91,32 +140,32 @@ app-article:not(.display-changes-hover) .deletion{
   word-break: normal;
 }
 
-.math-node{
-  font-size: 18px ;
-  .math-render{
-    font-size: 18px ;
+.math-node {
+  font-size: 18px;
+  .math-render {
+    font-size: 18px;
   }
-  .math-src{
-    div{
+  .math-src {
+    div {
       font-size: 18px;
     }
   }
 }
 
-.vertival-dropdown{
-  .ProseMirror-menu-dropdown-item{
+.vertival-dropdown {
+  .ProseMirror-menu-dropdown-item {
     display: block !important;
     height: 25px !important;
     align-content: center !important;
     border-radius: 6px !important;
-    .div{
+    .div {
       display: block;
     }
   }
 }
 
-.horizontal-dropdown{
-  .ProseMirror-menu-dropdown-item{
+.horizontal-dropdown {
+  .ProseMirror-menu-dropdown-item {
     display: inline-flex;
     height: 25px;
     vertical-align: middle;
@@ -185,7 +234,8 @@ img[ychange_type="removed"] {
   padding: 2px;
 }
 
-.deletion ,.del-from-popup{
+.deletion,
+.del-from-popup {
   color: black;
   background-color: #ffd0d0;
   text-decoration: line-through black;
