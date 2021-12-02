@@ -1,6 +1,6 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { FiguresControllerService } from '@app/editor/services/figures-controller.service';
 import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../../services/ydoc.service';
@@ -19,8 +19,11 @@ export class FiguresDialogComponent implements AfterViewInit {
   constructor(
     private ydocService:YdocService,
     public dialog: MatDialog,
+    private dialogRef: MatDialogRef<FiguresDialogComponent>,
     private figuresControllerService:FiguresControllerService
   ) { 
+    let figures = ydocService.figuresMap!.get('ArticleFigures')
+    figuresControllerService.figuresData = figures
     this.figures = figuresControllerService.figuresData
   }
 
@@ -30,21 +33,16 @@ export class FiguresDialogComponent implements AfterViewInit {
 
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.figures!, event.previousIndex, event.currentIndex);
-    //this.ydocService.figuresMap?.set('ArticleFigures',this.figures)
-    this.figuresControllerService.writeFiguresDataGlobal(this.figures!)
-    //this.ydocService.figuresMap?.set('ArticleFigures',)
   }
 
   editFigure(fig:figure,figIndex:number){
     this.dialog.open(AddFigureDialogComponent, {
       width: '70%',
       height: '70%',
-      data: fig,
+      data: {fig,updateOnSave:false,index:figIndex},
       disableClose: false
     }).afterClosed().subscribe(result => {
-      //console.log('Figure from edit',result);
       this.figures?.splice(figIndex,1,result.figure)
-      this.figuresControllerService.writeFiguresDataGlobal(this.figures!)
     })
   }
 
@@ -52,19 +50,19 @@ export class FiguresDialogComponent implements AfterViewInit {
     this.dialog.open(AddFigureDialogComponent, {
       width: '70%',
       height: '70%',
-      data: undefined,
+      data:{fig:undefined,updateOnSave:false,index:this.figures?.length},
       disableClose: false
     }).afterClosed().subscribe(result => {
       this.figures?.push(result.figure)
-      this.figuresControllerService.writeFiguresDataGlobal(this.figures!)
     })
   }
 
   saveFigures(){
-
+    this.figuresControllerService.writeFiguresDataGlobal(this.figures!)
+    this.dialogRef.close()
   }
 
   cancelFiguresEdit(){
-
+    this.dialogRef.close()
   }
 }

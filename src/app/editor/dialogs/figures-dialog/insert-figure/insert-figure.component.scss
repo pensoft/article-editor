@@ -1,0 +1,71 @@
+.preview-component {
+    display: inline-block;
+    margin: 7px;
+}
+
+.checkbox-wrapper {
+    display: inline;
+    margin: 8px;
+    height: 100px;
+}
+
+.figure-preview-components {
+    display: flex;
+}
+
+.figureNumber {
+    margin-left: 62px;
+    font-size: 17px;
+}
+
+.component-description {
+    width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.selection-error{
+    text-align: center;
+    background-color: #ed9c9ce6;
+    font-size: 17px;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.figures-selection {
+    display: block;
+    height: 100%;
+    width: 100%;
+    .dialog-content {
+        overflow-y: auto;
+        height: calc(100% - 45px);
+    }
+    .buttons {
+        height: 36px;
+        margin-top: 12px;
+    }
+}
+
+.title {
+    text-align: center;
+    font-size: 20px;
+    font-weight: 500;
+    margin: 1px;
+    margin-bottom: 20px;
+}
+
+.example-section {
+    margin: 12px 0;
+}
+
+.example-margin {
+    margin: 0 12px;
+    vertical-align: middle;
+    margin-top: 36px;
+}
+
+ul {
+    list-style-type: none;
+    margin-top: 4px;
+}

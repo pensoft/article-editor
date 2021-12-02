@@ -35,7 +35,7 @@ export const paragraph = {
 }
 
 export const form_field = {
-    content: "paragraph+",
+    content: "block+",
     group: "block",
     isolating: true,
     attrs: {
@@ -82,7 +82,7 @@ export const inline_block_container= {
 
 export const nodes: NodeSpec = {
     doc: {
-        content: "block+"
+        content: "block*"
     },
     form_field,
     inline_block_container,

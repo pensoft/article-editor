@@ -8,7 +8,7 @@ import * as random from 'lib0/random.js';
 import * as userSpec from '../utils/userSpec';
 //@ts-ignore
 import { buildMenuItems, exampleSetup } from '../utils/prosemirror-example-setup-master/src/index.js';
-import { schema } from '../utils/Schema';
+import { /* endEditorSchema, */schema } from '../utils/Schema';
 import {
   insertMathCmd,
   makeBlockMathInputRule,
@@ -60,7 +60,7 @@ import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
 import { I } from '@angular/cdk/keycodes';
 import { ReplaceAroundStep } from 'prosemirror-transform';
 import { ViewFlags } from '@angular/compiler/src/core';
-import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, validateTransactions } from '../utils/prosemirrorHelpers';
+import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures } from '../utils/prosemirrorHelpers';
 //@ts-ignore
 import { recreateTransform } from "prosemirror-recreate-steps"
 import { figure } from '../utils/interfaces/figureComponent';
@@ -228,7 +228,7 @@ export class ProsemirrorEditorsService {
     let GroupControl = this.treeService.sectionFormGroups;
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: validateTransactions(GroupControl, section, schema),
+      appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!,GroupControl,section ),
       filterTransaction: preventDragDropCutOnNoneditablenodes,
     })
 
@@ -341,7 +341,12 @@ export class ProsemirrorEditorsService {
       EditorContainer.appendChild(this.editorContainers[editorId].containerDiv);
       return this.editorContainers[editorId]
     }
-
+    let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
+    let transactionControllerPlugin = new Plugin({
+      key: transactionControllerPluginKey,
+      appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!),
+      filterTransaction: preventDragDropCutOnNoneditablenodes,
+    })
     //let inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, endEditorSchema!.nodes.math_inline);
     //let blockMathInputRule = makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, endEditorSchema!.nodes.math_display);
 
@@ -363,20 +368,13 @@ export class ProsemirrorEditorsService {
     let menu = buildMenuItems(schema);
     let defaultMenu = this.menuService.attachMenuItems(menu, this.ydoc!, 'SimpleMenu', editorID);
     this.initDocumentReplace[editorID] = true;
-    //let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
-    //let GroupControl = this.treeService.sectionFormGroups;
-    /* let transactionControllerPlugin = new Plugin({
-      key: transactionControllerPluginKey,
-      appendTransaction: validateTransactions(GroupControl, section, schema),
-      filterTransaction: preventDragDropCutOnNoneditablenodes,
-    }) */
+    
 
     setTimeout(() => {
       this.initDocumentReplace[editorID] = false;
     }, 600);
 
     this.editorsEditableObj[editorID] = true
-    console.log(schema);
     let edState = EditorState.create({
       schema: schema,
       plugins: [
@@ -394,7 +392,7 @@ export class ProsemirrorEditorsService {
         //columnResizing({}),
         //tableEditing(),
         this.placeholderPluginService.getPlugin(),
-        //transactionControllerPlugin,
+        transactionControllerPlugin,
         this.detectFocusService.getPlugin(),
         this.commentsService.getPlugin(),
         this.trackChangesService.getHideShowPlugin(),
@@ -419,7 +417,8 @@ export class ProsemirrorEditorsService {
           if (lastStep) { return }
         }
         lastStep = transaction.steps[0]
-        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges) {
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges ||transaction.getMeta('shouldTrack')==false) {
+          console.log(transaction);
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
 
@@ -450,7 +449,7 @@ export class ProsemirrorEditorsService {
       handleClick: handleClick(hideshowPluginKEey),
       handleTripleClickOn,
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
-      handleKeyDown,
+      //handleKeyDown,
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
     });
     EditorContainer.appendChild(container);

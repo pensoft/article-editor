@@ -1,0 +1,32 @@
+<div class='figures-selection'>
+    <div class="dialog-content">
+        <div class="title">
+            Citation Properties
+        </div>
+        <div #noselectionError [ngStyle]="{'display':error?'block':'none'}" class="selection-error">
+            You have not selected any figures.
+        </div>
+        <div *ngFor="let figure of figuresData;let i = index">
+            <div class='figureNumber'>Figure {{i+1}}</div>
+            <div class="figure-preview-components">
+                <div class="checkbox-wrapper">
+                    <mat-checkbox class="example-margin" [color]='"primary"' (change)="setSelection($event.checked,figure,i)">
+                    </mat-checkbox>
+                </div>
+                <div class="preview-component" *ngFor="let component of figure.components">
+                    <div *ngIf="component.componentType == 'image'">
+                        <img src='{{component.url}}' height="100" />
+                    </div>
+                    <div *ngIf="component.componentType == 'video'">
+                        <iframe width="200" height="100" [src]="component.url | safe" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="">
+                    </iframe>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="buttons">
+        <button mat-raised-button (click)="citateFigures()">Citate selected figures(s)</button>
+        <button mat-raised-button (click)="cancel()">Cancel</button>
+    </div>
+</div>

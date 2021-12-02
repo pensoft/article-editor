@@ -1,4 +1,5 @@
 import { MatDialog } from "@angular/material/dialog";
+import { InsertFigureComponent } from "@app/editor/dialogs/figures-dialog/insert-figure/insert-figure.component";
 import { toggleMark } from "prosemirror-commands";
 import { MenuItem } from "prosemirror-menu";
 import { Fragment } from "prosemirror-model";
@@ -42,6 +43,27 @@ export const insertImageItem = new MenuItem({
   enable(state) { return canInsert(state, state.schema.nodes.video) },
   icon: createCustomIcon('photo.svg', 17)
 });
+
+export const insertFigure = new MenuItem({
+  title: 'Insert smart figure citation',
+  // @ts-ignore
+  run: (state: EditorState, dispatch?: (tr: Transaction) => boolean, view?: EditorView) => {
+    if (dispatch) {
+      const dialogRef = sharedDialog.open(InsertFigureComponent, {
+        width: '80%',
+        height: '90%',
+        panelClass: 'insert-figure-in-editor',
+        data: { view }
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        console.log('result from figure insertion',result);
+      });
+    }
+    return true;
+  },
+  enable(state) { return canInsert(state,state.schema.nodes.inline_figure)&&state.selection.empty },
+  icon: createCustomIcon('addfigure.svg', 18)
+})
 
 
 export const insertDiagramItem = new MenuItem({

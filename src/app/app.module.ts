@@ -59,6 +59,7 @@ import { PipesModule } from './shared/pipes.module';
 import { FigurePreviewComponent } from './editor/formioComponents/figure-preview/figure-preview.component';
 import { SectionLeafComponent } from './editor/meta-data-tree/cdk-list-recursive/section-leaf/section-leaf.component';
 import { FiguresProsemirrorViewComponent } from './editor/figures-prosemirror-view/figures-prosemirror-view.component';
+import { InsertFigureComponent } from './editor/dialogs/figures-dialog/insert-figure/insert-figure.component';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -105,6 +106,7 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     FigureComponent,
     SectionLeafComponent,
     FiguresProsemirrorViewComponent,
+    InsertFigureComponent,
   ],
   imports: [
     PipesModule,

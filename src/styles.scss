@@ -3,8 +3,59 @@
 @import "../node_modules/katex/dist/katex.min.css";
 @import "../node_modules/prosemirror-view/style/prosemirror.css";
 
+td {
+  inline-figure {
+    display: inline;
+    
+    figure-components-container {
+      width: 100%;
+      display: inline;
+      figure-component {
+        padding: 9px;
+        padding-top: 40px;
+        padding-bottom: 40px;
+        border: 2px solid #e2e2dc;
+        border-radius: 7px;
+        width: 100%;
+        display: block;
+        img{
+          width: fit-content;
+        }
+        iframe{
+          width: 100%;
+        }
+      }
+      figure-component {
+        $item: &;
+        
+        $first-child-in-any-row: ":nth-child(2n + 1)";
+        
+        $any-child-in-the-last-row: ":nth-last-child(-n + 2)";
+        
+        $first-child-in-last-row: "&#{$any-child-in-the-last-row}";
+      
+        #{$first-child-in-last-row},
+        #{$first-child-in-last-row} ~ & {
+          border-bottom-right-radius: 0px;
+          border-bottom-left-radius: 0px;
+        }
+      }
+    }
+    figure-descriptions-container{
+      padding: 7px;
+      background-color: #FAFAF8;
+      border: 2px solid #E2E2DC;
+      border-bottom-right-radius: 6px;
+      border-bottom-left-radius: 6px;
+      p {
+        margin-top: 4px !important;
+        margin-bottom: 4px !important;
+      }
+    }
+  }
+}
 //figures
-figure-block {
+inline-figure {
   display: block;
   padding: 20px;
   figure-components-container {
@@ -20,6 +71,14 @@ figure-block {
       padding-bottom: 40px;
       border: 2px solid #e2e2dc;
       border-radius: 7px;
+      img{
+        height: 200px;
+      }
+      iframe{
+        height: 200px;
+      }
+      width: auto;
+      text-align: center;
     }
     figure-component {
       $item: &;

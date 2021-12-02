@@ -14,7 +14,7 @@ import { YMap } from "yjs/dist/src/internals";
 import { wrapInList } from "prosemirror-schema-list";
 import { Subject } from 'rxjs';
 import { canInsert, createCustomIcon } from './common-methods';
-import { insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem } from './menu-dialogs';
+import { insertFigure,insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem } from './menu-dialogs';
 import { MarkType, Node, NodeType,DOMParser,DOMSerializer } from 'prosemirror-model';
 
 //@ts-ignore
@@ -336,6 +336,8 @@ const logNodesMenuItem = new MenuItem({
     enable(state) { return true },
 })
 
+
+
 const tableMenu = [
     //@ts-ignore
     insertTableItem,
@@ -394,6 +396,7 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
     'spellCheckMenuItem': spellCheckMenuItem,
     'toggleUnderline':toggleUnderline,
     'logNodesMenuItem':logNodesMenuItem,
+    'insertFigure':insertFigure,
     // unfinished menu : 
     'textMenu': [toggleStrong, toggleEm, toggleUnderline, 'menuseparator', wrapOrderedList, wrapBulletList, 'menuseparator', toggleSubscriptItem, toggleSuperscriptItem, spellCheckMenuItem],
     'insertMenu': [insertImageItem, insertDiagramItem, new Dropdown(tableMenu, { class: "table-icon vertival-dropdown" }), footnoteMenuItem, functionItem, insertSpecialSymbolItem]

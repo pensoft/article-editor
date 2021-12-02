@@ -8,22 +8,37 @@ import { nodes as basicNodes } from './nodes/basic-nodes'
 import { figureNodes } from './nodes/figure-nodes';
 import { marks } from './marks';
 import { form_field, inline_block_container, paragraph } from './nodes';
-export const endEditorNodes = {
+export const endEditorNodes: NodeSpec = {
     doc: {
-        content: "block*"
+        content: "inline_figure*"
     },
-    
-    ...figureNodes,
-    ...MathNodes,
-    ...listNodes,
-    ...basicNodes,
     form_field,
-    paragraph,
     inline_block_container,
+    paragraph,
+    ...tableNodes({
+        tableGroup: "block",
+        cellContent: "form_field{1}",
+        cellAttributes: {
+            background: {
+                default: null,
+                //@ts-ignore
+                getFromDOM(dom) {
+                    return dom.style.backgroundColor || null
+                },
+                setDOMAttr(value: any, attrs: any) {
+                    if (value) attrs.style = (attrs.style || "") + `background-color: ${value};`
+                }
+            }
+        }
+    }),
+    ...figureNodes,
     text: {
         inline: true,
         group: "inline"
     },
+    ...basicNodes,
+    ...MathNodes,
+    ...listNodes,
 }
 let nodes1 : NodeSpec = endEditorNodes
 let endEditorSchema1

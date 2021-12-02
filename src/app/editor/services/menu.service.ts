@@ -59,7 +59,7 @@ export class MenuService {
       ['alignMenu'],
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
-      ['insertMenu','logNodesMenuItem']
+      ['insertMenu','logNodesMenuItem','insertFigure']
     ],
     'fullMenuPMundoRedo':[
       ['textMenu'],
@@ -79,7 +79,7 @@ export class MenuService {
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItem', 'redoItem','insertVideoItem'],
-      ['logNodesMenuItem']
+      ['logNodesMenuItem','insertFigure']
     ],
     'SimpleMenuPMundoRedo':[
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
