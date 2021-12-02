@@ -36,7 +36,7 @@ export const updateControlsAndFigures = ( schema: Schema,figuresMap:YMap<any>, G
               figuresMap.set('ArticleFigures',JSON.parse(JSON.stringify(figures)))
               
             }
-            /* if (GroupControl && node.attrs.formControlName && GroupControl[section!.sectionID]) {      // validation for the formCOntrol
+            if (GroupControl && node.attrs.formControlName && GroupControl[section!.sectionID]) {      // validation for the formCOntrol
               try {
                 const fg = GroupControl[section!.sectionID];
                 const controlPath = node.attrs.controlPath;
@@ -61,7 +61,7 @@ export const updateControlsAndFigures = ( schema: Schema,figuresMap:YMap<any>, G
               } catch (error) {
                 console.error(error);
               }
-            } */
+            }
   
           })
         }
