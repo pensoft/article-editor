@@ -441,7 +441,8 @@ export class ProsemirrorEditorsService {
         return mathSerializer.serializeSlice(slice);
       },
       editable: (state: EditorState) => {
-        return !this.mobileVersion /* && this.editorsEditableObj[editorID] */
+        /*return !this.mobileVersion  && this.editorsEditableObj[editorID] */
+        return false
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,

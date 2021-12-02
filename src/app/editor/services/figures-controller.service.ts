@@ -146,26 +146,26 @@ export class FiguresControllerService {
     let figuresDescriptions: any[] = []
     let figurecomponents = figure.components.reduce((prev: any, curr: any, i: number) => {
       figuresDescriptions.push(schema.nodes.figure_component_description.create({ component_number: i }, [
-        schema.nodes.form_field.create({}, schema.nodes.paragraph.create({}, [
+        schema.nodes.form_field.create({}, schema.nodes.paragraph.create({contenteditableNode:'false'}, [
           schema.text(String.fromCharCode(97 + i) + ':')
         ])),
         schema.nodes.form_field.create({}, this.getNodeFromHTML(curr.description)),
       ]))
       if (curr.componentType == 'video') {
-        return prev.concat(...[schema.nodes.figure_component.create({ component_number: i }, [
+        return prev.concat(...[schema.nodes.figure_component.create({ component_number: i,contenteditableNode:'false' }, [
           schema.nodes.video.create({ src: curr.url }),
         ])])
       } else if (curr.componentType == 'image') {
-        return prev.concat([schema.nodes.figure_component.create({ component_number: i }, [
+        return prev.concat([schema.nodes.figure_component.create({ component_number: i,contenteditableNode:'false' }, [
           schema.nodes.image.create({ src: curr.url })
         ])])
       }
     }, [])
     view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!,
       schema.nodes.inline_figure.create({ figure_number: figureNumber }, [
-        n.figure_components_container.create({}, figurecomponents),
+        n.figure_components_container.create({contenteditableNode:'false'}, figurecomponents),
         schema.nodes.figure_descriptions_container.create({}, [
-          schema.nodes.heading.create({ tagName: 'h3' }, [schema.text(`Figure: ${+figureNumber+1}`)]),
+          schema.nodes.heading.create({ tagName: 'h3',contenteditableNode:'false' }, [schema.text(`Figure: ${+figureNumber+1}`)]),
           figDesc,
           ...figuresDescriptions
         ])]

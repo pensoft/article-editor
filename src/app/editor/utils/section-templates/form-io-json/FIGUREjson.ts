@@ -1,4 +1,4 @@
-export const figureJson1 = {
+export const figureJson = {
     "components": [
         {
             "key": "figure-preview",
@@ -9,7 +9,7 @@ export const figureJson1 = {
             "label": "Caption : ",
             "autoExpand": false,
             "tableView": true,
-            "defaultValue":`<p align="set-align-left" class="set-align-left">Линкин Парк</p>`,
+            "defaultValue":`<p align="set-align-left" class="set-align-left">Caption basic example</p>`,
             "validate": {
                 "required": true
             },
@@ -30,15 +30,29 @@ export const figureJson1 = {
             "defaultValue": [
                 {
                     "container": {
-                        "url": "https://www.youtube.com/embed/v2H4l9RpkwM",
-                        "description": `<p align="set-align-left" class="set-align-left">Линкин Парк е американска музикална група. Повечето критици ги определят като ню метъл. Linkin Park добавят, че главната им цел е да създават нещо между рок и рап.</p>`,
-                        "componentType": "video",
+                        "url": "https://cdn.britannica.com/q:60/91/181391-050-1DA18304/cat-toes-paw-number-paws-tiger-tabby.jpg",
+                        "description": `<p align="set-align-left" class="set-align-left">cat</p>`,
+                        "componentType": "image",
                     }
                 },
                 {
                     "container": {
                         "url": "https://imjeffreyrex.files.wordpress.com/2014/06/linkin-park.png",
-                        "description": `<p align="set-align-left" class="set-align-left">Първият им албум се казва „Hybrid Theory“, като издаден.</p>`,
+                        "description": `<p align="set-align-left" class="set-align-left">Linkin Park</p>`,
+                        "componentType": "image",
+                    }
+                },
+                {
+                    "container": {
+                        "url": "https://www.everythingreptiles.com/wp-content/uploads/2020/12/Bearded-dragon-fluffing-beard.jpg",
+                        "description": `<p align="set-align-left" class="set-align-left">bearded dragon</p>`,
+                        "componentType": "image",
+                    }
+                },
+                {
+                    "container": {
+                        "url": "https://static.scientificamerican.com/sciam/cache/file/A4406EF9-FC62-42E4-9628F374B062AE07.jpg",
+                        "description": `<p align="set-align-left" class="set-align-left">dog</p>`,
                         "componentType": "image",
                     }
                 }
@@ -147,9 +161,10 @@ export const figureJson1 = {
         }
     ]
 }
-export const figureJson = {
+export const figureJson1 = {
     "components": [
         {
+
             "key": "figure-preview",
             "type": "figure-preview",
             "input": false

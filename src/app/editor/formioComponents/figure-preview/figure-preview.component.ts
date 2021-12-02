@@ -22,6 +22,12 @@ export class FigurePreviewComponent extends MaterialComponent implements AfterVi
       super(element, ref)
   }
 
+  getHTMLContent(html:string){
+    let temp = document.createElement('div');
+    temp.innerHTML = html
+    return temp.textContent
+  }
+
   custumPipe(url: string) {
     let pipe = new SafePipe(this.sanitizer);
     return pipe.transform(url)

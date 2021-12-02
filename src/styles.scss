@@ -19,10 +19,13 @@ td {
         width: 100%;
         display: block;
         img{
-          width: fit-content;
+          width: 100%;
+          height: auto;
         }
         iframe{
           width: 100%;
+          height: auto;
+
         }
       }
       figure-component {

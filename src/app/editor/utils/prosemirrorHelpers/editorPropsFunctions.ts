@@ -81,7 +81,7 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
                 if ((from <= nodeEnd && nodeEnd <= to)) {
                     to = nodeEnd - 2
                 }
-                view.dispatch(view.state.tr.setSelection(new Selection(view.state.doc.resolve(from), view.state.doc.resolve(to))))
+                view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(from), view.state.doc.resolve(to))))
             }
         }
     })

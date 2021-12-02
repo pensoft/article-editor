@@ -63,6 +63,7 @@ export const inline_figure = {
     content: "block+",
     group: 'block',
     inline: false,
+    isolating: true,
     attrs: { 
         figure_number:{},
         ...getGenericAttributes(),
@@ -127,6 +128,7 @@ export const figure_component = {
 export const figure_descriptions_container = {
     group: 'block',
     content: "block+",
+    isolating: true,
     inline: false,
     attrs:{
         ...getGenericAttributes(),
@@ -146,6 +148,7 @@ export const figure_descriptions_container = {
 export const figure_description = {
     content: "block+",
     group: "block",
+    isolating: true,
     inline: false,
     attrs: {
         ...getGenericAttributes()
@@ -169,6 +172,7 @@ export const figure_description = {
 
 export const figure_component_description= {
     content: "block+",
+    isolating: true,
     group: "block",
     inline: false,
     attrs: {
