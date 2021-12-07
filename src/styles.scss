@@ -3,8 +3,12 @@
 @import "../node_modules/katex/dist/katex.min.css";
 @import "../node_modules/prosemirror-view/style/prosemirror.css";
 
+citation {
+  background: #b2f0f0;
+}
+
 td {
-  inline-figure {
+  block-figure {
     display: inline;
     
     figure-components-container {
@@ -58,7 +62,7 @@ td {
   }
 }
 //figures
-inline-figure {
+block-figure {
   display: block;
   padding: 20px;
   figure-components-container {

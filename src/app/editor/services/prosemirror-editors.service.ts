@@ -49,7 +49,7 @@ import {
 } from '../utils/interfaces/articleSection';
 //@ts-ignore
 import { FormControlService } from '../section/form-control.service';
-import { FormControl } from '@angular/forms';
+import { FormControl, FormGroup } from '@angular/forms';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
 import { DOMParser } from 'prosemirror-model';
 
@@ -83,6 +83,8 @@ export class ProsemirrorEditorsService {
     dispatchTransaction: any
   } } = {}
   xmlFragments: { [key: string]: Y.XmlFragment } = {}
+
+  interpolateTemplate:any
 
   DOMPMSerializer = DOMSerializer.fromSchema(schema);
 
@@ -185,9 +187,10 @@ export class ProsemirrorEditorsService {
   }
 
   dispatchEmptyTransaction() {  // for updating the view
+    console.log(this.editorContainers);
     Object.values(this.editorContainers).forEach((container: any) => {
       let editorState = container.editorView.state as EditorState
-      container.editorView.dispatch(editorState.tr)
+      container.editorView.dispatch(editorState.tr.setMeta('emptyTR',true))
     })
   }
 
@@ -228,7 +231,7 @@ export class ProsemirrorEditorsService {
     let GroupControl = this.treeService.sectionFormGroups;
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!,GroupControl,section ),
+      appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!,this.editorContainers,this.interpolateTemplate,GroupControl,section ),
       filterTransaction: preventDragDropCutOnNoneditablenodes,
     })
 
@@ -276,7 +279,7 @@ export class ProsemirrorEditorsService {
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
       try {
-        if (lastStep == transaction.steps[0]) {
+        if (lastStep == transaction.steps[0]&&!transaction.getMeta('emptyTR')) {
           if (lastStep) { return }
         }
         lastStep = transaction.steps[0]
@@ -344,7 +347,7 @@ export class ProsemirrorEditorsService {
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!),
+      appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!,this.editorContainers,this.interpolateTemplate),
       filterTransaction: preventDragDropCutOnNoneditablenodes,
     })
     //let inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, endEditorSchema!.nodes.math_inline);
@@ -359,7 +362,6 @@ export class ProsemirrorEditorsService {
 
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment('documentMode', editorID)
-    console.log(xmlFragment.toArray());
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
     yCursorPlugin(this.provider!.awareness),
     yUndoPlugin()]
@@ -418,7 +420,6 @@ export class ProsemirrorEditorsService {
         }
         lastStep = transaction.steps[0]
         if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges ||transaction.getMeta('shouldTrack')==false) {
-          console.log(transaction);
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
 
@@ -516,7 +517,6 @@ export class ProsemirrorEditorsService {
     })
 
     /*fieldFormControl?.valueChanges.subscribe((data) => {
-      console.log('value changes for ' + options.path, data);
 
        let tr = recreateTransform(
         doc ,
@@ -598,7 +598,9 @@ export class ProsemirrorEditorsService {
       dispatchTransaction,
       handleClick: handleClick(hideshowPluginKEey),
       handleTripleClickOn,
-      handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
+      handleDoubleClick: 
+      handleDoubleClickFN(hideshowPluginKEey),
+      handleKeyDown,
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
 
     });
@@ -641,7 +643,9 @@ export class ProsemirrorEditorsService {
     this.ydoc.gc = false;
   }
 
-
+  setIntFunction(interpulateFunction:any){
+    this.interpolateTemplate = interpulateFunction
+  }
 }
 
 

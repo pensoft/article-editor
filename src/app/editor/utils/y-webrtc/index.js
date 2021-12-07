@@ -350,7 +350,6 @@ export class Room {
       if (this !== origin) {
         this.provider.emit('onChange', [update]);
       }
-      //console.log(encoding.toUint8Array(encoder));
     }
     /**
      * Listens to Awareness updates and sends them to remote peers

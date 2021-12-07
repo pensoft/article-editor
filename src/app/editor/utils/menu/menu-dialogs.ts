@@ -56,12 +56,11 @@ export const insertFigure = new MenuItem({
         data: { view }
       });
       dialogRef.afterClosed().subscribe(result => {
-        console.log('result from figure insertion',result);
       });
     }
     return true;
   },
-  enable(state) { return canInsert(state,state.schema.nodes.inline_figure)&&state.selection.empty },
+  enable(state) { return canInsert(state,state.schema.nodes.block_figure)&&state.selection.empty },
   icon: createCustomIcon('addfigure.svg', 18)
 })
 

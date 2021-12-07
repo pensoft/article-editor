@@ -4,7 +4,7 @@ import { MaterialComponent } from '../MaterialComponent';
 import TextAreaComponent from 'formiojs/components/textarea/TextArea.js';
 import isNil from 'lodash/isNil';
 import { FormControl, Validators } from '@angular/forms';
-import { DOMSerializer, DOMParser } from 'prosemirror-model';
+import { DOMSerializer, DOMParser, Schema } from 'prosemirror-model';
 import { schema } from 'src/app/editor/utils/Schema';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
@@ -174,7 +174,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       let temp = document.createElement('div');
       temp.innerHTML = this.value!;
       let node = this.value! ? this.DOMPMParser.parseSlice(temp) : undefined;
-
+      //@ts-ignore
       this.editorContainer = this.prosemirrorService.renderEditorWithNoSync(this.ProsemirrorEditor?.nativeElement, this.instance, this.control, options, node);
       this.instance.component.validate= this.instanceValidations 
       this.onChange1(true,this.value!)
@@ -245,7 +245,6 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
 
 
   render(editorData: any) {
-    console.log('render');
     
   }
 }

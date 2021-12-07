@@ -7,6 +7,9 @@ export interface figure_component {
 
 export interface figure {
     "components":figure_component[],
-    "description":string
-    "path":string                   //id of the section where this figure is cited
+    "description":string,
+    "figureID":string,
+    "figureNumber":number,
+    "figurePlace":string,
+    "viewed_by_citat":string
 }

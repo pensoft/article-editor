@@ -186,7 +186,6 @@ export class ProsemirrorBinding {
    * @param {any} prosemirrorView The target binding
    */
   constructor (yXmlFragment, prosemirrorView) {
-    console.log(prosemirrorView.state.schema);
     this.type = yXmlFragment
     this.prosemirrorView = prosemirrorView
     this.mux = createMutex()

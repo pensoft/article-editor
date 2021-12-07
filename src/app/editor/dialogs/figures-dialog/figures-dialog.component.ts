@@ -6,7 +6,7 @@ import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../../services/ydoc.service';
 import { figure } from '../../utils/interfaces/figureComponent';
 import { AddFigureDialogComponent } from './add-figure-dialog/add-figure-dialog.component';
-
+import { Node } from 'prosemirror-model';
 @Component({
   selector: 'app-figures-dialog',
   templateUrl: './figures-dialog.component.html',
@@ -14,17 +14,24 @@ import { AddFigureDialogComponent } from './add-figure-dialog/add-figure-dialog.
 })
 export class FiguresDialogComponent implements AfterViewInit {
 
-  figuresMap ?:YMap<figure[]>
-  figures ?: figure[] 
+  figuresMap ?:YMap<any>
+  figuresNumbers ?: string[] 
+  figures ?: {[key:string]:figure}
+  newFigureNodes :{[key:string]:Node} = {}
+
+
   constructor(
     private ydocService:YdocService,
     public dialog: MatDialog,
     private dialogRef: MatDialogRef<FiguresDialogComponent>,
     private figuresControllerService:FiguresControllerService
   ) { 
+    let figuresNumbersArray = ydocService.figuresMap!.get('ArticleFiguresNumbers')
     let figures = ydocService.figuresMap!.get('ArticleFigures')
-    figuresControllerService.figuresData = figures
-    this.figures = figuresControllerService.figuresData
+    figuresControllerService.figuresNumbers = figuresNumbersArray
+    figuresControllerService.figures = figures
+    this.figuresNumbers = figuresControllerService.figuresNumbers
+    this.figures = figuresControllerService.figures
   }
 
   ngAfterViewInit(): void {
@@ -32,17 +39,19 @@ export class FiguresDialogComponent implements AfterViewInit {
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(this.figures!, event.previousIndex, event.currentIndex);
+    moveItemInArray(this.figuresNumbers!, event.previousIndex, event.currentIndex);
   }
 
   editFigure(fig:figure,figIndex:number){
     this.dialog.open(AddFigureDialogComponent, {
       width: '70%',
       height: '70%',
-      data: {fig,updateOnSave:false,index:figIndex},
+      data: {fig,updateOnSave:false,index:figIndex,figID:fig.figureID},
       disableClose: false
-    }).afterClosed().subscribe(result => {
-      this.figures?.splice(figIndex,1,result.figure)
+    }).afterClosed().subscribe((result:{figure:figure,figureNode:Node}) => {
+      this.figuresNumbers?.splice(figIndex,1,result.figure.figureID)
+      this.figures![result.figure.figureID] = result.figure
+      this.newFigureNodes[result.figure.figureID] = result.figureNode
     })
   }
 
@@ -50,15 +59,17 @@ export class FiguresDialogComponent implements AfterViewInit {
     this.dialog.open(AddFigureDialogComponent, {
       width: '70%',
       height: '70%',
-      data:{fig:undefined,updateOnSave:false,index:this.figures?.length},
+      data:{fig:undefined,updateOnSave:false,index:this.figuresNumbers?.length},
       disableClose: false
-    }).afterClosed().subscribe(result => {
-      this.figures?.push(result.figure)
+    }).afterClosed().subscribe((result:{figure:figure,figureNode:Node}) => {
+      this.figuresNumbers?.push(result.figure.figureID)
+      this.figures![result.figure.figureID] = result.figure
+      this.newFigureNodes[result.figure.figureID] = result.figureNode
     })
   }
 
   saveFigures(){
-    this.figuresControllerService.writeFiguresDataGlobal(this.figures!)
+    this.figuresControllerService.writeFiguresDataGlobal(this.newFigureNodes)
     this.dialogRef.close()
   }
 

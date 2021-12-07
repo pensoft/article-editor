@@ -127,13 +127,17 @@ export class YdocService {
   getData(): ydocData {
     let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
     let articleSectionsStructureFlat: articleSection[] = this.articleStructure?.get('articleSectionsStructureFlat');
+    let citatsObj = this.figuresMap!.get('articleCitatsObj');
     try {
+      
       if (articleSectionsStructure == undefined) {
+        citatsObj = {}
         articleSectionsStructureFlat = []
         articleSectionsStructure = articleBasicStructure
 
         let makeFlat = (structure: articleSection[]) => {
           structure.forEach((section) => {
+             // citats obj [key:string](citateID):{citatedFigures:[](citated figures-Ids),posiition:number(citatePosition)}
             if (section.active) {
               articleSectionsStructureFlat.push(section)
             }
@@ -143,9 +147,18 @@ export class YdocService {
           })
         }
         makeFlat(articleSectionsStructure)
+        
         this.articleStructure?.set('articleSectionsStructure', articleSectionsStructure);
         this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
-
+        
+      }
+      if(!citatsObj){
+        citatsObj = {}
+        articleSectionsStructureFlat.forEach((section)=>{
+          citatsObj[section.sectionID] = {} // citats obj [key:string](citateID):{citatedFigures:[](citated figures-Ids),posiition:number(citatePosition)}
+          
+        })
+        this.figuresMap!.set('articleCitatsObj',citatsObj);
       }
     } catch (e) {
       console.error(e);
@@ -161,11 +174,22 @@ export class YdocService {
   buildEditor() {
     this.sectionFormGroupsStructures = this.ydoc.getMap('sectionFormGroupsStructures');
     this.figuresMap = this.ydoc.getMap('ArticleFiguresMap');
+
+    let figuresNumbers = this.figuresMap!.get('ArticleFiguresNumbers');
+    let figuresTemplates = this.figuresMap!.get('figuresTemplates');
     let figures = this.figuresMap!.get('ArticleFigures');
-    if (!figures) {
-      console.log('set empty figures');
-      this.figuresMap!.set('ArticleFigures', []);
+    
+
+    if(!figures){
+      this.figuresMap!.set('ArticleFigures', {})
     }
+    if(!figuresTemplates){
+      this.figuresMap!.set('figuresTemplates', {})
+    }
+    if (!figuresNumbers) {
+      this.figuresMap!.set('ArticleFiguresNumbers', []);
+    }
+
     this.articleStructure = this.ydoc.getMap('articleStructure');
     this.trackChangesMetadata = this.ydoc.getMap('trackChangesMetadata');
     let trackChangesData = this.trackChangesMetadata?.get('trackChangesMetadata')
@@ -174,6 +198,7 @@ export class YdocService {
     }
     this.comments = this.ydoc.getMap('comments');
     this.ydocStateObservable.next('docIsBuild');
+    this.getData()
     this.editorIsBuild = true;
   }
 
@@ -188,7 +213,6 @@ export class YdocService {
         awareness: new awarenessProtocol.Awareness(this.ydoc),
       })
       this.provider.on('sync', (isSynced: boolean) => {
-        console.log('IS SYNCED');
         this.buildEditor();
       })
       /* this.provider = new WebrtcProvider(this.roomName, this.ydoc, {
@@ -237,8 +261,6 @@ export class YdocService {
           fromEvent(this.provider!, 'synced').pipe(delay(500)).subscribe((data: any) => {
             if(!buildeditor){
               //let synced = this.provider?.room?.synced
-              console.log('synced');
-              console.log('rendered with sync');
               buildeditor = true
               if (data.synced) {
                 this.buildEditor();
@@ -249,7 +271,6 @@ export class YdocService {
           })
           setTimeout(()=>{
             if(!buildeditor){
-              console.log('rendered with timeout');
               buildeditor = true
               this.buildEditor();
             }

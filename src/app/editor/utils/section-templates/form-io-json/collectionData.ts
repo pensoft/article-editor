@@ -1,3 +1,5 @@
+import { environment } from '../../../../../environments/environment';
+
 export const collectionData = {
     'title': 'Collection Data',
     'components': [{
@@ -48,10 +50,24 @@ export const collectionData = {
     }]
 }
 
-export const collectionDataDefaultValues = {// form group structure for the section
-    "collectionName": "",
-    "collectionIdentifier": "",
-    "parentCollectionIdentifier": "",
-    "specimenPreservationMethod": "",
-    "curatorialUnit": "",
+let collectionDataDF
+
+if(!environment.production){
+    collectionDataDF = {// form group structure for the section
+        "collectionName": "<p align=\"set-align-left\" class=\"set-align-left\">dqwewewewewewewewewewewewewewewewewewewewewewewewewewewewewd</p>",
+        "collectionIdentifier": "<p align=\"set-align-left\" class=\"set-align-left\">WWweweweweweweweweweweweweweweweweweweweweweweweweweweweweWW</p>",
+        "parentCollectionIdentifier": "<p align=\"set-align-left\" class=\"set-align-left\">EweweweweweweweweweweweweweweweweweweweweweweweweweweweweEE</p>",
+        "specimenPreservationMethod": "<p align=\"set-align-left\" class=\"set-align-left\">vbvbvbwewewewewewewewewewewewewewewewewewewewewewewewewewewewevb</p>",
+        "curatorialUnit": "<p align=\"set-align-left\" class=\"set-align-left\">eqweqdqwwewewewewewewewewewewewewewewewewewewewewewewewewewewewedqwd</p>",
+    }
+}else{
+    collectionDataDF = {// form group structure for the section
+        "collectionName": "",
+        "collectionIdentifier": "",
+        "parentCollectionIdentifier": "",
+        "specimenPreservationMethod": "",
+        "curatorialUnit": "",
+    }
 }
+
+export const collectionDataDefaultValues = collectionDataDF

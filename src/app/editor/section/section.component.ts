@@ -129,7 +129,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
       let tr = this.codemirrorHTMLEditor?.state.update()
       this.codemirrorHTMLEditor?.dispatch(tr!);
       prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
-      interpolated = await this.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm);
+      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm);
       submision.compiledHtml = interpolated
       this.editSectionService.editChangeSubject.next(submision);
       this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
@@ -166,8 +166,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
   renderCodemMirrorEditors() {
     try {
-
-
       this.codemirrorJsonEditor = new EditorView({
         state: EditorState.create({
           doc:
@@ -228,68 +226,5 @@ export class SectionComponent implements AfterViewInit, OnInit {
   }
 
   log() {
-
   }
-
-  interpolateTemplate(htmlToCompile: string, data: any, formGroup: FormGroup) {
-    let compiler = this.compiler
-    let container = this.container
-    function getRenderedHtml(templateString: string) {
-      return new Promise(resolve => {
-        let html = { template: templateString }
-        compiler.clearCache();
-        let afterViewInitSubject = new Subject()
-        // let regExp = new RegExp(">[^<>{{]*<*b*r*>*[^<>{{]*{{[^.}}]*.([^}}]*)}}[^<]*", "g");
-        // let matchs = templateString.match(regExp);
-        // matchs?.forEach((match) => {
-        //   let regexGroups = regExp.exec(match);
-        //   let formControlName = regexGroups![1];
-        //   templateString = templateString.replace(match, ` formControlName="${formControlName}"` + match)
-        // })
-        const component = Component({
-          ...html,
-          styles: [':host {table: {border: red}}'],
-
-        })(class implements AfterViewInit {
-          data = data;
-          formGroup = formGroup;
-
-          ngAfterViewInit() {
-            afterViewInitSubject.next('build')
-          }
-        });
-
-        const module = NgModule({
-          imports: [
-            BrowserModule,
-            FormsModule,
-            ReactiveFormsModule,
-            MaterialModule
-          ],
-          declarations: [component,
-            FormControlNameDirective
-          ],
-          schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
-        })(class newModule {
-        });
-
-        compiler.compileModuleAndAllComponentsAsync(module)
-          .then(factories => {
-            const componentFactory = factories.componentFactories[0];
-            const componentRef = container!.createComponent(componentFactory);
-            let sub = afterViewInitSubject.subscribe(() => {
-              sub.unsubscribe()
-              let clearString = componentRef.location.nativeElement.innerHTML
-              resolve(clearString)
-            })
-          });
-      })
-    }
-
-    return getRenderedHtml(`<ng-container [formGroup]="formGroup">
-    <div contenteditableNode="true" translate="no" class="ProseMirror ProseMirror-example-setup-style ProseMirror-focused">${htmlToCompile}
-    </div></ng-container>`)
-  }
-
-
 }

@@ -1,13 +1,13 @@
-<div *ngIf="figures" class='figures-container'>
-    <div *ngIf="figures.length==0">There are no figures right now.You can be the first one to add a figure with the "Add Figure" button.</div>
-    <div *ngIf="figures.length>0" cdkDropList class="figures-list" (cdkDropListDropped)="drop($event)">
-        <div class="figure-box" *ngFor="let figure of figures;let i = index" cdkDrag>
+<div *ngIf="figuresNumbers" class='figures-container'>
+    <div *ngIf="figuresNumbers.length==0">There are no figures right now.You can be the first one to add a figure with the "Add Figure" button.</div>
+    <div *ngIf="figuresNumbers.length>0" cdkDropList class="figures-list" (cdkDropListDropped)="drop($event)">
+        <div class="figure-box" *ngFor="let figure of figuresNumbers;let i = index" cdkDrag>
             <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
             <div class="figure-view">
-                <app-figure [figure]="figure" [figureIndex]="i"></app-figure>
+                <app-figure [figure]="figures![figure]" [figureIndex]="i"></app-figure>
             </div>
             <div class="figure-control-buttons">
-                <button mat-raised-button (click)="editFigure(figure,i)">Edit figure</button>
+                <button mat-raised-button (click)="editFigure(figures![figure],i)">Edit figure</button>
             </div>
         </div>
     </div>

@@ -35,7 +35,7 @@ export const paragraph = {
 }
 
 export const form_field = {
-    content: "block+",
+    content: "block*",
     group: "block",
     isolating: true,
     attrs: {

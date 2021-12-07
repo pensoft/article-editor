@@ -322,7 +322,6 @@ function logNodesItemRun(state: EditorState, dispatch: any, view: EditorView) {
         
         let newTr = state.tr.replaceSelectionWith(co);
         view.dispatch(newTr);*/
-        console.log('currentDocument',state.doc.toJSON());
         return true;
     }catch(e){
         console.error(e);

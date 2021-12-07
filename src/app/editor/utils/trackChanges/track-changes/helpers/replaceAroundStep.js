@@ -48,7 +48,6 @@ const replaceAroundStep = (
       );
     }
   } else {
-    console.log('to fix lift list item');
     // newTr.step(step);
     const ranges = [
       {
