@@ -10,6 +10,7 @@ import { Subject } from "rxjs";
 import { split } from "lodash";
 import { notEqual } from "assert";
 import { C } from "@angular/cdk/keycodes";
+import { ReplaceStep } from "prosemirror-transform";
 export const updateControlsAndFigures = (
   schema: Schema,
   figuresMap: YMap<any>,
@@ -147,6 +148,9 @@ export const updateControlsAndFigures = (
                 })
                 let doneEditing = new Subject();
                 let citatID = node.attrs.citateid
+                if(Object.keys(figureViewsToAdd).length>0){
+                  console.log(`citat ${node.textContent} : ${citatID} adding ${JSON.stringify(figureViewsToAdd,undefined,'\t')}`);
+                }
                 let editFigureContainer = (
                   citatID: string,
                   dispatchSubject: Subject<any>,
@@ -479,7 +483,7 @@ export const updateControlsAndFigures = (
                   // newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
                   tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "true" })
                 } else {
-                  tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "" })
+                  tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "false" })
 
                 }
               } catch (error) {
@@ -497,88 +501,111 @@ export const updateControlsAndFigures = (
   }
 }
 
-export const preventDragDropCutOnNoneditablenodes = (transaction: Transaction<any>, state: EditorState) => {
-  try {
-    //@ts-ignore
-    let meta = transaction.meta
-    if (meta.uiEvent || Object.keys(meta).includes('cut') || Object.keys(meta).includes('drop')) {
-      let noneditableNodesOnDropPosition = false
-      let dropIsInTable = false;
-      let stateSel: any = state.selection
-      //@ts-ignore
-      let trSel = transaction.curSelection
-      //@ts-ignore
-      let headFormField: Node
-      let anchorFormField: Node
-      stateSel.$head.path.forEach((element: number | Node) => {
-        if (element instanceof Node) {
-          if (element.attrs.contenteditableNode == "false") {
-            noneditableNodesOnDropPosition = true
-          }
-          if (element.type.name == 'form_field') {
-            headFormField = element
-          }
-          if (element.type.name == "table_cell" || element.type.name == "table_row" || element.type.name == "table") {
-            dropIsInTable = true
-          }
-        }
-      });
-      stateSel.$anchor.path.forEach((element: number | Node) => {
-        if (element instanceof Node) {
-          if (element.attrs.contenteditableNode == "false") {
-            noneditableNodesOnDropPosition = true
-          }
-          if (element.type.name == 'form_field') {
-            anchorFormField = element
-          }
-          if (element.type.name == "table_cell" || element.type.name == "table_row" || element.type.name == "table") {
-            dropIsInTable = true
-          }
-        }
-      });
-      if (meta.uiEvent == 'cut' || Object.keys(meta).includes('cut')) {
-        //@ts-ignore
-        if (anchorFormField !== headFormField) {
-          return false
-        }
-        if (noneditableNodesOnDropPosition) {
-          return false
-        }
-      } else if (meta.uiEvent == 'drop' || Object.keys(meta).includes('drop')) {
-        let dropPosPath: Array<number | Node> = trSel.$anchor.path
 
-        let index = dropPosPath.length - 1
-        while (index >= 0 && !dropIsInTable) {
-          let arrayElement = dropPosPath[index]
-          if (arrayElement instanceof Node) {
-            if (arrayElement.type.name == "table_cell" || arrayElement.type.name == "table_row" || arrayElement.type.name == "table") {
-              dropIsInTable = true
-            }
-          }
-          index--;
-        }
-        let trSelFormField: Node
-        trSel.$anchor.path.forEach((element: number | Node) => {
+export const preventDragDropCutOnNoneditablenodes = (figuresMap:YMap<any>)=>{
+
+  return  (transaction: Transaction<any>, state: EditorState) => {
+    try {
+      let figures = figuresMap.get('ArticleFigures');
+      let figuresCitats = figuresMap.get('articleCitatsObj');
+      let figuresTemplates = figuresMap!.get('figuresTemplates');
+
+      //@ts-ignore
+      let meta = transaction.meta
+      if (meta.uiEvent || Object.keys(meta).includes('cut') || Object.keys(meta).includes('drop')) {
+        let noneditableNodesOnDropPosition = false
+        let dropIsInTable = false;
+        let stateSel: any = state.selection
+        //@ts-ignore
+        let trSel = transaction.curSelection
+        //@ts-ignore
+        let headFormField: Node
+        let anchorFormField: Node
+        stateSel.$head.path.forEach((element: number | Node) => {
           if (element instanceof Node) {
             if (element.attrs.contenteditableNode == "false") {
               noneditableNodesOnDropPosition = true
             }
             if (element.type.name == 'form_field') {
-              trSelFormField = element
+              headFormField = element
+            }
+            if (element.type.name == "table_cell" || element.type.name == "table_row" || element.type.name == "table") {
+              dropIsInTable = true
             }
           }
         });
-        //@ts-ignore
-        if (anchorFormField !== headFormField || !trSelFormField) {
-          return false
-        }
-        if (noneditableNodesOnDropPosition || dropIsInTable) {
-          return false
+        stateSel.$anchor.path.forEach((element: number | Node) => {
+          if (element instanceof Node) {
+            if (element.attrs.contenteditableNode == "false") {
+              noneditableNodesOnDropPosition = true
+            }
+            if (element.type.name == 'form_field') {
+              anchorFormField = element
+            }
+            if (element.type.name == "table_cell" || element.type.name == "table_row" || element.type.name == "table") {
+              dropIsInTable = true
+            }
+          }
+        });
+        if (meta.uiEvent == 'cut' || Object.keys(meta).includes('cut')) {
+          //@ts-ignore
+          if (anchorFormField !== headFormField) {
+            return false
+          }
+          if (noneditableNodesOnDropPosition) {
+            return false
+          }
+        } else if (meta.uiEvent == 'drop' || Object.keys(meta).includes('drop')) {
+          let dropPosPath: Array<number | Node> = trSel.$anchor.path
+  
+          let index = dropPosPath.length - 1
+          while (index >= 0 && !dropIsInTable) {
+            let arrayElement = dropPosPath[index]
+            if (arrayElement instanceof Node) {
+              if (arrayElement.type.name == "table_cell" || arrayElement.type.name == "table_row" || arrayElement.type.name == "table") {
+                dropIsInTable = true
+              }
+            }
+            index--;
+          }
+          let trSelFormField: Node
+          trSel.$anchor.path.forEach((element: number | Node) => {
+            if (element instanceof Node) {
+              if (element.attrs.contenteditableNode == "false") {
+                noneditableNodesOnDropPosition = true
+              }
+              if (element.type.name == 'form_field') {
+                trSelFormField = element
+              }
+            }
+          });
+          //@ts-ignore
+          if (anchorFormField !== headFormField || !trSelFormField) {
+            return false
+          }
+          if (noneditableNodesOnDropPosition || dropIsInTable) {
+            return false
+          }
         }
       }
+      /* if(transaction.steps.length>0){
+        transaction.steps.forEach((step)=>{
+          if(step instanceof ReplaceStep){
+            //@ts-ignore
+            let replacingSlice = state.doc.slice(step.from,step.to)
+            replacingSlice.content.descendants((node)=>{
+              if(node.type.name == 'citation'){
+                console.log(node);
+                let citatID = node.attrs.citateid
+
+              }
+            })
+          }
+        })
+      } */
+    } catch (e) {
+      console.error(e);
     }
-  } catch (e) {
-    console.error(e);
+    return true
   }
-  return true
-}
+} 

@@ -61,13 +61,23 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
     let sel = view.state.selection
     let { $anchor,$head,from, to, empty } = sel
     let key = event.key
-    let noneditableNodes = false;
+    let noneditableNodes = true;
     /* if (sel instanceof CellSelection) {
         from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
         to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);
     } */
-    view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
+    let nodeAtFrom = $anchor.parent
+    let nodeAtTo = $head.parent
+
+    if(nodeAtFrom == nodeAtTo&&nodeAtTo!.attrs.contenteditableNode !== "false"){
+        noneditableNodes = false;
+    }
+    console.log(noneditableNodes);
+    /* view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
         if (node.attrs.contenteditableNode == "false") {
+            if(node.type.name == ){
+
+            }
             noneditableNodes = true;
         }
 
@@ -84,7 +94,7 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
                 view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(from), view.state.doc.resolve(to))))
             }
         }
-    })
+    }) */
     /* if (key == 'Delete' || key == 'Backspace') {
       if (!sel.empty) {
         return noneditableNodes

@@ -1,4 +1,4 @@
-import { ViewFlags } from '@angular/compiler/src/core';
+import { createViewChild, ViewFlags } from '@angular/compiler/src/core';
 import { AfterViewInit, Injectable } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { Fragment, Node, Slice } from 'prosemirror-model';
@@ -56,41 +56,14 @@ export class FiguresControllerService {
   }
 
   writeFiguresDataGlobal(newFigureNodes: { [key: string]: Node }) {
-    
+
     this.ydocService.figuresMap!.set('ArticleFiguresNumbers', this.figuresNumbers)
     this.ydocService.figuresMap!.set('ArticleFigures', this.figures)
     let citats = this.ydocService.figuresMap?.get('articleCitatsObj');
     /* Object.keys(newFigureNodes).forEach((figureID) => {
       this.updateSingleFigure(figureID, newFigureNodes[figureID], this.figures[figureID])
     }) */
-    Object.keys(this.prosemirrorEditorsService.editorContainers).forEach((key)=>{
-      let containersCount = 0
-      let view = this.prosemirrorEditorsService.editorContainers[key].editorView;
-      view.state.doc.forEach((el)=>{
-        if(el.type.name == 'figures_nodes_container'){
-          containersCount++;
-        }
-      })
-      if(key!=='endEditor'){
-        let view = this.prosemirrorEditorsService.editorContainers[key].editorView;
-        let deleted = false;
-        let noContainerLeftInEditor = false
-        let tr1 = view.state.tr
-        let del = ()=>{
-          deleted = false
-          tr1.doc.forEach((node,offset,index)=>{
-            if(node.type.name == 'figures_nodes_container'&&!deleted){
-              deleted = true
-              tr1 = tr1.replaceWith(offset,offset+node.nodeSize,Fragment.empty)
-            }
-          })
-          view.dispatch(tr1)
-        }
-        for (let index = 0; index < containersCount; index++) {
-          del()
-        }
-      }
-    })
+
     this.markCitatsViews(citats)
     this.prosemirrorEditorsService.dispatchEmptyTransaction()
     this.ydocService.figuresMap?.set('articleCitatsObj', citats);
@@ -107,40 +80,13 @@ export class FiguresControllerService {
 
 
   citateFigures(selectedFigures: boolean[], figuresComponentsChecked: { [key: string]: boolean[] }, sectionID: string) {
-    try{
+    try {
 
       let citateId = uuidv4();
       let insertionView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
       let citats = this.ydocService.figuresMap?.get('articleCitatsObj');
       //console.log(JSON.stringify(citats,undefined,'\t'));
-      Object.keys(this.prosemirrorEditorsService.editorContainers).forEach((key)=>{
-        let containersCount = 0
-        let view = this.prosemirrorEditorsService.editorContainers[key].editorView;
-        view.state.doc.forEach((el)=>{
-          if(el.type.name == 'figures_nodes_container'){
-            containersCount++;
-          }
-        })
-        if(key!=='endEditor'){
-          let view = this.prosemirrorEditorsService.editorContainers[key].editorView;
-          let deleted = false;
-          let noContainerLeftInEditor = false
-          let tr1 = view.state.tr
-          let del = ()=>{
-            deleted = false
-            tr1.doc.forEach((node,offset,index)=>{
-              if(node.type.name == 'figures_nodes_container'&&!deleted){
-                deleted = true
-                tr1 = tr1.replaceWith(offset,offset+node.nodeSize,Fragment.empty)
-              }
-            })
-            view.dispatch(tr1)
-          }
-          for (let index = 0; index < containersCount; index++) {
-            del()
-          }
-        }
-      })
+
       /* ``` citats obj type
       citats:{
         [key:string](articleSectionID):{
@@ -177,7 +123,7 @@ export class FiguresControllerService {
         position: insertionView.state.selection.from,
         lastTimeUpdated: new Date().getTime()
       }
-      
+
       //this.changeFiguresPlaces(citatedFigureIds,sectionID)
       this.markCitatsViews(citats)
       this.ydocService.figuresMap?.set('articleCitatsObj', citats);
@@ -217,7 +163,7 @@ export class FiguresControllerService {
         this.figuresData[figNumber].path = sectionID
         this.ydocService.figuresMap?.set('ArticleFigures',this.figuresData);
       }) */
-    }catch(e){
+    } catch (e) {
       console.error(e);
     }
   }
@@ -234,6 +180,35 @@ export class FiguresControllerService {
   markCitatsViews(citatsBySection: any) {
     let numbersCopy: string[] = JSON.parse(JSON.stringify(this.figuresNumbers));
     this.figures = this.ydocService.figuresMap!.get('ArticleFigures')
+    Object.keys(this.prosemirrorEditorsService.editorContainers).forEach((key) => {
+      let containersCount = 0
+      let view = this.prosemirrorEditorsService.editorContainers[key].editorView;
+      view.state.doc.forEach((el) => {
+        if (el.type.name == 'figures_nodes_container') {
+          containersCount++;
+        }
+      })
+      console.log(key);
+      if (key !== 'endEditor') {
+        let view = this.prosemirrorEditorsService.editorContainers[key].editorView;
+        let deleted = false;
+        let tr1:any
+        let del = () => {
+          deleted = false
+          tr1 = view.state.tr
+          view.state.doc.forEach((node, offset, index) => {
+            if (node.type.name == 'figures_nodes_container' && !deleted) {
+              deleted = true
+              tr1 = tr1.replaceWith(offset, offset + node.nodeSize, Fragment.empty)
+            }
+          })
+          view.dispatch(tr1)
+        }
+        for (let index = 0; index < containersCount; index++) {
+          del()
+        }
+      }
+    })
     let viewsDisplayed: boolean[][] | boolean[] = numbersCopy.map((figureID) => { return this.figures[figureID].components.map(e => false) })
     let figureAndComponents
 
@@ -266,16 +241,16 @@ export class FiguresControllerService {
             figID = figureID
           }
           let figNumber = numbersCopy.indexOf(figID)
-          if (figNumber == biggestFigureNumberInCitat && figNumber>-1) {
+          if (figNumber == biggestFigureNumberInCitat && figNumber > -1) {
             if (figCompID && +figCompID > biggestFigCompId) {
               biggestFigCompId = +figCompID
-            } else if(!figCompID) {
+            } else if (!figCompID) {
               biggestFigCompId = -1
             }
-          }else if(figNumber > biggestFigureNumberInCitat){
-            if (figCompID ) {
+          } else if (figNumber > biggestFigureNumberInCitat) {
+            if (figCompID) {
               biggestFigCompId = +figCompID
-            } else if(!figCompID) {
+            } else if (!figCompID) {
               biggestFigCompId = -1
             }
             biggestFigureNumberInCitat = figNumber
@@ -287,6 +262,7 @@ export class FiguresControllerService {
         }
         for (let i = 0; i <= biggestFigureNumberInCitat; i++) {
           if (this.figures[numbersCopy[i]].figurePlace == 'endEditor') {
+            console.log(`removeing number${i} with if ${numbersCopy[i]}`);
             this.removeFromEndEditor(numbersCopy[i])
           }
           if (viewsDisplayed[i] !== true) {
@@ -294,30 +270,30 @@ export class FiguresControllerService {
             if (biggestFigCompId !== -1 && viewsForCurrFigure instanceof Array && i == biggestFigureNumberInCitat) {
               let allCompInFigureDisplayed = false
               for (let j = 0; j <= biggestFigCompId; j++) {
-                if(!viewsForCurrFigure[j]){
+                if (!viewsForCurrFigure[j]) {
                   displayedFiguresViewHere.push(numbersCopy[i] + '|' + j);
                   viewsForCurrFigure[j] = true
                 }
-                if(viewsForCurrFigure.filter(e=>!e).length == 0){
+                if (viewsForCurrFigure.filter(e => !e).length == 0) {
                   allCompInFigureDisplayed = true
                 }
               }
-              allCompInFigureDisplayed?viewsForCurrFigure=true:null;
+              allCompInFigureDisplayed ? viewsForCurrFigure = true : null;
             } else {
-              if(viewsForCurrFigure instanceof Array&&viewsForCurrFigure.filter(e=>e).length>0){
-                viewsForCurrFigure.forEach((e,j)=>{
-                  !e?displayedFiguresViewHere.push(numbersCopy[i] + '|' + j):null
+              if (viewsForCurrFigure instanceof Array && viewsForCurrFigure.filter(e => e).length > 0) {
+                viewsForCurrFigure.forEach((e, j) => {
+                  !e ? displayedFiguresViewHere.push(numbersCopy[i] + '|' + j) : null
                 })
-              }else{
+              } else {
                 displayedFiguresViewHere.push(numbersCopy[i])
                 this.figures[numbersCopy[i]].figurePlace = sectionID
                 this.figures[numbersCopy[i]].viewed_by_citat = citatData[0];
                 //citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere.push(numbersCopy[i])
               }
-              
+
               viewsDisplayed[i] = true
             }
-            
+
           }
         }
         if (displayedFiguresViewHere.length !== citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere.length || !displayedFiguresViewHere.reduce<boolean>((prev, figureID, i) => {
@@ -331,6 +307,27 @@ export class FiguresControllerService {
         citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere = displayedFiguresViewHere;
 
       })
+    })
+    viewsDisplayed.forEach((view, index) => {
+      if (view instanceof Array && view.filter(e => e).length == 0) {
+        this.figures[numbersCopy[index]].figurePlace = 'endEditor'
+        let figureTemplate = this.ydocService.figuresMap?.get('figuresTemplates')[numbersCopy[index]];
+
+        let figureData = this.figures[numbersCopy[index]]
+        let serializedFigureToFormIOsubmission: any = {}
+        serializedFigureToFormIOsubmission.figureComponents = figureData.components.reduce((prev: any[], curr: any, i: number) => {
+          return prev.concat([{ container: curr }])
+        }, [])
+        serializedFigureToFormIOsubmission.figureDescription = figureData.description
+        serializedFigureToFormIOsubmission.figureID = figureData.figureID
+        serializedFigureToFormIOsubmission.figureNumber = figureData.figureNumber
+        this.prosemirrorEditorsService.interpolateTemplate(figureTemplate.html, serializedFigureToFormIOsubmission, new FormGroup({})).then((data: string) => {
+          let templ = document.createElement('div')
+          templ.innerHTML = data
+          let pmnodes = this.DOMPMParser.parse(templ.firstChild!).content.firstChild;
+          this.updateSingleFigure(numbersCopy[index], pmnodes!, figureData);
+        })
+      }
     })
     this.figures = this.ydocService.figuresMap!.set('ArticleFigures', this.figures)
   }

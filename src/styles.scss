@@ -156,7 +156,7 @@ block-figure {
   min-height: fit-content !important;
 }
 
-form-field[invalid] {
+form-field[invalid=true] {
   background-color: rgb(236, 185, 185);
   display: block;
 }

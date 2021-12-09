@@ -231,7 +231,7 @@ export class ProsemirrorEditorsService {
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
       appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!,this.editorContainers,this.interpolateTemplate,GroupControl,section ),
-      filterTransaction: preventDragDropCutOnNoneditablenodes,
+      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!),
     })
 
     setTimeout(() => {
@@ -347,7 +347,7 @@ export class ProsemirrorEditorsService {
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
       appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!,this.editorContainers,this.interpolateTemplate),
-      filterTransaction: preventDragDropCutOnNoneditablenodes,
+      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!),
     })
     //let inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, endEditorSchema!.nodes.math_inline);
     //let blockMathInputRule = makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, endEditorSchema!.nodes.math_display);

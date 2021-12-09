@@ -11,7 +11,8 @@ export const getGenericAttributes = () => {
         contenteditableNode: { default: '' },
         menuType: { default: '' },
         commentable: { default: '' },
-        invalid:{default:''}
+        invalid:{default:'false'},
+        styling:{default:''},
     }
 }
 
@@ -25,21 +26,20 @@ export const parseGenericAttributes = (dom: any) => {
         menuType: dom.getAttribute('menuType'),
         commentable: dom.getAttribute('commentable'),
         invalid: dom.getAttribute('invalid'),
+        styling: dom.getAttribute('style'),
     }
 }
 
 export const genericAttributtesToDom = (node: Node) => {
     let toDomAttrs:any = {
+        controlPath: node.attrs.controlPath,
+        formControlName: node.attrs.formControlName,
+        contenteditableNode: node.attrs.contenteditableNode,
+        menuType: node.attrs.menuType,
+        commentable: node.attrs.commentable,
+        invalid: node.attrs.invalid,
+        style: node.attrs.styling,
     }
-    Object.keys(node.attrs).forEach((key)=>{
-        /* if(key == 'ivalid'){
-            toDomAttrs['class']=toDomAttrs['class']?toDomAttrs['class']:'';
-            node.attrs[key] !== ''?(toDomAttrs['class'] += node.attrs[key]):undefined;
-            toDomAttrs[key] = node.attrs[key];
-        }else  */if(node.attrs[key] !== ''){
-            toDomAttrs[key] = node.attrs[key]
-        }
-    })
     return toDomAttrs
 }
 
