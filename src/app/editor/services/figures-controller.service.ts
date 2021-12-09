@@ -11,7 +11,7 @@ import { YdocService } from './ydoc.service';
 import { DOMParser } from 'prosemirror-model';
 import { remove } from 'lodash';
 import { uuidv4 } from 'lib0/random';
-import { Q } from '@angular/cdk/keycodes';
+import { P, Q } from '@angular/cdk/keycodes';
 import { articleSection } from '../utils/interfaces/articleSection';
 @Injectable({
   providedIn: 'root'
@@ -55,12 +55,46 @@ export class FiguresControllerService {
     this.renderEditorFn = func
   }
 
-  writeFiguresDataGlobal(newFigureNodes: { [key: string]: Node }) {-
+  writeFiguresDataGlobal(newFigureNodes: { [key: string]: Node }) {
+    
     this.ydocService.figuresMap!.set('ArticleFiguresNumbers', this.figuresNumbers)
     this.ydocService.figuresMap!.set('ArticleFigures', this.figures)
-    Object.keys(newFigureNodes).forEach((figureID) => {
-      this.updateSingleFigure(figureID, newFigureNodes[figureID],this.figures[figureID])
+    let citats = this.ydocService.figuresMap?.get('articleCitatsObj');
+    /* Object.keys(newFigureNodes).forEach((figureID) => {
+      this.updateSingleFigure(figureID, newFigureNodes[figureID], this.figures[figureID])
+    }) */
+    Object.keys(this.prosemirrorEditorsService.editorContainers).forEach((key)=>{
+      let containersCount = 0
+      let view = this.prosemirrorEditorsService.editorContainers[key].editorView;
+      view.state.doc.forEach((el)=>{
+        if(el.type.name == 'figures_nodes_container'){
+          containersCount++;
+        }
+      })
+      if(key!=='endEditor'){
+        let view = this.prosemirrorEditorsService.editorContainers[key].editorView;
+        let deleted = false;
+        let noContainerLeftInEditor = false
+        let tr1 = view.state.tr
+        let del = ()=>{
+          deleted = false
+          tr1.doc.forEach((node,offset,index)=>{
+            if(node.type.name == 'figures_nodes_container'&&!deleted){
+              deleted = true
+              tr1 = tr1.replaceWith(offset,offset+node.nodeSize,Fragment.empty)
+            }
+          })
+          view.dispatch(tr1)
+        }
+        for (let index = 0; index < containersCount; index++) {
+          del()
+        }
+      }
     })
+    this.markCitatsViews(citats)
+    this.prosemirrorEditorsService.dispatchEmptyTransaction()
+    this.ydocService.figuresMap?.set('articleCitatsObj', citats);
+
     /* try {
       //this.ydocService.figuresMap?.set('ArticleFigures', data);
       this.figuresData = data
@@ -72,89 +106,139 @@ export class FiguresControllerService {
 
 
 
-  citateFigures(selectedFigures: number[], sectionID: string) {
-    let citateId = uuidv4();
-    let insertionView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
-    let citats = this.ydocService.figuresMap?.get('articleCitatsObj');
-    /* ``` citats obj type
-    citats:{
-      [key:string](articleSectionID):{
-        [key:string](citatID):{
-          figureIDs:string[](citatesFiguresIDs),
-          position:number(positioninEditor)
-        }
-      }
-    }
-    */
+  citateFigures(selectedFigures: boolean[], figuresComponentsChecked: { [key: string]: boolean[] }, sectionID: string) {
+    try{
 
-    let citatedFigureIds = selectedFigures.reduce<any>((prev, curr, index) => {
-      return prev.concat([this.figuresNumbers![curr]])
-    }, [])
-    if (!citats[sectionID]) {
-      citats[sectionID] = {}
-    }
-    citats[sectionID][citateId] = {
-      figureIDs: citatedFigureIds,
-      position: insertionView.state.selection.from,
-      lastTimeUpdated : new Date().getTime()
-    }
-    this.ydocService.figuresMap?.set('articleCitatsObj', citats);
-
-    //this.changeFiguresPlaces(citatedFigureIds,sectionID)
-    this.markCitatsViews(citats)
-    let citateNodeText = selectedFigures.length > 1 ? "Figs: " + selectedFigures.map(n=>n+1).join(' ,') : "Fig: " + (selectedFigures[0]+1)
-    insertionView.dispatch(
-      insertionView.state.tr.replaceSelectionWith(
-        insertionView.state.schema.nodes.citation.create({
-          citated_figures: citatedFigureIds,
-          citateid: citateId
-        }, insertionView.state.schema.text(citateNodeText))
-      )
-    )
-    /*
-         this.figuresData = this.ydocService.figuresMap?.get('ArticleFigures');
-        let insertionView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
-        let {from,to} = insertionView.state.selection
-     */
-    /* selectedFigures.forEach(figNumber => {
-
-      let figure = this.figuresData[figNumber]
-      let view = this.prosemirrorEditorsService.editorContainers[figure.path].editorView
-      let nodeStart: number = view.state.doc.nodeSize - 2
-      let nodeEnd: number = view.state.doc.nodeSize - 2
-      let foundExistingFigure = false
-      view.state.doc.nodesBetween(0, view.state.doc.nodeSize - 2, (node, pos, parent) => {
-        if (node.type.name == "block_figure" && node.attrs.figure_number == figNumber) {
-          foundExistingFigure = true
-          nodeStart = pos;
-          nodeEnd = pos + node.nodeSize
+      let citateId = uuidv4();
+      let insertionView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
+      let citats = this.ydocService.figuresMap?.get('articleCitatsObj');
+      //console.log(JSON.stringify(citats,undefined,'\t'));
+      Object.keys(this.prosemirrorEditorsService.editorContainers).forEach((key)=>{
+        let containersCount = 0
+        let view = this.prosemirrorEditorsService.editorContainers[key].editorView;
+        view.state.doc.forEach((el)=>{
+          if(el.type.name == 'figures_nodes_container'){
+            containersCount++;
+          }
+        })
+        if(key!=='endEditor'){
+          let view = this.prosemirrorEditorsService.editorContainers[key].editorView;
+          let deleted = false;
+          let noContainerLeftInEditor = false
+          let tr1 = view.state.tr
+          let del = ()=>{
+            deleted = false
+            tr1.doc.forEach((node,offset,index)=>{
+              if(node.type.name == 'figures_nodes_container'&&!deleted){
+                deleted = true
+                tr1 = tr1.replaceWith(offset,offset+node.nodeSize,Fragment.empty)
+              }
+            })
+            view.dispatch(tr1)
+          }
+          for (let index = 0; index < containersCount; index++) {
+            del()
+          }
         }
       })
-      let figureNode = view.state.doc.slice(nodeStart,nodeEnd);
-      let removeTr = view.state.tr.replaceWith(nodeStart,nodeEnd,Fragment.empty)
-      view.dispatch(removeTr);
-      insertionView.dispatch(insertionView.state.tr.replaceWith(from,to,figureNode.content))
-      this.figuresData[figNumber].path = sectionID
-      this.ydocService.figuresMap?.set('ArticleFigures',this.figuresData);
-    }) */
+      /* ``` citats obj type
+      citats:{
+        [key:string](articleSectionID):{
+          [key:string](citatID):{
+            figureIDs:string[](citatesFiguresIDs),
+            position:number(positioninEditor)
+          }
+        }
+      }
+      */
+      let citatString = selectedFigures.length > 1 ? 'Figs.' : 'Fig.'
+      let citatedFigureIds = selectedFigures.reduce<any>((prev, curr, index) => {
+        if (curr) {
+          if (figuresComponentsChecked[this.figuresNumbers![index]].filter(e => e).length == figuresComponentsChecked[this.figuresNumbers![index]].length) {// means the whole figure is citated
+            citatString += ` ${index + 1}`
+            return prev.concat(curr ? [this.figuresNumbers![index]] : []);
+          } else {
+            citatString += ` ${index + 1}`
+            let idsWithComponents = figuresComponentsChecked[this.figuresNumbers![index]].reduce<string[]>((p, c, i) => {
+              citatString += c ? `${String.fromCharCode(97 + i)}, ` : ''
+              return p.concat(c ? [this.figuresNumbers![index] + '|' + i] : [])
+            }, [])
+            return prev.concat(idsWithComponents);
+          }
+        } else {
+          return prev.concat([]);
+        }
+      }, [])
+      if (!citats[sectionID]) {
+        citats[sectionID] = {}
+      }
+      citats[sectionID][citateId] = {
+        figureIDs: citatedFigureIds,
+        position: insertionView.state.selection.from,
+        lastTimeUpdated: new Date().getTime()
+      }
+      
+      //this.changeFiguresPlaces(citatedFigureIds,sectionID)
+      this.markCitatsViews(citats)
+      this.ydocService.figuresMap?.set('articleCitatsObj', citats);
+      let citateNodeText = citatString
+      insertionView.dispatch(
+        insertionView.state.tr.replaceSelectionWith(
+          insertionView.state.schema.nodes.citation.create({
+            citated_figures: citatedFigureIds,
+            citateid: citateId
+          }, insertionView.state.schema.text(citateNodeText))
+        )
+      )
+      this.prosemirrorEditorsService.dispatchEmptyTransaction()
+      /*
+           this.figuresData = this.ydocService.figuresMap?.get('ArticleFigures');
+          let insertionView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
+          let {from,to} = insertionView.state.selection
+       */
+      /* selectedFigures.forEach(figNumber => {
+  
+        let figure = this.figuresData[figNumber]
+        let view = this.prosemirrorEditorsService.editorContainers[figure.path].editorView
+        let nodeStart: number = view.state.doc.nodeSize - 2
+        let nodeEnd: number = view.state.doc.nodeSize - 2
+        let foundExistingFigure = false
+        view.state.doc.nodesBetween(0, view.state.doc.nodeSize - 2, (node, pos, parent) => {
+          if (node.type.name == "block_figure" && node.attrs.figure_number == figNumber) {
+            foundExistingFigure = true
+            nodeStart = pos;
+            nodeEnd = pos + node.nodeSize
+          }
+        })
+        let figureNode = view.state.doc.slice(nodeStart,nodeEnd);
+        let removeTr = view.state.tr.replaceWith(nodeStart,nodeEnd,Fragment.empty)
+        view.dispatch(removeTr);
+        insertionView.dispatch(insertionView.state.tr.replaceWith(from,to,figureNode.content))
+        this.figuresData[figNumber].path = sectionID
+        this.ydocService.figuresMap?.set('ArticleFigures',this.figuresData);
+      }) */
+    }catch(e){
+      console.error(e);
+    }
   }
 
-  changeFiguresPlaces(citatedFigureIds:string[],sectionID:string){
+  changeFiguresPlaces(citatedFigureIds: string[], sectionID: string) {
     this.figures = this.ydocService.figuresMap!.get('ArticleFigures')
-    citatedFigureIds.forEach((id)=>{
+    citatedFigureIds.forEach((id) => {
       this.figures[id].figurePlace = sectionID
     })
-    this.figures = this.ydocService.figuresMap!.set('ArticleFigures',this.figures)
+    this.figures = this.ydocService.figuresMap!.set('ArticleFigures', this.figures)
 
   }
 
   markCitatsViews(citatsBySection: any) {
     let numbersCopy: string[] = JSON.parse(JSON.stringify(this.figuresNumbers));
-    let viewsDisplayed: boolean[] = numbersCopy.map((figureID) => { return false })
     this.figures = this.ydocService.figuresMap!.get('ArticleFigures')
+    let viewsDisplayed: boolean[][] | boolean[] = numbersCopy.map((figureID) => { return this.figures[figureID].components.map(e => false) })
+    let figureAndComponents
 
     let articleFlatStructure = this.ydocService.articleStructure?.get('articleSectionsStructureFlat');
-    articleFlatStructure.forEach((section:articleSection)=>{
+    articleFlatStructure.forEach((section: articleSection) => {
       let sectionID = section.sectionID
 
       var sortable = [];
@@ -166,48 +250,92 @@ export class FiguresControllerService {
         return a[1].position - b[1].position;
       });
 
-      sortable.forEach((citatData)=>{
+      sortable.forEach((citatData) => {
         let biggestFigureNumberInCitat = -1;
+        let biggestFigCompId = -1
         let citatedFiguresOnCitat: string[] = citatData[1].figureIDs;
 
         citatedFiguresOnCitat.forEach((figureID) => { // find the figure with biggest index on this citat
-          let figNumber = numbersCopy.indexOf(figureID)
-          if (figNumber > biggestFigureNumberInCitat) {
+          let figID
+          let figCompID
+          if (figureID.includes('|')) {
+            let data = figureID.split('|')
+            figID = data[0]
+            figCompID = data[1]
+          } else {
+            figID = figureID
+          }
+          let figNumber = numbersCopy.indexOf(figID)
+          if (figNumber == biggestFigureNumberInCitat && figNumber>-1) {
+            if (figCompID && +figCompID > biggestFigCompId) {
+              biggestFigCompId = +figCompID
+            } else if(!figCompID) {
+              biggestFigCompId = -1
+            }
+          }else if(figNumber > biggestFigureNumberInCitat){
+            if (figCompID ) {
+              biggestFigCompId = +figCompID
+            } else if(!figCompID) {
+              biggestFigCompId = -1
+            }
             biggestFigureNumberInCitat = figNumber
           }
         })
-        let displayedFiguresViewHere:string[] = []
-        if(!citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere){
+        let displayedFiguresViewHere: string[] = []
+        if (!citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere) {
           citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere = []
         }
         for (let i = 0; i <= biggestFigureNumberInCitat; i++) {
-          if (!viewsDisplayed[i]) {
-            displayedFiguresViewHere.push(numbersCopy[i])
-            if(this.figures[numbersCopy[i]].figurePlace == 'endEditor'){
-              this.removeFromEndEditor(numbersCopy[i])
+          if (this.figures[numbersCopy[i]].figurePlace == 'endEditor') {
+            this.removeFromEndEditor(numbersCopy[i])
+          }
+          if (viewsDisplayed[i] !== true) {
+            let viewsForCurrFigure = viewsDisplayed[i]
+            if (biggestFigCompId !== -1 && viewsForCurrFigure instanceof Array && i == biggestFigureNumberInCitat) {
+              let allCompInFigureDisplayed = false
+              for (let j = 0; j <= biggestFigCompId; j++) {
+                if(!viewsForCurrFigure[j]){
+                  displayedFiguresViewHere.push(numbersCopy[i] + '|' + j);
+                  viewsForCurrFigure[j] = true
+                }
+                if(viewsForCurrFigure.filter(e=>!e).length == 0){
+                  allCompInFigureDisplayed = true
+                }
+              }
+              allCompInFigureDisplayed?viewsForCurrFigure=true:null;
+            } else {
+              if(viewsForCurrFigure instanceof Array&&viewsForCurrFigure.filter(e=>e).length>0){
+                viewsForCurrFigure.forEach((e,j)=>{
+                  !e?displayedFiguresViewHere.push(numbersCopy[i] + '|' + j):null
+                })
+              }else{
+                displayedFiguresViewHere.push(numbersCopy[i])
+                this.figures[numbersCopy[i]].figurePlace = sectionID
+                this.figures[numbersCopy[i]].viewed_by_citat = citatData[0];
+                //citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere.push(numbersCopy[i])
+              }
+              
+              viewsDisplayed[i] = true
             }
-            this.figures[numbersCopy[i]].figurePlace = sectionID
-            this.figures[numbersCopy[i]].viewed_by_citat = citatData[0];
-            //citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere.push(numbersCopy[i])
-            viewsDisplayed[i] = true
+            
           }
         }
-        if(displayedFiguresViewHere.length!==citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere.length||!displayedFiguresViewHere.reduce<boolean>((prev,figureID,i)=>{
-          if(!citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere.includes(figureID)){
-            return (prev&&false)
+        if (displayedFiguresViewHere.length !== citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere.length || !displayedFiguresViewHere.reduce<boolean>((prev, figureID, i) => {
+          if (!citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere.includes(figureID)) {
+            return (prev && false)
           }
-          return (prev&&true)
-        },true)){
-          citatsBySection[sectionID][citatData[0]].lastTimeUpdated = new Date().getTime();
-          citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere = displayedFiguresViewHere;
+          return (prev && true)
+        }, true)) {
         }
+        citatsBySection[sectionID][citatData[0]].lastTimeUpdated = new Date().getTime();
+        citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere = displayedFiguresViewHere;
 
       })
     })
-    this.figures = this.ydocService.figuresMap!.set('ArticleFigures',this.figures)
+    this.figures = this.ydocService.figuresMap!.set('ArticleFigures', this.figures)
   }
 
-  removeFromEndEditor(figureID:string){
+  removeFromEndEditor(figureID: string) {
     let view = this.prosemirrorEditorsService.editorContainers['endEditor'].editorView
     let nodeStart: number = view.state.doc.nodeSize - 2
     let nodeEnd: number = view.state.doc.nodeSize - 2
@@ -221,7 +349,7 @@ export class FiguresControllerService {
     })
     let schema = view.state.schema
     let n = schema.nodes
-    view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!,Fragment.empty).setMeta('shouldTrack', false))
+    view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, Fragment.empty).setMeta('shouldTrack', false))
   }
 
   updateAllFigures() {
@@ -252,7 +380,7 @@ export class FiguresControllerService {
     return node.content.content
   }
 
-  updateSingleFigure(figureID: string, figureNodes: Node,figure:figure) {
+  updateSingleFigure(figureID: string, figureNodes: Node, figure: figure) {
 
     let view = this.prosemirrorEditorsService.editorContainers[figure.figurePlace].editorView
     let nodeStart: number = view.state.doc.nodeSize - 2

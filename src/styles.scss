@@ -6,11 +6,27 @@
 citation {
   background: #b2f0f0;
 }
+block-figure {
+  figure-component {
+    code {
+      display: block;
+      text-align: left;
+      margin-left: 10px;
+      font-size: 15px;
+    }
+  }
+}
+
+spacer {
+  height: 20px;
+  width: 100%;
+  display: block;
+}
 
 td {
   block-figure {
     display: inline;
-    
+
     figure-components-container {
       width: 100%;
       display: inline;
@@ -22,25 +38,24 @@ td {
         border-radius: 7px;
         width: 100%;
         display: block;
-        img{
+        img {
           width: 100%;
           height: auto;
         }
-        iframe{
+        iframe {
           width: 100%;
           height: auto;
-
         }
       }
       figure-component {
         $item: &;
-        
+
         $first-child-in-any-row: ":nth-child(2n + 1)";
-        
+
         $any-child-in-the-last-row: ":nth-last-child(-n + 2)";
-        
+
         $first-child-in-last-row: "&#{$any-child-in-the-last-row}";
-      
+
         #{$first-child-in-last-row},
         #{$first-child-in-last-row} ~ & {
           border-bottom-right-radius: 0px;
@@ -48,10 +63,10 @@ td {
         }
       }
     }
-    figure-descriptions-container{
+    figure-descriptions-container {
       padding: 7px;
-      background-color: #FAFAF8;
-      border: 2px solid #E2E2DC;
+      background-color: #fafaf8;
+      border: 2px solid #e2e2dc;
       border-bottom-right-radius: 6px;
       border-bottom-left-radius: 6px;
       p {
@@ -71,17 +86,17 @@ block-figure {
     padding-left: 8%;
     padding-right: 8%;
     column-gap: calc(100% - 640px);
-    row-gap: 15px ;
+    row-gap: 15px;
     figure-component {
       padding: 9px;
       padding-top: 40px;
       padding-bottom: 40px;
       border: 2px solid #e2e2dc;
       border-radius: 7px;
-      img{
+      img {
         height: 200px;
       }
-      iframe{
+      iframe {
         height: 200px;
       }
       width: auto;
@@ -89,13 +104,13 @@ block-figure {
     }
     figure-component {
       $item: &;
-      
+
       $first-child-in-any-row: ":nth-child(2n + 1)";
-      
+
       $any-child-in-the-last-row: ":nth-last-child(-n + 2)";
-      
+
       $first-child-in-last-row: "&#{$any-child-in-the-last-row}";
-    
+
       #{$first-child-in-last-row},
       #{$first-child-in-last-row} ~ & {
         border-bottom-right-radius: 0px;
@@ -103,11 +118,11 @@ block-figure {
       }
     }
   }
-  figure-descriptions-container{
+  figure-descriptions-container {
     padding: 7px;
-    background-color: #FAFAF8;
+    background-color: #fafaf8;
     display: block;
-    border: 2px solid #E2E2DC;
+    border: 2px solid #e2e2dc;
     border-bottom-right-radius: 6px;
     border-bottom-left-radius: 6px;
     p {

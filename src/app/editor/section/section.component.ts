@@ -29,6 +29,7 @@ import { FormArrayNameDirective } from "../directives/form-array-name.directive"
 import { FormBuilderService } from '../services/form-builder.service';
 import { YdocService } from '../services/ydoc.service';
 import { YMap } from 'yjs/dist/src/internals';
+import { FiguresControllerService } from '../services/figures-controller.service';
 
 @Component({
   selector: 'app-section',
@@ -75,7 +76,8 @@ export class SectionComponent implements AfterViewInit, OnInit {
     private prosemirrorEditorsService: ProsemirrorEditorsService,
     private treeService: TreeService,
     private ydocService: YdocService,
-    private formBuilderService: FormBuilderService) {
+    private formBuilderService: FormBuilderService,
+    private figuresControllerService : FiguresControllerService) {
 
     /* if(this.formControlService.popUpSectionConteiners[this.section.sectionID]){
       this.popUpContainer = this.formControlService.popUpSectionConteiners[this.section.sectionID]
@@ -133,6 +135,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
       submision.compiledHtml = interpolated
       this.editSectionService.editChangeSubject.next(submision);
       this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
+      this.figuresControllerService.markCitatsViews(this.ydocService.figuresMap?.get('articleCitatsObj'));
     } catch (err: any) {
       this.error = true;
       this.errorMessage += 'An error occurred while interpolating the template.\n';

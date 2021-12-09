@@ -21,57 +21,67 @@ export interface Task {
   styleUrls: ['./insert-figure.component.scss']
 })
 export class InsertFigureComponent implements AfterViewInit {
-  
-  error : boolean = false
-  figuresData?:string[]
-  selectedFigures:number[] = []
-  figures
+
+  error: boolean = false
+  figuresData?: string[]
+  figures: { [key: string]: figure }
+  selectedFigures: boolean[] = []
+  figuresComponentsChecked: { [key: string]: boolean[] } = {}
+
   constructor(
-    private ydocService:YdocService,
-    private figuresControllerService:FiguresControllerService,
+    private ydocService: YdocService,
+    private figuresControllerService: FiguresControllerService,
     private dialogRef: MatDialogRef<InsertFigureComponent>,
-    private commentsPlugin:CommentsService,
-    private prosemirrorEditorsService:ProsemirrorEditorsService,
-    @Inject(MAT_DIALOG_DATA) public data: {view:EditorView}
+    private commentsPlugin: CommentsService,
+    private prosemirrorEditorsService: ProsemirrorEditorsService,
+    @Inject(MAT_DIALOG_DATA) public data: { view: EditorView }
   ) {
     this.figuresData = this.ydocService.figuresMap?.get('ArticleFiguresNumbers')
-    this.figures =  this.ydocService.figuresMap?.get('ArticleFigures')
+    this.figures = this.ydocService.figuresMap?.get('ArticleFigures')
+    Object.keys(this.figures).forEach((figID, i) => {
+      this.figuresComponentsChecked[figID] = this.figures[figID].components.map(c => false);
+      this.selectedFigures[i] = false;
+    })
   }
 
+  getCharValue(i: number) {
+    return String.fromCharCode(97 + i)
+  }
 
-  setSelection(checked: boolean,figureId:string,figIndex:number) {
-    if(checked){
-      this.selectedFigures.push(figIndex)
-    }else{
-      this.selectedFigures = this.selectedFigures.filter(n => n!==figIndex);
+  setSelection(checked: boolean, figureId: string, figIndex: number, figComponentIndex?: number) {
+    if (typeof figComponentIndex == 'number') {
+      this.figuresComponentsChecked[figureId][figComponentIndex] = checked
+      this.selectedFigures[figIndex] = this.figuresComponentsChecked[figureId].filter(e => e).length > 0
+
+    } else {
+      this.figuresComponentsChecked[figureId] = this.figuresComponentsChecked[figureId].map(el => checked)
+      this.selectedFigures[figIndex] = checked
     }
-    this.selectedFigures.sort()
-
   }
-  
+
   ngAfterViewInit(): void {
   }
 
-  citateFigures(){
-    try{
-      if(this.selectedFigures.length==0){
+  citateFigures() {
+    try {
+      if (this.selectedFigures.length == 0) {
         this.error = true
-        setTimeout(()=>{
+        setTimeout(() => {
           this.error = false
-        },3000)
-      }else{
+        }, 3000)
+      } else {
         let sectionID = this.commentsPlugin.commentPluginKey.getState(this.data.view.state).sectionName
-        this.figuresControllerService.citateFigures(this.selectedFigures,sectionID)
+        this.figuresControllerService.citateFigures(this.selectedFigures, this.figuresComponentsChecked, sectionID)
         this.prosemirrorEditorsService.dispatchEmptyTransaction()
         this.dialogRef.close()
       }
     }
-    catch(e){
+    catch (e) {
       console.error(e);
     }
   }
 
-  cancel(){
+  cancel() {
     this.dialogRef.close()
   }
 }

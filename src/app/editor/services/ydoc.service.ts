@@ -213,8 +213,8 @@ export class YdocService {
         awareness: new awarenessProtocol.Awareness(this.ydoc),
       })
       this.provider.on('sync', (isSynced: boolean) => {
-        this.buildEditor();
       })
+      this.buildEditor();
       /* this.provider = new WebrtcProvider(this.roomName, this.ydoc, {
         signaling: ['ws://dev.scalewest.com:4444','ws://localhost:4444',  'wss://y-webrtc-signaling-eu.herokuapp.com' , 'wss://signaling.yjs.dev'  ,'wss://y-webrtc-signaling-us.herokuapp.com'],
         password: null,

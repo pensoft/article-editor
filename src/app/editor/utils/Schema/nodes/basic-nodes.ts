@@ -67,7 +67,7 @@ export const nodes = {
     
     hard_break: {
         inline: true,
-        group: "hard-break",
+        group: "inline",
         attrs:{
             ...getGenericAttributes()
         },
@@ -77,7 +77,21 @@ export const nodes = {
                 ...parseGenericAttributes(dom),
             }
         }}],
-        toDOM: function toDOM(node:Node) { return ["br",{...genericAttributtesToDom(node)}] }
+        toDOM(node:Node) { return ["br",{...genericAttributtesToDom(node)}] }
+    },
+    spacer:{
+        inline: false,
+        group: "block",
+        attrs:{
+            ...getGenericAttributes()
+        },
+        selectable: false,
+        parseDOM: [{ tag: "spacer" ,getAttrs(dom: any) {
+            return {
+                ...parseGenericAttributes(dom),
+            }
+        }}],
+        toDOM(node:Node) { return ["spacer",{...genericAttributtesToDom(node)}] }
     }
 };
 

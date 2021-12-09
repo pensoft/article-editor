@@ -88,7 +88,7 @@ export function buildKeymap(schema, mapKeys) {
         let newResolvedStart = sel.$from
         let newResolvedEnd = sel.$to
         newResolvedStart = state.doc.resolve(parentNodePos + 2)
-        newResolvedEnd = state.doc.resolve(parentNodePos + 1 + parentNode.nodeSize-3)
+        newResolvedEnd = state.doc.resolve(parentNodePos + 1 + parentNode.nodeSize - 3)
         let newSelection = new TextSelection(newResolvedStart, newResolvedEnd)
         let newTr = state.tr.setSelection(newSelection)
         return newTr
@@ -161,7 +161,10 @@ export function buildKeymap(schema, mapKeys) {
     if (type = schema.nodes.hard_break) {
         let br = type,
             cmd = chainCommands(exitCode, (state, dispatch) => {
-                dispatch(state.tr.replaceSelectionWith(br.create()).scrollIntoView())
+                let brElement = br.create({})
+                //let tr1 = state.tr.replaceSelectionWith(br.create({})).scrollIntoView()
+                let tr1 = state.tr.insert(state.selection.from,brElement)
+                dispatch(tr1)
                 return true
             })
         bind("Mod-Enter", cmd)

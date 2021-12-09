@@ -66,7 +66,7 @@ export const figures_nodes_container = {
     isolating: true,
 
     attrs: {
-        containerid:{default:''},
+        containerid: { default: '' },
         ...getGenericAttributes(),
     },
     parseDOM: [{
@@ -93,7 +93,7 @@ export const block_figure = {
     attrs: {
         figure_number: {},
         figure_id: {},
-        viewed_by_citat:{},
+        viewed_by_citat: {default:""},
         ...getGenericAttributes(),
     },
     parseDOM: [{
@@ -120,20 +120,20 @@ export const citation = {
     content: "inline+",
     inline: true,
     attrs: {
-        citated_figures:{default:[]},
-        
-        citateid:{default:''},
-        last_time_updated:{default:''},
-        figures_display_view:{default:[]},
+        citated_figures: { default: [] },
+
+        citateid: { default: '' },
+        last_time_updated: { default: '' },
+        figures_display_view: { default: [] },
         ...getGenericAttributes(),
     },
     parseDOM: [{
         tag: "citation", getAttrs(dom: HTMLElement) {
             let attrs = {
-                citated_figures:dom.getAttribute('citated_figures')!.split(','),
-                citateid:dom.getAttribute('citateid'),
-                last_time_updated:dom.getAttribute('last_time_updated'),
-                figures_display_view:dom.getAttribute('figures_display_view')!.split(','),
+                citated_figures: dom.getAttribute('citated_figures')!.split(','),
+                citateid: dom.getAttribute('citateid'),
+                last_time_updated: dom.getAttribute('last_time_updated'),
+                figures_display_view: dom.getAttribute('figures_display_view')!.split(','),
                 ...parseGenericAttributes(dom)
             }
             attrs.contenteditableNode = 'false';
@@ -143,10 +143,10 @@ export const citation = {
     toDOM(node: Node) {
         node.attrs.contenteditableNode = 'false';
         return ["citation", {
-            "citated_figures":node.attrs.citated_figures.join(','),
-            "citateid":node.attrs.citateid,
-            "last_time_updated":node.attrs.last_time_updated,
-            "figures_display_view":node.attrs.figures_display_view.join(','),
+            "citated_figures": node.attrs.citated_figures.join(','),
+            "citateid": node.attrs.citateid,
+            "last_time_updated": node.attrs.last_time_updated,
+            "figures_display_view": node.attrs.figures_display_view.join(','),
             ...genericAttributtesToDom(node)
         }, 0]
     }
@@ -179,19 +179,21 @@ export const figure_component = {
     inline: false,
     attrs: {
         component_number: {},
+        viewed_by_citat: {default:""},
         ...getGenericAttributes(),
     },
     parseDOM: [{
         tag: "figure-component", getAttrs(dom: any) {
             return {
                 component_number: dom.getAttribute('component_number'),
-
+                viewed_by_citat: dom.getAttribute('viewed_by_citat'),
                 ...parseGenericAttributes(dom)
             }
         }
     }],
     toDOM(node: Node) {
         return ["figure-component", {
+            'viewed_by_citat': node.attrs.viewed_by_citat,
             'component_number': node.attrs.component_number,
             ...genericAttributtesToDom(node)
         }, 0]
@@ -252,19 +254,21 @@ export const figure_component_description = {
     inline: false,
     attrs: {
         component_number: {},
+        viewed_by_citat:{default:""},
         ...getGenericAttributes()
     },
     parseDOM: [{
         tag: "figure-component-description", getAttrs(dom: any) {
             return {
                 component_number: dom.getAttribute('component_number'),
-
+                viewed_by_citat: dom.getAttribute('viewed_by_citat'),
                 ...parseGenericAttributes(dom),
             }
         },
     }],
     toDOM(node: any) {
         let attributesToDom: any = {
+            'viewed_by_citat': node.attrs.viewed_by_citat,
             'component_number': node.attrs.component_number,
             ...genericAttributtesToDom(node),
             style: 'display:flex;'

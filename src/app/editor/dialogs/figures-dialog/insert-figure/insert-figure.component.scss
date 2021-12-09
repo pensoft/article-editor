@@ -14,7 +14,7 @@
 }
 
 .figureNumber {
-    margin-left: 62px;
+    margin-left: 7px;
     font-size: 17px;
 }
 
@@ -23,6 +23,16 @@
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+}
+
+.figure_component{
+    .checkbox-figure-components{
+        margin-bottom: 10px;
+        .component-checkbox{
+            display: inline;
+            margin:0;
+        }
+    }
 }
 
 .selection-error{
@@ -62,7 +72,7 @@
 .example-margin {
     margin: 0 12px;
     vertical-align: middle;
-    margin-top: 36px;
+    margin-bottom: 4px;
 }
 
 ul {

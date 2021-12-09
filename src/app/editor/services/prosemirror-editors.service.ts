@@ -187,7 +187,6 @@ export class ProsemirrorEditorsService {
   }
 
   dispatchEmptyTransaction() {  // for updating the view
-    console.log(this.editorContainers);
     Object.values(this.editorContainers).forEach((container: any) => {
       let editorState = container.editorView.state as EditorState
       container.editorView.dispatch(editorState.tr.setMeta('emptyTR',true))
@@ -283,7 +282,7 @@ export class ProsemirrorEditorsService {
           if (lastStep) { return }
         }
         lastStep = transaction.steps[0]
-        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges) {
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges||transaction.getMeta('shouldTrack')==false) {
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
 
@@ -570,7 +569,7 @@ export class ProsemirrorEditorsService {
           if (lastStep) { return }
         }
         lastStep = transaction.steps[0]
-        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges) {
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges||transaction.getMeta('shouldTrack')==false) {
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
 

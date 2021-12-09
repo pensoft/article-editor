@@ -37,28 +37,34 @@ let basicFigureHTML = '<block-figure figure_number="0"><figure-components-contai
 
 let figuresHtmlTemplate = `
 <block-figure as="dqwd" [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.figure_number]="data.figureNumber" [attr.figure_id]="data.figureID">
-    <figure-components-container contenteditablenode="false">
+    <figure-components-container >
       <ng-container *ngFor="let figure of data.figureComponents;let i = index">
-        <figure-component [attr.component_number]="i" contenteditablenode="false">
-           <img *ngIf="figure.container.componentType == 'image'" src="{{figure.container.url}}" alt="" title="default image" contenteditable="false" draggable="true">
-           <iframe *ngIf="figure.container.componentType == 'video'" src="{{figure.container.url}}" controls="" contenteditable="false" draggable="true"></iframe>
-        </figure-component>
+        <ng-container *ngIf="figure">
+            <figure-component [attr.actual_number]="figure.container.componentNumber" [attr.component_number]="i" contenteditablenode="false" [attr.viewed_by_citat]="data.viewed_by_citat||''">
+            <code>{{getCharValue(i)}}</code>
+            <img *ngIf="figure.container.componentType == 'image'" src="{{figure.container.url}}" alt="" title="default image" contenteditable="false" draggable="true">
+               <iframe *ngIf="figure.container.componentType == 'video'" src="{{figure.container.url}}" controls="" contenteditable="false" draggable="true"></iframe>
+            </figure-component>
+        </ng-container>
       </ng-container>
     </figure-components-container>
     <figure-descriptions-container>
         <h3 tagname="h3" contenteditablenode="false">Figure: {{data.figureNumber+1}}</h3>
-        <figure-description style="display:block;" innerHTML={{data.figureDescription}}>
+        <figure-description *ngIf="data.figureDescription" style="display:block;" innerHTML={{data.figureDescription}}>
         </figure-description>
         <ng-container *ngFor="let figure of data.figureComponents;let i = index">
-          <figure-component-description [attr.component_number]="i" style="display:flex;">
-            <form-field>
-                <p align="set-align-left" contenteditablenode="false" class="set-align-left">{{getCharValue(i)}} :</p>
-            </form-field>
-            <form-field innerHTML={{figure.container.description}}>
-            </form-field>
-          </figure-component-description>
+            <ng-container *ngIf="figure">
+                <figure-component-description [attr.actual_number]="figure.container.componentNumber" [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.component_number]="i" style="display:flex;">
+                  <form-field contenteditablenode="false">
+                      <p align="set-align-left"  class="set-align-left">{{getCharValue(i)}}:&nbsp;</p>
+                  </form-field>
+                  <form-field innerHTML={{figure.container.description}}>
+                  </form-field>
+                </figure-component-description>
+            </ng-container >
         </ng-container>
     </figure-descriptions-container>
+    <spacer></spacer>
 </block-figure>
 
 `
@@ -141,6 +147,7 @@ export class AddFigureDialogComponent implements AfterViewInit {
             let prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
             
             submision.data.figureID = this.figureID!
+            
             submision.data.viewed_by_citat = this.data.figID?this.data.fig?.viewed_by_citat!:"endEditor"
             this.figuresTemplatesObj[this.figureID!] = { html: prosemirrorNewNodeContent }
             this.ydocService.figuresMap?.set('figuresTemplates',this.figuresTemplatesObj)

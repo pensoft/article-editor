@@ -7,17 +7,28 @@
             You have not selected any figures.
         </div>
         <div *ngFor="let figureId of figuresData;let i = index">
-            <div class='figureNumber'>Figure {{i+1}}</div>
-            <div class="figure-preview-components">
+            <div class='figureNumber'>Figure {{i+1}}
                 <div class="checkbox-wrapper">
-                    <mat-checkbox class="example-margin" [color]='"primary"' (change)="setSelection($event.checked,figureId,i)">
+                    <mat-checkbox class="example-margin" [checked]="selectedFigures[i]" [color]='"primary"' (change)="setSelection($event.checked,figureId,i)">
                     </mat-checkbox>
                 </div>
-                <div class="preview-component" *ngFor="let component of figures[figureId].components">
-                    <div *ngIf="component.componentType == 'image'">
+            </div>
+            <div class="figure-preview-components">
+                <div class="preview-component" *ngFor="let component of figures[figureId].components;let j = index">
+                    <div class="figure_component" *ngIf="component.componentType == 'image'">
+                        <div class="checkbox-figure-components">
+                            {{getCharValue(j)+' :'}}
+                            <mat-checkbox class="component-checkbox" [checked]="figuresComponentsChecked[figureId][j]" [color]='"primary"' (change)="setSelection($event.checked,figureId,i,j)">
+                            </mat-checkbox>
+                        </div>
                         <img src='{{component.url}}' height="100" />
                     </div>
-                    <div *ngIf="component.componentType == 'video'">
+                    <div class="figure_component" *ngIf="component.componentType == 'video'">
+                        <div class="checkbox-figure-components">
+                            {{getCharValue(j)+' :'}}
+                            <mat-checkbox class="component-checkbox" [checked]="figuresComponentsChecked[figureId][j]" [color]='"primary"' (change)="setSelection($event.checked,figureId,i,j)">
+                            </mat-checkbox>
+                        </div>
                         <iframe width="200" height="100" [src]="component.url | safe" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="">
                     </iframe>
                     </div>
