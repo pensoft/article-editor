@@ -60,10 +60,11 @@ import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
 import { I } from '@angular/cdk/keycodes';
 import { ReplaceAroundStep } from 'prosemirror-transform';
 import { ViewFlags } from '@angular/compiler/src/core';
-import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures } from '../utils/prosemirrorHelpers';
+import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn } from '../utils/prosemirrorHelpers';
 //@ts-ignore
 import { recreateTransform } from "prosemirror-recreate-steps"
 import { figure } from '../utils/interfaces/figureComponent';
+import { CitatContextMenuService } from '../utils/citat-context-menu/citat-context-menu.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -124,6 +125,7 @@ export class ProsemirrorEditorsService {
     private linkPopUpPluginService: LinkPopUpPluginServiceService,
     private commentsService: CommentsService,
     private treeService: TreeService,
+    private citatContextPluginService:CitatContextMenuService,
     private trackChangesService: TrackChangesService) {
 
     this.mobileVersionSubject.subscribe((data) => {
@@ -250,6 +252,7 @@ export class ProsemirrorEditorsService {
       plugins: [
         ...yjsPlugins,
         mathPlugin,
+        
         keymap({
           'Mod-z': undo,
           'Mod-y': redo,
@@ -266,6 +269,7 @@ export class ProsemirrorEditorsService {
         this.detectFocusService.getPlugin(),
         this.commentsService.getPlugin(),
         this.trackChangesService.getHideShowPlugin(),
+        this.citatContextPluginService.citatContextPlugin,
         this.linkPopUpPluginService.linkPopUpPlugin,
         inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
         ...menuBar({
@@ -313,9 +317,20 @@ export class ProsemirrorEditorsService {
         return !this.mobileVersion /* && this.editorsEditableObj[editorID] */
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
+      handleDOMEvents:{
+          contextmenu:(view,event)=>{
+            if(this.citatContextPluginService.citatContextPluginKey.getState(view.state).decorations){
+              event.preventDefault();
+              event.stopPropagation();
+              return true
+            }
+            return false
+          }
+      },
       dispatchTransaction,
       handlePaste,
-      handleClick: handleClick(hideshowPluginKEey),
+      handleClick: handleClick(hideshowPluginKEey,this.citatContextPluginService.citatContextPluginKey),
+      handleClickOn:handleClickOn(this.citatContextPluginService.citatContextPluginKey),
       handleTripleClickOn,
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
       handleKeyDown,

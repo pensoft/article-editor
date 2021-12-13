@@ -18,7 +18,7 @@ export function handlePaste(view: EditorView, event: Event, slice: Slice) {
     return false
 }
 
-export function handleClick(hideshowPluginKEey:PluginKey) {
+export function handleClick(hideshowPluginKEey:PluginKey,citatContextPluginkey?:PluginKey) {
     return (view: EditorView, pos: number, event: Event)=>{
 
         if (((event.target as HTMLElement).className == 'changes-placeholder')) {
@@ -26,8 +26,13 @@ export function handleClick(hideshowPluginKEey:PluginKey) {
                 view.dispatch(view.state.tr)
             }, 0)
             return true
+        }else if(((event.target as HTMLElement).className == 'citat-menu-context')||(event.target as HTMLElement).tagName=='CITATION'){
+            return true
         }
         let tr1 = view.state.tr.setMeta(hideshowPluginKEey, {})
+        if(citatContextPluginkey){
+            tr1 = tr1.setMeta('citatContextPlugin', {clickOutside:true})
+        }
         view.dispatch(tr1)
         return false
     }
@@ -58,115 +63,119 @@ export const handleDoubleClick = (hideshowPluginKEey:PluginKey)=>{
     }
 }
 export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
-    let sel = view.state.selection
-    let { $from,$to} = sel
-    let key = event.key
-    let canEdit = false;
-    /* if (sel instanceof CellSelection) {
-        from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
-        to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);
-    } */
-    /* check the both siddes of the selection and check if there are in the same depth -> means that the selection sides are on the same level 
-      true
-        loop the parents of the sides and search for form_field if there is a parent form field check if its the same for both sides and use it as parent ref
-            if there is no form_field parent find the first parent thats the same for both selection sides and use it as parent ref
-        check if the parent ref alows editing 
-    */   
-    if($from.depth==$to.depth){
-        //@ts-ignore
-        let pathAtFrom:Array<Node|number> = $from.path
-        //@ts-ignore
-        let nodeAtTo:Array<Node|number> = $to.path 
+    try{
 
-        let parentRef : Node|undefined 
-        //search parents
-        for(let i = nodeAtTo.length;i>-1;i--){
-            if(i%3==0){
-                let parentFrom = pathAtFrom[i] as Node
-                let parentTo = nodeAtTo[i] as Node
-                if(parentFrom == parentTo){
-                    if(!parentRef){
-                        parentRef = parentFrom
-                    }else if(parentFrom.type.name == 'form_field'&&parentRef.type.name !== 'form_field'){
-                        parentRef = parentFrom
+        let sel = view.state.selection
+        let { $from,$to} = sel
+        let key = event.key
+        let canEdit = false;
+        /* if (sel instanceof CellSelection) {
+            from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
+            to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);
+        } */
+        /* check the both siddes of the selection and check if there are in the same depth -> means that the selection sides are on the same level 
+          true
+            loop the parents of the sides and search for form_field if there is a parent form field check if its the same for both sides and use it as parent ref
+                if there is no form_field parent find the first parent thats the same for both selection sides and use it as parent ref
+            check if the parent ref alows editing 
+        */   
+        if($from.depth==$to.depth){
+            //@ts-ignore
+            let pathAtFrom:Array<Node|number> = $from.path
+            //@ts-ignore
+            let pathAtTo:Array<Node|number> = $to.path 
+    
+            let parentRef : Node|undefined 
+            //search parents
+            for(let i = pathAtTo.length;i>-1;i--){
+                if(i%3==0){
+                    let parentFrom = pathAtFrom[i] as Node
+                    let parentTo = pathAtTo[i] as Node
+                    if(parentFrom == parentTo){
+                        if(!parentRef){
+                            parentRef = parentFrom
+                        }else if(parentFrom.type.name == 'form_field'&&parentRef.type.name !== 'form_field'&&parentRef?.attrs.contenteditableNode !== 'false'){
+                            parentRef = parentFrom
+                        }
+    
                     }
-
                 }
             }
-        }
-
-        if(parentRef?.attrs.contenteditableNode !== 'false'){
-            canEdit = true
-        }
-    }
     
+            if(parentRef?.attrs.contenteditableNode !== 'false'){
+                canEdit = true
+            }
+        }
+        
+        
+        /* view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
+            if (node.attrs.contenteditableNode == "false") {
+                if(node.type.name == ){
     
-    /* view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-        if (node.attrs.contenteditableNode == "false") {
-            if(node.type.name == ){
-
-            }
-            noneditableNodes = true;
-        }
-
-        if (node.type.name == "form_field") {
-            let nodeEnd = node.nodeSize + pos
-            // there is a form_field that is in the selection we should not edit if or outside of it 
-            if ((from <= pos && pos <= to) || (from <= nodeEnd && nodeEnd <= to)) {
-                if ((from <= pos && pos <= to)) {
-                    from = pos + 2
                 }
-                if ((from <= nodeEnd && nodeEnd <= to)) {
-                    to = nodeEnd - 2
-                }
-                view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(from), view.state.doc.resolve(to))))
+                noneditableNodes = true;
             }
-        }
-    }) */
-    if (key == 'Delete' || key == 'Backspace') {
-        view.state.tr = view.state.tr.setMeta('userDeletion',true)
-    }
-    /* if (key == 'Delete' || key == 'Backspace') {
-      if (!sel.empty) {
-        return noneditableNodes
-      } else {
-        if (noneditableNodes) {
-          return noneditableNodes
-        } else {
-          if (key == 'Delete') {
-            if (sel.$anchor.nodeAfter == null && sel.$anchor.parent.type.name == 'paragraph') {
-              //@ts-ignore
-              let s = sel.$anchor.parent.parent.content.lastChild === sel.$anchor.parent
-              if (s) {
-                return true
+    
+            if (node.type.name == "form_field") {
+                let nodeEnd = node.nodeSize + pos
+                // there is a form_field that is in the selection we should not edit if or outside of it 
+                if ((from <= pos && pos <= to) || (from <= nodeEnd && nodeEnd <= to)) {
+                    if ((from <= pos && pos <= to)) {
+                        from = pos + 2
+                    }
+                    if ((from <= nodeEnd && nodeEnd <= to)) {
+                        to = nodeEnd - 2
+                    }
+                    view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(from), view.state.doc.resolve(to))))
+                }
+            }
+        }) */
+        /* if (key == 'Delete' || key == 'Backspace') {
+            view.state.tr = view.state.tr.setMeta('userDeletion',true)
+        } */
+        /* if (key == 'Delete' || key == 'Backspace') {
+          if (!sel.empty) {
+            return noneditableNodes
+          } else {
+            if (noneditableNodes) {
+              return noneditableNodes
+            } else {
+              if (key == 'Delete') {
+                if (sel.$anchor.nodeAfter == null && sel.$anchor.parent.type.name == 'paragraph') {
+                  //@ts-ignore
+                  let s = sel.$anchor.parent.parent.content.lastChild === sel.$anchor.parent
+                  if (s) {
+                    return true
+                  }
+                }
+              } else if (key == 'Backspace') {
+                if (sel.$anchor.nodeBefore == null && sel.$anchor.parent.type.name == 'paragraph') {
+                  //@ts-ignore
+                  let s = sel.$anchor.parent.parent.content.firstChild === sel.$anchor.parent
+                  if (s) {
+                    return true
+                  }
+                }
               }
             }
-          } else if (key == 'Backspace') {
-            if (sel.$anchor.nodeBefore == null && sel.$anchor.parent.type.name == 'paragraph') {
-              //@ts-ignore
-              let s = sel.$anchor.parent.parent.content.firstChild === sel.$anchor.parent
-              if (s) {
-                return true
-              }
-            }
+    
+          } 
+          if (noneditableNodes) {
+            return noneditableNodes
           }
+        }*/
+        console.log('canEdit',canEdit);
+        if (!canEdit) {
+            if (key == 'ArrowRight' ||
+                key == 'ArrowLeft' ||
+                key == 'ArrowDown' ||
+                key == 'ArrowUp') {
+                return false
+            } else {
+                return true
+            }
         }
-
-      } 
-      if (noneditableNodes) {
-        return noneditableNodes
-      }
-    }*/
-    if (!canEdit) {
-        if (key == 'ArrowRight' ||
-            key == 'ArrowLeft' ||
-            key == 'ArrowDown' ||
-            key == 'ArrowUp') {
-            return false
-        } else {
-            return true
-        }
-    }
+    }catch(e){console.error(e);}
     return false
 }
 export const createSelectionBetween = (editorsEditableObj:any,editorId:string)=>{

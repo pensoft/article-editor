@@ -62,7 +62,7 @@ export class EditorMenuComponent implements OnInit {
           declarations: [component
            ,FormControlNameDirective
           ],
-          schemas: [CUSTOM_ELEMENTS_SCHEMA]
+          schemas: [CUSTOM_ELEMENTS_SCHEMA,NO_ERRORS_SCHEMA]
         })(class newModule {
         });
 

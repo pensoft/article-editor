@@ -1,7 +1,7 @@
 import { FormControl, FormGroup } from "@angular/forms";
 import { DOMSerializer, Schema, Node, Fragment, ResolvedPos, Slice } from "prosemirror-model";
-import { EditorState, Transaction } from "prosemirror-state";
-import { EditorView } from "prosemirror-view";
+import { EditorState, PluginKey, Transaction } from "prosemirror-state";
+import { DecorationSet, EditorView } from "prosemirror-view";
 import { YMap } from "yjs/dist/src/internals";
 import { articleSection } from "../interfaces/articleSection";
 import { DOMParser } from "prosemirror-model"
@@ -58,6 +58,7 @@ export const updateControlsAndFigures = (
                       let figureDescriptionHtml = getHtmlFromFragment(node2.content!)
                       figure.description = figureDescriptionHtml
                     } else if (node2.type.name == 'figure_component_description') {
+
                       figure.components[node2.attrs.component_number].description = getHtmlFromFragment(node2.content.child(1).content)
                     }
                   })
@@ -73,18 +74,19 @@ export const updateControlsAndFigures = (
               figuresMap.set('ArticleFigures', JSON.parse(JSON.stringify(figures)))
             } else if (node.type.name == "citation") {
               if (!figuresCitats[section?.sectionID!][node.attrs.citateid]) {
-                let attrs = node.attrs
                 if (!transaction.getMeta('y-sync$')) {
+                  console.log('adding missing figuresviews');
+                  let attrs = node.attrs
                   let redefinedCitat: any = {}
                   redefinedCitat.figureIDs = attrs.citated_figures
                   redefinedCitat.position = pos
                   redefinedCitat.lastTimeUpdated = attrs.last_time_updated
                   redefinedCitat.displaydFiguresViewhere = attrs.figures_display_view
                   figuresCitats[section?.sectionID!][node.attrs.citateid] = redefinedCitat
-                  setTimeout(rerenderFigures(figuresCitats),0)
+                  setTimeout(rerenderFigures(figuresCitats), 0)
                   //debugger
                 } else if (transaction.getMeta('y-sync$')) {
-                  figuresCitats[section?.sectionID!][node.attrs.citateid] = undefined
+                  //figuresCitats[section?.sectionID!][node.attrs.citateid] = undefined
                 }
               }
 
@@ -559,12 +561,13 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>, rere
                 if (figuresCitats[sectionID][citatID] && transaction.getMeta('y-sync$')) {
                   //@ts-ignore
                 } else if (figuresCitats[sectionID][citatID] && !transaction.getMeta('y-sync$')) {
+                  setTimeout(() => {
+                    console.log('removing',citatID);
+                    figuresCitats[sectionID][citatID] = undefined
+                    figuresMap.set('articleCitatsObj', figuresCitats)
+                    rerenderFigures(figuresCitats)
+                  }, 10)
                 }
-                setTimeout(()=>{
-                  figuresCitats[sectionID][citatID] = undefined
-                  figuresMap.set('articleCitatsObj', figuresCitats)
-                  rerenderFigures(figuresCitats)
-                },10)
               }
             })
           }
@@ -654,4 +657,31 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>, rere
     }
     return true
   }
-} 
+}
+
+//handle right click on citats
+export const handleClickOn = (citatContextPluginKey:PluginKey)=>{
+
+  return (view: EditorView, pos: number, node: Node, nodePos: number, e: MouseEvent, direct: boolean) => {
+    if (node.type.name == 'citation' &&
+      (("which" in e && e.which == 3) ||
+        ("button" in e && e.button == 2)
+      )) {
+        let cursurCoord = view.coordsAtPos(pos);
+        view.dispatch(view.state.tr.setMeta('citatContextPlugin',{
+          clickPos:pos,
+          citatPos:nodePos,
+          clickEvent:e,
+          focus: view.hasFocus(),
+          direct,
+          coords:cursurCoord
+        }))
+        console.log('setting');
+        return false
+    }else if(citatContextPluginKey.getState(view.state).decorations !== undefined){
+      return false
+    }else{
+      return true
+    }
+  }
+}

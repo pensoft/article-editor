@@ -2,7 +2,7 @@ import { createViewChild, ViewFlags } from '@angular/compiler/src/core';
 import { AfterViewInit, Injectable, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { Fragment, Node, Slice } from 'prosemirror-model';
-import { EditorState } from 'prosemirror-state';
+import { EditorState ,Transaction} from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { figure, figure_component } from '../utils/interfaces/figureComponent';
 import { endEditorNodes, endEditorSchema, schema } from '../utils/Schema';
@@ -11,8 +11,9 @@ import { YdocService } from './ydoc.service';
 import { DOMParser } from 'prosemirror-model';
 import { remove } from 'lodash';
 import { uuidv4 } from 'lib0/random';
-import { P, Q } from '@angular/cdk/keycodes';
 import { articleSection } from '../utils/interfaces/articleSection';
+import { Transform } from 'prosemirror-transform';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -116,16 +117,40 @@ export class FiguresControllerService {
         }
       }
       */
-      let citatString = selectedFigures.length > 1 ? 'Figs.' : 'Fig.'
+      let citatString = selectedFigures.filter(e=>e).length>1 ? 'Figs.  ' : 'Fig.  ';
+      let citated:any = []
+      selectedFigures.forEach((fig,index)=>{
+        if(fig){
+          citated.push(index+1)
+          if(figuresComponentsChecked[this.figuresNumbers![index]].filter(e=>!e).length>0){
+            let count = 0
+            figuresComponentsChecked[this.figuresNumbers![index]].forEach((comp,j)=>{
+              if(comp){
+                if(count==0){
+                  citated[citated.length-1]+=String.fromCharCode(97 + j)
+                  count++
+                }else{
+                  citated.push(String.fromCharCode(97 + j))
+                  count++
+                }
+              }
+            })
+          }
+          
+        }
+      })
+      citatString+=citated.join(',  ')
       let citatedFigureIds = selectedFigures.reduce<any>((prev, curr, index) => {
         if (curr) {
           if (figuresComponentsChecked[this.figuresNumbers![index]].filter(e => e).length == figuresComponentsChecked[this.figuresNumbers![index]].length) {// means the whole figure is citated
-            citatString += ` ${index + 1}`
+            //citated.push(index + 1)
+            //citatString += ` ${index + 1}`
             return prev.concat(curr ? [this.figuresNumbers![index]] : []);
           } else {
-            citatString += ` ${index + 1}`
+            //citated.push(index + 1)
+            //citatString += ` ${index + 1}`
             let idsWithComponents = figuresComponentsChecked[this.figuresNumbers![index]].reduce<string[]>((p, c, i) => {
-              citatString += c ? `${String.fromCharCode(97 + i)}, ` : ''
+              //citatString += c ? `${String.fromCharCode(97 + i)}, ` : ''
               //return prev
               return p.concat(c ? [this.figuresNumbers![index] + '|' + i] : [])
             }, [])
@@ -223,14 +248,14 @@ export class FiguresControllerService {
       })
       if (key !== 'endEditor') {
         let deleted = false;
-        let tr1: any
+        let tr1: Transaction
         let del = () => {
           deleted = false
           tr1 = view.state.tr
           view.state.doc.descendants((node, position, parent) => {
             if (node.type.name == 'figures_nodes_container' && !deleted) {
               deleted = true
-              tr1 = tr1.replaceWith(position, position + node.nodeSize, Fragment.empty)
+              tr1 = tr1.replaceWith(position, position + node.nodeSize, Fragment.empty).setMeta('shouldTrack', false);
             }
           })
           view.dispatch(tr1)
