@@ -1,5 +1,5 @@
 import { createViewChild, ViewFlags } from '@angular/compiler/src/core';
-import { AfterViewInit, Injectable } from '@angular/core';
+import { AfterViewInit, Injectable, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { Fragment, Node, Slice } from 'prosemirror-model';
 import { EditorState } from 'prosemirror-state';
@@ -44,6 +44,7 @@ export class FiguresControllerService {
         }
       });
     }
+    this.prosemirrorEditorsService.setFigureRerenderFunc(this.markCitatsViews);
   }
 
   initFigures() {
@@ -65,7 +66,6 @@ export class FiguresControllerService {
     }) */
 
     this.markCitatsViews(citats)
-    this.prosemirrorEditorsService.dispatchEmptyTransaction()
     this.ydocService.figuresMap?.set('articleCitatsObj', citats);
 
     /* try {
@@ -79,13 +79,32 @@ export class FiguresControllerService {
 
 
 
-  citateFigures(selectedFigures: boolean[], figuresComponentsChecked: { [key: string]: boolean[] }, sectionID: string) {
+  citateFigures(selectedFigures: boolean[], figuresComponentsChecked: { [key: string]: boolean[] }, sectionID: string, citatAttrs: any) {
     try {
-
-      let citateId = uuidv4();
+      //check selections
       let insertionView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
       let citats = this.ydocService.figuresMap?.get('articleCitatsObj');
-      //console.log(JSON.stringify(citats,undefined,'\t'));
+      let citatPos = insertionView.state.selection.from - insertionView.state.selection.$anchor.nodeBefore!.nodeSize - 1
+      let citateId
+      if (citatAttrs) {
+        citateId = citatAttrs.citateid
+      } else {
+        citateId = uuidv4();
+      }
+
+      if (selectedFigures.filter(e => e).length == 0 && !citatAttrs) {
+        return
+      } else if (selectedFigures.filter(e => e).length == 0 && citatAttrs) {
+        citats[sectionID][citateId] = undefined
+        insertionView.dispatch(insertionView.state.tr.replaceWith(
+          citatPos,
+          citatPos + insertionView.state.doc.nodeAt(citatPos)!.nodeSize,
+          Fragment.empty)
+        )
+        this.markCitatsViews(citats)
+
+        return
+      }
 
       /* ``` citats obj type
       citats:{
@@ -107,36 +126,50 @@ export class FiguresControllerService {
             citatString += ` ${index + 1}`
             let idsWithComponents = figuresComponentsChecked[this.figuresNumbers![index]].reduce<string[]>((p, c, i) => {
               citatString += c ? `${String.fromCharCode(97 + i)}, ` : ''
+              //return prev
               return p.concat(c ? [this.figuresNumbers![index] + '|' + i] : [])
             }, [])
             return prev.concat(idsWithComponents);
           }
+          return prev.concat(curr ? [this.figuresNumbers![index]] : []);
         } else {
-          return prev.concat([]);
+          return prev;
         }
       }, [])
       if (!citats[sectionID]) {
         citats[sectionID] = {}
       }
+
       citats[sectionID][citateId] = {
         figureIDs: citatedFigureIds,
-        position: insertionView.state.selection.from,
+        position: citatAttrs ? citatPos : insertionView.state.selection.from,
         lastTimeUpdated: new Date().getTime()
       }
-
+      
       //this.changeFiguresPlaces(citatedFigureIds,sectionID)
       this.markCitatsViews(citats)
-      this.ydocService.figuresMap?.set('articleCitatsObj', citats);
+
       let citateNodeText = citatString
-      insertionView.dispatch(
-        insertionView.state.tr.replaceSelectionWith(
-          insertionView.state.schema.nodes.citation.create({
-            citated_figures: citatedFigureIds,
-            citateid: citateId
-          }, insertionView.state.schema.text(citateNodeText))
+      if (citatAttrs) {
+        insertionView.dispatch(
+          insertionView.state.tr.replaceWith(citatPos,
+            citatPos + insertionView.state.doc.nodeAt(citatPos)!.nodeSize
+            , insertionView.state.schema.nodes.citation.create({
+              citated_figures: citatedFigureIds,
+              citateid: citateId
+            }, insertionView.state.schema.text(citateNodeText))
+          )
         )
-      )
-      this.prosemirrorEditorsService.dispatchEmptyTransaction()
+      } else {
+        insertionView.dispatch(
+          insertionView.state.tr.replaceSelectionWith(
+            insertionView.state.schema.nodes.citation.create({
+              citated_figures: citatedFigureIds,
+              citateid: citateId
+            }, insertionView.state.schema.text(citateNodeText))
+          )
+        )
+      }
       /*
            this.figuresData = this.ydocService.figuresMap?.get('ArticleFigures');
           let insertionView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
@@ -177,29 +210,27 @@ export class FiguresControllerService {
 
   }
 
-  markCitatsViews(citatsBySection: any) {
+  markCitatsViews = (citatsBySection: any)=> {
     let numbersCopy: string[] = JSON.parse(JSON.stringify(this.figuresNumbers));
     this.figures = this.ydocService.figuresMap!.get('ArticleFigures')
     Object.keys(this.prosemirrorEditorsService.editorContainers).forEach((key) => {
       let containersCount = 0
       let view = this.prosemirrorEditorsService.editorContainers[key].editorView;
-      view.state.doc.forEach((el) => {
+      view.state.doc.descendants((el) => {
         if (el.type.name == 'figures_nodes_container') {
           containersCount++;
         }
       })
-      console.log(key);
       if (key !== 'endEditor') {
-        let view = this.prosemirrorEditorsService.editorContainers[key].editorView;
         let deleted = false;
-        let tr1:any
+        let tr1: any
         let del = () => {
           deleted = false
           tr1 = view.state.tr
-          view.state.doc.forEach((node, offset, index) => {
+          view.state.doc.descendants((node, position, parent) => {
             if (node.type.name == 'figures_nodes_container' && !deleted) {
               deleted = true
-              tr1 = tr1.replaceWith(offset, offset + node.nodeSize, Fragment.empty)
+              tr1 = tr1.replaceWith(position, position + node.nodeSize, Fragment.empty)
             }
           })
           view.dispatch(tr1)
@@ -209,8 +240,8 @@ export class FiguresControllerService {
         }
       }
     })
-    let viewsDisplayed: boolean[][] | boolean[] = numbersCopy.map((figureID) => { return this.figures[figureID].components.map(e => false) })
-    let figureAndComponents
+    let viewsDisplayed: boolean[] = numbersCopy.map((figureID) => { return false })
+    this.figures = this.ydocService.figuresMap!.get('ArticleFigures')
 
     let articleFlatStructure = this.ydocService.articleStructure?.get('articleSectionsStructureFlat');
     articleFlatStructure.forEach((section: articleSection) => {
@@ -218,7 +249,9 @@ export class FiguresControllerService {
 
       var sortable = [];
       for (var citat in citatsBySection[sectionID]) {
-        sortable.push([citat, citatsBySection[sectionID][citat]]);
+        if(citatsBySection[sectionID][citat]){
+          sortable.push([citat, citatsBySection[sectionID][citat]]);
+        }
       }
 
       sortable.sort(function (a, b) {
@@ -227,32 +260,16 @@ export class FiguresControllerService {
 
       sortable.forEach((citatData) => {
         let biggestFigureNumberInCitat = -1;
-        let biggestFigCompId = -1
         let citatedFiguresOnCitat: string[] = citatData[1].figureIDs;
 
         citatedFiguresOnCitat.forEach((figureID) => { // find the figure with biggest index on this citat
-          let figID
-          let figCompID
-          if (figureID.includes('|')) {
-            let data = figureID.split('|')
-            figID = data[0]
-            figCompID = data[1]
-          } else {
-            figID = figureID
-          }
+          let figID: string
+          let componentId: string
+          let data = figureID.split("|")
+          figID = data[0]
+          componentId = data[1]
           let figNumber = numbersCopy.indexOf(figID)
-          if (figNumber == biggestFigureNumberInCitat && figNumber > -1) {
-            if (figCompID && +figCompID > biggestFigCompId) {
-              biggestFigCompId = +figCompID
-            } else if (!figCompID) {
-              biggestFigCompId = -1
-            }
-          } else if (figNumber > biggestFigureNumberInCitat) {
-            if (figCompID) {
-              biggestFigCompId = +figCompID
-            } else if (!figCompID) {
-              biggestFigCompId = -1
-            }
+          if (figNumber > biggestFigureNumberInCitat) {
             biggestFigureNumberInCitat = figNumber
           }
         })
@@ -261,55 +278,32 @@ export class FiguresControllerService {
           citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere = []
         }
         for (let i = 0; i <= biggestFigureNumberInCitat; i++) {
-          if (this.figures[numbersCopy[i]].figurePlace == 'endEditor') {
-            console.log(`removeing number${i} with if ${numbersCopy[i]}`);
-            this.removeFromEndEditor(numbersCopy[i])
-          }
-          if (viewsDisplayed[i] !== true) {
-            let viewsForCurrFigure = viewsDisplayed[i]
-            if (biggestFigCompId !== -1 && viewsForCurrFigure instanceof Array && i == biggestFigureNumberInCitat) {
-              let allCompInFigureDisplayed = false
-              for (let j = 0; j <= biggestFigCompId; j++) {
-                if (!viewsForCurrFigure[j]) {
-                  displayedFiguresViewHere.push(numbersCopy[i] + '|' + j);
-                  viewsForCurrFigure[j] = true
-                }
-                if (viewsForCurrFigure.filter(e => !e).length == 0) {
-                  allCompInFigureDisplayed = true
-                }
-              }
-              allCompInFigureDisplayed ? viewsForCurrFigure = true : null;
-            } else {
-              if (viewsForCurrFigure instanceof Array && viewsForCurrFigure.filter(e => e).length > 0) {
-                viewsForCurrFigure.forEach((e, j) => {
-                  !e ? displayedFiguresViewHere.push(numbersCopy[i] + '|' + j) : null
-                })
-              } else {
-                displayedFiguresViewHere.push(numbersCopy[i])
-                this.figures[numbersCopy[i]].figurePlace = sectionID
-                this.figures[numbersCopy[i]].viewed_by_citat = citatData[0];
-                //citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere.push(numbersCopy[i])
-              }
-
-              viewsDisplayed[i] = true
+          if (!viewsDisplayed[i]) {
+            displayedFiguresViewHere.push(numbersCopy[i])
+            if (this.figures[numbersCopy[i]].figurePlace == 'endEditor') {
+              this.removeFromEndEditor(numbersCopy[i])
             }
-
+            this.figures[numbersCopy[i]].figurePlace = sectionID
+            this.figures[numbersCopy[i]].viewed_by_citat = citatData[0];
+            //citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere.push(numbersCopy[i])
+            viewsDisplayed[i] = true
           }
         }
-        if (displayedFiguresViewHere.length !== citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere.length || !displayedFiguresViewHere.reduce<boolean>((prev, figureID, i) => {
-          if (!citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere.includes(figureID)) {
-            return (prev && false)
+        /* if(displayedFiguresViewHere.length!==citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere.length||!displayedFiguresViewHere.reduce<boolean>((prev,figureID,i)=>{
+          if(!citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere.includes(figureID)){
+            return (prev&&false)
           }
-          return (prev && true)
-        }, true)) {
-        }
+          return (prev&&true)
+        },true)){
+        } */
         citatsBySection[sectionID][citatData[0]].lastTimeUpdated = new Date().getTime();
         citatsBySection[sectionID][citatData[0]].displaydFiguresViewhere = displayedFiguresViewHere;
 
       })
     })
+    this.figures = this.ydocService.figuresMap!.set('ArticleFigures', this.figures)
     viewsDisplayed.forEach((view, index) => {
-      if (view instanceof Array && view.filter(e => e).length == 0) {
+      if (view == false) {
         this.figures[numbersCopy[index]].figurePlace = 'endEditor'
         let figureTemplate = this.ydocService.figuresMap?.get('figuresTemplates')[numbersCopy[index]];
 
@@ -329,7 +323,9 @@ export class FiguresControllerService {
         })
       }
     })
-    this.figures = this.ydocService.figuresMap!.set('ArticleFigures', this.figures)
+    this.ydocService.figuresMap!.set('ArticleFigures', this.figures)
+    this.ydocService.figuresMap?.set('articleCitatsObj', citatsBySection);
+    this.prosemirrorEditorsService.dispatchEmptyTransaction()
   }
 
   removeFromEndEditor(figureID: string) {

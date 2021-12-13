@@ -1,6 +1,6 @@
 
 import { Schema } from 'prosemirror-model';
-import { nodes } from './nodes';
+import { nodes} from './nodes';
 import { marks } from './marks';
 export  *  from './endEditorSchema';
 

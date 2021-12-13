@@ -209,6 +209,7 @@ export class CommentsService {
       commentBtnDiv.style.display = 'inline-flex'
       editorBtnsWrapper.style.top = (averageValueTop - 42) + 'px';
       editorBtnsWrapper.style.position = 'fixed'
+      editorBtnsWrapper.style.marginLeft = '-6px'
       commentBtn.addEventListener('click', () => {
         this.addCommentSubject.next({ type: 'commentData', sectionName, showBox: true })
       })

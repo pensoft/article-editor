@@ -2,7 +2,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { InsertFigureComponent } from "@app/editor/dialogs/figures-dialog/insert-figure/insert-figure.component";
 import { toggleMark } from "prosemirror-commands";
 import { MenuItem } from "prosemirror-menu";
-import { Fragment } from "prosemirror-model";
+import { Fragment, Node } from "prosemirror-model";
 import { EditorState, NodeSelection, Transaction } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { AddCommentDialogComponent } from "../../add-comment-dialog/add-comment-dialog.component";
@@ -48,19 +48,24 @@ export const insertFigure = new MenuItem({
   title: 'Insert smart figure citation',
   // @ts-ignore
   run: (state: EditorState, dispatch?: (tr: Transaction) => boolean, view?: EditorView) => {
-    if (dispatch) {
-      const dialogRef = sharedDialog.open(InsertFigureComponent, {
-        width: '80%',
-        height: '90%',
-        panelClass: 'insert-figure-in-editor',
-        data: { view }
-      });
-      dialogRef.afterClosed().subscribe(result => {
-      });
+    let nodeAtCursor = state.selection.$from.parent
+    let data
+    
+    if(nodeAtCursor.type.name == 'citation'){
+      data = JSON.parse(JSON.stringify(nodeAtCursor.attrs));
     }
+    const dialogRef = sharedDialog.open(InsertFigureComponent, {
+      width: '80%',
+      height: '90%',
+      panelClass: 'insert-figure-in-editor',
+      data: { view,citatData:data }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+    });
     return true;
   },
-  enable(state) { return canInsert(state,state.schema.nodes.block_figure)&&state.selection.empty },
+  //@ts-ignore
+  enable(state) { return canInsert(state, state.schema.nodes.block_figure) && state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && ['figures_nodes_container', 'block_figure'].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
   icon: createCustomIcon('addfigure.svg', 18)
 })
 
@@ -187,7 +192,7 @@ export const insertTableItem = new MenuItem({
   title: 'Insert table',
   label: 'Insert table',
   //@ts-ignore
-  run:  (state: EditorState, dispatch?: (tr: Transaction) => boolean, view?: EditorView) => {
+  run: (state: EditorState, dispatch?: (tr: Transaction) => boolean, view?: EditorView) => {
     if (dispatch) {
       let rows, cols;
       const tableSizePickerDialog = sharedDialog.open(TableSizePickerComponent, {

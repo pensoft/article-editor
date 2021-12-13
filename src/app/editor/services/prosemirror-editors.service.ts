@@ -111,6 +111,11 @@ export class ProsemirrorEditorsService {
   defaultValuesObj: any = {}
   editorsDeleteArray: string[] = []
 
+  rerenderFigures:any
+  setFigureRerenderFunc = (fn:any)=>{
+    this.rerenderFigures = fn;
+  }
+
   constructor(
     private menuService: MenuService,
     private detectFocusService: DetectFocusService,
@@ -230,8 +235,8 @@ export class ProsemirrorEditorsService {
     let GroupControl = this.treeService.sectionFormGroups;
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!,this.editorContainers,this.interpolateTemplate,GroupControl,section ),
-      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!),
+      appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!,this.editorContainers,this.rerenderFigures,this.interpolateTemplate,GroupControl,section ),
+      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.rerenderFigures,editorID),
     })
 
     setTimeout(() => {
@@ -346,8 +351,8 @@ export class ProsemirrorEditorsService {
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!,this.editorContainers,this.interpolateTemplate),
-      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!),
+      appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!,this.editorContainers,this.rerenderFigures,this.interpolateTemplate),
+      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.rerenderFigures,editorId),
     })
     //let inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, endEditorSchema!.nodes.math_inline);
     //let blockMathInputRule = makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, endEditorSchema!.nodes.math_display);
@@ -486,7 +491,7 @@ export class ProsemirrorEditorsService {
       labelTag.textContent = componentLabel
       EditorContainer.appendChild(labelTag);
     }
-
+    let sectionID = options.sectionID
     if (!nodesArray) {
       doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, schema.nodes.paragraph.create({})))
     } else {
@@ -504,15 +509,22 @@ export class ProsemirrorEditorsService {
 
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
+      state:{
+        init(config){
+          return {sectionID:config.sectionID}
+        },
+        apply(tr, prev, _, newState){
+          return prev
+        }
+      },
       appendTransaction: (trs: Transaction<any>[], oldState: EditorState, newState: EditorState) => {
         let containerElement = document.createElement('div');
         let htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(newState.doc.content.firstChild!.content)
         containerElement.appendChild(htmlNOdeRepresentation);
         options.onChange(true, containerElement.innerHTML)
       },
-      filterTransaction(transaction: Transaction<any>, state: EditorState) {
-        return true
-      }
+      //filterTransaction:preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,sectionID)
+
     })
 
     /*fieldFormControl?.valueChanges.subscribe((data) => {
@@ -554,6 +566,7 @@ export class ProsemirrorEditorsService {
       ,
       // @ts-ignore
       sectionName: editorID,
+      sectionID:sectionID,
       editorType: 'popupEditor'
     });
     setTimeout(() => {

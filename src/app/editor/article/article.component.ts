@@ -39,7 +39,6 @@ export class ArticleComponent implements OnInit {
   }
 
   logYdoc(){
-    //console.log(this.ydocService.ydoc);
   }
 
   ngOnInit(): void {

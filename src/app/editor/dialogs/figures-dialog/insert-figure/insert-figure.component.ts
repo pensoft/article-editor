@@ -6,6 +6,7 @@ import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-edit
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { CommentsService } from '@app/editor/utils/commentsService/comments.service';
 import { figure } from '@app/editor/utils/interfaces/figureComponent';
+import { Plugin, PluginKey } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 
 export interface Task {
@@ -27,6 +28,7 @@ export class InsertFigureComponent implements AfterViewInit {
   figures: { [key: string]: figure }
   selectedFigures: boolean[] = []
   figuresComponentsChecked: { [key: string]: boolean[] } = {}
+  citats: any
 
   constructor(
     private ydocService: YdocService,
@@ -34,10 +36,11 @@ export class InsertFigureComponent implements AfterViewInit {
     private dialogRef: MatDialogRef<InsertFigureComponent>,
     private commentsPlugin: CommentsService,
     private prosemirrorEditorsService: ProsemirrorEditorsService,
-    @Inject(MAT_DIALOG_DATA) public data: { view: EditorView }
+    @Inject(MAT_DIALOG_DATA) public data: { view: EditorView, citatData: any }
   ) {
     this.figuresData = this.ydocService.figuresMap?.get('ArticleFiguresNumbers')
     this.figures = this.ydocService.figuresMap?.get('ArticleFigures')
+    this.citats = this.ydocService.figuresMap?.get('articleCitatsObj')
     Object.keys(this.figures).forEach((figID, i) => {
       this.figuresComponentsChecked[figID] = this.figures[figID].components.map(c => false);
       this.selectedFigures[i] = false;
@@ -52,7 +55,6 @@ export class InsertFigureComponent implements AfterViewInit {
     if (typeof figComponentIndex == 'number') {
       this.figuresComponentsChecked[figureId][figComponentIndex] = checked
       this.selectedFigures[figIndex] = this.figuresComponentsChecked[figureId].filter(e => e).length > 0
-
     } else {
       this.figuresComponentsChecked[figureId] = this.figuresComponentsChecked[figureId].map(el => checked)
       this.selectedFigures[figIndex] = checked
@@ -60,6 +62,51 @@ export class InsertFigureComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    /* {
+    "citated_figures": [
+        "323c824e-e592-4e21-ad1f-48cc67270e1e"
+    ],
+    "citateid": "e24a2820-1b4d-49ec-aeae-e3c19edf1cf1",
+    "last_time_updated": 1639133486636,
+    "figures_display_view": [
+        "323c824e-e592-4e21-ad1f-48cc67270e1e"
+    ],
+    "controlPath": "",
+    "formControlName": "",
+    "contenteditableNode": "false",
+    "menuType": "",
+    "commentable": "",
+    "invalid": "false",
+    "styling": ""
+} */
+    try {
+      if(this.data.citatData){
+        //@ts-ignore
+        let sectionID = this.commentsPlugin.commentPluginKey.getState(this.data.view.state).sectionName
+        //let sectionID = pluginData.sectionName
+        let citat = this.citats[sectionID][this.data.citatData.citateid];
+        (citat.figureIDs as string[]).forEach((figure)=>{
+          if(figure.includes('|')){
+            let splitData = figure.split('|');
+            let figId = splitData[0];
+            let figCompId = splitData[1];
+            this.figuresComponentsChecked[figId][+figCompId] = true
+            let index = this.figuresData?.indexOf(figId)
+            this.selectedFigures[index!] = true
+
+          }else{
+            let figId = figure;
+            let index = this.figuresData?.indexOf(figId)
+            this.selectedFigures[index!] = true
+            this.figuresComponentsChecked[figId].forEach((el,i)=>{
+              this.figuresComponentsChecked[figId][i] = true
+            })
+          }
+        })
+      }
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   citateFigures() {
@@ -71,8 +118,7 @@ export class InsertFigureComponent implements AfterViewInit {
         }, 3000)
       } else {
         let sectionID = this.commentsPlugin.commentPluginKey.getState(this.data.view.state).sectionName
-        this.figuresControllerService.citateFigures(this.selectedFigures, this.figuresComponentsChecked, sectionID)
-        this.prosemirrorEditorsService.dispatchEmptyTransaction()
+        this.figuresControllerService.citateFigures(this.selectedFigures, this.figuresComponentsChecked, sectionID,this.data.citatData)
         this.dialogRef.close()
       }
     }

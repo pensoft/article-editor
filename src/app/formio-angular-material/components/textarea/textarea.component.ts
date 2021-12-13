@@ -4,7 +4,7 @@ import { MaterialComponent } from '../MaterialComponent';
 import TextAreaComponent from 'formiojs/components/textarea/TextArea.js';
 import isNil from 'lodash/isNil';
 import { FormControl, Validators } from '@angular/forms';
-import { DOMSerializer, DOMParser, Schema } from 'prosemirror-model';
+import { DOMSerializer, DOMParser, Schema, Fragment } from 'prosemirror-model';
 import { schema } from 'src/app/editor/utils/Schema';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
@@ -48,7 +48,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   };
   DOMPMParser = DOMParser.fromSchema(schema)
   value: any
-  instanceValidations:any
+  instanceValidations: any
   rerender = false;
   @ViewChild('ProsemirrorEditor', { read: ElementRef }) ProsemirrorEditor?: ElementRef;
 
@@ -61,7 +61,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     public ref: ChangeDetectorRef) {
     super(element, ref)
     this.editorContainer = undefined;
-    this.renderEditor=  true
+    this.renderEditor = true
   }
 
   setInstance(instance: any) {
@@ -84,11 +84,11 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
 
   onChange1 = (keepInputRaw: boolean, value1?: string) => {
     let hasChanges = value1?.match(/<span class="(deletion|insertion|format-change)"/gm);
-    if(hasChanges&&Object.keys(this.instance.component.validate).length>2){
+    if (hasChanges && Object.keys(this.instance.component.validate).length > 2) {
       this.instanceValidations = this.instance.component.validate
       this.instance.component.validate = {}
-    }else if(!hasChanges&&Object.keys(this.instance.component.validate).length==2){
-      this.instance.component.validate =  this.instanceValidations
+    } else if (!hasChanges && Object.keys(this.instance.component.validate).length == 2) {
+      this.instance.component.validate = this.instanceValidations
     }
     let temp = document.createElement('div');
     temp.innerHTML = value1!
@@ -147,11 +147,11 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     this.control.setValue(value);
   }
 
-  setRealValue(){
+  setRealValue() {
     this.rerender = true;
     this.instanceValidations = this.instance.component.validate
     this.instance.component.validate = {}
-    let containerElement = document.createElement('div');this.control.markAsTouched();
+    let containerElement = document.createElement('div'); this.control.markAsTouched();
     let htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(this.editorContainer?.editorView.state.doc.content.firstChild!.content!)
     containerElement.appendChild(htmlNOdeRepresentation);
     this.instance.updateValue(containerElement.innerHTML, { modified: true });
@@ -159,14 +159,14 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   }
 
   renderComponents() {
-    if(!this.rerender){
+    if (!this.rerender) {
       return
     }
     try {
-      this.value = this.control.value; 
+      this.value = this.control.value;
       //let node = editorData?[schema.nodeFromJSON(editorData)]:[];
       let options: any = {}
-      Object.keys(this.instance.component.properties).forEach((key)=>{
+      Object.keys(this.instance.component.properties).forEach((key) => {
         options[key] = this.instance.component.properties[key]
       })
       options.path = this.instance.path
@@ -176,11 +176,34 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       let node = this.value! ? this.DOMPMParser.parseSlice(temp) : undefined;
       //@ts-ignore
       this.editorContainer = this.prosemirrorService.renderEditorWithNoSync(this.ProsemirrorEditor?.nativeElement, this.instance, this.control, options, node);
-      this.instance.component.validate= this.instanceValidations 
-      this.onChange1(true,this.value!)
-      
+      let containersCount = 0
+      let edView = this.editorContainer.editorView;
+      edView.state.doc.descendants((el) => {
+        if (el.type.name == 'figures_nodes_container') {
+          containersCount++;
+        }
+      })
+      let deleted = false;
+      let tr1: any
+      let del = () => {
+        deleted = false
+        tr1 = edView.state.tr
+        edView.state.doc.descendants((node, position, parent) => {
+          if (node.type.name == 'figures_nodes_container' && !deleted) {
+            deleted = true
+            tr1 = tr1.replaceWith(position, position + node.nodeSize, Fragment.empty)
+          }
+        })
+        edView.dispatch(tr1)
+      }
+      for (let index = 0; index < containersCount; index++) {
+        del()
+      }
+      this.instance.component.validate = this.instanceValidations
+      this.onChange1(true, this.value!)
+
       this.renderEditor = true;
-    
+
     } catch (e) {
       console.error(e);
     }
@@ -191,10 +214,10 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     let awaitValue = () => {
       setTimeout(() => {
         if (this.value !== undefined) {
-          try{
+          try {
             this.rerender = true
             this.renderComponents()
-          }catch(e){
+          } catch (e) {
             console.error(e);
           }
         } else {
@@ -216,7 +239,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   }
 
   validateOnInit() {
-    
+
     return
     const { key } = this.instance.component;
     const validationValue = this.editorContainer?.editorView.state
@@ -245,7 +268,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
 
 
   render(editorData: any) {
-    
+
   }
 }
 TextAreaComponent.MaterialComponent = MaterialTextareaComponent;

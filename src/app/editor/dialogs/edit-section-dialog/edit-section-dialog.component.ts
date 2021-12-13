@@ -77,6 +77,5 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
   }
 
   onNoClick(): void {
-    //console.log('CLOSED');
   }
 }

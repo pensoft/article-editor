@@ -59,20 +59,48 @@ export const handleDoubleClick = (hideshowPluginKEey:PluginKey)=>{
 }
 export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
     let sel = view.state.selection
-    let { $anchor,$head,from, to, empty } = sel
+    let { $from,$to} = sel
     let key = event.key
-    let noneditableNodes = true;
+    let canEdit = false;
     /* if (sel instanceof CellSelection) {
         from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
         to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);
     } */
-    let nodeAtFrom = $anchor.parent
-    let nodeAtTo = $head.parent
+    /* check the both siddes of the selection and check if there are in the same depth -> means that the selection sides are on the same level 
+      true
+        loop the parents of the sides and search for form_field if there is a parent form field check if its the same for both sides and use it as parent ref
+            if there is no form_field parent find the first parent thats the same for both selection sides and use it as parent ref
+        check if the parent ref alows editing 
+    */   
+    if($from.depth==$to.depth){
+        //@ts-ignore
+        let pathAtFrom:Array<Node|number> = $from.path
+        //@ts-ignore
+        let nodeAtTo:Array<Node|number> = $to.path 
 
-    if(nodeAtFrom == nodeAtTo&&nodeAtTo!.attrs.contenteditableNode !== "false"){
-        noneditableNodes = false;
+        let parentRef : Node|undefined 
+        //search parents
+        for(let i = nodeAtTo.length;i>-1;i--){
+            if(i%3==0){
+                let parentFrom = pathAtFrom[i] as Node
+                let parentTo = nodeAtTo[i] as Node
+                if(parentFrom == parentTo){
+                    if(!parentRef){
+                        parentRef = parentFrom
+                    }else if(parentFrom.type.name == 'form_field'&&parentRef.type.name !== 'form_field'){
+                        parentRef = parentFrom
+                    }
+
+                }
+            }
+        }
+
+        if(parentRef?.attrs.contenteditableNode !== 'false'){
+            canEdit = true
+        }
     }
-    console.log(noneditableNodes);
+    
+    
     /* view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
         if (node.attrs.contenteditableNode == "false") {
             if(node.type.name == ){
@@ -95,6 +123,9 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
             }
         }
     }) */
+    if (key == 'Delete' || key == 'Backspace') {
+        view.state.tr = view.state.tr.setMeta('userDeletion',true)
+    }
     /* if (key == 'Delete' || key == 'Backspace') {
       if (!sel.empty) {
         return noneditableNodes
@@ -126,7 +157,7 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
         return noneditableNodes
       }
     }*/
-    if (noneditableNodes) {
+    if (!canEdit) {
         if (key == 'ArrowRight' ||
             key == 'ArrowLeft' ||
             key == 'ArrowDown' ||

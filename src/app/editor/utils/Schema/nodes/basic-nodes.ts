@@ -49,7 +49,7 @@ export const nodes = {
         toDOM: function toDOM(node: Node) { return [node.attrs.tagName,{...genericAttributtesToDom(node)}, 0] }
     },
     code_block: {
-        content: "text*",
+        content: "inline*",
         attrs:{
             ...getGenericAttributes()
         },

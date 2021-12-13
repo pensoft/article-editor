@@ -73,8 +73,6 @@ export const inline_block_container= {
     toDOM(node: any) {
         let attributesToDom: any = {
             ...genericAttributtesToDom(node),
-            style:'display:flex;'
-
         }
         return ["inline-block-container", attributesToDom, 0];
     }
@@ -111,6 +109,6 @@ export const nodes: NodeSpec = {
     ...basicNodes,
     ...MathNodes,
     ...listNodes,
-    video
 }
+
 

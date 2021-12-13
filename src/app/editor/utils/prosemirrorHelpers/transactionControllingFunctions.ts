@@ -23,6 +23,7 @@ export const updateControlsAndFigures = (
       dispatchTransaction: any
     }
   },
+  rerenderFigures: (citats: any) => any,
   interpolateTemplate: any,
   GroupControl?: any,
   section?: articleSection) => {
@@ -71,45 +72,59 @@ export const updateControlsAndFigures = (
               }) */
               figuresMap.set('ArticleFigures', JSON.parse(JSON.stringify(figures)))
             } else if (node.type.name == "citation") {
+              if (!figuresCitats[section?.sectionID!][node.attrs.citateid]) {
+                let attrs = node.attrs
+                if (!transaction.getMeta('y-sync$')) {
+                  let redefinedCitat: any = {}
+                  redefinedCitat.figureIDs = attrs.citated_figures
+                  redefinedCitat.position = pos
+                  redefinedCitat.lastTimeUpdated = attrs.last_time_updated
+                  redefinedCitat.displaydFiguresViewhere = attrs.figures_display_view
+                  figuresCitats[section?.sectionID!][node.attrs.citateid] = redefinedCitat
+                  setTimeout(rerenderFigures(figuresCitats),0)
+                  //debugger
+                } else if (transaction.getMeta('y-sync$')) {
+                  figuresCitats[section?.sectionID!][node.attrs.citateid] = undefined
+                }
+              }
 
               let citateData = figuresCitats[section?.sectionID!][node.attrs.citateid]
               citateData.position = pos
               tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, last_time_updated: citateData.lastTimeUpdated })
               let edView = editorContainers[section?.sectionID!].editorView
 
+              let resolvedPositionOfCitat: ResolvedPos
               //@ts-ignore
-              let parentIndexAndOffset = newState.doc.content.findIndex(pos)
-              let parentNode = newState.doc.content.child(parentIndexAndOffset.index)
-              let posAtParentBorder = parentIndexAndOffset.offset + parentNode.nodeSize
-              let resolvedPositionATparentNodeBorder = newState.doc.resolve(posAtParentBorder)
+              //let parentIndexAndOffset:any
+              let parentNode: Node
+              let posAtParentBorder: number
+              let resolvedPositionATparentNodeBorder: ResolvedPos
 
               //let shouldRerender = false
               let oldDisplayViewsInCitat = [...node.attrs.figures_display_view];
               /* if((!resolvedPositionATparentNodeBorder.nodeAfter||resolvedPositionATparentNodeBorder.nodeAfter.type.name !=='figures_nodes_container')&&oldDisplayViewsInCitat.length>0){
-                console.log('shouldRerender');
                 shouldRerender = true;
               } */
-              
+
               if (node.attrs.last_time_updated !== citateData.lastTimeUpdated/* ||shouldRerender */) {
                 let newDisplayViewsInCitat = citateData.displaydFiguresViewhere;
                 tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, last_time_updated: citateData.lastTimeUpdated, figures_display_view: newDisplayViewsInCitat })
-                
-                let viewsToRemove: string[] = newDisplayViewsInCitat?oldDisplayViewsInCitat.reduce((prev, curr, i) => {
-                  return newDisplayViewsInCitat.includes(curr) ? prev : prev.concat([curr])
-                }, []):[]
-                
-                let viewsToAdd: string[] = newDisplayViewsInCitat?newDisplayViewsInCitat.reduce((prev: any[], curr: string, i: number) => {
-                  return oldDisplayViewsInCitat.includes(curr) ? prev : prev.concat([curr])
-                }, []):[]
 
-                console.log();
+                let viewsToRemove: string[] = newDisplayViewsInCitat ? oldDisplayViewsInCitat.reduce((prev, curr, i) => {
+                  return newDisplayViewsInCitat.includes(curr) ? prev : prev.concat([curr])
+                }, []) : []
+
+                let viewsToAdd: string[] = newDisplayViewsInCitat ? newDisplayViewsInCitat.reduce((prev: any[], curr: string, i: number) => {
+                  return oldDisplayViewsInCitat.includes(curr) ? prev : prev.concat([curr])
+                }, []) : []
+
                 /* if(shouldRerender){
                   viewsToAdd = newDisplayViewsInCitat
                   viewsToRemove = []
                 }else{ }*/
-                  viewsToAdd = newDisplayViewsInCitat
-                  viewsToRemove = []
-                
+                viewsToAdd = newDisplayViewsInCitat || []
+                viewsToRemove = []
+
                 let figureViewsToAdd: { [key: string]: number[], } = {}
                 viewsToAdd.forEach((figID: string) => {
                   let fid: string
@@ -148,9 +163,7 @@ export const updateControlsAndFigures = (
                 })
                 let doneEditing = new Subject();
                 let citatID = node.attrs.citateid
-                if(Object.keys(figureViewsToAdd).length>0){
-                  console.log(`citat ${node.textContent} : ${citatID} adding ${JSON.stringify(figureViewsToAdd,undefined,'\t')}`);
-                }
+
                 let editFigureContainer = (
                   citatID: string,
                   dispatchSubject: Subject<any>,
@@ -158,7 +171,7 @@ export const updateControlsAndFigures = (
                   figureViewsToAdd: { [key: string]: number[], },
                   edView: EditorView) => {
                   setTimeout(() => {
-                    Object.keys(figureViewsToRemove).forEach((figureID) => {
+                    /* Object.keys(figureViewsToRemove).forEach((figureID) => {
                       let citatNewPosition: any
                       let contAfter = resolvedPositionATparentNodeBorder.nodeAfter
                       let updateMetaInfoRemove = () => {
@@ -172,19 +185,19 @@ export const updateControlsAndFigures = (
                         parentNode = edView.state.doc.content.child(parentIndexAndOffset.index)
                         posAtParentBorder = parentIndexAndOffset.offset + parentNode.nodeSize
                         resolvedPositionATparentNodeBorder = edView.state.doc.resolve(posAtParentBorder)
-
+ 
                         contAfter = resolvedPositionATparentNodeBorder.nodeAfter!
                       }
-
+ 
                       updateMetaInfoRemove()
                       let figureData = figures[figureID];
                       let removeStartIndex: number = -1
                       let removeEndIndex: number = -1
-
+ 
                       if (contAfter && contAfter.type.name == 'figures_nodes_container') {
                           let figComponentsStartIndex = figureViewsToRemove[figureID].length>0?Math.min(...figureViewsToRemove[figureID]):0
                           let figComponentsEndIndex = figureViewsToRemove[figureID].length>0?Math.max(...figureViewsToRemove[figureID]):figureData.components.length
-
+ 
                           let componentsCount = 0
                           contAfter.forEach((node, offset, index) => {
                             if (node.attrs.figure_id == figureID) {
@@ -205,7 +218,6 @@ export const updateControlsAndFigures = (
                               }
                             })
                             if (removeStartIndex !== -1) {
-                              console.log('removing whole figure',node.textContent);
                               edView.dispatch(edView.state.tr.replaceWith(removeStartIndex, removeEndIndex, Fragment.empty).setMeta('shouldTrack',false))
                             }
                           } else {
@@ -229,7 +241,6 @@ export const updateControlsAndFigures = (
                               }
                             })
                             if (removeStartIndex !== -1) {
-                              console.log('removing figure components',node.textContent,`from ${figComponentsStartIndex} to ${figComponentsEndIndex}`);
                               edView.dispatch(edView.state.tr.replaceWith(removeStartIndex, removeEndIndex, Fragment.empty).setMeta('shouldTrack',false))
                             }
                             updateMetaInfoRemove()
@@ -268,11 +279,10 @@ export const updateControlsAndFigures = (
                             }
                           })
                           if (removeStartIndex !== -1) {
-                            console.log('removing whole figure',node.textContent);
                             edView.dispatch(edView.state.tr.replaceWith(removeStartIndex, removeEndIndex, Fragment.empty).setMeta('shouldTrack',false))
                           }
                       }
-                    })
+                    })*/
 
                     Object.keys(figureViewsToAdd).forEach((figureID) => {
 
@@ -287,9 +297,9 @@ export const updateControlsAndFigures = (
                       serializedFigureToFormIOsubmission.figureID = figureData.figureID
                       serializedFigureToFormIOsubmission.figureNumber = figureData.figureNumber
                       serializedFigureToFormIOsubmission.viewed_by_citat = citatID
-
+                      /*
                       let renderingFullFigureView = true
-                      if (figureViewsToAdd[figureID].length > 0) {
+                       if (figureViewsToAdd[figureID].length > 0) {
                         renderingFullFigureView = false
                         let figComponentsStartIndex = Math.min(...figureViewsToAdd[figureID])
                         let figComponentsEndIndex = Math.max(...figureViewsToAdd[figureID])
@@ -305,14 +315,13 @@ export const updateControlsAndFigures = (
                         if (figComponentsStartIndex !== 0) {
                           serializedFigureToFormIOsubmission.figureDescription = undefined
                         }
-                      }
+                      } */
                       interpolateTemplate(figureTemplate!.html, serializedFigureToFormIOsubmission).then((data: any) => {
                         let templ = document.createElement('div')
                         templ.innerHTML = data
                         let Slice = DOMPMParser.parse(templ.firstChild!)
                         dispatchSubject.next(
                           {
-                            renderingFullFigureView,
                             citatID,
                             renderedData: Slice.content.firstChild,
                             edView,
@@ -328,70 +337,95 @@ export const updateControlsAndFigures = (
                 doneEditing.subscribe((data: any) => {
                   try {
                     let citatNewPosition: any
+                    let wrappingNodes = ['paragraph', 'heading', 'table', 'code_block', 'ordered_list', 'bullet_list', 'math_inline', 'math_display']
                     let updateMetaInfo = () => {
                       data.edView.state.doc.descendants((node: any, pos: any, i: any) => {
                         if (node.type.name == "citation" && node.attrs.citateid == data.citatID) {
                           citatNewPosition = pos
                         }
                       })
+                      if (!citatNewPosition) {
+                        return
+                      }
+                      resolvedPositionOfCitat = data.edView.state.doc.resolve(citatNewPosition)
                       //@ts-ignore
-                      parentIndexAndOffset = data.edView.state.doc.content.findIndex(citatNewPosition)
-                      parentNode = data.edView.state.doc.content.child(parentIndexAndOffset.index)
-                      posAtParentBorder = parentIndexAndOffset.offset + parentNode.nodeSize
+                      let resolvedCitationPath: Array<Node | number> = resolvedPositionOfCitat.path
+
+                      let offsetOfwrappingParent: number
+                      let wrappingParent
+                      let nodeAfterWrappingParent
+
+
+                      for (let i = resolvedCitationPath.length - 1; i > -1; i--) {
+                        let el = resolvedCitationPath[i];
+                        if (el instanceof Node) {
+                          if (wrappingNodes.includes(el.type.name)) {
+                            offsetOfwrappingParent = resolvedCitationPath[i - 1] as number
+                            wrappingParent = el
+                          }
+                        }
+                      }
+
+                      posAtParentBorder = offsetOfwrappingParent! + wrappingParent?.nodeSize!
                       resolvedPositionATparentNodeBorder = data.edView.state.doc.resolve(posAtParentBorder)
+                      contAfter = edView.state.doc.nodeAt(posAtParentBorder)!;
+                      //@ts-ignore
+                      //parentIndexAndOffset = data.edView.state.doc.content.findIndex(citatNewPosition)
+                      /* parentNode = data.edView.state.doc.content.child(parentIndexAndOffset.index)
+                      posAtParentBorder = parentIndexAndOffset.offset + parentNode.nodeSize
+                      resolvedPositionATparentNodeBorder = data.edView.state.doc.resolve(posAtParentBorder) */
 
                       contAfter = resolvedPositionATparentNodeBorder.nodeAfter!
                     }
 
-                    let contAfter = resolvedPositionATparentNodeBorder.nodeAfter
+                    let contAfter: Node | null
                     updateMetaInfo()
+                    //@ts-ignore
                     if (contAfter && contAfter.type.name == 'figures_nodes_container') {
 
-                      if (data.renderingFullFigureView) {
-                        let insertFrom: number = posAtParentBorder + 1
-                        let figureIsRendered = false;
-                        contAfter.content.forEach((node, offset, index) => {
-                          if(node.attrs.figure_number == data.figureData.figureNumber){
-                            figureIsRendered = true
-                          }
-                          if (node.attrs.figure_number < data.figureData.figureNumber) {
-                            insertFrom = posAtParentBorder + 1 + offset + node.nodeSize
+                      let insertFrom: number = posAtParentBorder + 1
+                      let figureIsRendered = false;
+                      contAfter.content.forEach((node, offset, index) => {
+                        if (node.attrs.figure_number == data.figureData.figureNumber) {
+                          figureIsRendered = true
+                        }
+                        if (node.attrs.figure_number < data.figureData.figureNumber) {
+                          insertFrom = posAtParentBorder + 1 + offset + node.nodeSize
+                        }
+                      })
+                      if (!figureIsRendered) {
+                        edView.dispatch(edView.state.tr.insert(insertFrom, data.renderedData).setMeta('shouldTrack', false))
+                      } else {
+                        let replaceStart: number = -1
+                        let replaceEnd: number = -1
+                        contAfter.forEach((node, offset, index) => {
+                          if (node.attrs.figure_number == data.figureData.figureNumber) {
+                            replaceStart = posAtParentBorder + 1 + offset
+                            replaceEnd = posAtParentBorder + 1 + offset + node.nodeSize
                           }
                         })
-                        if(!figureIsRendered){
-                          console.log('inserting whole figure',node.textContent);
-                          edView.dispatch(edView.state.tr.insert(insertFrom, data.renderedData).setMeta('shouldTrack',false))
-                        }else{
-                          let replaceStart:number = -1
-                          let replaceEnd:number = -1
-                          contAfter.forEach((node, offset, index) => {
-                            if (node.attrs.figure_number == data.figureData.figureNumber) {
-                              replaceStart = posAtParentBorder + 1 + offset
-                              replaceEnd = posAtParentBorder + 1 + offset + node.nodeSize
-                            }
-                          })
-                          if (replaceStart !== -1) {
-                            console.log('inserting whole figure',node.textContent);
-                            edView.dispatch(edView.state.tr.replaceWith(replaceStart, replaceEnd, data.renderedData).setMeta('shouldTrack',false))
-                          }
+                        if (replaceStart !== -1) {
+                          edView.dispatch(edView.state.tr.replaceWith(replaceStart, replaceEnd, data.renderedData).setMeta('shouldTrack', false))
                         }
+                      }
+                      /* if (data.renderingFullFigureView) {
                       } else {
                         updateMetaInfo()
                         let insertFrom: number = posAtParentBorder
-
+ 
                         let insertDescription: number = -1
-
+ 
                         let componentsAreRendered = false
-
+ 
                         let insertImgAndVideos: number = -1
-
-
+ 
+ 
                         let figureIsRendered = false
-
+ 
                         let componentsImgsAndVideos = data.renderedData.content.firstChild?.content.content
                         let figureDescription = data.renderedData.content.child(1).content
                         let componentsDescriptions: Node[] = []
-
+ 
                         figureDescription?.forEach((node: Node) => {
                           if (node.type.name == "figure_component_description") {
                             if (node.attrs.component_number == '0') {
@@ -418,12 +452,11 @@ export const updateControlsAndFigures = (
                           }
                         })
                         if (insertDescription !== -1&&!componentsAreRendered&&figureIsRendered) {
-                          console.log('inserting figure components',node.textContent,'componentMinIndex',data.componentMinIndex,componentsImgsAndVideos.length);
                           edView.dispatch(edView.state.tr.insert(insertDescription, componentsDescriptions).setMeta('shouldTrack',false))
                         }
-
+ 
                         updateMetaInfo()
-
+ 
                         contAfter.content.forEach((node, offset, index) => {
                           if (node.attrs.figure_id == data.figureData.figureID) {
                             node.content.forEach((nodeInFig, offsetInFig, indexInFig) => {
@@ -452,17 +485,19 @@ export const updateControlsAndFigures = (
                           })
                           edView.dispatch(edView.state.tr.insert(insertFrom, data.renderedData).setMeta('shouldTrack',false))
                         }
-                      }
+                      } */
                     } else {
+                      if (!resolvedPositionATparentNodeBorder) {
+                        return
+                      }
                       let container = schema.nodes.figures_nodes_container.create({}, data.renderedData);
-                      console.log('inserting figure with figure container',node.textContent);
-                      edView.dispatch(edView.state.tr.insert(resolvedPositionATparentNodeBorder.pos, container).setMeta('shouldTrack',false))
+                      edView.dispatch(edView.state.tr.insert(resolvedPositionATparentNodeBorder.pos, container).setMeta('shouldTrack', false))
                     }
                   } catch (e) {
                     console.error(e);
                   }
                 })
-              } 
+              }
             }
             if (GroupControl && node.attrs.formControlName && GroupControl[section!.sectionID]) {      // validation for the formCOntrol
               try {
@@ -502,14 +537,39 @@ export const updateControlsAndFigures = (
 }
 
 
-export const preventDragDropCutOnNoneditablenodes = (figuresMap:YMap<any>)=>{
+export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>, rerenderFigures: (citats: any) => any, sectionID: string) => {
 
-  return  (transaction: Transaction<any>, state: EditorState) => {
+  return (transaction: Transaction<any>, state: EditorState) => {
     try {
+      if (sectionID == 'endEditor') {
+        return true
+      }
       let figures = figuresMap.get('ArticleFigures');
       let figuresCitats = figuresMap.get('articleCitatsObj');
       let figuresTemplates = figuresMap!.get('figuresTemplates');
-
+      if (transaction.steps.length > 0) {
+        transaction.steps.forEach((step) => {
+          if (step instanceof ReplaceStep) {
+            //@ts-ignore
+            let replacingSlice = state.doc.slice(step.from, step.to)
+            replacingSlice.content.descendants((node, pos, parent) => {
+              if (node.type.name == 'citation') {
+                let citatID = node.attrs.citateid
+                //@ts-ignore
+                if (figuresCitats[sectionID][citatID] && transaction.getMeta('y-sync$')) {
+                  //@ts-ignore
+                } else if (figuresCitats[sectionID][citatID] && !transaction.getMeta('y-sync$')) {
+                }
+                setTimeout(()=>{
+                  figuresCitats[sectionID][citatID] = undefined
+                  figuresMap.set('articleCitatsObj', figuresCitats)
+                  rerenderFigures(figuresCitats)
+                },10)
+              }
+            })
+          }
+        })
+      }
       //@ts-ignore
       let meta = transaction.meta
       if (meta.uiEvent || Object.keys(meta).includes('cut') || Object.keys(meta).includes('drop')) {
@@ -557,7 +617,7 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap:YMap<any>)=>{
           }
         } else if (meta.uiEvent == 'drop' || Object.keys(meta).includes('drop')) {
           let dropPosPath: Array<number | Node> = trSel.$anchor.path
-  
+
           let index = dropPosPath.length - 1
           while (index >= 0 && !dropIsInTable) {
             let arrayElement = dropPosPath[index]
@@ -588,21 +648,7 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap:YMap<any>)=>{
           }
         }
       }
-      /* if(transaction.steps.length>0){
-        transaction.steps.forEach((step)=>{
-          if(step instanceof ReplaceStep){
-            //@ts-ignore
-            let replacingSlice = state.doc.slice(step.from,step.to)
-            replacingSlice.content.descendants((node)=>{
-              if(node.type.name == 'citation'){
-                console.log(node);
-                let citatID = node.attrs.citateid
 
-              }
-            })
-          }
-        })
-      } */
     } catch (e) {
       console.error(e);
     }
