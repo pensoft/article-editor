@@ -112,6 +112,9 @@ export class ProsemirrorEditorsService {
   defaultValuesObj: any = {}
   editorsDeleteArray: string[] = []
 
+  
+  citatEditingSubject:Subject<any> = new Subject<any>()
+  deletedCitatsInPopUp :{[key:string]:string[]}= {}
   rerenderFigures:any
   setFigureRerenderFunc = (fn:any)=>{
     this.rerenderFigures = fn;
@@ -139,7 +142,33 @@ export class ProsemirrorEditorsService {
       trackCHangesMetadata.trackTransactions = data.trackTransactions
       this.ydocService.trackChangesMetadata?.set('trackChangesMetadata', trackCHangesMetadata);
     })
+
+    this.citatEditingSubject.subscribe((data)=>{
+      if(data.action == 'delete'){
+        if(!this.deletedCitatsInPopUp[data.sectionID]){
+          this.deletedCitatsInPopUp[data.sectionID] = [data.citatID]
+        }else{
+          this.deletedCitatsInPopUp[data.sectionID].push(data.citatID)
+        }
+      }else if(data.action == "clearDeletedCitatsFromPopup"){
+        Object.keys(this.deletedCitatsInPopUp).forEach((sectionID)=>{
+          delete this.deletedCitatsInPopUp[sectionID];
+        })
+      }else if(data.action == "deleteCitatsFromDocument"){
+        let citatsObj = this.ydocService.figuresMap?.get('articleCitatsObj');
+        Object.keys(this.deletedCitatsInPopUp).forEach((sectionID)=>{
+          this.deletedCitatsInPopUp[sectionID].forEach((citatid)=>{
+            citatsObj[sectionID][citatid] = undefined
+          })
+          delete this.deletedCitatsInPopUp[sectionID];
+        })
+        this.ydocService.figuresMap?.set('articleCitatsObj',citatsObj);
+        this.rerenderFigures(citatsObj)
+      }
+    })
   }
+
+  
   getXmlFragment(mode: string = 'documentMode', id: string) {
     if (this.xmlFragments[id]) {
       return this.xmlFragments[id]
@@ -538,7 +567,7 @@ export class ProsemirrorEditorsService {
         containerElement.appendChild(htmlNOdeRepresentation);
         options.onChange(true, containerElement.innerHTML)
       },
-      //filterTransaction:preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,sectionID)
+      filterTransaction:preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.rerenderFigures,sectionID,this.citatEditingSubject)
 
     })
 

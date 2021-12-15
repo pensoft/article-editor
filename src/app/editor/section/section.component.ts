@@ -136,6 +136,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
       this.editSectionService.editChangeSubject.next(submision);
       this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
       this.figuresControllerService.markCitatsViews(this.ydocService.figuresMap?.get('articleCitatsObj'));
+      
     } catch (err: any) {
       this.error = true;
       this.errorMessage += 'An error occurred while interpolating the template.\n';

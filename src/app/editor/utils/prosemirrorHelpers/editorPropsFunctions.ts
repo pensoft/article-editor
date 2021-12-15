@@ -1,4 +1,6 @@
 import { CompileShallowModuleMetadata } from "@angular/compiler";
+import { mathBackspaceCmd } from "@benrbray/prosemirror-math";
+import { debug } from "console";
 import { Fragment, ResolvedPos, Slice ,Node} from "prosemirror-model";
 import { PluginKey, PluginSpec, TextSelection,Selection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
@@ -69,6 +71,8 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
         let { $from,$to} = sel
         let key = event.key
         let canEdit = false;
+        
+        
         /* if (sel instanceof CellSelection) {
             from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
             to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);
@@ -84,7 +88,14 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
             let pathAtFrom:Array<Node|number> = $from.path
             //@ts-ignore
             let pathAtTo:Array<Node|number> = $to.path 
-    
+            
+            if(sel instanceof CellSelection){
+                //@ts-ignore
+                pathAtFrom = sel.$anchorCell.path
+                //@ts-ignore
+                pathAtTo= sel.$headCell.path 
+            }
+
             let parentRef : Node|undefined 
             //search parents
             for(let i = pathAtTo.length;i>-1;i--){
@@ -101,13 +112,44 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
                     }
                 }
             }
-    
             if(parentRef?.attrs.contenteditableNode !== 'false'){
                 canEdit = true
             }
         }
+        let NodeBeforeHasNoneditableMark = sel.$anchor.nodeBefore?.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length!>0
+        let NodeAfterHasNoneditableMark = sel.$anchor.nodeAfter?.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length!>0
         
+        let onNoneditableMarkBorder :undefined|'left'|'right'= undefined
+        if(NodeBeforeHasNoneditableMark&&!NodeAfterHasNoneditableMark){
+            onNoneditableMarkBorder = 'right'
+        }else if(!NodeBeforeHasNoneditableMark&&NodeAfterHasNoneditableMark){
+            onNoneditableMarkBorder = 'left'
+        }else if(NodeBeforeHasNoneditableMark&&NodeAfterHasNoneditableMark){
+            canEdit = false
+        }
+        if(onNoneditableMarkBorder&&sel.empty){
+            if(onNoneditableMarkBorder == 'left'){
+                if(key == 'Delete'){
+                    canEdit = false
+                }
+            }else{
+                if(key == 'Backspace'){
+                    canEdit = false
+                }
+            }
+        }
+        // check both sides for noneditable marks
+
+        let check = (node:Node)=>{
+            if(node){
+                return node.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length>0
+            }
+            return false
+        }
         
+        if((check($from.nodeAfter!)||check($from.nodeBefore!)||check($to.nodeAfter!)||check($to.nodeBefore!))&&!onNoneditableMarkBorder){
+            canEdit = false
+        }
         /* view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
             if (node.attrs.contenteditableNode == "false") {
                 if(node.type.name == ){
@@ -164,7 +206,18 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
             return noneditableNodes
           }
         }*/
-        console.log('canEdit',canEdit);
+         /*  if(
+            !canEdit&&
+            key!=='Backspace'&&
+            sel.empty&&
+            sel.$anchor.nodeAfter?.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length==0&&
+            sel.$anchor.nodeBefore?.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length!>0&&
+            sel.$anchor.nodeBefore!.type.name == 'text'){
+            let resolvedPosition = view.state.doc.resolve(sel.from+2)
+            //view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,sel.from+1)))
+            return false
+            //view.dispatch(view.state.tr.setSelection(new Selection(resolvedPosition,resolvedPosition)))
+        } */
         if (!canEdit) {
             if (key == 'ArrowRight' ||
                 key == 'ArrowLeft' ||

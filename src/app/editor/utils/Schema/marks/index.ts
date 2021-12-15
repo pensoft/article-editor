@@ -5,6 +5,7 @@ import { marks as basicmarks } from './basic-marks';
 import { Node } from "prosemirror-model";
 import delFromPopup from "./trackChangesMarks/delFromPopupMark";
 import insFromPopup from "./trackChangesMarks/insFromPopup";
+import citation from "./trackChangesMarks/citation";
 
 const calcYChangeStyle = (ychange: any) => {
     switch (ychange.type) {
@@ -55,6 +56,7 @@ export const marks: MarkSpec = {
     ...trackChangesMarks,
     delFromPopup,
     insFromPopup,
+    citation,
     ...basicmarks,
     invalid: {
 

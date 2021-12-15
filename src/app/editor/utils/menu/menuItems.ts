@@ -1,10 +1,10 @@
 //@ts-ignore
 import { DocumentHelpers } from 'wax-prosemirror-utilities';
 import { toggleMark } from "prosemirror-commands";
-import { Dropdown, MenuItem,undoItem as undoItemPM,redoItem as redoItemPM} from "prosemirror-menu"
+import { Dropdown, MenuItem, undoItem as undoItemPM, redoItem as redoItemPM } from "prosemirror-menu"
 import { EditorState, NodeSelection, Transaction } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
-import { schema} from "../Schema";
+import { schema } from "../Schema";
 import { addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow, mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell, deleteTable } from "prosemirror-tables";
 import { icons } from 'prosemirror-menu'
 //@ts-ignore'../../y-prosemirror-src/y-prosemirror.js'
@@ -14,16 +14,17 @@ import { YMap } from "yjs/dist/src/internals";
 import { wrapInList } from "prosemirror-schema-list";
 import { Subject } from 'rxjs';
 import { canInsert, createCustomIcon } from './common-methods';
-import { insertFigure,insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem } from './menu-dialogs';
-import { MarkType, Node, NodeType,DOMParser,DOMSerializer } from 'prosemirror-model';
+import { insertFigure, insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem } from './menu-dialogs';
+import { MarkType, Node, NodeType, DOMParser, DOMSerializer, Mark } from 'prosemirror-model';
 
 //@ts-ignore
 import * as Y from 'yjs'
+import { D } from '@angular/cdk/keycodes';
 
 const undoIcon = {
     width: 1024, height: 1024,
     path: "M761 1024c113-206 132-520-313-509v253l-384-384 384-384v248c534-13 594 472 313 775z"
-  }
+}
 const redoIcon = {
     width: 1024, height: 1024,
     path: "M576 248v-248l384 384-384 384v-253c-446-10-427 303-313 509-280-303-221-789 313-775z"
@@ -37,7 +38,7 @@ const addCommentIcon = {
 export const cut = (arr: MenuItem<any>[]) => arr.filter(x => x)
 
 function getLinkMenuItemRun(state: EditorState, dispatch: any, view: EditorView) {
-    
+
 }
 
 function markItem(markType: MarkType, options: any) {
@@ -207,7 +208,7 @@ const undoYJS = new MenuItem({
     label: "undo",
     enable(state) { return true },
     //@ts-ignore
-    run:undo
+    run: undo
 })
 
 const redoYJS = new MenuItem({
@@ -215,7 +216,7 @@ const redoYJS = new MenuItem({
     label: "redo",
     enable(state) { return true },
     //@ts-ignore
-    run:redo
+    run: redo
 })
 
 const toggleSuperscriptItem = markItem(schema.marks.superscript, { title: 'Toggle superscript', icon: createCustomIcon('superscript.svg', 20) })
@@ -310,26 +311,30 @@ const spellCheckMenuItem = new MenuItem({
     icon: createCustomIcon('spellcheck.svg', 29)
 })
 function logNodesItemRun(state: EditorState, dispatch: any, view: EditorView) {
-    try{
+    try {
         let input_container = state.schema.nodes.input_container as NodeType;
         let input_label = state.schema.nodes.input_label as NodeType;
         let input_placeholder = state.schema.nodes.input_placeholder as NodeType;
+
+        let noneditableMark = state.schema.marks.noneditableMark as MarkType;
 
         /* let leb = input_label.create({text:'label'})
         let pl = input_placeholder.create({},schema.text('placeholder'))
         let co = input_container.create({},[leb,pl]); 
 
-        
-        let newTr = state.tr.replaceSelectionWith(co);
-        view.dispatch(newTr);*/
-        return true;
-    }catch(e){
+        */
+        let r = toggleMark(noneditableMark)(state,dispatch)
+        /* let text = schema.text('dwq', [noneditableMark.create()])
+        let newTr = state.tr.replaceSelectionWith(text)
+        view.dispatch(newTr); */
+        return true&&r;
+    } catch (e) {
         console.error(e);
     }
 }
 
 const logNodesMenuItem = new MenuItem({
-    title: 'Log Nodes',label:'LogDocNode',
+    title: 'Log Nodes', label: 'LogDocNode',
     // @ts-ignore
     run: logNodesItemRun,
     enable(state) { return true },
@@ -393,9 +398,9 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
     'highLightMenuItem': highLightMenuItem,
     'footnoteMenuItem': footnoteMenuItem,
     'spellCheckMenuItem': spellCheckMenuItem,
-    'toggleUnderline':toggleUnderline,
-    'logNodesMenuItem':logNodesMenuItem,
-    'insertFigure':insertFigure,
+    'toggleUnderline': toggleUnderline,
+    'logNodesMenuItem': logNodesMenuItem,
+    'insertFigure': insertFigure,
     // unfinished menu : 
     'textMenu': [toggleStrong, toggleEm, toggleUnderline, 'menuseparator', wrapOrderedList, wrapBulletList, 'menuseparator', toggleSubscriptItem, toggleSuperscriptItem, spellCheckMenuItem],
     'insertMenu': [insertImageItem, insertDiagramItem, new Dropdown(tableMenu, { class: "table-icon vertival-dropdown" }), footnoteMenuItem, functionItem, insertSpecialSymbolItem]

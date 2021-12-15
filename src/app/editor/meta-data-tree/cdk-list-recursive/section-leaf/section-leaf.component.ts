@@ -124,6 +124,11 @@ export class SectionLeafComponent implements OnInit {
             this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
               this.prosemirrorEditorsService.trackChangesMeta
             )
+            this.prosemirrorEditorsService.citatEditingSubject.next({action:'deleteCitatsFromDocument'})
+          }, 30)
+        }else{
+          setTimeout(() => {
+            this.prosemirrorEditorsService.citatEditingSubject.next({action:'clearDeletedCitatsFromPopup'})
           }, 30)
         }
       });

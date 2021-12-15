@@ -49,10 +49,11 @@ export const insertFigure = new MenuItem({
   // @ts-ignore
   run: (state: EditorState, dispatch?: (tr: Transaction) => boolean, view?: EditorView) => {
     let nodeAtCursor = state.selection.$from.parent
+    let nodeAt = state.doc.nodeAt(state.selection.from)
     let data
-    
-    if(nodeAtCursor.type.name == 'citation'){
-      data = JSON.parse(JSON.stringify(nodeAtCursor.attrs));
+    let citatmark = nodeAt?.marks.filter((mark)=>{return mark.type.name=='citation'})
+    if(citatmark?.length!>0){
+      data = JSON.parse(JSON.stringify(citatmark![0].attrs));
     }
     const dialogRef = sharedDialog.open(InsertFigureComponent, {
       width: '80%',
@@ -65,7 +66,7 @@ export const insertFigure = new MenuItem({
     return true;
   },
   //@ts-ignore
-  enable(state) { return canInsert(state, state.schema.nodes.block_figure) && state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && ['figures_nodes_container', 'block_figure'].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
+  enable(state) { return  state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && ['figures_nodes_container', 'block_figure'].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
   icon: createCustomIcon('addfigure.svg', 18)
 })
 

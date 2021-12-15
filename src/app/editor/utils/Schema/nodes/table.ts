@@ -1,3 +1,4 @@
+import { Node } from 'prosemirror-model';
 import { parseGenericAttributes, getGenericAttributes, genericAttributtesToDom } from '../helpers';
 
 function getCellAttrs(dom: any, extraAttrs: any) {
@@ -67,15 +68,15 @@ export function tableNodes(options: any) {
             group: options.tableGroup,
             parseDOM: [{
                 tag: "table", getAttrs(dom: any) {
-                    return {
-                        ...parseGenericAttributes(dom),
-                    }
+                    let attrs = {...parseGenericAttributes(dom)}
+                    console.log('parsingaAttributes',attrs);
+                    return attrs
                 }
             }],
-            toDOM: function toDOM(node: any) {
-                return ["table", {
-                    ...genericAttributtesToDom(node),
-                }, ["tbody", 0]]
+            toDOM(node: Node) {
+                let attrs = {...genericAttributtesToDom(node)}
+                console.log('toDomAttrs',attrs);
+                return ["table", attrs, ["tbody",attrs, 0]]
             }
         },
         table_row: {

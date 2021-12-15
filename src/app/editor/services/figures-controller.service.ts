@@ -1,8 +1,8 @@
 import { createViewChild, ViewFlags } from '@angular/compiler/src/core';
 import { AfterViewInit, Injectable, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { Fragment, Node, Slice } from 'prosemirror-model';
-import { EditorState ,Transaction} from 'prosemirror-state';
+import { Fragment, MarkType, Node, Schema, Slice } from 'prosemirror-model';
+import { EditorState, Transaction } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { figure, figure_component } from '../utils/interfaces/figureComponent';
 import { endEditorNodes, endEditorSchema, schema } from '../utils/Schema';
@@ -13,6 +13,8 @@ import { remove } from 'lodash';
 import { uuidv4 } from 'lib0/random';
 import { articleSection } from '../utils/interfaces/articleSection';
 import { Transform } from 'prosemirror-transform';
+import { debug } from 'console';
+import { I } from '@angular/cdk/keycodes';
 
 @Injectable({
   providedIn: 'root'
@@ -85,7 +87,8 @@ export class FiguresControllerService {
       //check selections
       let insertionView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
       let citats = this.ydocService.figuresMap?.get('articleCitatsObj');
-      let citatPos = insertionView.state.selection.from - insertionView.state.selection.$anchor.nodeBefore!.nodeSize - 1
+      let citatStartPos = insertionView.state.selection.$anchor.nodeBefore?insertionView.state.selection.from - insertionView.state.selection.$anchor.nodeBefore!.nodeSize:insertionView.state.selection.from
+      let citatEndPos = insertionView.state.selection.$anchor.nodeAfter?insertionView.state.selection.from + insertionView.state.selection.$anchor.nodeAfter!.nodeSize :insertionView.state.selection.from 
       let citateId
       if (citatAttrs) {
         citateId = citatAttrs.citateid
@@ -98,8 +101,8 @@ export class FiguresControllerService {
       } else if (selectedFigures.filter(e => e).length == 0 && citatAttrs) {
         citats[sectionID][citateId] = undefined
         insertionView.dispatch(insertionView.state.tr.replaceWith(
-          citatPos,
-          citatPos + insertionView.state.doc.nodeAt(citatPos)!.nodeSize,
+          citatStartPos,
+          citatEndPos,
           Fragment.empty)
         )
         this.markCitatsViews(citats)
@@ -117,29 +120,30 @@ export class FiguresControllerService {
         }
       }
       */
-      let citatString = selectedFigures.filter(e=>e).length>1 ? 'Figs.  ' : 'Fig.  ';
-      let citated:any = []
-      selectedFigures.forEach((fig,index)=>{
-        if(fig){
-          citated.push(index+1)
-          if(figuresComponentsChecked[this.figuresNumbers![index]].filter(e=>!e).length>0){
+      let citatString = selectedFigures.filter(e => e).length > 1 ? ' Figs.  ' : ' Fig.  ';
+      let citated: any = []
+      selectedFigures.forEach((fig, index) => {
+        if (fig) {
+          citated.push(index + 1)
+          if (figuresComponentsChecked[this.figuresNumbers![index]].filter(e => !e).length > 0) {
             let count = 0
-            figuresComponentsChecked[this.figuresNumbers![index]].forEach((comp,j)=>{
-              if(comp){
-                if(count==0){
-                  citated[citated.length-1]+=String.fromCharCode(97 + j)
+            figuresComponentsChecked[this.figuresNumbers![index]].forEach((comp, j) => {
+              if (comp) {
+                if (count == 0) {
+                  citated[citated.length - 1] += String.fromCharCode(97 + j)
                   count++
-                }else{
+                } else {
                   citated.push(String.fromCharCode(97 + j))
                   count++
                 }
               }
             })
           }
-          
+
         }
       })
-      citatString+=citated.join(',  ')
+      citatString += citated.join(',  ')
+      citatString += ' '
       let citatedFigureIds = selectedFigures.reduce<any>((prev, curr, index) => {
         if (curr) {
           if (figuresComponentsChecked[this.figuresNumbers![index]].filter(e => e).length == figuresComponentsChecked[this.figuresNumbers![index]].length) {// means the whole figure is citated
@@ -167,34 +171,49 @@ export class FiguresControllerService {
 
       citats[sectionID][citateId] = {
         figureIDs: citatedFigureIds,
-        position: citatAttrs ? citatPos : insertionView.state.selection.from,
+        position: citatAttrs ? citatStartPos : insertionView.state.selection.from,
         lastTimeUpdated: new Date().getTime()
       }
-      
+
       //this.changeFiguresPlaces(citatedFigureIds,sectionID)
       this.markCitatsViews(citats)
 
       let citateNodeText = citatString
+      let node = (insertionView.state.schema as Schema).text(citateNodeText) as Node
+      let mark = (insertionView.state.schema as Schema).mark('citation',{
+          "citated_figures": citatedFigureIds,
+          "citateid": citateId
+        })
+        node = node.mark([mark])
       if (citatAttrs) {
-        insertionView.dispatch(
-          insertionView.state.tr.replaceWith(citatPos,
-            citatPos + insertionView.state.doc.nodeAt(citatPos)!.nodeSize
-            , insertionView.state.schema.nodes.citation.create({
-              citated_figures: citatedFigureIds,
-              citateid: citateId
-            }, insertionView.state.schema.text(citateNodeText))
-          )
+        insertionView.dispatch(insertionView.state.tr.replaceWith(citatStartPos,
+          citatEndPos
+          , node)
         )
       } else {
-        insertionView.dispatch(
-          insertionView.state.tr.replaceSelectionWith(
-            insertionView.state.schema.nodes.citation.create({
-              citated_figures: citatedFigureIds,
-              citateid: citateId
-            }, insertionView.state.schema.text(citateNodeText))
-          )
+        insertionView.dispatch(insertionView.state.tr.replaceWith(insertionView.state.selection.from,
+          insertionView.state.selection.to
+          , node)
         )
       }
+      /*  if (citatAttrs) {
+         insertionView.dispatch(insertionView.state.tr.addMark(citatPos,
+           citatPos + insertionView.state.doc.nodeAt(citatPos)!.nodeSize
+           , insertionView.state.schema.marks.citation.create({
+             citated_figures: citatedFigureIds,
+             citateid: citateId
+           }, insertionView.state.schema.text(citateNodeText)))
+         )
+       } else {
+         insertionView.dispatch(
+           insertionView.state.tr.replaceSelectionWith(insertionView.state.schema.text('citateNodeText')
+             insertionView.state.schema.marks.citation.create({
+               citated_figures: citatedFigureIds,
+               citateid: citateId
+             }, insertionView.state.schema.text(citateNodeText))
+           )
+         )
+       } */
       /*
            this.figuresData = this.ydocService.figuresMap?.get('ArticleFigures');
           let insertionView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
@@ -235,7 +254,7 @@ export class FiguresControllerService {
 
   }
 
-  markCitatsViews = (citatsBySection: any)=> {
+  markCitatsViews = (citatsBySection: any) => {
     let numbersCopy: string[] = JSON.parse(JSON.stringify(this.figuresNumbers));
     this.figures = this.ydocService.figuresMap!.get('ArticleFigures')
     Object.keys(this.prosemirrorEditorsService.editorContainers).forEach((key) => {
@@ -274,7 +293,7 @@ export class FiguresControllerService {
 
       var sortable = [];
       for (var citat in citatsBySection[sectionID]) {
-        if(citatsBySection[sectionID][citat]){
+        if (citatsBySection[sectionID][citat]) {
           sortable.push([citat, citatsBySection[sectionID][citat]]);
         }
       }
@@ -404,9 +423,13 @@ export class FiguresControllerService {
     let nodeStart: number = view.state.doc.nodeSize - 2
     let nodeEnd: number = view.state.doc.nodeSize - 2
     let foundExistingFigure = false
-
+    this.figuresNumbers
     view.state.doc.nodesBetween(0, view.state.doc.nodeSize - 2, (node, pos, parent) => {
-      if (node.type.name == "block_figure" && node.attrs.figure_id == figureID) {
+      if (node.type.name == "block_figure" && this.figuresNumbers?.indexOf(node.attrs.figure_id)! > this.figuresNumbers?.indexOf(figureID)!&&!foundExistingFigure) {
+        foundExistingFigure = true
+        nodeStart =  pos ;
+        nodeEnd = pos 
+      }else if(node.type.name == "block_figure" &&  this.figuresNumbers?.indexOf(node.attrs.figure_id)! == this.figuresNumbers?.indexOf(figureID)!&&!foundExistingFigure){
         foundExistingFigure = true
         nodeStart = pos;
         nodeEnd = pos + node.nodeSize

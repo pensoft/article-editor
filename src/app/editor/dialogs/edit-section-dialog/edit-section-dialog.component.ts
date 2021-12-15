@@ -73,7 +73,6 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
 
   copySection(data: articleSection) {
     data.mode = 'editMode'
-    return
   }
 
   onNoClick(): void {

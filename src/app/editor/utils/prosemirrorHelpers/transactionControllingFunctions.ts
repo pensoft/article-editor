@@ -1,5 +1,5 @@
 import { FormControl, FormGroup } from "@angular/forms";
-import { DOMSerializer, Schema, Node, Fragment, ResolvedPos, Slice } from "prosemirror-model";
+import { DOMSerializer, Schema, Node, Fragment, ResolvedPos, Slice, Mark } from "prosemirror-model";
 import { EditorState, PluginKey, Transaction } from "prosemirror-state";
 import { DecorationSet, EditorView } from "prosemirror-view";
 import { YMap } from "yjs/dist/src/internals";
@@ -49,6 +49,7 @@ export const updateControlsAndFigures = (
           newState.doc.nodesBetween(0, newState.doc.nodeSize - 2, (node, pos, parent) => {
             //@ts-ignore
             node.parent = parent
+
             if (node.type.name == "block_figure") {
               let figure = figures[node.attrs.figure_id]
               node.content.forEach((node1, offset, index) => {
@@ -72,27 +73,31 @@ export const updateControlsAndFigures = (
                 component.description = getHtmlFromFragment(descriptions?.child(index + 2).content!.lastChild?.content!)
               }) */
               figuresMap.set('ArticleFigures', JSON.parse(JSON.stringify(figures)))
-            } else if (node.type.name == "citation") {
-              if (!figuresCitats[section?.sectionID!][node.attrs.citateid]) {
+            } else if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
+              let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
+              if (!figuresCitats[section?.sectionID!][citationMark.attrs.citateid]) {
                 if (!transaction.getMeta('y-sync$')) {
-                  console.log('adding missing figuresviews');
-                  let attrs = node.attrs
+                  let attrs = citationMark.attrs
                   let redefinedCitat: any = {}
                   redefinedCitat.figureIDs = attrs.citated_figures
                   redefinedCitat.position = pos
                   redefinedCitat.lastTimeUpdated = attrs.last_time_updated
                   redefinedCitat.displaydFiguresViewhere = attrs.figures_display_view
-                  figuresCitats[section?.sectionID!][node.attrs.citateid] = redefinedCitat
+                  figuresCitats[section?.sectionID!][citationMark.attrs.citateid] = redefinedCitat
                   setTimeout(rerenderFigures(figuresCitats), 0)
-                  //debugger
                 } else if (transaction.getMeta('y-sync$')) {
                   //figuresCitats[section?.sectionID!][node.attrs.citateid] = undefined
                 }
               }
 
-              let citateData = figuresCitats[section?.sectionID!][node.attrs.citateid]
+              let citateData = figuresCitats[section?.sectionID!][citationMark.attrs.citateid]
               citateData.position = pos
-              tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, last_time_updated: citateData.lastTimeUpdated })
+              //tr1.setNodeMarkup(pos, node.type, undefined,[citationMark.type.create({...citationMark.attrs, last_time_updated: citateData.lastTimeUpdated})])
+              let newNode = schema.text(node.textContent) as Node
+               let newMark = schema.mark('citation', { ...citationMark.attrs, last_time_updated: citateData.lastTimeUpdated })
+              /*newNode = newNode.mark([newMark])
+              tr1 = tr1.replaceWith(pos, node.nodeSize, newNode) */
+              tr1 = tr1.addMark(pos,pos+ node.nodeSize,newMark)
               let edView = editorContainers[section?.sectionID!].editorView
 
               let resolvedPositionOfCitat: ResolvedPos
@@ -103,14 +108,19 @@ export const updateControlsAndFigures = (
               let resolvedPositionATparentNodeBorder: ResolvedPos
 
               //let shouldRerender = false
-              let oldDisplayViewsInCitat = [...node.attrs.figures_display_view];
+              let oldDisplayViewsInCitat = [...citationMark.attrs.figures_display_view];
               /* if((!resolvedPositionATparentNodeBorder.nodeAfter||resolvedPositionATparentNodeBorder.nodeAfter.type.name !=='figures_nodes_container')&&oldDisplayViewsInCitat.length>0){
                 shouldRerender = true;
               } */
 
-              if (node.attrs.last_time_updated !== citateData.lastTimeUpdated/* ||shouldRerender */) {
+              if (citationMark.attrs.last_time_updated !== citateData.lastTimeUpdated/* ||shouldRerender */) {
                 let newDisplayViewsInCitat = citateData.displaydFiguresViewhere;
-                tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, last_time_updated: citateData.lastTimeUpdated, figures_display_view: newDisplayViewsInCitat })
+                let newNode = schema.text(node.textContent) as Node
+                let newMark = schema.mark('citation', { ...citationMark.attrs, last_time_updated: citateData.lastTimeUpdated, figures_display_view: newDisplayViewsInCitat })
+                /* newNode = newNode.mark([newMark])
+                tr1 = tr1.replaceWith(pos, node.nodeSize, newNode) */
+                tr1 = tr1.addMark(pos, pos+node.nodeSize,newMark)
+                //tr1 = tr1.setNodeMarkup(pos, node.type, undefined, [citationMark.type.create()])
 
                 let viewsToRemove: string[] = newDisplayViewsInCitat ? oldDisplayViewsInCitat.reduce((prev, curr, i) => {
                   return newDisplayViewsInCitat.includes(curr) ? prev : prev.concat([curr])
@@ -164,7 +174,7 @@ export const updateControlsAndFigures = (
                   }
                 })
                 let doneEditing = new Subject();
-                let citatID = node.attrs.citateid
+                let citatID = citationMark.attrs.citateid
 
                 let editFigureContainer = (
                   citatID: string,
@@ -285,9 +295,7 @@ export const updateControlsAndFigures = (
                           }
                       }
                     })*/
-
                     Object.keys(figureViewsToAdd).forEach((figureID) => {
-
                       let figureData = figures[figureID];
                       let figureTemplate = figuresTemplates[figureID];
 
@@ -341,8 +349,10 @@ export const updateControlsAndFigures = (
                     let citatNewPosition: any
                     let wrappingNodes = ['paragraph', 'heading', 'table', 'code_block', 'ordered_list', 'bullet_list', 'math_inline', 'math_display']
                     let updateMetaInfo = () => {
-                      data.edView.state.doc.descendants((node: any, pos: any, i: any) => {
-                        if (node.type.name == "citation" && node.attrs.citateid == data.citatID) {
+                      let docSize = data.edView.state.doc.nodeSize
+                      data.edView.state.doc.nodesBetween(0,docSize-2,(node: any, pos: any, i: any) => {
+                        let marks = node.marks.filter((mark:Mark) => { return mark.type.name == 'citation' })
+                        if ( marks.length > 0 && marks[0].attrs.citateid == data.citatID) {
                           citatNewPosition = pos
                         }
                       })
@@ -539,7 +549,7 @@ export const updateControlsAndFigures = (
 }
 
 
-export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>, rerenderFigures: (citats: any) => any, sectionID: string) => {
+export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>, rerenderFigures: (citats: any) => any, sectionID: string, citatsEditingSubject?: Subject<any>) => {
 
   return (transaction: Transaction<any>, state: EditorState) => {
     try {
@@ -554,19 +564,28 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>, rere
           if (step instanceof ReplaceStep) {
             //@ts-ignore
             let replacingSlice = state.doc.slice(step.from, step.to)
-            replacingSlice.content.descendants((node, pos, parent) => {
-              if (node.type.name == 'citation') {
-                let citatID = node.attrs.citateid
+            replacingSlice.content.nodesBetween(0, replacingSlice.size, (node, pos, parent) => {
+              if (node.marks.filter((mark)=>{return mark.type.name == 'citation'}).length>0) {
+                let citatMark = node.marks.filter((mark)=>{return mark.type.name == 'citation'})[0]
+                let citatID = citatMark.attrs.citateid
                 //@ts-ignore
                 if (figuresCitats[sectionID][citatID] && transaction.getMeta('y-sync$')) {
+
                   //@ts-ignore
                 } else if (figuresCitats[sectionID][citatID] && !transaction.getMeta('y-sync$')) {
-                  setTimeout(() => {
-                    console.log('removing',citatID);
-                    figuresCitats[sectionID][citatID] = undefined
-                    figuresMap.set('articleCitatsObj', figuresCitats)
-                    rerenderFigures(figuresCitats)
-                  }, 10)
+                  if (citatsEditingSubject) {
+                    citatsEditingSubject.next({
+                      action: 'delete',
+                      sectionID,
+                      citatID
+                    })
+                  } else {
+                    setTimeout(() => {
+                      figuresCitats[sectionID][citatID] = undefined
+                      figuresMap.set('articleCitatsObj', figuresCitats)
+                      rerenderFigures(figuresCitats)
+                    }, 10)
+                  }
                 }
               }
             })
@@ -660,27 +679,26 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>, rere
 }
 
 //handle right click on citats
-export const handleClickOn = (citatContextPluginKey:PluginKey)=>{
+export const handleClickOn = (citatContextPluginKey: PluginKey) => {
 
   return (view: EditorView, pos: number, node: Node, nodePos: number, e: MouseEvent, direct: boolean) => {
     if (node.type.name == 'citation' &&
       (("which" in e && e.which == 3) ||
         ("button" in e && e.button == 2)
       )) {
-        let cursurCoord = view.coordsAtPos(pos);
-        view.dispatch(view.state.tr.setMeta('citatContextPlugin',{
-          clickPos:pos,
-          citatPos:nodePos,
-          clickEvent:e,
-          focus: view.hasFocus(),
-          direct,
-          coords:cursurCoord
-        }))
-        console.log('setting');
-        return false
-    }else if(citatContextPluginKey.getState(view.state).decorations !== undefined){
+      let cursurCoord = view.coordsAtPos(pos);
+      view.dispatch(view.state.tr.setMeta('citatContextPlugin', {
+        clickPos: pos,
+        citatPos: nodePos,
+        clickEvent: e,
+        focus: view.hasFocus(),
+        direct,
+        coords: cursurCoord
+      }))
       return false
-    }else{
+    } else if (citatContextPluginKey.getState(view.state).decorations !== undefined) {
+      return false
+    } else {
       return true
     }
   }

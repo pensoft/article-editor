@@ -28,7 +28,6 @@ export class CitatContextMenuService {
         },
         apply(tr, prev, _, newState) {
           if(tr.getMeta('citatContextPlugin')&&tr.getMeta('citatContextPlugin').clickOutside){ 
-            console.log('removeing decorations');
             prev.decorations = undefined
           }else if (tr.getMeta('citatContextPlugin')) {
             let meta = tr.getMeta('citatContextPlugin')

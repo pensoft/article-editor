@@ -2,9 +2,9 @@ export const taxonomicCoverageTemplate = `<h2 contenteditableNode="false">Taxono
 <form-field  class="set-align-left" formControlName="description" commentable="false">
 </form-field >
 <div class="tableWrapper">
-	<table style="min-width: 50px;" formArrayName="taxonomicCoverage">
-		<thead>
-			<tr>
+	<table style="min-width: 50px;" formArrayName="taxonomicCoverage" contenteditableNode="false" >
+		<thead  contenteditableNode="false" >
+			<tr contenteditableNode="false" >
 				<td>
 					<p contenteditableNode="false">
 						<b>Rank</b>
@@ -22,17 +22,17 @@ export const taxonomicCoverageTemplate = `<h2 contenteditableNode="false">Taxono
 				</td>
 			</tr>
 		</thead>
-		<tbody>
-			<tr *ngFor="let control of formGroup.controls.taxonomicCoverage.controls;let i=index" formGroupName="{{i}}">
-				<td>
+		<tbody  contenteditableNode="false" >
+			<tr *ngFor="let control of formGroup.controls.taxonomicCoverage.controls;let i=index" formGroupName="{{i}}"  contenteditableNode="false" >
+				<td contenteditableNode="false">
 					<form-field formControlName="rank" contenteditableNode="false"  commentable="false">
 					</form-field>
 				</td>
-				<td>
+				<td contenteditableNode="false">
 					<form-field formControlName="scientificName" menuType="fullMenu">
 					</form-field>
 				</td>
-				<td>
+				<td contenteditableNode="false" >
 					<form-field formControlName="commonName" >
 					</form-field>
 				</td>

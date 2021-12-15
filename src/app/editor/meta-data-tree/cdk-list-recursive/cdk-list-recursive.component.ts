@@ -1,7 +1,6 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AfterContentInit, AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { EditSectionDialogComponent } from '../../dialogs/edit-section-dialog/edit-section-dialog.component';
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
 import { YdocService } from '../../services/ydoc.service';
 import { DetectFocusService } from '../../utils/detectFocusPlugin/detect-focus.service';

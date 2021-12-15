@@ -5,6 +5,7 @@ import { listNodes } from './lists';
 import { parseGenericAttributes, getGenericAttributes, genericAttributtesToDom, htmlTags } from '../helpers';
 import { nodes as basicNodes } from './basic-nodes';
 import { Node } from 'prosemirror-model';
+import { trimEnd } from 'lodash';
 
 export const image = {
     inline: true,
@@ -115,10 +116,11 @@ export const block_figure = {
         }, 0]
     }
 }
-export const citation = {
+/* export const citation = {
     group: 'inline',
     content: "inline+",
     inline: true,
+    isolating: true,
     attrs: {
         citated_figures: { default: [] },
 
@@ -150,7 +152,7 @@ export const citation = {
             ...genericAttributtesToDom(node)
         }, 0]
     }
-}
+} */
 
 export const figure_components_container = {
     group: 'block',
@@ -303,7 +305,7 @@ export const figureNodes = {
     image,
     video,
     //figure,
-    citation,
+    //citation,
     block_figure,
     figure_components_container,
     figure_component,
