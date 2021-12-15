@@ -202,6 +202,10 @@ app-article:not(.display-changes-hover) .deletion{
   display: none;
 } */
 
+citation[nonexistingfigure="true"]{
+  background-color: rgb(194, 54, 54);
+  color : white
+}
 [ychange_type] {
   position: relative;
 }

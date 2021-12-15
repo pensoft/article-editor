@@ -69,13 +69,11 @@ export function tableNodes(options: any) {
             parseDOM: [{
                 tag: "table", getAttrs(dom: any) {
                     let attrs = {...parseGenericAttributes(dom)}
-                    console.log('parsingaAttributes',attrs);
                     return attrs
                 }
             }],
             toDOM(node: Node) {
                 let attrs = {...genericAttributtesToDom(node)}
-                console.log('toDomAttrs',attrs);
                 return ["table", attrs, ["tbody",attrs, 0]]
             }
         },

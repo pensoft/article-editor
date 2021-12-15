@@ -23,6 +23,13 @@
     "allowSyntheticDefaultImports": true,
     "paths": {
       "@app/*": ["./src/app/*"],
+      "@env": ["src/environments/environment"],
+      "@shared/*": ["src/app/shared/*"],
+      "@core/*": ["src/app/core/*"],
+      "@features/*": ["src/app/features/*"],
+      "@assets/*": ["src/assets/*"],
+      "@errors/*": ["src/app/errors/*"],
+      "@metronic/*": ["src/app/_metronic/*"]
     }
   },
   "angularCompilerOptions": {
@@ -31,5 +38,5 @@
     "strictInputAccessModifiers": true,
     "strictTemplates": true
   },
-  "esModuleInterop": true, 
+  "esModuleInterop": true,
 }

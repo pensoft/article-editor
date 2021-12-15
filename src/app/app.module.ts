@@ -1,8 +1,9 @@
-import {HttpClientModule} from '@angular/common/http';
+import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
 import {Compiler, CompilerFactory, COMPILER_OPTIONS, Injector, NgModule} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {ServiceWorkerModule} from '@angular/service-worker';
+import { HTTPReqResInterceptor } from '@core/services/http-req-res.interceptor';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import {MaterialModule} from 'src/app/shared/material.module';
 import {STORAGE_PROVIDERS} from 'src/app/shared/storage.service';
@@ -129,6 +130,11 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     NgxSpinnerModule,
   ],
   providers: [
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: HTTPReqResInterceptor,
+      multi: true,
+    },
     STORAGE_PROVIDERS,
     {provide: WindowToken, useFactory: windowProvider},
     {provide: FormioAppConfig, useValue: AppConfig},

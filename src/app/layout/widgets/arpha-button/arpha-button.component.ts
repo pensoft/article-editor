@@ -8,6 +8,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 export class ArphaButtonComponent implements OnInit {
 
   @Input() disabled: boolean = false;
+  @Input() type: string = 'button'
   @Input() label: string = '';
   @Input() icon: string = '';
   @Input() routerLink: string = '';

@@ -1,5 +1,5 @@
 .main {
-  background-image: url("/assets/img/Photo-3@2x.png");
+  background-image: url("./assets/img/Photo-3@2x.png");
   background-position: center;
   background-size: cover;
   height: 100vh;
@@ -196,3 +196,87 @@ div {
     display: none;
   }
 }
+
+.arpha-input-container {
+  @media screen and (min-width: 1200px) {
+    width: 460px;
+    height: 35px;
+  }
+  @media screen and (min-width: 992px) and (max-width: 1200px) {
+    width: 400px;
+    height: 35px;
+  }
+  @media screen and (max-width: 992px) {
+    width: 335px;
+    height: 35px;
+  }
+  color: var(--color-000000);
+  display: block;
+  border: 1px solid;
+  border-color: var(--color-e3e3e3);
+  border-radius: 6px;
+  box-sizing: border-box;
+  margin-top: 4px;
+
+  &:focus-within {
+    outline: none !important;
+    border: 1px solid;
+    border-color: var(--color-00b1b2);
+  }
+}
+
+input.arpha-input {
+  width: calc(100% - 24px);
+  height: calc(100% - 16px);
+  border: none;
+  border-radius: 6px;
+  padding: 9px 12px 7px 12px;
+
+  &::placeholder,
+  &:-ms-input-placeholder,
+  &::-ms-input-placeholder {
+    color: var(--color-cacdd3);
+    opacity: 1;
+  }
+
+  &:focus {
+    outline: none !important;
+  }
+
+  &:disabled {
+    background-color: var(--color-ffffff);
+  }
+}
+
+.arpha-label {
+  color: var(--color-192956);
+}
+
+.invalid {
+  border-color: var(--color-e56b87) !important;
+}
+
+.arpha-error-message {
+  margin-top: 6px;
+  color: var(--color-e56b87);
+}
+
+.password-icon {
+  margin-left: -30px;
+  margin-top: 8px;
+  position: absolute;
+  z-index: 2;
+  height: 18px;
+}
+
+::ng-deep {
+  .password-icon path {
+    fill: var(--color-8890a8);
+  }
+}
+
+input::-ms-reveal,
+input::-ms-clear {
+  display: none;
+}
+

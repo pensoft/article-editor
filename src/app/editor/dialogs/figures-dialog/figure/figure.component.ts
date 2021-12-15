@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Input, OnInit, Pipe, PipeTransform } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, Pipe, PipeTransform } from '@angular/core';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { figure as figure_interface } from 'src/app/editor/utils/interfaces/figureComponent';
 
@@ -11,6 +11,7 @@ import { figure as figure_interface } from 'src/app/editor/utils/interfaces/figu
 })
 export class FigureComponent implements AfterViewInit {
   @Input() figure ?: figure_interface ;
+  @Output() figureChange = new EventEmitter<figure_interface>();
   @Input() figureIndex ?: number
 
   urlSafe?: SafeResourceUrl;

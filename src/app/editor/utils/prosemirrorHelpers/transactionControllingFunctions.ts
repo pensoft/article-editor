@@ -117,6 +117,7 @@ export const updateControlsAndFigures = (
                 let newDisplayViewsInCitat = citateData.displaydFiguresViewhere;
                 let newNode = schema.text(node.textContent) as Node
                 let newMark = schema.mark('citation', { ...citationMark.attrs, last_time_updated: citateData.lastTimeUpdated, figures_display_view: newDisplayViewsInCitat })
+                
                 /* newNode = newNode.mark([newMark])
                 tr1 = tr1.replaceWith(pos, node.nodeSize, newNode) */
                 tr1 = tr1.addMark(pos, pos+node.nodeSize,newMark)
@@ -125,7 +126,6 @@ export const updateControlsAndFigures = (
                 let viewsToRemove: string[] = newDisplayViewsInCitat ? oldDisplayViewsInCitat.reduce((prev, curr, i) => {
                   return newDisplayViewsInCitat.includes(curr) ? prev : prev.concat([curr])
                 }, []) : []
-
                 let viewsToAdd: string[] = newDisplayViewsInCitat ? newDisplayViewsInCitat.reduce((prev: any[], curr: string, i: number) => {
                   return oldDisplayViewsInCitat.includes(curr) ? prev : prev.concat([curr])
                 }, []) : []
@@ -572,7 +572,7 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>, rere
                 if (figuresCitats[sectionID][citatID] && transaction.getMeta('y-sync$')) {
 
                   //@ts-ignore
-                } else if (figuresCitats[sectionID][citatID] && !transaction.getMeta('y-sync$')) {
+                } else if (figuresCitats[sectionID][citatID] && !transaction.getMeta('y-sync$') && !transaction.getMeta('citatsTextChange')) {
                   if (citatsEditingSubject) {
                     citatsEditingSubject.next({
                       action: 'delete',
