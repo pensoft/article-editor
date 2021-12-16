@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import {uuidv4} from "lib0/random";
-
 
 @Component({
   selector: 'app-landing',
@@ -8,7 +6,6 @@ import {uuidv4} from "lib0/random";
   styleUrls: ['./landing.component.scss']
 })
 export class LandingComponent implements OnInit {
-  uuid = uuidv4();
   constructor() { }
 
   ngOnInit(): void {
