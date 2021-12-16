@@ -6,7 +6,6 @@ import { Decoration, DecorationSet } from 'prosemirror-view';
 import { Subject } from 'rxjs';
 //@ts-ignore
 import { DocumentHelpers } from 'wax-prosemirror-utilities';
-import { createPopper } from '@popperjs/core';
 import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../../services/ydoc.service';
 //@ts-ignore

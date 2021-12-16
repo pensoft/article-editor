@@ -9,7 +9,7 @@ import { endEditorNodes, endEditorSchema, schema } from '../utils/Schema';
 import { ProsemirrorEditorsService } from './prosemirror-editors.service';
 import { YdocService } from './ydoc.service';
 import { DOMParser } from 'prosemirror-model';
-import { remove } from 'lodash';
+import { indexOf, remove } from 'lodash';
 import { uuidv4 } from 'lib0/random';
 import { articleSection } from '../utils/interfaces/articleSection';
 import { Transform } from 'prosemirror-transform';
@@ -105,7 +105,7 @@ export class FiguresControllerService {
                   if (citFigureClearFromComponents.indexOf(fig) !== -1) {
                     if (citFigureComponents[fig]) {
                       citFigureComponents[fig].forEach((figComponent, j) => {
-                        if (i == 0) {
+                        if (j == 0) {
                           figsArr.push(`${i + 1}${String.fromCharCode(97 + +figComponent)}`)
                         } else {
                           figsArr.push(`${String.fromCharCode(97 + +figComponent)}`)
@@ -132,8 +132,17 @@ export class FiguresControllerService {
     })
   }
 
+  updateFiguresNumbers(newFigures: { [key: string]: figure; }, figureNumbers: string[]) {
+    Object.keys(newFigures).forEach((figureKey) => {
+      let figNumber = figureNumbers.indexOf(figureKey)
+      newFigures[figureKey].figureNumber = figNumber
+    })
+    let s = newFigures
+  }
+
   writeFiguresDataGlobal(newFigureNodes: { [key: string]: Node }, newFigures: { [key: string]: figure; }, figureNumbers: string[]) {
 
+    this.updateFiguresNumbers(newFigures, figureNumbers)
     this.ydocService.figuresMap!.set('ArticleFiguresNumbers', figureNumbers)
     this.ydocService.figuresMap!.set('ArticleFigures', newFigures)
 
@@ -343,23 +352,24 @@ export class FiguresControllerService {
           containersCount++;
         }
       })
-      if (key !== 'endEditor') {
-        let deleted = false;
-        let tr1: Transaction
-        let del = () => {
-          deleted = false
-          tr1 = view.state.tr
-          view.state.doc.descendants((node, position, parent) => {
-            if (node.type.name == 'figures_nodes_container' && !deleted) {
-              deleted = true
-              tr1 = tr1.replaceWith(position, position + node.nodeSize, Fragment.empty).setMeta('shouldTrack', false);
-            }
-          })
-          view.dispatch(tr1)
-        }
-        for (let index = 0; index < containersCount; index++) {
-          del()
-        }
+      let deleted = false;
+      let tr1: Transaction
+      let del = () => {
+        deleted = false
+        tr1 = view.state.tr
+        view.state.doc.descendants((node, position, parent) => {
+          if (node.type.name == 'figures_nodes_container' && !deleted) {
+            deleted = true
+            tr1 = tr1.replaceWith(position, position + node.nodeSize, Fragment.empty).setMeta('shouldTrack', false);
+          }
+        })
+        view.dispatch(tr1)
+      }
+      for (let index = 0; index < containersCount; index++) {
+        del()
+      }
+      if (key == 'endEditor') {
+
       }
     })
     let viewsDisplayed: boolean[] = numbersCopy.map((figureID) => { return false })
@@ -413,7 +423,7 @@ export class FiguresControllerService {
           for (let i = 0; i <= biggestFigureNumberInCitat; i++) {
             if (!viewsDisplayed[i]) {
               displayedFiguresViewHere.push(numbersCopy[i])
-              
+
               if (this.figures[numbersCopy[i]].figurePlace == 'endEditor') {
                 this.removeFromEndEditor(numbersCopy[i])
               }
@@ -514,24 +524,39 @@ export class FiguresControllerService {
     let view = this.prosemirrorEditorsService.editorContainers[figure.figurePlace].editorView
     let nodeStart: number = view.state.doc.nodeSize - 2
     let nodeEnd: number = view.state.doc.nodeSize - 2
-    let foundExistingFigure = false
+
+    let foundPlace = false
+    let foundContainer = false
+
     this.figuresNumbers
-    view.state.doc.nodesBetween(0, view.state.doc.nodeSize - 2, (node, pos, parent) => {
-      if (node.type.name == "block_figure" && this.figuresNumbers?.indexOf(node.attrs.figure_id)! > this.figuresNumbers?.indexOf(figureID)! && !foundExistingFigure) {
-        foundExistingFigure = true
-        nodeStart = pos;
-        nodeEnd = pos
-      } else if (node.type.name == "block_figure" && this.figuresNumbers?.indexOf(node.attrs.figure_id)! == this.figuresNumbers?.indexOf(figureID)! && !foundExistingFigure) {
-        foundExistingFigure = true
-        nodeStart = pos;
-        nodeEnd = pos + node.nodeSize
+    view.state.doc.forEach((node, offset, index) => {
+      if (node.type.name == 'figures_nodes_container') {
+        foundContainer = true;
+        nodeStart = offset+node.nodeSize-1
+        nodeEnd = offset+node.nodeSize-1
+        node.forEach((figureNode, figOffset, figi) => {
+          if (node.type.name == "block_figure" && this.figuresNumbers?.indexOf(node.attrs.figure_id)! > this.figuresNumbers?.indexOf(figureID)! && !foundPlace) {
+            foundPlace = true
+            nodeStart = offset+figOffset+1;
+            nodeEnd = offset+figOffset+1
+          } else if (node.type.name == "block_figure" && this.figuresNumbers?.indexOf(node.attrs.figure_id)! == this.figuresNumbers?.indexOf(figureID)! && !foundPlace) {
+            foundPlace = true
+            nodeStart = offset+figOffset+1;
+            nodeEnd = offset+figOffset+1 + node.nodeSize
+          }
+        })
       }
     })
+    let schema = view.state.schema as Schema
+    if(!foundContainer){
+      let container = schema.nodes.figures_nodes_container.create({}, figureNodes);
+      view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, container).setMeta('shouldTrack', false))
+    }else{
+      view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, figureNodes).setMeta('shouldTrack', false))
+    }
+    
 
-    let schema = view.state.schema
-    let n = schema.nodes
 
-    view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, figureNodes).setMeta('shouldTrack', false))
     /* 
     let figure: any = JSON.parse(JSON.stringify(figure1))
     let view = this.prosemirrorEditorsService.editorContainers[figure.path].editorView
