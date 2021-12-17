@@ -60,7 +60,7 @@ import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
 import { I } from '@angular/cdk/keycodes';
 import { ReplaceAroundStep } from 'prosemirror-transform';
 import { ViewFlags } from '@angular/compiler/src/core';
-import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn } from '../utils/prosemirrorHelpers';
+import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn, selectWholeCitatMarks } from '../utils/prosemirrorHelpers';
 //@ts-ignore
 import { recreateTransform } from "prosemirror-recreate-steps"
 import { figure } from '../utils/interfaces/figureComponent';
@@ -273,18 +273,11 @@ export class ProsemirrorEditorsService {
       filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.rerenderFigures,editorID),
     })
 
-    let dragCitatsPluginKey = new PluginKey('dragCitats');
-    let dragCitats = new Plugin({
-      key: dragCitatsPluginKey,
+    let selectWholeCitatPluginKey = new PluginKey('selectWholeCitat');
+    let selectWholeCitat = new Plugin({
+      key: selectWholeCitatPluginKey,
       props:{
-        /* createSelectionBetween(view,anchor,head){
-          if(head.pos<anchor.pos){
-
-          }
-          console.log(head.nodeAfter);
-          console.log(head.nodeBefore);
-          return undefined
-        } */
+        createSelectionBetween:selectWholeCitatMarks
       }
     })
 
@@ -313,7 +306,7 @@ export class ProsemirrorEditorsService {
         tableEditing(),
         this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
-        dragCitats,
+        selectWholeCitat,
         this.detectFocusService.getPlugin(),
         this.commentsService.getPlugin(),
         this.trackChangesService.getHideShowPlugin(),
@@ -592,6 +585,9 @@ export class ProsemirrorEditorsService {
 
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
+      props:{
+        createSelectionBetween:selectWholeCitatMarks
+      },
       state:{
         init(config){
           return {sectionID:config.sectionID}

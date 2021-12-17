@@ -6,10 +6,10 @@ import { YMap } from "yjs/dist/src/internals";
 import { articleSection } from "../interfaces/articleSection";
 import { DOMParser } from "prosemirror-model"
 import { uuidv4 } from "lib0/random";
-import { Subject } from "rxjs";
+import { of, Subject } from "rxjs";
 import { split } from "lodash";
 import { notEqual } from "assert";
-import { C } from "@angular/cdk/keycodes";
+import { C, I } from "@angular/cdk/keycodes";
 import { ReplaceStep } from "prosemirror-transform";
 export const updateControlsAndFigures = (
   schema: Schema,
@@ -75,6 +75,9 @@ export const updateControlsAndFigures = (
               figuresMap.set('ArticleFigures', JSON.parse(JSON.stringify(figures)))
             } else if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
               let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
+              if(!figuresCitats[section?.sectionID!]){
+                figuresCitats[section?.sectionID!] = {}
+              }
               if (!figuresCitats[section?.sectionID!][citationMark.attrs.citateid]) {
                 if (!transaction.getMeta('y-sync$')) {
                   let attrs = citationMark.attrs

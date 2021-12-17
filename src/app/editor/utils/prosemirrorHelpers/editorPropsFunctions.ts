@@ -2,15 +2,15 @@ import { CompileShallowModuleMetadata } from "@angular/compiler";
 import { mathBackspaceCmd } from "@benrbray/prosemirror-math";
 import { debug } from "console";
 import { uuidv4 } from "lib0/random";
-import { Fragment, ResolvedPos, Slice ,Node} from "prosemirror-model";
-import { PluginKey, PluginSpec, TextSelection,Selection } from "prosemirror-state";
+import { Fragment, ResolvedPos, Slice, Node } from "prosemirror-model";
+import { PluginKey, PluginSpec, TextSelection, Selection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import { EditorView } from "prosemirror-view";
 
 export function handlePaste(view: EditorView, event: Event, slice: Slice) {
-    slice.content.nodesBetween(0,slice.size-2,(node,pos,parent)=>{
-        if(node.marks.filter((mark)=>{return mark.type.name=='citation'}).length>0){
-            let mark = node.marks.filter((mark)=>{return mark.type.name=='citation'})[0]
+    slice.content.nodesBetween(0, slice.size - 2, (node, pos, parent) => {
+        if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
+            let mark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
             mark.attrs.citateid = uuidv4()
         }
     })
@@ -27,43 +27,72 @@ export function handlePaste(view: EditorView, event: Event, slice: Slice) {
     return false
 }
 
-export function handleClick(hideshowPluginKEey:PluginKey,citatContextPluginkey?:PluginKey) {
-    return (view: EditorView, pos: number, event: Event)=>{
+export function selectWholeCitatMarks(view:EditorView, anchor:ResolvedPos, head:ResolvedPos) {
+
+    let newSelection = false
+
+    let newAnchor = anchor
+    let newHead = head
+
+    if (anchor.nodeAfter && anchor.nodeAfter.marks.filter(mark => { return mark.type.name == 'citation' }).length > 0 && anchor.pos > head.pos) {
+        newAnchor = view.state.doc.resolve(anchor.nodeAfter?.nodeSize! + anchor.pos)
+        newSelection = true
+    }
+    if (anchor.nodeBefore && anchor.nodeBefore.marks.filter(mark => { return mark.type.name == 'citation' }).length > 0 && anchor.pos < head.pos) {
+        newAnchor = view.state.doc.resolve(anchor.pos - anchor.nodeBefore?.nodeSize!)
+        newSelection = true
+    }
+    if (head.nodeAfter && head.nodeAfter.marks.filter(mark => { return mark.type.name == 'citation' }).length > 0 && anchor.pos < head.pos) {
+        newHead = view.state.doc.resolve(head.pos + head.nodeAfter?.nodeSize!)
+        newSelection = true
+    }
+    if (head.nodeBefore && head.nodeBefore.marks.filter(mark => { return mark.type.name == 'citation' }).length > 0 && anchor.pos > head.pos) {
+        newHead = view.state.doc.resolve(head.pos - head.nodeBefore?.nodeSize!)
+        newSelection = true
+    }
+
+    if(newSelection){
+        return new TextSelection(newAnchor, newHead)
+    }
+}
+
+export function handleClick(hideshowPluginKEey: PluginKey, citatContextPluginkey?: PluginKey) {
+    return (view: EditorView, pos: number, event: Event) => {
 
         if (((event.target as HTMLElement).className == 'changes-placeholder')) {
             setTimeout(() => {
                 view.dispatch(view.state.tr)
             }, 0)
             return true
-        }else if(((event.target as HTMLElement).className == 'citat-menu-context')||(event.target as HTMLElement).tagName=='CITATION'){
+        } else if (((event.target as HTMLElement).className == 'citat-menu-context') || (event.target as HTMLElement).tagName == 'CITATION') {
             return true
-        }else if((event.target as HTMLElement).className == 'citat-menu-context-delete-citat-btn'){
-            setTimeout(()=>{view.dispatch(view.state.tr)},0)
+        } else if ((event.target as HTMLElement).className == 'citat-menu-context-delete-citat-btn') {
+            setTimeout(() => { view.dispatch(view.state.tr) }, 0)
             return true
         }
         let tr1 = view.state.tr.setMeta(hideshowPluginKEey, {})
-        if(citatContextPluginkey){
-            tr1 = tr1.setMeta('citatContextPlugin', {clickOutside:true})
+        if (citatContextPluginkey) {
+            tr1 = tr1.setMeta('citatContextPlugin', { clickOutside: true })
         }
         view.dispatch(tr1)
         return false
     }
 }
-export function handleTripleClickOn(view:EditorView, pos:number, node:Node, nodepos:number, event:Event, direct:boolean) {
+export function handleTripleClickOn(view: EditorView, pos: number, node: Node, nodepos: number, event: Event, direct: boolean) {
     if (view.state.selection.$from.parent.type.name !== "form_field") {
         return true;
     }
     return false
 }
-export const handleDoubleClick = (hideshowPluginKEey:PluginKey)=>{
-    return (view: EditorView, pos: number, event: Event)=> {
+export const handleDoubleClick = (hideshowPluginKEey: PluginKey) => {
+    return (view: EditorView, pos: number, event: Event) => {
         let node = view.state.doc.nodeAt(pos)
         let marks = node?.marks
         let hasTrackChnagesMark = node?.marks.some((mark) => {
-            return mark!.type.name == 'insertion' 
-            || mark!.type.name == 'deletion'  
-            || mark!.type.name == 'insFromPopup' 
-            || mark!.type.name == 'delFromPopup' 
+            return mark!.type.name == 'insertion'
+                || mark!.type.name == 'deletion'
+                || mark!.type.name == 'insFromPopup'
+                || mark!.type.name == 'delFromPopup'
         })
         if (hasTrackChnagesMark) {
             let cursurCoord = view.coordsAtPos(pos);
@@ -75,14 +104,14 @@ export const handleDoubleClick = (hideshowPluginKEey:PluginKey)=>{
     }
 }
 export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
-    try{
+    try {
 
         let sel = view.state.selection
-        let { $from,$to} = sel
+        let { $from, $to } = sel
         let key = event.key
         let canEdit = false;
-        
-        
+
+
         /* if (sel instanceof CellSelection) {
             from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
             to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);
@@ -92,75 +121,86 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
             loop the parents of the sides and search for form_field if there is a parent form field check if its the same for both sides and use it as parent ref
                 if there is no form_field parent find the first parent thats the same for both selection sides and use it as parent ref
             check if the parent ref alows editing 
-        */   
-        if($from.depth==$to.depth){
+        */
+        if ($from.depth == $to.depth) {
             //@ts-ignore
-            let pathAtFrom:Array<Node|number> = $from.path
+            let pathAtFrom: Array<Node | number> = $from.path
             //@ts-ignore
-            let pathAtTo:Array<Node|number> = $to.path 
-            
-            if(sel instanceof CellSelection){
+            let pathAtTo: Array<Node | number> = $to.path
+
+            if (sel instanceof CellSelection) {
                 //@ts-ignore
                 pathAtFrom = sel.$anchorCell.path
                 //@ts-ignore
-                pathAtTo= sel.$headCell.path 
+                pathAtTo = sel.$headCell.path
             }
 
-            let parentRef : Node|undefined 
+            let parentRef: Node | undefined
             //search parents
-            for(let i = pathAtTo.length;i>-1;i--){
-                if(i%3==0){
+            for (let i = pathAtTo.length; i > -1; i--) {
+                if (i % 3 == 0) {
                     let parentFrom = pathAtFrom[i] as Node
                     let parentTo = pathAtTo[i] as Node
-                    if(parentFrom == parentTo){
-                        if(!parentRef){
+                    if (parentFrom == parentTo) {
+                        if (!parentRef) {
                             parentRef = parentFrom
-                        }else if(parentFrom.type.name == 'form_field'&&parentRef.type.name !== 'form_field'&&parentRef?.attrs.contenteditableNode !== 'false'){
+                        } else if (parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && parentRef?.attrs.contenteditableNode !== 'false') {
                             parentRef = parentFrom
                         }
-    
+
                     }
                 }
             }
-            if(parentRef?.attrs.contenteditableNode !== 'false'){
+            if (parentRef?.attrs.contenteditableNode !== 'false') {
                 canEdit = true
             }
         }
-        let NodeBeforeHasNoneditableMark = sel.$anchor.nodeBefore?.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length!>0
-        let NodeAfterHasNoneditableMark = sel.$anchor.nodeAfter?.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length!>0
-        
-        let onNoneditableMarkBorder :undefined|'left'|'right'= undefined
-        if(NodeBeforeHasNoneditableMark&&!NodeAfterHasNoneditableMark&&sel.empty){
+        let NodeBeforeHasNoneditableMark = sel.$anchor.nodeBefore?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false' }).length! > 0
+        let NodeAfterHasNoneditableMark = sel.$anchor.nodeAfter?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false' }).length! > 0
+
+        let onNoneditableMarkBorder: undefined | 'left' | 'right' = undefined
+        if (NodeBeforeHasNoneditableMark && !NodeAfterHasNoneditableMark && sel.empty) {
             onNoneditableMarkBorder = 'right'
-        }else if(!NodeBeforeHasNoneditableMark&&NodeAfterHasNoneditableMark&&sel.empty){
+        } else if (!NodeBeforeHasNoneditableMark && NodeAfterHasNoneditableMark && sel.empty) {
             onNoneditableMarkBorder = 'left'
-        }else if(NodeBeforeHasNoneditableMark&&NodeAfterHasNoneditableMark){
+        } else if (NodeBeforeHasNoneditableMark && NodeAfterHasNoneditableMark) {
             canEdit = false
         }
-        if(onNoneditableMarkBorder){
-            if(onNoneditableMarkBorder == 'left'){
-                if(key == 'Delete'){
+        if (onNoneditableMarkBorder) {
+            if (onNoneditableMarkBorder == 'left') {
+                if (key == 'Delete') {
                     canEdit = false
                 }
-            }else{
-                if(key == 'Backspace'){
+            } else {
+                if (key == 'Backspace') {
                     canEdit = false
                 }
             }
         }
         // check both sides for noneditable marks
 
-        let check = (node:Node)=>{
+        let check = (node: Node) => {
             let returnValue = false
-            if(node){
-                returnValue =  node.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length>0
+            if (node) {
+                returnValue = node.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false' }).length > 0
             }
             return returnValue
         }
-        
-        if((check($from.nodeAfter!)||check($from.nodeBefore!)||check($to.nodeAfter!)||check($to.nodeBefore!))&&!onNoneditableMarkBorder){
+
+        let noneditableMarkAfterFrom = check($from.nodeAfter!)
+        let noneditableMarkBeforeFrom = check($from.nodeBefore!)
+
+        let noneditableMarkAfterTo = check($to.nodeAfter!)
+        let noneditableMarkBeforeTo = check($to.nodeBefore!)
+
+        if (noneditableMarkAfterFrom && noneditableMarkBeforeFrom && noneditableMarkAfterTo && noneditableMarkBeforeTo) {
+            canEdit = false
+        } else if (noneditableMarkAfterFrom && noneditableMarkBeforeFrom) {
+            canEdit = false
+        } else if (noneditableMarkAfterTo && noneditableMarkBeforeTo) {
             canEdit = false
         }
+
         /* view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
             if (node.attrs.contenteditableNode == "false") {
                 if(node.type.name == ){
@@ -217,18 +257,18 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
             return noneditableNodes
           }
         }*/
-         /*  if(
-            !canEdit&&
-            key!=='Backspace'&&
-            sel.empty&&
-            sel.$anchor.nodeAfter?.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length==0&&
-            sel.$anchor.nodeBefore?.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length!>0&&
-            sel.$anchor.nodeBefore!.type.name == 'text'){
-            let resolvedPosition = view.state.doc.resolve(sel.from+2)
-            //view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,sel.from+1)))
-            return false
-            //view.dispatch(view.state.tr.setSelection(new Selection(resolvedPosition,resolvedPosition)))
-        } */
+        /*  if(
+           !canEdit&&
+           key!=='Backspace'&&
+           sel.empty&&
+           sel.$anchor.nodeAfter?.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length==0&&
+           sel.$anchor.nodeBefore?.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length!>0&&
+           sel.$anchor.nodeBefore!.type.name == 'text'){
+           let resolvedPosition = view.state.doc.resolve(sel.from+2)
+           //view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,sel.from+1)))
+           return false
+           //view.dispatch(view.state.tr.setSelection(new Selection(resolvedPosition,resolvedPosition)))
+       } */
         if (!canEdit) {
             if (key == 'ArrowRight' ||
                 key == 'ArrowLeft' ||
@@ -239,11 +279,11 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
                 return true
             }
         }
-    }catch(e){console.error(e);}
+    } catch (e) { console.error(e); }
     return false
 }
-export const createSelectionBetween = (editorsEditableObj:any,editorId:string)=>{
-    return (view:EditorView, anchor:ResolvedPos, head:ResolvedPos)=> {
+export const createSelectionBetween = (editorsEditableObj: any, editorId: string) => {
+    return (view: EditorView, anchor: ResolvedPos, head: ResolvedPos) => {
         //return undefined
         //@ts-ignore
         if (anchor.pos == head.pos) {
@@ -252,7 +292,7 @@ export const createSelectionBetween = (editorsEditableObj:any,editorId:string)=>
         let headRangeMin = anchor.pos
         let headRangeMax = anchor.pos
         let sel = view.state.selection
-    
+
         //@ts-ignore
         let anchorPath = sel.$anchor.path
         let counter = anchorPath.length - 1
@@ -274,14 +314,14 @@ export const createSelectionBetween = (editorsEditableObj:any,editorId:string)=>
             }
             counter--;
         }
-    
+
         if (parentNode) {
             headRangeMin = parentNodePos! + 1 // the parents inner start position
             headRangeMax = parentNodePos! + parentNode?.nodeSize! - 1 // the parent inner end position
         }
-    
+
         //this.editorsEditableObj[editorID] = true
-    
+
         if (headRangeMin > head.pos || headRangeMax < head.pos) {
             let headPosition = headRangeMin > head.pos ? headRangeMin : headRangeMax
             let newHeadResolvedPosition = view.state.doc.resolve(headPosition)
@@ -290,7 +330,7 @@ export const createSelectionBetween = (editorsEditableObj:any,editorId:string)=>
             view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
                 if (node.attrs.contenteditableNode == 'false') {
                     editorsEditableObj[editorId] = false;
-    
+
                 }
             })
             let newSelection = new TextSelection(anchor, newHeadResolvedPosition);

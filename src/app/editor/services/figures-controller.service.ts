@@ -60,75 +60,94 @@ export class FiguresControllerService {
     this.renderEditorFn = func
   }
 
-  updateCitatsText(citats: { [sectionID: string]: { [citatID: string]: any } }) {
+  updateCitatsText(citats: { [sectionID: string]: { [citatID: string]: any }|undefined }) {
     this.figuresNumbers = this.ydocService.figuresMap!.get('ArticleFiguresNumbers')
     let figNumbers = this.figuresNumbers;
-
+    console.log(citats);
     Object.keys(citats).forEach((sectionID) => {
-      Object.keys(citats[sectionID]).forEach((citatID) => {
-        let edView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
-
-        edView.state.doc.nodesBetween(0, edView.state.doc.nodeSize - 2, (node, pos, parent) => {
-          if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
-            let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0];
-            if (citationMark.attrs.citateid == citatID) {
-              let citatedFigures = citationMark.attrs.citated_figures
-
-              let citFigureClearFromComponents: string[] = []
-              let citFigureComponents: { [key: string]: string[] } = {}
-              citatedFigures.forEach((fig: String) => {
-                let data = fig.split('|')
-                let figID = data[0]
-                if (data[1]) {
-                  if (!citFigureComponents[figID]) {
-                    citFigureComponents[figID] = []
-                  }
-                  citFigureComponents[figID].push(data[1])
-                }
-                if (citFigureClearFromComponents.indexOf(figID) == -1) {
-                  citFigureClearFromComponents.push(figID)
-                }
-              })
-              if (citFigureClearFromComponents.length == 1 && figNumbers?.indexOf(citFigureClearFromComponents[0]) == -1) {
-                let citateNodeText = ' Cited item deleted '
-                let newNode = (edView.state.schema as Schema).text(citateNodeText) as Node
-                newNode = newNode.mark([schema.mark('citation', { ...citationMark.attrs, nonexistingFigure: 'true' })])
-                edView.dispatch(edView.state.tr.replaceWith(pos,
-                  pos + node.nodeSize
-                  , newNode).setMeta('citatsTextChange', true)
-                )
-              } else {
-                let citatedFigures = citationMark.attrs.citated_figures
-                let citatString = citFigureClearFromComponents.length == 1 ? ' Fig.  ' : ' Figs.  '
-                let figsArr: string[] = []
-                figNumbers?.forEach((fig, i) => {
-                  if (citFigureClearFromComponents.indexOf(fig) !== -1) {
-                    if (citFigureComponents[fig]) {
-                      citFigureComponents[fig].forEach((figComponent, j) => {
-                        if (j == 0) {
-                          figsArr.push(`${i + 1}${String.fromCharCode(97 + +figComponent)}`)
-                        } else {
-                          figsArr.push(`${String.fromCharCode(97 + +figComponent)}`)
-                        }
-                      })
-                    } else {
-                      figsArr.push(`${i + 1}`)
+      if(citats[sectionID]){
+        Object.keys(citats[sectionID]!).forEach((citatID) => {
+          if(!this.prosemirrorEditorsService.editorContainers[sectionID]){
+            //@ts-ignore
+            citats[sectionID] = undefined
+          }else{
+            let edView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
+            edView.state.doc.nodesBetween(0, edView.state.doc.nodeSize - 2, (node, pos, parent) => {
+              if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
+                let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0];
+                if (citationMark.attrs.citateid == citatID) {
+                  let citatedFigures = [...citationMark.attrs.citated_figures]
+    
+                  let citFigureClearFromComponents: string[] = []
+                  let citFigureComponents: { [key: string]: string[] } = {}
+                  citatedFigures.forEach((fig: String) => {
+                    let data = fig.split('|')
+                    let figID = data[0]
+                    if (data[1]) {
+                      if (!citFigureComponents[figID]) {
+                        citFigureComponents[figID] = []
+                      }
+                      citFigureComponents[figID].push(data[1])
                     }
+                    if (citFigureClearFromComponents.indexOf(figID) == -1) {
+                      citFigureClearFromComponents.push(figID)
+                    }
+                  })
+                  if (((citFigureClearFromComponents.length == 1 && figNumbers?.indexOf(citFigureClearFromComponents[0]) == -1) ||
+                    (citFigureClearFromComponents.length > 1 && citFigureClearFromComponents.filter((fig) => { return figNumbers?.indexOf(fig) !== -1 }).length == 0))) {
+                    if (citationMark.attrs.nonexistingFigure !== 'true') {
+                      let citateNodeText = ' Cited item deleted '
+                      let newNode = (edView.state.schema as Schema).text(citateNodeText) as Node
+                      newNode = newNode.mark([schema.mark('citation', { ...citationMark.attrs, nonexistingFigure: 'true' })])
+                      edView.dispatch(edView.state.tr.replaceWith(pos,
+                        pos + node.nodeSize
+                        , newNode).setMeta('citatsTextChange', true)
+                      )
+                    }
+                  } else {
+                    citFigureClearFromComponents.forEach((fig) => {
+                      if (figNumbers?.indexOf(fig) == -1) {
+                        citatedFigures = citatedFigures.filter((figureID: string) => {
+                          let data = figureID.split('|')
+                          if (data[0] == fig) {
+                            return false
+                          }
+                          return true
+                        })
+                      }
+                    })
+                    let citatString = citFigureClearFromComponents.length == 1 ? ' Fig.  ' : ' Figs.  '
+                    let figsArr: string[] = []
+                    figNumbers?.forEach((fig, i) => {
+                      if (citFigureClearFromComponents.indexOf(fig) !== -1) {
+                        if (citFigureComponents[fig]) {
+                          citFigureComponents[fig].forEach((figComponent, j) => {
+                            if (j == 0) {
+                              figsArr.push(`${i + 1}${String.fromCharCode(97 + +figComponent)}`)
+                            } else {
+                              figsArr.push(`${String.fromCharCode(97 + +figComponent)}`)
+                            }
+                          })
+                        } else {
+                          figsArr.push(`${i + 1}`)
+                        }
+                      }
+                    })
+                    citatString += figsArr.join(', ')
+                    citatString += ' '
+                    let newNode = (edView.state.schema as Schema).text(citatString) as Node
+                    newNode = newNode.mark([schema.mark('citation', { ...citationMark.attrs, citated_figures: citatedFigures })])
+                    edView.dispatch(edView.state.tr.replaceWith(pos,
+                      pos + node.nodeSize
+                      , newNode).setMeta('citatsTextChange', true)
+                    )
                   }
-                })
-                citatString += figsArr.join(', ')
-                citatString += ' '
-                let newNode = (edView.state.schema as Schema).text(citatString) as Node
-                newNode = newNode.mark([citationMark])
-                edView.dispatch(edView.state.tr.replaceWith(pos,
-                  pos + node.nodeSize
-                  , newNode).setMeta('citatsTextChange', true)
-                )
+                }
               }
-            }
+            })
           }
         })
-      })
+      }
     })
   }
 
@@ -156,7 +175,7 @@ export class FiguresControllerService {
     }) */
     this.markCitatsViews(citats)
     this.updateCitatsText(citats)
-    console.log(JSON.stringify(this.figures,undefined,'\t'));
+    console.log(JSON.stringify(this.figures, undefined, '\t'));
     this.ydocService.figuresMap?.set('articleCitatsObj', citats);
 
     /* try {
@@ -192,7 +211,7 @@ export class FiguresControllerService {
           citatEndPos,
           Fragment.empty)
         )
-        
+
         return
       }
 
@@ -275,7 +294,7 @@ export class FiguresControllerService {
       if (citatAttrs) {
         insertionView.dispatch(insertionView.state.tr.replaceWith(citatStartPos,
           citatEndPos
-          , node).setMeta('citatsTextChange',true)
+          , node).setMeta('citatsTextChange', true)
         )
       } else {
         insertionView.dispatch(insertionView.state.tr.replaceWith(insertionView.state.selection.from,
@@ -533,32 +552,32 @@ export class FiguresControllerService {
     view.state.doc.forEach((node, offset, index) => {
       if (node.type.name == 'figures_nodes_container') {
         foundContainer = true;
-        nodeStart = offset+node.nodeSize-1
-        nodeEnd = offset+node.nodeSize-1
+        nodeStart = offset + node.nodeSize - 1
+        nodeEnd = offset + node.nodeSize - 1
         node.forEach((figureNode, figOffset, figi) => {
           if (node.type.name == "block_figure" && this.figuresNumbers?.indexOf(node.attrs.figure_id)! > this.figuresNumbers?.indexOf(figureID)! && !foundPlace) {
             foundPlace = true
-            nodeStart = offset+figOffset+1;
-            nodeEnd = offset+figOffset+1
+            nodeStart = offset + figOffset + 1;
+            nodeEnd = offset + figOffset + 1
           } else if (node.type.name == "block_figure" && this.figuresNumbers?.indexOf(node.attrs.figure_id)! == this.figuresNumbers?.indexOf(figureID)! && !foundPlace) {
             figureisrendered = true
             foundPlace = true
-            nodeStart = offset+figOffset+1;
-            nodeEnd = offset+figOffset+1 + node.nodeSize
+            nodeStart = offset + figOffset + 1;
+            nodeEnd = offset + figOffset + 1 + node.nodeSize
           }
         })
       }
     })
     let schema = view.state.schema as Schema
-    if(!figureisrendered){
-      if(!foundContainer){
+    if (!figureisrendered) {
+      if (!foundContainer) {
         let container = schema.nodes.figures_nodes_container.create({}, figureNodes);
         view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, container).setMeta('shouldTrack', false))
-      }else{
+      } else {
         view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, figureNodes).setMeta('shouldTrack', false))
       }
     }
-    
+
 
 
     /* 
