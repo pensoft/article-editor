@@ -682,7 +682,7 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>, rere
 export const handleClickOn = (citatContextPluginKey: PluginKey) => {
 
   return (view: EditorView, pos: number, node: Node, nodePos: number, e: MouseEvent, direct: boolean) => {
-    if (node.type.name == 'citation' &&
+    if (node.marks.filter((mark)=>{return mark.type.name == 'citation'}) &&
       (("which" in e && e.which == 3) ||
         ("button" in e && e.button == 2)
       )) {

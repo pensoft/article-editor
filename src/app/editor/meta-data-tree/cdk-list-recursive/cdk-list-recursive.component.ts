@@ -23,12 +23,10 @@ import { ySyncPluginKey } from '../../../y-prosemirror-src/plugins/keys.js';
   templateUrl: './cdk-list-recursive.component.html',
   styleUrls: ['./cdk-list-recursive.component.scss']
 })
-export class CdkListRecursiveComponent implements OnInit, AfterViewInit {
+export class CdkListRecursiveComponent implements OnInit {
 
   @Input() articleSectionsStructure!: articleSection[];
   @Output() articleSectionsStructureChange = new EventEmitter<any>();
-
-  renderList = false;
 
   @Input() nestedList!: boolean;
 
@@ -53,9 +51,6 @@ export class CdkListRecursiveComponent implements OnInit, AfterViewInit {
     public dialog: MatDialog
   ) {
   }
-  ngAfterViewInit(){
-    this.renderList = true;
-  }
 
   ngOnInit(): void {
     this.sectionsFormGroups = this.treeService.sectionFormGroups
@@ -73,12 +68,12 @@ export class CdkListRecursiveComponent implements OnInit, AfterViewInit {
       nodeForm.updateValueAndValidity()
       this.treeService.sectionFormGroups[node.sectionID] = nodeForm;
 
-      
+
       this.ydocService.sectionFormGroupsStructures!.observe((ymap)=>{
         let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID)
         if(!dataFromYMap||dataFromYMap.updatedFrom==this.ydocService.ydoc.guid){
           return
-        } 
+        }
         Object.keys(nodeForm.controls).forEach((key) => {
           nodeForm.removeControl(key);
         })

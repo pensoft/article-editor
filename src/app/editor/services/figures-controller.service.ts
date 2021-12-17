@@ -1,7 +1,7 @@
 import { createViewChild, ViewFlags } from '@angular/compiler/src/core';
 import { AfterViewInit, Injectable, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
-import { Fragment, MarkType, Node, Schema, Slice } from 'prosemirror-model';
+import { Fragment, Mark, MarkType, Node, Schema, Slice } from 'prosemirror-model';
 import { EditorState, Transaction } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { figure, figure_component } from '../utils/interfaces/figureComponent';
@@ -156,6 +156,7 @@ export class FiguresControllerService {
     }) */
     this.markCitatsViews(citats)
     this.updateCitatsText(citats)
+    console.log(JSON.stringify(this.figures,undefined,'\t'));
     this.ydocService.figuresMap?.set('articleCitatsObj', citats);
 
     /* try {
@@ -182,7 +183,6 @@ export class FiguresControllerService {
       } else {
         citateId = uuidv4();
       }
-
       if (selectedFigures.filter(e => e).length == 0 && !citatAttrs) {
         return
       } else if (selectedFigures.filter(e => e).length == 0 && citatAttrs) {
@@ -192,8 +192,7 @@ export class FiguresControllerService {
           citatEndPos,
           Fragment.empty)
         )
-        this.markCitatsViews(citats)
-
+        
         return
       }
 
@@ -264,6 +263,7 @@ export class FiguresControllerService {
 
       //this.changeFiguresPlaces(citatedFigureIds,sectionID)
       this.markCitatsViews(citats)
+      //this.updateCitatsText(citats)
 
       let citateNodeText = citatString
       let node = (insertionView.state.schema as Schema).text(citateNodeText) as Node
@@ -275,7 +275,7 @@ export class FiguresControllerService {
       if (citatAttrs) {
         insertionView.dispatch(insertionView.state.tr.replaceWith(citatStartPos,
           citatEndPos
-          , node)
+          , node).setMeta('citatsTextChange',true)
         )
       } else {
         insertionView.dispatch(insertionView.state.tr.replaceWith(insertionView.state.selection.from,
@@ -527,6 +527,7 @@ export class FiguresControllerService {
 
     let foundPlace = false
     let foundContainer = false
+    let figureisrendered = false
 
     this.figuresNumbers
     view.state.doc.forEach((node, offset, index) => {
@@ -540,6 +541,7 @@ export class FiguresControllerService {
             nodeStart = offset+figOffset+1;
             nodeEnd = offset+figOffset+1
           } else if (node.type.name == "block_figure" && this.figuresNumbers?.indexOf(node.attrs.figure_id)! == this.figuresNumbers?.indexOf(figureID)! && !foundPlace) {
+            figureisrendered = true
             foundPlace = true
             nodeStart = offset+figOffset+1;
             nodeEnd = offset+figOffset+1 + node.nodeSize
@@ -548,11 +550,13 @@ export class FiguresControllerService {
       }
     })
     let schema = view.state.schema as Schema
-    if(!foundContainer){
-      let container = schema.nodes.figures_nodes_container.create({}, figureNodes);
-      view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, container).setMeta('shouldTrack', false))
-    }else{
-      view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, figureNodes).setMeta('shouldTrack', false))
+    if(!figureisrendered){
+      if(!foundContainer){
+        let container = schema.nodes.figures_nodes_container.create({}, figureNodes);
+        view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, container).setMeta('shouldTrack', false))
+      }else{
+        view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, figureNodes).setMeta('shouldTrack', false))
+      }
     }
     
 

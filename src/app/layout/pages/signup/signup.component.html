@@ -10,7 +10,7 @@
 
   <div class="register">
 
-    <div class="title-container">Login</div>
+    <div class="title-container">Register</div>
 
     <form class="form-container" [formGroup]="loginForm" (ngSubmit)="submit()">
       <div class="form-a">
@@ -27,14 +27,21 @@
           >
 
         </div>
-        <!--<input
-          type="email"
-          formControlName="email"
-          label="Email*"
-          placeholder="Email address"
-          id="email"
+      </div>
+      <div class="form-name">
+        <label class="arpha-label character-style-11">{{'Name*'}}</label>
+        <div class="arpha-input-container" >
+          <input
+            class="arpha-input"
+            type="text"
+            formControlName="name"
+            label="name*"
+            placeholder="Name"
+            id="name"
 
-        >-->
+          >
+
+        </div>
       </div>
       <div class="form-b">
         <label class="arpha-label character-style-11">{{'Password*'}}</label>
@@ -58,10 +65,8 @@
 
         >-->
       </div>
-      <div class="password-link"><a>Forgot your password?</a></div>
-      <arpha-button label="Login" type="submit" class="primary large login-button"></arpha-button>
-      <div class="text">or</div>
-      <arpha-button routerLink="/register" label="Register" class="secondary large register-button"></arpha-button>
+      <arpha-button label="Register" type="submit" class="primary large login-button"></arpha-button>
+
       <div class="crossed-title">
         <span>or Login with</span>
       </div>

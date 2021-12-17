@@ -13,6 +13,7 @@ export class AuthGuard implements CanActivate {
     if( !isLogged ) {
       this._authservice.logout()
     }
+    this._authservice.getUserInfo().subscribe()
 
     return isLogged;
   }

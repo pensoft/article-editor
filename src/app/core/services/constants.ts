@@ -7,4 +7,5 @@ export abstract class CONSTANTS {
   static readonly USERNAME = 'username';
   static readonly PASSWORD = 'password';
   static readonly EMAIL = 'email';
+  static readonly NAME = 'name';
 }

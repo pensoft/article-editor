@@ -135,6 +135,9 @@ export class ProsemirrorEditorsService {
       // data == true => mobule version
       this.mobileVersion = data
     })
+
+    
+
     this.OnOffTrackingChangesShowTrackingSubject.subscribe((data) => {
       this.shouldTrackChanges = data.trackTransactions
       let trackCHangesMetadata = this.ydocService.trackChangesMetadata?.get('trackChangesMetadata');
@@ -270,6 +273,21 @@ export class ProsemirrorEditorsService {
       filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.rerenderFigures,editorID),
     })
 
+    let dragCitatsPluginKey = new PluginKey('dragCitats');
+    let dragCitats = new Plugin({
+      key: dragCitatsPluginKey,
+      props:{
+        /* createSelectionBetween(view,anchor,head){
+          if(head.pos<anchor.pos){
+
+          }
+          console.log(head.nodeAfter);
+          console.log(head.nodeBefore);
+          return undefined
+        } */
+      }
+    })
+
     setTimeout(() => {
       this.initDocumentReplace[editorID] = false;
     }, 600);
@@ -295,6 +313,7 @@ export class ProsemirrorEditorsService {
         tableEditing(),
         this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
+        dragCitats,
         this.detectFocusService.getPlugin(),
         this.commentsService.getPlugin(),
         this.trackChangesService.getHideShowPlugin(),
@@ -363,6 +382,26 @@ export class ProsemirrorEditorsService {
       handleTripleClickOn,
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
       handleKeyDown,
+      handleDrop:(view: EditorView, event: Event, slice: Slice, moved: boolean)=>{
+        slice.content.nodesBetween(0,slice.content.size-2,(node,pos,parent)=>{
+          if(node.marks.filter((mark)=>{return mark.type.name == 'citation'}).length>0){
+            let citationMark = node.marks.filter((mark)=>{return mark.type.name == 'citation'})[0];
+            //@ts-ignore
+            if(!event.ctrlKey){  // means that the drag is only moving the selected not a copy of the selection -> without Ctrl
+    
+            }else{      // the drag is moving a copy of the selection        
+              //@ts-ignore
+              let dropPosition =  view.posAtCoords({left:event.clientX,top:event.clientY}).pos + pos - slice.openStart
+              setTimeout(()=>{
+                let newMark = view.state.doc.nodeAt(dropPosition)
+                view.dispatch(view.state.tr.addMark(dropPosition,dropPosition + newMark?.nodeSize!,schema.mark('citation',{...citationMark.attrs,citateid:random.uuidv4()})))
+              },10)
+            }
+            console.log(view.dragging,event,slice,moved);
+          }
+        })
+        return false
+      }
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
     });
     EditorContainer.appendChild(container);

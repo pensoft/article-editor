@@ -3,6 +3,7 @@ import {Compiler, CompilerFactory, COMPILER_OPTIONS, Injector, NgModule} from '@
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import {ServiceWorkerModule} from '@angular/service-worker';
+import { SignupComponent } from '@app/layout/pages/signup/signup.component';
 import { HTTPReqResInterceptor } from '@core/services/http-req-res.interceptor';
 import { NgxSpinnerModule } from 'ngx-spinner';
 import {MaterialModule} from 'src/app/shared/material.module';
@@ -88,6 +89,7 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     ArphaToggleButtonComponent,
     LandingComponent,
     LoginComponent,
+    SignupComponent,
     ChangeComponent,
     ValidationSectionComponent,
     ArphaNavigationComponent,

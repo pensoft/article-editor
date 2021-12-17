@@ -186,14 +186,14 @@ export class TrackChangesService {
                     background-color: #eff9ef;
                     border-radius: 13px;
                     padding: 4px;
-                    padding-left: 9px;
+                    padding-left: 9px;cursor: pointer;
                     padding-right: 9px;
                     border: 1.4px solid black;`)
                     rejectBtn.setAttribute('style', `display: inline;
                     background-color: #fbdfd2;
                     border-radius: 13px;
                     padding: 4px;
-                    padding-left: 9px;
+                    padding-left: 9px;cursor: pointer;
                     padding-right: 9px;
                     margin-left: 7px;
                     border: 1.4px solid black;`)

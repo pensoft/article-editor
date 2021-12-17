@@ -15,7 +15,6 @@ export type UserType = UserModel | undefined;
 export class AuthService implements OnDestroy {
   private headers = new HttpHeaders()
     .set('Content-Type', 'application/x-www-form-urlencoded')
-    // .set('Content-Type', 'application/json')
     .set('accept', 'application/x.article-api.v1+json')
   private unsubscribe$ = new Subject<void>();
   currentUser$: Observable<UserType>;
@@ -54,9 +53,25 @@ export class AuthService implements OnDestroy {
     );
   }
 
+  register(userdetails: IUserDetail) {
+    const body = new HttpParams()
+      .set(CONSTANTS.EMAIL, userdetails.email)
+      .set(CONSTANTS.NAME, userdetails.name || '')
+      .set(CONSTANTS.PASSWORD, userdetails.password);
+
+    return this._http.post<IAuthToken>(`${API_AUTH_URL}/signup`, body.toString(), {
+      headers: this.headers,
+    }).pipe(
+      switchMap(() => this.login(userdetails)),
+      catchError((err) => {
+        return of(undefined);
+      })
+    );
+  }
+
   logout() {
     localStorage.clear();
-    this.router.navigate(['/auth/login'], {
+    this.router.navigate(['/login'], {
       queryParams: {},
     })
   }

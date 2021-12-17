@@ -6,6 +6,7 @@ export interface IAuthToken {
 
 export interface IUserDetail {
   email: string;
+  name?: string;
   password: string;
 }
 

@@ -1,12 +1,19 @@
 import { CompileShallowModuleMetadata } from "@angular/compiler";
 import { mathBackspaceCmd } from "@benrbray/prosemirror-math";
 import { debug } from "console";
+import { uuidv4 } from "lib0/random";
 import { Fragment, ResolvedPos, Slice ,Node} from "prosemirror-model";
 import { PluginKey, PluginSpec, TextSelection,Selection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import { EditorView } from "prosemirror-view";
 
 export function handlePaste(view: EditorView, event: Event, slice: Slice) {
+    slice.content.nodesBetween(0,slice.size-2,(node,pos,parent)=>{
+        if(node.marks.filter((mark)=>{return mark.type.name=='citation'}).length>0){
+            let mark = node.marks.filter((mark)=>{return mark.type.name=='citation'})[0]
+            mark.attrs.citateid = uuidv4()
+        }
+    })
     let sel = view.state.selection
     let noneditableNodes = false;
     view.state.doc.nodesBetween(sel.from, sel.to, (node, pos, parent) => {
@@ -29,6 +36,9 @@ export function handleClick(hideshowPluginKEey:PluginKey,citatContextPluginkey?:
             }, 0)
             return true
         }else if(((event.target as HTMLElement).className == 'citat-menu-context')||(event.target as HTMLElement).tagName=='CITATION'){
+            return true
+        }else if((event.target as HTMLElement).className == 'citat-menu-context-delete-citat-btn'){
+            setTimeout(()=>{view.dispatch(view.state.tr)},0)
             return true
         }
         let tr1 = view.state.tr.setMeta(hideshowPluginKEey, {})
@@ -120,14 +130,14 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
         let NodeAfterHasNoneditableMark = sel.$anchor.nodeAfter?.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length!>0
         
         let onNoneditableMarkBorder :undefined|'left'|'right'= undefined
-        if(NodeBeforeHasNoneditableMark&&!NodeAfterHasNoneditableMark){
+        if(NodeBeforeHasNoneditableMark&&!NodeAfterHasNoneditableMark&&sel.empty){
             onNoneditableMarkBorder = 'right'
-        }else if(!NodeBeforeHasNoneditableMark&&NodeAfterHasNoneditableMark){
+        }else if(!NodeBeforeHasNoneditableMark&&NodeAfterHasNoneditableMark&&sel.empty){
             onNoneditableMarkBorder = 'left'
         }else if(NodeBeforeHasNoneditableMark&&NodeAfterHasNoneditableMark){
             canEdit = false
         }
-        if(onNoneditableMarkBorder&&sel.empty){
+        if(onNoneditableMarkBorder){
             if(onNoneditableMarkBorder == 'left'){
                 if(key == 'Delete'){
                     canEdit = false
@@ -141,10 +151,11 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
         // check both sides for noneditable marks
 
         let check = (node:Node)=>{
+            let returnValue = false
             if(node){
-                return node.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length>0
+                returnValue =  node.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length>0
             }
-            return false
+            return returnValue
         }
         
         if((check($from.nodeAfter!)||check($from.nodeBefore!)||check($to.nodeAfter!)||check($to.nodeBefore!))&&!onNoneditableMarkBorder){

@@ -14,6 +14,10 @@
         <mat-icon svgIcon="dashboard"></mat-icon>
       </span>
       <app-theme-toggle class="theme-toggle"></app-theme-toggle>
+      <ng-container *ngIf="authService.currentUserSubject | async as o ">
+        <span>{{o.name}}</span>
+      </ng-container>
+      <arpha-button *ngIf="authService.isLoggedIn()" label="Log Out" (clickEvent)="authService.logout();" class="primary text-icon upload-row"></arpha-button>
       <span class="avatar"></span>
       <span class="arrow-icon">
         <mat-icon>expand_more</mat-icon>

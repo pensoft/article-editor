@@ -36,7 +36,7 @@ export class InsertFigureComponent implements AfterViewInit {
     private dialogRef: MatDialogRef<InsertFigureComponent>,
     private commentsPlugin: CommentsService,
     private prosemirrorEditorsService: ProsemirrorEditorsService,
-    @Inject(MAT_DIALOG_DATA) public data: { view: EditorView, citatData: any }
+    @Inject(MAT_DIALOG_DATA) public data: { view: EditorView, citatData: any,sectionID:string }
   ) {
     this.figuresData = this.ydocService.figuresMap?.get('ArticleFiguresNumbers')
     this.figures = this.ydocService.figuresMap?.get('ArticleFigures')
@@ -82,7 +82,12 @@ export class InsertFigureComponent implements AfterViewInit {
     try {
       if(this.data.citatData){
         //@ts-ignore
-        let sectionID = this.commentsPlugin.commentPluginKey.getState(this.data.view.state).sectionName
+        let sectionID 
+        if(this.data.view){
+          sectionID = this.commentsPlugin.commentPluginKey.getState(this.data.view.state).sectionName
+        }else if(this.data.sectionID){
+          sectionID = this.data.sectionID
+        }
         //let sectionID = pluginData.sectionName
         let citat = this.citats[sectionID][this.data.citatData.citateid];
         (citat.figureIDs as string[]).forEach((figure)=>{
@@ -117,7 +122,12 @@ export class InsertFigureComponent implements AfterViewInit {
           this.error = false
         }, 3000)
       } else {
-        let sectionID = this.commentsPlugin.commentPluginKey.getState(this.data.view.state).sectionName
+        let sectionID 
+        if(this.data.view){
+          sectionID = this.commentsPlugin.commentPluginKey.getState(this.data.view.state).sectionName
+        }else if(this.data.sectionID){
+          sectionID = this.data.sectionID
+        }
         this.figuresControllerService.citateFigures(this.selectedFigures, this.figuresComponentsChecked, sectionID,this.data.citatData)
         this.dialogRef.close()
       }

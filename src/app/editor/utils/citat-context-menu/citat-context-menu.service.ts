@@ -1,37 +1,57 @@
 import { Injectable } from '@angular/core';
-import { Plugin, PluginKey } from 'prosemirror-state';
-import { DecorationSet, Decoration } from 'prosemirror-view';
+import { MatDialog } from '@angular/material/dialog';
+import { InsertFigureComponent } from '@app/editor/dialogs/figures-dialog/insert-figure/insert-figure.component';
+import { FiguresControllerService } from '@app/editor/services/figures-controller.service';
+import { YdocService } from '@app/editor/services/ydoc.service';
+import { Fragment } from 'prosemirror-model';
+import { EditorState, Plugin, PluginKey } from 'prosemirror-state';
+import { DecorationSet, Decoration, EditorView } from 'prosemirror-view';
 import { TrackChangesService } from '../trachChangesService/track-changes.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CitatContextMenuService {
+
   citatContextPlugin: Plugin<any>
   citatContextPluginKey: PluginKey
-  editorCenter:any
+  editorCenter: any
+
+  
+
+  shouldCloseContextMenu = false;
   constructor(
-    private trackChangePluginService: TrackChangesService
+    private trackChangePluginService: TrackChangesService,
+    public dialog: MatDialog,
+    private ydocServide:YdocService,
   ) {
     let key = new PluginKey('citatContextPlugin')
     this.citatContextPluginKey = key;
     let editorCenter = trackChangePluginService.editorCenter
     this.editorCenter = editorCenter
+
+    let shouldCloseContextMenu = this.shouldCloseContextMenu
+
+    let deleteData:any
+
     this.citatContextPlugin = new Plugin({
       key: this.citatContextPluginKey,
       state: {
         init: (_, state) => {
-          return { 
-            sectionName: _.sectionName ,
+          return {
+            sectionName: _.sectionName,
             editorType: _.editorType ? _.editorType : undefined
           };
         },
         apply(tr, prev, _, newState) {
-          if(tr.getMeta('citatContextPlugin')&&tr.getMeta('citatContextPlugin').clickOutside){ 
+          if ((tr.getMeta('citatContextPlugin') && tr.getMeta('citatContextPlugin').clickOutside) || shouldCloseContextMenu) {
             prev.decorations = undefined
-          }else if (tr.getMeta('citatContextPlugin')) {
+            shouldCloseContextMenu = false
+          } else if (tr.getMeta('citatContextPlugin')) {
+            
             let meta = tr.getMeta('citatContextPlugin')
             prev.meta = meta
+            let citationMark = newState.doc.nodeAt(newState.selection.from)?.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
             prev.decorations = DecorationSet.create(newState.doc, [Decoration.widget(newState.selection.from, (view) => {
               let relativeElement = document.createElement('div');
               relativeElement.setAttribute('style', 'position: relative;display: inline;line-height: 21px;font-size: 14px;')
@@ -56,40 +76,58 @@ export class CitatContextMenuService {
               buttonsContainer.setAttribute('class', 'citat-menu-context')
               buttonsContainer.setAttribute('style', `display:block`)
 
-              let acceptBtn = document.createElement('button')
-              acceptBtn.setAttribute('class', 'citat-menu-context')
-              let rejectBtn = document.createElement('button')
-              rejectBtn.setAttribute('class', 'citat-menu-context')
-              acceptBtn.textContent = 'Edit figure citation'
-              rejectBtn.textContent = 'Delete figure citation'
-              acceptBtn.setAttribute('style', `
+              let editCitationButton = document.createElement('button')
+              editCitationButton.setAttribute('class', 'citat-menu-context')
+              let deleteCitationButton = document.createElement('button')
+              deleteCitationButton.setAttribute('class', 'citat-menu-context-delete-citat-btn')
+              editCitationButton.textContent = 'Edit figure citation'
+              deleteCitationButton.textContent = 'Delete figure citation'
+              editCitationButton.setAttribute('style', `
               background-color: #eff9ef;
               border-radius: 13px;
               padding: 4px;
               padding-left: 9px;
               padding-right: 9px;
               border: 2px solid black;
-              display: block;
+              display: block;cursor: pointer;
               width: 100%;`)
-              rejectBtn.setAttribute('style', `
+              deleteCitationButton.setAttribute('style', `
               background-color: #fbdfd2;
               border-radius: 13px;
               padding: 4px;
               padding-left: 9px;
-              padding-right: 9px;
+              padding-right: 9px;cursor: pointer;
               margin-top: 8px;
               display: block;
               width: 100%;
               border: 2px solid black;`)
 
-              acceptBtn.addEventListener('click', () => {
-
+              editCitationButton.addEventListener('click', () => {
+                console.log(citationMark);
+                let data
+                if (citationMark) {
+                  data = JSON.parse(JSON.stringify(citationMark.attrs));
+                }
+                const dialogRef = dialog.open(InsertFigureComponent, {
+                  width: '80%',
+                  height: '90%',
+                  panelClass: 'insert-figure-in-editor',
+                  data: { view, citatData: data, sectionID: prev.sectionName }
+                });
+                dialogRef.afterClosed().subscribe(result => {
+                  shouldCloseContextMenu = true
+                });
               })
-              rejectBtn.addEventListener('click', () => {
+              deleteCitationButton.addEventListener('click', () => {
+                if (citationMark) {
+                  deleteData = {mark:citationMark,sectionID:prev.sectionName}
+                  console.log('schedule a deletetion for citation form contaext menu');
 
+                  shouldCloseContextMenu = true
+                }
               })
 
-              buttonsContainer.append(acceptBtn, rejectBtn);
+              buttonsContainer.append(editCitationButton, deleteCitationButton);
 
               let arrow = document.createElement('div');
               arrow.setAttribute('class', 'citat-menu-context')
@@ -233,6 +271,25 @@ export class CitatContextMenuService {
               editorCenter.top = (elemRect.top + elemRect.bottom) / 2
               editorCenter.left = (elemRect.left + elemRect.right) / 2
             }
+
+            if(deleteData){
+              let mark = deleteData.mark
+              let sectionID = deleteData.sectionID
+
+              if(pluginState.sectionName == sectionID){
+                let citatsData = ydocServide.figuresMap?.get('articleCitatsObj');
+                let markActualData = citatsData[sectionID][mark.attrs.citateid]
+                if(markActualData){
+                  deleteData = undefined
+                  let start = +markActualData.position
+                  let end = +markActualData.position+view.state.doc.nodeAt(markActualData.position)?.nodeSize!
+                  //citatsData[sectionID][mark.attrs.citateid] = undefined
+                  //ydocServide.figuresMap?.set('articleCitatsObj',citatsData)
+                  console.log('deleting citation form contaext menu');
+                  view.dispatch(view.state.tr.replaceWith(start,end,Fragment.empty))
+                }
+              }
+            }
           },
           destroy: () => { }
         }
@@ -240,5 +297,7 @@ export class CitatContextMenuService {
 
     })
   }
+
+  
 
 }

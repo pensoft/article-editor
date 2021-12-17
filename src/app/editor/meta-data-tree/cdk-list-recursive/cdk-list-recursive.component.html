@@ -1,9 +1,9 @@
 <ng-container >
-    <div *ngIf="renderList" cdkDropList [ngClass]="{'outer-list':!nestedList,'nested-list':nestedList}" (cdkDropListDropped)="drop($event)">
+    <div cdkDropList [ngClass]="{'outer-list':!nestedList,'nested-list':nestedList}" (cdkDropListDropped)="drop($event)">
         <ng-container *ngFor="let node of articleSectionsStructure;index as i">
-            <app-section-leaf 
-            [(node)]="node!" 
-            [parentListData]="listData" 
+            <app-section-leaf
+            [(node)]="node!"
+            [parentListData]="listData"
             [nodeFormGroup]="sectionsFormGroups[node.sectionID]"
             [sectionsFormGroupsRef]="sectionsFormGroups"
             [parentId]="listParentId"
