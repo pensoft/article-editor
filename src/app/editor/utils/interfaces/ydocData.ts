@@ -12,4 +12,5 @@ export interface ydocData {
     provider: WebsocketProvider | undefined;
     providerIndexedDb: IndexeddbPersistence;
     articleSectionsStructure: articleSection[];
+    userData:any
 }

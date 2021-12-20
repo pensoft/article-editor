@@ -2,6 +2,7 @@ import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild }
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDrawer } from '@angular/material/sidenav';
 import { ActivatedRoute, ParamMap } from '@angular/router';
+import { AuthService } from '@app/core/services/auth.service';
 import { FormioAppConfig } from '@formio/angular';
 import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
@@ -52,7 +53,8 @@ export class EditorComponent implements OnInit, AfterViewInit {
     private prosemirrorEditorServie: ProsemirrorEditorsService,
     private trackChanges: TrackChangesService,
     private treeService: TreeService,
-    public config: FormioAppConfig
+    public config: FormioAppConfig,
+    private authService:AuthService
   ) {
 
     treeService.toggleTreeDrawer.subscribe((data) => {
@@ -129,8 +131,10 @@ export class EditorComponent implements OnInit, AfterViewInit {
     this.route.paramMap
       .pipe(map((params: ParamMap) => params.get('id')))
       .subscribe(roomName => {
-        this.roomName = roomName;
-        this.ydocService.init(roomName!);
+        this.authService.getUserInfo().subscribe((info)=>{
+          this.roomName = roomName;
+          this.ydocService.init(roomName!,info);
+        })
       });
 
     this.ydocService.ydocStateObservable.subscribe((event) => {

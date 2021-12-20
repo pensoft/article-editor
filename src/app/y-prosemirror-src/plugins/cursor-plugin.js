@@ -26,6 +26,19 @@ export const defaultCursorBuilder = user => {
   return cursor
 }
 
+export const cursurBuilderWithArphaUserData = user =>{
+  return  () => {
+    const cursor = document.createElement('span')
+    cursor.classList.add('ProseMirror-yjs-cursor')
+    cursor.setAttribute('style', `border-color: ${user.color}`)
+    const userDiv = document.createElement('div')
+    userDiv.setAttribute('style', `background-color: ${user.color}`)
+    userDiv.insertBefore(document.createTextNode(user.name), null)
+    cursor.insertBefore(userDiv, null)
+    return cursor
+  }
+}
+
 /**
  * @param {any} state
  * @param {Awareness} awareness
@@ -79,17 +92,17 @@ export const createDecorations = (state, awareness, createCursor) => {
  * @param {string} [opts.cursorStateField] By default all editor bindings use the awareness 'cursor' field to propagate cursor information.
  * @return {any}
  */
-export const yCursorPlugin = (awareness, { cursorBuilder = defaultCursorBuilder, getSelection = state => state.selection } = {}, cursorStateField = 'cursor') => new Plugin({
+export const yCursorPlugin = (awareness,userData, { cursorBuilder = defaultCursorBuilder, getSelection = state => state.selection } = {}, cursorStateField = 'cursor') => new Plugin({
   key: yCursorPluginKey,
   state: {
     init (_, state) {
-      return createDecorations(state, awareness, cursorBuilder)
+      return createDecorations(state, awareness, cursurBuilderWithArphaUserData(userData))
     },
     apply (tr, prevState, oldState, newState) {
       const ystate = ySyncPluginKey.getState(newState)
       const yCursorState = tr.getMeta(yCursorPluginKey)
       if ((ystate && ystate.isChangeOrigin) || (yCursorState && yCursorState.awarenessUpdated)) {
-        return createDecorations(newState, awareness, cursorBuilder)
+        return createDecorations(newState, awareness, cursurBuilderWithArphaUserData(userData))
       }
       return prevState.map(tr.mapping, tr.doc)
     }

@@ -111,7 +111,7 @@ export class ProsemirrorEditorsService {
 
   defaultValuesObj: any = {}
   editorsDeleteArray: string[] = []
-
+  userData:any
   
   citatEditingSubject:Subject<any> = new Subject<any>()
   deletedCitatsInPopUp :{[key:string]:string[]}= {}
@@ -256,8 +256,9 @@ export class ProsemirrorEditorsService {
 
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment(section.mode, editorID)
+    console.log(permanentUserData);
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
-    yCursorPlugin(this.provider!.awareness),
+    yCursorPlugin(this.provider!.awareness,this.userData),
     yUndoPlugin()]
 
 
@@ -443,7 +444,7 @@ export class ProsemirrorEditorsService {
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment('documentMode', editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
-    yCursorPlugin(this.provider!.awareness),
+    yCursorPlugin(this.provider!.awareness,this.userData),
     yUndoPlugin()]
 
     container.setAttribute('class', 'editor-container');
@@ -715,6 +716,7 @@ export class ProsemirrorEditorsService {
 
   init() {
     let data = this.ydocService.getData();
+    this.userData = data.userData
     this.ydoc = data.ydoc;
     this.provider = data.provider;
     this.articleSectionsStructure = data.articleSectionsStructure;

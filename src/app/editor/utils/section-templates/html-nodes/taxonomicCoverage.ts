@@ -1,4 +1,5 @@
-export const taxonomicCoverageTemplate = `<h2 contenteditableNode="false">Taxonomic coverage</h2>
+export const taxonomicCoverageTemplate = `
+<h2 contenteditableNode="false">Taxonomic coverage</h2>
 <form-field  class="set-align-left" formControlName="description" commentable="false">
 </form-field >
 <div class="tableWrapper">

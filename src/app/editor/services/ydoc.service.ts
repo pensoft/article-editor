@@ -25,6 +25,8 @@ import { uuidv4 } from "lib0/random";
 import { articleSection, editorData, taxonomicCoverageContentData } from '../utils/interfaces/articleSection';
 import { articleBasicStructure } from '../utils/articleBasicStructure';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
+import { isBuffer } from 'lodash';
+import { MatInkBar } from '@angular/material/tabs';
 
 @Injectable({
   providedIn: 'root'
@@ -48,6 +50,8 @@ export class YdocService {
   comments?: YMap<any>
   figuresMap?: YMap<any>
   trackChangesMetadata?: YMap<any>
+  userData:any
+
   getCommentsMap(): YMap<any> {
     return this.comments!
   }
@@ -168,8 +172,10 @@ export class YdocService {
       ydoc: this.ydoc,
       provider: this.provider,
       providerIndexedDb: this.providerIndexedDb!,
-      articleSectionsStructure: articleSectionsStructure
+      articleSectionsStructure: articleSectionsStructure,
+      userData:this.userData
     }
+
   }
   buildEditor() {
     this.sectionFormGroupsStructures = this.ydoc.getMap('sectionFormGroupsStructures');
@@ -202,7 +208,11 @@ export class YdocService {
     this.editorIsBuild = true;
   }
 
-  init(roomName: string) {
+  init(roomName: string,userData:any) {
+    this.userData = userData.data
+    if(!this.userData.color){
+      this.userData.color = ['#e8b1b1','#b1e8d4','#cbb1e8','#fa77e4','#77b7fa','#e0d98d','#8de093','#253527','#e4b671','#b9b4ab'][+(Math.random()*10).toFixed(0)]
+    }
     this.roomName = roomName
     this.providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
     let buildApp = () => {
