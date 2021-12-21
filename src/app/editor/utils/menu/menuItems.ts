@@ -9,7 +9,7 @@ import { addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefor
 import { icons } from 'prosemirror-menu'
 //@ts-ignore'../../y-prosemirror-src/y-prosemirror.js'
 import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from '../../../y-prosemirror-src/y-prosemirror.js';
-import { wrapItem, blockTypeItem, selectParentNodeItem as selectParentNodeItemPM } from "prosemirror-menu"
+import { wrapItem, blockTypeItem, selectParentNodeItem as selectParentNodeItemPM } from "prosemirror-menu";
 import { YMap } from "yjs/dist/src/internals";
 import { wrapInList } from "prosemirror-schema-list";
 import { Subject } from 'rxjs';

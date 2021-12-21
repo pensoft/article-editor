@@ -113,7 +113,8 @@ export class SectionLeafComponent implements OnInit {
               snapshot: Y.decodeSnapshot(Y.encodeSnapshot(updatedSnapshot)),
               prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(mainDocumentSnapshot)),
               renderingFromPopUp: true,
-              trackStatus:true
+              trackStatus:true,
+              userInfo:this.prosemirrorEditorsService.userInfo,
             }))
           }else{
             updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());

@@ -67,6 +67,7 @@ const getUserColor = (colorMapping, colors, user) => {
 }
 
 let trackStatus = undefined
+let userInfo = undefined
 
 /**
  * This plugin listens to changes in prosemirror view and keeps yXmlState and view in sync.
@@ -113,8 +114,9 @@ export const ySyncPlugin = (yXmlFragment, { colors = defaultColors, colorMapping
         if (pluginState.binding !== null) {
           if (change !== undefined && (change.snapshot != null || change.prevSnapshot != null)&&change.renderingFromPopUp) {
             // snapshot changed, rerender next
-            if(pluginState.trackStatus!==undefined){
+            if(pluginState.trackStatus!==undefined||pluginState.userInfo!==undefined){
               trackStatus = pluginState.trackStatus
+              userInfo = pluginState.userInfo
             }
             setTimeout(() => {
               pluginState.binding._renderSnapshot(change.snapshot, change.prevSnapshot, pluginState)
@@ -476,17 +478,27 @@ const createTextNodesFromYText = (text, schema, mapping, snapshot, prevSnapshot,
       const marks = []
       for (const markName in delta.attributes) {
         let markAttrs = delta.attributes[markName]
-        if(markName == 'ychange'&&!delta.attributes.insertion&&!delta.attributes.deletion){
+        if(markName == 'ychange'/* &&!delta.attributes.insertion&&!delta.attributes.deletion */){
           if(markAttrs.type == 'added'&&trackStatus){
-            marks.push(schema.mark('insFromPopup', {
-              user:text.doc.clientID,
-              username:markAttrs.user
+            marks.push(schema.mark('insertion', {
+              user:userInfo.data.id,
+              username:userInfo.data.name
             }))
+            /* debugger
+             marks.push(schema.mark('insertion', {
+              user:userInfo.data.id,
+              username:userInfo.data.name
+            }))  */
           }else if(markAttrs.type == 'removed'&&trackStatus){
-            marks.push(schema.mark('delFromPopup',{
-              user:text.doc.clientID,
-              username:markAttrs.user
+            marks.push(schema.mark('deletion',{
+              user:userInfo.data.id,
+              username:userInfo.data.name
             }))
+            /* debugger
+             marks.push(schema.mark('deletion',{
+              user:userInfo.data.id,
+              username:userInfo.data.name
+            }))  */ 
           }
         }else{
           if(markName !== 'ychange'){

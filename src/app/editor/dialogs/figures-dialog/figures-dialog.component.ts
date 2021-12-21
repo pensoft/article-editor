@@ -17,7 +17,7 @@ export class FiguresDialogComponent implements AfterViewInit {
   figuresMap ?:YMap<any>
   figuresNumbers ?: string[] 
   figures ?: {[key:string]:figure}
-  
+  editedFigures:{[key:string]:boolean} ={}
   newFigureNodes :{[key:string]:Node} = {}
   deletedFigures : string[] = []
 
@@ -32,7 +32,8 @@ export class FiguresDialogComponent implements AfterViewInit {
     figuresControllerService.figuresNumbers = figuresNumbersArray
     figuresControllerService.figures = figures
     this.figuresNumbers = JSON.parse(JSON.stringify(figuresNumbersArray))
-    this.figures = JSON.parse(JSON.stringify(figures))
+    this.figures = JSON.parse(JSON.stringify(figures));
+    
   }
 
   ngAfterViewInit(): void {
@@ -54,6 +55,7 @@ export class FiguresDialogComponent implements AfterViewInit {
         this.figuresNumbers?.splice(figIndex,1,result.figure.figureID)
         this.figures![result.figure.figureID] = result.figure
         this.newFigureNodes[result.figure.figureID] = result.figureNode
+        this.editedFigures[result.figure.figureID] = true
       }
     })
   }
@@ -61,6 +63,9 @@ export class FiguresDialogComponent implements AfterViewInit {
   deleteFigure(fig:figure,figIndex:number){
     this.figuresNumbers?.splice(figIndex,1);
     delete this.figures![fig.figureID] 
+    if(this.editedFigures[fig.figureID]){
+      delete this.editedFigures[fig.figureID]
+    }
     /* if(!Object.keys(this.newFigureNodes).includes(fig.figureID)){
       this.deletedFigures.push(fig.figureID)
     }else{
@@ -107,7 +112,7 @@ export class FiguresDialogComponent implements AfterViewInit {
   }
 
   saveFigures(){
-    this.figuresControllerService.writeFiguresDataGlobal(this.newFigureNodes,this.figures!,this.figuresNumbers!)
+    this.figuresControllerService.writeFiguresDataGlobal(this.newFigureNodes,this.figures!,this.figuresNumbers!,this.editedFigures)
     this.dialogRef.close()
   }
 
