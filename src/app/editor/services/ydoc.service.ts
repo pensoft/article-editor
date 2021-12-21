@@ -26,6 +26,7 @@ import { articleSection, editorData, taxonomicCoverageContentData } from '../uti
 import { articleBasicStructure } from '../utils/articleBasicStructure';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 import { threadId } from 'worker_threads';
+import { ServiceShare } from './service-share.service';
 
 @Injectable({
   providedIn: 'root'
@@ -43,7 +44,10 @@ export class YdocService {
   providerIndexedDb?: IndexeddbPersistence
   constructor(
     private http: HttpClient,
-  ) { }
+    private serviceShare:ServiceShare
+  ) { 
+    this.serviceShare.shareSelf('YdocService',this)
+  }
   articleStructure?: YMap<any>
   sectionFormGroupsStructures?: YMap<any>
   comments?: YMap<any>

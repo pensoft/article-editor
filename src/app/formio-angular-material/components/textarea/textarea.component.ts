@@ -220,22 +220,32 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
           } catch (e) {
             console.error(e);
           }
-        } else {
+        } else if(!this.rerender) {
           this.value = this.control.value
 
           awaitValue()
         }
-      }, 100);
+      }, 20);
+      setTimeout(()=>{
+        if (!this.value&&!this.rerender) {
+          try {
+            this.rerender = true
+            this.renderComponents()
+          } catch (e) {
+            console.error(e);
+          }
+        } 
+      },500)
     }
     this.value = this.control.value
     awaitValue()
-    let renderEditor = () => {
+    /* let renderEditor = () => {
       try {
         this.render(this.value!)
       } catch (e) {
         console.error(e);
       }
-    }
+    } */
   }
 
   validateOnInit() {

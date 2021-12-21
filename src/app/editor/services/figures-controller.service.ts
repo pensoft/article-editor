@@ -16,6 +16,7 @@ import { Transform } from 'prosemirror-transform';
 import { debug } from 'console';
 import { I } from '@angular/cdk/keycodes';
 import { viewClassName } from '@angular/compiler';
+import { ServiceShare } from './service-share.service';
 
 @Injectable({
   providedIn: 'root'
@@ -37,8 +38,10 @@ export class FiguresControllerService {
   renderEditorFn: any
   constructor(
     private ydocService: YdocService,
-    private prosemirrorEditorsService: ProsemirrorEditorsService
+    private prosemirrorEditorsService: ProsemirrorEditorsService,
+    private serviceShare:ServiceShare,
   ) {
+    this.serviceShare.shareSelf('FiguresControllerService',this)
     if (this.ydocService.editorIsBuild) {
       this.initFigures()
     } else {
