@@ -213,7 +213,7 @@ export class YdocService {
   init(roomName: string,userInfo:any) {
     this.roomName = roomName
     this.userInfo = userInfo
-    this.userInfo.color = ['#fa717170','#fa71bf70','#f571fa70','#c971fa70','#8a71fa70','#71fac570','#fac77170','#fa947170'][+(Math.random()*14).toFixed(0)]
+    this.userInfo.color = ['#fa7171','#fa71bf','#f571fa','#c971fa','#8a71fa','#71fac5','#fac771','#fa9471'][+(Math.random()*14).toFixed(0)]
     this.providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
     let buildApp = () => {
       this.provider = new WebsocketProvider(`wss://${environment.WEBSOCKET_HOST}:${environment.WEBSOCKET_PORT}`, this.roomName, this.ydoc, {
