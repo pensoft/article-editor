@@ -1,0 +1,13 @@
+.card {
+  width: 563px;
+  height: fit-content;
+  margin: 0px 25px;
+  border-radius: 20px;
+  box-shadow: 0px 6px 10px #1bb1b22b;
+  text-align: center;
+
+  .title-verify {
+    font-size: 34px;
+    font-weight: bold;
+  }
+}

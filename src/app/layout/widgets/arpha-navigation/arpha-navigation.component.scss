@@ -46,9 +46,12 @@
     background-image: url("https://material.angular.io/assets/img/examples/shiba1.jpg");
     background-size: cover;
     border: 1px solid var(--color-00b1b2);
-    margin-right: 8px;
+    // margin-right: 8px;
     border-radius: 50%;
   }
+}
+::ng-deep.mat-menu-panel {
+  border-radius: 15px!important;
 }
 
 @media screen and (max-width: 600px) {

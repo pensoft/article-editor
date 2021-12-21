@@ -1,31 +1,31 @@
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import {Compiler, CompilerFactory, COMPILER_OPTIONS, Injector, NgModule} from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
-import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
-import {ServiceWorkerModule} from '@angular/service-worker';
+import { Compiler, CompilerFactory, COMPILER_OPTIONS, Injector, NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { ServiceWorkerModule } from '@angular/service-worker';
 import { SignupComponent } from '@app/layout/pages/signup/signup.component';
 import { HTTPReqResInterceptor } from '@core/services/http-req-res.interceptor';
 import { NgxSpinnerModule } from 'ngx-spinner';
-import {MaterialModule} from 'src/app/shared/material.module';
-import {STORAGE_PROVIDERS} from 'src/app/shared/storage.service';
-import {ThemeToggleComponent} from 'src/app/layout/widgets/thema-toggle/theme-toggle.component';
-import {windowProvider, WindowToken} from 'src/app/shared/window';
-import {environment} from '../environments/environment';
-import {AppRoutingModule} from './app-routing.module';
-import {AppComponent} from './app.component';
-import {EditorComponent} from './editor/editor.component';
-import {EditorMenuComponent} from './editor/editor-menu/editor-menu.component';
-import {MetaDataTreeComponent} from './editor/meta-data-tree/meta-data-tree.component';
-import {CommentsSectionComponent} from './editor/comments-section/comments-section.component';
-import {ChangesSectionComponent} from './editor/changes-section/changes-section.component';
-import {CommentComponent} from './editor/comments-section/comment/comment.component';
-import {AddCommentDialogComponent} from './editor/add-comment-dialog/add-comment-dialog.component';
-import {FormsModule, ReactiveFormsModule} from '@angular/forms';
-import {MainComponent} from './layout/pages/main/main.component';
-import {MAT_RIPPLE_GLOBAL_OPTIONS, RippleGlobalOptions} from '@angular/material/core';
-import {IconsRegisterService} from './shared/icons-register.service';
+import { MaterialModule } from 'src/app/shared/material.module';
+import { STORAGE_PROVIDERS } from 'src/app/shared/storage.service';
+import { ThemeToggleComponent } from 'src/app/layout/widgets/thema-toggle/theme-toggle.component';
+import { windowProvider, WindowToken } from 'src/app/shared/window';
+import { environment } from '../environments/environment';
+import { AppRoutingModule } from './app-routing.module';
+import { AppComponent } from './app.component';
+import { EditorComponent } from './editor/editor.component';
+import { EditorMenuComponent } from './editor/editor-menu/editor-menu.component';
+import { MetaDataTreeComponent } from './editor/meta-data-tree/meta-data-tree.component';
+import { CommentsSectionComponent } from './editor/comments-section/comments-section.component';
+import { ChangesSectionComponent } from './editor/changes-section/changes-section.component';
+import { CommentComponent } from './editor/comments-section/comment/comment.component';
+import { AddCommentDialogComponent } from './editor/add-comment-dialog/add-comment-dialog.component';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { MainComponent } from './layout/pages/main/main.component';
+import { MAT_RIPPLE_GLOBAL_OPTIONS, RippleGlobalOptions } from '@angular/material/core';
+import { IconsRegisterService } from './shared/icons-register.service';
 import { TableSizePickerComponent } from './editor/utils/table-size-picker/table-size-picker.component';
-import {DragDropModule} from '@angular/cdk/drag-drop';
+import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CdkListRecursiveComponent } from './editor/meta-data-tree/cdk-list-recursive/cdk-list-recursive.component';
 import { AddLinkDialogComponent } from './editor/add-link-dialog/add-link-dialog.component';
 import { ArphaInputComponent } from './layout/widgets/arpha-input/arpha-input.component';
@@ -42,7 +42,7 @@ import { ValidationSpinnerComponent } from 'src/app/editor/validation-section/va
 import { InsertImageDialogComponent } from './editor/dialogs/insert-image-dialog/insert-image-dialog.component';
 import { InsertDiagramDialogComponent } from './editor/dialogs/insert-diagram-dialog/insert-diagram-dialog.component';
 import { InsertSpecialSymbolDialogComponent } from './editor/dialogs/insert-special-symbol-dialog/insert-special-symbol-dialog.component';
-import {FormioAppConfig, FormioModule} from '@formio/angular';
+import { FormioAppConfig, FormioModule } from '@formio/angular';
 import { AppConfig } from './config';
 import { SectionComponent } from './editor/section/section.component';
 import { registerFormIOComponents } from './editor/formioComponents/registerFormIOComponents';
@@ -62,6 +62,7 @@ import { FigurePreviewComponent } from './editor/formioComponents/figure-preview
 import { SectionLeafComponent } from './editor/meta-data-tree/cdk-list-recursive/section-leaf/section-leaf.component';
 import { FiguresProsemirrorViewComponent } from './editor/figures-prosemirror-view/figures-prosemirror-view.component';
 import { InsertFigureComponent } from './editor/dialogs/figures-dialog/insert-figure/insert-figure.component';
+import { VerifyAccountComponent } from './layout/pages/verify-account/verify-account.component';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -110,6 +111,7 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     SectionLeafComponent,
     FiguresProsemirrorViewComponent,
     InsertFigureComponent,
+    VerifyAccountComponent,
   ],
   imports: [
     PipesModule,
@@ -138,16 +140,16 @@ export function createCompiler(compilerFactory: CompilerFactory) {
       multi: true,
     },
     STORAGE_PROVIDERS,
-    {provide: WindowToken, useFactory: windowProvider},
-    {provide: FormioAppConfig, useValue: AppConfig},
-    {provide: COMPILER_OPTIONS, useValue: {}, multi: true},
-    {provide: CompilerFactory, useClass: JitCompilerFactory, deps: [COMPILER_OPTIONS]},
-    {provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory]}
+    { provide: WindowToken, useFactory: windowProvider },
+    { provide: FormioAppConfig, useValue: AppConfig },
+    { provide: COMPILER_OPTIONS, useValue: {}, multi: true },
+    { provide: CompilerFactory, useClass: JitCompilerFactory, deps: [COMPILER_OPTIONS] },
+    { provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory] }
   ],
   bootstrap: [AppComponent],
 })
 export class AppModule {
-  constructor(public iconsRegisterService: IconsRegisterService,injector: Injector,private logSWUpdates:LogSwUpdatesService) {
+  constructor(public iconsRegisterService: IconsRegisterService, injector: Injector, private logSWUpdates: LogSwUpdatesService) {
     registerFormIOComponents(injector);
   }
 }

@@ -60,11 +60,13 @@ import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
 import { I } from '@angular/cdk/keycodes';
 import { ReplaceAroundStep } from 'prosemirror-transform';
 import { ViewFlags } from '@angular/compiler/src/core';
-import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn, selectWholeCitatMarks } from '../utils/prosemirrorHelpers';
 //@ts-ignore
 import { recreateTransform } from "prosemirror-recreate-steps"
 import { figure } from '../utils/interfaces/figureComponent';
 import { CitatContextMenuService } from '../utils/citat-context-menu/citat-context-menu.service';
+import { PmHandleClickOnFunctionsService } from '../utils/prosemirrorHelpers/pm-handle-click-on-functions.service';
+import { PmPropsFunctionsService } from '../utils/prosemirrorHelpers/pm-props-functions.service';
+import { TransactionControllingFunctionsService } from '../utils/prosemirrorHelpers/transaction-controlling-functions.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -130,7 +132,10 @@ export class ProsemirrorEditorsService {
     private commentsService: CommentsService,
     private treeService: TreeService,
     private citatContextPluginService:CitatContextMenuService,
-    private trackChangesService: TrackChangesService) {
+    private trackChangesService: TrackChangesService,
+    private pmHandleClickFService:PmHandleClickOnFunctionsService,
+    private pmPropsFService:PmPropsFunctionsService,
+    private transactionFService:TransactionControllingFunctionsService) {
 
     this.mobileVersionSubject.subscribe((data) => {
       // data == true => mobule version
@@ -271,15 +276,15 @@ export class ProsemirrorEditorsService {
     let GroupControl = this.treeService.sectionFormGroups;
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!,this.editorContainers,this.rerenderFigures,this.interpolateTemplate,GroupControl,section ),
-      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.rerenderFigures,editorID),
+      appendTransaction: this.transactionFService.updateControlsAndFigures(schema,this.ydocService.figuresMap!,this.editorContainers,this.rerenderFigures,this.interpolateTemplate,GroupControl,section ),
+      filterTransaction: this.transactionFService.preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.rerenderFigures,editorID),
     })
 
     let selectWholeCitatPluginKey = new PluginKey('selectWholeCitat');
     let selectWholeCitat = new Plugin({
       key: selectWholeCitatPluginKey,
       props:{
-        createSelectionBetween:selectWholeCitatMarks
+        createSelectionBetween:this.pmPropsFService.selectWholeCitatMarks
       }
     })
 
@@ -371,12 +376,12 @@ export class ProsemirrorEditorsService {
           }
       },
       dispatchTransaction,
-      handlePaste,
-      handleClick: handleClick(hideshowPluginKEey,this.citatContextPluginService.citatContextPluginKey),
-      handleClickOn:handleClickOn(this.citatContextPluginService.citatContextPluginKey),
-      handleTripleClickOn,
-      handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
-      handleKeyDown,
+      handlePaste:this.pmPropsFService.handlePaste,
+      handleClick: this.pmHandleClickFService.handleClick(hideshowPluginKEey,this.citatContextPluginService.citatContextPluginKey),
+      handleClickOn:this.pmHandleClickFService.handleClickOn(this.citatContextPluginService.citatContextPluginKey),
+      handleTripleClickOn:this.pmHandleClickFService.handleTripleClickOn,
+      handleDoubleClick: this.pmHandleClickFService.handleDoubleClick(hideshowPluginKEey),
+      handleKeyDown:this.pmPropsFService.handleKeyDown,
       handleDrop:(view: EditorView, event: Event, slice: Slice, moved: boolean)=>{
         slice.content.nodesBetween(0,slice.content.size-2,(node,pos,parent)=>{
           if(node.marks.filter((mark)=>{return mark.type.name == 'citation'}).length>0){
@@ -428,8 +433,8 @@ export class ProsemirrorEditorsService {
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!,this.editorContainers,this.rerenderFigures,this.interpolateTemplate),
-      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.rerenderFigures,editorId),
+      appendTransaction: this.transactionFService.updateControlsAndFigures(schema,this.ydocService.figuresMap!,this.editorContainers,this.rerenderFigures,this.interpolateTemplate),
+      filterTransaction: this.transactionFService.preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.rerenderFigures,editorId),
     })
     //let inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, endEditorSchema!.nodes.math_inline);
     //let blockMathInputRule = makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, endEditorSchema!.nodes.math_display);
@@ -528,10 +533,10 @@ export class ProsemirrorEditorsService {
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,
-      handlePaste,
-      handleClick: handleClick(hideshowPluginKEey),
-      handleTripleClickOn,
-      handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
+      handlePaste:this.pmPropsFService.handlePaste,
+      handleClick: this.pmHandleClickFService.handleClick(hideshowPluginKEey),
+      handleTripleClickOn:this.pmHandleClickFService.handleTripleClickOn,
+      handleDoubleClick: this.pmHandleClickFService.handleDoubleClick(hideshowPluginKEey),
       //handleKeyDown,
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
     });
@@ -555,6 +560,7 @@ export class ProsemirrorEditorsService {
     editorView: EditorView,
     dispatchTransaction: any
   } {
+    
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
     EditorContainer.innerHTML = ''
     let editorID = random.uuidv4()
@@ -587,7 +593,7 @@ export class ProsemirrorEditorsService {
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
       props:{
-        createSelectionBetween:selectWholeCitatMarks
+        createSelectionBetween:this.pmPropsFService.selectWholeCitatMarks
       },
       state:{
         init(config){
@@ -603,7 +609,7 @@ export class ProsemirrorEditorsService {
         containerElement.appendChild(htmlNOdeRepresentation);
         options.onChange(true, containerElement.innerHTML)
       },
-      filterTransaction:preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.rerenderFigures,sectionID,this.citatEditingSubject)
+      filterTransaction:this.transactionFService.preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.rerenderFigures,sectionID,this.citatEditingSubject)
 
     })
 
@@ -688,11 +694,10 @@ export class ProsemirrorEditorsService {
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,
-      handleClick: handleClick(hideshowPluginKEey),
-      handleTripleClickOn,
-      handleDoubleClick: 
-      handleDoubleClickFN(hideshowPluginKEey),
-      handleKeyDown,
+      handleClick: this.pmHandleClickFService.handleClick(hideshowPluginKEey),
+      handleTripleClickOn:this.pmHandleClickFService.handleTripleClickOn,
+      handleDoubleClick: this.pmHandleClickFService.handleDoubleClick(hideshowPluginKEey),
+      handleKeyDown:this.pmPropsFService.handleKeyDown,
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
 
     });
