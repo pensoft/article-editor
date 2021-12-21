@@ -1,52 +1,94 @@
-<mat-card class="comment-box" *ngFor="let userComment of userComments;let index=index">
-  <mat-card-header>
-    <div mat-card-avatar class="comment-avatar"></div>
-    <mat-card-title class="comment-title">Nikolay Ivanov</mat-card-title>
-    <mat-card-subtitle class="comment-subtitle">11:28 AM Today</mat-card-subtitle>
+<mat-card class="comment-box">
 
-    <div class="header-actions">
-      <arpha-button *ngIf="!mobileVersion" label="Resolve" style="background-color: transparent;" class="small secondary resolve-button"></arpha-button>
-      <button *ngIf="!mobileVersion" mat-icon-button [matMenuTriggerFor]="menu">
+    <mat-card-header>
+        <div mat-card-avatar class="comment-avatar"></div>
+        <mat-card-title class="comment-title">{{userComment!.initialComment.userData.name}}</mat-card-title>
+        <mat-card-subtitle class="comment-subtitle">{{getDate(userComment!.initialComment.date)}}</mat-card-subtitle>
+
+        <div class="header-actions">
+            <arpha-button *ngIf="!mobileVersion" label="Resolve" style="background-color: transparent;" class="small secondary resolve-button"></arpha-button>
+            <button *ngIf="!mobileVersion" mat-icon-button [matMenuTriggerFor]="menu">
         <mat-icon>more_horiz</mat-icon>
       </button>
 
-      <mat-menu  #menu="matMenu">
-        <button (click)="editComment(userComment.id, userComment.comment)" mat-menu-item>Edit</button>
-        <button (click)="deleteComment()" mat-menu-item>Delete</button>
-      </mat-menu>
-    </div>
+            <mat-menu #menu="matMenu">
+                <button (click)="editComment(userComment!.initialComment.id, userComment!.initialComment.comment)" mat-menu-item>Edit</button>
+                <button (click)="deleteComment()" mat-menu-item>Delete</button>
+            </mat-menu>
+        </div>
 
-  </mat-card-header>
-  <mat-card-content>
-    <div class="selected-text">
-      <div class="selected-text-title">Selected text:</div>
-      <div class="selected-text-content">{{comment!.text}}</div>
-    </div>
+    </mat-card-header>
+    <mat-card-content>
+        <div class="selected-text">
+            <div class="selected-text-title">Selected text:</div>
+            <div class="selected-text-content">{{comment!.text}}</div>
+        </div>
 
-    <div #content [ngClass]="{
+        <div #content [ngClass]="{
       'comment-content':true,
-      'comment-elipsis-content':!showMore[index],
-      'comment-full-content':showMore[index]
-    }"><span #commentSpan>{{userComment.comment}}</span></div>
-    <a (click)="showMore[index] = !showMore[index]" [ngClass]="{
+      'comment-elipsis-content':!initialShowMore,
+      'comment-full-content':initialShowMore
+    }"><span #commentSpan>{{userComment!.initialComment.comment}}</span></div>
+        <a (click)="initialShowMore = !initialShowMore" [ngClass]="{
       'morelessBtn':true,
       'comment-display-none':commentSpan.offsetWidth < 295 && commentSpan.offsetHeight < 20
-    }">{{showMore[index] ? 'Show less': 'Show More' }}</a>
+    }">{{initialShowMore ? 'Show less': 'Show More' }}</a>
 
-    <div class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
-    <div #ReplyDiv style="display: none;">
-      <div class="reply-input">
-        <div class="input_div">
-          <input #input  type="text" placeholder="Write a reply...">
+        <div class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
+        <div #ReplyDiv style="display: none;">
+            <div class="reply-input">
+                <div class="input_div">
+                    <input #input type="text" placeholder="Write a reply...">
+                </div>
+                <div class="input_icon">
+                    <mat-icon class="maticon">alternate_email</mat-icon>
+                </div>
+            </div>
+            <div class="comment-reply-btns">
+                <button mat-button label="Cancel" (click)="cancelReplyBtnHandle(ReplyDiv)" class="small  secondary cencel-button">Cancel</button>
+                <button mat-button label="Comment" (click)="commentReplyBtnHandle(input,ReplyDiv)" [disabled]="input.value.length === 0" class="small  secondary comment-button">Reply</button>
+            </div>
         </div>
-        <div class="input_icon">
-          <mat-icon class="maticon">alternate_email</mat-icon>
+    </mat-card-content>
+</mat-card>
+<mat-card class="comment-box-replies" *ngFor="let comment of userComment!.commentReplies;let index=index">
+
+    <mat-card-header>
+        <div mat-card-avatar class="comment-avatar"></div>
+        <mat-card-title class="comment-title">{{comment.userData.name}}</mat-card-title>
+        <mat-card-subtitle class="comment-subtitle">{{getDate(comment.date)}}</mat-card-subtitle>
+
+        <div class="header-actions">
+            <button *ngIf="!mobileVersion" mat-icon-button [matMenuTriggerFor]="menu">
+        <mat-icon>more_horiz</mat-icon>
+        </button>
+
+            <mat-menu #menu="matMenu">
+                <button (click)="editReply(comment.id, comment.comment)" mat-menu-item>Edit</button>
+                <button (click)="deleteReply(comment.id)" mat-menu-item>Delete</button>
+            </mat-menu>
         </div>
-      </div>
-      <div class="comment-reply-btns">
-        <button mat-button label="Cancel" (click)="cancelReplyBtnHandle(ReplyDiv)" class="small  secondary cencel-button">Cancel</button>
-        <button mat-button label="Comment" (click)="commentReplyBtnHandle(input,ReplyDiv)" [disabled]="input.value.length === 0" class="small  secondary comment-button">Reply</button>
-      </div>
-    </div>
-  </mat-card-content>
+
+    </mat-card-header>
+    <mat-card-content>
+
+        <div #content [ngClass]="{'comment-content':true,'comment-elipsis-content':!repliesShowMore[index],'comment-full-content':repliesShowMore[index]}"><span #commentSpan>{{comment.comment}}</span></div>
+        <a (click)="repliesShowMore[index] = !repliesShowMore[index]" [ngClass]="{'morelessBtn':true,'comment-display-none':commentSpan.offsetWidth < 295 && commentSpan.offsetHeight < 20}">{{repliesShowMore[index] ? 'Show less': 'Show More' }}</a>
+
+        <div class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
+        <div #ReplyDiv style="display: none;">
+            <div class="reply-input">
+                <div class="input_div">
+                    <input #input type="text" placeholder="Write a reply...">
+                </div>
+                <div class="input_icon">
+                    <mat-icon class="maticon">alternate_email</mat-icon>
+                </div>
+            </div>
+            <div class="comment-reply-btns">
+                <button mat-button label="Cancel" (click)="cancelReplyBtnHandle(ReplyDiv)" class="small  secondary cencel-button">Cancel</button>
+                <button mat-button label="Comment" (click)="commentReplyBtnHandle(input,ReplyDiv)" [disabled]="input.value.length === 0" class="small  secondary comment-button">Reply</button>
+            </div>
+        </div>
+    </mat-card-content>
 </mat-card>

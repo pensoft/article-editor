@@ -37,7 +37,8 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     private ChangeDetectorRef: ChangeDetectorRef,
     private editorsService: ProsemirrorEditorsService,
     private ydocSrevice: YdocService,
-    private detectFocus: DetectFocusService,) {
+    private detectFocus: DetectFocusService,
+    private prosemirrorEditorsService:ProsemirrorEditorsService) {
 
 
 
@@ -91,18 +92,24 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     if (value.length == 0) {
       return
     }
+    let commentDate = Date.now()
     let commentId = uuidv4()
     let userCommentId = uuidv4()
     let userComment = {
       id: userCommentId,
-      comment: value
+      comment: value,
+      userData:this.prosemirrorEditorsService.userInfo.data,
+      date:commentDate
     }
-    this.commentsMap!.set(commentId, [userComment]);
+    this.commentsMap!.set(commentId, {initialComment:userComment,commentReplies:[]});
     let state = this.editorView?.state;
     let dispatch = this.editorView?.dispatch
 
     toggleMark(state!.schema.marks.comment, {
-      id: commentId
+      id: commentId,
+      date:commentDate,
+      userid:this.prosemirrorEditorsService.userInfo.data.id,
+      username:this.prosemirrorEditorsService.userInfo.data.name
     })(state!, dispatch);
     this.showAddCommentBox = false
     let sectionName = this.addCommentEditorId

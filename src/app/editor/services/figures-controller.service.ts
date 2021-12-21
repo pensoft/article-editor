@@ -63,7 +63,6 @@ export class FiguresControllerService {
   updateCitatsText(citats: { [sectionID: string]: { [citatID: string]: any }|undefined }) {
     this.figuresNumbers = this.ydocService.figuresMap!.get('ArticleFiguresNumbers')
     let figNumbers = this.figuresNumbers;
-    console.log(citats);
     Object.keys(citats).forEach((sectionID) => {
       if(citats[sectionID]){
         Object.keys(citats[sectionID]!).forEach((citatID) => {
@@ -175,7 +174,6 @@ export class FiguresControllerService {
     }) */
     this.markCitatsViews(citats)
     this.updateCitatsText(citats)
-    console.log(JSON.stringify(this.figures, undefined, '\t'));
     this.ydocService.figuresMap?.set('articleCitatsObj', citats);
 
     /* try {

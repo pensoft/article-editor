@@ -25,8 +25,7 @@ import { uuidv4 } from "lib0/random";
 import { articleSection, editorData, taxonomicCoverageContentData } from '../utils/interfaces/articleSection';
 import { articleBasicStructure } from '../utils/articleBasicStructure';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
-import { isBuffer } from 'lodash';
-import { MatInkBar } from '@angular/material/tabs';
+import { threadId } from 'worker_threads';
 
 @Injectable({
   providedIn: 'root'
@@ -50,8 +49,7 @@ export class YdocService {
   comments?: YMap<any>
   figuresMap?: YMap<any>
   trackChangesMetadata?: YMap<any>
-  userData:any
-
+  userInfo:any
   getCommentsMap(): YMap<any> {
     return this.comments!
   }
@@ -171,16 +169,16 @@ export class YdocService {
     return {
       ydoc: this.ydoc,
       provider: this.provider,
+      userInfo:this.userInfo,
       providerIndexedDb: this.providerIndexedDb!,
       articleSectionsStructure: articleSectionsStructure,
-      userData:this.userData
     }
 
   }
   buildEditor() {
     this.sectionFormGroupsStructures = this.ydoc.getMap('sectionFormGroupsStructures');
     this.figuresMap = this.ydoc.getMap('ArticleFiguresMap');
-
+    this.provider?.awareness.setLocalStateField('userInfo',this.userInfo);
     let figuresNumbers = this.figuresMap!.get('ArticleFiguresNumbers');
     let figuresTemplates = this.figuresMap!.get('figuresTemplates');
     let figures = this.figuresMap!.get('ArticleFigures');
@@ -208,12 +206,10 @@ export class YdocService {
     this.editorIsBuild = true;
   }
 
-  init(roomName: string,userData:any) {
-    this.userData = userData.data
-    if(!this.userData.color){
-      this.userData.color = ['#e8b1b1','#b1e8d4','#cbb1e8','#fa77e4','#77b7fa','#e0d98d','#8de093','#253527','#e4b671','#b9b4ab'][+(Math.random()*10).toFixed(0)]
-    }
+  init(roomName: string,userInfo:any) {
     this.roomName = roomName
+    this.userInfo = userInfo
+    this.userInfo.color = ['#fa717170','#fa71bf70','#f571fa70','#c971fa70','#8a71fa70','#71fac570','#fac77170','#fa947170'][+(Math.random()*14).toFixed(0)]
     this.providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
     let buildApp = () => {
       this.provider = new WebsocketProvider(`wss://${environment.WEBSOCKET_HOST}:${environment.WEBSOCKET_PORT}`, this.roomName, this.ydoc, {
@@ -223,8 +219,8 @@ export class YdocService {
         awareness: new awarenessProtocol.Awareness(this.ydoc),
       })
       this.provider.on('sync', (isSynced: boolean) => {
+        this.buildEditor();
       })
-      this.buildEditor();
       /* this.provider = new WebrtcProvider(this.roomName, this.ydoc, {
         signaling: ['ws://dev.scalewest.com:4444','ws://localhost:4444',  'wss://y-webrtc-signaling-eu.herokuapp.com' , 'wss://signaling.yjs.dev'  ,'wss://y-webrtc-signaling-us.herokuapp.com'],
         password: null,

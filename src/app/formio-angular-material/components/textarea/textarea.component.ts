@@ -213,7 +213,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     // Attach the element so the wysiwyg will work.
     let awaitValue = () => {
       setTimeout(() => {
-        if (this.value !== undefined) {
+        if (this.value) {
           try {
             this.rerender = true
             this.renderComponents()

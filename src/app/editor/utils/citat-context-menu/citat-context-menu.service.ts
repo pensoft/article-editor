@@ -103,7 +103,6 @@ export class CitatContextMenuService {
               border: 2px solid black;`)
 
               editCitationButton.addEventListener('click', () => {
-                console.log(citationMark);
                 let data
                 if (citationMark) {
                   data = JSON.parse(JSON.stringify(citationMark.attrs));
@@ -121,7 +120,6 @@ export class CitatContextMenuService {
               deleteCitationButton.addEventListener('click', () => {
                 if (citationMark) {
                   deleteData = {mark:citationMark,sectionID:prev.sectionName}
-                  console.log('schedule a deletetion for citation form contaext menu');
 
                   shouldCloseContextMenu = true
                 }
@@ -285,7 +283,6 @@ export class CitatContextMenuService {
                   let end = +markActualData.position+view.state.doc.nodeAt(markActualData.position)?.nodeSize!
                   //citatsData[sectionID][mark.attrs.citateid] = undefined
                   //ydocServide.figuresMap?.set('articleCitatsObj',citatsData)
-                  console.log('deleting citation form contaext menu');
                   view.dispatch(view.state.tr.replaceWith(start,end,Fragment.empty))
                 }
               }

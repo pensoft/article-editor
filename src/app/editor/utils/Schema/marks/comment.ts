@@ -6,6 +6,9 @@ export const comment = {
         group: { default: '' },
         viewid: { default: '' },
         conversation: { default: [] },
+        date:{default:''},
+        userid:{default:''},
+        username:{default:''}
     },
     inclusive: false,
     excludes: '',
@@ -17,6 +20,9 @@ export const comment = {
                 id: dom.dataset.id,
                 group: dom.dataset.group,
                 viewid: dom.dataset.viewid,
+                date: dom.dataset.date,
+                userid: dom.dataset.userid,
+                username: dom.dataset.username,
                 //conversation: JSON.parse(dom.dataset.conversation),
             }
         },
@@ -30,6 +36,9 @@ export const comment = {
                 'data-conversation': JSON.stringify(node.attrs.conversation),
                 'data-viewid': node.attrs.viewid,
                 'data-group': node.attrs.group,
+                'data-date': node.attrs.date,
+                'data-userid': node.attrs.userid,
+                'data-username': node.attrs.username,
             },
         ];
     },

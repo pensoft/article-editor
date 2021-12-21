@@ -9,8 +9,8 @@ import { articleSection } from './articleSection';
 
 export interface ydocData {
     ydoc: Y.Doc;
+    userInfo:any;
     provider: WebsocketProvider | undefined;
     providerIndexedDb: IndexeddbPersistence;
     articleSectionsStructure: articleSection[];
-    userData:any
 }

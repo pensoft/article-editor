@@ -86,6 +86,7 @@ export class ProsemirrorEditorsService {
   xmlFragments: { [key: string]: Y.XmlFragment } = {}
 
   interpolateTemplate:any
+  userInfo:any;
 
   DOMPMSerializer = DOMSerializer.fromSchema(schema);
 
@@ -340,8 +341,8 @@ export class ProsemirrorEditorsService {
         } else {
           const tr = trackedTransaction.default(transaction, editorView?.state,
             {
-              userId: this.ydoc?.clientID,
-              username: this.user.username,
+              userId: this.userInfo.data.id,
+              username: this.userInfo.data.name,
               userColor: { addition: 'transperant', deletion: 'black' }
             });
           let state = editorView?.state.apply(tr);
@@ -391,7 +392,6 @@ export class ProsemirrorEditorsService {
                 view.dispatch(view.state.tr.addMark(dropPosition,dropPosition + newMark?.nodeSize!,schema.mark('citation',{...citationMark.attrs,citateid:random.uuidv4()})))
               },10)
             }
-            console.log(view.dragging,event,slice,moved);
           }
         })
         return false
@@ -507,8 +507,8 @@ export class ProsemirrorEditorsService {
         } else {
           const tr = trackedTransaction.default(transaction, editorView?.state,
             {
-              userId: this.ydoc?.clientID,
-              username: this.user.username,
+              userId: this.userInfo.data.id,
+              username: this.userInfo.data.name,
               userColor: { addition: 'transperant', deletion: 'black' }
             });
           let state = editorView?.state.apply(tr);
@@ -669,8 +669,8 @@ export class ProsemirrorEditorsService {
         } else {
           const tr = trackedTransaction.default(transaction, editorView?.state,
             {
-              userId: this.ydoc?.clientID,
-              username: this.user.username,
+              userId: this.userInfo.data.id,
+              username: this.userInfo.data.name,
               userColor: { addition: 'transperant', deletion: 'black' }
             });
           let state = editorView?.state.apply(tr);
@@ -716,7 +716,7 @@ export class ProsemirrorEditorsService {
 
   init() {
     let data = this.ydocService.getData();
-    this.userData = data.userData
+    this.userInfo = data.userInfo
     this.ydoc = data.ydoc;
     this.provider = data.provider;
     this.articleSectionsStructure = data.articleSectionsStructure;
