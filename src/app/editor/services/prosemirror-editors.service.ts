@@ -209,7 +209,7 @@ export class ProsemirrorEditorsService {
     this.commentsService.removeEditorComment(editorId)
     this.editorsDeleteArray.push(editorId);
   }
-  markSectionForDelete(section: articleSection) {
+  /* markSectionForDelete(section: articleSection) {
     let markEditor = (editorData: editorData) => {
       let editorId = editorData.editorId
       this.addEditorForDelete(editorId)
@@ -228,7 +228,7 @@ export class ProsemirrorEditorsService {
     }
     markContent(section.title)
     markContent(section.sectionContent)
-  }
+  } */
 
   dispatchEmptyTransaction() {  // for updating the view
     Object.values(this.editorContainers).forEach((container: any) => {
@@ -261,7 +261,6 @@ export class ProsemirrorEditorsService {
 
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment(section.mode, editorID)
-    console.log(permanentUserData);
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
     yCursorPlugin(this.provider!.awareness,this.userData),
     yUndoPlugin()]

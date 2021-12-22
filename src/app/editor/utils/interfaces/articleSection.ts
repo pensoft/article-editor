@@ -43,8 +43,6 @@ export interface articleSection {
     delete: { bool: boolean, main: boolean },
     mode:'documentMode'|'editMode',   
     title:titleContent,
-    sectionContent: sectionContent,
-    sectionStartingFormIo?:any,
     prosemirrorHTMLNodesTempl?:string,
     formIOSchema?:any,
     defaultFormIOValues?:any

@@ -2,8 +2,10 @@ import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild }
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDrawer } from '@angular/material/sidenav';
 import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ArticleSectionsService } from '@app/core/services/article-sections.service';
 import { AuthService } from '@app/core/services/auth.service';
 import { FormioAppConfig } from '@formio/angular';
+import { uuidv4 } from 'lib0/random';
 import { Subject } from 'rxjs';
 import { map } from 'rxjs/operators';
 //import { WebrtcProvider as OriginalWebRtc, } from 'y-webrtc';
@@ -54,7 +56,8 @@ export class EditorComponent implements OnInit, AfterViewInit {
     private trackChanges: TrackChangesService,
     private treeService: TreeService,
     public config: FormioAppConfig,
-    private authService:AuthService
+    private authService: AuthService,
+    private articleSectionsService: ArticleSectionsService
   ) {
 
     treeService.toggleTreeDrawer.subscribe((data) => {
@@ -127,13 +130,12 @@ export class EditorComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit(): void {
-
     this.route.paramMap
       .pipe(map((params: ParamMap) => params.get('id')))
       .subscribe(roomName => {
-        this.authService.getUserInfo().subscribe((info)=>{
-          this.roomName = roomName;
-          this.ydocService.init(roomName!,info);
+        this.authService.getUserInfo().subscribe((userInfo) => {
+            this.roomName = roomName;
+            this.ydocService.init(roomName!, userInfo);
         })
       });
 
@@ -143,7 +145,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
         this.ydoc = data.ydoc;
         let trachChangesMetadata = this.ydocService.trackChangesMetadata!.get('trackChangesMetadata');
         this.shouldTrackChanges = trachChangesMetadata.trackTransactions
-        
+
         this.ydocService.trackChangesMetadata?.observe((ymap) => {
           let trackChangesMetadata = this.ydocService.trackChangesMetadata?.get('trackChangesMetadata');
           if (trackChangesMetadata.lastUpdateFromUser !== this.ydoc?.guid) {
@@ -181,7 +183,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     }
 
     let buttonElement = this.trachChangesOnOffBtn?.nativeElement as HTMLButtonElement
-    
+
   }
 
   toggleSidebar(section: string) {

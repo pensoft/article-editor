@@ -10,15 +10,6 @@ export function editorFactory(data?: editorMeta): editorData {
 export const articleBasicStructure: articleSection[] = [
   {
     title: { type: 'content', contentData: 'Title233', titleContent: 'Taxonomic coverage', key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
-    sectionContent: {
-      type: 'TaxonTreatmentsMaterial', contentData: editorFactory(
-        {
-          prosemirrorJsonTemplate:
-          {
-            "type": "doc",
-          }
-        }), key: 'sectionContent'
-    },
     sectionID: uuidv4(),
     active: false,
     edit: { bool: true, main: true },
@@ -32,15 +23,6 @@ export const articleBasicStructure: articleSection[] = [
   },
   {
     title: { type: 'content', contentData: 'Title233', titleContent: 'Colection Data', key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
-    sectionContent: {
-      type: 'TaxonTreatmentsMaterial', contentData: editorFactory(
-        {
-          prosemirrorJsonTemplate:
-          {
-            "type": "doc",
-          }
-        }), key: 'sectionContent'
-    },
     sectionID: uuidv4(),
     active: false,
     edit: { bool: true, main: true },

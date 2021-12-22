@@ -503,7 +503,7 @@ const createTextNodesFromYText = (text, schema, mapping, snapshot, prevSnapshot,
         }else{
           if(markName !== 'ychange'){
             marks.push(schema.mark(markName, delta.attributes[markName]))
-           }/*else{
+          }/*else{
             if(markAttrs.type == 'added'&&trackStatus){
               marks.push(schema.mark('insFromPopup', {
                 user:text.doc.clientID,

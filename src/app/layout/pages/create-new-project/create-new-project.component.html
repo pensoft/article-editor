@@ -1,0 +1,36 @@
+<section fxLayout="column" fxLayoutAlign="center" class="new-project-container">
+    <article fxLayout="row" fxLayoutAlign="center" fxLayoutGap="20px" class="mt60px title">
+        <button (click)="openDialogChoose()" mat-icon-button>
+            <mat-icon svgIcon="addNewProjectCircle" class="circle-icon"></mat-icon>
+        </button>
+        <div class="font-size24px bold title"> Start your Manuscript</div>
+    </article>
+    <article fxLayoutAlign="center">
+        <img src="../../../../assets/img/Illustration-start.svg">
+    </article>
+    <article fxLayout="column" fxLayoutAlign="center" class="text-center w100 font-size16px">
+        <p>
+            You can start a new blank project or to choose one of the many templates available.
+        </p>
+        <p>
+            You can also import a
+            project by dragging a file to this window or <button mat-button color="primary"
+                class="button-browsing-text bold" (click)="openDialog()">browsing</button> for it.
+        </p>
+    </article>
+    <article fxLayoutAlign="center" fxLayout="row" fxLayoutGap="65px">
+        <div class="box-drop-file">
+            <button mat-icon-button (click)="openDialogChoose()">
+                <mat-icon svgIcon="addPlus" class="plus-icon"></mat-icon>
+            </button>
+            <p class="pt15px">Start a <br>blank Project</p>
+        </div>
+        <div class="box-drop-file">
+            <button mat-icon-button (click)="openDialog()" class="width-auto">
+                <img src="../../../../assets/icons/project_cloud_upload_icon.png" class="icon-cloud">
+                <p class="p-drop-file pt15px">Drop your files <br>
+                <span class="light-blue">or Browse files</span></p>
+            </button>
+        </div>
+    </article>
+</section>

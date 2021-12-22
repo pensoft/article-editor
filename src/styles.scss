@@ -3,6 +3,8 @@
 @import "../node_modules/katex/dist/katex.min.css";
 @import "../node_modules/prosemirror-view/style/prosemirror.css";
 
+@import "./assets/colors";
+
 citation {
   background: #b2f0f0;
 }
@@ -362,24 +364,48 @@ img[ychange_type="removed"] {
 //////////////////////
 /* general elements */
 //////////////////////
+.mt65px {
+  margin-top: 65px;
+}
 
 .mb50px {
-  margin-bottom: 50px!important;
+  margin-bottom: 50px !important;
 }
-.mt70px{
-  margin-top: 70px!important;
+
+.mt70px {
+  margin-top: 70px !important;
 }
-.text-bold {
-  font-weight: bold;
+
+.pt15px {
+  padding-top: 15px;
 }
-.font-size16px{
+
+.bold {
+  font-weight: bold !important;
+}
+
+.font-size16px {
   font-size: 16px;
 }
+
+.font-size24px {
+  font-size: 24px;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.w100 {
+  width: 100%;
+}
+
 //////////////////////
 .btn-resend {
-  text-decoration: underline!important;
-  padding: 0px!important;
+  text-decoration: underline !important;
+  padding: 0px !important;
 }
+
 @media screen and (max-width: 600px) {
   app-root {
     height: 100%;
@@ -811,3 +837,12 @@ router-outlet {
   border-radius: 5px;
   background-color: #f9dede;
 }
+
+//////////////////////
+/*redefining  material component */
+.mat-dialog-container {
+  border-radius: 20px !important;
+  box-shadow: 0px 6px 10px $box-shadow !important;
+}
+
+//////////////////////

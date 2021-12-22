@@ -1,0 +1,13 @@
+<svg id="Component_87_24" data-name="Component 87 – 24" xmlns="http://www.w3.org/2000/svg" width="128" height="129" viewBox="0 0 128 129">
+  <rect id="Rectangle_17286" data-name="Rectangle 17286" width="37" height="38" rx="5" transform="translate(46 22)" fill="#fff"/>
+  <text id="Start_a_blank_project" data-name="Start a 
+blank project" transform="translate(64 83)" fill="#192956" font-size="13" font-family="OpenSans-Semibold, Open Sans" font-weight="600"><tspan x="-22" y="0">Start a </tspan><tspan x="-41" y="20">blank project</tspan></text>
+  <g id="Rectangle_17099" data-name="Rectangle 17099" fill="none" stroke="#00b1b2" stroke-width="1" stroke-dasharray="3">
+    <rect width="128" height="129" rx="15" stroke="none"/>
+    <rect x="0.5" y="0.5" width="127" height="128" rx="14.5" fill="none"/>
+  </g>
+  <g id="Icon_feather-plus" data-name="Icon feather-plus" transform="translate(43.661 20.654)">
+    <path id="Path_20827" data-name="Path 20827" d="M18,7.5V32.191" transform="translate(2.839 0)" fill="none" stroke="#00b1b2" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+    <path id="Path_20828" data-name="Path 20828" d="M7.5,18H34.177" transform="translate(0 1.846)" fill="none" stroke="#00b1b2" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+  </g>
+</svg>

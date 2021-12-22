@@ -63,6 +63,11 @@ import { SectionLeafComponent } from './editor/meta-data-tree/cdk-list-recursive
 import { FiguresProsemirrorViewComponent } from './editor/figures-prosemirror-view/figures-prosemirror-view.component';
 import { InsertFigureComponent } from './editor/dialogs/figures-dialog/insert-figure/insert-figure.component';
 import { VerifyAccountComponent } from './layout/pages/verify-account/verify-account.component';
+import { CreateNewProjectComponent } from './layout/pages/create-new-project/create-new-project.component';
+
+import { NgxDropzoneModule } from 'ngx-dropzone';
+import { DialogAddFilesComponent } from './layout/pages/create-new-project/dialog-add-files/dialog-add-files.component';
+import { ChooseManuscriptDialogComponent } from './editor/dialogs/choose-manuscript-dialog/choose-manuscript-dialog.component';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -112,6 +117,10 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     FiguresProsemirrorViewComponent,
     InsertFigureComponent,
     VerifyAccountComponent,
+    CreateNewProjectComponent,
+    DialogAddFilesComponent,
+    ChooseManuscriptDialogComponent,
+
   ],
   imports: [
     PipesModule,
@@ -125,6 +134,7 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     HttpClientModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    NgxDropzoneModule,
     ServiceWorkerModule.register('editor-service-worker.js', {
       enabled: environment.production,
       // Register the ServiceWorker as soon as the app is stables

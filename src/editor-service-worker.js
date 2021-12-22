@@ -115,7 +115,6 @@ self.addEventListener('fetch', function(event) {
 });
 
 self.addEventListener('sync', function(event) {
-    console.log('now online')
     if (event.tag === 'sendFormData') { // event.tag name checked
         // here must be the same as the one used while registering
         // sync
@@ -132,13 +131,8 @@ importScripts('./ngsw-worker.js');
 
 
 self.addEventListener('activate', function(event) {
-    console.log('activate');
-    //console.log(event,self);
-    //event.waitUntil(self.clients.claim());
 });
 
 
 self.addEventListener('install', event => {
-    //console.log(event,self);
-    //console.log('V1 installing…');
 });

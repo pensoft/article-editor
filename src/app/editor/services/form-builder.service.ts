@@ -27,7 +27,7 @@ export class FormBuilderService {
       const component: any = schema.components[index];
       const componentKey: string = component['key'];
       const componentType: string = (component['type'] as string).toLocaleLowerCase();
-
+      
       if ( //avoids non-dynamic (non-filled) elements
         componentType === 'button' || // a button
         componentType === 'content')  // plain text and not an input field
@@ -106,7 +106,6 @@ export class FormBuilderService {
         }
       }
       if (component.readOnly) {
-        console.log('component.readOnly', component.readOnly);
       }
       let control = new FormControl(value, validators);
       component.readOnly ? control.disable() : undefined
@@ -130,7 +129,6 @@ export class FormBuilderService {
       }
     }
     if (component.readOnly) {
-      console.log('component.readOnly', component.readOnly);
     }
     let control = new FormControl(value, validators);
     //@ts-ignore

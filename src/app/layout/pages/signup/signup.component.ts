@@ -82,7 +82,7 @@ export class SignupComponent implements OnInit {
       .pipe(first())
       .subscribe((user: UserModel) => {
         if (user) {
-          this.router.navigate([ this.returnUrl ]);
+          this.router.navigate([ 'create' ]);
           // this.formioBaseService.login();
         } else {
           this.hasError = true;

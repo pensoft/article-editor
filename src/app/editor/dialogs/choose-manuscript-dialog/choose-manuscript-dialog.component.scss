@@ -1,0 +1,55 @@
+@import "../../../../assets/colors";
+
+.input-search {
+  border-radius: 18px;
+  border: 1px solid $primary-green;
+  line-height: 39px;
+}
+
+.error{
+  background-color: $error-red;
+}
+
+.section-choose{
+  width: 30%;
+  margin-left: 35%;
+  margin-top: 5%;
+}
+
+.search-button {
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  display: flex;
+  justify-content: end;
+  margin-top: -37px;
+  margin-left: -73px;
+  border-radius: 20px;
+  line-height: 39px;
+}
+
+::ng-deep.mat-list-item-content {
+  border-bottom: 1px solid $primary-dark-grey;
+}
+
+mat-selection-list {
+  border: 1px solid $primary-dark-grey;
+  border-radius: 15px 15px 0 0;
+}
+
+.buttons-footer {
+  width: 100%;
+  justify-content: end;
+  align-items: end;
+  display: flex;
+  padding: 17px 0 17px 0;
+  box-shadow: 6px 0px 10px #1BB1B22B;
+  opacity: 1;
+  border-radius: 15px;
+  margin: 40px 0 00px 0;
+}
+
+.button-stroked-primary {
+  border: 1px solid $primary-green !important;
+  border-radius: 6px !important;
+}

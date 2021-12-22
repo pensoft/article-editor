@@ -177,7 +177,6 @@ export class FiguresControllerService {
 
 
       const mainDocumentSnapshot = Y.snapshot(this.ydocService.ydoc)
-    console.log(newFigureNodes, editedFigures);
     Object.keys(editedFigures).forEach((key) => {
       if (this.figures[key]) {
         let figureData = this.figures[key];
@@ -364,7 +363,6 @@ export class FiguresControllerService {
       //this.changeFiguresPlaces(citatedFigureIds,sectionID)
       this.markCitatsViews(citats)
       //this.updateCitatsText(citats)
-      console.log(JSON.stringify(this.figures, undefined, '\t'));
 
       /*  if (citatAttrs) {
          insertionView.dispatch(insertionView.state.tr.addMark(citatPos,

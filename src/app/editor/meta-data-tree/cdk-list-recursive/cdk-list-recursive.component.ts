@@ -58,9 +58,8 @@ export class CdkListRecursiveComponent implements OnInit {
       //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
       let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID);
       let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
-      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema,node.sectionID);
+      let sectionContent = defaultValues? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema,node.sectionID):node.formIOSchema;
 
-      //let sectionContent = this.enrichSectionContent(node.formIOSchema, defaultValues);
       let nodeForm: FormGroup = new FormGroup({});
       this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
 

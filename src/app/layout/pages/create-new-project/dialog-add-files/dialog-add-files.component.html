@@ -1,0 +1,35 @@
+<section fxLayout="column" class="section-add-files">
+    <article class="text-center">
+        <h1 class="bold">
+            Import a File
+        </h1>
+        <h2 class="subtitle-add-files">
+            You can import a manuscript from JATS XML, Word, EML
+        </h2>
+    </article>
+    <article class="background-cloud" fxLayout="column">
+        <div class="dropzone-container">
+            <ngx-dropzone (change)="onSelect($event)">
+                <ngx-dropzone-label>
+                    <img src="../../../../../assets/img/Illustration-import.svg" class="icon-cloud">
+                    <p class="drag-drop-text">Drag and Drop Files to upload </p>
+                    <p class="browse-text">or<br>
+                        <img src="../../../../../assets/icons/plus-browes.svg"> Select files from omputer
+                    </p>
+                </ngx-dropzone-label>
+                <ngx-dropzone-image-preview ngProjectAs="ngx-dropzone-preview" [removable]="true"
+                    *ngFor="let f of files" [file]="f" (removed)="onRemove(f)">
+                    <ngx-dropzone-label>{{ f.name }} ({{ f.type }})</ngx-dropzone-label>
+                </ngx-dropzone-image-preview>
+            </ngx-dropzone>
+        </div>
+        <div class="cancel-button" fxLayoutGap="23px">
+            <button mat-stroked-button class="button-stroked-primary" (click)="onNoClick()">
+                Cancel
+            </button>
+            <button mat-raised-button color="primary" class="button-upload" (change)="onSelectBtn($event)">
+                Upload
+            </button>
+        </div>
+    </article>
+</section>

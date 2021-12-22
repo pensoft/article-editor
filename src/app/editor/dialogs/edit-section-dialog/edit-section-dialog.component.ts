@@ -2,7 +2,6 @@ import { AfterViewInit, ApplicationRef, ChangeDetectorRef, Component, EventEmitt
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { YdocService } from '../../services/ydoc.service';
 import { articleSection } from '../../utils/interfaces/articleSection';
-import { editorData, titleContent, sectionContent, taxonomicCoverageContentData } from '../../utils/interfaces/articleSection';
 import { EditSectionService } from './edit-section.service';
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
 import { Node as prosemirrorNode } from 'prosemirror-model';

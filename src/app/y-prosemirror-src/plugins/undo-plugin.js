@@ -8,9 +8,7 @@ import { yUndoPluginKey, ySyncPluginKey } from './keys.js'
 export const undo = state => {
   const undoManager = yUndoPluginKey.getState(state).undoManager
   if (undoManager != null) {
-    //console.log(undoManager.scope);
     let result = undoManager.undo()
-    //console.log(result);
     return true
   }
 }
@@ -19,7 +17,6 @@ export const redo = state => {
   const undoManager = yUndoPluginKey.getState(state).undoManager
   if (undoManager != null) {
     let result = undoManager.redo()
-    //console.log();
     return true
   }
 }

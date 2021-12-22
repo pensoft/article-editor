@@ -29,6 +29,8 @@ export class IconsRegisterService {
 
     iconRegistry.addSvgIcon('openPadlock', sanitizer.bypassSecurityTrustResourceUrl('./assets/img/open-padlock.svg'));
 
+    iconRegistry.addSvgIcon('addPlus', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/plus.svg'));
+    iconRegistry.addSvgIcon('addNewProjectCircle', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/add-new-project-circle.svg'));
 
     // iconRegistry.addSvgIconLiteral('thumbs-up', sanitizer.bypassSecurityTrustHtml(THUMBUP_ICON));
   }

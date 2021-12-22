@@ -48,6 +48,7 @@ export class YdocService {
   ) { 
     this.serviceShare.shareSelf('YdocService',this)
   }
+  articleStructureFromBackend:any
   articleStructure?: YMap<any>
   sectionFormGroupsStructures?: YMap<any>
   comments?: YMap<any>
@@ -139,7 +140,7 @@ export class YdocService {
       if (articleSectionsStructure == undefined) {
         citatsObj = {}
         articleSectionsStructureFlat = []
-        articleSectionsStructure = articleBasicStructure
+        articleSectionsStructure = this.articleStructureFromBackend||articleBasicStructure
 
         let makeFlat = (structure: articleSection[]) => {
           structure.forEach((section) => {

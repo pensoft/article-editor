@@ -191,7 +191,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
         edView.state.doc.descendants((node, position, parent) => {
           if (node.type.name == 'figures_nodes_container' && !deleted) {
             deleted = true
-            tr1 = tr1.replaceWith(position, position + node.nodeSize, Fragment.empty)
+            tr1 = tr1.replaceWith(position, position + node.nodeSize, Fragment.empty).setMeta('shouldTrack', false)
           }
         })
         edView.dispatch(tr1)
