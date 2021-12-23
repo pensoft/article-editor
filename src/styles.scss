@@ -372,6 +372,16 @@ img[ychange_type="removed"] {
   margin-bottom: 50px !important;
 }
 
+.mt50px {
+  margin-top: 50px !important;
+}
+
+.mt30px {
+  margin-top: 30px !important;
+}
+.mb20px {
+  margin-bottom: 20px !important;
+}
 .mt70px {
   margin-top: 70px !important;
 }
@@ -400,6 +410,25 @@ img[ychange_type="removed"] {
   width: 100%;
 }
 
+.mat-raised-button {
+  border-radius: 18px !important;
+}
+
+.mat-form-field-appearance-legacy .mat-form-field-underline {
+  background-color: transparent !important;
+}
+
+
+.mat-form-field.mat-focused{
+  background-color: transparent;
+  color: transparent;
+  
+}
+.mat-form-field.mat-focused {
+  .mat-form-field-underline, .mat-form-field-ripple {
+    background-color: transparent!important;;
+  }  
+}
 //////////////////////
 .btn-resend {
   text-decoration: underline !important;

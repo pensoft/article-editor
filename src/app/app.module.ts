@@ -68,6 +68,9 @@ import { CreateNewProjectComponent } from './layout/pages/create-new-project/cre
 import { NgxDropzoneModule } from 'ngx-dropzone';
 import { DialogAddFilesComponent } from './layout/pages/create-new-project/dialog-add-files/dialog-add-files.component';
 import { ChooseManuscriptDialogComponent } from './editor/dialogs/choose-manuscript-dialog/choose-manuscript-dialog.component';
+import { AvatarComponent } from './layout/widgets/avatar/avatar.component';
+
+import { AvatarModule } from 'ngx-avatar';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -120,6 +123,7 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     CreateNewProjectComponent,
     DialogAddFilesComponent,
     ChooseManuscriptDialogComponent,
+    AvatarComponent,
 
   ],
   imports: [
@@ -142,6 +146,7 @@ export function createCompiler(compilerFactory: CompilerFactory) {
       registrationStrategy: 'registerWhenStable:30000'
     }),
     NgxSpinnerModule,
+    AvatarModule
   ],
   providers: [
     {

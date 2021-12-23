@@ -1,13 +1,13 @@
-<section class="section-choose">
+<section class="section-choose relative">
  <article fxLayout="column">
-     <h1 fxFill fxLayoutAlign="center">
+     <h1 fxFill fxLayoutAlign="center" class="mt30px">
         Add Manuscript to Project
      </h1>
      <div *ngIf="showError" class="error">No Template selected.</div>
      <div fxFill fxLayoutAlign="center">
      <form (keydown.enter)="search(inputText.value)" fxFlex="90%" fxLayout="column">
         <mat-form-field>
-          <input matInput type="text" #inputText placeholder="Search for topics" class="input-search">
+          <input matInput type="text" #inputText placeholder="Select a Template" class="input-search">
           <button color="primary" class="search-button" type="submit" matSuffix mat-raised-button (click)="search(inputText.value)">
            Search
           </button>
@@ -15,13 +15,14 @@
       </form>
     </div>
  </article>
- <article>
+ <article class="list-container">
   <mat-selection-list #topic [multiple]="false">
     <mat-list-option *ngFor="let article of articleTemplates" [value]="article">
       {{article}}
     </mat-list-option>
   </mat-selection-list>
  </article>
+
 
   <div class="buttons-footer" fxLayoutGap="23px">
     <button mat-stroked-button class="button-stroked-primary" (click)="closeManuscriptChoose()">

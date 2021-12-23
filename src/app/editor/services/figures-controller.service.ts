@@ -225,7 +225,7 @@ export class FiguresControllerService {
   }
 
   writeFiguresDataGlobal(newFigureNodes: { [key: string]: Node }, newFigures: { [key: string]: figure; }, figureNumbers: string[], editedFigures: { [key: string]: boolean }) {
-    //this.mergeFigureViews(newFigureNodes, editedFigures)
+    this.mergeFigureViews(newFigureNodes, editedFigures)
     this.updateFiguresNumbers(newFigures, figureNumbers)
     this.ydocService.figuresMap!.set('ArticleFiguresNumbers', figureNumbers)
     this.ydocService.figuresMap!.set('ArticleFigures', newFigures)

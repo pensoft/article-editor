@@ -42,6 +42,7 @@ export class CreateNewProjectComponent implements OnInit {
       this.articleTemplates = articleTemplates
       const dialogRef = this.dialog.open(ChooseManuscriptDialogComponent, {
         width: '100%',
+        panelClass:'choose-namuscript-dialog',
         data: { templates: articleTemplates }
       });
       dialogRef.afterClosed().subscribe(result => {
