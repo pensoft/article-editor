@@ -1,5 +1,5 @@
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import { Compiler, CompilerFactory, COMPILER_OPTIONS, Injector, NgModule } from '@angular/core';
+import {Compiler, CompilerFactory, COMPILER_OPTIONS, Injector, NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -161,6 +161,7 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     { provide: CompilerFactory, useClass: JitCompilerFactory, deps: [COMPILER_OPTIONS] },
     { provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory] }
   ],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent],
 })
 export class AppModule {
