@@ -4,14 +4,14 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { CONSTANTS } from './constants';
 import { Injectable, OnDestroy } from '@angular/core';
 import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { Router } from '@angular/router';
+import { NavigationEnd, Router } from '@angular/router';
 import { UserModel } from '@core/models/user.model';
-import { catchError, map, switchMap, takeUntil } from 'rxjs/operators';
+import { catchError, filter, map, switchMap, takeUntil } from 'rxjs/operators';
 
 const API_AUTH_URL = `https://ps-article.dev.scalewest.com/api/auth`;
 export type UserType = UserModel | undefined;
 
-@Injectable({providedIn: 'root'})
+@Injectable({ providedIn: 'root' })
 export class AuthService implements OnDestroy {
   private headers = new HttpHeaders()
     .set('Content-Type', 'application/x-www-form-urlencoded')
@@ -27,9 +27,8 @@ export class AuthService implements OnDestroy {
   set currentUserValue(user: UserType) {
     this.currentUserSubject.next(user);
   }
-
   constructor(private _http: HttpClient,
-              private router: Router) {
+    private router: Router) {
     this.currentUserSubject = new BehaviorSubject<UserType>(undefined);
     this.currentUser$ = this.currentUserSubject.asObservable();
   }
@@ -76,8 +75,8 @@ export class AuthService implements OnDestroy {
     })
   }
 
-  invalidateToken(){
-    this._http.post(`${API_AUTH_URL}/logout`, {}, {headers: this.headers})
+  invalidateToken() {
+    this._http.post(`${API_AUTH_URL}/logout`, {}, { headers: this.headers })
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe({
         complete: () => {
@@ -102,11 +101,11 @@ export class AuthService implements OnDestroy {
   }
 
   refreshToken() {
-    return this._http.get<any>(`/refresh`, {observe: 'response'})
+    return this._http.get<any>(`/refresh`, { observe: 'response' })
       .pipe(
         map((resp) => {
-          if (resp && resp.headers.get('Authorization') && (resp.headers.get('Authorization') || '').includes('Bearer') ) {
-            return (resp.headers.get('Authorization') || '').replace('Bearer ','');
+          if (resp && resp.headers.get('Authorization') && (resp.headers.get('Authorization') || '').includes('Bearer')) {
+            return (resp.headers.get('Authorization') || '').replace('Bearer ', '');
           }
           return false;
         })

@@ -2,11 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
+import { ArticlesService } from '@app/core/services/articles.service';
 import { ChooseManuscriptDialogComponent } from '@app/editor/dialogs/choose-manuscript-dialog/choose-manuscript-dialog.component';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { articleSection } from '@app/editor/utils/interfaces/articleSection';
 import { uuidv4 } from 'lib0/random';
-import { template } from 'lodash';
 import { DialogAddFilesComponent } from './dialog-add-files/dialog-add-files.component';
 
 @Component({
@@ -21,7 +21,8 @@ export class CreateNewProjectComponent implements OnInit {
     public dialog: MatDialog,
     private router: Router,
     private ydocService: YdocService,
-    private articleSectionsService: ArticleSectionsService
+    private articleSectionsService: ArticleSectionsService,
+    private articlesService:ArticlesService,
   ) { }
 
   ngOnInit(): void {
@@ -33,7 +34,6 @@ export class CreateNewProjectComponent implements OnInit {
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
 
     });
   }
@@ -46,13 +46,11 @@ export class CreateNewProjectComponent implements OnInit {
         data: { templates: articleTemplates }
       });
       dialogRef.afterClosed().subscribe(result => {
-        console.log('choise', result);
         let selectedTemplate = (this.articleTemplates.data as Array<any>).find((template: any) => {
-          return template.name == result
+          return template.id == result
         })
         let articleStructure: articleSection[] = []
         let filteredSections = selectedTemplate.sections.filter((section: any) => { return section.type == 0 });
-        console.log('sectionsData', filteredSections);
         selectedTemplate.sections.forEach((section: any) => {
           let newArticleSection: articleSection = {
             title: { type: 'content', contentData: 'Title233', titleContent: section.name, key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
@@ -69,19 +67,21 @@ export class CreateNewProjectComponent implements OnInit {
           }
           articleStructure.push(newArticleSection);
         })
-        this.ydocService.articleStructureFromBackend = articleStructure
-        this.router.navigate([uuidv4()])
+        this.ydocService.articleStructureFromBackend = articleStructure;
+        this.articlesService.createArticle('Untitled',+result).subscribe((createArticleRes:any)=>{
+          this.ydocService.resetYdoc();
+          this.ydocService.setArticleData(createArticleRes.data)
+          this.router.navigate([createArticleRes.data.uuid])
+        })
       });
     })
 
   }
   // onSelect(event: { addedFiles: any; }) {
-  //   console.log(event);
   //   this.files.push(...event.addedFiles);
   // }
 
   // onRemove(event: File) {
-  //   console.log(event);
   //   this.files.splice(this.files.indexOf(event), 1);
   // }
 }

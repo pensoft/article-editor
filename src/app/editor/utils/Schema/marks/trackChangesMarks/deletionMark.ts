@@ -24,7 +24,7 @@ const deletion = {
           class: dom.getAttribute('class'),
           style: dom.getAttribute('style'),
           id: dom.dataset.id,
-          user: dom.dataset.user,
+          user: dom.getAttribute('user'),
           username: dom.dataset.username,
           date: parseInt(dom.dataset.date),
           group: dom.dataset.group,
@@ -49,7 +49,7 @@ const deletion = {
       {
         class: node.attrs.class,
         'data-id': node.attrs.id,
-        'data-user': node.attrs.user,
+        'user': node.attrs.user,
         'data-username': node.attrs.username,
         'data-date': node.attrs.date,
         'data-group': node.attrs.group,

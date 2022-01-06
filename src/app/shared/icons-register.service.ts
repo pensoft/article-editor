@@ -30,7 +30,12 @@ export class IconsRegisterService {
     iconRegistry.addSvgIcon('openPadlock', sanitizer.bypassSecurityTrustResourceUrl('./assets/img/open-padlock.svg'));
 
     iconRegistry.addSvgIcon('addPlus', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/plus.svg'));
-    iconRegistry.addSvgIcon('addNewProjectCircle', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/add-new-project-circle.svg'));
+    iconRegistry.addSvgIcon('ProjectCircle', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/add-new-project-circle.svg'));
+
+    iconRegistry.addSvgIcon('dashboardClock', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashbord-clock-item.svg'));
+    iconRegistry.addSvgIcon('dashboardEdit', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashbord-edit-item.svg'));
+    iconRegistry.addSvgIcon('dashboardDelete', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashbord-delete-item.svg'));
+    iconRegistry.addSvgIcon('dasboardNewProject', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashbordNewProject.svg'));
 
     // iconRegistry.addSvgIconLiteral('thumbs-up', sanitizer.bypassSecurityTrustHtml(THUMBUP_ICON));
   }

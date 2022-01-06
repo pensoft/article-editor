@@ -1,5 +1,5 @@
 import { HTTP_INTERCEPTORS, HttpClientModule } from '@angular/common/http';
-import {Compiler, CompilerFactory, COMPILER_OPTIONS, Injector, NgModule, CUSTOM_ELEMENTS_SCHEMA} from '@angular/core';
+import { Compiler, CompilerFactory, COMPILER_OPTIONS, Injector, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -71,10 +71,16 @@ import { ChooseManuscriptDialogComponent } from './editor/dialogs/choose-manuscr
 import { AvatarComponent } from './layout/widgets/avatar/avatar.component';
 
 import { AvatarModule } from 'ngx-avatar';
+import { DashboardComponent } from './editor/dashboard/dashboard.component';
+import { GravatarModule,GravatarConfig, FALLBACK, } from 'ngx-gravatar';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
 }
+
+const gravatarConfig: GravatarConfig = {
+  fallback: FALLBACK.robohash,
+};
 
 @NgModule({
   declarations: [
@@ -124,6 +130,7 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     DialogAddFilesComponent,
     ChooseManuscriptDialogComponent,
     AvatarComponent,
+    DashboardComponent,
 
   ],
   imports: [
@@ -139,6 +146,7 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     AppRoutingModule,
     BrowserAnimationsModule,
     NgxDropzoneModule,
+    GravatarModule.forRoot(gravatarConfig),
     ServiceWorkerModule.register('editor-service-worker.js', {
       enabled: environment.production,
       // Register the ServiceWorker as soon as the app is stables
@@ -161,7 +169,6 @@ export function createCompiler(compilerFactory: CompilerFactory) {
     { provide: CompilerFactory, useClass: JitCompilerFactory, deps: [COMPILER_OPTIONS] },
     { provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory] }
   ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
   bootstrap: [AppComponent],
 })
 export class AppModule {

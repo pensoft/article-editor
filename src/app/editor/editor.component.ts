@@ -1,17 +1,31 @@
-import { AfterViewInit, Component, ElementRef, HostListener, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
+import { FormControl } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDrawer } from '@angular/material/sidenav';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
+import { ArticlesService } from '@app/core/services/articles.service';
 import { AuthService } from '@app/core/services/auth.service';
 import { FormioAppConfig } from '@formio/angular';
 import { uuidv4 } from 'lib0/random';
 import { Subject } from 'rxjs';
-import { map } from 'rxjs/operators';
+import {
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  pairwise,
+} from 'rxjs/operators';
 //import { WebrtcProvider as OriginalWebRtc, } from 'y-webrtc';
 
 //@ts-ignore
-import * as Y from 'yjs'
+import * as Y from 'yjs';
 import { EditorSidebarComponent } from '../layout/widgets/editor-sidebar/editor-sidebar.component';
 import { TreeService } from './meta-data-tree/tree-service/tree.service';
 import { ProsemirrorEditorsService } from './services/prosemirror-editors.service';
@@ -24,10 +38,9 @@ import { TrackChangesService } from './utils/trachChangesService/track-changes.s
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
-  styleUrls: ['./editor.component.scss']
+  styleUrls: ['./editor.component.scss'],
 })
 export class EditorComponent implements OnInit, AfterViewInit {
-
   articleSectionsStructure?: articleSection[];
 
   ydoc?: Y.Doc;
@@ -37,8 +50,13 @@ export class EditorComponent implements OnInit, AfterViewInit {
   shouldTrackChanges?: boolean;
   active = 'editor';
 
-  @ViewChild('trachChangesOnOffBtn', { read: ElementRef }) trachChangesOnOffBtn?: ElementRef;
-  OnOffTrackingChangesShowTrackingSubject: Subject<{ trackTransactions: boolean }>;
+  titleControl = new FormControl();
+
+  @ViewChild('trachChangesOnOffBtn', { read: ElementRef })
+  trachChangesOnOffBtn?: ElementRef;
+  OnOffTrackingChangesShowTrackingSubject: Subject<{
+    trackTransactions: boolean;
+  }>;
 
   @ViewChild(MatDrawer) sidebarDrawer?: MatDrawer;
   sidebar = '';
@@ -46,7 +64,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   @ViewChild('metaDataTreeDrawer') metaDataTreeDrawer?: MatDrawer;
 
   innerWidth: any;
-  trackChangesData?: any
+  trackChangesData?: any;
   constructor(
     private ydocService: YdocService,
     private route: ActivatedRoute,
@@ -57,8 +75,25 @@ export class EditorComponent implements OnInit, AfterViewInit {
     private treeService: TreeService,
     public config: FormioAppConfig,
     private authService: AuthService,
-    private articleSectionsService: ArticleSectionsService
+    private articleSectionsService: ArticleSectionsService,
+    private articlesService: ArticlesService
   ) {
+    this.titleControl.valueChanges
+      .pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        pairwise() // gets a pair of old and new value
+      )
+      .subscribe(([oldValue, newValue]) => {
+        if (oldValue !== newValue) {
+          this.articlesService.putArticleById(
+            this.ydocService.articleData.id,
+            newValue
+          ).subscribe((data)=>{
+            console.log(data);
+          });
+        }
+      });
 
     treeService.toggleTreeDrawer.subscribe((data) => {
       if (this.innerWidth <= 600) {
@@ -66,8 +101,8 @@ export class EditorComponent implements OnInit, AfterViewInit {
       }
     });
 
-    this.OnOffTrackingChangesShowTrackingSubject = prosemirrorEditorServie.OnOffTrackingChangesShowTrackingSubject;
-
+    this.OnOffTrackingChangesShowTrackingSubject =
+      prosemirrorEditorServie.OnOffTrackingChangesShowTrackingSubject;
 
     this.commentService.addCommentSubject.subscribe((data) => {
       if (data.type == 'commentData') {
@@ -81,37 +116,47 @@ export class EditorComponent implements OnInit, AfterViewInit {
         } else {
           setTimeout(() => {
             this.sidebar = 'comments';
-            this._bottomSheet.open(
-              EditorSidebarComponent,
-              { disableClose: true, hasBackdrop: false, data: { sidebar: this.sidebar }, panelClass: 'sidebar-bottom-sheet' }
-            );
-            this._bottomSheet._openedBottomSheetRef?.afterDismissed().subscribe(data => {
-              this.sidebar = '';
+            this._bottomSheet.open(EditorSidebarComponent, {
+              disableClose: true,
+              hasBackdrop: false,
+              data: { sidebar: this.sidebar },
+              panelClass: 'sidebar-bottom-sheet',
             });
+            this._bottomSheet._openedBottomSheetRef
+              ?.afterDismissed()
+              .subscribe((data) => {
+                this.sidebar = '';
+              });
           }, 20);
         }
       }
     });
 
     let initArtcleStructureMap = () => {
-
-      let hideshowDataInit = this.ydocService.trackChangesMetadata!.get('trackChangesMetadata');
-      this.trackChangesData = hideshowDataInit
+      let hideshowDataInit = this.ydocService.trackChangesMetadata!.get(
+        'trackChangesMetadata'
+      );
+      this.trackChangesData = hideshowDataInit;
 
       this.ydocService.trackChangesMetadata!.observe((ymap) => {
-        let hideshowData = this.ydocService.trackChangesMetadata!.get('trackChangesMetadata');
-        if (hideshowData.lastUpdateFromUser !== this.ydocService.articleStructure!.doc?.guid) {
+        let hideshowData = this.ydocService.trackChangesMetadata!.get(
+          'trackChangesMetadata'
+        );
+        if (
+          hideshowData.lastUpdateFromUser !==
+          this.ydocService.articleStructure!.doc?.guid
+        ) {
         }
-        this.shouldTrackChanges = hideshowData.trackTransactions
-        this.trackChangesData = hideshowData
-      })
-    }
+        this.shouldTrackChanges = hideshowData.trackTransactions;
+        this.trackChangesData = hideshowData;
+      });
+    };
     if (this.ydocService.editorIsBuild) {
-      initArtcleStructureMap()
+      initArtcleStructureMap();
     } else {
       this.ydocService.ydocStateObservable.subscribe((event) => {
         if (event == 'docIsBuild') {
-          initArtcleStructureMap()
+          initArtcleStructureMap();
         }
       });
     }
@@ -132,58 +177,70 @@ export class EditorComponent implements OnInit, AfterViewInit {
   ngOnInit(): void {
     this.route.paramMap
       .pipe(map((params: ParamMap) => params.get('id')))
-      .subscribe(roomName => {
+      .subscribe((roomName) => {
         this.authService.getUserInfo().subscribe((userInfo) => {
-            this.roomName = roomName;
-            this.ydocService.init(roomName!, userInfo);
-        })
+          this.roomName = roomName;
+          this.ydocService.init(roomName!, userInfo);
+        });
       });
 
     this.ydocService.ydocStateObservable.subscribe((event) => {
       if (event == 'docIsBuild') {
         let data = this.ydocService.getData();
         this.ydoc = data.ydoc;
-        let trachChangesMetadata = this.ydocService.trackChangesMetadata!.get('trackChangesMetadata');
-        this.shouldTrackChanges = trachChangesMetadata.trackTransactions
+        let trachChangesMetadata = this.ydocService.trackChangesMetadata!.get(
+          'trackChangesMetadata'
+        );
+        this.shouldTrackChanges = trachChangesMetadata.trackTransactions;
 
         this.ydocService.trackChangesMetadata?.observe((ymap) => {
-          let trackChangesMetadata = this.ydocService.trackChangesMetadata?.get('trackChangesMetadata');
+          let trackChangesMetadata = this.ydocService.trackChangesMetadata?.get(
+            'trackChangesMetadata'
+          );
           if (trackChangesMetadata.lastUpdateFromUser !== this.ydoc?.guid) {
-            this.shouldTrackChanges = trackChangesMetadata.trackTransactions
+            this.shouldTrackChanges = trackChangesMetadata.trackTransactions;
           }
-        })
+        });
         //this.provider = data.provider;
         this.articleSectionsStructure = data.articleSectionsStructure;
         this.shouldBuild = true;
         this.prosemirrorEditorServie.init();
+        if (!this.ydocService.articleData) {
+          this.articlesService
+            .getArticleByUuid(this.roomName!)
+            .subscribe((data: any) => {
+              this.ydocService.articleData = data.data;
+              this.titleControl.setValue(this.ydocService.articleData.name);
+            });
+        } else {
+          this.titleControl.setValue(this.ydocService.articleData.name);
+        }
       }
     });
 
     this.innerWidth = window.innerWidth;
 
-    this.prosemirrorEditorServie.mobileVersionSubject.next(this.innerWidth <= 600)  // set prosemirror editors to not be editable while in movile mod
-
+    this.prosemirrorEditorServie.mobileVersionSubject.next(
+      this.innerWidth <= 600
+    ); // set prosemirror editors to not be editable while in movile mod
   }
 
-  ngAfterViewInit() {
-
-  }
-
-
+  ngAfterViewInit() {}
 
   turnOnOffTrachChanges(bool?: boolean) {
     if (bool) {
-      this.shouldTrackChanges = bool
-      this.trackChangesData!.trackTransactions = bool
+      this.shouldTrackChanges = bool;
+      this.trackChangesData!.trackTransactions = bool;
       this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
     } else {
-      this.shouldTrackChanges = !this.shouldTrackChanges
-      this.trackChangesData!.trackTransactions = !this.trackChangesData!.trackTransactions;
+      this.shouldTrackChanges = !this.shouldTrackChanges;
+      this.trackChangesData!.trackTransactions =
+        !this.trackChangesData!.trackTransactions;
       this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
     }
 
-    let buttonElement = this.trachChangesOnOffBtn?.nativeElement as HTMLButtonElement
-
+    let buttonElement = this.trachChangesOnOffBtn
+      ?.nativeElement as HTMLButtonElement;
   }
 
   toggleSidebar(section: string) {
@@ -199,28 +256,31 @@ export class EditorComponent implements OnInit, AfterViewInit {
       }
     } else {
       this.sidebar = section;
-      this._bottomSheet.open(
-        EditorSidebarComponent,
-        { disableClose: true, hasBackdrop: false, data: { sidebar: this.sidebar }, panelClass: 'sidebar-bottom-sheet' }
-      );
-      this._bottomSheet._openedBottomSheetRef?.afterDismissed().subscribe(data => {
-        this.sidebar = '';
+      this._bottomSheet.open(EditorSidebarComponent, {
+        disableClose: true,
+        hasBackdrop: false,
+        data: { sidebar: this.sidebar },
+        panelClass: 'sidebar-bottom-sheet',
       });
+      this._bottomSheet._openedBottomSheetRef
+        ?.afterDismissed()
+        .subscribe((data) => {
+          this.sidebar = '';
+        });
     }
   }
 
   @HostListener('window:resize', ['$event'])
   onResize(event: any) {
     this.innerWidth = window.innerWidth;
-    this.prosemirrorEditorServie.mobileVersionSubject.next(this.innerWidth <= 600) // pass isMobile ot isNotMobile to prosemirror editors
+    this.prosemirrorEditorServie.mobileVersionSubject.next(
+      this.innerWidth <= 600
+    ); // pass isMobile ot isNotMobile to prosemirror editors
   }
 
-  print() {
-  }
+  print() {}
 
-  export() {
-  }
+  export() {}
 
-  submit() {
-  }
+  submit() {}
 }

@@ -15,7 +15,11 @@
         <span style="margin-left:5px">Contributors</span>
       </button>
         </div>
-
+        <div class="middle-group">
+          <mat-form-field class="titel-form-control" appearance="legacy"  color="black">
+            <textarea matInput [formControl]="titleControl" ></textarea>
+          </mat-form-field>
+        </div>
         <div class="right-group" style="display:flex;align-items:center;">
             <span class="vertical-delimiter"></span>
             <arpha-button (clickEvent)="print()" label="Print" class="small secondary" style="margin-right: 16px;">
@@ -151,6 +155,6 @@
     <span>Changes off</span>
   </button>
 
-    
+
 
 </mat-menu>

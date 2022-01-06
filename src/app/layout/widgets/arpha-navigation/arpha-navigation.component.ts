@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { Router } from '@angular/router';
 import { AuthService } from '@core/services/auth.service';
 import { TreeService } from 'src/app/editor/meta-data-tree/tree-service/tree.service';
 
@@ -8,12 +9,17 @@ import { TreeService } from 'src/app/editor/meta-data-tree/tree-service/tree.ser
   styleUrls: [ './arpha-navigation.component.scss' ]
 })
 export class ArphaNavigationComponent implements OnInit {
-  public icon = 'expand_more'; 
+  public icon = 'expand_more';
 
   constructor(
-    private treeService: TreeService, 
-    public authService: AuthService,) {
+    private treeService: TreeService,
+    public authService: AuthService,
+    private router: Router,) {
 
+  }
+
+  openDashBoard(){
+    this.router.navigate(['dashboard'])
   }
 
   ngOnInit(): void {

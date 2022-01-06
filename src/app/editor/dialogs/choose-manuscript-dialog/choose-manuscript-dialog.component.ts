@@ -13,14 +13,7 @@ import {uuidv4} from "lib0/random";
 export class ChooseManuscriptDialogComponent implements OnInit,AfterViewInit {
 
   showError = false;
-  articleTemplates: string[] = ['Biography',
-  'Commentary',
-  'Correspondence',
-  'Policy Brief',
-  'Project Report',
-  'Review Article',
-  'Software Management Plan',
-  'Questionnaire'];
+  articleTemplates: any[] = [];
   value = undefined
   constructor(
     public dialog: MatDialog,
@@ -35,11 +28,7 @@ export class ChooseManuscriptDialogComponent implements OnInit,AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.articleTemplates = this.data.templates.data.reduce(
-      (prev:any,curr:any,index:number)=>{
-        return prev.concat(curr.name)
-      },[])
-    console.log(this.data.templates);
+    this.articleTemplates = this.data.templates.data
 
   }
 
@@ -57,22 +46,8 @@ export class ChooseManuscriptDialogComponent implements OnInit,AfterViewInit {
   closeManuscriptChoose(){
     this.dialogRef.close()
   }
-  /* openDialog(): void {
-    const dialogRef = this.dialog.open(ChooseManuscriptDialogComponent, {
-      width: '563px',
-      height: '657px',
-
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      console.log('The dialog was closed');
-    });
-  } */
 
   public search(value: any) {
     this.value = value
-    /* this.searchService.searchTopics(value).subscribe(result => {
-      result;
-    }); */
   }
 }

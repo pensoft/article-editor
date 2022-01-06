@@ -45,11 +45,12 @@ export class YdocService {
   constructor(
     private http: HttpClient,
     private serviceShare:ServiceShare
-  ) { 
+  ) {
     this.serviceShare.shareSelf('YdocService',this)
   }
   articleStructureFromBackend:any
   articleStructure?: YMap<any>
+  articleData:any;
   sectionFormGroupsStructures?: YMap<any>
   comments?: YMap<any>
   figuresMap?: YMap<any>
@@ -136,7 +137,7 @@ export class YdocService {
     let articleSectionsStructureFlat: articleSection[] = this.articleStructure?.get('articleSectionsStructureFlat');
     let citatsObj = this.figuresMap!.get('articleCitatsObj');
     try {
-      
+
       if (articleSectionsStructure == undefined) {
         citatsObj = {}
         articleSectionsStructureFlat = []
@@ -154,16 +155,16 @@ export class YdocService {
           })
         }
         makeFlat(articleSectionsStructure)
-        
+
         this.articleStructure?.set('articleSectionsStructure', articleSectionsStructure);
         this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
-        
+
       }
       if(!citatsObj){
         citatsObj = {}
         articleSectionsStructureFlat.forEach((section)=>{
           citatsObj[section.sectionID] = {} // citats obj [key:string](citateID):{citatedFigures:[](citated figures-Ids),posiition:number(citatePosition)}
-          
+
         })
         this.figuresMap!.set('articleCitatsObj',citatsObj);
       }
@@ -187,7 +188,7 @@ export class YdocService {
     let figuresNumbers = this.figuresMap!.get('ArticleFiguresNumbers');
     let figuresTemplates = this.figuresMap!.get('figuresTemplates');
     let figures = this.figuresMap!.get('ArticleFigures');
-    
+
 
     if(!figures){
       this.figuresMap!.set('ArticleFigures', {})
@@ -211,6 +212,13 @@ export class YdocService {
     this.editorIsBuild = true;
   }
 
+  setArticleData(articleData:any){
+    this.articleData = articleData;
+  }
+  resetYdoc(){
+    this.editorIsBuild = false;
+    this.ydoc = new Y.Doc();
+  }
   init(roomName: string,userInfo:any) {
     this.roomName = roomName
     this.userInfo = userInfo
@@ -246,7 +254,7 @@ export class YdocService {
 
          sendUpdateToServiceWorker(params.toString());
         this.http.post('/products', params).subscribe(() => {
-        }); 
+        });
       });*/
 
       let sendUpdateToServiceWorker = (update: string) => {
@@ -286,7 +294,7 @@ export class YdocService {
               this.buildEditor();
             }
           },1500)
-          /* 
+          /*
             // render only from backednt
             this.http.get('/products/' + roomName).subscribe((data) => {
             renderDoc(data);

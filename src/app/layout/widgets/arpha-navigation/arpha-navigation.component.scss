@@ -29,11 +29,17 @@
     align-items: center;
     ::ng-deep .a {
       fill: var(--color-00b1b2);
+      opacity: 1;
     }
     mat-icon {
       color: var(--color-00b1b2);
     }
   }
+
+  .eye-icon{
+    cursor: pointer;
+  }
+
   .arrow-icon {
     margin-right: 8px !important;
   }

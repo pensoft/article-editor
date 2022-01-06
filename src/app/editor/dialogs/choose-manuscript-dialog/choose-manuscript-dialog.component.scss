@@ -10,6 +10,7 @@
   line-height: 39px;
   padding-left: 5px;
   width: 99%;
+  color:$black;
 }
 
 .error {
@@ -42,10 +43,12 @@
 ::ng-deep.mat-list-item-content {
   border-bottom: 1px solid $primary-dark-grey;
 }
-
+// ::ng-deep.mat-list-item-content:last-child {
+//   border-bottom: 1px solid #fff;
+// }
 mat-selection-list {
   border: 1px solid $primary-dark-grey;
-  border-radius: 15px 15px 0 0;
+  border-radius: 15px;
 }
 
 ::ng-deep.mat-form-field-label {
@@ -80,4 +83,10 @@ mat-selection-list {
 
 .list-container {
   margin: 0 24px 0 24px;
+  max-height: 370px;
+  height: 370px;
+  overflow: auto;
+}
+label{
+  color:$light-grey;
 }

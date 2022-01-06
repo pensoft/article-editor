@@ -12,22 +12,23 @@ import { DialogAddFilesComponent } from './layout/pages/create-new-project/dialo
 import { ChooseManuscriptDialogComponent } from './editor/dialogs/choose-manuscript-dialog/choose-manuscript-dialog.component';
 import { CreateNewProjectComponent } from './layout/pages/create-new-project/create-new-project.component';
 import {LoginGuard} from "@core/guards/login.guard";
+import { DashboardComponent } from './editor/dashboard/dashboard.component';
 
 
 const routes: Routes = [
   {
     path: '', component: MainComponent,
     children: [
-      { path: '', component: LandingComponent },
-      { path: 'login', component: LoginComponent },
-      { path: 'register', component: SignupComponent },
-      { path: 'choose', component: ChooseManuscriptDialogComponent },
+      { path: '',canActivate: [LoginGuard], component: LandingComponent },
+      { path: 'login',canActivate: [LoginGuard], component: LoginComponent },
+      { path: 'register',canActivate: [LoginGuard], component: SignupComponent },
+      //{ path: 'choose',canActivate: [AuthGuard], component: ChooseManuscriptDialogComponent },
       { path: 'create', canActivate: [AuthGuard], component: CreateNewProjectComponent },
-      { path: 'add-files', component: DialogAddFilesComponent },
+      { path: 'add-files',canActivate: [AuthGuard], component: DialogAddFilesComponent },
+      { path: 'dashboard',canActivate: [AuthGuard], component: DashboardComponent },
       { path: ':id', canActivate: [AuthGuard], component: EditorComponent },
     ]
   },
-
 ];
 
 @NgModule({
