@@ -48,7 +48,7 @@ export class SectionLeafComponent implements OnInit {
   @Input() lastNestedChild!: boolean;
   @Input() nestedNode!: boolean;
 
-  @Input() hasChildren!: boolean;
+  @Input() isComplex!: boolean;
 
   @Input() sectionsFormGroupsRef!:{[key:string]:FormGroup}
   @Output() sectionsFormGroupsRefChange = new EventEmitter<FormGroup>();

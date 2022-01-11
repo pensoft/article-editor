@@ -29,6 +29,7 @@ export class CdkListRecursiveComponent implements OnInit,OnDestroy{
   @Output() articleSectionsStructureChange = new EventEmitter<any>();
 
   @Input() nestedList!: boolean;
+  @Input() firstNested!: boolean;
 
   @Input() listData!: { expandParentFunc: any, listDiv: HTMLDivElement };
   @Input() listParentId?: string; // the id of the parent of this node

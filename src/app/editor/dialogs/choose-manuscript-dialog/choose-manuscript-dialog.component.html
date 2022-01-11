@@ -1,39 +1,38 @@
 <section class="section-choose relative">
- <article fxLayout="column">
-     <h1 fxFill fxLayoutAlign="center" class="mt30px">
-        Add Manuscript to Project
-     </h1>
-     <div *ngIf="showError" class="error">No Template selected.</div>
-     <div fxFill fxLayoutAlign="center">
-     <form (keydown.enter)="search(inputText.value)" fxFlex="90%" fxLayout="column">
-       <label>Select a Template</label>
-        <mat-form-field>
-          <input matInput type="text" #inputText class="input-search">
-          <button color="primary" class="search-button" type="submit" matSuffix mat-raised-button (click)="search(inputText.value)">
+    <article fxLayout="column">
+        <h1 fxFill fxLayoutAlign="center" class="mt30px">
+            Add Manuscript to Project
+        </h1>
+        <div *ngIf="showError" class="error">No Template selected.</div>
+        <div fxFill fxLayoutAlign="center">
+            <form (keydown.enter)="search(inputText.value)" fxFlex="90%" fxLayout="column">
+                <label>Select a Template</label>
+                <mat-form-field>
+                    <input matInput type="text" #inputText class="input-search">
+                    <button color="primary" class="search-button" type="submit" matSuffix mat-raised-button (click)="search(inputText.value)">
            Search
           </button>
-        </mat-form-field>
-      </form>
-    </div>
- </article>
- <article class="list-container">
-  <mat-selection-list #topic [multiple]="false">
-    <mat-list-option *ngFor="let article of articleTemplates" [value]="article.id" class="border">
-      {{article.name}}
-    </mat-list-option>
-  </mat-selection-list>
- </article>
+                </mat-form-field>
+            </form>
+        </div>
+    </article>
+    <article class="list-container">
+        <mat-selection-list #topic [multiple]="false">
+            <mat-list-option *ngFor="let article of articleTemplates" [value]="article.id" class="border">
+                {{article.name}}
+            </mat-list-option>
+        </mat-selection-list>
+    </article>
 
 
-  <div class="buttons-footer" fxLayoutGap="23px">
-    <button mat-stroked-button class="button-stroked-primary" (click)="closeManuscriptChoose()">
+    <div class="buttons-footer" fxLayoutGap="23px">
+        <button mat-stroked-button class="button-stroked-primary" (click)="closeManuscriptChoose()">
         Add Empty
     </button>
-    <button mat-raised-button color="primary" (click)="createManuscript(topic.selectedOptions.selected[0]?.value)">
-        Add manuscript
+        <button mat-raised-button color="primary" (click)="createManuscript(topic.selectedOptions.selected[0]?.value)">
+        Add Manuscript
     </button>
-</div>
+    </div>
 
 
 </section>
-

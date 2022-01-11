@@ -51,6 +51,9 @@ export class SectionComponent implements AfterViewInit, OnInit {
   editorData?: editorData;
   FormStructure: any
   renderSection = false;
+
+  complexSection = false;
+
   @Input() section!: articleSection;
   @Output() sectionChange = new EventEmitter<articleSection>();
 
@@ -136,7 +139,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
       this.editSectionService.editChangeSubject.next(submision);
       this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
       this.figuresControllerService.markCitatsViews(this.ydocService.figuresMap?.get('articleCitatsObj'));
-      
+
     } catch (err: any) {
       this.error = true;
       this.errorMessage += 'An error occurred while interpolating the template.\n';
@@ -220,6 +223,9 @@ export class SectionComponent implements AfterViewInit, OnInit {
       }
       return
     }
+    if(this.section.type == 'complex'){
+      this.renderComplexSectionTree()
+    }
     try {
       this.renderCodemMirrorEditors();
     } catch (e) {
@@ -227,6 +233,11 @@ export class SectionComponent implements AfterViewInit, OnInit {
     }
 
     this.renderForm = true
+  }
+
+  renderComplexSectionTree(){
+    this.complexSection = true;
+
   }
 
   log() {

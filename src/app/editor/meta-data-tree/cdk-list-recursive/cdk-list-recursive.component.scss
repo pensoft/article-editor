@@ -12,6 +12,12 @@ $itemHeight: 30px;
     }
 }
 
+::ng-deep .no-children-placeholder {
+    height: 20px;
+    width: 100%;
+    color: transparent;
+}
+
 ::ng-deep .error-list-drop {
     background-color: #f16a6a;
     margin: 5px;
@@ -173,6 +179,7 @@ $itemHeight: 30px;
     height: 20px !important;
     width: 20px !important;
     margin-left: 8px;
+    margin-right: 9px;
     align-self: center;
     line-height: 0px !important;
     .mat-icon {
@@ -283,6 +290,28 @@ $itemHeight: 30px;
     transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
+.nested-empty-placeholder {
+    margin-left: 30px;
+    vertical-align: middle;
+    display: grid;
+    align-content: center;
+    opacity: 0.4;
+    height: 30px;
+}
+
+.nested-list {
+    margin-left: 20px;
+}
+
+.outer-empty-placeholder {
+    margin-left: 27px;
+    vertical-align: middle;
+    display: grid;
+    align-content: center;
+    opacity: 0.4;
+    height: 30px;
+}
+
 .border-placeholder {
     .border-view {
         background: #e0f3f4;
@@ -292,7 +321,6 @@ $itemHeight: 30px;
         border-color: #1ebabb;
         margin-left: 3px;
         min-height: 28px;
-        width: 74%;
         transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
     }
 }
@@ -306,7 +334,6 @@ $itemHeight: 30px;
         border-color: #1ebabb;
         min-height: 28px;
         margin-left: 21px;
-        width: calc(100% - 81px);
         transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
     }
 }
@@ -318,7 +345,7 @@ $itemHeight: 30px;
 // level > 0 css
 .node-box-nested {
     position: relative;
-    padding-left: 20px;
+    //padding-left: 20px;
     color: rgba(0, 0, 0, 0.87);
     height: 35px;
     font-size: $textFontSize;
@@ -330,7 +357,7 @@ $itemHeight: 30px;
     color: rgba(0, 0, 0, 0.87);
     font-size: $textFontSize;
     font-weight: $textFontWeight;
-    padding-left: 20px;
+    //padding-left: 20px;
 }
 
 .section_btn_container {
