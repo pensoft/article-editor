@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 import { undoItem } from 'prosemirror-menu';
 import { Mark, Node } from 'prosemirror-model';
 import { EditorState, Plugin, PluginKey, Selection } from 'prosemirror-state';
@@ -59,9 +60,19 @@ export class TrackChangesService {
 
   editorCenter: { top: number | undefined, left: number | undefined } = { top: undefined, left: undefined }
 
+  resetTrackChangesService() {
+    Object.keys(this.changesObject).forEach((key)=>{
+      this.changesObject[key] = []
+    })
+    this.acceptReject = {}
+    this.editorCenter = { top: undefined, left: undefined }
+  }
   constructor(
-    private ydocService: YdocService
+    private ydocService: YdocService,
+    private serviceShare:ServiceShare
   ) {
+    serviceShare.shareSelf('TrackChangesService',this);
+
     let hideShowPluginKey = new PluginKey('hideShowPlugin');
     this.hideshowPluginKey = hideShowPluginKey
     let changesVisibilityChange: Subject<any> = new Subject<any>();
@@ -228,7 +239,7 @@ export class TrackChangesService {
                       }); */
                       if (meta.coords.top <= editorCenter.top && meta.coords.left <= editorCenter.left) {
                         //topleft
-                        changePlaceholder.setAttribute('style', `    
+                        changePlaceholder.setAttribute('style', `
                         position: absolute;
                         display: inline;
                         transform: translate(-8%, 34%);
@@ -239,7 +250,7 @@ export class TrackChangesService {
                         padding: 6px;`)
                         arrow.setAttribute('style', `
                         position: absolute;
-                        
+
                         border-bottom: 10px solid ${backgroundColor};
                         border-left: 6px solid rgba(0, 0, 0, 0);
                         border-right: 6px solid rgba(0, 0, 0, 0);
@@ -253,7 +264,7 @@ export class TrackChangesService {
                         `)
                       } else if (meta.coords.top <= editorCenter.top && meta.coords.left > editorCenter.left) {
                         //topright
-                        changePlaceholder.setAttribute('style', `    
+                        changePlaceholder.setAttribute('style', `
                         position: absolute;
                         display: inline;
                         transform: translate(-92%, 34%);
@@ -440,13 +451,13 @@ export class TrackChangesService {
                   let doc = view.state.doc
                   doc.nodesBetween(displayChangesFrom, displayChangesTo, (node, from) => {
                     if (node.marks) {
-                      const actualMarks = node.marks.filter(mark => 
-                        mark.type === deletionMark || 
+                      const actualMarks = node.marks.filter(mark =>
+                        mark.type === deletionMark ||
                         mark.type === insertionMark ||
                         mark.type === delFromPopup ||
                         mark.type === insFromPopup ||
                         mark.type === format_changeMark
-                        );
+                      );
                       actualMarks.forEach((mark) => {
                         allChangesMarksFound.push({
                           mark: mark,

@@ -12,10 +12,10 @@ import { schema } from '../Schema';
 export class LinkPopUpPluginServiceService {
   linkPopUpPluginKey
   linkPopUpPlugin : Plugin
-  constructor(private detectFocusService :DetectFocusService) { 
+  constructor(private detectFocusService :DetectFocusService) {
     let lastFocusedEditor : any
     lastFocusedEditor = detectFocusService.sectionName
-    this.detectFocusService.focusedEditor.subscribe((data) => {
+    this.detectFocusService.focusedEditor.subscribe((data:any) => {
       if (data) {
         lastFocusedEditor = data
       }
@@ -59,7 +59,7 @@ export class LinkPopUpPluginServiceService {
 
 
           return DecorationSet.create(doc, [Decoration.widget(position, linkPopUp)]);
-          
+
         }
       }
     })

@@ -2,7 +2,6 @@ import { ThisReceiver } from '@angular/compiler';
 import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Router } from '@angular/router';
-import { SearchTemplateService } from '@app/editor/services/search-template.service';
 import {uuidv4} from "lib0/random";
 
 @Component({
@@ -19,7 +18,7 @@ export class ChooseManuscriptDialogComponent implements OnInit,AfterViewInit {
     public dialog: MatDialog,
     private dialogRef: MatDialogRef<ChooseManuscriptDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { templates:any },
-    public searchService: SearchTemplateService) {
+    ) {
 
   }
 

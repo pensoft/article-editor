@@ -90,7 +90,6 @@ export class EditorComponent implements OnInit, AfterViewInit {
             this.ydocService.articleData.id,
             newValue
           ).subscribe((data)=>{
-            console.log(data);
           });
         }
       });

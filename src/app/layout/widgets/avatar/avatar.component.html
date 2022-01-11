@@ -4,7 +4,7 @@ name="{{userAvatarInfo.name}}"
 gravatarId="{{userAvatarInfo.gravatarId}}">
 </ngx-avatar> -->
 
-<ngx-avatar *ngIf="userAvatarInfo.name" [round]="true" size="35" name="{{userAvatarInfo.name}}"></ngx-avatar>
+<ngx-avatar *ngIf="userAvatarInfo.name" [round]="true" name="{{userAvatarInfo.name}}"></ngx-avatar>
 <img ngxGravatar *ngIf="!userAvatarInfo.name" email="{{gravatarEmail.email}}" />
 <!-- <img ngxGravatar md5Hash="{{gravatarEmail.gravatarId}}"/>
 <div ngxGravatar  fallback="indenticon" style="border: 1px solid red">gggg

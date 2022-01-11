@@ -1,19 +1,25 @@
 // level 0 css
-
 $textFontWeight: 500;
 $textFontSize: 15px;
 $itemHeight: 30px;
-
 ::ng-deep .drag_btn {
     height: 20px !important;
     width: 20px !important;
     line-height: 0px;
-
     .mat-icon {
         font-size: 15px;
-
         vertical-align: baseline;
     }
+}
+
+::ng-deep .error-list-drop {
+    background-color: #f16a6a;
+    margin: 5px;
+    border-radius: 3px;
+    position: relative;
+    z-index: 4;
+    padding: 2px;
+    padding-left: 11px;
 }
 
 ::ng-deep .matIcon {
@@ -39,9 +45,9 @@ $itemHeight: 30px;
     margin-left: 2px;
     z-index: 5;
     vertical-align: middle;
-    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
-        0px 1px 1px 0px rgb(0 177 178 / 20%);
+    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
 }
+
 ::ng-deep .section_btn {
     height: 30px !important;
     width: 30px !important;
@@ -70,7 +76,6 @@ $itemHeight: 30px;
     display: inline-flex;
     padding-left: 30px;
     min-height: $itemHeight;
-    
     width: fit-content;
     z-index: 4;
     position: relative;
@@ -86,8 +91,7 @@ $itemHeight: 30px;
     z-index: 4;
     position: relative;
     width: calc(100% - 105px);
-    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
-        0px 1px 1px 0px rgb(0 177 178 / 20%);
+    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
     position: relative;
 }
 
@@ -110,8 +114,7 @@ $itemHeight: 30px;
     z-index: 4;
     position: relative;
     width: 60%;
-    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
-        0px 1px 1px 0px rgb(0 177 178 / 20%);
+    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
     position: relative;
 }
 
@@ -124,8 +127,7 @@ $itemHeight: 30px;
     position: relative;
     vertical-align: middle;
     height: $itemHeight;
-    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
-        0px 1px 1px 0px rgb(0 177 178 / 20%);
+    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
 }
 
 .sectionBorderListItemInactive {
@@ -164,8 +166,7 @@ $itemHeight: 30px;
     position: relative;
     height: $itemHeight;
     width: 60%;
-    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
-        0px 1px 1px 0px rgb(0 177 178 / 20%);
+    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
 }
 
 ::ng-deep .expandBTN {
@@ -174,7 +175,6 @@ $itemHeight: 30px;
     margin-left: 8px;
     align-self: center;
     line-height: 0px !important;
-
     .mat-icon {
         line-height: 20px !important;
         vertical-align: baseline;
@@ -230,13 +230,11 @@ $itemHeight: 30px;
     margin-right: 1px;
     z-index: 5;
     margin-left: 2px;
-    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
-        0px 1px 1px 0px rgb(0 177 178 / 20%);
+    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
 }
 
 .node-box-dropdownbox {
     position: relative !important;
-
     //padding: 10px 5px 10px 5px;
     background-color: #f9fafc;
     color: rgba(0, 0, 0, 0.87);
@@ -318,7 +316,6 @@ $itemHeight: 30px;
 }
 
 // level > 0 css
-
 .node-box-nested {
     position: relative;
     padding-left: 20px;
@@ -330,7 +327,6 @@ $itemHeight: 30px;
 
 .node-box-dropdownbox-nested {
     position: relative !important;
-
     color: rgba(0, 0, 0, 0.87);
     font-size: $textFontSize;
     font-weight: $textFontWeight;
@@ -378,8 +374,7 @@ $itemHeight: 30px;
     margin-left: 2px;
     z-index: 5;
     vertical-align: top;
-    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%),
-        0px 1px 1px 0px rgb(0 177 178 / 20%);
+    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
 }
 
 ::ng-deep .expandBTNNested {
@@ -387,7 +382,6 @@ $itemHeight: 30px;
     width: 20px !important;
     align-self: center;
     line-height: 0px !important;
-
     .mat-button-wrapper {
         line-height: 0px !important;
     }
@@ -409,7 +403,6 @@ $itemHeight: 30px;
     background-color: #e4f6f6;
     width: 60%;
     z-index: 4;
-
 }
 
 .selectedEditorNestedLeaf {
@@ -471,7 +464,6 @@ $itemHeight: 30px;
         }
         background-color: white;
         padding-top: 36px;
-
         .text-placeholder {
             border-left: 2px solid #6cd0d2;
             padding-left: 8px;
@@ -482,12 +474,10 @@ $itemHeight: 30px;
             border-bottom: 2px solid #6cd0d2;
             transform: translate(17px, -20px);
         }
-
         .sectionBorderListItemInactive {
             background-color: white;
             z-index: 4;
         }
-
         .sectionBorderListNestedInactive {
             background-color: white;
             padding-left: 0px;
@@ -496,20 +486,18 @@ $itemHeight: 30px;
         }
         .selectedEditorNestedLeaf {
             z-index: 4;
-            background-color: #e4f6f6 ;
-            margin-left: 18px ;
+            background-color: #e4f6f6;
+            margin-left: 18px;
             padding-left: 8px;
             width: 60%;
         }
-
         .selectedEditor {
             background-color: #e4f6f6;
             width: 60%;
             z-index: 4;
         }
-
         .selectedEditorNestedList {
-            background-color: #e4f6f6 ;
+            background-color: #e4f6f6;
             margin-left: 18px;
             padding-left: 8px;
             width: 60%;
@@ -518,6 +506,6 @@ $itemHeight: 30px;
     }
 }
 
-.outer-list{
+.outer-list {
     padding-top: 41px;
 }

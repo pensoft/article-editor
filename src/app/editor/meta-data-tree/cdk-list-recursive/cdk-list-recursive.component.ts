@@ -1,5 +1,5 @@
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { AfterContentInit, AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
+import { AfterContentInit, AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
 import { YdocService } from '../../services/ydoc.service';
@@ -23,9 +23,9 @@ import { ySyncPluginKey } from '../../../y-prosemirror-src/plugins/keys.js';
   templateUrl: './cdk-list-recursive.component.html',
   styleUrls: ['./cdk-list-recursive.component.scss']
 })
-export class CdkListRecursiveComponent implements OnInit {
+export class CdkListRecursiveComponent implements OnInit,OnDestroy{
 
-  @Input() articleSectionsStructure!: articleSection[];
+  @Input() articleSectionsStructure!: any[];
   @Output() articleSectionsStructureChange = new EventEmitter<any>();
 
   @Input() nestedList!: boolean;
@@ -36,6 +36,10 @@ export class CdkListRecursiveComponent implements OnInit {
   mouseOn?: string;
 
   sectionsFormGroups:{[key:string]:FormGroup} = {};
+
+  error = false;
+
+  connectedTo:string[]
 
   focusIdHold?: string;
   taxonomyData: any;
@@ -50,9 +54,13 @@ export class CdkListRecursiveComponent implements OnInit {
     public prosemirrorEditorsService: ProsemirrorEditorsService,
     public dialog: MatDialog
   ) {
+
+    this.connectedTo = treeService.connectedLists
   }
 
   ngOnInit(): void {
+    this.connectedTo = this.treeService.connectedLists
+    this.treeService.registerConnection(this.listParentId!)
     this.sectionsFormGroups = this.treeService.sectionFormGroups
     this.articleSectionsStructure.forEach((node: articleSection, index: number) => {
       //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
@@ -84,8 +92,75 @@ export class CdkListRecursiveComponent implements OnInit {
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    moveItemInArray(this.articleSectionsStructure, event.previousIndex, event.currentIndex);
-    this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, this.listParentId!);
+    if (event.previousContainer === event.container) {
+      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+      this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, event.previousContainer.id,event.container.id);
+    } else {
+      // copy data and moe the items the copy then cehck if the list level is grater than 4 if it is wi dont perform the drop instead wi display an error
+
+      let articleDataCopy = JSON.parse(JSON.stringify(this.treeService.articleSectionsStructure))
+      let prevContNewRef:any[]
+      let newContNewRef:any[]
+
+      if(this.listParentId == 'parentList'){
+        newContNewRef = articleDataCopy;
+      }
+
+      if(event.previousContainer.id == 'parentList'){
+        prevContNewRef= articleDataCopy;
+      }
+
+      let findReferences = (container:any) =>{
+        container.forEach((el:any)=>{
+          if(el.sectionID == event.previousContainer.id){
+            prevContNewRef = el.children
+          }
+          if(el.sectionID == event.container.id){
+            newContNewRef = el.children
+          }
+          if(el.children&&el.children.length>0){
+            findReferences(el.children)
+          }
+        })
+      }
+
+      findReferences(articleDataCopy);
+      //@ts-ignore
+      transferArrayItem(prevContNewRef,newContNewRef,event.previousIndex,event.currentIndex);
+
+      let treeNewLevel = 0;
+      let countLevel = (num:number,container:any)=>{
+        let newNum = num+1
+        if(newNum>treeNewLevel){
+          treeNewLevel = newNum;
+        }
+        container.forEach((el:any)=>{
+          if(el.children&&el.children.length>0){
+            countLevel(newNum,el.children);
+          }
+        })
+      }
+
+      countLevel(0,articleDataCopy);
+
+      if(treeNewLevel<5){
+        transferArrayItem(event.previousContainer.data,
+                          event.container.data,
+                          event.previousIndex,
+                          event.currentIndex);
+        this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, event.previousContainer.id,event.container.id);
+      }else{
+        console.log(treeNewLevel);
+        this.error = true;
+        setTimeout(()=>{
+          this.error = false;
+        },5000)
+      }
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.treeService.unregisterConnection(this.listParentId!);
   }
 
 }

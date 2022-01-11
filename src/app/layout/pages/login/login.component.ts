@@ -74,7 +74,8 @@ export class LoginComponent implements OnInit {
       .pipe(first())
       .subscribe((user: UserModel) => {
         if (user) {
-          this.router.navigate([ 'create' ]);
+
+          this.router.navigate([ 'dashboard' ]);
           // this.formioBaseService.login();
         } else {
           this.hasError = true;

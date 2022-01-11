@@ -34,7 +34,7 @@ export class LoginGuard implements CanActivate {
     this._authservice.getUserInfo().subscribe(user => {
 
       if (user) {
-        this.router.navigate(['/create']);
+        this.router.navigate(['dashboard']);
       }
       this.subject.next(true);
     });

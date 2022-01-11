@@ -3,7 +3,7 @@ export interface editorData {
     editorId:string,
     menuType:string,
     editorMeta?:editorMeta,
-} 
+}
 
 export interface editorMeta{
     label?:string,
@@ -16,7 +16,7 @@ export interface editorMeta{
 export interface taxonomicCoverageContentData {
     description:editorData,
     taxaArray:taxa[],   //table rows
-} 
+}
 
 export interface taxa {
     scietificName:editorData,
@@ -41,9 +41,11 @@ export interface articleSection {
     add: { bool: boolean, main: boolean },
     edit: { bool: boolean, main: boolean },
     delete: { bool: boolean, main: boolean },
-    mode:'documentMode'|'editMode',   
+    mode:'documentMode'|'editMode',
     title:titleContent,
     prosemirrorHTMLNodesTempl?:string,
     formIOSchema?:any,
-    defaultFormIOValues?:any
+    defaultFormIOValues?:any,
+    type:'complex'|'simple',
+    sectionTypeID:number,
 }

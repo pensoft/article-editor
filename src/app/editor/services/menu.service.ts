@@ -9,12 +9,14 @@ import { CommentsService } from '../utils/commentsService/comments.service';
 import * as Y from 'yjs'
 import * as menuDialogs from '../utils/menu/menu-dialogs';
 import * as m from '../utils/menu/menuItems';
+//@ts-ignore
+import { createCustomIcon } from '../utils/menu/common-methods';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MenuService {
-  
+
   addCommentSubject;
 
   constructor(public dialog: MatDialog,private commentsService:CommentsService) {
@@ -91,7 +93,7 @@ export class MenuService {
 
   attachMenuItems2(menu: any, ydoc: Y.Doc) {
     let menuItems = m.getItems();
-    
+
     menu.fullMenu[4] = [];
     menu.fullMenu[4].push(menuItems.setAlignLeft);
     menu.fullMenu[4].push(menuItems.setAlignCenter);
@@ -122,11 +124,11 @@ export class MenuService {
       let item : any;
       if (itemName == 'alignMenu') {
 
-        item = new Dropdown(menuItems[itemName], { class: "align-icon horizontal-dropdown" })
+        item = new Dropdown2(menuItems[itemName], { class: "horizontal-dropdown" ,dropdownType:'alignmenu',icon:createCustomIcon('align2.svg', 18)})
       } else if (itemName == 'tableMenu') {
         item = new Dropdown(menuItems[itemName], { class: "table-icon vertival-dropdown" })
       } else if (itemName == 'textMenu') {
-        let dropdown = new Dropdown2(menuItems[itemName], { class: "text-menu-icon horizontal-dropdown" })
+        let dropdown = new Dropdown2(menuItems[itemName], { class: " horizontal-dropdown",icon:createCustomIcon('text.svg',16) })
         item = dropdown
       } else if (itemName == 'insertMenu') {
         item = new Dropdown(menuItems[itemName], { label: 'Insert',class:'horizontal-dropdown' })

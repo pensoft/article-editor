@@ -53,12 +53,12 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
           this.editorView = this.editorsService.editorContainers[this.lastFocusedEditor!].editorView
           this.showAddCommentBox =  commentsService.addCommentData.showBox
         }
-        this.detectFocus.focusedEditor.subscribe((data) => {
+        this.detectFocus.focusedEditor.subscribe((data:any) => {
           if (data) {
             this.lastFocusedEditor = data
             this.editorView = this.editorsService.editorContainers[data].editorView;
-    
-    
+
+
           }
         })
         this.addCommentSubject.subscribe((data) => {

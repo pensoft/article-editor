@@ -77,17 +77,19 @@ export class ProsemirrorEditorsService {
 
   articleSectionsStructure?: articleSection[];
   initDocumentReplace: any = {};
-  editorContainers: {[key:string]:{
-    editorID: string,
-    containerDiv: HTMLDivElement,
-    editorState: EditorState,
-    editorView: EditorView,
-    dispatchTransaction: any
-  } } = {}
+  editorContainers: {
+    [key: string]: {
+      editorID: string,
+      containerDiv: HTMLDivElement,
+      editorState: EditorState,
+      editorView: EditorView,
+      dispatchTransaction: any
+    }
+  } = {}
   xmlFragments: { [key: string]: Y.XmlFragment } = {}
 
-  interpolateTemplate:any
-  userInfo:any;
+  interpolateTemplate: any
+  userInfo: any;
 
   DOMPMSerializer = DOMSerializer.fromSchema(schema);
 
@@ -113,12 +115,12 @@ export class ProsemirrorEditorsService {
 
   defaultValuesObj: any = {}
   editorsDeleteArray: string[] = []
-  userData:any
-  
-  citatEditingSubject:Subject<any> = new Subject<any>()
-  deletedCitatsInPopUp :{[key:string]:string[]}= {}
-  rerenderFigures:any
-  setFigureRerenderFunc = (fn:any)=>{
+  userData: any
+
+  citatEditingSubject: Subject<any> = new Subject<any>()
+  deletedCitatsInPopUp: { [key: string]: string[] } = {}
+  rerenderFigures: any
+  setFigureRerenderFunc = (fn: any) => {
     this.rerenderFigures = fn;
   }
 
@@ -130,18 +132,18 @@ export class ProsemirrorEditorsService {
     private linkPopUpPluginService: LinkPopUpPluginServiceService,
     private commentsService: CommentsService,
     private treeService: TreeService,
-    private citatContextPluginService:CitatContextMenuService,
+    private citatContextPluginService: CitatContextMenuService,
     private trackChangesService: TrackChangesService,
-    private seviceShare:ServiceShare) {
+    private seviceShare: ServiceShare) {
 
-      this.seviceShare.shareSelf('ProsemirrorEditorsService',this)
-    
-      this.mobileVersionSubject.subscribe((data) => {
+    this.seviceShare.shareSelf('ProsemirrorEditorsService', this)
+
+    this.mobileVersionSubject.subscribe((data) => {
       // data == true => mobule version
       this.mobileVersion = data
     })
 
-    
+
 
     this.OnOffTrackingChangesShowTrackingSubject.subscribe((data) => {
       this.shouldTrackChanges = data.trackTransactions
@@ -151,32 +153,32 @@ export class ProsemirrorEditorsService {
       this.ydocService.trackChangesMetadata?.set('trackChangesMetadata', trackCHangesMetadata);
     })
 
-    this.citatEditingSubject.subscribe((data)=>{
-      if(data.action == 'delete'){
-        if(!this.deletedCitatsInPopUp[data.sectionID]){
+    this.citatEditingSubject.subscribe((data) => {
+      if (data.action == 'delete') {
+        if (!this.deletedCitatsInPopUp[data.sectionID]) {
           this.deletedCitatsInPopUp[data.sectionID] = [data.citatID]
-        }else{
+        } else {
           this.deletedCitatsInPopUp[data.sectionID].push(data.citatID)
         }
-      }else if(data.action == "clearDeletedCitatsFromPopup"){
-        Object.keys(this.deletedCitatsInPopUp).forEach((sectionID)=>{
+      } else if (data.action == "clearDeletedCitatsFromPopup") {
+        Object.keys(this.deletedCitatsInPopUp).forEach((sectionID) => {
           delete this.deletedCitatsInPopUp[sectionID];
         })
-      }else if(data.action == "deleteCitatsFromDocument"){
+      } else if (data.action == "deleteCitatsFromDocument") {
         let citatsObj = this.ydocService.figuresMap?.get('articleCitatsObj');
-        Object.keys(this.deletedCitatsInPopUp).forEach((sectionID)=>{
-          this.deletedCitatsInPopUp[sectionID].forEach((citatid)=>{
+        Object.keys(this.deletedCitatsInPopUp).forEach((sectionID) => {
+          this.deletedCitatsInPopUp[sectionID].forEach((citatid) => {
             citatsObj[sectionID][citatid] = undefined
           })
           delete this.deletedCitatsInPopUp[sectionID];
         })
-        this.ydocService.figuresMap?.set('articleCitatsObj',citatsObj);
+        this.ydocService.figuresMap?.set('articleCitatsObj', citatsObj);
         this.rerenderFigures(citatsObj)
       }
     })
   }
 
-  
+
   getXmlFragment(mode: string = 'documentMode', id: string) {
     if (this.xmlFragments[id]) {
       return this.xmlFragments[id]
@@ -230,10 +232,40 @@ export class ProsemirrorEditorsService {
     markContent(section.sectionContent)
   } */
 
+  resetProsemirrorEditors() {
+    this.ydoc = undefined;
+    //provider?: WebrtcProvider;
+    this.provider = undefined;
+
+    this.articleSectionsStructure = undefined;
+    this.initDocumentReplace = {};
+    this.editorContainers = {}
+    this.xmlFragments = {}
+
+    this.interpolateTemplate = undefined;
+    this.userInfo = undefined;
+    this.permanentUserData = undefined;
+    this.trackChangesMeta = undefined;
+    this.shouldTrackChanges = false
+    this.treeChangesCount = 0
+    this.transactionCount = 0;
+
+    this.editorsEditableObj = {}
+
+    this.mobileVersionSubject = new Subject<boolean>()
+    this.mobileVersion = false;
+
+    this.defaultValuesObj = {}
+    this.editorsDeleteArray = []
+    this.userData = undefined;
+    this.deletedCitatsInPopUp = {}
+    this.rerenderFigures = undefined;
+  }
+
   dispatchEmptyTransaction() {  // for updating the view
     Object.values(this.editorContainers).forEach((container: any) => {
       let editorState = container.editorView.state as EditorState
-      container.editorView.dispatch(editorState.tr.setMeta('emptyTR',true))
+      container.editorView.dispatch(editorState.tr.setMeta('emptyTR', true))
     })
   }
 
@@ -262,7 +294,7 @@ export class ProsemirrorEditorsService {
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment(section.mode, editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
-    yCursorPlugin(this.provider!.awareness,this.userData),
+    yCursorPlugin(this.provider!.awareness, this.userData),
     yUndoPlugin()]
 
 
@@ -274,15 +306,15 @@ export class ProsemirrorEditorsService {
     let GroupControl = this.treeService.sectionFormGroups;
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!,this.editorContainers,this.rerenderFigures,this.interpolateTemplate,GroupControl,section ),
-      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.rerenderFigures,editorID),
+      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate, GroupControl, section),
+      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.rerenderFigures, editorID),
     })
 
     let selectWholeCitatPluginKey = new PluginKey('selectWholeCitat');
     let selectWholeCitat = new Plugin({
       key: selectWholeCitatPluginKey,
-      props:{
-        createSelectionBetween:selectWholeCitatMarks
+      props: {
+        createSelectionBetween: selectWholeCitatMarks
       }
     })
 
@@ -297,7 +329,7 @@ export class ProsemirrorEditorsService {
       plugins: [
         ...yjsPlugins,
         mathPlugin,
-        
+
         keymap({
           'Mod-z': undo,
           'Mod-y': redo,
@@ -333,11 +365,11 @@ export class ProsemirrorEditorsService {
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
       try {
-        if (lastStep == transaction.steps[0]&&!transaction.getMeta('emptyTR')) {
+        if (lastStep == transaction.steps[0] && !transaction.getMeta('emptyTR')) {
           if (lastStep) { return }
         }
         lastStep = transaction.steps[0]
-        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges||transaction.getMeta('shouldTrack')==false) {
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false) {
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
 
@@ -363,37 +395,37 @@ export class ProsemirrorEditorsService {
         return !this.mobileVersion /* && this.editorsEditableObj[editorID] */
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
-      handleDOMEvents:{
-          contextmenu:(view,event)=>{
-            if(this.citatContextPluginService.citatContextPluginKey.getState(view.state).decorations){
-              event.preventDefault();
-              event.stopPropagation();
-              return true
-            }
-            return false
+      handleDOMEvents: {
+        contextmenu: (view, event) => {
+          if (this.citatContextPluginService.citatContextPluginKey.getState(view.state).decorations) {
+            event.preventDefault();
+            event.stopPropagation();
+            return true
           }
+          return false
+        }
       },
       dispatchTransaction,
       handlePaste,
-      handleClick: handleClick(hideshowPluginKEey,this.citatContextPluginService.citatContextPluginKey),
-      handleClickOn:handleClickOn(this.citatContextPluginService.citatContextPluginKey),
+      handleClick: handleClick(hideshowPluginKEey, this.citatContextPluginService.citatContextPluginKey),
+      handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
       handleTripleClickOn,
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
       handleKeyDown,
-      handleDrop:(view: EditorView, event: Event, slice: Slice, moved: boolean)=>{
-        slice.content.nodesBetween(0,slice.content.size-2,(node,pos,parent)=>{
-          if(node.marks.filter((mark)=>{return mark.type.name == 'citation'}).length>0){
-            let citationMark = node.marks.filter((mark)=>{return mark.type.name == 'citation'})[0];
+      handleDrop: (view: EditorView, event: Event, slice: Slice, moved: boolean) => {
+        slice.content.nodesBetween(0, slice.content.size - 2, (node, pos, parent) => {
+          if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
+            let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0];
             //@ts-ignore
-            if(!event.ctrlKey){  // means that the drag is only moving the selected not a copy of the selection -> without Ctrl
-    
-            }else{      // the drag is moving a copy of the selection        
+            if (!event.ctrlKey) {  // means that the drag is only moving the selected not a copy of the selection -> without Ctrl
+
+            } else {      // the drag is moving a copy of the selection
               //@ts-ignore
-              let dropPosition =  view.posAtCoords({left:event.clientX,top:event.clientY}).pos + pos - slice.openStart
-              setTimeout(()=>{
+              let dropPosition = view.posAtCoords({ left: event.clientX, top: event.clientY }).pos + pos - slice.openStart
+              setTimeout(() => {
                 let newMark = view.state.doc.nodeAt(dropPosition)
-                view.dispatch(view.state.tr.addMark(dropPosition,dropPosition + newMark?.nodeSize!,schema.mark('citation',{...citationMark.attrs,citateid:random.uuidv4()})))
-              },10)
+                view.dispatch(view.state.tr.addMark(dropPosition, dropPosition + newMark?.nodeSize!, schema.mark('citation', { ...citationMark.attrs, citateid: random.uuidv4() })))
+              }, 10)
             }
           }
         })
@@ -414,13 +446,13 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
-  renderDocumentEndEditor(EditorContainer: HTMLDivElement,figures:figure[]): {
+  renderDocumentEndEditor(EditorContainer: HTMLDivElement, figures: figure[]): {
     editorID: string,
     containerDiv: HTMLDivElement,
     editorState: EditorState,
     editorView: EditorView,
     dispatchTransaction: any
-  }{
+  } {
     let editorId = 'endEditor'
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
 
@@ -431,8 +463,8 @@ export class ProsemirrorEditorsService {
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema,this.ydocService.figuresMap!,this.editorContainers,this.rerenderFigures,this.interpolateTemplate),
-      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.rerenderFigures,editorId),
+      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate),
+      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.rerenderFigures, editorId),
     })
     //let inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, endEditorSchema!.nodes.math_inline);
     //let blockMathInputRule = makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, endEditorSchema!.nodes.math_display);
@@ -447,14 +479,14 @@ export class ProsemirrorEditorsService {
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment('documentMode', editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
-    yCursorPlugin(this.provider!.awareness,this.userData),
+    yCursorPlugin(this.provider!.awareness, this.userData),
     yUndoPlugin()]
 
     container.setAttribute('class', 'editor-container');
     let menu = buildMenuItems(schema);
     let defaultMenu = this.menuService.attachMenuItems(menu, this.ydoc!, 'SimpleMenu', editorID);
     this.initDocumentReplace[editorID] = true;
-    
+
 
     setTimeout(() => {
       this.initDocumentReplace[editorID] = false;
@@ -503,7 +535,7 @@ export class ProsemirrorEditorsService {
           if (lastStep) { return }
         }
         lastStep = transaction.steps[0]
-        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges ||transaction.getMeta('shouldTrack')==false) {
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false) {
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
 
@@ -550,7 +582,7 @@ export class ProsemirrorEditorsService {
     this.editorContainers[editorID] = editorCont;
     return editorCont
   }
-  
+
   renderEditorWithNoSync(EditorContainer: HTMLDivElement, formIOComponentInstance: any, control: FormioControl, options: any, nodesArray?: Slice): {
     editorID: string,
     containerDiv: HTMLDivElement,
@@ -558,7 +590,7 @@ export class ProsemirrorEditorsService {
     editorView: EditorView,
     dispatchTransaction: any
   } {
-    
+
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
     EditorContainer.innerHTML = ''
     let editorID = random.uuidv4()
@@ -590,14 +622,14 @@ export class ProsemirrorEditorsService {
 
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      props:{
-        createSelectionBetween:selectWholeCitatMarks
+      props: {
+        createSelectionBetween: selectWholeCitatMarks
       },
-      state:{
-        init(config){
-          return {sectionID:config.sectionID}
+      state: {
+        init(config) {
+          return { sectionID: config.sectionID }
         },
-        apply(tr, prev, _, newState){
+        apply(tr, prev, _, newState) {
           return prev
         }
       },
@@ -607,7 +639,7 @@ export class ProsemirrorEditorsService {
         containerElement.appendChild(htmlNOdeRepresentation);
         options.onChange(true, containerElement.innerHTML)
       },
-      filterTransaction:preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.rerenderFigures,sectionID,this.citatEditingSubject)
+      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.rerenderFigures, sectionID, this.citatEditingSubject)
 
     })
 
@@ -618,12 +650,12 @@ export class ProsemirrorEditorsService {
         endDoc,
         complexSteps = true, // Whether step types other than ReplaceStep are allowed.
         wordDiffs = false // Whether diffs in text nodes should cover entire words.
-      ) 
+      )
     })*/
 
     this.editorsEditableObj[editorID] = true
 
-    
+
 
     let edState = EditorState.create({
       doc,
@@ -650,7 +682,7 @@ export class ProsemirrorEditorsService {
       ,
       // @ts-ignore
       sectionName: editorID,
-      sectionID:sectionID,
+      sectionID: sectionID,
       editorType: 'popupEditor'
     });
     setTimeout(() => {
@@ -666,7 +698,7 @@ export class ProsemirrorEditorsService {
           if (lastStep) { return }
         }
         lastStep = transaction.steps[0]
-        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges||transaction.getMeta('shouldTrack')==false) {
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false) {
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
 
@@ -694,8 +726,8 @@ export class ProsemirrorEditorsService {
       dispatchTransaction,
       handleClick: handleClick(hideshowPluginKEey),
       handleTripleClickOn,
-      handleDoubleClick: 
-      handleDoubleClickFN(hideshowPluginKEey),
+      handleDoubleClick:
+        handleDoubleClickFN(hideshowPluginKEey),
       handleKeyDown,
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
 
@@ -740,7 +772,7 @@ export class ProsemirrorEditorsService {
     this.ydoc.gc = false;
   }
 
-  setIntFunction(interpulateFunction:any){
+  setIntFunction(interpulateFunction: any) {
     this.interpolateTemplate = interpulateFunction
   }
 }

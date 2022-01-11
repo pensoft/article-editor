@@ -9,6 +9,7 @@ import { minBy, maxBy, last } from 'lodash';
 import { from, Subject } from 'rxjs';
 import { Observable } from 'lib0/observable';
 import { state } from '@angular/animations';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 
 @Injectable({
   providedIn: 'root'
@@ -22,10 +23,22 @@ export class CommentsService {
   editorsOuterDiv?: HTMLDivElement
   commentsObject: any
   commentsVisibilityChange: Subject<any>
-  addCommentData: any = {}
+  addCommentData?: any = {}
   commentAllowdIn?: any = {} // editor id where comment can be made RN equals ''/undefined if there is no such editor RN
   selectedTextInEditors?: any = {} // selected text in every editor
-  constructor() {
+
+  resetCommentsService(){
+    this.storeData= undefined;
+    this.editorsOuterDiv= undefined;
+    Object.keys(this.commentsObject).forEach((key)=>{
+      this.commentsObject[key] = []
+    })
+    this.addCommentData= {}
+    this.commentAllowdIn = {} // editor id where comment can be made RN equals ''/undefined if there is no such editor RN
+    this.selectedTextInEditors = {}
+  }
+  constructor(private serviceShare:ServiceShare) {
+    serviceShare.shareSelf('CommentsService',this)
     let addCommentSubject1 = new Subject<any>()
     this.addCommentSubject = addCommentSubject1
     this.addCommentSubject.subscribe((data) => {
@@ -100,7 +113,7 @@ export class CommentsService {
       view: function () {
         return {
           update: (view, prevState) => {
-            
+
             if(JSON.stringify(view.state.doc)== JSON.stringify(prevState.doc)&&!view.hasFocus()){
               return;
             }

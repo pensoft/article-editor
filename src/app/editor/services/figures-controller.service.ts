@@ -40,6 +40,14 @@ export class FiguresControllerService {
   figuresNumbers?: string[]
   figures: { [key: string]: figure } = {}
   renderEditorFn: any
+
+  resetFiguresControllerService (){
+    this.endEditorContainer = undefined
+    this.figuresNumbers = undefined
+    this.figures = {}
+    this.renderEditorFn = undefined
+  }
+
   constructor(
     private ydocService: YdocService,
     private prosemirrorEditorsService: ProsemirrorEditorsService,
@@ -388,7 +396,7 @@ export class FiguresControllerService {
           let {from,to} = insertionView.state.selection
        */
       /* selectedFigures.forEach(figNumber => {
-  
+
         let figure = this.figuresData[figNumber]
         let view = this.prosemirrorEditorsService.editorContainers[figure.path].editorView
         let nodeStart: number = view.state.doc.nodeSize - 2
@@ -621,7 +629,7 @@ export class FiguresControllerService {
 
 
 
-    /* 
+    /*
     let figure: any = JSON.parse(JSON.stringify(figure1))
     let view = this.prosemirrorEditorsService.editorContainers[figure.path].editorView
     let nodeStart: number = view.state.doc.nodeSize - 2
@@ -634,12 +642,12 @@ export class FiguresControllerService {
         nodeEnd = pos + node.nodeSize
       }
     })
- 
+
     if (!foundExistingFigure) {
     }
     let schema = view.state.schema
     let n = schema.nodes
- 
+
     let figDesc = schema.nodes.figure_description.create({}, this.getNodeFromHTML(figure.description))
     let figuresDescriptions: any[] = []
     let figurecomponents = figure.components.reduce((prev: any, curr: any, i: number) => {
@@ -668,7 +676,7 @@ export class FiguresControllerService {
           ...figuresDescriptions
         ])]
       )).setMeta('shouldTrack', false))
- 
+
    */
   }
 

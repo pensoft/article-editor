@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 const API_ARTICLES_URL = `https://ps-article.dev.scalewest.com/api/articles`
 
 @Injectable({
@@ -7,10 +8,12 @@ const API_ARTICLES_URL = `https://ps-article.dev.scalewest.com/api/articles`
 })
 export class ArticlesService {
 
-  constructor(private _http: HttpClient,) { }
+  constructor(private _http: HttpClient,private serviceShare:ServiceShare) {
+    this.serviceShare.shareSelf('ArticlesService',this)
+  }
 
   getAllArticles(){
-    return this._http.get(API_ARTICLES_URL)
+    return this._http.get(API_ARTICLES_URL,{params:{page:1,pageSize:100}})
   }
 
   getArticleByUuid(uuid:string){
@@ -20,6 +23,11 @@ export class ArticlesService {
   putArticleById(articleId:number,name:string){ // article id !== uuid !
     return this._http.put(`${API_ARTICLES_URL}/${articleId}`,{name})
   }
+
+  deleteArticleById(articleId:number){ // article id !== uuid !
+    return this._http.delete(`${API_ARTICLES_URL}/${articleId}`)
+  }
+
   createArticle(name:string,article_template_id:number){
     return this._http.post(API_ARTICLES_URL,{name,article_template_id});
   }

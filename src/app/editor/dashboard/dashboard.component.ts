@@ -12,6 +12,8 @@ import { YdocService } from '../services/ydoc.service';
 import { ChooseManuscriptDialogComponent } from '../dialogs/choose-manuscript-dialog/choose-manuscript-dialog.component';
 import { articleSection } from '../utils/interfaces/articleSection';
 import { uuidv4 } from 'lib0/random';
+import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
+import { ServiceShare } from '../services/service-share.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -34,6 +36,7 @@ export class DashboardComponent implements AfterViewInit {
   articleTemplates :any;
   typeChange : Subject<any> = new Subject();
   selectedType = -1;
+  refreshSubject = new Subject();
 
   @ViewChild(MatPaginator) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
@@ -44,7 +47,9 @@ export class DashboardComponent implements AfterViewInit {
     private ydocService: YdocService,
     private _httpClient: HttpClient,
     private articlesService:ArticlesService,
-    private articleSectionsService:ArticleSectionsService
+    private articleSectionsService:ArticleSectionsService,
+    private prosemirrorEditorsService:ProsemirrorEditorsService,
+    private serviceShare:ServiceShare,
     ) {}
   ngAfterViewInit() {
     this.articleSectionsService.getAllTemplates().subscribe((articleTemplates: any) => {
@@ -52,29 +57,13 @@ export class DashboardComponent implements AfterViewInit {
     })
     // If the user changes the sort order, reset back to the first page.
     this.sort!.sortChange.subscribe(() => {
-      this.data = this.data.sort((a,b)=>{
-        let sb = this.sort!.active;
-        //@ts-ignore
-        let direction = this.sort!._direction;
-        if(sb == "id"||sb == "date"){
-          if(direction == 'desc'){
-            return a[sb]-b[sb];
-          }
-          return b[sb]-a[sb];
-        }else if(sb == 'title'){
-          if(direction == 'desc'){
-            return (a.name as string).localeCompare(b.name)
-          }
-          return b.name.localeCompare(a.name)
-        }
-      })
       this.paginator!.pageIndex = 0;
     });
 
-    this.articlesService.getAllArticles().subscribe((responseData:any)=>{
+    /* this.articlesService.getAllArticles().subscribe((responseData:any)=>{
       this.data = responseData.data;
-    })
-    merge(this.sort!.sortChange, this.paginator!.page,this.typeChange)
+    }) */
+    merge(this.sort!.sortChange, this.paginator!.page,this.typeChange,this.refreshSubject)
       .pipe(
         startWith({}),
         switchMap(() => {
@@ -136,7 +125,6 @@ export class DashboardComponent implements AfterViewInit {
         }
         this.data = dataToDisplay
         this.resultsLength = itemsCount;
-        console.log(this.paginator!);
       });
   }
   public search(value: any) {
@@ -148,49 +136,19 @@ export class DashboardComponent implements AfterViewInit {
     this.typeChange.next('typechange')
   }
   openchooseDialog(){
-    this.articleSectionsService.getAllTemplates().subscribe((articleTemplates: any) => {
-      this.articleTemplates2 = articleTemplates
-      const dialogRef = this.dialog.open(ChooseManuscriptDialogComponent, {
-        width: '100%',
-        panelClass:'choose-namuscript-dialog',
-        data: { templates: articleTemplates }
-      });
-      dialogRef.afterClosed().subscribe(result => {
-        let selectedTemplate = (this.articleTemplates2.data as Array<any>).find((template: any) => {
-          return template.id == result
-        })
-        let articleStructure: articleSection[] = []
-        let filteredSections = selectedTemplate.sections.filter((section: any) => { return section.type == 0 });
-        selectedTemplate.sections.forEach((section: any) => {
-          let newArticleSection: articleSection = {
-            title: { type: 'content', contentData: 'Title233', titleContent: section.name, key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
-            sectionID: uuidv4(),
-            active: false,
-            edit: { bool: true, main: true },
-            add: { bool: true, main: false },
-            delete: { bool: true, main: false },
-            mode: 'documentMode',
-            formIOSchema: section.schema[0],
-            defaultFormIOValues: undefined,
-            prosemirrorHTMLNodesTempl: section.template,
-            children: [],
-          }
-          articleStructure.push(newArticleSection);
-        })
-        this.ydocService.articleStructureFromBackend = articleStructure;
-        this.articlesService.createArticle('Untitled',+result).subscribe((createArticleRes:any)=>{
-          this.ydocService.resetYdoc();
-          this.ydocService.setArticleData(createArticleRes.data)
-          this.router.navigate([createArticleRes.data.uuid])
-        })
-      });
-    })
+    this.serviceShare.createNewArticle();
   }
 
   editArticle(articleData:any){
-    this.ydocService.resetYdoc();
+    this.serviceShare.resetServicesData();
     this.ydocService.setArticleData(articleData);
     this.router.navigate([articleData.uuid])
+  }
+
+  deleteArticle(articleData:any){
+    this.articlesService.deleteArticleById(articleData.id).subscribe((deleteResponse)=>{
+      this.refreshSubject.next(deleteResponse);
+    })
   }
 }
 

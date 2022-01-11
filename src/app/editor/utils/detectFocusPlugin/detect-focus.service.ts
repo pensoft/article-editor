@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 import { Plugin, PluginKey } from 'prosemirror-state';
 import { Subject } from 'rxjs';
 import { YMap } from 'yjs/dist/src/internals';
@@ -8,14 +9,20 @@ import { YdocService } from '../../services/ydoc.service';
   providedIn: 'root'
 })
 export class DetectFocusService {
-  focusedEditor 
+  focusedEditor :any
   detectFocusPlugin:Plugin
   detectFocusPluginKey
   sectionName:string|undefined
   sectionType?:string;
+  resetDetectFocusService(){
+    this.sectionName= undefined;
+    this.sectionType= undefined;
+  }
   constructor(
-    private ydocService:YdocService
-  ) { 
+    private ydocService:YdocService,
+    private serviceShare:ServiceShare
+  ) {
+    serviceShare.shareSelf('DetectFocusService',this);
     let focusedE = new Subject<string>();
     this.focusedEditor = focusedE
     let detectFocusPluginKey = new PluginKey('detectFocusPluginKey')
@@ -53,22 +60,22 @@ export class DetectFocusService {
           return prev
         },
       },
-      
+
       view: function () {
         return {
           update: (view, prevState) => {
             let {sectionName,hasFocus} = detectFocusPluginKey.getState(view.state)
             let focusRN = view.hasFocus()
-            
-            
+
+
             if(focusRN){
-              
+
               setTimeout(() => {
                 focusedE.next(sectionName);
               }, 10);
               setLastEditorFocus(sectionName)
             }else if(getLastFocus() == sectionName){
-              
+
             }
             /* if(focusRN !== hasFocus){
               hasFocus = focusRN

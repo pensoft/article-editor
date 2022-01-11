@@ -24,31 +24,36 @@ table {
   border-radius: 18px;
   border: 1px solid $primary-green;
   line-height: 39px;
-  padding-left: 5px;
+  padding-left: 15px;
   width: 99%;
   color: $black;
+  vertical-align: middle;
 }
 
 ::ng-deep .buttons-menu {
-    div {
-        display: flex ;
-        button {
-            width: 100%;
-            margin: 0;
-            margin-right: 8px;
-            margin-right: 8px;
-            mat-icon{
-              margin:0 !important;
-            }
-        }
-        button:first-of-type {
-            margin-left: 16px;
-        }
-        button:last-of-type {
-          margin-right: 16px;
+  div {
+    display: flex;
+
+    button {
+      width: 100%;
+      margin: 0;
+      margin-right: 8px;
+      margin-right: 8px;
+
+      mat-icon {
+        margin: 0 !important;
       }
     }
+
+    button:first-of-type {
+      margin-left: 16px;
+    }
+
+    button:last-of-type {
+      margin-right: 16px;
+    }
   }
+}
 
 
 .example-loading-shade {
@@ -110,14 +115,21 @@ table {
 }
 
 .prefix-icon {
-  margin-right: -30px;
+  margin-right: -40px;
   color: $light-grey;
+  z-index: 1;
+  position: relative;
+  top: 5px;
+    left: 5px;
+}
+.mat-select-arrow-wrapper {
+  padding: 10px 0 0 0;
 }
 
 .ng-star-inserted {
-  padding-top: 5px !important;
+  padding-top: 10px !important;
   padding-bottom: 10px !important;
- // padding-left: 35px !important;
+  // padding-left: 35px !important;
 }
 
 .mat-header-row {
@@ -139,8 +151,9 @@ th:last-child {
   border-bottom-right-radius: 28px;
   border-top-right-radius: 28px;
 }
-td:first-child{
-    font-weight: bold;
+
+td:first-child {
+  font-weight: bold;
 }
 
 .more-avatar {
@@ -150,18 +163,22 @@ td:first-child{
   border-radius: 50%;
 }
 
-.paginator{
-    margin: 15px 0 0 0;
-  }
-  .paginator.mat-paginator-range-actions>button{
-      background: $primary-green;
-      color: #fff;
-  }
+.paginator {
+  margin: 15px 0 0 0;
+}
 
-  .mat-select-trigger{
-    display: block!important;
-  }
-::ng-deep  .mat-primary .mat-option.mat-selected:not(.mat-option-disabled){
+.paginator.mat-paginator-range-actions>button {
+  background: $primary-green;
+  color: #fff;
+}
 
-    color: var(--color-00b1b2)
-  }
+.mat-select-trigger {
+  display: block !important;
+}
+
+::ng-deep .mat-primary .mat-option.mat-selected:not(.mat-option-disabled) {
+
+  color: var(--color-00b1b2)
+}
+
+

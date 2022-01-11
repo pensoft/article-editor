@@ -18,7 +18,7 @@
  </article>
  <article class="list-container">
   <mat-selection-list #topic [multiple]="false">
-    <mat-list-option *ngFor="let article of articleTemplates" [value]="article.id">
+    <mat-list-option *ngFor="let article of articleTemplates" [value]="article.id" class="border">
       {{article.name}}
     </mat-list-option>
   </mat-selection-list>

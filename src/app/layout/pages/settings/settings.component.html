@@ -1,0 +1,88 @@
+<section fxLayout="column" fxLayoutAlign="center" class="container-center mt30px dark-blue">
+    <article fxLayout="row">
+        <div fxLayout="column" fxLayoutGap="15px" class="mr-15px">
+            <mat-card class="w340 mat-card-shadow">
+                <mat-card-title class="title16pxgreen mb15px">My profile</mat-card-title>
+                <div id="avatar">
+                    <app-avatar></app-avatar>
+                </div>
+                <div class="name-text">
+                    {{userName}}
+                </div>
+                <div class="description-text">
+                    Manage the information that you'd like to use across all your applications.
+                </div>
+                <div>
+                    <button mat-raised-button routerLink="[/:id]" color="primary" class="mb5px btn-my-profile">My profile</button>
+                </div>
+            </mat-card>
+            <mat-card class="w340 mat-card-shadow">
+                <mat-card-title class="title16pxgreen">Account & Privacy</mat-card-title>
+                <div fxLayout="row" class="font-size12px mb30px mt20px">
+                    Your privacy is safe with CONNECT. Review and adjust your privacy settings.
+                </div>
+                <div fxLayout="row" fxLayoutAlign="space-between start" class="linkAndIcon">
+                    <a routerLink="/activity-permission" class="link-custom">Resent activity</a>
+                    <mat-icon class="small-icon" svgIcon="timer"></mat-icon>
+                </div>
+                <div fxLayout="row" fxLayoutAlign="space-between start" class="linkAndIcon">
+                    <a routerLink="/activity-permission" class="link-custom">Permissions</a>
+                    <mat-icon class="small-icon" svgIcon="settings"></mat-icon>
+                </div>
+            </mat-card>
+
+        </div>
+        <div fxLayout="column" fxLayoutGap="15px" class="mr-15px">
+            <mat-card class="w350 h2650px mat-card-shadow">
+                <mat-card-title class="title16pxgreen">Sign in & Security</mat-card-title>
+                <div fxLayout="column" class="flex-end">
+                    <div fxLayout="row" fxLayoutAlign="space-between start"  class="linkAndIcon">
+                        <a routerLink="/sign-password-devices" class="link-custom">Sign in details</a>
+                        <mat-icon class="small-icon" svgIcon="userIcon"></mat-icon>
+                    </div>
+                    <div fxLayout="row" fxLayoutAlign="space-between start"  class="linkAndIcon">
+                        <a routerLink="/sign-password-devices" class="link-custom">Password setup</a>
+                        <mat-icon class="small-icon" svgIcon="lock"></mat-icon>
+                    </div>
+                    <div fxLayout="row" fxLayoutAlign="space-between start"  class="linkAndIcon">
+                        <a routerLink="/sign-password-devices" class="link-custom">My devices</a>
+                        <mat-icon class="small-icon" svgIcon="iphone"></mat-icon>
+                    </div>
+                </div>
+            </mat-card>
+            <mat-card class="w350 mat-card-shadow">
+                <mat-card-title class="title16pxgreen mt20px">Institutional Memberships</mat-card-title>
+                <div class="font-size12px mb30px mt20px">
+                    By verifying your institutional memberships in CONNECT you can access content using your
+                    institutional entitlements on all publishing websites that you have joined using CONNECT.
+                </div>
+                <button mat-raised-button routerLink="/my-institution" color="primary" class="mb40px">My
+                    institution</button>
+            </mat-card>
+        </div>
+        <div fxLayout="column" fxLayoutAlign="stretch">
+            <mat-card class="w340 mat-card-shadow h530px" fxLayout="column">
+                <div>
+                    <mat-card-title class="title16pxgreen">Email Alerts</mat-card-title>
+                    <div class="font-size12px mb30px mt20px">
+                        CONNECT is trusted by a growing number of innovative scholarly publishing websites, research
+                        discovery tools and applications for researchers. Browse the full list to view where you can use
+                        your CONNECT account.
+                    </div>
+                    <button mat-stroked-button class="button-stroked-primary" routerLink="/my-institution"
+                        color="primary">View All</button>
+                </div>
+                <div class="flex-end-continue">
+                    <div>
+                        <img src="./assets/logo/arpha.svg" height="27px" width="105px" alt="arpha">
+                    </div>
+                    <div class="font-size12px mb30px mt20px">
+                        A simple writing tool for complex documents.
+                    </div>
+                    <button mat-stroked-button class="button-stroked-primary" routerLink="/my-institution"
+                        color="primary">Continue</button>
+                </div>
+            </mat-card>
+        </div>
+    </article>
+</section>

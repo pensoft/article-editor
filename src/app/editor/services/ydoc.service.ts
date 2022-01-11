@@ -12,7 +12,7 @@ import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { fromEvent, race } from 'rxjs';
 import { catchError, delay } from 'rxjs/operators';
 import { WebsocketProvider } from 'y-websocket'
-import {environment} from 'src/environments/environment'
+import { environment } from 'src/environments/environment'
 //@ts-ignore
 import { WebrtcProvider } from '../utils/y-webrtc/index.js';
 import { sectionNode } from '../utils/interfaces/section-node'
@@ -44,18 +44,18 @@ export class YdocService {
   providerIndexedDb?: IndexeddbPersistence
   constructor(
     private http: HttpClient,
-    private serviceShare:ServiceShare
+    private serviceShare: ServiceShare
   ) {
-    this.serviceShare.shareSelf('YdocService',this)
+    this.serviceShare.shareSelf('YdocService', this)
   }
-  articleStructureFromBackend:any
+  articleStructureFromBackend: any
   articleStructure?: YMap<any>
-  articleData:any;
+  articleData: any;
   sectionFormGroupsStructures?: YMap<any>
   comments?: YMap<any>
   figuresMap?: YMap<any>
   trackChangesMetadata?: YMap<any>
-  userInfo:any
+  userInfo: any
   getCommentsMap(): YMap<any> {
     return this.comments!
   }
@@ -141,11 +141,11 @@ export class YdocService {
       if (articleSectionsStructure == undefined) {
         citatsObj = {}
         articleSectionsStructureFlat = []
-        articleSectionsStructure = this.articleStructureFromBackend||articleBasicStructure
+        articleSectionsStructure = this.articleStructureFromBackend || articleBasicStructure
 
         let makeFlat = (structure: articleSection[]) => {
           structure.forEach((section) => {
-             // citats obj [key:string](citateID):{citatedFigures:[](citated figures-Ids),posiition:number(citatePosition)}
+            // citats obj [key:string](citateID):{citatedFigures:[](citated figures-Ids),posiition:number(citatePosition)}
             if (section.active) {
               articleSectionsStructureFlat.push(section)
             }
@@ -160,13 +160,13 @@ export class YdocService {
         this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
 
       }
-      if(!citatsObj){
+      if (!citatsObj) {
         citatsObj = {}
-        articleSectionsStructureFlat.forEach((section)=>{
+        articleSectionsStructureFlat.forEach((section) => {
           citatsObj[section.sectionID] = {} // citats obj [key:string](citateID):{citatedFigures:[](citated figures-Ids),posiition:number(citatePosition)}
 
         })
-        this.figuresMap!.set('articleCitatsObj',citatsObj);
+        this.figuresMap!.set('articleCitatsObj', citatsObj);
       }
     } catch (e) {
       console.error(e);
@@ -175,7 +175,7 @@ export class YdocService {
     return {
       ydoc: this.ydoc,
       provider: this.provider,
-      userInfo:this.userInfo,
+      userInfo: this.userInfo,
       providerIndexedDb: this.providerIndexedDb!,
       articleSectionsStructure: articleSectionsStructure,
     }
@@ -184,16 +184,16 @@ export class YdocService {
   buildEditor() {
     this.sectionFormGroupsStructures = this.ydoc.getMap('sectionFormGroupsStructures');
     this.figuresMap = this.ydoc.getMap('ArticleFiguresMap');
-    this.provider?.awareness.setLocalStateField('userInfo',this.userInfo);
+    this.provider?.awareness.setLocalStateField('userInfo', this.userInfo);
     let figuresNumbers = this.figuresMap!.get('ArticleFiguresNumbers');
     let figuresTemplates = this.figuresMap!.get('figuresTemplates');
     let figures = this.figuresMap!.get('ArticleFigures');
 
 
-    if(!figures){
+    if (!figures) {
       this.figuresMap!.set('ArticleFigures', {})
     }
-    if(!figuresTemplates){
+    if (!figuresTemplates) {
       this.figuresMap!.set('figuresTemplates', {})
     }
     if (!figuresNumbers) {
@@ -203,8 +203,8 @@ export class YdocService {
     this.articleStructure = this.ydoc.getMap('articleStructure');
     this.trackChangesMetadata = this.ydoc.getMap('trackChangesMetadata');
     let trackChangesData = this.trackChangesMetadata?.get('trackChangesMetadata')
-    if(!trackChangesData){
-      this.trackChangesMetadata?.set('trackChangesMetadata',{trackTransactions:false});
+    if (!trackChangesData) {
+      this.trackChangesMetadata?.set('trackChangesMetadata', { trackTransactions: false });
     }
     this.comments = this.ydoc.getMap('comments');
     this.ydocStateObservable.next('docIsBuild');
@@ -212,17 +212,32 @@ export class YdocService {
     this.editorIsBuild = true;
   }
 
-  setArticleData(articleData:any){
+  setArticleData(articleData: any) {
     this.articleData = articleData;
   }
-  resetYdoc(){
+  resetYdoc() {
+
     this.editorIsBuild = false;
+
     this.ydoc = new Y.Doc();
+
+    this.provider = undefined;
+    this.roomName = 'webrtc-test3';
+    this.providerIndexedDb  = undefined;
+
+    //this.articleStructureFromBackend = undefined;
+    this.articleStructure = undefined;
+    this.articleData = undefined;
+    this.sectionFormGroupsStructures  = undefined;
+    this.comments  = undefined;
+    this.figuresMap  = undefined;
+    this.trackChangesMetadata  = undefined;
+    this.userInfo = undefined;
   }
-  init(roomName: string,userInfo:any) {
+  init(roomName: string, userInfo: any) {
     this.roomName = roomName
     this.userInfo = userInfo
-    this.userInfo.color = ['#fa7171','#fa71bf','#f571fa','#c971fa','#8a71fa','#71fac5','#fac771','#fa9471'][+(Math.random()*14).toFixed(0)]
+    this.userInfo.color = ['#fa7171', '#fa71bf', '#f571fa', '#c971fa', '#8a71fa', '#71fac5', '#fac771', '#fa9471'][+(Math.random() * 14).toFixed(0)]
     this.providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
     let buildApp = () => {
       this.provider = new WebsocketProvider(`wss://${environment.WEBSOCKET_HOST}:${environment.WEBSOCKET_PORT}`, this.roomName, this.ydoc, {
@@ -278,7 +293,7 @@ export class YdocService {
         //return
         let onSubevent = fromEvent(this.provider!, 'connected').subscribe(() => {
           fromEvent(this.provider!, 'synced').pipe(delay(500)).subscribe((data: any) => {
-            if(!buildeditor){
+            if (!buildeditor) {
               //let synced = this.provider?.room?.synced
               buildeditor = true
               if (data.synced) {
@@ -288,12 +303,12 @@ export class YdocService {
               }
             }
           })
-          setTimeout(()=>{
-            if(!buildeditor){
+          setTimeout(() => {
+            if (!buildeditor) {
               buildeditor = true
               this.buildEditor();
             }
-          },1500)
+          }, 1500)
           /*
             // render only from backednt
             this.http.get('/products/' + roomName).subscribe((data) => {

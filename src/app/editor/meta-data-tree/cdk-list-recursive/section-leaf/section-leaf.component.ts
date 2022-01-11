@@ -19,6 +19,7 @@ import * as Y from 'yjs'
 //@ts-ignore
 import { ySyncPluginKey } from '../../../../y-prosemirror-src/plugins/keys.js';
 import { I } from '@angular/cdk/keycodes';
+import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
 
 @Component({
   selector: 'app-section-leaf',
@@ -59,7 +60,7 @@ export class SectionLeafComponent implements OnInit {
     public detectFocusService: DetectFocusService,
     public prosemirrorEditorsService: ProsemirrorEditorsService,
     public dialog: MatDialog) {
-    detectFocusService.getSubject().subscribe((focusedEditorId) => {
+    detectFocusService.getSubject().subscribe((focusedEditorId:any) => {
       if (focusedEditorId) {
         this.focusedId = focusedEditorId;
       }
@@ -74,12 +75,13 @@ export class SectionLeafComponent implements OnInit {
     this.expandIcon = 'chevron_right';
   }
 
-  
+
 
   editNodeHandle(node: articleSection, formGroup: FormGroup) {
     try {
       //let defaultValuesFromProsmeirroNodes = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
       //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
+
       let defaultValues = formGroup.value;
 
       //this.formBuilderService.buildFormGroupFromSchema(formGroup, sectionContent);
@@ -143,7 +145,16 @@ export class SectionLeafComponent implements OnInit {
   }
 
   deleteNodeHandle(nodeId: string) {
-    this.treeService.deleteNodeChange(nodeId, this.parentId!);
+    let dialogRef = this.dialog.open(AskBeforeDeleteComponent,{
+      data: { sectionName: this.treeService.findNodeById(nodeId)?.title.titleContent },
+      panelClass: 'ask-before-delete-dialog',
+    })
+    dialogRef.afterClosed().subscribe((data:any)=>{
+      console.log(data);
+      if(data){
+        this.treeService.deleteNodeChange(nodeId, this.parentId!);
+      }
+    })
   }
 
   changeDisplay(div: HTMLDivElement) {

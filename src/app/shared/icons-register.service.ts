@@ -36,7 +36,11 @@ export class IconsRegisterService {
     iconRegistry.addSvgIcon('dashboardEdit', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashbord-edit-item.svg'));
     iconRegistry.addSvgIcon('dashboardDelete', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashbord-delete-item.svg'));
     iconRegistry.addSvgIcon('dasboardNewProject', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/dashbordNewProject.svg'));
-
+    iconRegistry.addSvgIcon('timer', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/timer.svg'));
+    iconRegistry.addSvgIcon('settings', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/settings.svg'));
+    iconRegistry.addSvgIcon('userIcon', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/usericon-grey.svg'));
+    iconRegistry.addSvgIcon('lock', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/lock.svg'));
+    iconRegistry.addSvgIcon('iphone', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/iphone-grey.svg'));
     // iconRegistry.addSvgIconLiteral('thumbs-up', sanitizer.bypassSecurityTrustHtml(THUMBUP_ICON));
   }
 }

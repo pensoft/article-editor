@@ -20,6 +20,8 @@ export const articleBasicStructure: articleSection[] = [
     defaultFormIOValues: formIODefaultValues['taxonomicCoverage'],
     prosemirrorHTMLNodesTempl: htmlNodeTemplates['taxonomicCoverage'],
     children: [],
+    type:'simple',
+    sectionTypeID:1,
   },
   {
     title: { type: 'content', contentData: 'Title233', titleContent: 'Colection Data', key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
@@ -32,5 +34,7 @@ export const articleBasicStructure: articleSection[] = [
     formIOSchema: formIOTemplates['collectionData'],
     defaultFormIOValues: formIODefaultValues['collectionData'],
     prosemirrorHTMLNodesTempl: htmlNodeTemplates['collectionData'],
-    children: []
+    children: [],
+    type:'simple',
+    sectionTypeID:2,
   }];
