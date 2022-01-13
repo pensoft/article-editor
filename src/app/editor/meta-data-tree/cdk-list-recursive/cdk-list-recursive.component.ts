@@ -151,7 +151,6 @@ export class CdkListRecursiveComponent implements OnInit,OnDestroy{
                           event.currentIndex);
         this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, event.previousContainer.id,event.container.id);
       }else{
-        console.log(treeNewLevel);
         this.error = true;
         setTimeout(()=>{
           this.error = false;

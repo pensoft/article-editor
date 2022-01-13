@@ -83,6 +83,10 @@ export class TreeService {
             let { nodeRef, i } = this.deleteNodeById(metadatachange.childId);
           } else if (metadatachange.action == 'addNodeAtPlace'){
             this.addNodeAtPlace(metadatachange.parentContainerID,metadatachange.newSection,metadatachange.place,metadatachange.newNode);
+          } else if(metadatachange.action == 'replaceChildren'){
+            this.replaceChildren(metadatachange.newChildren,metadatachange.parent);
+          }else if (metadatachange.action == 'buildNewFromGroups'){
+            this.buildNewFormGroups(metadatachange.nodes);
           }
         }
         //this.articleStructureMap?.set('articleSectionsStructure', this.articleSectionsStructure)
@@ -129,6 +133,60 @@ export class TreeService {
 
   initTreeList(articleSectionsStructure: articleSection[]) {
     this.articleSectionsStructure = articleSectionsStructure
+  }
+
+  getNodeLevel(node:articleSection){
+    let nodeLevel:number
+    let findLevel = (children:articleSection[],level:number)=>{
+      children.forEach((child)=>{
+        if(child.sectionID == node.sectionID){
+          nodeLevel = level;
+        }
+        if(nodeLevel==undefined&&child.type == 'complex'&&child.children.length>0){
+          findLevel(child.children,level+1);
+        }
+      })
+    }
+    findLevel(this.articleSectionsStructure!,0);
+    //@ts-ignore
+    return nodeLevel;
+  }
+
+  buildNewFormGroups(nodes:articleSection[]){
+    let buildForms = (node: any) => {
+      let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID);
+      let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
+      let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID) : node.formIOSchema;
+      let nodeForm: FormGroup = new FormGroup({});
+      this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
+
+      nodeForm.patchValue(defaultValues);
+      nodeForm.updateValueAndValidity()
+      this.sectionFormGroups[node.sectionID] = nodeForm;
+      if (node.children.length > 0) {
+        node.children.forEach((child: any) => {
+          buildForms(child)
+        })
+      }
+    }
+    nodes.forEach((section) => {
+      buildForms(section)
+    })
+  }
+
+  buildNewFormGroupsChange(nodes:articleSection[]){
+    this.buildNewFormGroups(nodes)
+    this.treeVisibilityChange.next({action:"buildNewFromGroups",nodes})
+  }
+
+  replaceChildren(newChildren:articleSection[],parent:articleSection){
+    let nodeRef = this.findNodeById(parent.sectionID);
+    nodeRef!.children = newChildren;
+  }
+
+  replaceChildrenChange(newChildren:articleSection[],parent:articleSection){
+    this.replaceChildren(newChildren,parent)
+    this.treeVisibilityChange.next({action:'replaceChildren',newChildren,parent});
   }
 
   dragNodeChange(from: number, to: number, prevContainerId: string,newContainerId:string) {

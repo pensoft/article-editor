@@ -52,7 +52,10 @@ export class SectionComponent implements AfterViewInit, OnInit {
   FormStructure: any
   renderSection = false;
 
+  childrenTreeCopy?: articleSection[]
   complexSection = false;
+  complexSectionDeletedChildren: articleSection[] = []
+  complexSectionAddedChildren: articleSection[] = []
 
   @Input() section!: articleSection;
   @Output() sectionChange = new EventEmitter<articleSection>();
@@ -80,7 +83,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     private treeService: TreeService,
     private ydocService: YdocService,
     private formBuilderService: FormBuilderService,
-    private figuresControllerService : FiguresControllerService) {
+    private figuresControllerService: FiguresControllerService) {
 
     /* if(this.formControlService.popUpSectionConteiners[this.section.sectionID]){
       this.popUpContainer = this.formControlService.popUpSectionConteiners[this.section.sectionID]
@@ -110,11 +113,23 @@ export class SectionComponent implements AfterViewInit, OnInit {
     }
   }
 
+  cancelComplexSectionEdit() {
+    this.editSectionService.editChangeSubject.next();
+  }
+
+  submitComplexSectionEdit() {
+    this.treeService.buildNewFormGroupsChange(this.complexSectionAddedChildren);
+    this.treeService.replaceChildrenChange(this.childrenTreeCopy!, this.section);
+    this.complexSectionDeletedChildren.forEach((section) => {
+    })
+    this.editSectionService.editChangeSubject.next();
+  }
+
   async onSubmit(submision?: any) {
     try {
       //this.prosemirrorEditorsService.updateFormIoDefaultValues(this.section.sectionID, submision.data)
       this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, { data: submision.data, updatedFrom: this.ydocService.ydoc?.guid })
-      this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema,this.section.sectionID);
+      this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema, this.section.sectionID);
       //this.sectionForm = new FormGroup({});
       Object.keys(this.sectionForm.controls).forEach((key) => {
         this.sectionForm.removeControl(key);
@@ -136,9 +151,9 @@ export class SectionComponent implements AfterViewInit, OnInit {
       prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
       interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm);
       submision.compiledHtml = interpolated
-      this.editSectionService.editChangeSubject.next(submision);
       this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
       this.figuresControllerService.markCitatsViews(this.ydocService.figuresMap?.get('articleCitatsObj'));
+      this.editSectionService.editChangeSubject.next(submision);
 
     } catch (err: any) {
       this.error = true;
@@ -223,7 +238,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
       }
       return
     }
-    if(this.section.type == 'complex'){
+    if (this.section.type == 'complex') {
       this.renderComplexSectionTree()
     }
     try {
@@ -235,11 +250,10 @@ export class SectionComponent implements AfterViewInit, OnInit {
     this.renderForm = true
   }
 
-  renderComplexSectionTree(){
+  renderComplexSectionTree() {
     this.complexSection = true;
-
+    this.childrenTreeCopy = JSON.parse(JSON.stringify(this.section.children))
   }
 
-  log() {
-  }
+  log() { }
 }

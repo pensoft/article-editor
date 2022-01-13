@@ -15,7 +15,7 @@ export class ChooseSectionComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private dialogRef: MatDialogRef<ChooseManuscriptDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: {templates:any[]} ,
+    @Inject(MAT_DIALOG_DATA) public data: {templates:any[],filter?:'simple'|'complex'} ,
     ) {
 
   }
@@ -25,8 +25,12 @@ export class ChooseSectionComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    console.log(this.data);
     this.sectionTemplates = this.data.templates;
+    if(this.data.filter&&this.data.filter == 'simple'){
+      this.sectionTemplates = this.sectionTemplates.filter((data)=>data.type == 0)
+    }else if(this.data.filter&&this.data.filter == 'complex'){
+      this.sectionTemplates = this.sectionTemplates.filter((data)=>data.type == 1)
+    }
 
   }
 

@@ -18,7 +18,7 @@ import { YMap } from 'yjs/dist/src/internals';
 import * as Y from 'yjs'
 //@ts-ignore
 import { ySyncPluginKey } from '../../../../y-prosemirror-src/plugins/keys.js';
-import { I } from '@angular/cdk/keycodes';
+import { E, I } from '@angular/cdk/keycodes';
 import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
 
 @Component({
@@ -75,7 +75,15 @@ export class SectionLeafComponent implements OnInit {
     this.expandIcon = 'chevron_right';
   }
 
-
+  oldTextValue ?:string
+  checkTextInput(element:HTMLDivElement,maxlength:number){
+    console.log(element.textContent);
+    if(element.textContent?.trim().length! > maxlength){
+      element.innerHTML = this.oldTextValue!
+    }if(element.textContent?.trim().length! == maxlength){
+      this.oldTextValue = element.textContent!.trim();
+    }
+  }
 
   editNodeHandle(node: articleSection, formGroup: FormGroup) {
     try {
@@ -150,11 +158,27 @@ export class SectionLeafComponent implements OnInit {
       panelClass: 'ask-before-delete-dialog',
     })
     dialogRef.afterClosed().subscribe((data:any)=>{
-      console.log(data);
       if(data){
         this.treeService.deleteNodeChange(nodeId, this.parentId!);
       }
     })
+  }
+
+  oldZIndex ?: string
+  makeEditable(element:HTMLDivElement,event:Event,parentNode:any){
+    console.log(event);
+    if(event.type == 'blur'){
+      element.setAttribute('contenteditable','false');
+      console.log('should save',element.textContent);
+      (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;
+
+    }else if (event.type == 'click'){
+      this.oldZIndex = (parentNode as HTMLDivElement).style.zIndex!
+      element.setAttribute('contenteditable','true');
+      (parentNode as HTMLDivElement).style.zIndex = '5';
+      element.focus()
+    }
+
   }
 
   changeDisplay(div: HTMLDivElement) {

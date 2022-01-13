@@ -62,7 +62,6 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
       this.EditSubmitsubscription = this.editSectionService.editChangeSubject.subscribe((submit:any) => {
         this.dialogRef.close({...submit,section:this.data})
         return
-        
       })
       //this.data = data
     } catch (e) {

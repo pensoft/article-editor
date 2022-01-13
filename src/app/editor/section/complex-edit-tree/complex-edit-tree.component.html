@@ -1,0 +1,47 @@
+<!--
+  <div class='node-box-dropdownbox-nested' cdkDrag>
+    <div [style.position]='"relative"' (mouseover)="showButtons(cdkDragSection,true,
+    'sectionBorderListNested',
+    'selectedEditorNestedList',node)" (mouseout)="showButtons(cdkDragSection,false,
+    'sectionBorderListNested',
+    'selectedEditorNestedList',node)" #cdkDragSection>
+    <div class="text-placeholder"></div>
+    <div class="border-placeholder-nested" *cdkDragPlaceholder>
+      <div class="border-view"></div>
+    </div>
+    <div class=' border' [ngClass]="{
+      'sectionBorderListNested' : mouseOn!==node.sectionID,
+      'selectedEditorNestedList' : node.sectionID == focusedId&&mouseOn!==node.sectionID}">
+      <button [style.display]="'none'" mat-icon-button cdkDragHandle class="drag_btn hidden" class="drag_btn_list_node_nested"><mat-icon >drag_indicator</mat-icon></button>
+      <div class="text-section-div-nested">
+        {{node.title.titleContent}}
+      </div>
+    </div>
+  </div>
+</div>
+-->
+<button mat-raised-button class="add-subsection-button" (click)="addNewSubsection()">Add Subsection</button>
+<div class="list-children-sections" cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListData]="sectionChildren">
+    <ng-container *ngFor="let node of sectionChildren;let i = index">
+        <div class="child-box" cdkDrag>
+            <div [style.position]='"relative"' [style.display]='"flex"' [style.width]="'100%'">
+                <div class="child-border-placeholder" *cdkDragPlaceholder>
+                    <div class="border-view"></div>
+                </div>
+                <div class='child-border'>
+                    <button mat-icon-button cdkDragHandle class="child-drag-btn "><mat-icon >drag_indicator</mat-icon></button>
+                    <!-- <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTN" (click)="changeDisplay(childrenDiv);listDiv.style.display == 'none'?expandIcon='chevron_right':expandIcon='expand_more'"><mat-icon class="{{expandIcon}}"  #icon>{{expandIcon}}</mat-icon></button>
+         -->
+                    <div class="child-text-section-div">
+                        {{node.title.titleContent}}
+                    </div>
+                </div>
+                <div class="child-section-btn-container">
+                    <!--         <button [style.display]="'none'" [ngStyle]="node.edit.main?{'order':'1','margin': '2px'}:{}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node.edit.bool" (click)="editNodeHandle(node, nodeFormGroup);node.active = true"><mat-icon class="matIcon" >edit</mat-icon></button> -->
+                    <button mat-mini-fab class="child-section-btn" *ngIf="node?.add?.bool" (click)="addNodeHandle(node,i)"><mat-icon class="matIcon">add</mat-icon ></button>
+                    <button mat-mini-fab class="child-section-btn" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node,i)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
+                </div>
+            </div>
+        </div>
+    </ng-container>
+</div>

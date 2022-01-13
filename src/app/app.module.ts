@@ -78,6 +78,7 @@ import { SettingsComponent } from './layout/pages/settings/settings.component';
 import { ActivityPermissionComponent } from './layout/pages/activity-permission/activity-permission.component';
 import { SignPasswordDevicesComponent } from './layout/pages/sign-password-devices/sign-password-devices.component';
 import { AskBeforeDeleteComponent } from './editor/dialogs/ask-before-delete/ask-before-delete.component';
+import { ComplexEditTreeComponent } from './editor/section/complex-edit-tree/complex-edit-tree.component';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -141,6 +142,7 @@ const gravatarConfig: GravatarConfig = {
     ActivityPermissionComponent,
     SignPasswordDevicesComponent,
     AskBeforeDeleteComponent,
+    ComplexEditTreeComponent,
 
   ],
   imports: [

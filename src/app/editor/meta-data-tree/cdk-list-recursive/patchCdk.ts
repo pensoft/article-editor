@@ -5,7 +5,6 @@ import { MatCardXlImage } from "@angular/material/card";
 
 // A few lines of code used for debugging (saved to avoid having to re-write them)
 // let reflistToString = (list: DropListRef[]) => JSON.stringify(list.map(ref => coerceElement(ref.element).id));
-// console.log("Targets: " + reflistToString(targets));
 
 export function installPatch() {
   DropListRef.prototype._getSiblingContainerFromPosition = function (
@@ -22,7 +21,6 @@ export function installPatch() {
     let matchingTargets = targets.filter(ref => {
       return isInsideClientRect(ref.element.getBoundingClientRect(), x, y);
     });
-    console.log(matchingTargets);
     // Stop if no targets match the coordinates
     if (matchingTargets.length == 0) {
       return undefined;
@@ -34,7 +32,6 @@ export function installPatch() {
 
     // The drop target is the last matching target in the list
     let matchingTarget = matchingTargets[smallestindex];
-    console.log(smallestindex);
     // Only return matching target if it is a sibling
     if (matchingTarget === this) {
       return undefined;
@@ -45,7 +42,6 @@ export function installPatch() {
       return undefined;q
     } */
 
-    console.log('RETURN');
     // Return matching target
     return matchingTarget;
   };
@@ -84,10 +80,8 @@ function orderByHierarchy2(refs: DropListRef[]) {
 function orderByHierarchy(refs: DropListRef[]) {
   // Build a map from HTMLElement to DropListRef
   let refsByElement: Map<HTMLElement, DropListRef> = new Map();
-  console.log('spacer');
   refs.forEach(ref => {
     //@ts-ignore
-    console.log(ref.element.getBoundingClientRect());
     refsByElement.set(coerceElement(ref.element), ref);
   });
 

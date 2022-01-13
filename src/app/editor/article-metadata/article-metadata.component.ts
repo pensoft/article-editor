@@ -38,7 +38,6 @@ export class ArticleMetadataComponent implements OnInit {
   addNewSectionToArticle(){
     this.sectionsService.getAllSections().subscribe((response:any)=>{
       this.sectionTemplates = response.data
-      console.log(this.sectionTemplates);
       const dialogRef = this.dialog.open(ChooseSectionComponent, {
         width: '100%',
         panelClass:'choose-namuscript-dialog',
