@@ -77,11 +77,15 @@ export class SectionLeafComponent implements OnInit {
   }
 
   oldTextValue ?:string
-  checkTextInput(element:HTMLDivElement,maxlength:number){
+  checkTextInput(element:HTMLDivElement,maxlength:number,event:Event){
+    console.log(event);
     console.log(element.textContent);
+    if(/<\/?[a-z][\s\S]*>/i.test(element.innerHTML)){
+      element.innerHTML = element.textContent!;
+    }
     if(element.textContent?.trim().length! > maxlength){
       element.innerHTML = this.oldTextValue!
-    }if(element.textContent?.trim().length! == maxlength){
+    }else if(element.textContent?.trim().length! == maxlength){
       this.oldTextValue = element.textContent!.trim();
     }
   }

@@ -28,11 +28,11 @@
                 <div class="child-border-placeholder" *cdkDragPlaceholder>
                     <div class="border-view"></div>
                 </div>
-                <div class='child-border'>
+                <div class='child-border' #parentOfText>
                     <button mat-icon-button cdkDragHandle class="child-drag-btn "><mat-icon >drag_indicator</mat-icon></button>
                     <!-- <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTN" (click)="changeDisplay(childrenDiv);listDiv.style.display == 'none'?expandIcon='chevron_right':expandIcon='expand_more'"><mat-icon class="{{expandIcon}}"  #icon>{{expandIcon}}</mat-icon></button>
          -->
-                    <div class="child-text-section-div">
+                    <div class="child-text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="makeEditable(nodeTitle,$event,parentOfText,node)" (blur)="makeEditable(nodeTitle,$event,parentOfText,node)" #nodeTitle>
                         {{node.title.titleContent}}
                     </div>
                 </div>

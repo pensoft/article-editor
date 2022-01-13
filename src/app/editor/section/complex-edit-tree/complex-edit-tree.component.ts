@@ -157,6 +157,35 @@ export class ComplexEditTreeComponent implements OnInit {
     return newArticleSection!
   }
 
+  oldTextValue ?:string
+  checkTextInput(element:HTMLDivElement,maxlength:number,event:Event){
+    console.log(element.textContent);
+    if(element.textContent?.trim().length! > maxlength){
+      element.innerHTML = this.oldTextValue!
+    }if(element.textContent?.trim().length! == maxlength){
+      this.oldTextValue = element.textContent!.trim();
+    }
+  }
+
+  oldZIndex ?: string
+  makeEditable(element:HTMLDivElement,event:Event,parentNode:any,node:articleSection){
+    console.log(event);
+    if(event.type == 'blur'){
+      element.setAttribute('contenteditable','false');
+      console.log('should save',element.textContent);
+      (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;
+      let childRef = this.findSectionById(node.sectionID)
+      childRef.title.titleContent = element.textContent!;
+
+    }else if (event.type == 'click'){
+      this.oldZIndex = (parentNode as HTMLDivElement).style.zIndex!
+      element.setAttribute('contenteditable','true');
+      (parentNode as HTMLDivElement).style.zIndex = '5';
+      element.focus()
+    }
+
+  }
+
   addNewSubsection(){
     let nodeLevel = this.treeService.getNodeLevel(this.section);
     this.sectionsService.getAllSections().subscribe((response:any)=>{
