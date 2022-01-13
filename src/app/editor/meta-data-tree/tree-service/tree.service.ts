@@ -87,6 +87,8 @@ export class TreeService {
             this.replaceChildren(metadatachange.newChildren,metadatachange.parent);
           }else if (metadatachange.action == 'buildNewFromGroups'){
             this.buildNewFormGroups(metadatachange.nodes);
+          }else if(metadatachange.action == 'saveNewTitle'){
+            this.saveNewTitle(metadatachange.node,metadatachange.title);
           }
         }
         //this.articleStructureMap?.set('articleSectionsStructure', this.articleSectionsStructure)
@@ -172,6 +174,16 @@ export class TreeService {
     nodes.forEach((section) => {
       buildForms(section)
     })
+  }
+
+  saveNewTitleChange(node:articleSection,title:string){
+    this.saveNewTitle(node,title)
+    this.treeVisibilityChange.next({action:"saveNewTitle",node,title})
+  }
+
+  saveNewTitle(node:articleSection,title:string){
+    let nodeRef = this.findNodeById(node.sectionID);
+    nodeRef!.title.titleContent = title;
   }
 
   buildNewFormGroupsChange(nodes:articleSection[]){

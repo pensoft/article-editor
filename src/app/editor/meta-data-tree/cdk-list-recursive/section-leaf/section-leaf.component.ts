@@ -20,6 +20,7 @@ import * as Y from 'yjs'
 import { ySyncPluginKey } from '../../../../y-prosemirror-src/plugins/keys.js';
 import { E, I } from '@angular/cdk/keycodes';
 import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
+import { ArticlesService } from '@app/core/services/articles.service';
 
 @Component({
   selector: 'app-section-leaf',
@@ -165,12 +166,13 @@ export class SectionLeafComponent implements OnInit {
   }
 
   oldZIndex ?: string
-  makeEditable(element:HTMLDivElement,event:Event,parentNode:any){
+  makeEditable(element:HTMLDivElement,event:Event,parentNode:any,node:articleSection){
     console.log(event);
     if(event.type == 'blur'){
       element.setAttribute('contenteditable','false');
       console.log('should save',element.textContent);
       (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;
+      this.treeService.saveNewTitleChange(node,element.textContent!);
 
     }else if (event.type == 'click'){
       this.oldZIndex = (parentNode as HTMLDivElement).style.zIndex!
