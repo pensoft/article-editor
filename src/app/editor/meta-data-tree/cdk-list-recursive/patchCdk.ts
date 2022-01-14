@@ -2,11 +2,13 @@
 import { coerceElement } from "@angular/cdk/coercion";
 import { DragRef, DropListRef } from "@angular/cdk/drag-drop";
 import { MatCardXlImage } from "@angular/material/card";
+import { articleSection } from "@app/editor/utils/interfaces/articleSection";
+import { TreeService } from "../tree-service/tree.service";
 
 // A few lines of code used for debugging (saved to avoid having to re-write them)
 // let reflistToString = (list: DropListRef[]) => JSON.stringify(list.map(ref => coerceElement(ref.element).id));
 
-export function installPatch() {
+export function installPatch(treeService:TreeService) {
   DropListRef.prototype._getSiblingContainerFromPosition = function (
     item: DragRef,
     x: number,
@@ -15,7 +17,7 @@ export function installPatch() {
     // Possible targets include siblings and 'this'
     //@ts-ignore
     let targets = [this, ...this._siblings];
-
+    item.data.data.canDropBool[0] = true;
     // Only consider targets where the drag postition is within the client rect
     // (this avoids calling enterPredicate on each possible target)
     let matchingTargets = targets.filter(ref => {
@@ -37,6 +39,8 @@ export function installPatch() {
       return undefined;
     }
 
+    canReceive(matchingTarget,item,treeService)
+
     // Can the matching target receive the item?
     /* if (!matchingTarget._canReceive(item, x, y)) {
       return undefined;q
@@ -45,6 +49,34 @@ export function installPatch() {
     // Return matching target
     return matchingTarget;
   };
+}
+
+function canReceive(target:any,item:any,treeService:TreeService){
+  //console.log(target.data.id,item.data.data.type);
+  let dropTargetLevel
+  if(target.data.id == 'parentList'){
+     dropTargetLevel =0 ;
+  }else{
+    let node = treeService.findNodeById(target.data.id)
+    dropTargetLevel = treeService.getNodeLevel(node!) + 1 ;
+  }
+  let levelsInItem = 0;
+  if(item.data.data.node.type=='complex'){
+    levelsInItem = 1;
+    let countInnerLevels = (node:articleSection,level:number) =>{
+      if(node.type == 'complex'){
+        if(levelsInItem<level){levelsInItem = level};
+        node.children.forEach((child)=>{
+          countInnerLevels(child,level+1);
+        })
+      }
+    }
+    countInnerLevels(item.data.data.node,1);
+  }
+  if(levelsInItem+dropTargetLevel>=4){
+    item.data.data.canDropBool[0] = false;
+  }
+  return true
 }
 
 // Not possible to improt isInsideClientRect from @angular/cdk/drag-drop/client-rect

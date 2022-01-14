@@ -34,6 +34,7 @@ export class SectionLeafComponent implements OnInit {
   focusedId?: string;
   mouseOn?: string;
 
+  canDropBool?:boolean[]
 
   expandIcon?: string;
   focusIdHold?: string;
@@ -74,10 +75,12 @@ export class SectionLeafComponent implements OnInit {
 
   ngOnInit(){
     this.expandIcon = 'chevron_right';
+    this.canDropBool = this.treeService.canDropBool;
   }
 
   oldTextValue ?:string
   checkTextInput(element:HTMLDivElement,maxlength:number,event:Event){
+    console.log(this.canDropBool);
     if(/<\/?[a-z][\s\S]*>/i.test(element.innerHTML)){
       element.innerHTML = element.textContent!;
     }

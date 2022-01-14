@@ -34,6 +34,7 @@ export class TreeService {
   sectionFormGroups: { [key: string]: FormGroup } = {}
   sectionProsemirrorNodes: { [key: string]: string } = {} // prosemirror nodes as html
 
+  canDropBool:boolean[] = [true];
 
   errorSnackbarSubject : Subject<any> = new Subject()
 
@@ -64,7 +65,7 @@ export class TreeService {
     private serviceShare: ServiceShare,
     private articlesSectionsService: ArticleSectionsService
   ) {
-    installPatch();
+    installPatch(this);
 
     this.serviceShare.shareSelf('TreeService', this);
     let buildFunc = () => {

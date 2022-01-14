@@ -12,6 +12,11 @@ $itemHeight: 30px;
     }
 }
 
+::ng-deep .cant-drop {
+    background-color: rgb(245, 217, 217) !important;
+    border-color: rgb(250, 141, 141) !important;
+}
+
 ::ng-deep .matIcon {
     font-size: 18px !important;
 }

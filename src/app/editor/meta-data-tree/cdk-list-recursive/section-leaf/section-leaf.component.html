@@ -1,10 +1,10 @@
 <div *ngIf="!nestedNode" [ngClass]="{
     'node-box':!isComplex,
-    'node-box-dropdownbox':isComplex}" cdkDrag>
+    'node-box-dropdownbox':isComplex}" cdkDrag [cdkDragData]="{node,canDropBool}">
     <div [style.position]='"relative"' (mouseover)="showButtons(cdkDragSection,true,!isComplex?'sectionBorder':'sectionBorderListItem','selectedEditor',node)" (mouseout)="showButtons(cdkDragSection,false,!isComplex?'sectionBorder':'sectionBorderListItem','selectedEditor',node)"
         #cdkDragSection>
         <div class="border-placeholder" *cdkDragPlaceholder>
-            <div class="border-view"></div>
+            <div [ngClass]="{'border-view':true,'cant-drop':!canDropBool![0]}"></div>
         </div>
         <div class=' border' [ngClass]="{
             'sectionBorderInactive':!isComplex && mouseOn!==node.sectionID,
@@ -32,7 +32,7 @@
 </div>
 <div *ngIf="nestedNode" [ngClass]="{
     'node-box-nested':!isComplex,
-    'node-box-dropdownbox-nested':isComplex}" cdkDrag>
+    'node-box-dropdownbox-nested':isComplex}" cdkDrag [cdkDragData]="{node,canDropBool}">
     <div [style.position]='"relative"' (mouseover)="showButtons(cdkDragSection,true,
     !isComplex?'sectionBorderNested':'sectionBorderListNested',
     !isComplex?'selectedEditorNestedLeaf':'selectedEditorNestedList',node)" (mouseout)="showButtons(cdkDragSection,false,
@@ -40,7 +40,7 @@
     !isComplex?'selectedEditorNestedLeaf':'selectedEditorNestedList',node)" #cdkDragSection>
         <div class="text-placeholder"></div>
         <div class="border-placeholder-nested" *cdkDragPlaceholder>
-            <div class="border-view"></div>
+            <div [ngClass]="{'border-view':true,'cant-drop':!canDropBool![0]}"></div>
         </div>
         <div class=' border' [ngClass]="{
             'sectionBorderNestedInactive':!isComplex && mouseOn!==node.sectionID,
