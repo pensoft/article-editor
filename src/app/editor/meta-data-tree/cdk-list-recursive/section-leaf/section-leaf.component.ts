@@ -78,8 +78,6 @@ export class SectionLeafComponent implements OnInit {
 
   oldTextValue ?:string
   checkTextInput(element:HTMLDivElement,maxlength:number,event:Event){
-    console.log(event);
-    console.log(element.textContent);
     if(/<\/?[a-z][\s\S]*>/i.test(element.innerHTML)){
       element.innerHTML = element.textContent!;
     }
@@ -159,7 +157,7 @@ export class SectionLeafComponent implements OnInit {
 
   deleteNodeHandle(nodeId: string) {
     let dialogRef = this.dialog.open(AskBeforeDeleteComponent,{
-      data: { sectionName: this.treeService.findNodeById(nodeId)?.title.titleContent },
+      data: { sectionName: this.treeService.findNodeById(nodeId)?.title.label },
       panelClass: 'ask-before-delete-dialog',
     })
     dialogRef.afterClosed().subscribe((data:any)=>{
@@ -171,10 +169,8 @@ export class SectionLeafComponent implements OnInit {
 
   oldZIndex ?: string
   makeEditable(element:HTMLDivElement,event:Event,parentNode:any,node:articleSection){
-    console.log(event);
     if(event.type == 'blur'){
       element.setAttribute('contenteditable','false');
-      console.log('should save',element.textContent);
       (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;
       this.treeService.saveNewTitleChange(node,element.textContent!);
 

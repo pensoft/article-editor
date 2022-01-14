@@ -38,8 +38,6 @@ export class CdkListRecursiveComponent implements OnInit,OnDestroy{
 
   sectionsFormGroups:{[key:string]:FormGroup} = {};
 
-  error = false;
-
   connectedTo:string[]
 
   focusIdHold?: string;
@@ -151,10 +149,7 @@ export class CdkListRecursiveComponent implements OnInit,OnDestroy{
                           event.currentIndex);
         this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, event.previousContainer.id,event.container.id);
       }else{
-        this.error = true;
-        setTimeout(()=>{
-          this.error = false;
-        },5000)
+        this.treeService.errorSnackbarSubject.next(true);
       }
     }
   }

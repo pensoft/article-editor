@@ -9,7 +9,7 @@ export function editorFactory(data?: editorMeta): editorData {
 
 export const articleBasicStructure: articleSection[] = [
   {
-    title: { type: 'content', contentData: 'Title233', titleContent: 'Taxonomic coverage', key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+    title: { label:'Taxonomic coverage',name: 'Taxonomic coverage'},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
     sectionID: uuidv4(),
     active: false,
     edit: { bool: true, main: true },
@@ -24,7 +24,7 @@ export const articleBasicStructure: articleSection[] = [
     sectionTypeID:1,
   },
   {
-    title: { type: 'content', contentData: 'Title233', titleContent: 'Colection Data', key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+    title: {  label:'Taxonomic coverage',name: 'Taxonomic coverage'},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
     sectionID: uuidv4(),
     active: false,
     edit: { bool: true, main: true },

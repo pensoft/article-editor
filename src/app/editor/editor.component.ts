@@ -84,11 +84,11 @@ export class EditorComponent implements OnInit, AfterViewInit {
         distinctUntilChanged(),
         pairwise() // gets a pair of old and new value
       )
-      .subscribe(([oldValue, newValue]) => {
-        if (oldValue !== newValue) {
+      .subscribe(([oldValue, newName]) => {
+        if (oldValue !== newName) {
           this.articlesService.putArticleById(
             this.ydocService.articleData.id,
-            newValue
+            newName,this.ydocService.articleData!
           ).subscribe((data)=>{
           });
         }

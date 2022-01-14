@@ -79,6 +79,7 @@ import { ActivityPermissionComponent } from './layout/pages/activity-permission/
 import { SignPasswordDevicesComponent } from './layout/pages/sign-password-devices/sign-password-devices.component';
 import { AskBeforeDeleteComponent } from './editor/dialogs/ask-before-delete/ask-before-delete.component';
 import { ComplexEditTreeComponent } from './editor/section/complex-edit-tree/complex-edit-tree.component';
+import { SnackBarErrorComponentComponent } from './editor/meta-data-tree/snack-bar-error-component/snack-bar-error-component.component';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -143,6 +144,7 @@ const gravatarConfig: GravatarConfig = {
     SignPasswordDevicesComponent,
     AskBeforeDeleteComponent,
     ComplexEditTreeComponent,
+    SnackBarErrorComponentComponent,
 
   ],
   imports: [

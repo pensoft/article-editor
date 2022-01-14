@@ -29,7 +29,7 @@ export interface dropdownData{
     defaulValue?:string
 }
 
-export interface titleContent { type: 'content' | 'editorContentType', contentData?: titleContentData ,titleContent:string,key:'titleContent'}
+export interface titleContent {  name?: string ,label:string}
 export interface sectionContent { type: 'content' | 'taxonomicCoverageContentType'|'editorContentType'|'TaxonTreatmentsMaterial', contentData?: sectionContentData,key:'sectionContent' }
 
 export type titleContentData = editorData|string

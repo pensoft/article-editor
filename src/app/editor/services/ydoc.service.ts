@@ -235,6 +235,11 @@ export class YdocService {
     this.userInfo = undefined;
   }
   init(roomName: string, userInfo: any) {
+    if(!this.articleData){
+      this.serviceShare.ArticlesService?.getArticleByUuid(roomName).subscribe((res:any)=>{
+        this.articleData = res.data;
+      })
+    }
     this.roomName = roomName
     this.userInfo = userInfo
     this.userInfo.color = ['#fa7171', '#fa71bf', '#f571fa', '#c971fa', '#8a71fa', '#71fac5', '#fac771', '#fa9471'][+(Math.random() * 14).toFixed(0)]

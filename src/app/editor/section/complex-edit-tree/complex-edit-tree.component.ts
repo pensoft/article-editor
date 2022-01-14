@@ -118,7 +118,7 @@ export class ComplexEditTreeComponent implements OnInit {
     let newArticleSection: articleSection
     if (sectionFromBackend.type == 0) {
       newArticleSection = {
-        title: { type: 'content', contentData: 'Title233', titleContent: sectionFromBackend.name, key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+        title: { label: sectionFromBackend.label, name: sectionFromBackend.name },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
         active: false,
         edit: { bool: true, main: true },
@@ -134,7 +134,7 @@ export class ComplexEditTreeComponent implements OnInit {
       }
     } else if (sectionFromBackend.type == 1) {
       newArticleSection = {
-        title: { type: 'content', contentData: 'Title233', titleContent: sectionFromBackend.name, key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+        title: {label: sectionFromBackend.label, name: sectionFromBackend.name },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
         active: false,
         edit: { bool: true, main: true },
@@ -159,23 +159,23 @@ export class ComplexEditTreeComponent implements OnInit {
 
   oldTextValue ?:string
   checkTextInput(element:HTMLDivElement,maxlength:number,event:Event){
-    console.log(element.textContent);
+    if(/<\/?[a-z][\s\S]*>/i.test(element.innerHTML)){
+      element.innerHTML = element.textContent!;
+    }
     if(element.textContent?.trim().length! > maxlength){
       element.innerHTML = this.oldTextValue!
-    }if(element.textContent?.trim().length! == maxlength){
+    }else if(element.textContent?.trim().length! == maxlength){
       this.oldTextValue = element.textContent!.trim();
     }
   }
 
   oldZIndex ?: string
   makeEditable(element:HTMLDivElement,event:Event,parentNode:any,node:articleSection){
-    console.log(event);
     if(event.type == 'blur'){
       element.setAttribute('contenteditable','false');
-      console.log('should save',element.textContent);
       (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;
       let childRef = this.findSectionById(node.sectionID)
-      childRef.title.titleContent = element.textContent!;
+      childRef.title.label = element.textContent!;
 
     }else if (event.type == 'click'){
       this.oldZIndex = (parentNode as HTMLDivElement).style.zIndex!

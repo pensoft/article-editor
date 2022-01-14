@@ -34,6 +34,9 @@ export class TreeService {
   sectionFormGroups: { [key: string]: FormGroup } = {}
   sectionProsemirrorNodes: { [key: string]: string } = {} // prosemirror nodes as html
 
+
+  errorSnackbarSubject : Subject<any> = new Subject()
+
   resetTreeData() {
     this.articleSectionsStructure = undefined;
     this.metadatachangeMap = undefined
@@ -183,7 +186,7 @@ export class TreeService {
 
   saveNewTitle(node:articleSection,title:string){
     let nodeRef = this.findNodeById(node.sectionID);
-    nodeRef!.title.titleContent = title;
+    nodeRef!.title.label = title;
   }
 
   buildNewFormGroupsChange(nodes:articleSection[]){
@@ -230,7 +233,7 @@ export class TreeService {
     let newArticleSection: articleSection
     if (sectionFromBackend.type == 0) {
       newArticleSection = {
-        title: { type: 'content', contentData: 'Title233', titleContent: sectionFromBackend.name, key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+        title: { label:sectionFromBackend.label,name: sectionFromBackend.name },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
         active: false,
         edit: { bool: true, main: true },
@@ -246,7 +249,7 @@ export class TreeService {
       }
     } else if (sectionFromBackend.type == 1) {
       newArticleSection = {
-        title: { type: 'content', contentData: 'Title233', titleContent: sectionFromBackend.name, key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+        title: {label:sectionFromBackend.label,name: sectionFromBackend.name },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
         active: false,
         edit: { bool: true, main: true },

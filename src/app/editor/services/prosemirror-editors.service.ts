@@ -276,7 +276,6 @@ export class ProsemirrorEditorsService {
     editorView: EditorView,
     dispatchTransaction: any
   } {
-
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
 
     if (this.editorContainers[editorId]) {

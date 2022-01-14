@@ -58,6 +58,7 @@ export class ServiceShare {
         data: { templates: articleTemplates }
       });
       dialogRef.afterClosed().subscribe(result => {
+
         let selectedTemplate = (this.articleTemplates.data as Array<any>).find((template: any) => {
           return template.id == result
         })
@@ -75,7 +76,7 @@ export class ServiceShare {
           let newArticleSection: articleSection
           if(sectionFromBackend.type == 0){
             newArticleSection = {
-              title: { type: 'content', contentData: 'Title233', titleContent: sectionFromBackend.name, key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+              title: {  name: sectionFromBackend.name, label: sectionFromBackend.label },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
               sectionID: newId,
               active: false,
               edit: { bool: true, main: true },
@@ -91,7 +92,7 @@ export class ServiceShare {
             }
           }else if(sectionFromBackend.type == 1 ){
             newArticleSection = {
-              title: { type: 'content', contentData: 'Title233', titleContent: sectionFromBackend.name, key: 'titleContent' },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+              title: { name: sectionFromBackend.name, label: sectionFromBackend.label },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
               sectionID: newId,
               active: false,
               edit: { bool: true, main: true },
@@ -109,7 +110,9 @@ export class ServiceShare {
           parentContainer.push(newArticleSection!);
         }
         selectedTemplate.sections.forEach((section: any) => {
-          renderSection(section,articleStructure);
+          if(section.settings&&section.settings.main_section == true){
+            renderSection(section,articleStructure);
+          }
         })
         this.YdocService!.articleStructureFromBackend = articleStructure;
         this.ArticlesService!.createArticle('Untitled',+result).subscribe((createArticleRes:any)=>{

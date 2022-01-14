@@ -1,5 +1,4 @@
 <ng-container>
-    <div *ngIf="error" class="error-list-drop">Level of list tree cannot be higher than 4!</div>
     <div cdkDropList [ngClass]="{'outer-list':!nestedList,'nested-list':nestedList}" (cdkDropListDropped)="drop($event)" id="{{listParentId}}" [cdkDropListConnectedTo]="connectedTo" [cdkDropListData]="articleSectionsStructure">
         <div [ngClass]="{'outer-empty-placeholder':firstNested,'nested-empty-placeholder':!firstNested}" *ngIf="articleSectionsStructure.length == 0" cdkDrag [cdkDragDisabled]="true">No subsection</div>
         <ng-container *ngFor="let node of articleSectionsStructure;index as i">

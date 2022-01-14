@@ -20,8 +20,9 @@ export class ArticlesService {
     return this._http.get(`${API_ARTICLES_URL}/uuid/${uuid}`)
   }
 
-  putArticleById(articleId:number,name:string){ // article id !== uuid !
-    return this._http.put(`${API_ARTICLES_URL}/${articleId}`,{name})
+  putArticleById(articleId:number,name:string,oldArticleData:any){ // article id !== uuid !
+    oldArticleData.name = name;
+    return this._http.put(`${API_ARTICLES_URL}/${articleId}`,oldArticleData)
   }
 
   deleteArticleById(articleId:number){ // article id !== uuid !

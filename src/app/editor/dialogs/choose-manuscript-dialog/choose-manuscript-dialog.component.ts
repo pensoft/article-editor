@@ -23,12 +23,10 @@ export class ChooseManuscriptDialogComponent implements OnInit,AfterViewInit {
   }
 
   ngOnInit(): void {
-
   }
 
   ngAfterViewInit(): void {
     this.articleTemplates = this.data.templates.data
-
   }
 
   createManuscript(val:any){

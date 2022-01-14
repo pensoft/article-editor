@@ -12,6 +12,8 @@ import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { TreeService } from './tree-service/tree.service';
 import { treeNode } from '../utils/interfaces/treeNode';
 import { articleSection } from '../utils/interfaces/articleSection';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { SnackBarErrorComponentComponent } from './snack-bar-error-component/snack-bar-error-component.component';
 
 @Component({
   selector: 'app-meta-data-tree',
@@ -21,9 +23,14 @@ import { articleSection } from '../utils/interfaces/articleSection';
 
 export class MetaDataTreeComponent implements OnInit,AfterViewInit{
   articleSectionsStructure ?:articleSection[]
-  
+  errorDuration = 4;
   metadataMap?:YMap<any>
-  constructor(public treeService:TreeService,private ydocService:YdocService){
+  constructor(public treeService:TreeService,private ydocService:YdocService,private _snackBar: MatSnackBar){
+    this.treeService.errorSnackbarSubject.subscribe((data)=>{
+      this._snackBar.openFromComponent(SnackBarErrorComponentComponent, {
+        duration: this.errorDuration * 1000,
+      });
+    })
   }
   ngOnInit(){
     if (this.ydocService.editorIsBuild) {
@@ -42,7 +49,7 @@ export class MetaDataTreeComponent implements OnInit,AfterViewInit{
   }
 
   ngAfterViewInit(){
-    
+
   }
 }
 
