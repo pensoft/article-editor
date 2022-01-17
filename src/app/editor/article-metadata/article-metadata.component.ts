@@ -1,3 +1,4 @@
+import { DomElementSchemaRegistry } from '@angular/compiler';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
@@ -37,7 +38,15 @@ export class ArticleMetadataComponent implements OnInit {
 
   addNewSectionToArticle(){
     this.sectionsService.getAllSections().subscribe((response:any)=>{
-      this.sectionTemplates = response.data
+      console.log(response.data,this.treeService.articleSectionsStructure);
+      //this.sectionTemplates = response.data
+      this.sectionTemplates = response.data.filter((data:any)=>{
+        return (
+          this.treeService.articleSectionsStructure?.findIndex((element)=>{return (data.id == element.sectionTypeID&&(element.sectionMeta.main==true))}) == -1
+
+
+        )
+      })
       const dialogRef = this.dialog.open(ChooseSectionComponent, {
         width: '100%',
         panelClass:'choose-namuscript-dialog',

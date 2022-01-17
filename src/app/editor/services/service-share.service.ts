@@ -76,7 +76,7 @@ export class ServiceShare {
           let newArticleSection: articleSection
           if(sectionFromBackend.type == 0){
             newArticleSection = {
-              title: {  name: sectionFromBackend.name, label: sectionFromBackend.label },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+              title: {  name: sectionFromBackend.name, label: sectionFromBackend.label,template:sectionFromBackend.label },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
               sectionID: newId,
               active: false,
               edit: { bool: true, main: true },
@@ -88,11 +88,12 @@ export class ServiceShare {
               prosemirrorHTMLNodesTempl: sectionFromBackend.template,
               children:children,
               type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
-              sectionTypeID: sectionFromBackend.id
+              sectionTypeID: sectionFromBackend.id,
+              sectionMeta:{main:true}
             }
           }else if(sectionFromBackend.type == 1 ){
             newArticleSection = {
-              title: { name: sectionFromBackend.name, label: sectionFromBackend.label },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+              title: { name: sectionFromBackend.name, label: sectionFromBackend.label ,template:sectionFromBackend.label},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
               sectionID: newId,
               active: false,
               edit: { bool: true, main: true },
@@ -104,7 +105,8 @@ export class ServiceShare {
               prosemirrorHTMLNodesTempl: sectionFromBackend.template,
               children:children,
               type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
-              sectionTypeID: sectionFromBackend.id
+              sectionTypeID: sectionFromBackend.id,
+              sectionMeta:{main:true}
             }
           }
           parentContainer.push(newArticleSection!);

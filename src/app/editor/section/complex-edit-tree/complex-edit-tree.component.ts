@@ -21,6 +21,8 @@ export class ComplexEditTreeComponent implements OnInit {
   focusedId:any;
   focusIdHold:any;
 
+  canDropBool?:boolean[]
+
   @Input() section!: articleSection;
   @Output() sectionChange = new EventEmitter<articleSection>();
 
@@ -41,7 +43,9 @@ export class ComplexEditTreeComponent implements OnInit {
 
   }
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.canDropBool = this.treeService.canDropBool
+  }
 
   showButtons(div: HTMLDivElement, mouseOn: boolean, borderClass: string, focusClass: string, node: any) {
     if (mouseOn) {
@@ -118,7 +122,7 @@ export class ComplexEditTreeComponent implements OnInit {
     let newArticleSection: articleSection
     if (sectionFromBackend.type == 0) {
       newArticleSection = {
-        title: { label: sectionFromBackend.label, name: sectionFromBackend.name },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+        title: { label: sectionFromBackend.label, name: sectionFromBackend.name,template: sectionFromBackend.label},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
         active: false,
         edit: { bool: true, main: true },
@@ -130,11 +134,12 @@ export class ComplexEditTreeComponent implements OnInit {
         prosemirrorHTMLNodesTempl: sectionFromBackend.template,
         children: children,
         type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
-        sectionTypeID: sectionFromBackend.id
+        sectionTypeID: sectionFromBackend.id,
+        sectionMeta:{main:false}
       }
     } else if (sectionFromBackend.type == 1) {
       newArticleSection = {
-        title: {label: sectionFromBackend.label, name: sectionFromBackend.name },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+        title: {label: sectionFromBackend.label, name: sectionFromBackend.name ,template: sectionFromBackend.label},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
         active: false,
         edit: { bool: true, main: true },
@@ -146,7 +151,8 @@ export class ComplexEditTreeComponent implements OnInit {
         prosemirrorHTMLNodesTempl: sectionFromBackend.template,
         children: children,
         type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
-        sectionTypeID: sectionFromBackend.id
+        sectionTypeID: sectionFromBackend.id,
+        sectionMeta:{main:false}
       }
     }
     if(!index){

@@ -137,6 +137,21 @@ export class TreeService {
     this.ydocService.articleStructure?.set('articleSectionsStructure', this.articleSectionsStructure)
   }
 
+  setTitleListener(node:articleSection){
+    let formGroup = this.sectionFormGroups[node.sectionID];
+    node.title.label = /{{.+}}/gm.test(node.title.label)?node.title.name!:node.title.label;
+    formGroup.valueChanges.subscribe((data)=>{
+      this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle:string)=>{
+        //console.log(newTitle);
+        let container = document.createElement('div')
+        container.innerHTML = newTitle;
+        container.innerHTML = container.textContent!;
+        console.log(container.textContent);
+        node.title.label = container.textContent!;
+      })
+    })
+  }
+
   initTreeList(articleSectionsStructure: articleSection[]) {
     this.articleSectionsStructure = articleSectionsStructure
   }
@@ -234,7 +249,7 @@ export class TreeService {
     let newArticleSection: articleSection
     if (sectionFromBackend.type == 0) {
       newArticleSection = {
-        title: { label:sectionFromBackend.label,name: sectionFromBackend.name },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+        title: { label:sectionFromBackend.label,name: sectionFromBackend.name,template: sectionFromBackend.label},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
         active: false,
         edit: { bool: true, main: true },
@@ -246,11 +261,12 @@ export class TreeService {
         prosemirrorHTMLNodesTempl: sectionFromBackend.template,
         children: children,
         type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
-        sectionTypeID: sectionFromBackend.id
+        sectionTypeID: sectionFromBackend.id,
+        sectionMeta:{main:false}
       }
     } else if (sectionFromBackend.type == 1) {
       newArticleSection = {
-        title: {label:sectionFromBackend.label,name: sectionFromBackend.name },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+        title: {label:sectionFromBackend.label,name: sectionFromBackend.name,template: sectionFromBackend.label },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
         active: false,
         edit: { bool: true, main: true },
@@ -262,7 +278,8 @@ export class TreeService {
         prosemirrorHTMLNodesTempl: sectionFromBackend.template,
         children: children,
         type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
-        sectionTypeID: sectionFromBackend.id
+        sectionTypeID: sectionFromBackend.id,
+        sectionMeta:{main:false}
       }
     }
     let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(newId);

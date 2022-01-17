@@ -28,7 +28,9 @@ export class MetaDataTreeComponent implements OnInit,AfterViewInit{
   constructor(public treeService:TreeService,private ydocService:YdocService,private _snackBar: MatSnackBar){
     this.treeService.errorSnackbarSubject.subscribe((data)=>{
       this._snackBar.openFromComponent(SnackBarErrorComponentComponent, {
+        panelClass:'snackbar-error',
         duration: this.errorDuration * 1000,
+
       });
     })
   }

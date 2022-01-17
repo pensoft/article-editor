@@ -27,7 +27,7 @@ import { ArticlesService } from '@app/core/services/articles.service';
   templateUrl: './section-leaf.component.html',
   styleUrls: ['./section-leaf.component.scss']
 })
-export class SectionLeafComponent implements OnInit {
+export class SectionLeafComponent implements OnInit,AfterViewInit {
 
   @Input() parentListData!: { expandParentFunc: any, listDiv: HTMLDivElement };
   @Input() parentId?: string; // the id of the parent of this node
@@ -73,14 +73,23 @@ export class SectionLeafComponent implements OnInit {
     });
   }
 
+  ngAfterViewInit(): void {
+    this.treeService.setTitleListener(this.node)
+  }
   ngOnInit(){
     this.expandIcon = 'chevron_right';
     this.canDropBool = this.treeService.canDropBool;
   }
 
   oldTextValue ?:string
+
   checkTextInput(element:HTMLDivElement,maxlength:number,event:Event){
-    console.log(this.canDropBool);
+
+    console.log(element.innerHTML);
+    if(element.textContent?.trim().length == 0){
+      element.innerHTML = "<br>"
+      return
+    }
     if(/<\/?[a-z][\s\S]*>/i.test(element.innerHTML)){
       element.innerHTML = element.textContent!;
     }
@@ -89,6 +98,7 @@ export class SectionLeafComponent implements OnInit {
     }else if(element.textContent?.trim().length! == maxlength){
       this.oldTextValue = element.textContent!.trim();
     }
+
   }
 
   editNodeHandle(node: articleSection, formGroup: FormGroup) {
@@ -172,6 +182,10 @@ export class SectionLeafComponent implements OnInit {
 
   oldZIndex ?: string
   makeEditable(element:HTMLDivElement,event:Event,parentNode:any,node:articleSection){
+    if(element.textContent?.trim().length == 0){
+      element.innerHTML = "<br>"
+      return
+    }
     if(event.type == 'blur'){
       element.setAttribute('contenteditable','false');
       (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;

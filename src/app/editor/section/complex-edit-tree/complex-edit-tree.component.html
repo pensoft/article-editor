@@ -1,14 +1,17 @@
 <button mat-raised-button class="add-subsection-button" (click)="addNewSubsection()">Add Subsection</button>
 <div class="list-children-sections" cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListData]="sectionChildren">
     <ng-container *ngFor="let node of sectionChildren;let i = index">
-        <div class="child-box" cdkDrag>
+        <div class="child-box" cdkDrag [cdkDragData]="{node,canDropBool}">
             <div [style.position]='"relative"' [style.display]='"flex"' [style.width]="'100%'">
                 <div class="child-border-placeholder" *cdkDragPlaceholder>
                     <div class="border-view"></div>
                 </div>
                 <div class='child-border' #parentOfText>
                     <button mat-icon-button cdkDragHandle class="child-drag-btn "><mat-icon >drag_indicator</mat-icon></button>
-                    <div class="child-text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="makeEditable(nodeTitle,$event,parentOfText,node)" (blur)="makeEditable(nodeTitle,$event,parentOfText,node)" #nodeTitle>
+                    <!-- <div class="child-text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="makeEditable(nodeTitle,$event,parentOfText,node)" (blur)="makeEditable(nodeTitle,$event,parentOfText,node)" #nodeTitle>
+                        {{node.title.label}}
+                    </div> -->
+                    <div class="child-text-section-div">
                         {{node.title.label}}
                     </div>
                 </div>

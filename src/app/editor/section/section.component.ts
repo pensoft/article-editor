@@ -152,7 +152,8 @@ export class SectionComponent implements AfterViewInit, OnInit {
       interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm);
       submision.compiledHtml = interpolated
       this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
-      this.figuresControllerService.markCitatsViews(this.ydocService.figuresMap?.get('articleCitatsObj'));
+      let figuresMap = this.ydocService.figuresMap!;
+      this.figuresControllerService.markCitatsViews(figuresMap.get('articleCitatsObj'));
       this.editSectionService.editChangeSubject.next(submision);
 
     } catch (err: any) {

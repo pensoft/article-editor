@@ -6,7 +6,7 @@
         <div *ngIf="showError" class="error">No Section selected.</div>
         <div fxFill fxLayoutAlign="center">
             <form (keydown.enter)="search(inputText.value)" fxFlex="90%" fxLayout="column">
-                <label>Select a section template</label>
+                <label>Select a section</label>
                 <mat-form-field>
                     <input matInput type="text" #inputText class="input-search">
                     <button color="primary" class="search-button" type="submit" matSuffix mat-raised-button (click)="search(inputText.value)">

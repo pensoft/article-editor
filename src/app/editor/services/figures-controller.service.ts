@@ -37,13 +37,13 @@ export class FiguresControllerService {
     editorView: EditorView,
     dispatchTransaction: any
   }
-  figuresNumbers?: string[]
+  figuresNumbers?: string[] = []
   figures: { [key: string]: figure } = {}
   renderEditorFn: any
 
   resetFiguresControllerService (){
     this.endEditorContainer = undefined
-    this.figuresNumbers = undefined
+    this.figuresNumbers = []
     this.figures = {}
     this.renderEditorFn = undefined
   }
