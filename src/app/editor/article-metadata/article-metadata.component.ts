@@ -6,6 +6,8 @@ import { ArticlesService } from '@app/core/services/articles.service';
 import { ChooseSectionComponent } from '../dialogs/choose-section/choose-section.component';
 import { FiguresDialogComponent } from '../dialogs/figures-dialog/figures-dialog.component';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
+import { FiguresControllerService } from '../services/figures-controller.service';
+import { YdocService } from '../services/ydoc.service';
 
 @Component({
   selector: 'app-article-metadata',
@@ -19,6 +21,8 @@ export class ArticleMetadataComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private sectionsService:ArticleSectionsService,
+    private figuresControllerService:FiguresControllerService,
+    private ydocService:YdocService,
     private treeService:TreeService,) { }
 
 
@@ -36,9 +40,17 @@ export class ArticleMetadataComponent implements OnInit {
     })
   }
 
+  resetCitatsObj(){
+    let articleCitatsObj = this.ydocService.figuresMap?.get('articleCitatsObj');
+    Object.keys(articleCitatsObj).forEach((sectionId)=>{
+      articleCitatsObj[sectionId] = {}
+    })
+    this.ydocService.figuresMap?.set('articleCitatsObj',articleCitatsObj);
+    this.figuresControllerService.markCitatsViews(articleCitatsObj);
+  }
+
   addNewSectionToArticle(){
     this.sectionsService.getAllSections().subscribe((response:any)=>{
-      console.log(response.data,this.treeService.articleSectionsStructure);
       //this.sectionTemplates = response.data
       this.sectionTemplates = response.data.filter((data:any)=>{
         return (

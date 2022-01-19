@@ -52,7 +52,6 @@ export function installPatch(treeService:TreeService) {
 }
 
 function canReceive(target:any,item:any,treeService:TreeService){
-  //console.log(target.data.id,item.data.data.type);
   let dropTargetLevel
   if(target.data.id == 'parentList'){
      dropTargetLevel =0 ;

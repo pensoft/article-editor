@@ -138,18 +138,18 @@ export class TreeService {
   }
 
   setTitleListener(node:articleSection){
-    let formGroup = this.sectionFormGroups[node.sectionID];
-    node.title.label = /{{.+}}/gm.test(node.title.label)?node.title.name!:node.title.label;
-    formGroup.valueChanges.subscribe((data)=>{
-      this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle:string)=>{
-        //console.log(newTitle);
-        let container = document.createElement('div')
-        container.innerHTML = newTitle;
-        container.innerHTML = container.textContent!;
-        console.log(container.textContent);
-        node.title.label = container.textContent!;
+    if(!node.title.editable){
+      let formGroup = this.sectionFormGroups[node.sectionID];
+      node.title.label = /{{\s*\S*\s*}}/gm.test(node.title.label)?node.title.name!:node.title.label;
+      formGroup.valueChanges.subscribe((data)=>{
+        this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle:string)=>{
+          let container = document.createElement('div')
+          container.innerHTML = newTitle;
+          container.innerHTML = container.textContent!;
+          node.title.label = container.textContent!;
+        })
       })
-    })
+    }
   }
 
   initTreeList(articleSectionsStructure: articleSection[]) {
@@ -249,7 +249,7 @@ export class TreeService {
     let newArticleSection: articleSection
     if (sectionFromBackend.type == 0) {
       newArticleSection = {
-        title: { label:sectionFromBackend.label,name: sectionFromBackend.name,template: sectionFromBackend.label},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+        title: { label:sectionFromBackend.label,name: sectionFromBackend.name,template: sectionFromBackend.label,editable:!/{{\s*\S*\s*}}/gm.test(sectionFromBackend.label) },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
         active: false,
         edit: { bool: true, main: true },
@@ -266,7 +266,7 @@ export class TreeService {
       }
     } else if (sectionFromBackend.type == 1) {
       newArticleSection = {
-        title: {label:sectionFromBackend.label,name: sectionFromBackend.name,template: sectionFromBackend.label },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+        title: {label:sectionFromBackend.label,name: sectionFromBackend.name,template: sectionFromBackend.label,editable:!/{{\s*\S*\s*}}/gm.test(sectionFromBackend.label)  },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
         active: false,
         edit: { bool: true, main: true },

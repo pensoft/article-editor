@@ -9,6 +9,7 @@ import { UserModel } from '@core/models/user.model';
 import { catchError, filter, map, switchMap, takeUntil } from 'rxjs/operators';
 
 const API_AUTH_URL = `https://ps-article.dev.scalewest.com/api/auth`;
+const API_URL = `https://ps-article.dev.scalewest.com/api`;
 export type UserType = UserModel | undefined;
 
 @Injectable({ providedIn: 'root' })
@@ -101,12 +102,13 @@ export class AuthService implements OnDestroy {
   }
 
   refreshToken() {
-    return this._http.get<any>(`/refresh`, { observe: 'response' })
+    return this._http.get(`${API_URL}/refresh`,{})
       .pipe(
         map((resp) => {
-          if (resp && resp.headers.get('Authorization') && (resp.headers.get('Authorization') || '').includes('Bearer')) {
+          console.log(resp);
+          /* if (resp && resp.headers.get('Authorization') && (resp.headers.get('Authorization') || '').includes('Bearer')) {
             return (resp.headers.get('Authorization') || '').replace('Bearer ', '');
-          }
+          } */
           return false;
         })
       )

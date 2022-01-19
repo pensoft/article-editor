@@ -27,7 +27,7 @@ import { keymap } from 'prosemirror-keymap';
 //import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from 'y-prosemirror';
 import { chainCommands, deleteSelection, joinBackward, selectNodeBackward } from 'prosemirror-commands';
 //@ts-ignore
-import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from '../../y-prosemirror-src/y-prosemirror.js';
+import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin,yUndoPluginKey } from '../../y-prosemirror-src/y-prosemirror.js';
 import { CellSelection, columnResizing, goToNextCell, tableEditing } from 'prosemirror-tables';
 //@ts-ignore
 import * as trackedTransaction from '../utils/trackChanges/track-changes/index.js';
@@ -294,7 +294,7 @@ export class ProsemirrorEditorsService {
     let xmlFragment = this.getXmlFragment(section.mode, editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
     yCursorPlugin(this.provider!.awareness, this.userData),
-    yUndoPlugin()]
+    yUndoPlugin({editorID,figuresMap:this.ydocService.figuresMap,renderFigures:this.rerenderFigures})]
 
 
     container.setAttribute('class', 'editor-container');
@@ -369,6 +369,9 @@ export class ProsemirrorEditorsService {
         }
         lastStep = transaction.steps[0]
         if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false) {
+          let undoManager = yUndoPluginKey.getState(editorView.state).undoManager
+          undoManager.stopCapturing();
+
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
 
@@ -396,6 +399,23 @@ export class ProsemirrorEditorsService {
       },
       handleDOMEvents: {
         contextmenu: (view, event) => {
+          let state = view.state;
+          let sel = state.selection
+          state.doc.nodesBetween(sel.from, sel.to, (node, pos, parent, index) => {
+            if (node.marks.length > 0 && node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
+              setTimeout(() => {
+                let cursurCoord = view.coordsAtPos(sel.from);
+                setTimeout(() => {
+                  view.dispatch(view.state.tr.setMeta('citatContextPlugin', {
+                    clickPos: sel.from,
+                    clickEvent: event,
+                    focus: view.hasFocus(),
+                    coords: cursurCoord
+                  }))
+                }, 0)
+              })
+            }
+          })
           if (this.citatContextPluginService.citatContextPluginKey.getState(view.state).decorations) {
             event.preventDefault();
             event.stopPropagation();
@@ -479,7 +499,7 @@ export class ProsemirrorEditorsService {
     let xmlFragment = this.getXmlFragment('documentMode', editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
     yCursorPlugin(this.provider!.awareness, this.userData),
-    yUndoPlugin()]
+    yUndoPlugin({editorID,figuresMap:this.ydocService.figuresMap,renderFigures:this.rerenderFigures})]
 
     container.setAttribute('class', 'editor-container');
     let menu = buildMenuItems(schema);
@@ -535,6 +555,8 @@ export class ProsemirrorEditorsService {
         }
         lastStep = transaction.steps[0]
         if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false) {
+          let undoManager = yUndoPluginKey.getState(editorView.state).undoManager
+          undoManager.stopCapturing();
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
 

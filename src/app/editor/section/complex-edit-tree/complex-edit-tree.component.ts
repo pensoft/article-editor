@@ -122,7 +122,7 @@ export class ComplexEditTreeComponent implements OnInit {
     let newArticleSection: articleSection
     if (sectionFromBackend.type == 0) {
       newArticleSection = {
-        title: { label: sectionFromBackend.label, name: sectionFromBackend.name,template: sectionFromBackend.label},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+        title: { label: sectionFromBackend.label, name: sectionFromBackend.name,template: sectionFromBackend.label,editable:!/{{\s*\S*\s*}}/gm.test(sectionFromBackend.label) },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
         active: false,
         edit: { bool: true, main: true },
@@ -139,7 +139,7 @@ export class ComplexEditTreeComponent implements OnInit {
       }
     } else if (sectionFromBackend.type == 1) {
       newArticleSection = {
-        title: {label: sectionFromBackend.label, name: sectionFromBackend.name ,template: sectionFromBackend.label},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+        title: {label: sectionFromBackend.label, name: sectionFromBackend.name ,template: sectionFromBackend.label,editable:!/{{\s*\S*\s*}}/gm.test(sectionFromBackend.label) },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
         active: false,
         edit: { bool: true, main: true },

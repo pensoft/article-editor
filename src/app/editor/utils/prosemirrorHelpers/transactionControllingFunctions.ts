@@ -120,7 +120,7 @@ export const updateControlsAndFigures = (
                 let newDisplayViewsInCitat = citateData.displaydFiguresViewhere;
                 let newNode = schema.text(node.textContent) as Node
                 let newMark = schema.mark('citation', { ...citationMark.attrs, last_time_updated: citateData.lastTimeUpdated, figures_display_view: newDisplayViewsInCitat })
-                
+
                 /* newNode = newNode.mark([newMark])
                 tr1 = tr1.replaceWith(pos, node.nodeSize, newNode) */
                 tr1 = tr1.addMark(pos, pos+node.nodeSize,newMark)
@@ -200,19 +200,19 @@ export const updateControlsAndFigures = (
                         parentNode = edView.state.doc.content.child(parentIndexAndOffset.index)
                         posAtParentBorder = parentIndexAndOffset.offset + parentNode.nodeSize
                         resolvedPositionATparentNodeBorder = edView.state.doc.resolve(posAtParentBorder)
- 
+
                         contAfter = resolvedPositionATparentNodeBorder.nodeAfter!
                       }
- 
+
                       updateMetaInfoRemove()
                       let figureData = figures[figureID];
                       let removeStartIndex: number = -1
                       let removeEndIndex: number = -1
- 
+
                       if (contAfter && contAfter.type.name == 'figures_nodes_container') {
                           let figComponentsStartIndex = figureViewsToRemove[figureID].length>0?Math.min(...figureViewsToRemove[figureID]):0
                           let figComponentsEndIndex = figureViewsToRemove[figureID].length>0?Math.max(...figureViewsToRemove[figureID]):figureData.components.length
- 
+
                           let componentsCount = 0
                           contAfter.forEach((node, offset, index) => {
                             if (node.attrs.figure_id == figureID) {
@@ -260,7 +260,7 @@ export const updateControlsAndFigures = (
                             }
                             updateMetaInfoRemove()
                             removeStartIndex = -1
-                            
+
                             contAfter.forEach((node, offset, index) => {
                               if (node.attrs.figure_id == figureID) {
                                 node.content.forEach((nodeInFig, offsetInFig, indexInFig) => {
@@ -427,20 +427,20 @@ export const updateControlsAndFigures = (
                       } else {
                         updateMetaInfo()
                         let insertFrom: number = posAtParentBorder
- 
+
                         let insertDescription: number = -1
- 
+
                         let componentsAreRendered = false
- 
+
                         let insertImgAndVideos: number = -1
- 
- 
+
+
                         let figureIsRendered = false
- 
+
                         let componentsImgsAndVideos = data.renderedData.content.firstChild?.content.content
                         let figureDescription = data.renderedData.content.child(1).content
                         let componentsDescriptions: Node[] = []
- 
+
                         figureDescription?.forEach((node: Node) => {
                           if (node.type.name == "figure_component_description") {
                             if (node.attrs.component_number == '0') {
@@ -469,9 +469,9 @@ export const updateControlsAndFigures = (
                         if (insertDescription !== -1&&!componentsAreRendered&&figureIsRendered) {
                           edView.dispatch(edView.state.tr.insert(insertDescription, componentsDescriptions).setMeta('shouldTrack',false))
                         }
- 
+
                         updateMetaInfo()
- 
+
                         contAfter.content.forEach((node, offset, index) => {
                           if (node.attrs.figure_id == data.figureData.figureID) {
                             node.content.forEach((nodeInFig, offsetInFig, indexInFig) => {
@@ -583,9 +583,9 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>, rere
                       citatID
                     })
                   } else {
+                    figuresCitats[sectionID][citatID] = undefined
+                    figuresMap.set('articleCitatsObj', figuresCitats)
                     setTimeout(() => {
-                      figuresCitats[sectionID][citatID] = undefined
-                      figuresMap.set('articleCitatsObj', figuresCitats)
                       rerenderFigures(figuresCitats)
                     }, 10)
                   }
@@ -690,19 +690,21 @@ export const handleClickOn = (citatContextPluginKey: PluginKey) => {
         ("button" in e && e.button == 2)
       )) {
       let cursurCoord = view.coordsAtPos(pos);
-      view.dispatch(view.state.tr.setMeta('citatContextPlugin', {
-        clickPos: pos,
-        citatPos: nodePos,
-        clickEvent: e,
-        focus: view.hasFocus(),
-        direct,
-        coords: cursurCoord
-      }))
-      return false
+      setTimeout(()=>{
+        view.dispatch(view.state.tr.setMeta('citatContextPlugin', {
+          clickPos: pos,
+          citatPos: nodePos,
+          clickEvent: e,
+          focus: view.hasFocus(),
+          direct,
+          coords: cursurCoord
+        }))
+      },0)
+      return true
     } else if (citatContextPluginKey.getState(view.state).decorations !== undefined) {
       return false
     } else {
-      return true
+      return false
     }
   }
 }

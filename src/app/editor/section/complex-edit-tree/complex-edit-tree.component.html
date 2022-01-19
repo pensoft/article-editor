@@ -8,10 +8,10 @@
                 </div>
                 <div class='child-border' #parentOfText>
                     <button mat-icon-button cdkDragHandle class="child-drag-btn "><mat-icon >drag_indicator</mat-icon></button>
-                    <!-- <div class="child-text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="makeEditable(nodeTitle,$event,parentOfText,node)" (blur)="makeEditable(nodeTitle,$event,parentOfText,node)" #nodeTitle>
+                    <div *ngIf="node.title.editable" class="child-text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="makeEditable(nodeTitle,$event,parentOfText,node)" (blur)="makeEditable(nodeTitle,$event,parentOfText,node)" #nodeTitle>
                         {{node.title.label}}
-                    </div> -->
-                    <div class="child-text-section-div">
+                    </div>
+                    <div *ngIf="!node.title.editable" class="child-text-section-div">
                         {{node.title.label}}
                     </div>
                 </div>

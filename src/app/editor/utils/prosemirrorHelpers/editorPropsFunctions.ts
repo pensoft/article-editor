@@ -116,11 +116,11 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
             from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
             to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);
         } */
-        /* check the both siddes of the selection and check if there are in the same depth -> means that the selection sides are on the same level 
+        /* check the both siddes of the selection and check if there are in the same depth -> means that the selection sides are on the same level
           true
             loop the parents of the sides and search for form_field if there is a parent form field check if its the same for both sides and use it as parent ref
                 if there is no form_field parent find the first parent thats the same for both selection sides and use it as parent ref
-            check if the parent ref alows editing 
+            check if the parent ref alows editing
         */
         if ($from.depth == $to.depth) {
             //@ts-ignore
@@ -204,14 +204,14 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
         /* view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
             if (node.attrs.contenteditableNode == "false") {
                 if(node.type.name == ){
-    
+
                 }
                 noneditableNodes = true;
             }
-    
+
             if (node.type.name == "form_field") {
                 let nodeEnd = node.nodeSize + pos
-                // there is a form_field that is in the selection we should not edit if or outside of it 
+                // there is a form_field that is in the selection we should not edit if or outside of it
                 if ((from <= pos && pos <= to) || (from <= nodeEnd && nodeEnd <= to)) {
                     if ((from <= pos && pos <= to)) {
                         from = pos + 2
@@ -251,8 +251,8 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
                 }
               }
             }
-    
-          } 
+
+          }
           if (noneditableNodes) {
             return noneditableNodes
           }
@@ -301,7 +301,7 @@ export const createSelectionBetween = (editorsEditableObj: any, editorId: string
         let formFieldParentFound = false
         while (counter > -1 && !formFieldParentFound) {
             let pathValue = anchorPath[counter]
-            if (typeof pathValue !== 'number') {   // node       
+            if (typeof pathValue !== 'number') {   // node
                 let parentType = pathValue.type.name
                 if (parentType == "form_field") {
                     parentNode = pathValue   // store the form_field node that the selection is currently in

@@ -85,7 +85,6 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
 
   checkTextInput(element:HTMLDivElement,maxlength:number,event:Event){
 
-    console.log(element.innerHTML);
     if(element.textContent?.trim().length == 0){
       element.innerHTML = "<br>"
       return

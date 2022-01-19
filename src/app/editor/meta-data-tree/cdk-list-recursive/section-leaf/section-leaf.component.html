@@ -16,10 +16,10 @@
                 'drag_btn_leaf_node':!isComplex,
                 'drag_btn_list_node':isComplex}"><mat-icon >drag_indicator</mat-icon></button>
             <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTN" (click)="changeDisplay(childrenDiv);listDiv.style.display == 'none'?expandIcon='chevron_right':expandIcon='expand_more'"><mat-icon class="{{expandIcon}}"  #icon>{{expandIcon}}</mat-icon></button>
-            <!-- <div class="text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="makeEditable(nodeTitle,$event,cdkDragSection,node)" (blur)="makeEditable(nodeTitle,$event,cdkDragSection,node)" #nodeTitle>
+            <div *ngIf="node.title.editable" class="text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="makeEditable(nodeTitle,$event,cdkDragSection,node)" (blur)="makeEditable(nodeTitle,$event,cdkDragSection,node)" #nodeTitle>
                 {{node.title.label}}
-            </div> -->
-            <div class="text-section-div">
+            </div>
+            <div *ngIf="!node.title.editable" class="text-section-div">
                 {{node.title.label}}
             </div>
         </div>
@@ -54,10 +54,10 @@
                 'drag_btn_leaf_node_nested':!isComplex,
                 'drag_btn_list_node_nested':isComplex}"><mat-icon >drag_indicator</mat-icon></button>
             <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTNNested" (click)="changeDisplay(childrenDiv);listDiv.style.display == 'none'?expandIcon='chevron_right':expandIcon='expand_more'"><mat-icon class="{{expandIcon}}" #icon>{{expandIcon}}</mat-icon></button>
-            <!-- <div class="text-section-div-nested" (input)="checkTextInput(nodeTitle,35,$event)" (click)="makeEditable(nodeTitle,$event,parentOfText,node)" (blur)="makeEditable(nodeTitle,$event,parentOfText,node)" #nodeTitle>
+            <div *ngIf="node.title.editable" class="text-section-div-nested" (input)="checkTextInput(nodeTitle,35,$event)" (click)="makeEditable(nodeTitle,$event,parentOfText,node)" (blur)="makeEditable(nodeTitle,$event,parentOfText,node)" #nodeTitle>
                 {{node.title.label}}
-            </div> -->
-            <div class="text-section-div-nested">
+            </div>
+            <div *ngIf="!node.title.editable" class="text-section-div-nested">
                 {{node.title.label}}
             </div>
         </div>

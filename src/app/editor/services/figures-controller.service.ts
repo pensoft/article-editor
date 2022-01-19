@@ -115,7 +115,7 @@ export class FiguresControllerService {
                       newNode = newNode.mark([schema.mark('citation', { ...citationMark.attrs, nonexistingFigure: 'true' })])
                       edView.dispatch(edView.state.tr.replaceWith(pos,
                         pos + node.nodeSize
-                        , newNode).setMeta('citatsTextChange', true)
+                        , newNode).setMeta('citatsTextChange', true).setMeta('shouldTrack', false)
                       )
                     }
                   } else {

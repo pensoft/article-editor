@@ -14,6 +14,7 @@ export class ChangeComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
+    console.log(this.change);
   }
 
   acceptChange(view: any, from: any, to: any) {
@@ -33,5 +34,5 @@ export class ChangeComponent implements OnInit {
   }
 
 
-  
+
 }

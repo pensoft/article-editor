@@ -372,6 +372,7 @@ export class TrackChangesService {
           }
           return pluginState
         },
+
       }, props: {
         decorations: (state) => {
           let pluginState = hideShowPluginKey.getState(state);
@@ -397,6 +398,9 @@ export class TrackChangesService {
                 this.acceptReject.action = undefined
                 this.acceptReject.editorId = undefined
                 this.acceptReject.pos = undefined
+              }
+              if(!this.serviceShare.ProsemirrorEditorsService?.editorContainers[sectionName]){
+                return;
               }
               if (JSON.stringify(view.state.doc) == JSON.stringify(prevState.doc) && !view.hasFocus()) {
                 return;
@@ -498,7 +502,9 @@ export class TrackChangesService {
             }
           },
           destroy: () => {
-
+            let pluginState = hideShowPluginKey.getState(editorView.state)
+            let sectionName = pluginState.sectionName
+            changesObject[sectionName]=[]
           }
         }
       }
