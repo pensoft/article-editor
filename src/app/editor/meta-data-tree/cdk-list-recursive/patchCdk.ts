@@ -2,6 +2,7 @@
 import { coerceElement } from "@angular/cdk/coercion";
 import { DragRef, DropListRef } from "@angular/cdk/drag-drop";
 import { MatCardXlImage } from "@angular/material/card";
+import { checkCompatibilitySection } from "@app/editor/utils/articleBasicStructure";
 import { articleSection } from "@app/editor/utils/interfaces/articleSection";
 import { TreeService } from "../tree-service/tree.service";
 
@@ -53,11 +54,14 @@ export function installPatch(treeService:TreeService) {
 
 function canReceive(target:any,item:any,treeService:TreeService){
   let dropTargetLevel
+  let parentCompatibility:any
   if(target.data.id == 'parentList'){
      dropTargetLevel =0 ;
   }else{
     let node = treeService.findNodeById(target.data.id)
+    parentCompatibility = node?.compatibility
     dropTargetLevel = treeService.getNodeLevel(node!) + 1 ;
+
   }
   let levelsInItem = 0;
   if(item.data.data.node.type=='complex'){
@@ -72,8 +76,14 @@ function canReceive(target:any,item:any,treeService:TreeService){
     }
     countInnerLevels(item.data.data.node,1);
   }
+  if(parentCompatibility&&!checkCompatibilitySection(parentCompatibility,item.data.data.node)){
+    item.data.data.canDropBool[0] = false;
+    item.data.data.canDropBool[1] = 'This section is now allowed in that branch.'
+
+  }
   if(levelsInItem+dropTargetLevel>=4){
     item.data.data.canDropBool[0] = false;
+    item.data.data.canDropBool[1] = 'The Article tree cannot have more than 4 levels.'
   }
   return true
 }

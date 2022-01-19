@@ -68,14 +68,12 @@ export const yUndoPlugin = (metadata, { protectedNodes = new Set(['figures_nodes
                 return oldC.filter((el) => { return el.citateid == element.citateid }).length == 0;
             })
             if (oldC.length > newC.length) {
-                console.log('should remove', citatsObj, sectionId, citatsToRemove);
                 citatsToRemove.forEach((citatData) => {
                     citatsObj[sectionId][citatData.citateid] = undefined
                 })
 
             } else if (oldC.length < newC.length) {
 
-                console.log('should add', citatsObj, sectionId, citatsToAdd);
                 citatsToAdd.forEach((citatData) => {
                     /* {
                         "figureIDs": [
@@ -98,7 +96,6 @@ export const yUndoPlugin = (metadata, { protectedNodes = new Set(['figures_nodes
                 }, 10)
             }
         }
-        console.log(citatsObj);
     }
     return new Plugin({
         key: yUndoPluginKey,

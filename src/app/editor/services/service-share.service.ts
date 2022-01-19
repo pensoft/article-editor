@@ -6,6 +6,7 @@ import { ArticlesService } from '@app/core/services/articles.service';
 import { uuidv4 } from 'lib0/random';
 import { ChooseManuscriptDialogComponent } from '../dialogs/choose-manuscript-dialog/choose-manuscript-dialog.component';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
+import { renderSectionFunc } from '../utils/articleBasicStructure';
 import { CommentsService } from '../utils/commentsService/comments.service';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 import { articleSection } from '../utils/interfaces/articleSection';
@@ -64,56 +65,10 @@ export class ServiceShare {
         })
         let articleStructure: articleSection[] = []
         let filteredSections = selectedTemplate.sections.filter((section: any) => { return section.type == 0 });
-        let renderSection = (sectionFromBackend:any,parentContainer:articleSection[])=>{
-          let children :any=[]
-          if(sectionFromBackend.type == 1){
-            sectionFromBackend.schema.forEach((childSection:any)=>{
-              renderSection(childSection,children)
-            })
-          }
 
-          let newId = uuidv4()
-          let newArticleSection: articleSection
-          if(sectionFromBackend.type == 0){
-            newArticleSection = {
-              title: {  name: sectionFromBackend.name, label: sectionFromBackend.label,template:sectionFromBackend.label,editable:!/{{\s*\S*\s*}}/gm.test(sectionFromBackend.label) },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
-              sectionID: newId,
-              active: false,
-              edit: { bool: true, main: true },
-              add: { bool: true, main: false },
-              delete: { bool: true, main: false },
-              mode: 'documentMode',
-              formIOSchema: sectionFromBackend.schema[0],
-              defaultFormIOValues: undefined,
-              prosemirrorHTMLNodesTempl: sectionFromBackend.template,
-              children:children,
-              type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
-              sectionTypeID: sectionFromBackend.id,
-              sectionMeta:{main:true}
-            }
-          }else if(sectionFromBackend.type == 1 ){
-            newArticleSection = {
-              title: { name: sectionFromBackend.name, label: sectionFromBackend.label ,template:sectionFromBackend.label,editable:!/{{\s*\S*\s*}}/gm.test(sectionFromBackend.label)},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
-              sectionID: newId,
-              active: false,
-              edit: { bool: true, main: true },
-              add: { bool: true, main: false },
-              delete: { bool: true, main: false },
-              mode: 'documentMode',
-              formIOSchema: complexSectionFormIoSchema,
-              defaultFormIOValues: undefined,
-              prosemirrorHTMLNodesTempl: sectionFromBackend.template,
-              children:children,
-              type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
-              sectionTypeID: sectionFromBackend.id,
-              sectionMeta:{main:true}
-            }
-          }
-          parentContainer.push(newArticleSection!);
-        }
         selectedTemplate.sections.forEach((section: any) => {
           if(section.settings&&section.settings.main_section == true){
-            renderSection(section,articleStructure);
+            renderSectionFunc(section,articleStructure,'end');
           }
         })
         this.YdocService!.articleStructureFromBackend = articleStructure;

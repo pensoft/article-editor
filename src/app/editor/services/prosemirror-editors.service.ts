@@ -26,8 +26,9 @@ import { EditorState, Plugin, PluginKey, Transaction, TextSelection, Selection }
 import { keymap } from 'prosemirror-keymap';
 //import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from 'y-prosemirror';
 import { chainCommands, deleteSelection, joinBackward, selectNodeBackward } from 'prosemirror-commands';
+import { undo,redo } from 'prosemirror-history';
 //@ts-ignore
-import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin,yUndoPluginKey } from '../../y-prosemirror-src/y-prosemirror.js';
+import {  yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin,yUndoPluginKey } from '../../y-prosemirror-src/y-prosemirror.js';
 import { CellSelection, columnResizing, goToNextCell, tableEditing } from 'prosemirror-tables';
 //@ts-ignore
 import * as trackedTransaction from '../utils/trackChanges/track-changes/index.js';
@@ -52,7 +53,7 @@ import { FormControlService } from '../section/form-control.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
 import { DOMParser } from 'prosemirror-model';
-
+import { history } from 'prosemirror-history';
 //@ts-ignore
 import { menuBar } from '../utils/prosemirror-menu-master/src/menubar.js'
 import { Form } from 'formiojs';
@@ -124,6 +125,7 @@ export class ProsemirrorEditorsService {
     this.rerenderFigures = fn;
   }
 
+
   constructor(
     private menuService: MenuService,
     private detectFocusService: DetectFocusService,
@@ -178,6 +180,10 @@ export class ProsemirrorEditorsService {
     })
   }
 
+
+  collab(config:any = {}) {
+    config = {version: config.version || 0,
+              clientID: config.clientID == null ? Math.floor(Math.random() * 0xFFFFFFFF) : config.clientID}}
 
   getXmlFragment(mode: string = 'documentMode', id: string) {
     if (this.xmlFragments[id]) {
@@ -307,6 +313,8 @@ export class ProsemirrorEditorsService {
       key: transactionControllerPluginKey,
       appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate, GroupControl, section),
       filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.rerenderFigures, editorID),
+      //@ts-ignore
+      historyPreserveItems: true,
     })
 
     let selectWholeCitatPluginKey = new PluginKey('selectWholeCitat');
@@ -340,6 +348,7 @@ export class ProsemirrorEditorsService {
         }),
         columnResizing({}),
         tableEditing(),
+        history(),
         this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         selectWholeCitat,
@@ -353,7 +362,7 @@ export class ProsemirrorEditorsService {
           floating: true,
           content: { 'main': defaultMenu, fullMenu }, containerClass: menuContainerClass
         })
-      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
+      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */history:false, containerClass: menuContainerClass }))
       ,
       // @ts-ignore
       sectionName: editorID,
@@ -364,6 +373,9 @@ export class ProsemirrorEditorsService {
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
       try {
+        /* if(transaction.getMeta('y-sync$')||transaction.getMeta('yjs-cursor$')){
+          transaction = transaction.setMeta("addToHistory", false)
+        } */
         if (lastStep == transaction.steps[0] && !transaction.getMeta('emptyTR')) {
           if (lastStep) { return }
         }
@@ -528,6 +540,7 @@ export class ProsemirrorEditorsService {
         }),
         //columnResizing({}),
         //tableEditing(),
+        history(),
         this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         this.detectFocusService.getPlugin(),
@@ -539,7 +552,7 @@ export class ProsemirrorEditorsService {
           floating: true,
           content: { 'main': defaultMenu/* , fullMenu */ }, containerClass: menuContainerClass
         })
-      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
+      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */history:false, containerClass: menuContainerClass }))
       ,
       // @ts-ignore
       sectionName: editorID,

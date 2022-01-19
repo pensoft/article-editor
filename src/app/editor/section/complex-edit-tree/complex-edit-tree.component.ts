@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
 import { ChooseSectionComponent } from '@app/editor/dialogs/choose-section/choose-section.component';
 import { TreeService } from '@app/editor/meta-data-tree/tree-service/tree.service';
+import { checkCompatibilitySectionFromBackend, countSectionFromBackendLevel, filterChooseSectionsFromBackend, renderSectionFunc } from '@app/editor/utils/articleBasicStructure';
 import { articleSection } from '@app/editor/utils/interfaces/articleSection';
 import { complexSectionFormIoSchema } from '@app/editor/utils/section-templates/form-io-json/complexSection';
 import { uuidv4 } from 'lib0/random';
@@ -111,57 +112,7 @@ export class ComplexEditTreeComponent implements OnInit {
     });
   }
 
-  renderSection = (sectionFromBackend: any, parentContainer: articleSection[],index?:number) => {
-    let children: any[] = []
-    if (sectionFromBackend.type == 1) {
-      sectionFromBackend.schema.forEach((childSection: any) => {
-        this.renderSection(childSection, children)
-      })
-    }
-    let newId = uuidv4()
-    let newArticleSection: articleSection
-    if (sectionFromBackend.type == 0) {
-      newArticleSection = {
-        title: { label: sectionFromBackend.label, name: sectionFromBackend.name,template: sectionFromBackend.label,editable:!/{{\s*\S*\s*}}/gm.test(sectionFromBackend.label) },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
-        sectionID: newId,
-        active: false,
-        edit: { bool: true, main: true },
-        add: { bool: true, main: false },
-        delete: { bool: true, main: false },
-        mode: 'documentMode',
-        formIOSchema: sectionFromBackend.schema[0],
-        defaultFormIOValues: undefined,
-        prosemirrorHTMLNodesTempl: sectionFromBackend.template,
-        children: children,
-        type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
-        sectionTypeID: sectionFromBackend.id,
-        sectionMeta:{main:false}
-      }
-    } else if (sectionFromBackend.type == 1) {
-      newArticleSection = {
-        title: {label: sectionFromBackend.label, name: sectionFromBackend.name ,template: sectionFromBackend.label,editable:!/{{\s*\S*\s*}}/gm.test(sectionFromBackend.label) },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
-        sectionID: newId,
-        active: false,
-        edit: { bool: true, main: true },
-        add: { bool: true, main: false },
-        delete: { bool: true, main: false },
-        mode: 'documentMode',
-        formIOSchema: complexSectionFormIoSchema,
-        defaultFormIOValues: undefined,
-        prosemirrorHTMLNodesTempl: sectionFromBackend.template,
-        children: children,
-        type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
-        sectionTypeID: sectionFromBackend.id,
-        sectionMeta:{main:false}
-      }
-    }
-    if(!index){
-      parentContainer.unshift(newArticleSection!);
-    }else {
-      parentContainer.splice(index,0,newArticleSection!);
-    }
-    return newArticleSection!
-  }
+
 
   oldTextValue ?:string
   checkTextInput(element:HTMLDivElement,maxlength:number,event:Event){
@@ -194,17 +145,22 @@ export class ComplexEditTreeComponent implements OnInit {
 
   addNewSubsection(){
     let nodeLevel = this.treeService.getNodeLevel(this.section);
-    this.sectionsService.getAllSections().subscribe((response:any)=>{
-      let sectionTemplates = response.data
+    this.sectionsService.getAllSections({page:1,pageSize:999}).subscribe((response:any)=>{
+      let sectionTemplates1 = filterChooseSectionsFromBackend(this.section.compatibility,response.data)
+      let sectionlevel = this.treeService.getNodeLevel(this.section)
+      let sectionTemplates = (sectionTemplates1 as any[]).filter((el:any)=>{
+        let elementLevel = countSectionFromBackendLevel(el)
+        return (elementLevel+sectionlevel < 3);
+      });
       const dialogRef = this.dialog.open(ChooseSectionComponent, {
-        width: '100%',
+        width: '563px',
         panelClass:'choose-namuscript-dialog',
-        data: { templates: sectionTemplates,filter:nodeLevel==2?'simple':undefined }
+        data: { templates: sectionTemplates,sectionlevel }
       });
       dialogRef.afterClosed().subscribe(result => {
         this.sectionsService.getSectionById(result).subscribe((res:any)=>{
           let sectionTemplate = res.data
-          let newSection = this.renderSection(sectionTemplate,this.sectionChildren)
+          let newSection = renderSectionFunc(sectionTemplate,this.sectionChildren)
           this.addedSections.push(newSection);
         })
       });
@@ -242,7 +198,7 @@ export class ComplexEditTreeComponent implements OnInit {
   addNodeHandle(node:articleSection,index:number){
     this.sectionsService.getSectionById(node.sectionTypeID).subscribe((res:any)=>{
       let sectionTemplate = res.data;
-      let newSection = this.renderSection(sectionTemplate,this.sectionChildren,index);
+      let newSection = renderSectionFunc(sectionTemplate,this.sectionChildren,index);
       this.addedSections.push(newSection);
     })
   }

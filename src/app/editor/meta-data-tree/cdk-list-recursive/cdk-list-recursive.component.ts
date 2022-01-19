@@ -17,6 +17,8 @@ import { YMap } from 'yjs/dist/src/internals';
 import * as Y from 'yjs'
 //@ts-ignore
 import { ySyncPluginKey } from '../../../y-prosemirror-src/plugins/keys.js';
+import { checkCompatibilitySection } from '@app/editor/utils/articleBasicStructure';
+import { ArticlesService } from '@app/core/services/articles.service';
 
 @Component({
   selector: 'app-cdk-list-recursive',
@@ -133,23 +135,22 @@ export class CdkListRecursiveComponent implements OnInit,OnDestroy{
         if(newNum>treeNewLevel){
           treeNewLevel = newNum;
         }
-        container.forEach((el:any)=>{
-          if(el.children&&el.children.length>0){
+        container.forEach((el:articleSection)=>{
+          if(el.type == 'complex'){
             countLevel(newNum,el.children);
           }
         })
       }
 
       countLevel(0,articleDataCopy);
-
-      if(treeNewLevel<5){
+      if(treeNewLevel>=5||!checkCompatibilitySection(this.treeService.findNodeById(event.container.id)?.compatibility,event.item.data.node)){
+        this.treeService.errorSnackbarSubject.next(true);
+      }else{
         transferArrayItem(event.previousContainer.data,
                           event.container.data,
                           event.previousIndex,
                           event.currentIndex);
         this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, event.previousContainer.id,event.container.id);
-      }else{
-        this.treeService.errorSnackbarSubject.next(true);
       }
     }
   }

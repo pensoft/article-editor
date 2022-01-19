@@ -7,7 +7,7 @@ import * as Y from 'yjs'
 import { uuidv4 } from 'lib0/random';
 import { articleSection, editorData } from '../../utils/interfaces/articleSection';
 import { FormGroup } from '@angular/forms';
-import { editorFactory } from '@app/editor/utils/articleBasicStructure';
+import { editorFactory, renderSectionFunc } from '@app/editor/utils/articleBasicStructure';
 import { formIODefaultValues, formIOTemplates, htmlNodeTemplates } from '@app/editor/utils/section-templates';
 import { FormBuilderService } from '@app/editor/services/form-builder.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
@@ -34,7 +34,7 @@ export class TreeService {
   sectionFormGroups: { [key: string]: FormGroup } = {}
   sectionProsemirrorNodes: { [key: string]: string } = {} // prosemirror nodes as html
 
-  canDropBool:boolean[] = [true];
+  canDropBool:any[] = [true];
 
   errorSnackbarSubject : Subject<any> = new Subject()
 
@@ -238,62 +238,24 @@ export class TreeService {
     this.treeVisibilityChange.next({ action: 'addNode', parentId: nodeId, newChild });
   }
 
-  renderSection = (sectionFromBackend: any, parentContainer: articleSection[]) => {
+  renderForms = (sectionToRender:articleSection) => {
     let children: any[] = []
-    if (sectionFromBackend.type == 1) {
-      sectionFromBackend.schema.forEach((childSection: any) => {
-        this.renderSection(childSection, children)
+    if (sectionToRender.type == "complex") {
+      sectionToRender.children.forEach((childSection: any) => {
+        this.renderForms(childSection)
       })
     }
-    let newId = uuidv4()
-    let newArticleSection: articleSection
-    if (sectionFromBackend.type == 0) {
-      newArticleSection = {
-        title: { label:sectionFromBackend.label,name: sectionFromBackend.name,template: sectionFromBackend.label,editable:!/{{\s*\S*\s*}}/gm.test(sectionFromBackend.label) },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
-        sectionID: newId,
-        active: false,
-        edit: { bool: true, main: true },
-        add: { bool: true, main: false },
-        delete: { bool: true, main: false },
-        mode: 'documentMode',
-        formIOSchema: sectionFromBackend.schema[0],
-        defaultFormIOValues: undefined,
-        prosemirrorHTMLNodesTempl: sectionFromBackend.template,
-        children: children,
-        type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
-        sectionTypeID: sectionFromBackend.id,
-        sectionMeta:{main:false}
-      }
-    } else if (sectionFromBackend.type == 1) {
-      newArticleSection = {
-        title: {label:sectionFromBackend.label,name: sectionFromBackend.name,template: sectionFromBackend.label,editable:!/{{\s*\S*\s*}}/gm.test(sectionFromBackend.label)  },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
-        sectionID: newId,
-        active: false,
-        edit: { bool: true, main: true },
-        add: { bool: true, main: false },
-        delete: { bool: true, main: false },
-        mode: 'documentMode',
-        formIOSchema: complexSectionFormIoSchema,
-        defaultFormIOValues: undefined,
-        prosemirrorHTMLNodesTempl: sectionFromBackend.template,
-        children: children,
-        type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
-        sectionTypeID: sectionFromBackend.id,
-        sectionMeta:{main:false}
-      }
-    }
-    let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(newId);
-    let defaultValues = dataFromYMap ? dataFromYMap.data : newArticleSection!.defaultFormIOValues
-    let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, newArticleSection!.formIOSchema, newArticleSection!.sectionID) : newArticleSection!.formIOSchema;
 
-    //let sectionContent = this.enrichSectionContent(node.formIOSchema, defaultValues);
+    let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(sectionToRender.sectionID);
+    let defaultValues = dataFromYMap ? dataFromYMap.data : sectionToRender!.defaultFormIOValues
+    let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, sectionToRender!.formIOSchema, sectionToRender!.sectionID) : sectionToRender!.formIOSchema;
+
     let nodeForm: FormGroup = new FormGroup({});
     this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
 
     nodeForm.patchValue(defaultValues);
     nodeForm.updateValueAndValidity()
-    this.sectionFormGroups[newArticleSection!.sectionID] = nodeForm;
-    parentContainer.push(newArticleSection!);
+    this.sectionFormGroups[sectionToRender!.sectionID] = nodeForm;
   }
 
   addNodeAtPlaceChange(parentContainerID:string,newSection:any,place:any){
@@ -338,7 +300,11 @@ export class TreeService {
       return;
     }
     let container: any[] = []
-    this.renderSection(newSection, container);
+
+    let sec = renderSectionFunc(newSection, container);
+
+    this.renderForms(sec)
+
     if(typeof place == 'string' && place == 'end'){
       if(parentContainerID == 'parentList'){
         this.articleSectionsStructure?.push(container[0]);
@@ -496,9 +462,9 @@ export class TreeService {
 
         let sectionFromBackendOrigin = sectionData.data
         let container: any[] = []
-        this.renderSection(sectionFromBackendOrigin, container);
+        let newSec = renderSectionFunc(sectionFromBackendOrigin, container);
+        this.renderForms(newSec);
         newNodeContainer.splice(newNodeContainer.findIndex((s) => s.sectionID == nodeRef.sectionID)! + 1, 0, container[0]);
-        newChild = container[0]
         resolve(undefined)
       })
     })

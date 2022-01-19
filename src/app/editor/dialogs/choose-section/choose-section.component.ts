@@ -1,5 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { countSectionFromBackendLevel } from '@app/editor/utils/articleBasicStructure';
 import { ChooseManuscriptDialogComponent } from '../choose-manuscript-dialog/choose-manuscript-dialog.component';
 
 @Component({
@@ -15,7 +16,7 @@ export class ChooseSectionComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private dialogRef: MatDialogRef<ChooseManuscriptDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: {templates:any[],filter?:'simple'|'complex'} ,
+    @Inject(MAT_DIALOG_DATA) public data: {templates:any[],sectionlevel:number} ,
     ) {
 
   }
@@ -25,13 +26,7 @@ export class ChooseSectionComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.sectionTemplates = this.data.templates;
-    if(this.data.filter&&this.data.filter == 'simple'){
-      this.sectionTemplates = this.sectionTemplates.filter((data)=>data.type == 0)
-    }else if(this.data.filter&&this.data.filter == 'complex'){
-      this.sectionTemplates = this.sectionTemplates.filter((data)=>data.type == 1)
-    }
-
+    this.sectionTemplates = this.data.templates
   }
 
   chooseSection(val:any){

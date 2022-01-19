@@ -50,7 +50,7 @@ export class ArticleMetadataComponent implements OnInit {
   }
 
   addNewSectionToArticle(){
-    this.sectionsService.getAllSections().subscribe((response:any)=>{
+    this.sectionsService.getAllSections({page:1,pageSize:999}).subscribe((response:any)=>{
       //this.sectionTemplates = response.data
       this.sectionTemplates = response.data.filter((data:any)=>{
         return (
@@ -60,7 +60,7 @@ export class ArticleMetadataComponent implements OnInit {
         )
       })
       const dialogRef = this.dialog.open(ChooseSectionComponent, {
-        width: '100%',
+        width: '563px',
         panelClass:'choose-namuscript-dialog',
         data: { templates: this.sectionTemplates }
       });

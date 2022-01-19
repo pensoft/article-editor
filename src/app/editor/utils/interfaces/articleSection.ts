@@ -48,5 +48,6 @@ export interface articleSection {
     defaultFormIOValues?:any,
     type:'complex'|'simple',
     sectionTypeID:number,
-    sectionMeta:{main:boolean}
+    sectionMeta:{main:boolean},
+    compatibility?:{allow:{all:boolean,values:number[]},deny:{all:boolean,values:number[]}}
 }

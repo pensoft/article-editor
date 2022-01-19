@@ -320,7 +320,7 @@ function logNodesItemRun(state: EditorState, dispatch: any, view: EditorView) {
 
         /* let leb = input_label.create({text:'label'})
         let pl = input_placeholder.create({},schema.text('placeholder'))
-        let co = input_container.create({},[leb,pl]); 
+        let co = input_container.create({},[leb,pl]);
 
         */
         let r = toggleMark(noneditableMark)(state,dispatch)
@@ -376,8 +376,10 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
     'makeCodeBlock': makeCodeBlock,
     'headings': headings,
     'insertHorizontalRule': insertHorizontalRule,
-    'undoItem': undoYJS,
-    'redoItem': redoYJS,
+    /* 'undoItem': undoYJS,
+    'redoItem': redoYJS, */
+    'undoItem': undoItemPM,
+    'redoItem': redoItemPM,
     'undoItemPM': undoItemPM,
     'redoItemPM': redoItemPM,
     'toggleSuperscriptItem': toggleSuperscriptItem,
@@ -401,10 +403,10 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
     'toggleUnderline': toggleUnderline,
     'logNodesMenuItem': logNodesMenuItem,
     'insertFigure': insertFigure,
-    // unfinished menu : 
+    // unfinished menu :
     'textMenu': [toggleStrong, toggleEm, toggleUnderline, 'menuseparator', wrapOrderedList, wrapBulletList, 'menuseparator', toggleSubscriptItem, toggleSuperscriptItem, spellCheckMenuItem],
     'insertMenu': [insertImageItem, insertDiagramItem, new Dropdown(tableMenu, { class: "table-icon vertival-dropdown" }), footnoteMenuItem, functionItem, insertSpecialSymbolItem]
-    // should do some missing menu items : 
+    // should do some missing menu items :
     /* 'textMenu':[[toggleStrong,toggleEm,toggleUnderLine],
     [wrapOrderedList,wrapBulletList],
     [toggleSubscriptItem,toggleSuperscriptItem,toggleOther,toggleSpellcheck]],
