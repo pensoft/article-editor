@@ -13,12 +13,13 @@ export const getGenericAttributes = () => {
         commentable: { default: '' },
         invalid:{default:'false'},
         styling:{default:''},
+        trackSectionTreeTitle:{default:'0'},
     }
 }
 
 export const parseGenericAttributes = (dom: any) => {
-    
-    
+
+
     return {
         controlPath: dom.getAttribute('controlPath'),
         formControlName: dom.getAttribute('formControlName'),
@@ -27,6 +28,7 @@ export const parseGenericAttributes = (dom: any) => {
         commentable: dom.getAttribute('commentable'),
         invalid: dom.getAttribute('invalid'),
         styling: dom.getAttribute('style'),
+        trackSectionTreeTitle: dom.getAttribute('trackSectionTreeTitle'),
     }
 }
 
@@ -39,6 +41,7 @@ export const genericAttributtesToDom = (node: Node) => {
         commentable: node.attrs.commentable,
         invalid: node.attrs.invalid,
         style: node.attrs.styling,
+        trackSectionTreeTitle: node.attrs.trackSectionTreeTitle,
     }
     return toDomAttrs
 }

@@ -75,6 +75,7 @@ export class CdkListRecursiveComponent implements OnInit,OnDestroy{
       nodeForm.patchValue(defaultValues);
       nodeForm.updateValueAndValidity()
       this.treeService.sectionFormGroups[node.sectionID] = nodeForm;
+      this.treeService.setTitleListener(node)
 
 
       this.ydocService.sectionFormGroupsStructures!.observe((ymap)=>{
@@ -88,6 +89,7 @@ export class CdkListRecursiveComponent implements OnInit,OnDestroy{
         let defaultValues = dataFromYMap.data
         let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema,node.sectionID);
         this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent,node);
+        this.treeService.setTitleListener(node)
       })
     });
   }

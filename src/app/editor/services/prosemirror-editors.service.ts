@@ -59,7 +59,7 @@ import { menuBar } from '../utils/prosemirror-menu-master/src/menubar.js'
 import { Form } from 'formiojs';
 import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
 import { I } from '@angular/cdk/keycodes';
-import { Mapping, ReplaceAroundStep } from 'prosemirror-transform';
+import { Mapping, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform';
 import { ViewFlags } from '@angular/compiler/src/core';
 import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn, selectWholeCitatMarks } from '../utils/prosemirrorHelpers';
 //@ts-ignore
@@ -375,11 +375,13 @@ export class ProsemirrorEditorsService {
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
       try {
-        transaction.steps.forEach((step)=>{
-          mapping.appendMap(step.getMap());
-          console.log(mapping);
-        })
-        /* if(transaction.getMeta('y-sync$')||transaction.getMeta('yjs-cursor$')){
+        let nodeAtSel = transaction.selection.$head.parent||transaction.selection.$anchor.parent
+        //@ts-ignore
+        if(nodeAtSel&&!transaction.getMeta('titleupdateFromControl')&&nodeAtSel.attrs.controlPath&&nodeAtSel.attrs.controlPath == "sectionTreeTitle"&&transaction.steps.filter(step=>{return step instanceof ReplaceStep||step instanceof ReplaceAroundStep}).length>0){
+          transaction.setMeta('editingTitle',true);
+        }
+
+                /* if(transaction.getMeta('y-sync$')||transaction.getMeta('yjs-cursor$')){
           transaction = transaction.setMeta("addToHistory", false)
         } */
         if (lastStep == transaction.steps[0] && !transaction.getMeta('emptyTR')) {

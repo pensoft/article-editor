@@ -2,11 +2,16 @@ import { Injectable } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { articleSection } from '../utils/interfaces/articleSection';
 import { pmMaxLength, pmMinLength, pmPattern, pmRequired } from '../utils/pmEditorFormValidators/validators';
+import { ServiceShare } from './service-share.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class FormBuilderService {
+
+  constructor(private serviceShare:ServiceShare){
+
+  }
 
   populateDefaultValues(savedForm: any, schema: any, sectionID: string) {
     let attachSectionId = (componentArray: any[]) => {
@@ -41,6 +46,10 @@ export class FormBuilderService {
     return schema;
   }
 
+  labelupdateLocalMeta:any = {}
+
+
+
   buildFormGroupFromSchema(formGroup: FormGroup, jsonSchema: any,node:articleSection) {
 
     formGroup = formGroup || new FormGroup({});
@@ -48,9 +57,8 @@ export class FormBuilderService {
     if(node.title.editable){
       let titleFormControl= new FormControl(node.title.label,[Validators.maxLength(34)]);
       formGroup.addControl('sectionTreeTitle',titleFormControl);
-
       //@ts-ignore
-      formGroup.titleUpdateMeta = {}
+      formGroup.titleUpdateMeta = {time:Date.now()};
     }
 
     if (!jsonSchema.components) {
@@ -60,7 +68,7 @@ export class FormBuilderService {
     jsonSchema.components.forEach((component: any) => {
       this.resolveComponent(formGroup, component);
     });
-    console.log(formGroup);
+
     return formGroup;
   }
 

@@ -18,9 +18,11 @@ import { complexSectionFormIoSchema } from '@app/editor/utils/section-templates/
 import { ReturnStatement } from '@angular/compiler';
 import { installPatch } from '../cdk-list-recursive/patchCdk';
 import { transferArrayItem } from '@angular/cdk/drag-drop';
+
 @Injectable({
   providedIn: 'root'
 })
+
 export class TreeService {
 
   articleSectionsStructure?: articleSection[]
@@ -37,6 +39,38 @@ export class TreeService {
   canDropBool:any[] = [true];
 
   errorSnackbarSubject : Subject<any> = new Subject()
+
+  labelupdateLocalMeta:any = {}
+
+  setTitleListener(node:articleSection){
+    if(!node.title.editable){
+      let formGroup = this.sectionFormGroups[node.sectionID]!;
+      node.title.label = /{{\s*\S*\s*}}/gm.test(node.title.label)?node.title.name!:node.title.label;
+      formGroup.valueChanges.subscribe((data)=>{
+        this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle:string)=>{
+          let container = document.createElement('div')
+          container.innerHTML = newTitle;
+          container.innerHTML = container.textContent!;
+          node.title.label = container.textContent!;
+        })
+      })
+    }else{
+      let formGroup = this.sectionFormGroups[node.sectionID]!;
+      if(!this.labelupdateLocalMeta[node.sectionID]){
+        this.labelupdateLocalMeta[node.sectionID] = {time:0,updatedFrom:'treelist'}
+      }
+      formGroup.get('sectionTreeTitle')?.valueChanges.subscribe((change)=>{
+        //@ts-ignore
+        let updatemeta = this.sectionFormGroups[node.sectionID]!.titleUpdateMeta as {time:number,updatedFrom:string};
+        let value = formGroup.get('sectionTreeTitle')?.value.trim()
+        if(value!== node.title.label&&updatemeta.time>this.labelupdateLocalMeta[node.sectionID].time){
+          let nodeRef = this.findNodeById(node.sectionID)
+          nodeRef!.title.label = change
+          this.labelupdateLocalMeta.time = updatemeta.time
+        }
+      })
+    }
+  }
 
   resetTreeData() {
     this.articleSectionsStructure = undefined;
@@ -171,6 +205,7 @@ export class TreeService {
       nodeForm.patchValue(defaultValues);
       nodeForm.updateValueAndValidity()
       this.sectionFormGroups[node.sectionID] = nodeForm;
+      this.setTitleListener(node)
       if (node.children.length > 0) {
         node.children.forEach((child: any) => {
           buildForms(child)
@@ -243,6 +278,7 @@ export class TreeService {
     nodeForm.patchValue(defaultValues);
     nodeForm.updateValueAndValidity()
     this.sectionFormGroups[sectionToRender!.sectionID] = nodeForm;
+    this.setTitleListener(sectionToRender)
   }
 
   addNodeAtPlaceChange(parentContainerID:string,newSection:any,place:any){
@@ -277,6 +313,8 @@ export class TreeService {
           nodeForm.patchValue(defaultValues);
           nodeForm.updateValueAndValidity()
           this.sectionFormGroups[node.sectionID] = nodeForm;
+          this.setTitleListener(node)
+
           if (node.children.length > 0) {
             node.children.forEach((child: any) => {
               buildForms(child)
@@ -434,6 +472,7 @@ export class TreeService {
         nodeForm.patchValue(defaultValues);
         nodeForm.updateValueAndValidity()
         this.sectionFormGroups[node.sectionID] = nodeForm;
+        this.setTitleListener(node)
         if (node.children.length > 0) {
           node.children.forEach((child: any) => {
             buildForms(child)

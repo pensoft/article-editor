@@ -35,6 +35,8 @@ export const updateControlsAndFigures = (
     temp.appendChild(HTMLnodeRepresentation);
     return temp.innerHTML
   }
+
+  let sectionTreeTitleUpdateMetas:any
   return (trs: Transaction<any>[], oldState: EditorState, newState: EditorState) => {
     try {
 
@@ -518,23 +520,59 @@ export const updateControlsAndFigures = (
               try {
                 const fg = GroupControl[section!.sectionID];
                 const controlPath = node.attrs.controlPath;
-                const control = fg.get(controlPath) as FormControl;
-                //@ts-ignore
+                if(controlPath == 'sectionTreeTitle'){
+                  if(!transaction.getMeta('titleupdateFromControl')){
+                    if(transaction.getMeta('editingTitle')){
+                      sectionTreeTitleUpdateMetas.time = Date.now();
+                    }
+                    const control = fg.get(controlPath) as FormControl;
+                    //@ts-ignore
+                    let updatemeta = fg.titleUpdateMeta as {time:number,updatedFrom:string};
+                    const titleNodeNumber = node.attrs.trackSectionTreeTitle;
+                    if(!sectionTreeTitleUpdateMetas){
+                      sectionTreeTitleUpdateMetas = {
+                        time:0,
+                        updateFrom:titleNodeNumber
+                      }
+                    }
+                    if(node.textContent.trim()!==control.value){
+                      if(sectionTreeTitleUpdateMetas.time<updatemeta.time){
+                        setTimeout(()=>{
+                          let view = editorContainers[section?.sectionID!].editorView;
+                          let st = view.state
+                          view.dispatch(st.tr.replaceWith(pos+1,pos+node.nodeSize-1,schema.text(control.value)).setMeta('titleupdateFromControl',true))
+                        },0);
+                        sectionTreeTitleUpdateMetas.time = updatemeta.time;
+                      }else if(sectionTreeTitleUpdateMetas.time>updatemeta.time){
+                        control.patchValue(node.textContent.trim()!);
+                        updatemeta.time = sectionTreeTitleUpdateMetas.time;
+                        updatemeta.updatedFrom = 'editor'
+                      }
+                    }
+                  }
+                  /* if(sectionTreeTitleUpdateMetas[+titleNodeNumber].time<updatemeta.time){
+                    sectionTreeTitleUpdateMetas[+titleNodeNumber].time = updatemeta.time
+                  } */
+                }else{
 
-                if (control.componentType && control.componentType == "textarea") {
-                  let html = getHtmlFromFragment(node.content)
-                  control.setValue(html, { emitEvent: true })
-                } else {
-                  control.setValue(node.textContent, { emitEvent: true })
-                }
-                control.updateValueAndValidity()
-                const mark = schema.mark('invalid')
-                if (control.invalid) {
-                  // newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
-                  tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "true" })
-                } else {
-                  tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "false" })
+                  const control = fg.get(controlPath) as FormControl;
+                  //@ts-ignore
 
+                  if (control.componentType && control.componentType == "textarea") {
+                    let html = getHtmlFromFragment(node.content)
+                    control.setValue(html, { emitEvent: true })
+                  } else {
+                    control.setValue(node.textContent, { emitEvent: true })
+                  }
+                  control.updateValueAndValidity()
+                  const mark = schema.mark('invalid')
+                  if (control.invalid) {
+                    // newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
+                    tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "true" })
+                  } else {
+                    tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "false" })
+
+                  }
                 }
               } catch (error) {
                 console.error(error);

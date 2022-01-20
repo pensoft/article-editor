@@ -76,26 +76,7 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.setTitleListener(this.node)
-  }
 
-  setTitleListener(node:articleSection){
-    if(!node.title.editable){
-      let formGroup = this.nodeFormGroup;
-      node.title.label = /{{\s*\S*\s*}}/gm.test(node.title.label)?node.title.name!:node.title.label;
-      formGroup.valueChanges.subscribe((data)=>{
-        this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle:string)=>{
-          let container = document.createElement('div')
-          container.innerHTML = newTitle;
-          container.innerHTML = container.textContent!;
-          node.title.label = container.textContent!;
-        })
-      })
-    }else{
-      this.nodeFormGroup.get('sectionTreeTitle')?.valueChanges.subscribe((change)=>{
-        console.log(change);
-      })
-    }
   }
 
   ngOnInit(){
@@ -106,7 +87,6 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
   oldTextValue ?:string
 
   checkTextInput(element:HTMLDivElement,maxlength:number,event:Event){
-
     if(element.textContent?.trim().length == 0){
       element.innerHTML = "<br>"
       return
@@ -120,14 +100,31 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
       this.oldTextValue = element.textContent!.trim();
     }
     //@ts-ignore
-    let updatemeta = this.nodeFormGroup.titleUpdateMeta as {time:number,updatedFrom:string};
+    let updatemeta = this.treeService.sectionFormGroups[this.node.sectionID].titleUpdateMeta as {time:number,updatedFrom:string};
 
     let now = Date.now()
-    if(updatemeta.time&&updatemeta.time<now){
-      this.nodeFormGroup.get('sectionTreeTitle')?.patchValue(element.textContent)
-    }else{
+    let controlValue = this.nodeFormGroup.get('sectionTreeTitle')?.value;
+
+
+    if(controlValue !== element.textContent?.trim()){
+      if(now>updatemeta.time){
+        updatemeta.time= now;
+        this.treeService.labelupdateLocalMeta[this.node.sectionID].time= now;
+        updatemeta.updatedFrom = this.treeService.labelupdateLocalMeta[this.node.sectionID].updatedFrom;
+        this.nodeFormGroup.get('sectionTreeTitle')?.patchValue(element.textContent?.trim());
+        this.prosemirrorEditorsService.dispatchEmptyTransaction()
+      }
 
     }
+    /* if(updatemeta.time&&updatemeta.time<now){
+      this.nodeFormGroup.get('sectionTreeTitle')?.patchValue(element.textContent)
+      updatemeta.time = now;
+      updatemeta.updatedFrom = this.labelupdateLocalMeta.updatedFrom;
+    }else{
+      this.nodeFormGroup.get('sectionTreeTitle')?.patchValue(element.textContent)
+      updatemeta.time = now;
+      updatemeta.updatedFrom = this.labelupdateLocalMeta.updatedFrom;
+    } */
 
   }
 
@@ -219,7 +216,7 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
     if(event.type == 'blur'){
       element.setAttribute('contenteditable','false');
       (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;
-      this.treeService.saveNewTitleChange(node,element.textContent!);
+      //this.treeService.saveNewTitleChange(node,element.textContent!);
 
     }else if (event.type == 'click'){
       this.oldZIndex = (parentNode as HTMLDivElement).style.zIndex!
