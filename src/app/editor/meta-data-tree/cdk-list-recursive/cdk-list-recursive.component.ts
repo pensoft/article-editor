@@ -70,7 +70,7 @@ export class CdkListRecursiveComponent implements OnInit,OnDestroy{
       let sectionContent = defaultValues? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema,node.sectionID):node.formIOSchema;
 
       let nodeForm: FormGroup = new FormGroup({});
-      this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
+      this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent,node);
 
       nodeForm.patchValue(defaultValues);
       nodeForm.updateValueAndValidity()
@@ -87,7 +87,7 @@ export class CdkListRecursiveComponent implements OnInit,OnDestroy{
         })
         let defaultValues = dataFromYMap.data
         let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema,node.sectionID);
-        this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
+        this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent,node);
       })
     });
   }

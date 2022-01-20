@@ -134,7 +134,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
       Object.keys(this.sectionForm.controls).forEach((key) => {
         this.sectionForm.removeControl(key);
       })
-      this.formBuilderService.buildFormGroupFromSchema(this.sectionForm, this.section.formIOSchema);
+      this.formBuilderService.buildFormGroupFromSchema(this.sectionForm, this.section.formIOSchema,this.section);
       //this.treeService.sectionFormGroups[this.section.sectionID] = this.sectionForm;
       //this.sectionForm = nodeForm;
       this.sectionForm.patchValue(submision.data);

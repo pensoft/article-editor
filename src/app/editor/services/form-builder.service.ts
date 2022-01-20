@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { articleSection } from '../utils/interfaces/articleSection';
 import { pmMaxLength, pmMinLength, pmPattern, pmRequired } from '../utils/pmEditorFormValidators/validators';
 
 @Injectable({
@@ -27,22 +28,30 @@ export class FormBuilderService {
       const component: any = schema.components[index];
       const componentKey: string = component['key'];
       const componentType: string = (component['type'] as string).toLocaleLowerCase();
-      
+
       if ( //avoids non-dynamic (non-filled) elements
         componentType === 'button' || // a button
         componentType === 'content')  // plain text and not an input field
       { continue; }
       if (savedForm[componentKey]) {
         component.defaultValue = savedForm[componentKey];
-        
+
       }
     }
     return schema;
   }
 
-  buildFormGroupFromSchema(formGroup: FormGroup, jsonSchema: any) {
+  buildFormGroupFromSchema(formGroup: FormGroup, jsonSchema: any,node:articleSection) {
 
     formGroup = formGroup || new FormGroup({});
+
+    if(node.title.editable){
+      let titleFormControl= new FormControl(node.title.label,[Validators.maxLength(34)]);
+      formGroup.addControl('sectionTreeTitle',titleFormControl);
+
+      //@ts-ignore
+      formGroup.titleUpdateMeta = {}
+    }
 
     if (!jsonSchema.components) {
       return formGroup;
@@ -51,6 +60,7 @@ export class FormBuilderService {
     jsonSchema.components.forEach((component: any) => {
       this.resolveComponent(formGroup, component);
     });
+    console.log(formGroup);
     return formGroup;
   }
 

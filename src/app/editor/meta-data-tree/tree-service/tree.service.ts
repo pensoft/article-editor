@@ -137,20 +137,7 @@ export class TreeService {
     this.ydocService.articleStructure?.set('articleSectionsStructure', this.articleSectionsStructure)
   }
 
-  setTitleListener(node:articleSection){
-    if(!node.title.editable){
-      let formGroup = this.sectionFormGroups[node.sectionID];
-      node.title.label = /{{\s*\S*\s*}}/gm.test(node.title.label)?node.title.name!:node.title.label;
-      formGroup.valueChanges.subscribe((data)=>{
-        this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle:string)=>{
-          let container = document.createElement('div')
-          container.innerHTML = newTitle;
-          container.innerHTML = container.textContent!;
-          node.title.label = container.textContent!;
-        })
-      })
-    }
-  }
+
 
   initTreeList(articleSectionsStructure: articleSection[]) {
     this.articleSectionsStructure = articleSectionsStructure
@@ -179,7 +166,7 @@ export class TreeService {
       let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
       let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID) : node.formIOSchema;
       let nodeForm: FormGroup = new FormGroup({});
-      this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
+      this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent,node);
 
       nodeForm.patchValue(defaultValues);
       nodeForm.updateValueAndValidity()
@@ -251,7 +238,7 @@ export class TreeService {
     let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, sectionToRender!.formIOSchema, sectionToRender!.sectionID) : sectionToRender!.formIOSchema;
 
     let nodeForm: FormGroup = new FormGroup({});
-    this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
+    this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent,sectionToRender!);
 
     nodeForm.patchValue(defaultValues);
     nodeForm.updateValueAndValidity()
@@ -285,7 +272,7 @@ export class TreeService {
           let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
           let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID) : node.formIOSchema;
           let nodeForm: FormGroup = new FormGroup({});
-          this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
+          this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent,node);
 
           nodeForm.patchValue(defaultValues);
           nodeForm.updateValueAndValidity()
@@ -442,7 +429,7 @@ export class TreeService {
         let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
         let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID) : node.formIOSchema;
         let nodeForm: FormGroup = new FormGroup({});
-        this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent);
+        this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent,node);
 
         nodeForm.patchValue(defaultValues);
         nodeForm.updateValueAndValidity()

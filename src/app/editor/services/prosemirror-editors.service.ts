@@ -59,7 +59,7 @@ import { menuBar } from '../utils/prosemirror-menu-master/src/menubar.js'
 import { Form } from 'formiojs';
 import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
 import { I } from '@angular/cdk/keycodes';
-import { ReplaceAroundStep } from 'prosemirror-transform';
+import { Mapping, ReplaceAroundStep } from 'prosemirror-transform';
 import { ViewFlags } from '@angular/compiler/src/core';
 import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn, selectWholeCitatMarks } from '../utils/prosemirrorHelpers';
 //@ts-ignore
@@ -369,10 +369,16 @@ export class ProsemirrorEditorsService {
       // @ts-ignore
     });
 
+    let mapping = new Mapping();
+
     let lastStep: any
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
       try {
+        transaction.steps.forEach((step)=>{
+          mapping.appendMap(step.getMap());
+          console.log(mapping);
+        })
         /* if(transaction.getMeta('y-sync$')||transaction.getMeta('yjs-cursor$')){
           transaction = transaction.setMeta("addToHistory", false)
         } */
@@ -381,8 +387,6 @@ export class ProsemirrorEditorsService {
         }
         lastStep = transaction.steps[0]
         if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false) {
-          let undoManager = yUndoPluginKey.getState(editorView.state).undoManager
-          undoManager.stopCapturing();
 
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);

@@ -21,6 +21,7 @@ import { ySyncPluginKey } from '../../../../y-prosemirror-src/plugins/keys.js';
 import { E, I } from '@angular/cdk/keycodes';
 import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
 import { ArticlesService } from '@app/core/services/articles.service';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 
 @Component({
   selector: 'app-section-leaf',
@@ -59,6 +60,7 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
     private formBuilderService: FormBuilderService,
     public treeService: TreeService,
     public ydocService: YdocService,
+    private serviceShare:ServiceShare,
     public detectFocusService: DetectFocusService,
     public prosemirrorEditorsService: ProsemirrorEditorsService,
     public dialog: MatDialog) {
@@ -74,8 +76,28 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.treeService.setTitleListener(this.node)
+    this.setTitleListener(this.node)
   }
+
+  setTitleListener(node:articleSection){
+    if(!node.title.editable){
+      let formGroup = this.nodeFormGroup;
+      node.title.label = /{{\s*\S*\s*}}/gm.test(node.title.label)?node.title.name!:node.title.label;
+      formGroup.valueChanges.subscribe((data)=>{
+        this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle:string)=>{
+          let container = document.createElement('div')
+          container.innerHTML = newTitle;
+          container.innerHTML = container.textContent!;
+          node.title.label = container.textContent!;
+        })
+      })
+    }else{
+      this.nodeFormGroup.get('sectionTreeTitle')?.valueChanges.subscribe((change)=>{
+        console.log(change);
+      })
+    }
+  }
+
   ngOnInit(){
     this.expandIcon = 'chevron_right';
     this.canDropBool = this.treeService.canDropBool;
@@ -96,6 +118,15 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
       element.innerHTML = this.oldTextValue!
     }else if(element.textContent?.trim().length! == maxlength){
       this.oldTextValue = element.textContent!.trim();
+    }
+    //@ts-ignore
+    let updatemeta = this.nodeFormGroup.titleUpdateMeta as {time:number,updatedFrom:string};
+
+    let now = Date.now()
+    if(updatemeta.time&&updatemeta.time<now){
+      this.nodeFormGroup.get('sectionTreeTitle')?.patchValue(element.textContent)
+    }else{
+
     }
 
   }

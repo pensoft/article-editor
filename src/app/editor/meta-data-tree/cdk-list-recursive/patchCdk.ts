@@ -78,7 +78,7 @@ function canReceive(target:any,item:any,treeService:TreeService){
   }
   if(parentCompatibility&&!checkCompatibilitySection(parentCompatibility,item.data.data.node)){
     item.data.data.canDropBool[0] = false;
-    item.data.data.canDropBool[1] = 'This section is now allowed in that branch.'
+    item.data.data.canDropBool[1] = 'This section is not allowed in that branch.'
 
   }
   if(levelsInItem+dropTargetLevel>=4){
