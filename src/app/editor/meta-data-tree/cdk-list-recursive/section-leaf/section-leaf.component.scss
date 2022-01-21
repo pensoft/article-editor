@@ -96,8 +96,7 @@ $itemHeight: 30px;
     height: $itemHeight;
     background-color: #f9fafc;
     z-index: 4;
-    width: calc(100% - 61px);
-    width: fit-content;
+    width: calc(100% - 35px);
     position: relative;
 }
 

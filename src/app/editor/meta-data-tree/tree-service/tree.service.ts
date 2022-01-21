@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import { Subject } from 'rxjs';
 import { YdocService } from '../../services/ydoc.service';
 import { treeNode } from '../../utils/interfaces/treeNode';
@@ -23,7 +23,7 @@ import { transferArrayItem } from '@angular/cdk/drag-drop';
   providedIn: 'root'
 })
 
-export class TreeService {
+export class TreeService implements OnDestroy{
 
   articleSectionsStructure?: articleSection[]
   treeVisibilityChange: Subject<any> = new Subject<any>();
@@ -63,6 +63,9 @@ export class TreeService {
         //@ts-ignore
         let updatemeta = this.sectionFormGroups[node.sectionID]!.titleUpdateMeta as {time:number,updatedFrom:string};
         let value = formGroup.get('sectionTreeTitle')?.value.trim()
+        console.log('updating node lavel from prosemirror',value!== node.title.label&&updatemeta.time>this.labelupdateLocalMeta[node.sectionID].time);
+        console.log(change);
+        console.log(formGroup.get('sectionTreeTitle'));
         if(value!== node.title.label&&updatemeta.time>this.labelupdateLocalMeta[node.sectionID].time){
           let nodeRef = this.findNodeById(node.sectionID)
           nodeRef!.title.label = change
@@ -151,6 +154,9 @@ export class TreeService {
     });
   }
 
+  ngOnDestroy(): void {
+      this.setArticleSectionStructureFlat()
+  }
   setArticleSectionStructureFlat() {
     //this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure')
 

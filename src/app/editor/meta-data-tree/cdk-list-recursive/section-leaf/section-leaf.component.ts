@@ -1,5 +1,5 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { AfterContentInit, AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterContentInit, AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { EditSectionDialogComponent } from '../../../dialogs/edit-section-dialog/edit-section-dialog.component';
 import { ProsemirrorEditorsService } from '../../../services/prosemirror-editors.service';
@@ -92,10 +92,10 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
       return
     }
     if(/<\/?[a-z][\s\S]*>/i.test(element.innerHTML)){
-      element.innerHTML = element.textContent!;
+      element.innerHTML = `${element.textContent!}`;
     }
-    if(element.textContent?.trim().length! > maxlength){
-      element.innerHTML = this.oldTextValue!
+    if(element.textContent?.trim().length! > maxlength&&this.oldTextValue){
+      element.innerHTML = `${this.oldTextValue}`
     }else if(element.textContent?.trim().length! == maxlength){
       this.oldTextValue = element.textContent!.trim();
     }
