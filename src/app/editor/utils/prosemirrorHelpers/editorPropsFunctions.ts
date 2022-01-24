@@ -3,9 +3,10 @@ import { mathBackspaceCmd } from "@benrbray/prosemirror-math";
 import { debug } from "console";
 import { uuidv4 } from "lib0/random";
 import { Fragment, ResolvedPos, Slice, Node } from "prosemirror-model";
-import { PluginKey, PluginSpec, TextSelection, Selection } from "prosemirror-state";
+import { PluginKey, PluginSpec, TextSelection, Selection, EditorState } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import { EditorView } from "prosemirror-view";
+import { articleSection } from "../interfaces/articleSection";
 
 export function handlePaste(view: EditorView, event: Event, slice: Slice) {
     slice.content.nodesBetween(0, slice.size - 2, (node, pos, parent) => {
@@ -346,4 +347,19 @@ export const createSelectionBetween = (editorsEditableObj: any, editorId: string
         return undefined
     }
 
+}
+
+export function handleScrollToSelection(editorContainers:
+  {[key: string]:{
+    editorID: string,
+    containerDiv: HTMLDivElement,
+    editorState: EditorState,
+    editorView: EditorView,
+    dispatchTransaction: any
+  }}  ,section:articleSection){
+  return (view:EditorView)=>{
+    /*
+    editorContainers[section.sectionID].containerDiv.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"}) */
+    return false;
+  }
 }

@@ -292,6 +292,10 @@ citation[nonexistingfigure="true"] {
     margin: 0 auto;
 }
 
+.changes-placeholder {
+    font-weight: normal;
+}
+
 *[data-username] {
     //position: relative;
     &:hover:before {
@@ -302,8 +306,12 @@ citation[nonexistingfigure="true"] {
         border-radius: 5px;
         padding: 2px;
         color: inherit;
+        font-size: 15px;
+        line-height: 1.1em;
+        font-weight: normal;
         z-index: 3;
-        transform: translate(20%, -25px);
+        transform: translate(20%, -17px);
+        width: -moz-fit-content;
         width: fit-content;
         white-space: nowrap;
         margin: 0 auto;

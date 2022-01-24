@@ -61,7 +61,7 @@ import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
 import { I } from '@angular/cdk/keycodes';
 import { Mapping, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform';
 import { ViewFlags } from '@angular/compiler/src/core';
-import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn, selectWholeCitatMarks } from '../utils/prosemirrorHelpers';
+import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn, selectWholeCitatMarks, handleScrollToSelection } from '../utils/prosemirrorHelpers';
 //@ts-ignore
 import { recreateTransform } from "prosemirror-recreate-steps"
 import { figure } from '../utils/interfaces/figureComponent';
@@ -447,6 +447,7 @@ export class ProsemirrorEditorsService {
       handleClick: handleClick(hideshowPluginKEey, this.citatContextPluginService.citatContextPluginKey),
       handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
       handleTripleClickOn,
+      handleScrollToSelection:handleScrollToSelection(this.editorContainers,section),
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
       handleKeyDown,
       handleDrop: (view: EditorView, event: Event, slice: Slice, moved: boolean) => {

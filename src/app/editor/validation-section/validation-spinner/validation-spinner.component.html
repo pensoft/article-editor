@@ -10,14 +10,9 @@
 <!--</ngx-spinner>-->
 
 <mat-card-content>
-  <div class="spinnerSpace"></div>
-  <mat-progress-bar mode="determinate" value="40"></mat-progress-bar>
-  <p>
-    Please wait while Arpha is <br> validating your article.
-  </p>
+    <div class="spinnerSpace"><img #spinner class="spinnerImg" src="./../../../../assets//icons//spinningDots.svg" alt=""></div>
+    <mat-progress-bar mode="determinate" value="{{progress}}"></mat-progress-bar>
+    <p>
+        Please wait while Arpha is <br> validating your article.
+    </p>
 </mat-card-content>
-<mat-card-actions>
-  <button mat-button class="no-hover-effect" (click)="cancelValidation()">Cancel validation</button>
-</mat-card-actions>
-
-

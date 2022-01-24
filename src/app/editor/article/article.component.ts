@@ -7,6 +7,7 @@ import { ChangeDetectorRef } from '@angular/core';
 import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
 import { FiguresControllerService } from '../services/figures-controller.service';
 import { figure } from '../utils/interfaces/figureComponent';
+import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 
 @Component({
   selector: 'app-article',
@@ -15,7 +16,7 @@ import { figure } from '../utils/interfaces/figureComponent';
 })
 export class ArticleComponent implements OnInit {
 
-  articleSectionsStructureFlat ?: articleSection[]  
+  articleSectionsStructureFlat ?: articleSection[]
   articleSectionsStructure:articleSection[]
   articleStructureMap :YMap<any>
   articleFigures?:figure[]
@@ -24,14 +25,24 @@ export class ArticleComponent implements OnInit {
     private ydocService:YdocService,
     private ref: ChangeDetectorRef,
     public prosemirrorEditorsService:ProsemirrorEditorsService,
-    public figuresControllerService:FiguresControllerService
+    public figuresControllerService:FiguresControllerService,
+    public detectFocusService: DetectFocusService,
+
     ) {
-   
+
     this.articleStructureMap = this.ydocService.articleStructure!;
     this.ydocService.articleStructure!.observe((data)=>{
       this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
       this.makeFlat();
-      
+      setTimeout(()=>{
+        if(this.detectFocusService.sectionName){
+          let editorView = this.prosemirrorEditorsService.editorContainers[this.detectFocusService.sectionName].editorView
+          editorView.focus();
+          editorView.dispatch(editorView.state.tr.scrollIntoView());
+
+        }
+      },10)
+
     })
     this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
     this.makeFlat();
@@ -61,6 +72,7 @@ export class ArticleComponent implements OnInit {
     setTimeout(()=>{
       this.articleSectionsStructureFlat = articleSectionsStructureFlat
     },10)
+    return articleSectionsStructureFlat
   }
 
 }

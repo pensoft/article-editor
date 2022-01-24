@@ -1,24 +1,62 @@
-<mat-card style="height:80%;">
-  <mat-card-header>
-    <mat-icon svgIcon="validate"></mat-icon>
-    <mat-card-title>Article Validation</mat-card-title>
-  </mat-card-header>
-  <mat-card-subtitle>0 Results</mat-card-subtitle>
-  <ng-container *ngIf="!spinnerComponent; else spinnerIssue">
-    <mat-card-content>
-      <div class="image-container">
-        <img mat-card-image src="./assets/img/Illustration-validation-2.svg">
-      </div>
-      <p> Validate your article <br>before submitting it <br>for review. </p>
-    </mat-card-content>
-    <mat-card-actions>
-      <arpha-button (clickEvent)="validate()" label="Print"
-                    class="small secondary" style="margin-right: 16px;">
-      </arpha-button>
-    </mat-card-actions>
-  </ng-container>
+<mat-card class="mat-card">
+    <mat-card-header>
+        <mat-icon svgIcon="validate"></mat-icon>
+        <mat-card-title>Article Validation</mat-card-title>
+    </mat-card-header>
+    <mat-card-subtitle>{{results}} Results</mat-card-subtitle>
+    <ng-container *ngIf="!spinnerComponent&&!displayErrors">
+        <mat-card-content>
+            <div class="image-container">
+                <img mat-card-image src="./assets/img/Illustration-validation-2.svg">
+            </div>
+            <p> Validate your article <br>before submitting it <br>for review. </p>
+        </mat-card-content>
+        <mat-card-actions>
+            <arpha-button (clickEvent)="validate()" label="Validate" class="small secondary" style="margin-right: 16px;">
+            </arpha-button>
+        </mat-card-actions>
+    </ng-container>
 </mat-card>
+<div *ngIf="spinnerComponent&&!displayErrors" #spinnerIssue>
+    <div class="spinnerSpace"><img #spinner class="spinnerImg" src="./../../../../assets//icons//spinner.svg" alt=""></div>
+    <div class="persentage">
+        {{progress1}}%
+    </div>
+    <mat-progress-bar [mode]="'determinate'" [value]="progress1"></mat-progress-bar>
+    <p>
+        Please wait while Arpha is <br> validating your article.
+    </p>
+    <div class="cancel-btn-div">
+        <arpha-button (clickEvent)="cancelValidation()" label="Cancel Validation" class="small gray">
+        </arpha-button>
+    </div>
+</div>
 
-<ng-template #spinnerIssue>
-  <app-validaiton-spinner></app-validaiton-spinner>
-</ng-template>
+<div *ngIf="displayErrors&&!spinnerComponent">
+    <div *ngIf="results!=0">
+        <div class="all-error-messages">
+            <div class="error-type" *ngIf="articleFormFieldsValidation.length>0">Section Field(s)</div>
+            <ul *ngFor="let error of articleFormFieldsValidation">
+                <li>{{error.errorMessage}}</li>
+            </ul>
+            <div class="error-type" *ngIf="nonCitedFiguresValidation.length>0">Figures</div>
+            <ul *ngFor="let error of nonCitedFiguresValidation">
+                <li>{{error.errorMessage}}</li>
+            </ul>
+            <div class="error-type" *ngIf="articleValidations.length>0">Other</div>
+            <ul *ngFor="let error of articleValidations">
+                <li>{{error.errorMessage}}</li>
+            </ul>
+        </div>
+        <hr class="error-hr">
+        <div class="number-of-characters">Number of characters(with spaces): {{articleLength}}</div>
+        <arpha-button (clickEvent)="validate()" label="Validate" class="small secondary validate-with-errors" style="margin-right: 16px;">
+        </arpha-button>
+    </div>
+    <div *ngIf="results==0">
+        <img class="succes-img" src="./../../../assets/img/Illustration-validation.svg" alt="">
+        <div class="succes">Successfully validated!</div>
+        <arpha-button (clickEvent)="validate()" label="Update" class="small gray validate-with-errors" style="margin-right: 16px;">
+        </arpha-button>
+    </div>
+</div>

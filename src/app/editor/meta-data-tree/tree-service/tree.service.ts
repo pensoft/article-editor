@@ -63,9 +63,6 @@ export class TreeService implements OnDestroy{
         //@ts-ignore
         let updatemeta = this.sectionFormGroups[node.sectionID]!.titleUpdateMeta as {time:number,updatedFrom:string};
         let value = formGroup.get('sectionTreeTitle')?.value.trim()
-        console.log('updating node lavel from prosemirror',value!== node.title.label&&updatemeta.time>this.labelupdateLocalMeta[node.sectionID].time);
-        console.log(change);
-        console.log(formGroup.get('sectionTreeTitle'));
         if(value!== node.title.label&&updatemeta.time>this.labelupdateLocalMeta[node.sectionID].time){
           let nodeRef = this.findNodeById(node.sectionID)
           nodeRef!.title.label = change

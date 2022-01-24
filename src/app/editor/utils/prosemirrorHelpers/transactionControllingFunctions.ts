@@ -528,11 +528,10 @@ export const updateControlsAndFigures = (
                     const control = fg.get(controlPath) as FormControl;
                     //@ts-ignore
                     let updatemeta = fg.titleUpdateMeta as {time:number,updatedFrom:string};
-                    const titleNodeNumber = node.attrs.trackSectionTreeTitle;
                     if(!sectionTreeTitleUpdateMetas){
                       sectionTreeTitleUpdateMetas = {
                         time:0,
-                        updateFrom:titleNodeNumber
+                        updateFrom:'prosemirror'
                       }
                     }
                     if(node.textContent.trim()!==control.value){

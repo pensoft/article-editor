@@ -30,6 +30,7 @@ import { FormBuilderService } from '../services/form-builder.service';
 import { YdocService } from '../services/ydoc.service';
 import { YMap } from 'yjs/dist/src/internals';
 import { FiguresControllerService } from '../services/figures-controller.service';
+import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 
 @Component({
   selector: 'app-section',
@@ -83,6 +84,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     private treeService: TreeService,
     private ydocService: YdocService,
     private formBuilderService: FormBuilderService,
+    public detectFocusService: DetectFocusService,
     private figuresControllerService: FiguresControllerService) {
 
     /* if(this.formControlService.popUpSectionConteiners[this.section.sectionID]){
@@ -128,6 +130,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   async onSubmit(submision?: any) {
     try {
       //this.prosemirrorEditorsService.updateFormIoDefaultValues(this.section.sectionID, submision.data)
+
       this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, { data: submision.data, updatedFrom: this.ydocService.ydoc?.guid })
       this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema, this.section.sectionID);
       //this.sectionForm = new FormGroup({});
@@ -231,7 +234,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
     // const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
     this.sectionContent = this.section.formIOSchema;
     this.renderSection = true
-
     if (this.section.mode == 'documentMode' && this.section.active) {
       try {
         this.prosemirrorEditorsService.renderEditorInWithId(this.ProsemirrorEditor?.nativeElement, this.section.sectionID, this.section)
@@ -249,6 +251,15 @@ export class SectionComponent implements AfterViewInit, OnInit {
       console.error(e);
     }
 
+    let editorContainer = this.prosemirrorEditorsService.editorContainers[this.section.sectionID]
+    if(editorContainer){
+      let editorView = editorContainer.editorView
+
+      editorView.focus()
+      editorView.dispatch(editorView.state.tr.scrollIntoView())
+      this.detectFocusService.sectionName = this.section.sectionID
+
+    }
     this.renderForm = true
   }
 

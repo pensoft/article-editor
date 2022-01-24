@@ -1,5 +1,6 @@
 import { AbstractControl, FormControl } from "@angular/forms";
 import { FormArray, FormGroup, Validators } from '@angular/forms';
+import { max } from "lodash";
 
 import { DOMParser, Node } from "prosemirror-model";
 import { of } from "rxjs";
@@ -16,7 +17,7 @@ let parseNodeHTmlStringToTextContent = (html:string) => {
     teml.innerHTML = html
     let pmNode = schema.nodes.form_field.create({},DOMPMparser.parseSlice(teml).content);
     return pmNode.textContent
-} 
+}
 function isEmptyInputValue(value:string) {
     // we don't check for string here so it also works with arrays
     return value == null || value.length === 0;
@@ -30,7 +31,7 @@ function hasValidLength(value:string) {
 /* export function asyncPmRequired(control: AbstractControl) {
 
     if(!control.value){
-        return of(null) 
+        return of(null)
     }
     let textContent = parseNodeHTmlStringToTextContent(control.value)
     return of(isEmptyInputValue(textContent) ? { 'required': true } : null)
@@ -44,14 +45,14 @@ export function pmRequired(control: AbstractControl) {
     if(textContent == true){
         return null
     }
-    return isEmptyInputValue(textContent) ? { 'required': true } : null;
+    return isEmptyInputValue(textContent) ? { 'required': {value:true,message:`This field is required.`} } : null;
 }
 
 export function pmMaxLength(maxLength: number) {
     return (control: AbstractControl) => {
         if(!control.value){
             return null
-        }    
+        }
         let textContent = parseNodeHTmlStringToTextContent(control.value)
         if(textContent == true){
             return null
@@ -62,7 +63,7 @@ export function pmMaxLength(maxLength: number) {
             return null;
         }
         return textContent.length > maxLength ?
-            { 'maxlength': { 'requiredLength': maxLength, 'actualLength': textContent.length } } :
+            { 'maxlength': { 'requiredLength': maxLength, 'actualLength': textContent.length,message:`Max length for this field is ${maxLength}.` } } :
             null;
     }
 }
@@ -71,13 +72,13 @@ export function pmMinLength(minLength: number) {
     return (control: AbstractControl) => {
         if(!control.value){
             return null
-        } 
+        }
         let textContent = parseNodeHTmlStringToTextContent(control.value)
         if(textContent == true){
             return null
         }
         return hasValidLength(textContent) && textContent.length < minLength ?
-            { 'minlength': { 'requiredLength': minLength, 'actualLength': textContent.length } } :
+            { 'minlength': { 'requiredLength': minLength, 'actualLength': textContent.length,message:`Minimal length for this field is ${minLength}.` } } :
             null;
     }
 }
@@ -147,7 +148,7 @@ export function pmPattern(pattern: any) {
         }
         const value = textContent;
         let result = regex.test(value) ? null :
-            { 'pattern': { 'requiredPattern': regexStr, 'actualValue': value } };
+            { 'pattern': { 'requiredPattern': regexStr, 'actualValue': value,message:`This field does not match the pattern {${regexStr}}.` } };
         return result
     }
 }

@@ -208,6 +208,7 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
   }
 
   oldZIndex ?: string
+  scrolledToView ?:boolean
   makeEditable(element:HTMLDivElement,event:Event,parentNode:any,node:articleSection){
     if(element.textContent?.trim().length == 0){
       element.innerHTML = "<br>"
@@ -217,14 +218,22 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
       element.setAttribute('contenteditable','false');
       (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;
       //this.treeService.saveNewTitleChange(node,element.textContent!);
-
+      this.scrolledToView = false;
     }else if (event.type == 'click'){
       this.oldZIndex = (parentNode as HTMLDivElement).style.zIndex!
       element.setAttribute('contenteditable','true');
       (parentNode as HTMLDivElement).style.zIndex = '5';
+      let editorContainer = this.prosemirrorEditorsService.editorContainers[this.node.sectionID];
+      if(editorContainer&&!this.scrolledToView){
+        let editorView = editorContainer.editorView;
+        if(!editorView.hasFocus()){
+          editorView.focus()
+          editorView.dispatch(editorView.state.tr.scrollIntoView());
+        }
+        this.scrolledToView = true;
+      }
       element.focus()
     }
-
   }
 
   changeDisplay(div: HTMLDivElement) {
