@@ -3,7 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
 import { ArticlesService } from '@app/core/services/articles.service';
-import { ChooseManuscriptDialogComponent } from '@app/editor/dialogs/choose-manuscript-dialog/choose-manuscript-dialog.component';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { YdocService } from '@app/editor/services/ydoc.service';

@@ -20,7 +20,7 @@
 <div *ngIf="spinnerComponent&&!displayErrors" #spinnerIssue>
     <div class="spinnerSpace"><img #spinner class="spinnerImg" src="./../../../../assets//icons//spinner.svg" alt=""></div>
     <div class="persentage">
-        {{progress1}}%
+        {{progress1 | number: '2.1-2'}}%
     </div>
     <mat-progress-bar [mode]="'determinate'" [value]="progress1"></mat-progress-bar>
     <p>

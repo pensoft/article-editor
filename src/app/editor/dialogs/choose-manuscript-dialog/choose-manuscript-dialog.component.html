@@ -3,10 +3,10 @@
         <h1 fxFill fxLayoutAlign="center" class="mt30px">
             Add Manuscript to Project
         </h1>
-        <div *ngIf="showError" class="error">No Template selected.</div>
+        <div *ngIf="showError" class="error">No Layout selected.</div>
         <div fxFill fxLayoutAlign="center">
             <form (keydown.enter)="search(inputText.value)" fxFlex="90%" fxLayout="column">
-                <label>Select a Template</label>
+                <label>Select a Layout</label>
                 <mat-form-field>
                     <input matInput type="text" #inputText class="input-search">
                     <button color="primary" class="search-button" type="submit" matSuffix mat-raised-button (click)="search(inputText.value)">

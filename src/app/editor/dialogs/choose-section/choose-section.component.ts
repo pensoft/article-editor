@@ -1,7 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { countSectionFromBackendLevel } from '@app/editor/utils/articleBasicStructure';
-import { ChooseManuscriptDialogComponent } from '../choose-manuscript-dialog/choose-manuscript-dialog.component';
 
 @Component({
   selector: 'app-choose-section',
@@ -15,7 +14,7 @@ export class ChooseSectionComponent implements OnInit {
   value = undefined
   constructor(
     public dialog: MatDialog,
-    private dialogRef: MatDialogRef<ChooseManuscriptDialogComponent>,
+    private dialogRef: MatDialogRef<ChooseSectionComponent>,
     @Inject(MAT_DIALOG_DATA) public data: {templates:any[],sectionlevel:number} ,
     ) {
 

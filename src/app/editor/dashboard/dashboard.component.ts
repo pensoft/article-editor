@@ -9,7 +9,6 @@ import { ArticleSectionsService } from '@app/core/services/article-sections.serv
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { YdocService } from '../services/ydoc.service';
-import { ChooseManuscriptDialogComponent } from '../dialogs/choose-manuscript-dialog/choose-manuscript-dialog.component';
 import { articleSection } from '../utils/interfaces/articleSection';
 import { uuidv4 } from 'lib0/random';
 import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
@@ -22,7 +21,7 @@ import { ServiceShare } from '../services/service-share.service';
 })
 export class DashboardComponent implements AfterViewInit {
 
-  displayedColumns: string[] = ['id','title','date','lastupdated', 'type','autor' ,'buttons'];
+  displayedColumns: string[] = ['id','title','date','lastupdated', 'layout-type','template-type','autor' ,'buttons'];
   data: any[] = [];
   realData:any[] = [];
 
@@ -33,7 +32,7 @@ export class DashboardComponent implements AfterViewInit {
   articleTemplates2:any
 
   searchValue ?: string ;
-  articleTemplates :any;
+  articleLayouts :any;
   typeChange : Subject<any> = new Subject();
   selectedType = -1;
   refreshSubject = new Subject();
@@ -52,8 +51,8 @@ export class DashboardComponent implements AfterViewInit {
     private serviceShare:ServiceShare,
     ) {}
   ngAfterViewInit() {
-    this.articleSectionsService.getAllTemplates().subscribe((articleTemplates: any) => {
-      this.articleTemplates = [...articleTemplates.data,{name:'none',id:-1}]
+    this.articleSectionsService.getAllLayouts().subscribe((articleLayouts: any) => {
+      this.articleLayouts = [...articleLayouts.data,{name:'none',id:-1}]
     })
     // If the user changes the sort order, reset back to the first page.
     this.sort!.sortChange.subscribe(() => {
@@ -82,6 +81,7 @@ export class DashboardComponent implements AfterViewInit {
           // Only refresh the result length if there is new data. In case of rate
           // limit errors, we do not want to reset the paginator to zero, as that
           // would prevent users from re-triggering requests.
+
           return data.data;
         }),
       )
@@ -112,7 +112,7 @@ export class DashboardComponent implements AfterViewInit {
           })
         }
         if(this.selectedType!=-1){
-          dataToDisplay = dataToDisplay.filter((article:any)=>{return article.template.id == this.selectedType})
+          dataToDisplay = dataToDisplay.filter((article:any)=>{return article.layout.id == this.selectedType})
         }
 
         if(this.searchValue){

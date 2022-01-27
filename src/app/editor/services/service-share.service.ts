@@ -21,7 +21,7 @@ import { YdocService } from './ydoc.service';
 })
 export class ServiceShare {
 
-  articleTemplates:any
+  articleLayouts:any
 
   ProsemirrorEditorsService?:ProsemirrorEditorsService
   YdocService?:YdocService
@@ -51,22 +51,22 @@ export class ServiceShare {
   }
 
   createNewArticle(){
-    this.ArticleSectionsService!.getAllTemplates().subscribe((articleTemplates: any) => {
-      this.articleTemplates = articleTemplates
+    this.ArticleSectionsService!.getAllLayouts().subscribe((articleLayouts: any) => {
+      this.articleLayouts = articleLayouts
       const dialogRef = this.dialog.open(ChooseManuscriptDialogComponent, {
         width: '100%',
         panelClass:'choose-namuscript-dialog',
-        data: { templates: articleTemplates }
+        data: { layouts: articleLayouts }
       });
       dialogRef.afterClosed().subscribe(result => {
 
-        let selectedTemplate = (this.articleTemplates.data as Array<any>).find((template: any) => {
-          return template.id == result
-        })
+        let selectedLayout = (this.articleLayouts.data as Array<any>).find((layout: any) => {
+          return layout.id == result
+        }).template
         let articleStructure: articleSection[] = []
-        let filteredSections = selectedTemplate.sections.filter((section: any) => { return section.type == 0 });
+        let filteredSections = selectedLayout.sections.filter((section: any) => { return section.type == 0 });
 
-        selectedTemplate.sections.forEach((section: any) => {
+        selectedLayout.sections.forEach((section: any) => {
           if(section.settings&&section.settings.main_section == true){
             renderSectionFunc(section,articleStructure,'end');
           }

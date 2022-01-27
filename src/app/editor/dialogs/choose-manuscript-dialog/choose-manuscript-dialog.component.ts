@@ -17,7 +17,7 @@ export class ChooseManuscriptDialogComponent implements OnInit,AfterViewInit {
   constructor(
     public dialog: MatDialog,
     private dialogRef: MatDialogRef<ChooseManuscriptDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { templates:any },
+    @Inject(MAT_DIALOG_DATA) public data: { layouts:any },
     ) {
 
   }
@@ -26,7 +26,7 @@ export class ChooseManuscriptDialogComponent implements OnInit,AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.articleTemplates = this.data.templates.data
+    this.articleTemplates = this.data.layouts.data
   }
 
   createManuscript(val:any){

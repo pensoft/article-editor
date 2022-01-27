@@ -28,14 +28,14 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
   templateUrl: './section-leaf.component.html',
   styleUrls: ['./section-leaf.component.scss']
 })
-export class SectionLeafComponent implements OnInit,AfterViewInit {
+export class SectionLeafComponent implements OnInit, AfterViewInit {
 
   @Input() parentListData!: { expandParentFunc: any, listDiv: HTMLDivElement };
   @Input() parentId?: string; // the id of the parent of this node
   focusedId?: string;
   mouseOn?: string;
 
-  canDropBool?:boolean[]
+  canDropBool?: boolean[]
 
   expandIcon?: string;
   focusIdHold?: string;
@@ -53,23 +53,23 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
 
   @Input() isComplex!: boolean;
 
-  @Input() sectionsFormGroupsRef!:{[key:string]:FormGroup}
+  @Input() sectionsFormGroupsRef!: { [key: string]: FormGroup }
   @Output() sectionsFormGroupsRefChange = new EventEmitter<FormGroup>();
 
   constructor(
     private formBuilderService: FormBuilderService,
     public treeService: TreeService,
     public ydocService: YdocService,
-    private serviceShare:ServiceShare,
+    private serviceShare: ServiceShare,
     public detectFocusService: DetectFocusService,
     public prosemirrorEditorsService: ProsemirrorEditorsService,
     public dialog: MatDialog) {
-    detectFocusService.getSubject().subscribe((focusedEditorId:any) => {
+    detectFocusService.getSubject().subscribe((focusedEditorId: any) => {
       if (focusedEditorId) {
         this.focusedId = focusedEditorId;
       }
 
-      if (this.parentId !== 'parentList' && this.node.sectionID == this.focusedId){
+      if (this.parentId !== 'parentList' && this.node.sectionID == this.focusedId) {
         this.expandParentFunc();
       }
     });
@@ -79,37 +79,37 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
 
   }
 
-  ngOnInit(){
+  ngOnInit() {
     this.expandIcon = 'chevron_right';
     this.canDropBool = this.treeService.canDropBool;
   }
 
-  oldTextValue ?:string
+  oldTextValue?: string
 
-  checkTextInput(element:HTMLDivElement,maxlength:number,event:Event){
-    if(element.textContent?.trim().length == 0){
+  checkTextInput(element: HTMLDivElement, maxlength: number, event: Event) {
+    if (element.textContent?.trim().length == 0) {
       element.innerHTML = "<br>"
       return
     }
-    if(/<\/?[a-z][\s\S]*>/i.test(element.innerHTML)){
+    if (/<\/?[a-z][\s\S]*>/i.test(element.innerHTML)) {
       element.innerHTML = `${element.textContent!}`;
     }
-    if(element.textContent?.trim().length! > maxlength&&this.oldTextValue){
+    if (element.textContent?.trim().length! > maxlength && this.oldTextValue) {
       element.innerHTML = `${this.oldTextValue}`
-    }else if(element.textContent?.trim().length! == maxlength){
+    } else if (element.textContent?.trim().length! == maxlength) {
       this.oldTextValue = element.textContent!.trim();
     }
     //@ts-ignore
-    let updatemeta = this.treeService.sectionFormGroups[this.node.sectionID].titleUpdateMeta as {time:number,updatedFrom:string};
+    let updatemeta = this.treeService.sectionFormGroups[this.node.sectionID].titleUpdateMeta as { time: number, updatedFrom: string };
 
     let now = Date.now()
     let controlValue = this.nodeFormGroup.get('sectionTreeTitle')?.value;
 
 
-    if(controlValue !== element.textContent?.trim()){
-      if(now>updatemeta.time){
-        updatemeta.time= now;
-        this.treeService.labelupdateLocalMeta[this.node.sectionID].time= now;
+    if (controlValue !== element.textContent?.trim()) {
+      if (now > updatemeta.time) {
+        updatemeta.time = now;
+        this.treeService.labelupdateLocalMeta[this.node.sectionID].time = now;
         updatemeta.updatedFrom = this.treeService.labelupdateLocalMeta[this.node.sectionID].updatedFrom;
         this.nodeFormGroup.get('sectionTreeTitle')?.patchValue(element.textContent?.trim());
         this.prosemirrorEditorsService.dispatchEmptyTransaction()
@@ -136,7 +136,7 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
       let defaultValues = formGroup.value;
 
       //this.formBuilderService.buildFormGroupFromSchema(formGroup, sectionContent);
-      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema,node.sectionID);
+      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID);
       node.formIOSchema = sectionContent
       this.dialog.open(EditSectionDialogComponent, {
         width: '95%',
@@ -156,20 +156,20 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
           let templDiv = document.createElement('div');
           templDiv.innerHTML = result.compiledHtml
           let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
-          if(trackStatus){
+          if (trackStatus) {
             const mainDocumentSnapshot = Y.snapshot(this.ydocService.ydoc)
             updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
             const updatedSnapshot = Y.snapshot(this.ydocService.ydoc)
             let editorView = this.prosemirrorEditorsService
-            .editorContainers[node.sectionID].editorView
+              .editorContainers[node.sectionID].editorView
             editorView.dispatch(editorView.state.tr.setMeta(ySyncPluginKey, {
               snapshot: Y.decodeSnapshot(Y.encodeSnapshot(updatedSnapshot)),
               prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(mainDocumentSnapshot)),
               renderingFromPopUp: true,
-              trackStatus:true,
-              userInfo:this.prosemirrorEditorsService.userInfo,
+              trackStatus: true,
+              userInfo: this.prosemirrorEditorsService.userInfo,
             }))
-          }else{
+          } else {
             updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
           }
           //editorview
@@ -178,11 +178,11 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
             this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
               this.prosemirrorEditorsService.trackChangesMeta
             )
-            this.prosemirrorEditorsService.citatEditingSubject.next({action:'deleteCitatsFromDocument'})
+            this.prosemirrorEditorsService.citatEditingSubject.next({ action: 'deleteCitatsFromDocument' })
           }, 30)
-        }else{
+        } else {
           setTimeout(() => {
-            this.prosemirrorEditorsService.citatEditingSubject.next({action:'clearDeletedCitatsFromPopup'})
+            this.prosemirrorEditorsService.citatEditingSubject.next({ action: 'clearDeletedCitatsFromPopup' })
           }, 30)
         }
       });
@@ -196,43 +196,50 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
   }
 
   deleteNodeHandle(nodeId: string) {
-    let dialogRef = this.dialog.open(AskBeforeDeleteComponent,{
+    let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
       data: { sectionName: this.treeService.findNodeById(nodeId)?.title.label },
       panelClass: 'ask-before-delete-dialog',
     })
-    dialogRef.afterClosed().subscribe((data:any)=>{
-      if(data){
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
         this.treeService.deleteNodeChange(nodeId, this.parentId!);
       }
     })
   }
 
-  oldZIndex ?: string
-  scrolledToView ?:boolean
-  makeEditable(element:HTMLDivElement,event:Event,parentNode:any,node:articleSection){
-    if(element.textContent?.trim().length == 0){
+  oldZIndex?: string
+  scrolledToView?: boolean
+  makeEditable(element: HTMLDivElement, event: Event, parentNode: any, node: articleSection) {
+    if (element.textContent?.trim().length == 0) {
       element.innerHTML = "<br>"
       return
     }
-    if(event.type == 'blur'){
-      element.setAttribute('contenteditable','false');
+    if (event.type == 'blur') {
+      element.setAttribute('contenteditable', 'false');
       (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;
       //this.treeService.saveNewTitleChange(node,element.textContent!);
       this.scrolledToView = false;
-    }else if (event.type == 'click'){
+    } else if (event.type == 'click') {
       this.oldZIndex = (parentNode as HTMLDivElement).style.zIndex!
-      element.setAttribute('contenteditable','true');
+      element.setAttribute('contenteditable', 'true');
       (parentNode as HTMLDivElement).style.zIndex = '5';
+
+      element.focus()
+    }
+  }
+
+  scrollToProsemirror() {
+    if (this.node.type == 'simple') {
       let editorContainer = this.prosemirrorEditorsService.editorContainers[this.node.sectionID];
-      if(editorContainer&&!this.scrolledToView){
+      if (editorContainer && !this.scrolledToView) {
         let editorView = editorContainer.editorView;
-        if(!editorView.hasFocus()){
+        if (!editorView.hasFocus()) {
           editorView.focus()
           editorView.dispatch(editorView.state.tr.scrollIntoView());
         }
         this.scrolledToView = true;
       }
-      element.focus()
+
     }
   }
 
@@ -255,9 +262,9 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
     }
   };
 
-  showButtons(div: HTMLDivElement, mouseOn: boolean, borderClass: string, focusClass: string, node: any) {
+  showButtons(div: HTMLDivElement, mouseOn: boolean, borderClass: string, focusClass: string, node: articleSection) {
     if (mouseOn) {
-      this.mouseOn = node.id;
+      this.mouseOn = node.sectionID;
     } else {
       this.mouseOn = '';
     }
@@ -284,8 +291,8 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
 
       } else if (el.classList.contains('border')) {
         if (mouseOn) {
-          if (this.focusedId == node.id) {
-            this.focusIdHold = node.id;
+          if (this.focusedId == node.sectionID) {
+            this.focusIdHold = node.sectionID;
             this.focusedId = '';
             /* el.classList.add(focusClass); */
           }
@@ -299,15 +306,16 @@ export class SectionLeafComponent implements OnInit,AfterViewInit {
 
           el.children.item(0).style.display = 'inline';
         } else {
-          if (this.focusIdHold == node.id) {
+          if (this.focusIdHold == node.sectionID) {
 
             this.focusedId = this.focusIdHold;
             this.focusIdHold = '';
-
-            /* el.classList.add(focusClass); */
           }
           el.className = `border ${borderClass}Inactive`;
 
+          /* if(this.focusedId == this.node.sectionID){
+            el.classList.add(focusClass);
+          } */
 
           /* el.classList.remove(borderClass)
           el.classList.remove(borderClass)

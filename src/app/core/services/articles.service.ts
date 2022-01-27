@@ -29,7 +29,7 @@ export class ArticlesService {
     return this._http.delete(`${API_ARTICLES_URL}/${articleId}`)
   }
 
-  createArticle(name:string,article_template_id:number){
-    return this._http.post(API_ARTICLES_URL,{name,article_template_id});
+  createArticle(name:string,layout_id:number){
+    return this._http.post(API_ARTICLES_URL,{name,layout_id});
   }
 }

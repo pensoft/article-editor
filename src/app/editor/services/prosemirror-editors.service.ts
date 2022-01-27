@@ -125,7 +125,6 @@ export class ProsemirrorEditorsService {
     this.rerenderFigures = fn;
   }
 
-
   constructor(
     private menuService: MenuService,
     private detectFocusService: DetectFocusService,
@@ -179,7 +178,6 @@ export class ProsemirrorEditorsService {
       }
     })
   }
-
 
   collab(config:any = {}) {
     config = {version: config.version || 0,
@@ -450,6 +448,7 @@ export class ProsemirrorEditorsService {
       handleScrollToSelection:handleScrollToSelection(this.editorContainers,section),
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
       handleKeyDown,
+      scrollMargin: {top: 300, right: 5, bottom: 300, left: 5},
       handleDrop: (view: EditorView, event: Event, slice: Slice, moved: boolean) => {
         slice.content.nodesBetween(0, slice.content.size - 2, (node, pos, parent) => {
           if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {

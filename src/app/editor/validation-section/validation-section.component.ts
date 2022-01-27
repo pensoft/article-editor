@@ -26,7 +26,7 @@ export class ValidationSectionComponent implements OnDestroy {
   intervalID: any;
   progress1 = 0;
 
-  donevalidationSubject?:Subject<any>
+  donevalidationSubject?: Subject<any>
 
   displayErrors = false;
 
@@ -35,8 +35,8 @@ export class ValidationSectionComponent implements OnDestroy {
     private prosemirrorEditorsServise: ProsemirrorEditorsService,
     private treeService: TreeService,
     private articleSectionsService: ArticleSectionsService,
-    private changeDetectorRef:ChangeDetectorRef,
-    private ydocService:YdocService,
+    private changeDetectorRef: ChangeDetectorRef,
+    private ydocService: YdocService,
   ) {
 
   }
@@ -44,8 +44,8 @@ export class ValidationSectionComponent implements OnDestroy {
   results = 0;
 
   articleValidations: validationResult[] = []
-  articleFormFieldsValidation:validationResult[] = []
-  nonCitedFiguresValidation:validationResult[] = []
+  articleFormFieldsValidation: validationResult[] = []
+  nonCitedFiguresValidation: validationResult[] = []
 
   articleLength = 0;
 
@@ -56,24 +56,24 @@ export class ValidationSectionComponent implements OnDestroy {
     this.articleFormFieldsValidation = []
     this.nonCitedFiguresValidation = []
     this.results = 0;
-    let loopFormGroupChildren = (form: FormGroup | FormArray,callback:(child:FormControl,key:string)=>void) => {
+    let loopFormGroupChildren = (form: FormGroup | FormArray, callback: (child: FormControl, key: string) => void) => {
       if (form instanceof FormGroup) {
         Object.keys(form.controls).forEach((key: any) => {
           let control = form.controls[key]
           if (control instanceof FormControl) {
-            callback(control,key);
+            callback(control, key);
           } else {
             //@ts-ignore
-            loopFormGroupChildren(control,callback)
+            loopFormGroupChildren(control, callback)
           }
         })
       } else if (form instanceof FormArray) {
-        form.controls.forEach((control,index:number) => {
+        form.controls.forEach((control, index: number) => {
           if (control instanceof FormControl) {
-            callback(control,`${index}`);
+            callback(control, `${index}`);
           } else {
             //@ts-ignore
-            loopFormGroupChildren(control,callback)
+            loopFormGroupChildren(control, callback)
           }
         })
       }
@@ -94,23 +94,23 @@ export class ValidationSectionComponent implements OnDestroy {
         //@ts-ignore
         (this.spinnerEl!.nativeElement as HTMLImageElement).style.transform = 'rotate(' + this.deg + 'deg)';
       }, 100)
-      let rules  = JSON.parse(JSON.stringify(this.ydocSetvice.articleData.template.rules))
+      let rules = JSON.parse(JSON.stringify(this.ydocSetvice.articleData.layout.rules))
       let donevalidationSubject = new Subject();
       this.donevalidationSubject = donevalidationSubject
       rules.push({ rule: 'FormControls' })
       rules.push({ rule: 'CitatedFigures' })
       let validationsLength = rules.length;
 
-      return new Promise((resolve,reject)=>{
+      return new Promise((resolve, reject) => {
         let validatedCount = 0;
-        donevalidationSubject.subscribe((data)=>{
-          if(data == 'cancel'){
+        donevalidationSubject.subscribe((data) => {
+          if (data == 'cancel') {
             resolve('cancel')
-          }else {
-            validatedCount ++ ;
-            this.progress1 = (validatedCount / validationsLength)*100;
+          } else {
+            validatedCount++;
+            this.progress1 = (validatedCount / validationsLength) * 100;
             this.changeDetectorRef.detectChanges()
-            if(validatedCount == validationsLength){
+            if (validatedCount == validationsLength) {
               resolve(1);
             }
 
@@ -138,7 +138,7 @@ export class ValidationSectionComponent implements OnDestroy {
             loop(this.treeService.articleSectionsStructure!)
 
             if (min > symbolCount || max < symbolCount) {
-              this.articleValidations.push({ fulfilled: false, errorMessage: `Number of characters in the article is not in the required range : ( minimum : ${min} , maximum : ${max})` })
+              this.articleValidations.push({ fulfilled: false, errorMessage: `Number of characters in the article is not in the required range: ( minimum: ${min}, maximum: ${max})` })
             }
             this.articleLength = symbolCount
             donevalidationSubject.next(null)
@@ -147,34 +147,104 @@ export class ValidationSectionComponent implements OnDestroy {
 
             let min = el.config.min;
             let max = el.config.max;
-
             let count = 0;
-            let countSecName = (sections: articleSection[], name: string) => {
+            let sectionCount = 0;
+            let countSecNameWithExpression = (sections: articleSection[], name: string, callback: (section: articleSection) => boolean) => {
               sections.forEach((sec) => {
                 if (sec.type == 'complex' && sec.children.length > 0) {
-                  countSecName(sec.children, name);
+                  countSecNameWithExpression(sec.children, name, callback);
                 }
                 if (sec.title.name == name) {
-                  count++;
+                  sectionCount++;
+
+                  if (callback(sec)) {
+                    count++;
+                  }
                 }
               })
             }
-            this.articleSectionsService.getAllSections({ page: 1, pageSize: 999 }).subscribe((data:any) => {
-              let allSectionNamesFromBackend = data.data.map((section:any)=>{
+            let formGroups = this.treeService.sectionFormGroups
+            let expressionsObj = JSON.parse(el.config.expressions)
+            this.articleSectionsService.getAllSections({ page: 1, pageSize: 999 }).subscribe((data: any) => {
+              let allSectionNamesFromBackend = data.data.map((section: any) => {
                 return section.name;
               })
               sectionNames.forEach((secName) => {
-                if(allSectionNamesFromBackend.includes(secName)){
+                if (allSectionNamesFromBackend.includes(secName)) {
+                  sectionCount = 0;
                   count = 0;
-                  countSecName(this.treeService.articleSectionsStructure!, secName)
-                  if (min > count || max < count) {
-                    this.articleValidations.push({ fulfilled: false, errorMessage: `Sections with name "${secName}" should not be less that ${min} and more that ${max}.Current count of these sections in the article is ${count} .` })
-                  }
+                  let container = document.createElement('div');
+                  let expressErrorMesages :string[]= []
+                  countSecNameWithExpression(this.treeService.articleSectionsStructure!, secName,
+                    (section: articleSection) => {
+                      let formGroup = formGroups[section.sectionID];
+                      let value = JSON.parse(JSON.stringify(formGroup.value));
+                      let htmlToTextContent = (obj: any) => {
+                        if(obj){
+                          Object.keys(obj).forEach((key) => {
+                            if (typeof obj[key] == 'string' || typeof obj[key] == 'number') {
+                              container.innerHTML = obj[key]
+                              obj[key] = container.textContent;
+                            } else {
+                              try {
+                                htmlToTextContent(obj[key]);
+                              } catch (e) {
+                                console.error(e);
+                              }
+                            }
+                            obj[key]
+                          })
+                        }
+                      }
+                      htmlToTextContent(value)
+                      let returnVal = true;
+                      expressionsObj.forEach((expr: { fulfilled: string, errorMessage: string }) => {
+                        let expFunc = Function('value', 'return ' + expr.fulfilled);
+                        let result = expFunc(value)
+                        if (!result&&!expressErrorMesages.includes(expr.errorMessage)) {
+                          expressErrorMesages.push(expr.errorMessage)
+                        }
+                        returnVal = returnVal && result;
+                      })
+                      return returnVal
+                    })
+                    if(sectionCount == 0){
+                      if(min&&max){
+                        if (min > count || max < count) {
+                          this.articleValidations.push({ fulfilled: false, errorMessage:
+                            `There are no active sections with name "${secName}" in the article. They should be no less than ${min} and no more that ${max}, and should meet the following conditions: (${expressionsObj.map((el:any)=>el.errorMessage).join(' ')}).` })
+                        }
+                      }else if(max){
+                        if (max < count) {
+                          this.articleValidations.push({ fulfilled: false, errorMessage:
+                            `There are no active sections with name "${secName}" in the article. They should be no more that ${max}, and should meet the following conditions: (${expressionsObj.map((el:any)=>el.errorMessage).join(' ')}).` })
+                        }
+                      }else if(min){
+                        if (min > count) {
+                          this.articleValidations.push({ fulfilled: false, errorMessage:
+                            `There are no active sections with name "${secName}" in the article. They should be no less than ${min} and should meet the following conditions: (${expressionsObj.map((el:any)=>el.errorMessage).join(' ')}).` })
+                        }
+                      }
+                    }else{
+                      if(min&&max){
+                        if (min > count || max < count) {
+                          this.articleValidations.push({ fulfilled: false, errorMessage: `Sections with name "${secName}" does not fulfill the conditions: (${expressErrorMesages.join(' ')}). Current count of sections that meet the conditions is ${count},they should be no less than ${min} and no more that ${max}.` })
+                        }
+                      }else if(max){
+                        if (max < count) {
+                          this.articleValidations.push({ fulfilled: false, errorMessage: `Sections with name "${secName}" does not fulfill the conditions: (${expressErrorMesages.join(' ')}). Current count of sections that meet the conditions is ${count},they should be no more than ${max}.`})
+                        }
+                      }else if(min){
+                        if (min > count) {
+                          this.articleValidations.push({ fulfilled: false, errorMessage: `Sections with name "${secName}" does not fulfill the conditions: (${expressErrorMesages.join(' ')}). Current count of sections that meet the conditions is ${count},they should be no less than ${min}.` })
+                        }
+                      }
+                    }
                 }
               })
               donevalidationSubject.next(null)
             })
-          } else if (el .rule == "FormControls"){
+          } else if (el.rule == "FormControls") {
 
             let formGroups = this.treeService.sectionFormGroups
             let loop = (sections: articleSection[]) => {
@@ -184,10 +254,10 @@ export class ValidationSectionComponent implements OnDestroy {
                 }
                 if (sec.active) {
                   let formGroup = formGroups[sec.sectionID];
-                  loopFormGroupChildren(formGroup,(child:FormControl,key:string)=>{
-                    if(child.status == "INVALID"){
-                      let errorStr = Object.keys(child.errors!).map((error)=>{return child.errors![error].message}).join('');
-                      this.articleFormFieldsValidation.push({fulfilled:false,errorMessage:`${key} in "${sec.title.label}".${errorStr}`})
+                  loopFormGroupChildren(formGroup, (child: FormControl, key: string) => {
+                    if (child.status == "INVALID") {
+                      let errorStr = Object.keys(child.errors!).map((error) => { return child.errors![error].message }).join('');
+                      this.articleFormFieldsValidation.push({ fulfilled: false, errorMessage: `${key} in "${sec.title.label}". ${errorStr}` })
                     }
                   });
                 }
@@ -196,13 +266,13 @@ export class ValidationSectionComponent implements OnDestroy {
             loop(this.treeService.articleSectionsStructure!)
             donevalidationSubject.next(null)
 
-          } else if (el .rule == "CitatedFigures"){
-            let figures: { [key: string]: figure }= this.ydocService.figuresMap!.get('ArticleFigures')
-            let figuresNumbersFromYMap:string[] = this.ydocService.figuresMap?.get('ArticleFiguresNumbers');
+          } else if (el.rule == "CitatedFigures") {
+            let figures: { [key: string]: figure } = this.ydocService.figuresMap!.get('ArticleFigures')
+            let figuresNumbersFromYMap: string[] = this.ydocService.figuresMap?.get('ArticleFiguresNumbers');
 
-            Object.keys(figures).forEach((key)=>{
-              if(figures[key].figurePlace == "endEditor"){
-                this.nonCitedFiguresValidation.push({fulfilled:false,errorMessage:`Figure № ${figuresNumbersFromYMap.findIndex((el)=>el == key)+1} is not cited.`})
+            Object.keys(figures).forEach((key) => {
+              if (figures[key].figurePlace == "endEditor") {
+                this.nonCitedFiguresValidation.push({ fulfilled: false, errorMessage: `Figure № ${figuresNumbersFromYMap.findIndex((el) => el == key) + 1} is not cited.` })
               }
             })
             donevalidationSubject.next(null)
@@ -214,9 +284,9 @@ export class ValidationSectionComponent implements OnDestroy {
 
     }
     let validateData = await validAsync()
-    if(validateData == 'cancel'){
+    if (validateData == 'cancel') {
 
-    }else{
+    } else {
       this.displayErrors = true
       this.spinnerComponent = false
       clearInterval(this.intervalID)

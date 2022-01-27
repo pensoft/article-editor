@@ -35,7 +35,6 @@ export class ChangeComponent implements OnInit {
   }
 
   focusCitat(){
-    console.log(this.change);
     let changeMiddle = (this.change.from+this.change.to)/2
     let view:EditorView = this.change.viewRef
     let sel = view.state.selection

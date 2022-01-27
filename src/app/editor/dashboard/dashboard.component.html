@@ -16,7 +16,7 @@
                 <mat-form-field class="width-select">
                     <mat-label class="type-select-label">Type</mat-label>
                     <mat-select #matSelect (selectionChange)="filterByType(matSelect.value)">
-                        <ng-container *ngFor="let type of articleTemplates">
+                        <ng-container *ngFor="let type of articleLayouts">
                             <mat-option value="{{type.id}}">{{type.name}}</mat-option>
                         </ng-container>
                     </mat-select>
@@ -48,9 +48,18 @@
                 </ng-container>
 
                 <!-- State Column -->
-                <ng-container matColumnDef="type">
-                    <th mat-header-cell *matHeaderCellDef>Type</th>
-                    <td mat-cell *matCellDef="let row">{{row.template.name}}</td>
+                <ng-container matColumnDef="layout-type">
+                    <th mat-header-cell *matHeaderCellDef>Layout Type</th>
+                    <td mat-cell *matCellDef="let row">
+                        {{row.layout.name}} v.{{row.layout.version}}
+                    </td>
+                </ng-container>
+
+                <ng-container matColumnDef="template-type">
+                    <th mat-header-cell *matHeaderCellDef>Template Type</th>
+                    <td mat-cell *matCellDef="let row">
+                        {{row.layout.template.name}} v.{{row.layout.template.version}}
+                    </td>
                 </ng-container>
 
                 <ng-container matColumnDef="lastupdated">
