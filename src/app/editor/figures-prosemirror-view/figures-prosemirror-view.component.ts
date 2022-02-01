@@ -22,7 +22,7 @@ export class FiguresProsemirrorViewComponent implements AfterViewInit {
     editorView: EditorView,
     dispatchTransaction: any
   }
-  
+
   constructor(
     private prosemirrEditorsService:ProsemirrorEditorsService,
     private figuresControllerService:FiguresControllerService,
@@ -45,7 +45,7 @@ export class FiguresProsemirrorViewComponent implements AfterViewInit {
       console.error(e)
     }
   }
-  
+
   renderEndEditor = ()=>{
       this.endEditorContainer = this.prosemirrEditorsService.renderDocumentEndEditor(this.ProsemirrorEditor?.nativeElement,this.figures);
       this.figuresControllerService.endEditorContainer = this.endEditorContainer

@@ -13,10 +13,129 @@ import replaceAroundStep from './helpers/replaceAroundStep.js';
 import addMarkStep from './helpers/addMarkStep.js';
 import removeMarkStep from './helpers/removeMarkStep.js';
 
+export const findMark = (state, PMmark, toArr = false) => {
+    const {
+        selection: {
+            $from,
+            $to
+        },
+        doc
+    } = state;
+    const fromMark = $from.marks().find(mark => mark.type === PMmark);
+    const toMark = $to.marks().find(mark => mark.type === PMmark);
+    let markFound;
+    const marksFound = [];
+    doc.nodesBetween($from.pos, $to.pos, (node, from) => {
+        if (node.marks) {
+            const actualMark = node.marks.find(mark => mark.type === PMmark);
+
+            if (actualMark) {
+                markFound = {
+                    from,
+                    to: from + node.nodeSize,
+                    attrs: actualMark.attrs,
+                    contained: !fromMark || !toMark || fromMark === toMark
+                };
+                marksFound.push(markFound);
+            }
+        }
+    });
+
+    let markAtEndOfSel = $to.nodeAfter ? $to.nodeAfter.marks.find(mark => mark.type === PMmark) : undefined;
+    let markAtStartOfSel = $to.nodeBefore ? $to.nodeBefore.marks.find(mark => mark.type === PMmark) : undefined;
+
+    let containedMark = false;
+
+    if (!markFound) {
+        if (markAtEndOfSel == markAtStartOfSel) {
+            containedMark = true
+        }
+    }
+    if (!markFound && $to.nodeAfter) {
+        let markAfterTo = $to.nodeAfter.marks.find(mark => mark.type === PMmark);
+        if (markAfterTo) {
+            markFound = {
+                from: $to.pos,
+                to: $to.pos + $to.nodeAfter.nodeSize,
+                attrs: markAfterTo.attrs,
+                contained: false,
+                atEndOfSel: true,
+            }
+        }
+    }
+
+    if (!markFound && $to.nodeBefore) {
+        let markAfterTo = $to.nodeBefore.marks.find(mark => mark.type === PMmark);
+        if (markAfterTo) {
+            markFound = {
+                from: $to.pos,
+                to: $to.pos + $to.nodeBefore.nodeSize,
+                attrs: markAfterTo.attrs,
+                contained: false,
+                atStartOfSel: true,
+            }
+        }
+    }
+
+    if (containedMark && markAtEndOfSel) {
+        markFound.contained = true;
+        containedMark.atEndOfSel = false;
+    }
+
+    if (toArr) return marksFound;
+    return markFound;
+};
+
+export const findMark1 = (state, PMmark, toArr = false) => {
+    const {
+        selection: {
+            $from,
+            $to
+        },
+        doc
+    } = state;
+    const fromMark = $from.marks().find(mark => mark.type === PMmark);
+    const toMark = $to.marks().find(mark => mark.type === PMmark);
+    let markFound;
+    const marksFound = [];
+    doc.nodesBetween($from.pos, $to.pos, (node, from) => {
+        if (node.marks) {
+            const actualMark = node.marks.find(mark => mark.type === PMmark);
+
+            if (actualMark) {
+                markFound = {
+                    from,
+                    to: from + node.nodeSize,
+                    attrs: actualMark.attrs,
+                    contained: !fromMark || !toMark || fromMark === toMark
+                };
+                marksFound.push(markFound);
+            }
+        }
+    });
+    //debugger
+    if (!markFound) {
+        let markAfterTo = $to.nodeAfter.marks.find(mark => mark.type === PMmark);
+        if (markAfterTo) {
+            markFound = {
+                from: $to.pos,
+                to: $to.pos + $to.nodeAfter.nodeSize,
+                attrs: markAfterTo.attrs,
+                contained: false,
+                atEndOfSel: true,
+            }
+        }
+    }
+
+    if (toArr) return marksFound;
+    return markFound;
+};
+
 const trackedTransaction = (
     tr,
     state,
     user,
+    lastContainingInsertionMark,
     group = 'main',
     viewId = 'main',
 ) => {
@@ -55,7 +174,6 @@ const trackedTransaction = (
         const step = originalStep.map(map);
         const { doc } = newTr;
         if (!step) return;
-
         switch (step.constructor) {
             case ReplaceStep:
                 replaceStep(
@@ -67,6 +185,7 @@ const trackedTransaction = (
                     doc,
                     user,
                     date,
+                    lastContainingInsertionMark,
                     group,
                     viewId,
                 );
@@ -81,6 +200,7 @@ const trackedTransaction = (
                     doc,
                     user,
                     date,
+                    lastContainingInsertionMark,
                     group,
                     viewId,
                 );
@@ -95,6 +215,7 @@ const trackedTransaction = (
                     doc,
                     user,
                     date,
+                    lastContainingInsertionMark,
                     group,
                     viewId,
                 );
@@ -109,6 +230,7 @@ const trackedTransaction = (
                     doc,
                     user,
                     date,
+                    lastContainingInsertionMark,
                     group,
                     viewId,
                 );
@@ -124,12 +246,11 @@ const trackedTransaction = (
 
     if (tr.selectionSet) {
         const deletionMarkSchema = state.schema.marks.deletion;
-        const deletionMark = DocumentHelpers.findMark(
+        const deletionMark = findMark(
             state,
             deletionMarkSchema,
             false,
         );
-
         if (
             tr.selection instanceof TextSelection &&
             (tr.selection.from < state.selection.from ||
@@ -137,6 +258,8 @@ const trackedTransaction = (
         ) {
             const caretPos = map.map(tr.selection.from, -1);
             newTr.setSelection(new TextSelection(newTr.doc.resolve(caretPos)));
+        } else if (tr.selection.from > state.selection.from && deletionMark && (deletionMark.atStartOfSel || deletionMark.atEndOfSel)) {
+            newTr.setSelection(tr.selection.map(newTr.doc, map));
         } else if (tr.selection.from > state.selection.from && deletionMark) {
             const caretPos = map.map(deletionMark.to + 1, 1);
             newTr.setSelection(new TextSelection(newTr.doc.resolve(caretPos)));

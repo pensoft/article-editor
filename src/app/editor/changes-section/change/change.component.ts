@@ -1,6 +1,5 @@
-//@ts-ignore
-import { acceptChange, rejectChange } from '../../utils/trackChanges/acceptReject.js';
-import { Component, Input, OnInit } from '@angular/core';
+import { acceptChange, rejectChange } from '../../utils/trackChanges/acceptReject';
+import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
 import { EditorView } from 'prosemirror-view';
 import { TextSelection } from 'prosemirror-state';
 
@@ -9,7 +8,7 @@ import { TextSelection } from 'prosemirror-state';
   templateUrl: './change.component.html',
   styleUrls: ['./change.component.scss']
 })
-export class ChangeComponent implements OnInit {
+export class ChangeComponent implements OnInit ,AfterViewInit{
 
   @Input() change: any;
 
@@ -18,20 +17,15 @@ export class ChangeComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  acceptChange(view: any, from: any, to: any) {
-    let position = {
-      from: from,
-      to: to
-    }
-    acceptChange(view, position)
+  ngAfterViewInit(): void {
   }
 
-  declineChange(view: any, from: any, to: any) {
-    let position = {
-      from: from,
-      to: to
-    }
-    rejectChange(view, position);
+  acceptChange(view: any, type: any, attrs: any) {
+    acceptChange(view, type,attrs)
+  }
+
+  declineChange(view: any, type: any, attrs: any) {
+    rejectChange(view, type,attrs);
   }
 
   focusCitat(){

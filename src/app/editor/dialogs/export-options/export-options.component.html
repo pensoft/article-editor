@@ -1,0 +1,21 @@
+<div class='export-header'>Export a manuscript</div>
+<div class="options-container">
+    <div class="format-label">Fromat:</div>
+    <mat-radio-group class="format-options" [(ngModel)]="selectedType">
+        <mat-radio-button class="format-option" value="pdf">PDF</mat-radio-button>
+        <mat-radio-button class="format-option" value="rtf">RTF</mat-radio-button>
+        <mat-radio-button class="format-option" value="msWord">MS Word</mat-radio-button>
+        <mat-radio-button class="format-option" value="jatsXml">JATS xml</mat-radio-button>
+    </mat-radio-group>
+</div>
+<div class="export-container">
+    <div class="export-label">Export to:</div>
+    <div class="export-place">
+        <img class="folder-icon" src="../../../../assets/icons/folder.svg" alt="">
+        <div class="folder-path">{{path}}</div>
+        <button class="change-folder-btn" color="primary" mat-button>Change</button>
+    </div>
+</div>
+<div class="button-container">
+    <button class="export-button" mat-raised-button color="primary">Export <img src="../../../../assets/icons/download.svg" alt=""></button>
+</div>

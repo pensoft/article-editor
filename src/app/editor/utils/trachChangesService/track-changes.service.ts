@@ -9,8 +9,7 @@ import { Subject } from 'rxjs';
 import { DocumentHelpers } from 'wax-prosemirror-utilities';
 import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../../services/ydoc.service';
-//@ts-ignore
-import { acceptChange, rejectChange } from '../trackChanges/acceptReject.js';
+import { acceptChange, rejectChange } from '../trackChanges/acceptReject';
 
 
 const getTrackChanges = (state: EditorState) => {
@@ -391,17 +390,17 @@ export class TrackChangesService {
                   return
                 }
                 if (this.acceptReject.action == 'accept') {
-                  acceptChange(view, { from: marks[0].from, to: marks[0].to })
+                  acceptChange(view,`${marks[0].type}`, {...marks[0].markattrs})
                 } else if (this.acceptReject.action == 'reject') {
-                  rejectChange(view, { from: marks[0].from, to: marks[0].to })
+                  rejectChange(view,`${marks[0].type}`, {...marks[0].markattrs})
                 }
                 this.acceptReject.action = undefined
                 this.acceptReject.editorId = undefined
                 this.acceptReject.pos = undefined
               }
-              if(!this.serviceShare.ProsemirrorEditorsService?.editorContainers[sectionName]){
+              /* if(!this.serviceShare.ProsemirrorEditorsService?.editorContainers[sectionName]){
                 return;
-              }
+              } */
               if (JSON.stringify(view.state.doc) == JSON.stringify(prevState.doc) && !view.hasFocus()) {
                 return;
               }
@@ -465,11 +464,13 @@ export class TrackChangesService {
                       actualMarks.forEach((mark) => {
                         allChangesMarksFound.push({
                           mark: mark,
+                          markattrs:{...mark.attrs},
                           from: from,
                           to: from + node.nodeSize,
                           text: doc.textBetween(from, from + node.nodeSize),
                           viewRef: view,
-                          type: mark.type.name
+                          type: mark.type.name,
+                          main:this.serviceShare.ProsemirrorEditorsService?.editorContainers[sectionName]&&true
                         })
                       })
 

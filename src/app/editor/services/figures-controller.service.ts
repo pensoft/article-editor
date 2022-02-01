@@ -56,6 +56,11 @@ export class FiguresControllerService {
     this.serviceShare.shareSelf('FiguresControllerService', this)
     if (this.ydocService.editorIsBuild) {
       this.initFigures()
+      this.ydocService.ydocStateObservable.subscribe((event) => {
+        if (event == 'docIsBuild') {
+          this.initFigures()
+        }
+      });
     } else {
       this.ydocService.ydocStateObservable.subscribe((event) => {
         if (event == 'docIsBuild') {
@@ -68,6 +73,8 @@ export class FiguresControllerService {
 
   initFigures() {
     let figuresNumbersFromYMap = this.ydocService.figuresMap?.get('ArticleFiguresNumbers');
+    let figuresFromYdoc = this.ydocService.figuresMap!.get('ArticleFigures');
+    this.figures = figuresFromYdoc;
     this.figuresNumbers = figuresNumbersFromYMap
   }
 
@@ -261,6 +268,10 @@ export class FiguresControllerService {
 
   citateFigures(selectedFigures: boolean[], figuresComponentsChecked: { [key: string]: boolean[] }, sectionID: string, citatAttrs: any) {
     try {
+      if(!this.figuresNumbers||!this.figures){
+        this.figuresNumbers = this.ydocService.figuresMap!.get('ArticleFiguresNumbers')
+        this.figures = this.ydocService.figuresMap!.get('ArticleFigures')
+      }
       //check selections
       let insertionView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
       let citats = this.ydocService.figuresMap?.get('articleCitatsObj');
@@ -323,7 +334,7 @@ export class FiguresControllerService {
         if (curr) {
           if (figuresComponentsChecked[this.figuresNumbers![index]].filter(e => e).length == figuresComponentsChecked[this.figuresNumbers![index]].length) {// means the whole figure is citated
             //citated.push(index + 1)
-            //citatString += ` ${index + 1}`
+            //citatString +=  ${index + 1}`
             return prev.concat(curr ? [this.figuresNumbers![index]] : []);
           } else {
             //citated.push(index + 1)

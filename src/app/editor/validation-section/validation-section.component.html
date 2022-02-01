@@ -47,6 +47,10 @@
             <ul *ngFor="let error of articleValidations">
                 <li>{{error.errorMessage}}</li>
             </ul>
+            <div class="error-type" *ngIf="articleValidationsErrors.length>0">Not Processed</div>
+            <ul *ngFor="let error of articleValidationsErrors">
+                <li>{{error.errorMessage}}</li>
+            </ul>
         </div>
         <hr class="error-hr">
         <div class="number-of-characters">Number of characters(with spaces): {{articleLength}}</div>

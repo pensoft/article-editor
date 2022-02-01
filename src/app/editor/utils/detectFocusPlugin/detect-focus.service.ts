@@ -68,14 +68,12 @@ export class DetectFocusService {
             let focusRN = view.hasFocus()
 
 
-            if(focusRN){
+            if(focusRN&&getLastFocus()!==sectionName){
 
               setTimeout(() => {
                 focusedE.next(sectionName);
               }, 10);
               setLastEditorFocus(sectionName)
-            }else if(getLastFocus() == sectionName){
-
             }
             /* if(focusRN !== hasFocus){
               hasFocus = focusRN

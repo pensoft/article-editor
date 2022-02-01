@@ -2,11 +2,12 @@ import { DomElementSchemaRegistry } from '@angular/compiler';
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
-import { ArticlesService } from '@app/core/services/articles.service';
+import { AuthService } from '@app/core/services/auth.service';
 import { ChooseSectionComponent } from '../dialogs/choose-section/choose-section.component';
 import { FiguresDialogComponent } from '../dialogs/figures-dialog/figures-dialog.component';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
 import { FiguresControllerService } from '../services/figures-controller.service';
+import { ServiceShare } from '../services/service-share.service';
 import { YdocService } from '../services/ydoc.service';
 
 @Component({
@@ -23,7 +24,9 @@ export class ArticleMetadataComponent implements OnInit {
     private sectionsService:ArticleSectionsService,
     private figuresControllerService:FiguresControllerService,
     private ydocService:YdocService,
-    private treeService:TreeService,) { }
+    private serviceShare:ServiceShare,
+    private treeService:TreeService,
+    private authService:AuthService) { }
 
 
   ngOnInit(): void {
@@ -40,6 +43,12 @@ export class ArticleMetadataComponent implements OnInit {
     })
   }
 
+  refreshToken(){
+    this.authService.refreshToken().subscribe((res)=>{
+      console.log(res);
+    })
+  }
+
   resetCitatsObj(){
     let articleCitatsObj = this.ydocService.figuresMap?.get('articleCitatsObj');
     Object.keys(articleCitatsObj).forEach((sectionId)=>{
@@ -47,6 +56,10 @@ export class ArticleMetadataComponent implements OnInit {
     })
     this.ydocService.figuresMap?.set('articleCitatsObj',articleCitatsObj);
     this.figuresControllerService.markCitatsViews(articleCitatsObj);
+  }
+
+  logData(){
+    this.serviceShare.logData();
   }
 
   addNewSectionToArticle(){

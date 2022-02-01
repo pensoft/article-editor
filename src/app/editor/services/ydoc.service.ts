@@ -55,6 +55,7 @@ export class YdocService {
   comments?: YMap<any>
   figuresMap?: YMap<any>
   trackChangesMetadata?: YMap<any>
+  usersDataMap?: YMap<any>
   userInfo: any
   getCommentsMap(): YMap<any> {
     return this.comments!
@@ -188,7 +189,12 @@ export class YdocService {
     let figuresNumbers = this.figuresMap!.get('ArticleFiguresNumbers');
     let figuresTemplates = this.figuresMap!.get('figuresTemplates');
     let figures = this.figuresMap!.get('ArticleFigures');
-
+    this.usersDataMap = this.ydoc.getMap('userDataMap')
+    let usersColors = this.usersDataMap.get('usersColors');
+    if (!usersColors) {
+      this.usersDataMap.set('usersColors', { });
+    }
+    this.setUserColor(this.userInfo);
 
     if (!figures) {
       this.figuresMap!.set('ArticleFigures', {})
@@ -223,26 +229,66 @@ export class YdocService {
 
     this.provider = undefined;
     this.roomName = 'webrtc-test3';
-    this.providerIndexedDb  = undefined;
+    this.providerIndexedDb = undefined;
 
     //this.articleStructureFromBackend = undefined;
     this.articleStructure = undefined;
     this.articleData = undefined;
-    this.sectionFormGroupsStructures  = undefined;
-    this.comments  = undefined;
-    this.figuresMap  = undefined;
-    this.trackChangesMetadata  = undefined;
+    this.sectionFormGroupsStructures = undefined;
+    this.comments = undefined;
+    this.figuresMap = undefined;
+    this.trackChangesMetadata = undefined;
     this.userInfo = undefined;
   }
+
+  setUserColor(userInfo: any) {
+    let usersColors = this.usersDataMap!.get('usersColors');
+    let userId = userInfo.data.id;
+    let colors:string[] = [
+      '#84aff5',
+      '#edeaa6',
+      '#d5eda6',
+      '#c7eda6',
+      '#b2eda6',
+      '#a6edb7',
+      '#a6edce',
+      '#a6edce',
+      '#a6e1ed',
+      '#a6d2ed',
+      '#a6b8ed',
+      '#b7a6ed',
+      '#d3a6ed',
+      '#eda6d5',
+      '#eda6a6',
+      '#ffeddb',
+      '#fcffdb',
+      '#f0ffdb',
+      '#e7ffdb',
+      '#dbffdc',
+      '#dbfff1',
+      '#dbfdff',
+      '#dbeeff',
+      '#dbdfff',
+      '#eedbff',
+      '#ffdbfb',
+      '#ffdbe2',]
+    if (!usersColors[userId]) {
+      let newUserColor = colors[+(Math.random() * colors.length-2).toFixed(0)]
+      usersColors[userId] = newUserColor;
+    }
+    this.usersDataMap!.set('usersColors', usersColors);
+
+    this.userInfo.color = usersColors[userId];
+  }
+
   init(roomName: string, userInfo: any) {
-    if(!this.articleData){
-      this.serviceShare.ArticlesService?.getArticleByUuid(roomName).subscribe((res:any)=>{
+    if (!this.articleData) {
+      this.serviceShare.ArticlesService?.getArticleByUuid(roomName).subscribe((res: any) => {
         this.articleData = res.data;
       })
     }
     this.roomName = roomName
-    this.userInfo = userInfo
-    this.userInfo.color = ['#fa7171', '#fa71bf', '#f571fa', '#c971fa', '#8a71fa', '#71fac5', '#fac771', '#fa9471'][+(Math.random() * 14).toFixed(0)]
+    this.userInfo = userInfo;
     this.providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
     let buildApp = () => {
       this.provider = new WebsocketProvider(`wss://${environment.WEBSOCKET_HOST}:${environment.WEBSOCKET_PORT}`, this.roomName, this.ydoc, {

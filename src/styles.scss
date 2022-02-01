@@ -134,7 +134,8 @@ p {
 .insertion,
 .ins-from-popup {
     color: black;
-    background: #dfffc9;
+    background: color(attr(data-color));
+    ;
 }
 
 

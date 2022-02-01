@@ -59,6 +59,7 @@
     "http": "^0.0.1-security",
     "http-server": "^13.0.0",
     "json-server": "^0.16.3",
+    "jspdf": "^2.5.1",
     "katex": "^0.13.13",
     "lib0": "^0.2.42",
     "lit-html": "^1.4.1",

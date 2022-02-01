@@ -263,7 +263,6 @@ export class ProsemirrorEditorsService {
     this.editorsDeleteArray = []
     this.userData = undefined;
     this.deletedCitatsInPopUp = {}
-    this.rerenderFigures = undefined;
   }
 
   dispatchEmptyTransaction() {  // for updating the view
@@ -370,9 +369,11 @@ export class ProsemirrorEditorsService {
     let mapping = new Mapping();
 
     let lastStep: any
+    let lastContainingInsertionMark :any
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
       try {
+
         let nodeAtSel = transaction.selection.$head.parent||transaction.selection.$anchor.parent
         //@ts-ignore
         if(nodeAtSel&&!transaction.getMeta('titleupdateFromControl')&&nodeAtSel.attrs.controlPath&&nodeAtSel.attrs.controlPath == "sectionTreeTitle"&&transaction.steps.filter(step=>{return step instanceof ReplaceStep||step instanceof ReplaceAroundStep}).length>0){
@@ -392,12 +393,28 @@ export class ProsemirrorEditorsService {
           editorView?.updateState(state!);
 
         } else {
+
           const tr = trackedTransaction.default(transaction, editorView?.state,
             {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
-              userColor: { addition: 'transperant', deletion: 'black' }
-            });
+              userColor: this.userInfo.color
+            },lastContainingInsertionMark);
+            if(editorView?.state.selection instanceof TextSelection&&transaction.selectionSet){
+              let sel = editorView?.state.selection
+              if(sel.$to.nodeAfter&&sel.$to.nodeBefore){
+                let insertionMarkAfter = sel.$to.nodeAfter?.marks.filter(mark => mark.type.name == 'insertion')[0]
+                let insertionMarkBefore = sel.$to.nodeBefore?.marks.filter(mark => mark.type.name == 'insertion')[0]
+                if(sel.empty&&insertionMarkAfter&&insertionMarkAfter==insertionMarkBefore){
+                  lastContainingInsertionMark = `${insertionMarkAfter.attrs.id}`
+                }else if(
+                  (insertionMarkAfter&&insertionMarkAfter.attrs.id == lastContainingInsertionMark)||
+                  (insertionMarkBefore&&insertionMarkBefore.attrs.id == lastContainingInsertionMark)){
+                }else{
+                  lastContainingInsertionMark = undefined
+                }
+              }
+            }
           let state = editorView?.state.apply(tr);
           editorView?.updateState(state!);
         }
@@ -566,12 +583,15 @@ export class ProsemirrorEditorsService {
     });
 
     let lastStep: any
+    let lastContainingInsertionMark :any
+
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
       try {
-        if (lastStep == transaction.steps[0]) {
+        /* if (lastStep == transaction.steps[0]) {
           if (lastStep) { return }
-        }
+        } */
+
         lastStep = transaction.steps[0]
         if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false) {
           let undoManager = yUndoPluginKey.getState(editorView.state).undoManager
@@ -584,8 +604,24 @@ export class ProsemirrorEditorsService {
             {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
-              userColor: { addition: 'transperant', deletion: 'black' }
-            });
+              userColor: this.userInfo.color
+            },lastContainingInsertionMark);
+            if(transaction.selection instanceof TextSelection){
+              let sel = transaction.selection
+              if(sel.$to.nodeAfter&&sel.$to.nodeBefore){
+
+                let insertionMarkAfter = sel.$to.nodeAfter?.marks.filter(mark => mark.type.name == 'insertion')[0]
+                let insertionMarkBefore = sel.$to.nodeBefore?.marks.filter(mark => mark.type.name == 'insertion')[0]
+                if(sel.empty&&insertionMarkAfter&&insertionMarkAfter==insertionMarkBefore){
+                  lastContainingInsertionMark = `${insertionMarkAfter.attrs.id}`
+                }else if(
+                  (insertionMarkAfter&&insertionMarkAfter.attrs.id == lastContainingInsertionMark)||
+                  (insertionMarkBefore&&insertionMarkBefore.attrs.id == lastContainingInsertionMark)){
+                }else{
+                  lastContainingInsertionMark = undefined
+                }
+              }
+            }
           let state = editorView?.state.apply(tr);
           editorView?.updateState(state!);
         }
@@ -731,6 +767,7 @@ export class ProsemirrorEditorsService {
 
     this.editorsEditableObj[editorID] = true
     let lastStep: any
+    let lastContainingInsertionMark:any
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
       try {
@@ -747,8 +784,23 @@ export class ProsemirrorEditorsService {
             {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
-              userColor: { addition: 'transperant', deletion: 'black' }
-            });
+              userColor: this.userInfo.color
+            },lastContainingInsertionMark);
+            if(editorView?.state.selection instanceof TextSelection&&transaction.selectionSet){
+              let sel = editorView?.state.selection
+              if(sel.$to.nodeAfter&&sel.$to.nodeBefore){
+                let insertionMarkAfter = sel.$to.nodeAfter?.marks.filter(mark => mark.type.name == 'insertion')[0]
+                let insertionMarkBefore = sel.$to.nodeBefore?.marks.filter(mark => mark.type.name == 'insertion')[0]
+                if(sel.empty&&insertionMarkAfter&&insertionMarkAfter==insertionMarkBefore){
+                  lastContainingInsertionMark = `${insertionMarkAfter.attrs.id}`
+                }else if(
+                  (insertionMarkAfter&&insertionMarkAfter.attrs.id == lastContainingInsertionMark)||
+                  (insertionMarkBefore&&insertionMarkBefore.attrs.id == lastContainingInsertionMark)){
+                }else{
+                  lastContainingInsertionMark = undefined
+                }
+              }
+            }
           let state = editorView?.state.apply(tr);
           editorView?.updateState(state!);
         }

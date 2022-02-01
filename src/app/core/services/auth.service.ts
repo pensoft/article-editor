@@ -102,14 +102,14 @@ export class AuthService implements OnDestroy {
   }
 
   refreshToken() {
-    return this._http.get(`${API_URL}/refresh`,{})
+    return this._http.get(`${API_URL}/refresh`,{observe: 'response'})
       .pipe(
-        map((resp) => {
-          console.log(resp);
-          /* if (resp && resp.headers.get('Authorization') && (resp.headers.get('Authorization') || '').includes('Bearer')) {
-            return (resp.headers.get('Authorization') || '').replace('Bearer ', '');
-          } */
-          return false;
+        map((resp:any) => {
+          if (resp && resp.headers.get('Authorization') && (resp.headers.get('Authorization') || '').includes('Bearer')) {
+            let token = (resp.headers.get('Authorization') || '').replace('Bearer ', '');
+            this.storeToken(token)
+            return token
+          }
         })
       )
   }

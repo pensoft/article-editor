@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatBottomSheet } from '@angular/material/bottom-sheet';
+import { MatDialog } from '@angular/material/dialog';
 import { MatDrawer } from '@angular/material/sidenav';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
@@ -27,6 +28,8 @@ import {
 //@ts-ignore
 import * as Y from 'yjs';
 import { EditorSidebarComponent } from '../layout/widgets/editor-sidebar/editor-sidebar.component';
+import { ExportOptionsComponent } from './dialogs/export-options/export-options.component';
+import { FiguresDialogComponent } from './dialogs/figures-dialog/figures-dialog.component';
 import { TreeService } from './meta-data-tree/tree-service/tree.service';
 import { ProsemirrorEditorsService } from './services/prosemirror-editors.service';
 import { YdocService } from './services/ydoc.service';
@@ -52,8 +55,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
   titleControl = new FormControl();
 
-  @ViewChild('trachChangesOnOffBtn', { read: ElementRef })
-  trachChangesOnOffBtn?: ElementRef;
+  @ViewChild('trachChangesOnOffBtn', { read: ElementRef }) trachChangesOnOffBtn?: ElementRef;
   OnOffTrackingChangesShowTrackingSubject: Subject<{
     trackTransactions: boolean;
   }>;
@@ -68,6 +70,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   constructor(
     private ydocService: YdocService,
     private route: ActivatedRoute,
+    public dialog: MatDialog,
     private commentService: CommentsService,
     private _bottomSheet: MatBottomSheet,
     private prosemirrorEditorServie: ProsemirrorEditorsService,
@@ -279,7 +282,16 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
   print() {}
 
-  export() {}
+  export() {
+    this.dialog.open(ExportOptionsComponent, {
+      width: '465px',
+      height: '531px',
+      data: { },
+      disableClose: false
+    }).afterClosed().subscribe(result => {
+
+    })
+  }
 
   submit() {}
 }

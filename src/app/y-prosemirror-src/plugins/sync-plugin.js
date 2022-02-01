@@ -474,91 +474,32 @@ const createNodeFromYElement = (el, schema, mapping, snapshot, prevSnapshot, com
 const createTextNodesFromYText = (text, schema, mapping, snapshot, prevSnapshot, computeYChange) => {
     const nodes = []
     const deltas = text.toDelta(snapshot, prevSnapshot, computeYChange)
-    const deltas1 = text.toDelta(prevSnapshot, snapshot, computeYChange)
+    const deltasReversedTypes = text.toDelta(prevSnapshot, snapshot, computeYChange)
     try {
-        for (let i = 0; i < deltas1.length; i++) {
-            const delta1 = deltas[i]
-            const delta2 = deltas1[i]
-
-            let deltaAttrs = {};
-            if (delta1 && delta1.attributes) {
-                Object.keys(delta1.attributes).forEach((attr) => {
-                    if (!deltaAttrs[attr] && attr !== 'ychange') {
-                        deltaAttrs[attr] = delta1.attributes[attr]
-                    }
-                })
-            }
-            if (delta2 && delta2.attributes) {
-                Object.keys(delta2.attributes).forEach((attr) => {
-                    if (!deltaAttrs[attr] && attr !== 'ychange') {
-                        deltaAttrs[attr] = delta2.attributes[attr]
-                    }
-                })
-            }
-            const marks = []
-            for (const markName in deltaAttrs) {
-                let markAttrs = deltaAttrs[markName]
-                if (markName == 'ychange' /* &&!delta.attributes.insertion&&!delta.attributes.deletion */ ) {
-                    if (markAttrs.type == 'added' && trackStatus) {
-                        /* for (const markName in deltas1[i].attributes) {
-                          if(markName !== 'ychange'){
-                            if(markName == 'insertion'||markName == 'deletion'){
-                              marks.push(schema.mark(markName, deltas1[i].attributes[markName]))
-                            }else{
-                              marks.push(schema.mark(markName, deltas1[i].attributes[markName]))
-                            }
-                          }
-                        } */
-                        /*
-                         marks.push(schema.mark('insertion', {
-                          user:userInfo.data.id,
-                          username:userInfo.data.name
-                        }))  */
-                    } else if (markAttrs.type == 'removed' && trackStatus) {
-                        for (const markName in deltas1[i].attributes) {
-                            if (markName !== 'ychange') {
-                                if (markName == 'insertion' || markName == 'deletion') {
-                                    marks.push(schema.mark(markName, deltas1[i].attributes[markName]))
-                                } else {
-                                    marks.push(schema.mark(markName, deltas1[i].attributes[markName]))
-                                }
-                            }
-                        }
-                        /* marks.push(schema.mark(markName, deltas1[i].attributes[markName]))
-                        marks.push(schema.mark('deletion',{
-                          user:userInfo.data.id,
-                          username:userInfo.data.name
-                        })) */
-                        /*
-                         marks.push(schema.mark('deletion',{
-                          user:userInfo.data.id,
-                          username:userInfo.data.name
-                        }))  */
-                    }
-                } else {
-                    if (markName !== 'ychange') {
-                        if (markName == 'insertion' || markName == 'deletion') {
-                            marks.push(schema.mark(markName, deltaAttrs[markName]))
-                        } else {
-                            marks.push(schema.mark(markName, deltaAttrs[markName]))
+        if (snapshot && prevSnapshot) {
+            for (let i = 0; i < deltas.length; i++) {
+                const delta = deltas[i]
+                const marks = []
+                if (delta.attributes) {
+                    for (const markName in delta.attributes) {
+                        if (markName !== 'ychange') {
+                            marks.push(schema.mark(markName, delta.attributes[markName]));
                         }
                     }
-                    /*else{
-                                if(markAttrs.type == 'added'&&trackStatus){
-                                  marks.push(schema.mark('insFromPopup', {
-                                    user:text.doc.clientID,
-                                    username:markAttrs.user
-                                  }))
-                                }else if(markAttrs.type == 'removed'&&trackStatus){
-                                  marks.push(schema.mark('delFromPopup',{
-                                    user:text.doc.clientID,
-                                    username:markAttrs.user
-                                  }))
-                                }
-                              } */
                 }
+                nodes.push(schema.text(delta.insert, marks))
             }
-            nodes.push(schema.text(delta1.insert, marks))
+        } else {
+            for (let i = 0; i < deltas.length; i++) {
+                const delta = deltas[i]
+                const marks = []
+                if (delta.attributes) {
+                    for (const markName in delta.attributes) {
+                        marks.push(schema.mark(markName, delta.attributes[markName]))
+                    }
+                }
+                nodes.push(schema.text(delta.insert, marks))
+            }
         }
     } catch (e) {
         // an error occured while creating the node. This is probably a result of a concurrent action.

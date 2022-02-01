@@ -1,0 +1,41 @@
+.export-header {
+    font-size: 24px;
+    font-weight: 500;
+    text-align: -webkit-center;
+    padding-top: 31px;
+    padding-bottom: 31px;
+}
+
+.options-container {
+    .format-label {
+        display: inline-block;
+    }
+    .format-options {
+        display: inline-block;
+        .format-option {
+            display: block;
+        }
+    }
+}
+
+.export-container {
+    .export-label {
+        display: inline-block;
+    }
+    .export-place {
+        display: inline-block;
+        .folder-icon {
+            display: inline;
+        }
+        .change-folder-btn {
+            display: inline;
+        }
+        .folder-path {
+            display: inline;
+        }
+    }
+}
+
+.button-container {
+    .export-button {}
+}

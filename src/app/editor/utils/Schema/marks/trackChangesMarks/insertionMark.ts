@@ -11,6 +11,8 @@ const insertion = {
     group: { default: '' },
     viewid: { default: '' },
     style: { default: null },
+    connectedTo:{default:''},
+    color:{default:''},
   },
   inclusive: false,
   group: 'track',
@@ -18,13 +20,15 @@ const insertion = {
     tag: "span.insertion", getAttrs(dom:any) {
       return {
         src: dom.getAttribute('class'),
-        style: dom.getAttribute('style'),
+        style: dom.getAttribute('style').split(';background: ')[0],
         id: dom.dataset.id,
         user: dom.getAttribute('user'),
         username: dom.dataset.username,
         date: parseInt(dom.dataset.date),
         group: dom.dataset.group,
         viewid: dom.dataset.viewid,
+        connectedTo: dom.getAttribute('connectedto'),
+        color: dom.getAttribute('style').split(';background: ')[1],
       }
     }
   }],
@@ -33,11 +37,13 @@ const insertion = {
       class: node.attrs.class,
       'data-id': node.attrs.id,
       'user': node.attrs.user,
+      'connectedto': node.attrs.connectedTo,
+      'data-color': node.attrs.color,
       'data-username': node.attrs.username,
       'data-date': node.attrs.date,
       'data-group': node.attrs.group,
       'data-viewid': node.attrs.viewid,
-      style: node.attrs.style,
+      style: node.attrs.style + ';background: '+ node.attrs.color,
     }]
   }
 };

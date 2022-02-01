@@ -1,5 +1,5 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { AfterContentInit, AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterContentInit, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { EditSectionDialogComponent } from '../../../dialogs/edit-section-dialog/edit-section-dialog.component';
 import { ProsemirrorEditorsService } from '../../../services/prosemirror-editors.service';
@@ -56,6 +56,9 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   @Input() sectionsFormGroupsRef!: { [key: string]: FormGroup }
   @Output() sectionsFormGroupsRefChange = new EventEmitter<FormGroup>();
 
+
+  @ViewChild('cdkDragSection', { read: ElementRef }) dragSection?: ElementRef;
+
   constructor(
     private formBuilderService: FormBuilderService,
     public treeService: TreeService,
@@ -70,6 +73,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       }
 
       if (this.parentId !== 'parentList' && this.node.sectionID == this.focusedId) {
+        (this.dragSection!.nativeElement as HTMLDivElement).scrollIntoView({ behavior: 'smooth', block: 'center' })
         this.expandParentFunc();
       }
     });
@@ -137,6 +141,22 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
       //this.formBuilderService.buildFormGroupFromSchema(formGroup, sectionContent);
       let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID);
+
+      let updateYdoc = new Y.Doc();
+      let maindocstate = Y.encodeStateAsUpdate(this.ydocService.ydoc)
+      Y.applyUpdate(updateYdoc,maindocstate)
+       let updateXmlFragment = updateYdoc.getXmlFragment(node.sectionID);
+
+      let xmlToCopyFrom = this.ydocService.ydoc.getXmlFragment(node.sectionID);
+      /*updateXmlFragment.insert(0, xmlToCopyFrom.toArray().map((item: any) => item instanceof Y.AbstractType ? item.clone() : item)); */
+
+      let originUpdates: any[] = [];
+      let registerUpdateFunc = (update: any) => {
+        console.log('updating');
+        originUpdates.push(update)
+      }
+      this.ydocService.ydoc.on('update',registerUpdateFunc )
+
       node.formIOSchema = sectionContent
       this.dialog.open(EditSectionDialogComponent, {
         width: '95%',
@@ -147,6 +167,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
         if (result && result.compiledHtml) {
           this.treeService.editNodeChange(node.sectionID)
 
+          let copyOriginUpdatesBeforeReplace = [...originUpdates]
           let trackStatus = this.prosemirrorEditorsService.trackChangesMeta.trackTransactions
           this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = false
           this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
@@ -157,18 +178,28 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
           templDiv.innerHTML = result.compiledHtml
           let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
           if (trackStatus) {
-            const mainDocumentSnapshot = Y.snapshot(this.ydocService.ydoc)
-            updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
+            const snapshotFromBackGround = Y.snapshot(this.ydocService.ydoc);
+            updateYFragment(updateYdoc, updateXmlFragment, node1, new Map());
             const updatedSnapshot = Y.snapshot(this.ydocService.ydoc)
             let editorView = this.prosemirrorEditorsService
               .editorContainers[node.sectionID].editorView
-            editorView.dispatch(editorView.state.tr.setMeta(ySyncPluginKey, {
+            copyOriginUpdatesBeforeReplace.forEach((update) => {
+              Y.applyUpdate(updateYdoc,update);
+            })
+            let xmlElements = xmlToCopyFrom.toArray().length
+
+            let maindocstate = Y.encodeStateAsUpdate(updateYdoc)
+            Y.applyUpdate(this.ydocService.ydoc,maindocstate)
+            //xmlToCopyFrom.delete(0,xmlElements)
+            //xmlToCopyFrom.insert(0, updateXmlFragment.toArray().map((item: any) => item instanceof Y.AbstractType ? item.clone() : item));
+
+            /* editorView.dispatch(editorView.state.tr.setMeta(ySyncPluginKey, {
               snapshot: Y.decodeSnapshot(Y.encodeSnapshot(updatedSnapshot)),
-              prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(mainDocumentSnapshot)),
+              prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(snapshotFromBackGround)),
               renderingFromPopUp: true,
               trackStatus: true,
               userInfo: this.prosemirrorEditorsService.userInfo,
-            }))
+            })) */
           } else {
             updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
           }
@@ -185,6 +216,8 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
             this.prosemirrorEditorsService.citatEditingSubject.next({ action: 'clearDeletedCitatsFromPopup' })
           }, 30)
         }
+      this.ydocService.ydoc.off('update',registerUpdateFunc)
+
       });
     } catch (e) {
       console.error(e);
