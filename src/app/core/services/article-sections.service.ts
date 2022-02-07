@@ -22,6 +22,6 @@ export class ArticleSectionsService {
 
   getAllLayouts(params?:any){
 
-    return this._http.get(`${API_ARTICLE_TEMPLATES_URL}`,params?params:{page:1,pageSize:999})
+    return this._http.get(`${API_ARTICLE_TEMPLATES_URL}`,{params:{page:1,pageSize:100}})
   }
 }

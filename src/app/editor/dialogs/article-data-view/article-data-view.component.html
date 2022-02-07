@@ -1,0 +1,19 @@
+<div class="show-hide-buttons">
+    <button mat-raised-button (click)="showHideElement(articleStructure,srticleStrBtn)" #srticleStrBtn>Show article structure</button>
+    <button mat-raised-button (click)="showHideElement(sectionsDataCont,sectionsDatabtn)" #sectionsDatabtn>Show section data</button>
+</div>
+<div class="editor-data-container">
+    <div style="display: none;" #articleStructure>
+        <ngx-json-viewer [json]="articleSectionsStructure"></ngx-json-viewer>
+    </div>
+    <div style="display: none;" #sectionsDataCont>
+        <div *ngIf="sectionsDataCont.style.display !== 'none'">
+            <div *ngFor="let data of sectionsData">
+                <app-section-data-view [(sectionData)]="data!"></app-section-data-view>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<button mat-raised-button (click)="closeDialog()"> Close </button>

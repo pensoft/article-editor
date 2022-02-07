@@ -80,7 +80,10 @@ import { SignPasswordDevicesComponent } from './layout/pages/sign-password-devic
 import { AskBeforeDeleteComponent } from './editor/dialogs/ask-before-delete/ask-before-delete.component';
 import { ComplexEditTreeComponent } from './editor/section/complex-edit-tree/complex-edit-tree.component';
 import { SnackBarErrorComponentComponent } from './editor/meta-data-tree/snack-bar-error-component/snack-bar-error-component.component';
+import { ArticleDataViewComponent } from './editor/dialogs/article-data-view/article-data-view.component';
 import { ExportOptionsComponent } from './editor/dialogs/export-options/export-options.component';
+import { NgxJsonViewerModule } from 'ngx-json-viewer';
+import { SectionDataViewComponent } from './editor/dialogs/article-data-view/section-data-view/section-data-view.component';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -123,6 +126,7 @@ const gravatarConfig: GravatarConfig = {
     InsertSpecialSymbolDialogComponent,
     SectionComponent,
     FigurePreviewComponent,
+    ArticleDataViewComponent,
     ArticleComponent,
     EditSectionDialogComponent,
     FormControlNameDirective,
@@ -147,10 +151,12 @@ const gravatarConfig: GravatarConfig = {
     ComplexEditTreeComponent,
     SnackBarErrorComponentComponent,
     ExportOptionsComponent,
+    SectionDataViewComponent,
 
   ],
   imports: [
     PipesModule,
+    NgxJsonViewerModule,
     BrowserModule,
     MaterialModule,
     FormsModule,

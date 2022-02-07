@@ -3,6 +3,7 @@ import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
 import { AuthService } from '@app/core/services/auth.service';
+import { ArticleDataViewComponent } from '../dialogs/article-data-view/article-data-view.component';
 import { ChooseSectionComponent } from '../dialogs/choose-section/choose-section.component';
 import { FiguresDialogComponent } from '../dialogs/figures-dialog/figures-dialog.component';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
@@ -84,5 +85,28 @@ export class ArticleMetadataComponent implements OnInit {
         })
       });
     })
+  }
+
+  showArticleData(){
+    console.log(this.treeService.articleSectionsStructure);
+    console.log(this.treeService.sectionFormGroups);
+    console.log(this.ydocService.figuresMap!.get('articleCitatsObj'));
+    console.log(this.ydocService.figuresMap!.get('ArticleFigures'));
+    const dialogRef = this.dialog.open(ArticleDataViewComponent, {
+      width: '90%',
+      height: '90%',
+      panelClass:'show-article-data',
+      data: {
+        articleSectionsStructure: JSON.parse(JSON.stringify(this.treeService.articleSectionsStructure)),
+        sectionFormGroups:this.treeService.sectionFormGroups,
+        articleCitatsObj:  JSON.parse(JSON.stringify(this.ydocService.figuresMap!.get('articleCitatsObj'))),
+        ArticleFigures:  JSON.parse(JSON.stringify(this.ydocService.figuresMap!.get('ArticleFigures')))
+      }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      this.sectionsService.getSectionById(result).subscribe((res:any)=>{
+      })
+    });
+
   }
 }

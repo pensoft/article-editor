@@ -1,0 +1,10 @@
+.json-view-container {
+    height: calc(100% - 39px);
+    overflow: auto;
+}
+
+.editor-data-container {
+    height: calc(100% - 83px);
+    position: relative;
+    overflow: auto;
+}

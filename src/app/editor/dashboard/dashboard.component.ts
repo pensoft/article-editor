@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { ArticlesService } from '@app/core/services/articles.service';
-import { merge, Observable, Subject} from 'rxjs';
+import { merge, Observable, Subject } from 'rxjs';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, SortDirection } from '@angular/material/sort';
 import { HttpClient } from '@angular/common/http';
@@ -21,19 +21,19 @@ import { ServiceShare } from '../services/service-share.service';
 })
 export class DashboardComponent implements AfterViewInit {
 
-  displayedColumns: string[] = ['id','title','date','lastupdated', 'layout-type','template-type','autor' ,'buttons'];
+  displayedColumns: string[] = ['id', 'title', 'date', 'lastupdated', 'layout-type', 'template-type', 'autor', 'buttons'];
   data: any[] = [];
-  realData:any[] = [];
+  realData: any[] = [];
 
 
   resultsLength = 0;
   isLoadingResults = true;
   isRateLimitReached = false;
-  articleTemplates2:any
+  articleTemplates2: any
 
-  searchValue ?: string ;
-  articleLayouts :any;
-  typeChange : Subject<any> = new Subject();
+  searchValue?: string;
+  articleLayouts: any;
+  typeChange: Subject<any> = new Subject();
   selectedType = -1;
   refreshSubject = new Subject();
 
@@ -45,14 +45,15 @@ export class DashboardComponent implements AfterViewInit {
     private router: Router,
     private ydocService: YdocService,
     private _httpClient: HttpClient,
-    private articlesService:ArticlesService,
-    private articleSectionsService:ArticleSectionsService,
-    private prosemirrorEditorsService:ProsemirrorEditorsService,
-    private serviceShare:ServiceShare,
-    ) {}
+    private articlesService: ArticlesService,
+    private articleSectionsService: ArticleSectionsService,
+    private prosemirrorEditorsService: ProsemirrorEditorsService,
+    private serviceShare: ServiceShare,
+  ) { }
   ngAfterViewInit() {
     this.articleSectionsService.getAllLayouts().subscribe((articleLayouts: any) => {
-      this.articleLayouts = [...articleLayouts.data,{name:'none',id:-1}]
+      this.articleLayouts = [...articleLayouts.data, { name: 'none', id: -1 }]
+      console.log(articleLayouts);
     })
     // If the user changes the sort order, reset back to the first page.
     this.sort!.sortChange.subscribe(() => {
@@ -62,14 +63,14 @@ export class DashboardComponent implements AfterViewInit {
     /* this.articlesService.getAllArticles().subscribe((responseData:any)=>{
       this.data = responseData.data;
     }) */
-    merge(this.sort!.sortChange, this.paginator!.page,this.typeChange,this.refreshSubject)
+    merge(this.sort!.sortChange, this.paginator!.page, this.typeChange, this.refreshSubject)
       .pipe(
         startWith({}),
         switchMap(() => {
           this.isLoadingResults = true;
           return this.articlesService.getAllArticles().pipe(catchError(() => new Observable(undefined)));
         }),
-        map((data:any) => {
+        map((data: any) => {
           // Flip flag to show that loading has finished.
           this.isLoadingResults = false;
           this.isRateLimitReached = data === null;
@@ -86,67 +87,78 @@ export class DashboardComponent implements AfterViewInit {
         }),
       )
       .subscribe(data => {
-        let dataToDisplay:any = data
-        if(this.sort!.active){
-          dataToDisplay = dataToDisplay.sort((a:any,b:any)=>{
+        let dataToDisplay: any = data
+        console.log(this.sort!.active);
+        if (this.sort!.active) {
+          dataToDisplay = dataToDisplay.sort((a: any, b: any) => {
             let sb = this.sort!.active;
             //@ts-ignore
             let direction = this.sort!._direction;
-            if(sb == "id"){
-              if(direction != 'desc'){
-                return a[sb]-b[sb];
+            if (sb == "id") {
+              if (direction != 'desc') {
+                return a[sb] - b[sb];
               }
-              return b[sb]-a[sb];
-            }else if(sb == 'title'){
-              if(direction != 'desc'){
+              return b[sb] - a[sb];
+            } else if (sb == 'title') {
+              if (direction != 'desc') {
                 return (a.name as string).localeCompare(b.name)
               }
               return b.name.localeCompare(a.name)
-            }else if(sb == "date"){
-              if(direction != 'desc'){
+            } else if (sb == "date") {
+              if (direction != 'desc') {
                 return (a.created_at as string).localeCompare(b.created_at);
               }
               return (b.created_at as string).localeCompare(a.created_at);
+            }else{
+              return b["id"] - a["id"];
             }
 
           })
         }
-        if(this.selectedType!=-1){
-          dataToDisplay = dataToDisplay.filter((article:any)=>{return article.layout.id == this.selectedType})
+        if (this.selectedType != -1) {
+          dataToDisplay = dataToDisplay.filter((article: any) => { return article.layout.id == this.selectedType })
         }
 
-        if(this.searchValue){
-          dataToDisplay = dataToDisplay.filter((article:any)=>{return (article.name as string).includes(this.searchValue!)})
+        if (this.searchValue) {
+          dataToDisplay = dataToDisplay.filter((article: any) => {
+            let articleName = article.name;
+            let nameCharArr: string[] = articleName.split('').filter((s: string) => { return (/\S/gm).test(s) })
+            let valueArr: string[] = this.searchValue!.split('').filter((s: string) => { return (/\S/gm).test(s) })
+            let resultArr = valueArr.filter((el) => { return nameCharArr.includes(el) });
+            console.log(nameCharArr, valueArr, resultArr);
+            return resultArr.length == valueArr.length
+            return (article.name as string).toLowerCase().includes(this.searchValue!)
+          })
         }
-        let page = this.paginator!.pageIndex||0;
+        let page = this.paginator!.pageIndex || 0;
         let itemsCount = dataToDisplay.length;
-        if(dataToDisplay.length>7){
-          dataToDisplay = dataToDisplay.slice(page*7,(page+1)*7);
+        if (dataToDisplay.length > 7) {
+          dataToDisplay = dataToDisplay.slice(page * 7, (page + 1) * 7);
         }
         this.data = dataToDisplay
         this.resultsLength = itemsCount;
       });
   }
-  public search(value: any) {
-    this.searchValue = value
+  public search(value: string) {
+    this.searchValue = value.toLowerCase();
     this.typeChange.next('typechange')
   }
-  filterByType(selectValue:any){
+  filterByType(selectValue: any) {
     this.selectedType = selectValue;
     this.typeChange.next('typechange')
   }
-  openchooseDialog(){
+  openchooseDialog() {
     this.serviceShare.createNewArticle();
   }
 
-  editArticle(articleData:any){
+  editArticle(articleData: any) {
     this.serviceShare.resetServicesData();
     this.ydocService.setArticleData(articleData);
     this.router.navigate([articleData.uuid])
   }
 
-  deleteArticle(articleData:any){
-    this.articlesService.deleteArticleById(articleData.id).subscribe((deleteResponse)=>{
+  deleteArticle(articleData: any) {
+    this.articlesService.deleteArticleById(articleData.id).subscribe((deleteResponse) => {
       this.refreshSubject.next(deleteResponse);
     })
   }

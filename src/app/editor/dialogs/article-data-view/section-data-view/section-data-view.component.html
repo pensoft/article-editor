@@ -1,0 +1,23 @@
+<div class="section-data-view">
+    <div class="section-title">Section Name : {{sectionData.sectionName}}</div>
+    <div class="sectionBtns">
+        <button mat-raised-button (click)="sectionHTML.style.display = sectionHTML.style.display=='none'? 'block' : 'none'">{{sectionHTML.style.display=='none'? 'Show section html' : 'Hide seection html'}}</button>
+        <button mat-raised-button (click)="sectionJSON.style.display = sectionJSON.style.display=='none'? 'block' : 'none'">{{sectionJSON.style.display=='none'? 'Show section json' : 'Hide section json'}}</button>
+        <button mat-raised-button (click)="sectionValues.style.display = sectionValues.style.display=='none'? 'block' : 'none'">{{sectionValues.style.display=='none'? 'Show section values' : 'Hide section values'}}</button>
+    </div>
+    <div class="html-view">
+        <div style="display: none;" class="section-html" #sectionHTML>
+            {{sectionData.sectionHtml | html}}
+        </div>
+    </div>
+    <div class="json-view">
+        <div style="display: none;" class="section-json" #sectionJSON>
+            <ngx-json-viewer [json]="sectionData.sectionJson"></ngx-json-viewer>
+        </div>
+    </div>
+    <div class="form-controls-valuew-view">
+        <div style="display: none;" class="section-values" #sectionValues>
+            <ngx-json-viewer [json]="sectionData.controlValues"></ngx-json-viewer>
+        </div>
+    </div>
+</div>
