@@ -19,6 +19,7 @@
  *   // Compute the cursor position
  *   const absolutePosition = createAbsolutePositionFromRelativePosition(y, relativePosition)
  *   absolutePosition.type === yText // => true
+ *   console.log('cursor location is ' + absolutePosition.index) // => cursor location is 3
  *
  */
 export class RelativePosition {

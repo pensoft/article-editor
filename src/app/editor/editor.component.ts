@@ -211,8 +211,10 @@ export class EditorComponent implements OnInit, AfterViewInit {
           this.articlesService
             .getArticleByUuid(this.roomName!)
             .subscribe((data: any) => {
-              this.ydocService.articleData = data.data;
+              this.ydocService.setArticleData(data.data);
               this.titleControl.setValue(this.ydocService.articleData.name);
+
+
             });
         } else {
           this.titleControl.setValue(this.ydocService.articleData.name);

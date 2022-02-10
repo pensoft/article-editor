@@ -1,7 +1,7 @@
 //@ts-ignore
 import { DocumentHelpers } from 'wax-prosemirror-utilities';
 import { toggleMark } from "prosemirror-commands";
-import { Dropdown, MenuItem, undoItem as undoItemPM, redoItem as redoItemPM } from "prosemirror-menu"
+import { Dropdown, MenuItem} from "prosemirror-menu"
 import { EditorState, NodeSelection, Transaction } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
 import { schema } from "../Schema";
@@ -16,16 +16,17 @@ import { Subject } from 'rxjs';
 import { canInsert, createCustomIcon } from './common-methods';
 import { insertFigure, insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem } from './menu-dialogs';
 import { MarkType, Node, NodeType, DOMParser, DOMSerializer, Mark } from 'prosemirror-model';
-
+//@ts-ignore
+import { undo as undoLocalHistory,redo as redoLocalHistory} from '../prosemirror-history/history.js'
 //@ts-ignore
 import * as Y from 'yjs'
 import { D } from '@angular/cdk/keycodes';
 
-const undoIcon = {
+export const undoIcon = {
     width: 1024, height: 1024,
     path: "M761 1024c113-206 132-520-313-509v253l-384-384 384-384v248c534-13 594 472 313 775z"
 }
-const redoIcon = {
+export const redoIcon = {
     width: 1024, height: 1024,
     path: "M576 248v-248l384 384-384 384v-253c-446-10-427 303-313 509-280-303-221-789 313-775z"
 }
@@ -332,6 +333,22 @@ function logNodesItemRun(state: EditorState, dispatch: any, view: EditorView) {
         console.error(e);
     }
 }
+
+export let undoItemPM = new MenuItem({
+  title: "Undo last change",
+  run: undoLocalHistory,
+  enable: state => undoLocalHistory(state),
+  icon: undoIcon
+})
+
+// :: MenuItem
+// Menu item for the `redo` command.
+export let redoItemPM = new MenuItem({
+  title: "Redo last undone change",
+  run: redoLocalHistory,
+  enable: state => redoLocalHistory(state),
+  icon: redoIcon
+})
 
 const logNodesMenuItem = new MenuItem({
     title: 'Log Nodes', label: 'LogDocNode',

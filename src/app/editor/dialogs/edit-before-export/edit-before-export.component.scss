@@ -1,0 +1,435 @@
+.toolbar {
+    height: 40px;
+}
+
+.horizontal-lines {
+    margin-left: 10px;
+    margin-right: 10px;
+    position: relative;
+}
+
+.preview-container {
+    display: flex;
+    .elements-container {
+        display: inline;
+        width: 50%;
+        height: calc(100% - 40px);
+        overflow: auto;
+    }
+    .pdfVi1 {
+        display: inline;
+        width: 50%;
+        height: calc(100% - 40px);
+        overflow: auto;
+    }
+    height: calc(100% - 40px);
+}
+
+::ng-deep .section-container {
+    height: 418px;
+    overflow: auto;
+    app-section {
+        .article-section {
+            height: calc(100% - 117px);
+            display: block;
+            overflow: hidden;
+            overflow-y: scroll;
+        }
+    }
+}
+
+::ng-deep .formio-edit-section {
+    mat-formio-button {
+        .mat-formio-button-md[type="submit"] {
+            margin-right: 13px;
+            display: flex;
+            margin-left: auto;
+        }
+    }
+}
+
+::ng-deep .complex-section-formio {
+    width: calc(100% - 261px);
+    display: inline-block;
+    vertical-align: top;
+}
+
+::ng-deep .submit-complex-btn-container {
+    padding: 22px;
+    .bottom-complex-action-btn {
+        margin-right: 22px;
+    }
+}
+
+::ng-deep .complex-section-tree {
+    app-complex-edit-tree {
+        width: 100%;
+    }
+    display: block;
+    vertical-align: top;
+    width: 70%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+::ng-deep .formio-taxonomicComponent {
+    .mat-column-__removeRow {
+        width: 64px;
+        vertical-align: middle;
+    }
+    td {
+        vertical-align: bottom;
+    }
+    .cdk-drag-handle {
+        width: 24px;
+        cursor: move;
+        margin-top: 7px;
+        vertical-align: middle;
+    }
+    td.mat-cell {
+        width: 46%;
+    }
+}
+
+.template-buttons {
+    button {
+        margin-right: 20px;
+        margin-bottom: 10px;
+    }
+}
+
+.codemirror-editor {
+    width: 100%;
+    height: 350px;
+    border: #85dfe0 2px solid;
+}
+
+::ng-deep .cm-editor {
+    height: 100%;
+}
+
+.action-container {
+    position: relative;
+    height: 56px;
+    width: 100%;
+}
+
+::ng-deep .alert-success {
+    display: none;
+}
+
+.errors-container {
+    background-color: #f8d7da;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    white-space: -moz-pre-wrap;
+    white-space: -pre-wrap;
+    white-space: -o-pre-wrap;
+    word-wrap: break-word;
+}
+
+.actions {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    .action-button {
+        &:first-of-type {
+            margin-right: 21px;
+        }
+        &:last-of-type {
+            margin-right: -3px;
+        }
+         ::ng-deep {
+            button {
+                width: 100px !important;
+                height: 33px !important;
+            }
+        }
+    }
+    .negative-button {
+         ::ng-deep {
+            button {
+                color: var(--color-676767) !important;
+                border-color: var(--color-676767) !important;
+                opacity: 0.69;
+            }
+        }
+    }
+}
+
+::ng-deep .ProseMirror {
+    position: relative;
+}
+
+::ng-deep .ProseMirror {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    -webkit-font-variant-ligatures: none;
+    font-variant-ligatures: none;
+}
+
+::ng-deep .ProseMirror pre {
+    white-space: pre-wrap;
+}
+
+::ng-deep .ProseMirror li {
+    position: relative;
+}
+
+::ng-deep .ProseMirror-hideselection *::selection {
+    background: transparent;
+}
+
+::ng-deep .ProseMirror-hideselection *::-moz-selection {
+    background: transparent;
+}
+
+::ng-deep .ProseMirror-hideselection {
+    caret-color: transparent;
+}
+
+::ng-deep .ProseMirror-selectednode {
+    outline: 2px solid #8cf;
+}
+
+
+/* Make sure li selections wrap around markers */
+
+::ng-deep li.ProseMirror-selectednode {
+    outline: none;
+}
+
+::ng-deep li.ProseMirror-selectednode:after {
+    content: "";
+    position: absolute;
+    left: -32px;
+    right: -2px;
+    top: -2px;
+    bottom: -2px;
+    border: 2px solid #8cf;
+    pointer-events: none;
+}
+
+@keyframes ProseMirror-cursor-blink {
+    to {
+        visibility: hidden;
+    }
+}
+
+::ng-deep .ProseMirror-focused .ProseMirror-gapcursor {
+    display: block;
+}
+
+
+/* Add space around the hr to make clicking it easier */
+
+::ng-deep .ProseMirror-example-setup-style hr {
+    padding: 2px 10px;
+    border: none;
+    margin: 1em 0;
+}
+
+::ng-deep .ProseMirror-example-setup-style hr:after {
+    content: "";
+    display: block;
+    height: 1px;
+    background-color: silver;
+    line-height: 2px;
+}
+
+::ng-deep .ProseMirror ul,
+::ng-deep .ProseMirror ol {
+    padding-left: 30px;
+}
+
+::ng-deep .ProseMirror blockquote {
+    padding-left: 1em;
+    border-left: 3px solid #eee;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+::ng-deep .ProseMirror-example-setup-style img {
+    cursor: default;
+}
+
+::ng-deep .ProseMirror-prompt {
+    background: white;
+    padding: 5px 10px 5px 15px;
+    border: 1px solid silver;
+    position: fixed;
+    border-radius: 3px;
+    z-index: 11;
+    box-shadow: -0.5px 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+::ng-deep .ProseMirror-prompt h5 {
+    margin: 0;
+    font-weight: normal;
+    font-size: 100%;
+    color: #444;
+}
+
+::ng-deep .ProseMirror-prompt input[type="text"],
+::ng-deep .ProseMirror-prompt textarea {
+    background: #eee;
+    border: none;
+    outline: none;
+}
+
+::ng-deep .ProseMirror-prompt input[type="text"] {
+    padding: 0 4px;
+}
+
+::ng-deep .ProseMirror-prompt-close {
+    position: absolute;
+    left: 2px;
+    top: 1px;
+    color: #666;
+    border: none;
+    background: transparent;
+    padding: 0;
+}
+
+::ng-deep .ProseMirror-prompt-close:after {
+    content: "âœ•";
+    font-size: 12px;
+}
+
+::ng-deep .ProseMirror-invalid {
+    background: #ffc;
+    border: 1px solid #cc7;
+    border-radius: 4px;
+    padding: 5px 10px;
+    position: absolute;
+    min-width: 10em;
+}
+
+::ng-deep .ProseMirror-prompt-buttons {
+    margin-top: 5px;
+    display: none;
+}
+
+::ng-deep #editor,
+::ng-deep .editor {
+    background: white;
+    color: black;
+    background-clip: padding-box;
+    border-radius: 4px;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    padding: 5px 0;
+    margin-bottom: 23px;
+}
+
+.editor-focus-element {
+    padding: 2px;
+}
+
+::ng-deep .ProseMirror p:first-child,
+::ng-deep .ProseMirror h1:first-child,
+::ng-deep .ProseMirror h2:first-child,
+::ng-deep .ProseMirror h3:first-child,
+::ng-deep .ProseMirror h4:first-child,
+::ng-deep .ProseMirror h5:first-child,
+::ng-deep .ProseMirror h6:first-child {
+    margin-top: 10px;
+}
+
+::ng-deep .ProseMirror {
+    line-height: 1.5;
+    outline: none;
+}
+
+::ng-deep .ProseMirror p {
+    margin-bottom: 1em;
+}
+
+::ng-deep .ProseMirror-example-setup-style {
+    height: fit-content !important;
+    background: var(--color-ffffff);
+    border-radius: 20px;
+    //overflow-y: scroll;
+}
+
+::ng-deep {
+    .ProseMirror th,
+    .ProseMirror td {
+        min-width: 1em;
+        border: 1px solid #ddd;
+        padding: 3px 5px;
+    }
+    .ProseMirror .tableWrapper {
+        margin: 1em 0;
+    }
+    .ProseMirror th {
+        font-weight: bold;
+        text-align: left;
+    }
+    .ProseMirror .tableWrapper {
+        //overflow-x: auto;
+    }
+    .ProseMirror table {
+        border-collapse: collapse;
+        table-layout: fixed;
+        width: 100%;
+        //overflow: hidden;
+    }
+    .ProseMirror td,
+    .ProseMirror th {
+        vertical-align: top;
+        box-sizing: border-box;
+        position: relative;
+    }
+    .ProseMirror .column-resize-handle {
+        position: absolute;
+        right: -2px;
+        top: 0;
+        bottom: 0;
+        width: 4px;
+        z-index: 20;
+        background-color: #adf;
+        pointer-events: none;
+    }
+    .ProseMirror.resize-cursor {
+        cursor: ew-resize;
+        cursor: col-resize;
+    }
+    /* Give selected cells a blue overlay */
+    .ProseMirror .selectedCell:after {
+        z-index: 2;
+        position: absolute;
+        content: "";
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        background: rgba(200, 200, 255, 0.4);
+        pointer-events: none;
+    }
+}
+
+::ng-deep {
+     ::-webkit-scrollbar {
+        width: 6px;
+        height: 10px;
+    }
+     ::-webkit-scrollbar-track {
+        border-radius: 10px;
+        background: #f1f1f1;
+    }
+     ::-webkit-scrollbar-thumb {
+        border-radius: 10px;
+        background: #888;
+    }
+     ::-webkit-scrollbar-thumb:hover {
+        background: #555;
+    }
+}
+
+::ng-deep .editor-outer-div {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+}

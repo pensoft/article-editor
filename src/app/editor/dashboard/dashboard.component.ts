@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { ArticlesService } from '@app/core/services/articles.service';
-import { merge, Observable, Subject } from 'rxjs';
+import { merge, Observable, of, Subject } from 'rxjs';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, SortDirection } from '@angular/material/sort';
 import { HttpClient } from '@angular/common/http';
@@ -13,6 +13,7 @@ import { articleSection } from '../utils/interfaces/articleSection';
 import { uuidv4 } from 'lib0/random';
 import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
 import { ServiceShare } from '../services/service-share.service';
+import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-dashboard',
@@ -30,7 +31,7 @@ export class DashboardComponent implements AfterViewInit {
   isLoadingResults = true;
   isRateLimitReached = false;
   articleTemplates2: any
-
+  allArticlesData:any;
   searchValue?: string;
   articleLayouts: any;
   typeChange: Subject<any> = new Subject();
@@ -53,7 +54,6 @@ export class DashboardComponent implements AfterViewInit {
   ngAfterViewInit() {
     this.articleSectionsService.getAllLayouts().subscribe((articleLayouts: any) => {
       this.articleLayouts = [...articleLayouts.data, { name: 'none', id: -1 }]
-      console.log(articleLayouts);
     })
     // If the user changes the sort order, reset back to the first page.
     this.sort!.sortChange.subscribe(() => {
@@ -68,7 +68,11 @@ export class DashboardComponent implements AfterViewInit {
         startWith({}),
         switchMap(() => {
           this.isLoadingResults = true;
-          return this.articlesService.getAllArticles().pipe(catchError(() => new Observable(undefined)));
+          if(this.allArticlesData){
+            return of({data:JSON.parse(JSON.stringify(this.allArticlesData))})
+          }else {
+            return this.articlesService.getAllArticles().pipe(catchError(() => new Observable(undefined)))
+          }
         }),
         map((data: any) => {
           // Flip flag to show that loading has finished.
@@ -88,7 +92,10 @@ export class DashboardComponent implements AfterViewInit {
       )
       .subscribe(data => {
         let dataToDisplay: any = data
-        console.log(this.sort!.active);
+        if(!this.allArticlesData){
+          this.allArticlesData = data
+        }
+
         if (this.sort!.active) {
           dataToDisplay = dataToDisplay.sort((a: any, b: any) => {
             let sb = this.sort!.active;
@@ -122,11 +129,18 @@ export class DashboardComponent implements AfterViewInit {
         if (this.searchValue) {
           dataToDisplay = dataToDisplay.filter((article: any) => {
             let articleName = article.name;
-            let nameCharArr: string[] = articleName.split('').filter((s: string) => { return (/\S/gm).test(s) })
-            let valueArr: string[] = this.searchValue!.split('').filter((s: string) => { return (/\S/gm).test(s) })
-            let resultArr = valueArr.filter((el) => { return nameCharArr.includes(el) });
-            console.log(nameCharArr, valueArr, resultArr);
-            return resultArr.length == valueArr.length
+            let nameCharArr: string[] = (articleName as string).toLocaleLowerCase().split('').filter((s: string) => { return (/\S/gm).test(s) })
+            let valueArr: string[] = this.searchValue!.toLocaleLowerCase().split('').filter((s: string) => { return (/\S/gm).test(s) })
+            let found : string[] = []
+            let resultArr = valueArr.filter((el) => {
+              let inc = false
+              if(nameCharArr.includes(el)&&!found.includes(el) ){
+                inc = true;
+                found.push(el);
+              }
+              return inc
+            });
+            return resultArr.length == valueArr.length;
             return (article.name as string).toLowerCase().includes(this.searchValue!)
           })
         }

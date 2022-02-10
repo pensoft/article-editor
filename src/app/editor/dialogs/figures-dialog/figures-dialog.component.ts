@@ -15,7 +15,7 @@ import { Node } from 'prosemirror-model';
 export class FiguresDialogComponent implements AfterViewInit {
 
   figuresMap ?:YMap<any>
-  figuresNumbers ?: string[] 
+  figuresNumbers ?: string[]
   figures ?: {[key:string]:figure}
   editedFigures:{[key:string]:boolean} ={}
   newFigureNodes :{[key:string]:Node} = {}
@@ -26,14 +26,14 @@ export class FiguresDialogComponent implements AfterViewInit {
     public dialog: MatDialog,
     private dialogRef: MatDialogRef<FiguresDialogComponent>,
     private figuresControllerService:FiguresControllerService
-  ) { 
+  ) {
     let figuresNumbersArray = ydocService.figuresMap!.get('ArticleFiguresNumbers')
     let figures = ydocService.figuresMap!.get('ArticleFigures')
     figuresControllerService.figuresNumbers = figuresNumbersArray
     figuresControllerService.figures = figures
     this.figuresNumbers = JSON.parse(JSON.stringify(figuresNumbersArray))
     this.figures = JSON.parse(JSON.stringify(figures));
-    
+
   }
 
   ngAfterViewInit(): void {
@@ -62,19 +62,19 @@ export class FiguresDialogComponent implements AfterViewInit {
 
   deleteFigure(fig:figure,figIndex:number){
     this.figuresNumbers?.splice(figIndex,1);
-    delete this.figures![fig.figureID] 
+    delete this.figures![fig.figureID]
     if(this.editedFigures[fig.figureID]){
       delete this.editedFigures[fig.figureID]
     }
     /* if(!Object.keys(this.newFigureNodes).includes(fig.figureID)){
       this.deletedFigures.push(fig.figureID)
     }else{
-      delete this.newFigureNodes[fig.figureID] 
+      delete this.newFigureNodes[fig.figureID]
     } */
     /* let figuresNumbersArray = this.ydocService.figuresMap!.get('ArticleFiguresNumbers')
     let figures = this.ydocService.figuresMap!.get('ArticleFigures')
     let citatsBySections = this.ydocService.figuresMap!.get('articleCitatsObj')
-    
+
     figuresNumbersArray.splice(figIndex,1);
     figures[fig.figureID] = undefined;
     Object.keys(citatsBySections).forEach((sectionID)=>{

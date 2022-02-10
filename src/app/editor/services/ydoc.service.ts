@@ -27,6 +27,7 @@ import { articleBasicStructure } from '../utils/articleBasicStructure';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 import { threadId } from 'worker_threads';
 import { ServiceShare } from './service-share.service';
+import { ArticlesService } from '@app/core/services/articles.service';
 
 @Injectable({
   providedIn: 'root'
@@ -44,7 +45,8 @@ export class YdocService {
   providerIndexedDb?: IndexeddbPersistence
   constructor(
     private http: HttpClient,
-    private serviceShare: ServiceShare
+    private serviceShare: ServiceShare,
+    private articleService:ArticlesService
   ) {
     this.serviceShare.shareSelf('YdocService', this)
   }
@@ -220,7 +222,16 @@ export class YdocService {
 
   setArticleData(articleData: any) {
     this.articleData = articleData;
+    this.checkLastTimeUpdated();
   }
+
+  checkLastTimeUpdated(){
+    if(new Date(this.articleData.updated_at).toDateString() !== new Date().toDateString()){
+      this.articleService.updateArticleUpdatedAt(this.articleData).subscribe((res)=>{
+      });
+    }
+  }
+
   resetYdoc() {
 
     this.editorIsBuild = false;

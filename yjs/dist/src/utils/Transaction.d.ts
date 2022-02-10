@@ -9,6 +9,7 @@
  * const map = y.define('map', YMap)
  * // Log content when change is triggered
  * map.observe(() => {
+ *   console.log('change triggered')
  * })
  * // Each change on the map type triggers a log message:
  * map.set('a', 0) // => "change triggered"

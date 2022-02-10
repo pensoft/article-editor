@@ -13,7 +13,6 @@ export class SectionDataViewComponent implements AfterViewInit {
   constructor() { }
 
   ngAfterViewInit(): void {
-      console.log(this.sectionData);
   }
 
 }

@@ -122,7 +122,7 @@ export class FiguresControllerService {
                       newNode = newNode.mark([schema.mark('citation', { ...citationMark.attrs, nonexistingFigure: 'true' })])
                       edView.dispatch(edView.state.tr.replaceWith(pos,
                         pos + node.nodeSize
-                        , newNode).setMeta('citatsTextChange', true).setMeta('shouldTrack', false)
+                        , newNode).setMeta('citatsTextChange', true).setMeta('shouldTrack', false).setMeta('addToLastHistoryGroup',true)
                       )
                     }
                   } else {
@@ -160,7 +160,7 @@ export class FiguresControllerService {
                     newNode = newNode.mark([schema.mark('citation', { ...citationMark.attrs, citated_figures: citatedFigures })])
                     edView.dispatch(edView.state.tr.replaceWith(pos,
                       pos + node.nodeSize
-                      , newNode).setMeta('citatsTextChange', true)
+                      , newNode).setMeta('citatsTextChange', true).setMeta('addToLastHistoryGroup',true)
                     )
                   }
                 }
@@ -212,7 +212,7 @@ export class FiguresControllerService {
           }
         })
         if (startOfFigureview && endOfFigureview) {
-          view.dispatch(state.tr.replaceWith(startOfFigureview,endOfFigureview,newFigureNodes[key]))
+          view.dispatch(state.tr.replaceWith(startOfFigureview,endOfFigureview,newFigureNodes[key]).setMeta('addToLastHistoryGroup',true))
         }
       }
     })
@@ -227,7 +227,7 @@ export class FiguresControllerService {
           renderingFromPopUp: true,
           trackStatus: true,
           userInfo:this.prosemirrorEditorsService.userInfo,
-        }))
+        }).setMeta('addToLastHistoryGroup',true))
       }
     })
     setTimeout(() => {
@@ -240,7 +240,7 @@ export class FiguresControllerService {
   }
 
   writeFiguresDataGlobal(newFigureNodes: { [key: string]: Node }, newFigures: { [key: string]: figure; }, figureNumbers: string[], editedFigures: { [key: string]: boolean }) {
-    this.mergeFigureViews(newFigureNodes, editedFigures)
+    //this.mergeFigureViews(newFigureNodes, editedFigures)
     this.updateFiguresNumbers(newFigures, figureNumbers)
     this.ydocService.figuresMap!.set('ArticleFiguresNumbers', figureNumbers)
     this.ydocService.figuresMap!.set('ArticleFigures', newFigures)
@@ -290,7 +290,7 @@ export class FiguresControllerService {
         insertionView.dispatch(insertionView.state.tr.replaceWith(
           citatStartPos,
           citatEndPos,
-          Fragment.empty)
+          Fragment.empty).setMeta('createNewHistoryGroup',true)
         )
 
         return
@@ -371,12 +371,12 @@ export class FiguresControllerService {
       if (citatAttrs) {
         insertionView.dispatch(insertionView.state.tr.replaceWith(citatStartPos,
           citatEndPos
-          , node).setMeta('citatsTextChange', true)
+          , node).setMeta('citatsTextChange', true).setMeta('createNewHistoryGroup',true)
         )
       } else {
         insertionView.dispatch(insertionView.state.tr.replaceWith(insertionView.state.selection.from,
           insertionView.state.selection.to
-          , node)
+          , node).setMeta('createNewHistoryGroup',true)
         )
       }
       //this.changeFiguresPlaces(citatedFigureIds,sectionID)
@@ -460,7 +460,7 @@ export class FiguresControllerService {
         view.state.doc.descendants((node, position, parent) => {
           if (node.type.name == 'figures_nodes_container' && !deleted) {
             deleted = true
-            tr1 = tr1.replaceWith(position, position + node.nodeSize, Fragment.empty).setMeta('shouldTrack', false);
+            tr1 = tr1.replaceWith(position, position + node.nodeSize, Fragment.empty).setMeta('shouldTrack', false).setMeta('addToLastHistoryGroup',true);
           }
         })
         view.dispatch(tr1)
@@ -588,7 +588,7 @@ export class FiguresControllerService {
     })
     let schema = view.state.schema
     let n = schema.nodes
-    view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, Fragment.empty).setMeta('shouldTrack', false))
+    view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, Fragment.empty).setMeta('shouldTrack', false).setMeta('addToLastHistoryGroup',true))
   }
 
   getNodeFromHTML(html: string) {
@@ -632,9 +632,9 @@ export class FiguresControllerService {
     if (!figureisrendered) {
       if (!foundContainer) {
         let container = schema.nodes.figures_nodes_container.create({}, figureNodes);
-        view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, container).setMeta('shouldTrack', false))
+        view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, container).setMeta('shouldTrack', false).setMeta('addToLastHistoryGroup',true))
       } else {
-        view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, figureNodes).setMeta('shouldTrack', false))
+        view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, figureNodes).setMeta('shouldTrack', false).setMeta('addToLastHistoryGroup',true))
       }
     }
 

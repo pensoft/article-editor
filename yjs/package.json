@@ -2,7 +2,7 @@
   "_args": [
     [
       "yjs@13.5.16",
-      "E:\\Rabota\\ArticleProject\\articlle_editor"
+      "/Users/martinnenov/Desktop/rabota/article editor/articlle_editor"
     ]
   ],
   "_from": "yjs@13.5.16",
@@ -26,7 +26,7 @@
   ],
   "_resolved": "https://registry.npmjs.org/yjs/-/yjs-13.5.16.tgz",
   "_spec": "13.5.16",
-  "_where": "E:\\Rabota\\ArticleProject\\articlle_editor",
+  "_where": "/Users/martinnenov/Desktop/rabota/article editor/articlle_editor",
   "author": {
     "name": "Kevin Jahns"
   },

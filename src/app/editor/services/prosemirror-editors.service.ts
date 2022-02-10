@@ -26,9 +26,9 @@ import { EditorState, Plugin, PluginKey, Transaction, TextSelection, Selection }
 import { keymap } from 'prosemirror-keymap';
 //import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from 'y-prosemirror';
 import { chainCommands, deleteSelection, joinBackward, selectNodeBackward } from 'prosemirror-commands';
-import { undo,redo } from 'prosemirror-history';
+import { undo, redo } from 'prosemirror-history';
 //@ts-ignore
-import {  yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin,yUndoPluginKey } from '../../y-prosemirror-src/y-prosemirror.js';
+import { yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin, yUndoPluginKey } from '../../y-prosemirror-src/y-prosemirror.js';
 import { CellSelection, columnResizing, goToNextCell, tableEditing } from 'prosemirror-tables';
 //@ts-ignore
 import * as trackedTransaction from '../utils/trackChanges/track-changes/index.js';
@@ -53,7 +53,8 @@ import { FormControlService } from '../section/form-control.service';
 import { FormControl, FormGroup } from '@angular/forms';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
 import { DOMParser } from 'prosemirror-model';
-import { history } from 'prosemirror-history';
+//@ts-ignore
+import { history } from '../utils/prosemirror-history/history.js';
 //@ts-ignore
 import { menuBar } from '../utils/prosemirror-menu-master/src/menubar.js'
 import { Form } from 'formiojs';
@@ -67,6 +68,7 @@ import { recreateTransform } from "prosemirror-recreate-steps"
 import { figure } from '../utils/interfaces/figureComponent';
 import { CitatContextMenuService } from '../utils/citat-context-menu/citat-context-menu.service';
 import { ServiceShare } from './service-share.service';
+import { YjsHistoryService } from '../utils/yjs-history.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -135,6 +137,7 @@ export class ProsemirrorEditorsService {
     private treeService: TreeService,
     private citatContextPluginService: CitatContextMenuService,
     private trackChangesService: TrackChangesService,
+    private yjsHistory: YjsHistoryService,
     private seviceShare: ServiceShare) {
 
     this.seviceShare.shareSelf('ProsemirrorEditorsService', this)
@@ -179,9 +182,12 @@ export class ProsemirrorEditorsService {
     })
   }
 
-  collab(config:any = {}) {
-    config = {version: config.version || 0,
-              clientID: config.clientID == null ? Math.floor(Math.random() * 0xFFFFFFFF) : config.clientID}}
+  collab(config: any = {}) {
+    config = {
+      version: config.version || 0,
+      clientID: config.clientID == null ? Math.floor(Math.random() * 0xFFFFFFFF) : config.clientID
+    }
+  }
 
   getXmlFragment(mode: string = 'documentMode', id: string) {
     if (this.xmlFragments[id]) {
@@ -268,8 +274,20 @@ export class ProsemirrorEditorsService {
   dispatchEmptyTransaction() {  // for updating the view
     Object.values(this.editorContainers).forEach((container: any) => {
       let editorState = container.editorView.state as EditorState
-      container.editorView.dispatch(editorState.tr.setMeta('emptyTR', true))
+      container.editorView.dispatch(editorState.tr.setMeta('emptyTR', true).setMeta('addToLastHistoryGroup', true))
     })
+  }
+
+  scrollMainEditorIntoView(id: string) {
+    try {
+      let container = this.editorContainers[id];
+      if (container) {
+        let editorState = container.editorView.state as EditorState
+        container.editorView.dispatch(editorState.tr.scrollIntoView().setMeta('addToLastHistoryGroup', true))
+      }
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   renderEditorInWithId(EditorContainer: HTMLDivElement, editorId: string, section: articleSection): {
@@ -297,7 +315,7 @@ export class ProsemirrorEditorsService {
     let xmlFragment = this.getXmlFragment(section.mode, editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
     yCursorPlugin(this.provider!.awareness, this.userData),
-    yUndoPlugin({editorID,figuresMap:this.ydocService.figuresMap,renderFigures:this.rerenderFigures})]
+    this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures })]
 
 
     container.setAttribute('class', 'editor-container');
@@ -308,7 +326,7 @@ export class ProsemirrorEditorsService {
     let GroupControl = this.treeService.sectionFormGroups;
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate, GroupControl, section),
+      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.editorContainers, this.rerenderFigures, this.yjsHistory.YjsHistoryKey, this.interpolateTemplate, GroupControl, section),
       filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.rerenderFigures, editorID),
       //@ts-ignore
       historyPreserveItems: true,
@@ -345,7 +363,7 @@ export class ProsemirrorEditorsService {
         }),
         columnResizing({}),
         tableEditing(),
-        history(),
+        //history({renderFiguresFunc:this.rerenderFigures}),
         this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         selectWholeCitat,
@@ -359,7 +377,7 @@ export class ProsemirrorEditorsService {
           floating: true,
           content: { 'main': defaultMenu, fullMenu }, containerClass: menuContainerClass
         })
-      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */history:false, containerClass: menuContainerClass }))
+      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */history: false, containerClass: menuContainerClass }))
       ,
       // @ts-ignore
       sectionName: editorID,
@@ -369,24 +387,43 @@ export class ProsemirrorEditorsService {
     let mapping = new Mapping();
 
     let lastStep: any
-    let lastContainingInsertionMark :any
+    let lastContainingInsertionMark: any
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
       try {
 
-        let nodeAtSel = transaction.selection.$head.parent||transaction.selection.$anchor.parent
+        let nodeAtSel = transaction.selection.$head.parent || transaction.selection.$anchor.parent
         //@ts-ignore
-        if(nodeAtSel&&!transaction.getMeta('titleupdateFromControl')&&nodeAtSel.attrs.controlPath&&nodeAtSel.attrs.controlPath == "sectionTreeTitle"&&transaction.steps.filter(step=>{return step instanceof ReplaceStep||step instanceof ReplaceAroundStep}).length>0){
-          transaction.setMeta('editingTitle',true);
+        if (nodeAtSel && !transaction.getMeta('titleupdateFromControl') && nodeAtSel.attrs.controlPath && nodeAtSel.attrs.controlPath == "sectionTreeTitle" && transaction.steps.filter(step => { return step instanceof ReplaceStep || step instanceof ReplaceAroundStep }).length > 0) {
+          transaction.setMeta('editingTitle', true);
         }
 
-                /* if(transaction.getMeta('y-sync$')||transaction.getMeta('yjs-cursor$')){
-          transaction = transaction.setMeta("addToHistory", false)
-        } */
+        /* if(transaction.getMeta('y-sync$')||transaction.getMeta('yjs-cursor$')){
+  transaction = transaction.setMeta("addToHistory", false)
+} */
+        //@ts-ignore
         if (lastStep == transaction.steps[0] && !transaction.getMeta('emptyTR')) {
           if (lastStep) { return }
         }
         lastStep = transaction.steps[0]
+        if (transaction.steps.length > 0) {
+          //@ts-ignore
+          if (transaction.getMeta('y-sync$') || transaction.meta['y-sync$'] || transaction.getMeta('addToLastHistoryGroup')) {
+            if (transaction.getMeta('addToLastHistoryGroup')) {
+              this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager.preventCapture();
+            } else {
+            }
+          } else {
+            let undoManager = this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager;
+            let undoManagerStatus = undoManager.status;
+            if (transaction.getMeta('createNewHistoryGroup')) {
+              undoManager.captureNewStackItem();
+            }
+            if (undoManagerStatus !== 'capturing') {
+              this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager.status = 'capturing'
+            }
+          }
+        }
         if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false) {
 
           let state = editorView?.state.apply(transaction);
@@ -399,22 +436,22 @@ export class ProsemirrorEditorsService {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
               userColor: this.userInfo.color
-            },lastContainingInsertionMark);
-            if(editorView?.state.selection instanceof TextSelection&&transaction.selectionSet){
-              let sel = editorView?.state.selection
-              if(sel.$to.nodeAfter&&sel.$to.nodeBefore){
-                let insertionMarkAfter = sel.$to.nodeAfter?.marks.filter(mark => mark.type.name == 'insertion')[0]
-                let insertionMarkBefore = sel.$to.nodeBefore?.marks.filter(mark => mark.type.name == 'insertion')[0]
-                if(sel.empty&&insertionMarkAfter&&insertionMarkAfter==insertionMarkBefore){
-                  lastContainingInsertionMark = `${insertionMarkAfter.attrs.id}`
-                }else if(
-                  (insertionMarkAfter&&insertionMarkAfter.attrs.id == lastContainingInsertionMark)||
-                  (insertionMarkBefore&&insertionMarkBefore.attrs.id == lastContainingInsertionMark)){
-                }else{
-                  lastContainingInsertionMark = undefined
-                }
+            }, lastContainingInsertionMark);
+          if (editorView?.state.selection instanceof TextSelection && transaction.selectionSet) {
+            let sel = editorView?.state.selection
+            if (sel.$to.nodeAfter && sel.$to.nodeBefore) {
+              let insertionMarkAfter = sel.$to.nodeAfter?.marks.filter(mark => mark.type.name == 'insertion')[0]
+              let insertionMarkBefore = sel.$to.nodeBefore?.marks.filter(mark => mark.type.name == 'insertion')[0]
+              if (sel.empty && insertionMarkAfter && insertionMarkAfter == insertionMarkBefore) {
+                lastContainingInsertionMark = `${insertionMarkAfter.attrs.id}`
+              } else if (
+                (insertionMarkAfter && insertionMarkAfter.attrs.id == lastContainingInsertionMark) ||
+                (insertionMarkBefore && insertionMarkBefore.attrs.id == lastContainingInsertionMark)) {
+              } else {
+                lastContainingInsertionMark = undefined
               }
             }
+          }
           let state = editorView?.state.apply(tr);
           editorView?.updateState(state!);
         }
@@ -438,6 +475,8 @@ export class ProsemirrorEditorsService {
             if (node.marks.length > 0 && node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
               setTimeout(() => {
                 let cursurCoord = view.coordsAtPos(sel.from);
+                event.preventDefault();
+                event.stopPropagation();
                 setTimeout(() => {
                   view.dispatch(view.state.tr.setMeta('citatContextPlugin', {
                     clickPos: sel.from,
@@ -446,6 +485,7 @@ export class ProsemirrorEditorsService {
                     coords: cursurCoord
                   }))
                 }, 0)
+                return true
               })
             }
           })
@@ -462,10 +502,10 @@ export class ProsemirrorEditorsService {
       handleClick: handleClick(hideshowPluginKEey, this.citatContextPluginService.citatContextPluginKey),
       handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
       handleTripleClickOn,
-      handleScrollToSelection:handleScrollToSelection(this.editorContainers,section),
+      handleScrollToSelection: handleScrollToSelection(this.editorContainers, section),
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
       handleKeyDown,
-      scrollMargin: {top: 300, right: 5, bottom: 300, left: 5},
+      scrollMargin: { top: 300, right: 5, bottom: 300, left: 5 },
       handleDrop: (view: EditorView, event: Event, slice: Slice, moved: boolean) => {
         slice.content.nodesBetween(0, slice.content.size - 2, (node, pos, parent) => {
           if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
@@ -478,7 +518,7 @@ export class ProsemirrorEditorsService {
               let dropPosition = view.posAtCoords({ left: event.clientX, top: event.clientY }).pos + pos - slice.openStart
               setTimeout(() => {
                 let newMark = view.state.doc.nodeAt(dropPosition)
-                view.dispatch(view.state.tr.addMark(dropPosition, dropPosition + newMark?.nodeSize!, schema.mark('citation', { ...citationMark.attrs, citateid: random.uuidv4() })))
+                view.dispatch(view.state.tr.addMark(dropPosition, dropPosition + newMark?.nodeSize!, schema.mark('citation', { ...citationMark.attrs, citateid: random.uuidv4() })).setMeta('addToLastHistoryGroup', true))
               }, 10)
             }
           }
@@ -517,7 +557,7 @@ export class ProsemirrorEditorsService {
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate),
+      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate, this.yjsHistory.YjsHistoryKey),
       filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.rerenderFigures, editorId),
     })
     //let inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, endEditorSchema!.nodes.math_inline);
@@ -534,7 +574,7 @@ export class ProsemirrorEditorsService {
     let xmlFragment = this.getXmlFragment('documentMode', editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
     yCursorPlugin(this.provider!.awareness, this.userData),
-    yUndoPlugin({editorID,figuresMap:this.ydocService.figuresMap,renderFigures:this.rerenderFigures})]
+    this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures })]
 
     container.setAttribute('class', 'editor-container');
     let menu = buildMenuItems(schema);
@@ -575,7 +615,7 @@ export class ProsemirrorEditorsService {
           floating: true,
           content: { 'main': defaultMenu/* , fullMenu */ }, containerClass: menuContainerClass
         })
-      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */history:false, containerClass: menuContainerClass }))
+      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */history: false, containerClass: menuContainerClass }))
       ,
       // @ts-ignore
       sectionName: editorID,
@@ -583,7 +623,7 @@ export class ProsemirrorEditorsService {
     });
 
     let lastStep: any
-    let lastContainingInsertionMark :any
+    let lastContainingInsertionMark: any
 
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
@@ -593,9 +633,10 @@ export class ProsemirrorEditorsService {
         } */
 
         lastStep = transaction.steps[0]
+        this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager.preventCapture()
+
         if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false) {
-          let undoManager = yUndoPluginKey.getState(editorView.state).undoManager
-          undoManager.stopCapturing();
+
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
 
@@ -605,23 +646,23 @@ export class ProsemirrorEditorsService {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
               userColor: this.userInfo.color
-            },lastContainingInsertionMark);
-            if(transaction.selection instanceof TextSelection){
-              let sel = transaction.selection
-              if(sel.$to.nodeAfter&&sel.$to.nodeBefore){
+            }, lastContainingInsertionMark);
+          if (transaction.selection instanceof TextSelection) {
+            let sel = transaction.selection
+            if (sel.$to.nodeAfter && sel.$to.nodeBefore) {
 
-                let insertionMarkAfter = sel.$to.nodeAfter?.marks.filter(mark => mark.type.name == 'insertion')[0]
-                let insertionMarkBefore = sel.$to.nodeBefore?.marks.filter(mark => mark.type.name == 'insertion')[0]
-                if(sel.empty&&insertionMarkAfter&&insertionMarkAfter==insertionMarkBefore){
-                  lastContainingInsertionMark = `${insertionMarkAfter.attrs.id}`
-                }else if(
-                  (insertionMarkAfter&&insertionMarkAfter.attrs.id == lastContainingInsertionMark)||
-                  (insertionMarkBefore&&insertionMarkBefore.attrs.id == lastContainingInsertionMark)){
-                }else{
-                  lastContainingInsertionMark = undefined
-                }
+              let insertionMarkAfter = sel.$to.nodeAfter?.marks.filter(mark => mark.type.name == 'insertion')[0]
+              let insertionMarkBefore = sel.$to.nodeBefore?.marks.filter(mark => mark.type.name == 'insertion')[0]
+              if (sel.empty && insertionMarkAfter && insertionMarkAfter == insertionMarkBefore) {
+                lastContainingInsertionMark = `${insertionMarkAfter.attrs.id}`
+              } else if (
+                (insertionMarkAfter && insertionMarkAfter.attrs.id == lastContainingInsertionMark) ||
+                (insertionMarkBefore && insertionMarkBefore.attrs.id == lastContainingInsertionMark)) {
+              } else {
+                lastContainingInsertionMark = undefined
               }
             }
+          }
           let state = editorView?.state.apply(tr);
           editorView?.updateState(state!);
         }
@@ -767,7 +808,7 @@ export class ProsemirrorEditorsService {
 
     this.editorsEditableObj[editorID] = true
     let lastStep: any
-    let lastContainingInsertionMark:any
+    let lastContainingInsertionMark: any
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
       try {
@@ -785,22 +826,22 @@ export class ProsemirrorEditorsService {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
               userColor: this.userInfo.color
-            },lastContainingInsertionMark);
-            if(editorView?.state.selection instanceof TextSelection&&transaction.selectionSet){
-              let sel = editorView?.state.selection
-              if(sel.$to.nodeAfter&&sel.$to.nodeBefore){
-                let insertionMarkAfter = sel.$to.nodeAfter?.marks.filter(mark => mark.type.name == 'insertion')[0]
-                let insertionMarkBefore = sel.$to.nodeBefore?.marks.filter(mark => mark.type.name == 'insertion')[0]
-                if(sel.empty&&insertionMarkAfter&&insertionMarkAfter==insertionMarkBefore){
-                  lastContainingInsertionMark = `${insertionMarkAfter.attrs.id}`
-                }else if(
-                  (insertionMarkAfter&&insertionMarkAfter.attrs.id == lastContainingInsertionMark)||
-                  (insertionMarkBefore&&insertionMarkBefore.attrs.id == lastContainingInsertionMark)){
-                }else{
-                  lastContainingInsertionMark = undefined
-                }
+            }, lastContainingInsertionMark);
+          if (editorView?.state.selection instanceof TextSelection && transaction.selectionSet) {
+            let sel = editorView?.state.selection
+            if (sel.$to.nodeAfter && sel.$to.nodeBefore) {
+              let insertionMarkAfter = sel.$to.nodeAfter?.marks.filter(mark => mark.type.name == 'insertion')[0]
+              let insertionMarkBefore = sel.$to.nodeBefore?.marks.filter(mark => mark.type.name == 'insertion')[0]
+              if (sel.empty && insertionMarkAfter && insertionMarkAfter == insertionMarkBefore) {
+                lastContainingInsertionMark = `${insertionMarkAfter.attrs.id}`
+              } else if (
+                (insertionMarkAfter && insertionMarkAfter.attrs.id == lastContainingInsertionMark) ||
+                (insertionMarkBefore && insertionMarkBefore.attrs.id == lastContainingInsertionMark)) {
+              } else {
+                lastContainingInsertionMark = undefined
               }
             }
+          }
           let state = editorView?.state.apply(tr);
           editorView?.updateState(state!);
         }

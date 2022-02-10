@@ -84,6 +84,7 @@ import { ArticleDataViewComponent } from './editor/dialogs/article-data-view/art
 import { ExportOptionsComponent } from './editor/dialogs/export-options/export-options.component';
 import { NgxJsonViewerModule } from 'ngx-json-viewer';
 import { SectionDataViewComponent } from './editor/dialogs/article-data-view/section-data-view/section-data-view.component';
+import { EditBeforeExportComponent } from './editor/dialogs/edit-before-export/edit-before-export.component';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -152,6 +153,7 @@ const gravatarConfig: GravatarConfig = {
     SnackBarErrorComponentComponent,
     ExportOptionsComponent,
     SectionDataViewComponent,
+    EditBeforeExportComponent,
 
   ],
   imports: [

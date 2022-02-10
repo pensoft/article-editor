@@ -11,6 +11,7 @@ import * as menuDialogs from '../utils/menu/menu-dialogs';
 import * as m from '../utils/menu/menuItems';
 //@ts-ignore
 import { createCustomIcon } from '../utils/menu/common-methods';
+import { YjsHistoryService } from '../utils/yjs-history.service';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,11 @@ export class MenuService {
 
   addCommentSubject;
 
-  constructor(public dialog: MatDialog,private commentsService:CommentsService) {
+  constructor(
+    public dialog: MatDialog,
+    private commentsService:CommentsService,
+    private yjsHistory:YjsHistoryService,
+    ) {
     menuDialogs.shareDialog(dialog);
     this.addCommentSubject=commentsService.addCommentSubject;
   }
@@ -135,7 +140,11 @@ export class MenuService {
       } else if (itemName == 'headings') {
         //@ts-ignore
         item = Object.values(menuItems['headings'])
-      } else {
+      }  else if (itemName == 'redoItem') {
+        item = this.yjsHistory.redoYjs()
+      } else if (itemName == 'undoItem') {
+        item = this.yjsHistory.undoYjs()
+      }else {
         item = menuItems[itemName]
       }
       if(!item){

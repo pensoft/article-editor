@@ -22,7 +22,13 @@ export class ArticlesService {
 
   putArticleById(articleId:number,name:string,oldArticleData:any){ // article id !== uuid !
     oldArticleData.name = name;
+    oldArticleData.updated_at = new Date().toISOString();
     return this._http.put(`${API_ARTICLES_URL}/${articleId}`,oldArticleData)
+  }
+
+  updateArticleUpdatedAt(oldArticleData:any){
+    oldArticleData.updated_at = new Date().toISOString();
+    return this._http.put(`${API_ARTICLES_URL}/${oldArticleData.id}`,oldArticleData)
   }
 
   deleteArticleById(articleId:number){ // article id !== uuid !

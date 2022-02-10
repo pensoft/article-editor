@@ -145,6 +145,7 @@ export const findMarker = (yarray, index) => {
   //     start = /** @type {Item} */ (start.right)
   //   }
   //   if (pos !== pindex) {
+  //     debugger
   //     throw new Error('Gotcha position fail!')
   //   }
   // }

@@ -43,7 +43,6 @@ export class ArticleDataViewComponent implements AfterViewInit {
       })
     }
     iterateArticleSections(this.articleSectionsStructure);
-    console.log(this.sectionsData);
     this.changeDetectionRef.detectChanges()
   }
 

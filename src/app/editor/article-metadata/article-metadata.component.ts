@@ -10,6 +10,9 @@ import { TreeService } from '../meta-data-tree/tree-service/tree.service';
 import { FiguresControllerService } from '../services/figures-controller.service';
 import { ServiceShare } from '../services/service-share.service';
 import { YdocService } from '../services/ydoc.service';
+import print from 'print-js'
+import printJS from 'print-js';
+import { ArticlesService } from '@app/core/services/articles.service';
 
 @Component({
   selector: 'app-article-metadata',
@@ -46,8 +49,12 @@ export class ArticleMetadataComponent implements OnInit {
 
   refreshToken(){
     this.authService.refreshToken().subscribe((res)=>{
-      console.log(res);
     })
+  }
+
+  print(){
+    let doc = document.getElementsByTagName('app-article');
+    printJS('app-article-element','html')
   }
 
   resetCitatsObj(){
@@ -60,10 +67,33 @@ export class ArticleMetadataComponent implements OnInit {
   }
 
   logData(){
-    this.serviceShare.logData();
+    this.ydocService.checkLastTimeUpdated()
   }
 
   addNewSectionToArticle(){
+    console.log(this.ydocService.articleData);
+    /* let articleSections = this.ydocService.articleData.layout.template.sections.filter((data:any)=>{
+      return (
+        this.treeService.articleSectionsStructure?.findIndex((element)=>{return (data.id == element.sectionTypeID&&(element.sectionMeta.main==true))}) == -1
+
+
+      )
+    }) */
+    let articleSections = this.ydocService.articleData.layout.template.sections
+    console.log(articleSections);
+    this.sectionTemplates = articleSections;
+    const dialogRef = this.dialog.open(ChooseSectionComponent, {
+      width: '563px',
+      panelClass:'choose-namuscript-dialog',
+      data: { templates: this.sectionTemplates }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+      this.sectionsService.getSectionById(result).subscribe((res:any)=>{
+        let sectionTemplate = res.data
+        this.treeService.addNodeAtPlaceChange('parentList',sectionTemplate,'end');
+      })
+    });
+    return
     this.sectionsService.getAllSections({page:1,pageSize:999}).subscribe((response:any)=>{
       //this.sectionTemplates = response.data
       this.sectionTemplates = response.data.filter((data:any)=>{
@@ -88,10 +118,6 @@ export class ArticleMetadataComponent implements OnInit {
   }
 
   showArticleData(){
-    console.log(this.treeService.articleSectionsStructure);
-    console.log(this.treeService.sectionFormGroups);
-    console.log(this.ydocService.figuresMap!.get('articleCitatsObj'));
-    console.log(this.ydocService.figuresMap!.get('ArticleFigures'));
     const dialogRef = this.dialog.open(ArticleDataViewComponent, {
       width: '90%',
       height: '90%',

@@ -152,9 +152,9 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
       let originUpdates: any[] = [];
       let registerUpdateFunc = (update: any) => {
-        console.log('updating');
         originUpdates.push(update)
       }
+
       this.ydocService.ydoc.on('update',registerUpdateFunc )
 
       node.formIOSchema = sectionContent

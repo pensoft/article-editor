@@ -12,6 +12,7 @@ import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.serv
 import { articleSection } from '../utils/interfaces/articleSection';
 import { complexSectionFormIoSchema } from '../utils/section-templates/form-io-json/complexSection';
 import { TrackChangesService } from '../utils/trachChangesService/track-changes.service';
+import { YjsHistoryService } from '../utils/yjs-history.service';
 import { FiguresControllerService } from './figures-controller.service';
 import { ProsemirrorEditorsService } from './prosemirror-editors.service';
 import { YdocService } from './ydoc.service';
@@ -32,6 +33,7 @@ export class ServiceShare {
   TrackChangesService?:TrackChangesService
   ArticleSectionsService?:ArticleSectionsService
   ArticlesService?:ArticlesService
+  YjsHistoryService?:YjsHistoryService
 
   constructor(
     public dialog: MatDialog,

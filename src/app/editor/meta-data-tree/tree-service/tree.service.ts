@@ -394,6 +394,8 @@ export class TreeService implements OnDestroy{
     }
     findF(this.articleSectionsStructure);
     arrayRef?.splice(i!, 1);
+    this.serviceShare.ProsemirrorEditorsService?.deleteEditor(nodeRef?.sectionID!);
+    this.serviceShare.YjsHistoryService?.deleteUndoManager(nodeRef?.sectionID!);
     return { nodeRef, i }
   }
 

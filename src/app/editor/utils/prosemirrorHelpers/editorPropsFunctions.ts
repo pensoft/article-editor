@@ -90,18 +90,18 @@ export function handleClick(hideshowPluginKEey: PluginKey, citatContextPluginkey
 
     if (((event.target as HTMLElement).className == 'changes-placeholder')) {
       setTimeout(() => {
-        view.dispatch(view.state.tr)
+        view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup',true))
       }, 0)
       return true
     } else if (((event.target as HTMLElement).className == 'citat-menu-context') || (event.target as HTMLElement).tagName == 'CITATION') {
       return true
     } else if ((event.target as HTMLElement).className == 'citat-menu-context-delete-citat-btn') {
-      setTimeout(() => { view.dispatch(view.state.tr) }, 0)
+      setTimeout(() => { view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup',true)) }, 0)
       return true
     }
     let tr1 = view.state.tr.setMeta(hideshowPluginKEey, {})
     if (citatContextPluginkey) {
-      tr1 = tr1.setMeta('citatContextPlugin', { clickOutside: true })
+      tr1 = tr1.setMeta('citatContextPlugin', { clickOutside: true }).setMeta('addToLastHistoryGroup',true)
     }
     view.dispatch(tr1)
     return false
@@ -126,7 +126,7 @@ export const handleDoubleClick = (hideshowPluginKEey: PluginKey) => {
     if (hasTrackChnagesMark) {
       let cursurCoord = view.coordsAtPos(pos);
       let tr1 = view.state.tr.setMeta(hideshowPluginKEey, { marks, focus: view.hasFocus(), coords: cursurCoord })
-      view.dispatch(tr1)
+      view.dispatch(tr1.setMeta('addToLastHistoryGroup',true))
       return true
     }
     return false

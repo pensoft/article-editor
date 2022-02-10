@@ -25,7 +25,7 @@ export class CommentComponent implements OnInit {
     attrs: any,
     viewRef: EditorView
   };
-  @ViewChild('content') elementView: ElementRef | undefined; 
+  @ViewChild('content') elementView: ElementRef | undefined;
 
   replyInputDisplay = false
   initialShowMore = false;
@@ -37,7 +37,7 @@ export class CommentComponent implements OnInit {
   userComment?: {initialComment:any,commentReplies:any[]};
   mobileVersion:boolean
   constructor(
-    private ydocService: YdocService, 
+    private ydocService: YdocService,
     public sharedDialog: MatDialog,
     private prosemirrorEditorService:ProsemirrorEditorsService,
     ) {
@@ -62,7 +62,7 @@ export class CommentComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-    
+
     this.userComment?.commentReplies.forEach((comment,index)=>{
       this.repliesShowMore[index] = false
     })
@@ -93,7 +93,7 @@ export class CommentComponent implements OnInit {
     }else{
       replyDiv.style.display = 'block';
     }
-     
+
     /*  let commentsArray = this.commentsMap.get(this.comment?.attrs.id);
      let commentContent;
      let userCommentId = uuidv4();
@@ -150,7 +150,7 @@ export class CommentComponent implements OnInit {
   }
 
   cancelReplyBtnHandle(replyDiv:HTMLDivElement) {
-    
+
     replyDiv.style.display = 'none';
 
   }
