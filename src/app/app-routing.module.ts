@@ -17,6 +17,7 @@ import { SettingsComponent } from './layout/pages/settings/settings.component';
 import { ActivityPermissionComponent } from './layout/pages/activity-permission/activity-permission.component';
 import { SignPasswordDevicesComponent } from './layout/pages/sign-password-devices/sign-password-devices.component';
 import { AnyProjectsGuard } from './core/guards/any-projects.guard';
+import { EditBeforeExportComponent } from './editor/dialogs/edit-before-export/edit-before-export.component';
 
 
 const routes: Routes = [

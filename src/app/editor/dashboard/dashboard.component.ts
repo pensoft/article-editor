@@ -134,9 +134,12 @@ export class DashboardComponent implements AfterViewInit {
             let found : string[] = []
             let resultArr = valueArr.filter((el) => {
               let inc = false
-              if(nameCharArr.includes(el)&&!found.includes(el) ){
-                inc = true;
+              let nOfEl = valueArr.filter(el1=>el1==el).length
+              let nOfElFound = found.filter(el1=>el1==el).length
+              if(nameCharArr.includes(el)&&nOfElFound<=nOfEl ){
                 found.push(el);
+                inc = true;
+                //console.log(nOfEl,nOfElFound);
               }
               return inc
             });

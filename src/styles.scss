@@ -216,8 +216,10 @@ citation[nonexistingfigure="true"] {
     color: white;
 }
 
-.pdf-edit-and-preview {
+.pdf-edit-and-preview .mat-dialog-container {
+    padding: 1em;
     width: 100%;
+    height: 100%;
 }
 
 [ychange_type] {

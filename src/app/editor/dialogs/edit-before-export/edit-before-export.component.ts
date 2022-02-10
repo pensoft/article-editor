@@ -101,11 +101,12 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
     let fullHeight = elementsContainerElements.clientHeight;
     let pageHeight = mmToPx(pageSizeDimensions[this.pageSize].height) - 2*pagePadding;
-    console.log(fullHeight,fullHeight/pageHeight);
+    let pageWidth = mmToPx(pageSizeDimensions[this.pageSize].width) - 2*pagePadding;
+    console.log(fullHeight,pageHeight,pageWidth);
     let numberOfHorizontalLines = Math.floor(fullHeight/pageHeight);
 
-    let elementsContainer = document.getElementsByClassName('elements-container')[0] as HTMLDivElement;
-    elementsContainer.style.width = (mmToPx(pageSizeDimensions[this.pageSize].width) - 2*pagePadding)+"px";
+    let elementsContainer = document.getElementById('pm-elements-container') as HTMLDivElement;
+    elementsContainer.style.width = pageWidth+"px";
     elementsContainer.style.backgroundColor = 'white';
     elementsContainer.style.padding = pagePadding+ 'px';
 
@@ -126,8 +127,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
       hr.style.height = '0';
       hr.style.display = 'block';
       hr.style.position = 'absolute';
-      hr.style.borderBottom = '3px dashed black'
-      hr.style.transform = `translate(0, ${(i+1)*mmToPx(pageSizeDimensions[this.pageSize].height)}px)`
+      hr.style.borderBottom = '3px dashed #9b41ff'
+      hr.style.transform = `translate(0, ${(i+1)*mmToPx(pageSizeDimensions[this.pageSize].height)+pagePadding}px)`
       hr.style.width = '100%'
       hrLinesContainer.appendChild(hr);
 

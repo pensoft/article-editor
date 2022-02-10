@@ -19,8 +19,10 @@ export class ExportOptionsComponent implements OnInit {
 
   openEditBeforeExport(selected:any){
     let dialogRef = this.dialog.open(EditBeforeExportComponent, {
-      height: '95%',
-      width: '100%',
+      maxWidth: '100vw',
+      maxHeight: '100vh',
+      height: '90%',
+      width: '90%',
       panelClass:'pdf-edit-and-preview',
       data:{selected}
     });
