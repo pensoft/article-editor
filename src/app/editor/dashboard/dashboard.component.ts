@@ -14,6 +14,7 @@ import { uuidv4 } from 'lib0/random';
 import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
 import { ServiceShare } from '../services/service-share.service';
 import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
+import { leadingComment } from '@angular/compiler';
 
 @Component({
   selector: 'app-dashboard',
@@ -136,13 +137,18 @@ export class DashboardComponent implements AfterViewInit {
               let inc = false
               let nOfEl = valueArr.filter(el1=>el1==el).length
               let nOfElFound = found.filter(el1=>el1==el).length
-              if(nameCharArr.includes(el)&&nOfElFound<=nOfEl ){
+              let nOfElInitioal = nameCharArr.filter(el1=>el1==el).length
+              if(nameCharArr.includes(el)&&nOfElFound<nOfEl&&nOfElFound <nOfElInitioal ){
+
                 found.push(el);
                 inc = true;
                 //console.log(nOfEl,nOfElFound);
               }
               return inc
             });
+            if(resultArr.length == valueArr.length){
+              console.log(found,valueArr);
+            }
             return resultArr.length == valueArr.length;
             return (article.name as string).toLowerCase().includes(this.searchValue!)
           })
