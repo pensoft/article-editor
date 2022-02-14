@@ -8,7 +8,7 @@
             </div>
         </article>
         <article fxLayout="row" fxLayoutAlign="start center">
-            <form (keydown.enter)="search(inputText.value)" fxFlex="90%" fxLayoutAlign="start center">
+            <form (keydown)="search(inputText)" fxFlex="90%" fxLayoutAlign="start center">
                 <mat-form-field class="width-input">
                     <input matInput type="text" #inputText class="input-search" placeholder="Search by Name">
                     <mat-icon matPrefix class="prefix-icon">search</mat-icon>

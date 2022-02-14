@@ -1,9 +1,9 @@
 <ng-container>
     <div cdkDropList [ngClass]="{'outer-list':!nestedList,'nested-list':nestedList}" (cdkDropListDropped)="drop($event)" id="{{listParentId}}" [cdkDropListConnectedTo]="connectedTo" [cdkDropListData]="articleSectionsStructure">
         <div [ngClass]="{'outer-empty-placeholder':firstNested,'nested-empty-placeholder':!firstNested}" *ngIf="articleSectionsStructure.length == 0" cdkDrag [cdkDragDisabled]="true">No subsection</div>
-        <ng-container *ngFor="let node of articleSectionsStructure;index as i">
-            <app-section-leaf [(node)]="node!" [parentListData]="listData" [nodeFormGroup]="sectionsFormGroups[node.sectionID]" [sectionsFormGroupsRef]="sectionsFormGroups" [parentId]="listParentId" [lastNestedChild]="i==articleSectionsStructure.length-1" [nestedNode]="nestedList"
-                [isComplex]="node.type == 'complex'"></app-section-leaf>
+        <ng-container *ngFor="let node of articleSectionsStructure;let i = index">
+            <app-section-leaf [(node)]="articleSectionsStructure[i]" [parentListData]="listData" [nodeFormGroup]="sectionsFormGroups[node.sectionID]" [sectionsFormGroupsRef]="sectionsFormGroups" [parentId]="listParentId" [lastNestedChild]="i==articleSectionsStructure.length-1"
+                [nestedNode]="nestedList" [isComplex]="node.type == 'complex'"></app-section-leaf>
         </ng-container>
     </div>
 </ng-container>

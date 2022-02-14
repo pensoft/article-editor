@@ -1,5 +1,5 @@
 import { Injectable, OnDestroy } from '@angular/core';
-import { Subject } from 'rxjs';
+import { Subject, Subscriber, Subscription } from 'rxjs';
 import { YdocService } from '../../services/ydoc.service';
 import { treeNode } from '../../utils/interfaces/treeNode';
 //@ts-ignore
@@ -42,6 +42,35 @@ export class TreeService implements OnDestroy{
 
   labelupdateLocalMeta:any = {}
 
+  treeSubsctiption?:Subscription
+  obsFunc= (event: any, transaction: any) => {
+    let metadatachange = this.metadatachangeMap?.get('change')
+    if (this.guid != metadatachange.guid) {
+      if (!this.ydocService.editorIsBuild) {
+        return
+      }
+      if (metadatachange.action == 'listNodeDrag') {
+        this.applyNodeDrag(metadatachange.from,metadatachange.to, metadatachange.prevContainerId, metadatachange.newContainerId)
+      } else if (metadatachange.action == 'editNode') {
+        this.applyEditChange(metadatachange.nodeId)
+      } else if (metadatachange.action == "addNode") {
+        this.attachChildToNode(metadatachange.parentId, metadatachange.newChild);
+      } else if (metadatachange.action == "deleteNode") {
+        let { nodeRef, i } = this.deleteNodeById(metadatachange.childId);
+      } else if (metadatachange.action == 'addNodeAtPlace'){
+        this.addNodeAtPlace(metadatachange.parentContainerID,metadatachange.newSection,metadatachange.place,metadatachange.newNode);
+      } else if(metadatachange.action == 'replaceChildren'){
+        this.replaceChildren(metadatachange.newChildren,metadatachange.parent);
+      }else if (metadatachange.action == 'buildNewFromGroups'){
+        this.buildNewFormGroups(metadatachange.nodes);
+      }else if(metadatachange.action == 'saveNewTitle'){
+        this.saveNewTitle(metadatachange.node,metadatachange.title);
+      }
+    }
+    //this.articleStructureMap?.set('articleSectionsStructure', this.articleSectionsStructure)
+
+  }
+
   setTitleListener(node:articleSection){
     if(!node.title.editable){
       let formGroup = this.sectionFormGroups[node.sectionID]!;
@@ -74,6 +103,12 @@ export class TreeService implements OnDestroy{
 
   resetTreeData() {
     this.articleSectionsStructure = undefined;
+    if(this.obsFunc){
+      this.metadatachangeMap?.unobserve(this.obsFunc)
+    }
+    if(this.treeSubsctiption){
+      this.treeSubsctiption.unsubscribe();
+    }
     this.metadatachangeMap = undefined
     this.articleStructureMap = undefined
     this.guid = undefined
@@ -105,35 +140,9 @@ export class TreeService implements OnDestroy{
     let buildFunc = () => {
       this.guid = this.metadatachangeMap?.doc?.guid;
       this.articleStructureMap = ydocService.ydoc.getMap('articleStructure');
-      this.metadatachangeMap?.observe((event: any, transaction: any) => {
-        let metadatachange = this.metadatachangeMap?.get('change')
-        if (this.guid != metadatachange.guid) {
-          if (!this.ydocService.editorIsBuild) {
-            return
-          }
-          if (metadatachange.action == 'listNodeDrag') {
-            this.applyNodeDrag(metadatachange.from,metadatachange.to, metadatachange.prevContainerId, metadatachange.newContainerId)
-          } else if (metadatachange.action == 'editNode') {
-            this.applyEditChange(metadatachange.nodeId)
-          } else if (metadatachange.action == "addNode") {
-            this.attachChildToNode(metadatachange.parentId, metadatachange.newChild);
-          } else if (metadatachange.action == "deleteNode") {
-            let { nodeRef, i } = this.deleteNodeById(metadatachange.childId);
-          } else if (metadatachange.action == 'addNodeAtPlace'){
-            this.addNodeAtPlace(metadatachange.parentContainerID,metadatachange.newSection,metadatachange.place,metadatachange.newNode);
-          } else if(metadatachange.action == 'replaceChildren'){
-            this.replaceChildren(metadatachange.newChildren,metadatachange.parent);
-          }else if (metadatachange.action == 'buildNewFromGroups'){
-            this.buildNewFormGroups(metadatachange.nodes);
-          }else if(metadatachange.action == 'saveNewTitle'){
-            this.saveNewTitle(metadatachange.node,metadatachange.title);
-          }
-        }
-        //this.articleStructureMap?.set('articleSectionsStructure', this.articleSectionsStructure)
+      this.metadatachangeMap?.observe(this.obsFunc)
 
-      })
-
-      this.treeVisibilityChange.subscribe((data) => {
+      this.treeSubsctiption = this.treeVisibilityChange.subscribe((data) => {
         let guid = this.metadatachangeMap?.doc?.guid
         this.setArticleSectionStructureFlat()
         this.metadatachangeMap?.set('change', { ...data, guid })

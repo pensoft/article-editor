@@ -14,6 +14,15 @@
     <div class="elements-container">
         <div class="horizontal-lines" id="hr-lines">horizontal lines</div>
         <div #elementsContainer id="pm-elements-container">
+            <!-- <div *ngIf="sectionsContainers.length>0">
+                <div *ngFor="let section of sectionsContainers;let i = index">
+                    <div cdkDropList (cdkDropListDropped)="drop($event,i)">
+                        <div *ngFor="let element of sectionsContainers[i];let j = index" cdkDrag>
+                            <app-print-element [(elementHTML)]="sectionsContainers[i][j]"></app-print-element>
+                        </div>
+                    </div>
+                </div>
+            </div> -->
         </div>
     </div>
     <iframe class="pdfVi1" id='pdfV'></iframe>

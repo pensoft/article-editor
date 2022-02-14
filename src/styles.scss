@@ -211,6 +211,22 @@ app-article:not(.display-changes-hover) .deletion{
   display: none;
 } */
 
+@media not all and (min-resolution:.001dpcm) {
+    @supports (-webkit-appearance: none) {
+        .section_btn_container {
+            height: auto !important;
+        }
+    }
+}
+
+@media not all and (min-resolution:.001dpcm) {
+    @supports (-webkit-appearance: none) and (stroke-color: transparent) {
+        .section_btn_container {
+            height: auto !important;
+        }
+    }
+}
+
 citation[nonexistingfigure="true"] {
     background-color: rgb(194, 54, 54);
     color: white;

@@ -85,6 +85,8 @@ import { ExportOptionsComponent } from './editor/dialogs/export-options/export-o
 import { NgxJsonViewerModule } from 'ngx-json-viewer';
 import { SectionDataViewComponent } from './editor/dialogs/article-data-view/section-data-view/section-data-view.component';
 import { EditBeforeExportComponent } from './editor/dialogs/edit-before-export/edit-before-export.component';
+import { PrintElementComponent } from './editor/dialogs/edit-before-export/print-element/print-element.component';
+import { CopiedToClipBoardComponent } from './editor/snack-bars/copied-to-clip-board/copied-to-clip-board.component';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -154,6 +156,8 @@ const gravatarConfig: GravatarConfig = {
     ExportOptionsComponent,
     SectionDataViewComponent,
     EditBeforeExportComponent,
+    PrintElementComponent,
+    CopiedToClipBoardComponent,
 
   ],
   imports: [

@@ -71,16 +71,14 @@ export class ArticleMetadataComponent implements OnInit {
   }
 
   addNewSectionToArticle(){
-    console.log(this.ydocService.articleData);
-    /* let articleSections = this.ydocService.articleData.layout.template.sections.filter((data:any)=>{
+    let articleSections = this.ydocService.articleData.layout.template.sections.filter((data:any)=>{
       return (
-        this.treeService.articleSectionsStructure?.findIndex((element)=>{return (data.id == element.sectionTypeID&&(element.sectionMeta.main==true))}) == -1
+        this.treeService.articleSectionsStructure?.findIndex((element)=>{return (data.id == element.sectionTypeID&&(data.settings.main_section==true))}) == -1
 
 
       )
-    }) */
-    let articleSections = this.ydocService.articleData.layout.template.sections
-    console.log(articleSections);
+    })
+    //let articleSections = this.ydocService.articleData.layout.template.sections
     this.sectionTemplates = articleSections;
     const dialogRef = this.dialog.open(ChooseSectionComponent, {
       width: '563px',

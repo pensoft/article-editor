@@ -2,6 +2,8 @@ import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit } from '@an
 import { FormControl, FormGroup } from '@angular/forms';
 import { MatButton } from '@angular/material/button';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { CopiedToClipBoardComponent } from '@app/editor/snack-bars/copied-to-clip-board/copied-to-clip-board.component';
 import { articleSection } from '@app/editor/utils/interfaces/articleSection';
 
 @Component({
@@ -19,6 +21,7 @@ export class ArticleDataViewComponent implements AfterViewInit {
 
   constructor(
     public dialog: MatDialog,
+    private _snackBar: MatSnackBar,
     private dialogRef: MatDialogRef<ArticleDataViewComponent>,
     private changeDetectionRef: ChangeDetectorRef
     ,@Inject(MAT_DIALOG_DATA) public data: {
@@ -60,5 +63,21 @@ export class ArticleDataViewComponent implements AfterViewInit {
 
     }
     this.changeDetectionRef.detectChanges()
+  }
+
+  copyJSONToClipboard(){
+    var myjson = JSON.stringify(this.articleSectionsStructure, null, 2);
+    navigator.clipboard.writeText(myjson);
+    this._snackBar.openFromComponent(CopiedToClipBoardComponent, {
+      duration: 3 * 1000,
+    });
+  }
+
+  openRawJSON(){
+    var myjson = JSON.stringify(this.articleSectionsStructure, null, 2);
+    var x = window.open();
+    x!.document.open();
+    x!.document.write('<html><body><pre>' + myjson.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</pre></body></html>');
+    x!.document.close();
   }
 }

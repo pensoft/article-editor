@@ -142,13 +142,9 @@ export class DashboardComponent implements AfterViewInit {
 
                 found.push(el);
                 inc = true;
-                //console.log(nOfEl,nOfElFound);
               }
               return inc
             });
-            if(resultArr.length == valueArr.length){
-              console.log(found,valueArr);
-            }
             return resultArr.length == valueArr.length;
             return (article.name as string).toLowerCase().includes(this.searchValue!)
           })
@@ -162,9 +158,17 @@ export class DashboardComponent implements AfterViewInit {
         this.resultsLength = itemsCount;
       });
   }
-  public search(value: string) {
-    this.searchValue = value.toLowerCase();
-    this.typeChange.next('typechange')
+
+  timer:any
+  public search(input: HTMLInputElement) {
+    if(this.timer){
+      clearTimeout(this.timer);
+    }
+    this.timer = setTimeout(()=>{
+      this.searchValue = input.value.toLowerCase();
+      this.typeChange.next('typechange')
+      this.timer = undefined
+    },300)
   }
   filterByType(selectValue: any) {
     this.selectedType = selectValue;

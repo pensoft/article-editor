@@ -1,5 +1,7 @@
 <div class="show-hide-buttons">
     <button mat-raised-button (click)="showHideElement(articleStructure,srticleStrBtn)" #srticleStrBtn>Show article structure</button>
+    <button mat-raised-button (click)="copyJSONToClipboard()" #srticleStrBtn>Copy Article Structure JSON</button>
+    <button mat-raised-button (click)="openRawJSON()" #srticleStrBtn>Open raw JSON</button>
     <button mat-raised-button (click)="showHideElement(sectionsDataCont,sectionsDatabtn)" #sectionsDatabtn>Show section data</button>
 </div>
 <div class="editor-data-container">

@@ -18,6 +18,9 @@ export function installPatch(treeService:TreeService) {
     // Possible targets include siblings and 'this'
     //@ts-ignore
     let targets = [this, ...this._siblings];
+    if(!item.data.data){
+      return undefined
+    }
     item.data.data.canDropBool[0] = true;
     // Only consider targets where the drag postition is within the client rect
     // (this avoids calling enterPredicate on each possible target)

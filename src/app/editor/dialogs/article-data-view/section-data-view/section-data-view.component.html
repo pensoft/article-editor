@@ -2,8 +2,12 @@
     <div class="section-title">Section Name : {{sectionData.sectionName}}</div>
     <div class="sectionBtns">
         <button mat-raised-button (click)="sectionHTML.style.display = sectionHTML.style.display=='none'? 'block' : 'none'">{{sectionHTML.style.display=='none'? 'Show section html' : 'Hide seection html'}}</button>
+        <button mat-raised-button (click)="copyHTMLToClipboard()">Copy HTML</button>
         <button mat-raised-button (click)="sectionJSON.style.display = sectionJSON.style.display=='none'? 'block' : 'none'">{{sectionJSON.style.display=='none'? 'Show section json' : 'Hide section json'}}</button>
+        <button mat-raised-button (click)="copyJSONToClipboard()">Copy JSON</button>
+        <button mat-raised-button (click)="openRawJSON()">Open raw JSON</button>
         <button mat-raised-button (click)="sectionValues.style.display = sectionValues.style.display=='none'? 'block' : 'none'">{{sectionValues.style.display=='none'? 'Show section values' : 'Hide section values'}}</button>
+        <button mat-raised-button (click)="copySectionValuesToClipboard()">Copy Values</button>
     </div>
     <div class="html-view">
         <div style="display: none;" class="section-html" #sectionHTML>
