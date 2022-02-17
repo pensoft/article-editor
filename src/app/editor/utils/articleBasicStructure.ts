@@ -103,7 +103,7 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
       }
     }
     if (!index) {
-      parentContainer.unshift(newArticleSection!);
+      parentContainer.push(newArticleSection!);
     }
     return newArticleSection!
   }

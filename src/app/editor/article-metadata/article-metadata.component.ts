@@ -88,6 +88,7 @@ export class ArticleMetadataComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       this.sectionsService.getSectionById(result).subscribe((res:any)=>{
         let sectionTemplate = res.data
+        console.log(sectionTemplate);
         this.treeService.addNodeAtPlaceChange('parentList',sectionTemplate,'end');
       })
     });

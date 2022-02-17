@@ -1,7 +1,6 @@
 /* Structure */
+
 @import "../../../assets/colors";
-
-
 .example-container {
   // position: relative;
   width: 1098px;
@@ -33,28 +32,23 @@ table {
 ::ng-deep .buttons-menu {
   div {
     display: flex;
-
     button {
       width: 100%;
       margin: 0;
       margin-right: 8px;
       margin-right: 8px;
-
       mat-icon {
         margin: 0 !important;
       }
     }
-
     button:first-of-type {
       margin-left: 16px;
     }
-
     button:last-of-type {
       margin-right: 16px;
     }
   }
 }
-
 
 .example-loading-shade {
   position: absolute;
@@ -74,7 +68,9 @@ table {
   text-align: center;
 }
 
+
 /* Column Widths */
+
 .mat-column-number,
 .mat-column-state {
   max-width: 64px;
@@ -120,8 +116,9 @@ table {
   z-index: 1;
   position: relative;
   top: 5px;
-    left: 5px;
+  left: 5px;
 }
+
 .mat-select-arrow-wrapper {
   padding: 10px 0 0 0;
 }
@@ -177,8 +174,11 @@ td:first-child {
 }
 
 ::ng-deep .mat-primary .mat-option.mat-selected:not(.mat-option-disabled) {
-
-  color: var(--color-00b1b2)
+  color: var(primary-green)
 }
 
-
+::ng-deep app-add-figure-dialog {
+  .mat-primary .mat-option.mat-selected:not(.mat-option-disabled) {
+    color: $primary-green !important;
+  }
+}

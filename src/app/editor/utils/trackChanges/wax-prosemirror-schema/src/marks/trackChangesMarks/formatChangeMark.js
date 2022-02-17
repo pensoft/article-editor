@@ -14,24 +14,22 @@ const format_change = {
   },
   inclusive: false,
   group: 'track',
-  parseDOM: [
-    {
-      tag: 'span',
-      getAttrs(dom) {
-        return {
-          class: dom.getAttribute('class'),
-          id: dom.dataset.id,
-          user: dom.dataset.user,
-          username: dom.dataset.username,
-          date: parseInt(dom.dataset.date),
-          before: SchemaHelpers.parseFormatList(dom.dataset.before),
-          after: SchemaHelpers.parseFormatList(dom.dataset.after),
-          group: dom.dataset.group,
-          viewid: dom.dataset.viewid,
-        }
-      },
+  parseDOM: [{
+    tag: 'span',
+    getAttrs(dom) {
+      return {
+        class: dom.getAttribute('class'),
+        id: dom.dataset.id,
+        user: dom.dataset.user,
+        username: dom.dataset.username,
+        date: parseInt(dom.dataset.date),
+        before: SchemaHelpers.parseFormatList(dom.dataset.before),
+        after: SchemaHelpers.parseFormatList(dom.dataset.after),
+        group: dom.dataset.group,
+        viewid: dom.dataset.viewid,
+      }
     },
-  ],
+  }, ],
   toDOM(node) {
     return [
       'span',
@@ -43,7 +41,7 @@ const format_change = {
         'data-date': node.attrs.date,
         'data-before': JSON.stringify(node.attrs.before),
         'data-after': JSON.stringify(node.attrs.after),
-        'data-group':node.attrs.group,
+        'data-group': node.attrs.group,
         'data-viewid': node.attrs.viewid,
       },
     ];

@@ -340,6 +340,7 @@ export class TreeService implements OnDestroy{
 
     let sec = renderSectionFunc(newSection, container);
 
+    console.log(sec);
     this.renderForms(sec)
 
     if(typeof place == 'string' && place == 'end'){

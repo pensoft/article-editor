@@ -137,9 +137,9 @@ export class SectionComponent implements AfterViewInit, OnInit {
       Object.keys(this.sectionForm.controls).forEach((key) => {
         this.sectionForm.removeControl(key);
       })
-      this.formBuilderService.buildFormGroupFromSchema(this.sectionForm, this.section.formIOSchema,this.section);
-          this.treeService.setTitleListener(this.section)
-          //this.treeService.sectionFormGroups[this.section.sectionID] = this.sectionForm;
+      this.formBuilderService.buildFormGroupFromSchema(this.sectionForm, this.section.formIOSchema, this.section);
+      this.treeService.setTitleListener(this.section)
+      //this.treeService.sectionFormGroups[this.section.sectionID] = this.sectionForm;
       //this.sectionForm = nodeForm;
       this.sectionForm.patchValue(submision.data);
       this.sectionForm.updateValueAndValidity()
@@ -252,7 +252,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     }
 
     let editorContainer = this.prosemirrorEditorsService.editorContainers[this.section.sectionID]
-    if(editorContainer){
+    if (editorContainer) {
       let editorView = editorContainer.editorView
 
       editorView.focus()
@@ -260,6 +260,23 @@ export class SectionComponent implements AfterViewInit, OnInit {
       this.detectFocusService.sectionName = this.section.sectionID
 
     }
+
+    //chanking if the JSON has a submit btn and if it does not add one
+
+    if (!(this.sectionContent.components as Array<any>).find((val) => { return (val.key == 'submit' && val.type == 'button') })) {
+      this.sectionContent.components.push({
+        "type": "button",
+        "label": "Submit",
+        "key": "submit",
+        "disableOnInvalid": true,
+        "input": true,
+        "tableView": false,
+        "properties": {
+          "sectionID": this.section.sectionID
+        }
+      })
+    }
+
     this.renderForm = true
   }
 
