@@ -8,11 +8,9 @@ process.chdir('examples');
 const items = fs.readdirSync('.');
 const files = items.filter(file => file.substring(file.length - 3, file.length) === '.js');
 
-files.forEach(function (file) {
-  exec(`node ${file}`, function (err, stdout, stderr) {
+files.forEach(function(file) {
+  exec(`node ${file}`, function(err, stdout, stderr) {
     position++;
-    console.log('FILE: ', file, ` (${position}/${files.length})`);
-    console.log(stdout);
 
     if (stderr) {
       errCount++;

@@ -505,10 +505,21 @@ img[ychange_type="removed"] {
 }
 
 app-edit-section-dialog,
-app-add-figure-dialog {
+app-add-figure-dialog,
+app-add-link-dialog {
   .mat-form-field.mat-focused {
     background-color: transparent;
     color: black !important;
+    .mat-form-field-label-wrapper {
+      display: none !important;
+    }
+  }
+  .mat-form-field-label {
+    display: none !important;
+  }
+  .mat-form-field-empty {
+    margin-left: -22px;
+    display: initial !important;
   }
 }
 

@@ -24,7 +24,7 @@ export const updateControlsAndFigures = (
     }
   },
   rerenderFigures: (citats: any) => any,
-  YjsHistoryKey:PluginKey,
+  YjsHistoryKey: PluginKey,
   interpolateTemplate: any,
   GroupControl?: any,
   section?: articleSection) => {
@@ -37,7 +37,7 @@ export const updateControlsAndFigures = (
     return temp.innerHTML
   }
 
-  let sectionTreeTitleUpdateMetas:any
+  let sectionTreeTitleUpdateMetas: any
   return (trs: Transaction<any>[], oldState: EditorState, newState: EditorState) => {
     try {
 
@@ -78,7 +78,7 @@ export const updateControlsAndFigures = (
               figuresMap.set('ArticleFigures', JSON.parse(JSON.stringify(figures)))
             } else if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
               let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
-              if(!figuresCitats[section?.sectionID!]){
+              if (!figuresCitats[section?.sectionID!]) {
                 figuresCitats[section?.sectionID!] = {}
               }
               if (!figuresCitats[section?.sectionID!][citationMark.attrs.citateid]) {
@@ -103,7 +103,7 @@ export const updateControlsAndFigures = (
               let newMark = schema.mark('citation', { ...citationMark.attrs, last_time_updated: citateData.lastTimeUpdated })
               /*newNode = newNode.mark([newMark])
               tr1 = tr1.replaceWith(pos, node.nodeSize, newNode) */
-              tr1 = tr1.addMark(pos,pos+ node.nodeSize,newMark).setMeta('addToLastHistoryGroup',true)
+              tr1 = tr1.addMark(pos, pos + node.nodeSize, newMark).setMeta('addToLastHistoryGroup', true)
               let edView = editorContainers[section?.sectionID!].editorView
 
               let resolvedPositionOfCitat: ResolvedPos
@@ -126,7 +126,7 @@ export const updateControlsAndFigures = (
 
                 /* newNode = newNode.mark([newMark])
                 tr1 = tr1.replaceWith(pos, node.nodeSize, newNode) */
-                tr1 = tr1.addMark(pos, pos+node.nodeSize,newMark).setMeta('addToLastHistoryGroup',true)
+                tr1 = tr1.addMark(pos, pos + node.nodeSize, newMark).setMeta('addToLastHistoryGroup', true)
                 //tr1 = tr1.setNodeMarkup(pos, node.type, undefined, [citationMark.type.create()])
 
                 let viewsToRemove: string[] = newDisplayViewsInCitat ? oldDisplayViewsInCitat.reduce((prev, curr, i) => {
@@ -356,9 +356,9 @@ export const updateControlsAndFigures = (
                     let wrappingNodes = ['paragraph', 'heading', 'table', 'code_block', 'ordered_list', 'bullet_list', 'math_inline', 'math_display']
                     let updateMetaInfo = () => {
                       let docSize = data.edView.state.doc.nodeSize
-                      data.edView.state.doc.nodesBetween(0,docSize-2,(node: any, pos: any, i: any) => {
-                        let marks = node.marks.filter((mark:Mark) => { return mark.type.name == 'citation' })
-                        if ( marks.length > 0 && marks[0].attrs.citateid == data.citatID) {
+                      data.edView.state.doc.nodesBetween(0, docSize - 2, (node: any, pos: any, i: any) => {
+                        let marks = node.marks.filter((mark: Mark) => { return mark.type.name == 'citation' })
+                        if (marks.length > 0 && marks[0].attrs.citateid == data.citatID) {
                           citatNewPosition = pos
                         }
                       })
@@ -412,7 +412,7 @@ export const updateControlsAndFigures = (
                         }
                       })
                       if (!figureIsRendered) {
-                        edView.dispatch(edView.state.tr.insert(insertFrom, data.renderedData).setMeta('shouldTrack', false).setMeta('addToLastHistoryGroup',true))
+                        edView.dispatch(edView.state.tr.insert(insertFrom, data.renderedData).setMeta('shouldTrack', false).setMeta('addToLastHistoryGroup', true))
                       } else {
                         let replaceStart: number = -1
                         let replaceEnd: number = -1
@@ -423,7 +423,7 @@ export const updateControlsAndFigures = (
                           }
                         })
                         if (replaceStart !== -1) {
-                          edView.dispatch(edView.state.tr.replaceWith(replaceStart, replaceEnd, data.renderedData).setMeta('shouldTrack', false).setMeta('addToLastHistoryGroup',true))
+                          edView.dispatch(edView.state.tr.replaceWith(replaceStart, replaceEnd, data.renderedData).setMeta('shouldTrack', false).setMeta('addToLastHistoryGroup', true))
                         }
                       }
                       /* if (data.renderingFullFigureView) {
@@ -509,7 +509,7 @@ export const updateControlsAndFigures = (
                         return
                       }
                       let container = schema.nodes.figures_nodes_container.create({}, data.renderedData);
-                      edView.dispatch(edView.state.tr.insert(resolvedPositionATparentNodeBorder.pos, container).setMeta('shouldTrack', false).setMeta('addToLastHistoryGroup',true))
+                      edView.dispatch(edView.state.tr.insert(resolvedPositionATparentNodeBorder.pos, container).setMeta('shouldTrack', false).setMeta('addToLastHistoryGroup', true))
                     }
                   } catch (e) {
                     console.error(e);
@@ -521,29 +521,29 @@ export const updateControlsAndFigures = (
               try {
                 const fg = GroupControl[section!.sectionID];
                 const controlPath = node.attrs.controlPath;
-                if(controlPath == 'sectionTreeTitle'){
-                  if(!transaction.getMeta('titleupdateFromControl')){
-                    if(transaction.getMeta('editingTitle')){
+                if (controlPath == 'sectionTreeTitle') {
+                  if (!transaction.getMeta('titleupdateFromControl')) {
+                    if (transaction.getMeta('editingTitle')) {
                       sectionTreeTitleUpdateMetas.time = Date.now();
                     }
                     const control = fg.get(controlPath) as FormControl;
                     //@ts-ignore
-                    let updatemeta = fg.titleUpdateMeta as {time:number,updatedFrom:string};
-                    if(!sectionTreeTitleUpdateMetas){
+                    let updatemeta = fg.titleUpdateMeta as { time: number, updatedFrom: string };
+                    if (!sectionTreeTitleUpdateMetas) {
                       sectionTreeTitleUpdateMetas = {
-                        time:0,
-                        updateFrom:'prosemirror'
+                        time: 0,
+                        updateFrom: 'prosemirror'
                       }
                     }
-                    if(node.textContent.trim()!==control.value){
-                      if(sectionTreeTitleUpdateMetas.time<updatemeta.time){
-                        setTimeout(()=>{
+                    if (node.textContent.trim() !== control.value) {
+                      if (sectionTreeTitleUpdateMetas.time < updatemeta.time) {
+                        setTimeout(() => {
                           let view = editorContainers[section?.sectionID!].editorView;
                           let st = view.state
-                          view.dispatch(st.tr.replaceWith(pos+1,pos+node.nodeSize-1,schema.text(control.value)).setMeta('titleupdateFromControl',true).setMeta('addToLastHistoryGroup',true))
-                        },0);
+                          view.dispatch(st.tr.replaceWith(pos + 1, pos + node.nodeSize - 1, schema.text(control.value)).setMeta('titleupdateFromControl', true).setMeta('addToLastHistoryGroup', true))
+                        }, 0);
                         sectionTreeTitleUpdateMetas.time = updatemeta.time;
-                      }else if(sectionTreeTitleUpdateMetas.time>updatemeta.time){
+                      } else if (sectionTreeTitleUpdateMetas.time > updatemeta.time) {
                         control.patchValue(node.textContent.trim()!);
                         updatemeta.time = sectionTreeTitleUpdateMetas.time;
                         updatemeta.updatedFrom = 'editor'
@@ -553,13 +553,22 @@ export const updateControlsAndFigures = (
                   /* if(sectionTreeTitleUpdateMetas[+titleNodeNumber].time<updatemeta.time){
                     sectionTreeTitleUpdateMetas[+titleNodeNumber].time = updatemeta.time
                   } */
-                }else{
+                } else {
 
                   const control = fg.get(controlPath) as FormControl;
                   //@ts-ignore
 
                   if (control.componentType && control.componentType == "textarea") {
                     let html = getHtmlFromFragment(node.content)
+                    if (node.attrs.menuType) {
+                      //@ts-ignore
+                      if (!control.componentProps) {
+                        //@ts-ignore
+                        control.componentProps = {}
+                      }
+                      //@ts-ignore
+                      control.componentProps.menuType = node.attrs.menuType;
+                    }
                     control.setValue(html, { emitEvent: true })
                   } else {
                     control.setValue(node.textContent, { emitEvent: true })
@@ -568,10 +577,10 @@ export const updateControlsAndFigures = (
                   const mark = schema.mark('invalid')
                   if (control.invalid && node.attrs.invalid !== "true") {
                     // newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
-                    tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "true" }).setMeta('addToLastHistoryGroup',true)
-                  } else if(control.valid && node.attrs.invalid !== "false"){
-                    if(node.attrs.invalid !== "false"){
-                      tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "false" }).setMeta('addToLastHistoryGroup',true)
+                    tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "true" }).setMeta('addToLastHistoryGroup', true)
+                  } else if (control.valid && node.attrs.invalid !== "false") {
+                    if (node.attrs.invalid !== "false") {
+                      tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "false" }).setMeta('addToLastHistoryGroup', true)
                     }
                   }
                 }
@@ -583,9 +592,9 @@ export const updateControlsAndFigures = (
           })
         }
       })
-      if(tr1.steps.length>0){
+      if (tr1.steps.length > 0) {
         //@ts-ignore
-        if(tr1.getMeta('addToLastHistoryGroup')){
+        if (tr1.getMeta('addToLastHistoryGroup')) {
           YjsHistoryKey.getState(newState).undoManager.preventCapture();
         }
       }
@@ -613,8 +622,8 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>, rere
             //@ts-ignore
             let replacingSlice = state.doc.slice(step.from, step.to)
             replacingSlice.content.nodesBetween(0, replacingSlice.size, (node, pos, parent) => {
-              if (node.marks.filter((mark)=>{return mark.type.name == 'citation'}).length>0) {
-                let citatMark = node.marks.filter((mark)=>{return mark.type.name == 'citation'})[0]
+              if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
+                let citatMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
                 let citatID = citatMark.attrs.citateid
                 //@ts-ignore
                 if (figuresCitats[sectionID][citatID] && transaction.getMeta('y-sync$')) {
@@ -730,14 +739,14 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>, rere
 export const handleClickOn = (citatContextPluginKey: PluginKey) => {
 
   return (view: EditorView, pos: number, node: Node, nodePos: number, e: MouseEvent, direct: boolean) => {
-    if (node.marks.filter((mark)=>{return mark.type.name == 'citation'}).length>0 &&
+    if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0 &&
       (("which" in e && e.which == 3) ||
         ("button" in e && e.button == 2)
       )) {
       let cursurCoord = view.coordsAtPos(pos);
       e.preventDefault();
       e.stopPropagation();
-      setTimeout(()=>{
+      setTimeout(() => {
         view.dispatch(view.state.tr.setMeta('citatContextPlugin', {
           clickPos: pos,
           citatPos: nodePos,
@@ -745,8 +754,8 @@ export const handleClickOn = (citatContextPluginKey: PluginKey) => {
           focus: view.hasFocus(),
           direct,
           coords: cursurCoord
-        }).setMeta('addToLastHistoryGroup',true))
-      },0)
+        }).setMeta('addToLastHistoryGroup', true))
+      }, 0)
       return true
     } else if (citatContextPluginKey.getState(view.state).decorations !== undefined) {
       return false

@@ -166,6 +166,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       this.value = this.control.value;
       //let node = editorData?[schema.nodeFromJSON(editorData)]:[];
       let options: any = {}
+      console.log(this.instance.component);
       Object.keys(this.instance.component.properties).forEach((key) => {
         options[key] = this.instance.component.properties[key]
       })
@@ -234,7 +235,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
           } catch (e) {
             console.error(e);
           }
-        } 
+        }
       },500)
     }
     this.value = this.control.value

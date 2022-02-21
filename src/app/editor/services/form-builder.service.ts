@@ -13,13 +13,14 @@ export class FormBuilderService {
 
   }
 
-  populateDefaultValues(savedForm: any, schema: any, sectionID: string) {
+  populateDefaultValues(savedForm: any, schema: any, sectionID: string,formGroup?:FormGroup) {
     let attachSectionId = (componentArray: any[]) => {
       componentArray.forEach((component) => {
-        if (component.properties) {
-          component.properties.sectionID = sectionID
+        if (component.componentProperties) {
+          component["properties"]["sectionID"] = sectionID
         } else {
-          component.properties = { sectionID }
+          component["properties"] = {}
+          component["properties"]["sectionID"] = sectionID
         }
         if (component.components && component.components instanceof Array && component.components.length > 0) {
           attachSectionId(component.components)
@@ -40,7 +41,14 @@ export class FormBuilderService {
       { continue; }
       if (savedForm[componentKey]) {
         component.defaultValue = savedForm[componentKey];
-
+        if(formGroup){
+          let componentControl = formGroup.controls[componentKey];
+          //@ts-ignore
+          if(componentControl&&componentControl.componentProps){
+          //@ts-ignore
+            Object.keys(componentControl.componentProps).forEach(key=>{component["properties"][key] = componentControl.componentProps[key]});
+          }
+        }
       }
     }
     return schema;

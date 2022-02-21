@@ -13,6 +13,7 @@ import { YdocService } from '../services/ydoc.service';
 import print from 'print-js'
 import printJS from 'print-js';
 import { ArticlesService } from '@app/core/services/articles.service';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-article-metadata',
@@ -25,6 +26,7 @@ export class ArticleMetadataComponent implements OnInit {
 
   constructor(
     public dialog: MatDialog,
+    private http:HttpClient,
     private sectionsService:ArticleSectionsService,
     private figuresControllerService:FiguresControllerService,
     private ydocService:YdocService,
@@ -52,11 +54,6 @@ export class ArticleMetadataComponent implements OnInit {
     })
   }
 
-  print(){
-    let doc = document.getElementsByTagName('app-article');
-    printJS('app-article-element','html')
-  }
-
   resetCitatsObj(){
     let articleCitatsObj = this.ydocService.figuresMap?.get('articleCitatsObj');
     Object.keys(articleCitatsObj).forEach((sectionId)=>{
@@ -69,6 +66,8 @@ export class ArticleMetadataComponent implements OnInit {
   logData(){
     this.ydocService.checkLastTimeUpdated()
   }
+
+
 
   addNewSectionToArticle(){
     let articleSections = this.ydocService.articleData.layout.template.sections.filter((data:any)=>{

@@ -59,7 +59,7 @@ export class MenuService {
       ['insertVideoItem',
         { dropdownName: 'Math', content: ['addMathInlineMenuItem', 'addMathBlockMenuItem'] }
       ],
-      ['tableMenu']
+      ['tableMenu','addMathBlockMenuItem']
     ],
     'fullMenu': [
       ['textMenu'],
@@ -115,10 +115,10 @@ export class MenuService {
     menu.fullMenu[8].push(menuItems.insertLink);
   }
 
-  attachMenuItems(menu: any, ydoc: Y.Doc, sectionName: string,sectionId?:string) {
+  attachMenuItems(sectionName: string) {
     let menuItemsData
     if (!this.sectionMenus[sectionName]) {
-      menuItemsData = [...this.sectionMenus['fullMenu']]
+      menuItemsData = [...this.sectionMenus['fullMenu1']]
     } else {
       menuItemsData = [...this.sectionMenus[sectionName]]
     }
@@ -188,5 +188,18 @@ export class MenuService {
       })
     })
     return menuBuild;
+  }
+
+  buildMenuTypes(){
+    let menuTypes:any = {}
+
+    menuTypes.main = this.attachMenuItems('SimpleMenu');
+    Object.keys(this.sectionMenus).forEach((key)=>{
+      if(key!=='SimpleMenu'){
+        menuTypes[key] = this.attachMenuItems(key);
+      }
+    })
+
+    return menuTypes;
   }
 }

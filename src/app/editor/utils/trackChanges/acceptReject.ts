@@ -37,10 +37,36 @@ function removeTextWithChangeMark(view: EditorView, markattrs: any, action: 'acc
     }
   })
 
+  if (markfound && !connectionFound && !fromConnectionMark) {
+    let resolvedPosAtStart = view.state.doc.resolve(textstart);
+    let resolvedPosAtEnd = view.state.doc.resolve(textend);
+
+    let nodeBefore = resolvedPosAtStart.nodeBefore;
+    let nodeAfter = resolvedPosAtEnd.nodeAfter;
+
+    let searchingFor = markType.name == 'insertion' ? 'deletion' : 'insertion';
+    if (nodeBefore) {
+      let markConn = nodeBefore.marks.filter(mark => mark.type.name == searchingFor)[0]
+      if (markConn) {
+        connType = markConn.type.name;
+        connMarkAttrs = markConn.attrs;
+        connectionFound = true;
+      }
+    }
+    if (nodeAfter) {
+      let markConn = nodeAfter.marks.filter(mark => mark.type.name == searchingFor)[0]
+      if (markConn) {
+        connType = markConn.type.name;
+        connMarkAttrs = markConn.attrs;
+        connectionFound = true;
+      }
+    }
+  }
+
   if (markfound) {
     view.dispatch(view.state.tr.replaceWith(textstart, textend, Fragment.empty).setMeta('shouldTrack', false));
   }
-  if (connectionFound&&!fromConnectionMark) {
+  if (connectionFound && !fromConnectionMark) {
     if (action == 'accept') {
       setTimeout(() => {
         acceptChange(view, connType, connMarkAttrs, true)
@@ -85,11 +111,37 @@ function removeChangeMarkFromText(view: EditorView, markattrs: any, action: 'acc
     }
   })
 
+  if (markfound && !connectionFound && !fromConnectionMark) {
+    let resolvedPosAtStart = view.state.doc.resolve(textstart);
+    let resolvedPosAtEnd = view.state.doc.resolve(textend);
+
+    let nodeBefore = resolvedPosAtStart.nodeBefore;
+    let nodeAfter = resolvedPosAtEnd.nodeAfter;
+
+    let searchingFor = markType.name == 'insertion' ? 'deletion' : 'insertion';
+    if (nodeBefore) {
+      let markConn = nodeBefore.marks.filter(mark => mark.type.name == searchingFor)[0]
+      if (markConn) {
+        connType = markConn.type.name;
+        connMarkAttrs = markConn.attrs;
+        connectionFound = true;
+      }
+    }
+    if (nodeAfter) {
+      let markConn = nodeAfter.marks.filter(mark => mark.type.name == searchingFor)[0]
+      if (markConn) {
+        connType = markConn.type.name;
+        connMarkAttrs = markConn.attrs;
+        connectionFound = true;
+      }
+    }
+  }
+
   if (markfound) {
     let tr = view.state.tr.removeMark(textstart, textend, markType)
     view.dispatch(tr.setMeta('shouldTrack', false));
   }
-  if (connectionFound&&!fromConnectionMark) {
+  if (connectionFound && !fromConnectionMark) {
     if (action == 'accept') {
       setTimeout(() => {
         acceptChange(view, connType, connMarkAttrs, true)
@@ -112,9 +164,9 @@ export function acceptChange(view: EditorView, markType: any, markattrs: any, fr
     }
   } else {
     if (markType == 'insertion') {
-      removeChangeMarkFromText(view, markattrs, 'accept',fromConnection);
+      removeChangeMarkFromText(view, markattrs, 'accept', fromConnection);
     } else if (markType == 'deletion') {
-      removeTextWithChangeMark(view, markattrs, 'accept',fromConnection);
+      removeTextWithChangeMark(view, markattrs, 'accept', fromConnection);
     }
   }
 }
@@ -129,9 +181,9 @@ export function rejectChange(view: EditorView, markType: any, markattrs: any, fr
     }
   } else {
     if (markType == 'insertion') {
-      removeTextWithChangeMark(view, markattrs, 'decline',fromConnection);
+      removeTextWithChangeMark(view, markattrs, 'decline', fromConnection);
     } else if (markType == 'deletion') {
-      removeChangeMarkFromText(view, markattrs, 'decline',fromConnection);
+      removeChangeMarkFromText(view, markattrs, 'decline', fromConnection);
     }
   }
 

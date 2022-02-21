@@ -140,7 +140,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       let defaultValues = formGroup.value;
 
       //this.formBuilderService.buildFormGroupFromSchema(formGroup, sectionContent);
-      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID);
+      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID,formGroup);
 
       let updateYdoc = new Y.Doc();
       let maindocstate = Y.encodeStateAsUpdate(this.ydocService.ydoc)

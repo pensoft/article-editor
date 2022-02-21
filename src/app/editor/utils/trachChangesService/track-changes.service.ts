@@ -390,16 +390,13 @@ export class TrackChangesService {
               let sectionName = pluginState.sectionName
               if (this.acceptReject.action && this.acceptReject.editorId == sectionName) {
 
-                debugger
                 let marks = (changesObject[sectionName] as Array<any>).filter((el) => { return el.from <= acceptReject.pos && el.to >= acceptReject.pos });
                 if (marks.length == 0) {
                   return
                 }
                 if (this.acceptReject.action == 'accept') {
-                  debugger
                   acceptChange(view,`${marks[0].type}`, {...marks[0].markattrs})
                 } else if (this.acceptReject.action == 'reject') {
-                  debugger
                   rejectChange(view,`${marks[0].type}`, {...marks[0].markattrs})
                 }
                 this.acceptReject.action = undefined

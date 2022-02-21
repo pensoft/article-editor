@@ -1,4 +1,3 @@
-
 import {
   removeEventHandlerListener,
   callEventHandlerListeners,
@@ -11,7 +10,17 @@ import {
   ContentAny,
   ContentBinary,
   getItemCleanStart,
-  ContentDoc, YText, YArray, UpdateEncoderV1, UpdateEncoderV2, Doc, Snapshot, Transaction, EventHandler, YEvent, Item, // eslint-disable-line
+  ContentDoc,
+  YText,
+  YArray,
+  UpdateEncoderV1,
+  UpdateEncoderV2,
+  Doc,
+  Snapshot,
+  Transaction,
+  EventHandler,
+  YEvent,
+  Item, // eslint-disable-line
 } from '../internals.js'
 
 import * as map from 'lib0/map'
@@ -35,7 +44,7 @@ export class ArraySearchMarker {
    * @param {Item} p
    * @param {number} index
    */
-  constructor (p, index) {
+  constructor(p, index) {
     p.marker = true
     this.p = p
     this.index = index
@@ -145,7 +154,6 @@ export const findMarker = (yarray, index) => {
   //     start = /** @type {Item} */ (start.right)
   //   }
   //   if (pos !== pindex) {
-  //     debugger
   //     throw new Error('Gotcha position fail!')
   //   }
   // }
@@ -155,7 +163,6 @@ export const findMarker = (yarray, index) => {
   //     window.getLengthes = () => window.lengthes.sort((a, b) => a - b)
   //   }
   //   window.lengthes.push(marker.index - pindex)
-  //   console.log('distance', marker.index - pindex, 'len', p && p.parent.length)
   // }
   if (marker !== null && math.abs(marker.index - pindex) < /** @type {YText|YArray<any>} */ (p.parent).length / maxSearchMarker) {
     // adjust existing marker
@@ -185,9 +192,9 @@ export const updateMarkerChanges = (searchMarker, index, len) => {
        */
       let p = m.p
       p.marker = false
-      // Ideally we just want to do a simple position comparison, but this will only work if
-      // search markers don't point to deleted items for formats.
-      // Iterate marker to prev undeleted countable position so we know what to do when updating a position
+        // Ideally we just want to do a simple position comparison, but this will only work if
+        // search markers don't point to deleted items for formats.
+        // Iterate marker to prev undeleted countable position so we know what to do when updating a position
       while (p && (p.deleted || !p.countable)) {
         p = p.left
         if (p && !p.deleted && p.countable) {
@@ -253,44 +260,44 @@ export const callTypeObservers = (type, transaction, event) => {
  * Abstract Yjs Type class
  */
 export class AbstractType {
-  constructor () {
+  constructor() {
     /**
      * @type {Item|null}
      */
     this._item = null
-    /**
-     * @type {Map<string,Item>}
-     */
+      /**
+       * @type {Map<string,Item>}
+       */
     this._map = new Map()
-    /**
-     * @type {Item|null}
-     */
+      /**
+       * @type {Item|null}
+       */
     this._start = null
-    /**
-     * @type {Doc|null}
-     */
+      /**
+       * @type {Doc|null}
+       */
     this.doc = null
     this._length = 0
-    /**
-     * Event handlers
-     * @type {EventHandler<EventType,Transaction>}
-     */
+      /**
+       * Event handlers
+       * @type {EventHandler<EventType,Transaction>}
+       */
     this._eH = createEventHandler()
-    /**
-     * Deep event handlers
-     * @type {EventHandler<Array<YEvent>,Transaction>}
-     */
+      /**
+       * Deep event handlers
+       * @type {EventHandler<Array<YEvent>,Transaction>}
+       */
     this._dEH = createEventHandler()
-    /**
-     * @type {null | Array<ArraySearchMarker>}
-     */
+      /**
+       * @type {null | Array<ArraySearchMarker>}
+       */
     this._searchMarker = null
   }
 
   /**
    * @return {AbstractType<any>|null}
    */
-  get parent () {
+  get parent() {
     return this._item ? /** @type {AbstractType<any>} */ (this._item.parent) : null
   }
 
@@ -304,7 +311,7 @@ export class AbstractType {
    * @param {Doc} y The Yjs instance
    * @param {Item|null} item
    */
-  _integrate (y, item) {
+  _integrate(y, item) {
     this.doc = y
     this._item = item
   }
@@ -312,26 +319,26 @@ export class AbstractType {
   /**
    * @return {AbstractType<EventType>}
    */
-  _copy () {
+  _copy() {
     throw error.methodUnimplemented()
   }
 
   /**
    * @return {AbstractType<EventType>}
    */
-  clone () {
+  clone() {
     throw error.methodUnimplemented()
   }
 
   /**
    * @param {UpdateEncoderV1 | UpdateEncoderV2} encoder
    */
-  _write (encoder) { }
+  _write(encoder) {}
 
   /**
    * The first non-deleted item
    */
-  get _first () {
+  get _first() {
     let n = this._start
     while (n !== null && n.deleted) {
       n = n.right
@@ -346,7 +353,7 @@ export class AbstractType {
    * @param {Transaction} transaction
    * @param {Set<null|string>} parentSubs Keys changed on this type. `null` if list was modified.
    */
-  _callObserver (transaction, parentSubs) {
+  _callObserver(transaction, parentSubs) {
     if (!transaction.local && this._searchMarker) {
       this._searchMarker.length = 0
     }
@@ -357,7 +364,7 @@ export class AbstractType {
    *
    * @param {function(EventType, Transaction):void} f Observer function
    */
-  observe (f) {
+  observe(f) {
     addEventHandlerListener(this._eH, f)
   }
 
@@ -366,7 +373,7 @@ export class AbstractType {
    *
    * @param {function(Array<YEvent>,Transaction):void} f Observer function
    */
-  observeDeep (f) {
+  observeDeep(f) {
     addEventHandlerListener(this._dEH, f)
   }
 
@@ -375,7 +382,7 @@ export class AbstractType {
    *
    * @param {function(EventType,Transaction):void} f Observer function
    */
-  unobserve (f) {
+  unobserve(f) {
     removeEventHandlerListener(this._eH, f)
   }
 
@@ -384,7 +391,7 @@ export class AbstractType {
    *
    * @param {function(Array<YEvent>,Transaction):void} f Observer function
    */
-  unobserveDeep (f) {
+  unobserveDeep(f) {
     removeEventHandlerListener(this._dEH, f)
   }
 
@@ -392,7 +399,7 @@ export class AbstractType {
    * @abstract
    * @return {any}
    */
-  toJSON () {}
+  toJSON() {}
 }
 
 /**
@@ -529,13 +536,13 @@ export const typeListMap = (type, f) => {
  */
 export const typeListCreateIterator = type => {
   let n = type._start
-  /**
-   * @type {Array<any>|null}
-   */
+    /**
+     * @type {Array<any>|null}
+     */
   let currentContent = null
   let currentContentIndex = 0
   return {
-    [Symbol.iterator] () {
+    [Symbol.iterator]() {
       return this
     },
     next: () => {
@@ -557,7 +564,7 @@ export const typeListCreateIterator = type => {
         n = n.right // we used the content of n, now iterate to next
       }
       const value = currentContent[currentContentIndex++]
-      // check if we need to empty currentContent
+        // check if we need to empty currentContent
       if (currentContent.length <= currentContentIndex) {
         currentContent = null
       }
@@ -634,9 +641,9 @@ export const typeListInsertGenericsAfter = (transaction, parent, referenceItem, 
   const ownClientId = doc.clientID
   const store = doc.store
   const right = referenceItem === null ? parent._start : referenceItem.right
-  /**
-   * @type {Array<Object|Array<any>|number|null>}
-   */
+    /**
+     * @type {Array<Object|Array<any>|number|null>}
+     */
   let jsonContent = []
   const packJsonContent = () => {
     if (jsonContent.length > 0) {
@@ -662,11 +669,11 @@ export const typeListInsertGenericsAfter = (transaction, parent, referenceItem, 
           switch (c.constructor) {
             case Uint8Array:
             case ArrayBuffer:
-              left = new Item(createID(ownClientId, getState(store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentBinary(new Uint8Array(/** @type {Uint8Array} */ (c))))
+              left = new Item(createID(ownClientId, getState(store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentBinary(new Uint8Array( /** @type {Uint8Array} */ (c))))
               left.integrate(transaction, 0)
               break
             case Doc:
-              left = new Item(createID(ownClientId, getState(store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentDoc(/** @type {Doc} */ (c)))
+              left = new Item(createID(ownClientId, getState(store, ownClientId)), left, left && left.lastId, right, right && right.id, parent, null, new ContentDoc( /** @type {Doc} */ (c)))
               left.integrate(transaction, 0)
               break
             default:
@@ -710,7 +717,7 @@ export const typeListInsertGenerics = (transaction, parent, index, content) => {
   if (marker !== null) {
     n = marker.p
     index -= marker.index
-    // we need to iterate one to the left so that the algorithm works
+      // we need to iterate one to the left so that the algorithm works
     if (index === 0) {
       // @todo refactor this as it actually doesn't consider formats
       n = n.prev // important! get the left undeleted item so that we can actually decrease index
@@ -778,7 +785,7 @@ export const typeListDelete = (transaction, parent, index, length) => {
     throw lengthExceeded
   }
   if (parent._searchMarker) {
-    updateMarkerChanges(parent._searchMarker, startIndex, -startLength + length /* in case we remove the above exception */)
+    updateMarkerChanges(parent._searchMarker, startIndex, -startLength + length /* in case we remove the above exception */ )
   }
 }
 
@@ -823,10 +830,10 @@ export const typeMapSet = (transaction, parent, key, value) => {
         content = new ContentAny([value])
         break
       case Uint8Array:
-        content = new ContentBinary(/** @type {Uint8Array} */ (value))
+        content = new ContentBinary( /** @type {Uint8Array} */ (value))
         break
       case Doc:
-        content = new ContentDoc(/** @type {Doc} */ (value))
+        content = new ContentDoc( /** @type {Doc} */ (value))
         break
       default:
         if (value instanceof AbstractType) {

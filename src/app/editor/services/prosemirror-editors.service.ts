@@ -102,6 +102,7 @@ export class ProsemirrorEditorsService {
   permanentUserData?: Y.PermanentUserData;
   colors = userSpec.colors;
   menu: any = buildMenuItems(schema);
+  menuTypes:any = {}
   inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, schema.nodes.math_inline);
   blockMathInputRule = makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, schema.nodes.math_display);
 
@@ -319,8 +320,7 @@ export class ProsemirrorEditorsService {
 
 
     container.setAttribute('class', 'editor-container');
-    let defaultMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'SimpleMenu', editorID);
-    let fullMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenu', editorID);
+    //let fullMenu1 = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenu1', editorID);
     this.initDocumentReplace[editorID] = true;
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
     let GroupControl = this.treeService.sectionFormGroups;
@@ -375,7 +375,7 @@ export class ProsemirrorEditorsService {
         inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
         ...menuBar({
           floating: true,
-          content: { 'main': defaultMenu, fullMenu }, containerClass: menuContainerClass
+          content: this.menuTypes, containerClass: menuContainerClass
         })
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */history: false, containerClass: menuContainerClass }))
       ,
@@ -577,8 +577,6 @@ export class ProsemirrorEditorsService {
     this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures })]
 
     container.setAttribute('class', 'editor-container');
-    let menu = buildMenuItems(schema);
-    let defaultMenu = this.menuService.attachMenuItems(menu, this.ydoc!, 'SimpleMenu', editorID);
     this.initDocumentReplace[editorID] = true;
 
 
@@ -613,7 +611,7 @@ export class ProsemirrorEditorsService {
         //inputRules({ rules: [inlineMathInputRule, blockMathInputRule] }),
         ...menuBar({
           floating: true,
-          content: { 'main': defaultMenu/* , fullMenu */ }, containerClass: menuContainerClass
+          content: this.menuTypes, containerClass: menuContainerClass
         })
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */history: false, containerClass: menuContainerClass }))
       ,
@@ -714,6 +712,7 @@ export class ProsemirrorEditorsService {
     let container = document.createElement('div');
     let editorView: EditorView;
     let doc: Node;
+    console.log(options);
     if (!options.noLabel) {
       let componentLabel = formIOComponentInstance.component.label;
       let labelTag = document.createElement('div');
@@ -732,11 +731,8 @@ export class ProsemirrorEditorsService {
     container.setAttribute('class', 'editor-container');
 
     let filterTransaction = false
-    let defaultMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'SimpleMenuPMundoRedo');
-    let fullMenu = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenuPMundoRedo');
 
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
-
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
       props: {
@@ -772,7 +768,10 @@ export class ProsemirrorEditorsService {
 
     this.editorsEditableObj[editorID] = true
 
-
+    let menu :any = undefined
+    if(options.menuType){
+      menu = {main:this.menuTypes[options.menuType]}
+    }
 
     let edState = EditorState.create({
       doc,
@@ -793,7 +792,7 @@ export class ProsemirrorEditorsService {
         inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
         ...menuBar({
           floating: true,
-          content: { 'main': defaultMenu, fullMenu }, containerClass: menuContainerClass
+          content: menu?menu:this.menuTypes, containerClass: menuContainerClass
         })
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
       ,
@@ -883,6 +882,10 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
+  buildMenus(){
+    this.menuTypes = this.menuService.buildMenuTypes()
+  }
+
   init() {
     let data = this.ydocService.getData();
     this.userInfo = data.userInfo
@@ -903,6 +906,7 @@ export class ProsemirrorEditorsService {
     this.permanentUserData = new Y.PermanentUserData(this.ydoc);
     this.permanentUserData.setUserMapping(this.ydoc, this.ydoc.clientID, this.user.username);
     this.ydoc.gc = false;
+    this.buildMenus()
   }
 
   setIntFunction(interpulateFunction: any) {

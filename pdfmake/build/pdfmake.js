@@ -1,4 +1,7 @@
 /*! pdfmake v0.3.0-beta.1, @license MIT, @link http://pdfmake.org */
+
+const { nodes } = require("prosemirror-schema-basic");
+
 (function webpackUniversalModuleDefinition(root, factory) {
   if (typeof exports === 'object' && typeof module === 'object')
     module.exports = factory();
@@ -3112,7 +3115,6 @@
             });
             return words;
           }
-
           var breaker = new(linebreaker_default())(text);
           var last = 0;
           var bk;
@@ -4751,7 +4753,7 @@
             throw 'invalid Qr version! should be between 1 and 40';
           }
 
-          if (mask != -1 && (mask < 0 || mask > 8)) throw 'invalid mask'; //console.log('version:', ver, 'mode:', mode, 'ECC:', ecclevel, 'mask:', mask )
+          if (mask != -1 && (mask < 0 || mask > 8)) throw 'invalid mask';
 
           return generate(data, ver, mode, ecclevel, mask);
         } // options
@@ -7255,7 +7257,139 @@
              */
           ;
 
-          _proto.layoutDocument = function layoutDocument(docStructure, pdfDocument, styleDictionary, defaultStyle, background, header, footer, watermark, pageBreakBeforeFct) {
+          _proto.layoutDocument = function layoutDocument(docStructure, pdfDocument, styleDictionary, defaultStyle, background, header, footer, watermark, pageBreakBeforeFct, orderNodes) {
+
+            function orderNodesFunc(linearNodeList, pages, docSrtucture) {
+              if (typeof orderNodes !== 'function') {
+                return false;
+              }
+              let mainlinearNodeList = linearNodeList.filter(function(node) {
+                return (node.props && node.props.main);
+              });
+              linearNodeList = linearNodeList.filter(function(node) {
+                return node.positions.length > 0;
+              });
+              mainlinearNodeList.forEach(function(node) {
+                var nodeInfo = {};
+                ['id', 'text', 'ul', 'ol', 'table', 'image', 'qr', 'canvas', 'svg', 'columns', 'headlineLevel', 'style', 'pageBreak', 'pageOrientation', 'width', 'height'].forEach(function(key) {
+                  if (node[key] !== undefined) {
+                    nodeInfo[key] = node[key];
+                  }
+                });
+                nodeInfo.startPosition = node.positions[0];
+                nodeInfo.pageNumbers = Array.from(new Set(node.positions.map(function(node) {
+                  return node.pageNumber;
+                })));
+                nodeInfo.pages = pages.length;
+                nodeInfo.stack = Array.isArray(node.stack);
+                node.nodeInfo = nodeInfo;
+              });
+
+              var _loop = function _loop(index) {
+                var node = mainlinearNodeList[index];
+
+                if (!node.pageOrderCalculated) {
+                  node.pageOrderCalculated = true;
+                  var pageNumber = node.nodeInfo.pageNumbers[0];
+                  let funcReturn = orderNodes(node, {
+                    getContent: function getContent() {
+                      return docSrtucture
+                    },
+                    getFollowingNodesOnPage: function getFollowingNodesOnPage() {
+                      var followingNodesOnPage = [];
+
+                      for (var ii = index + 1, l = mainlinearNodeList.length; ii < l; ii++) {
+                        if (mainlinearNodeList[ii].nodeInfo.pageNumbers.indexOf(pageNumber) > -1) {
+                          followingNodesOnPage.push(mainlinearNodeList[ii]);
+                        }
+                      }
+
+                      return followingNodesOnPage;
+                    },
+                    getNodesOnNextPage: function getNodesOnNextPage() {
+                      var nodesOnNextPage = [];
+
+                      for (var ii = index + 1, l = mainlinearNodeList.length; ii < l; ii++) {
+                        if (mainlinearNodeList[ii].nodeInfo.pageNumbers.indexOf(pageNumber + 1) > -1) {
+                          nodesOnNextPage.push(mainlinearNodeList[ii]);
+                        }
+                      }
+
+                      return nodesOnNextPage;
+                    },
+                    getPreviousNodesOnPage: function getPreviousNodesOnPage() {
+                      var previousNodesOnPage = [];
+
+                      for (var ii = 0; ii < index; ii++) {
+                        if (mainlinearNodeList[ii].nodeInfo.pageNumbers.indexOf(pageNumber) > -1) {
+                          previousNodesOnPage.push(mainlinearNodeList[ii]);
+                        }
+                      }
+
+                      return previousNodesOnPage;
+                    },
+                    getNodesOnPrevPage: function getNodesOnPrevPage() {
+                      var nodesOnPrevPage = [];
+                      if (pageNumber - 1 > 0) {
+                        for (var ii = 0; ii < index; ii++) {
+                          if (mainlinearNodeList[ii].nodeInfo.pageNumbers.indexOf(pageNumber - 1) > -1) {
+                            nodesOnPrevPage.push(mainlinearNodeList[ii]);
+                          }
+                        }
+                      }
+                      return nodesOnPrevPage;
+                    },
+                    getNodesOnPageAfter: function getNodesOnPrevPage(pageAfter) {
+                      var nodesOnPageAfter = [];
+                      if (pageNumber - 1 > 0) {
+                        for (var ii = index + 1, l = mainlinearNodeList.length; ii < l; ii++) {
+                          if (mainlinearNodeList[ii].nodeInfo.pageNumbers.indexOf(pageNumber + pageAfter) > -1) {
+                            nodesOnPageAfter.push(mainlinearNodeList[ii]);
+                          }
+                        }
+                      }
+                      return nodesOnPageAfter;
+                    },
+                    getAllNodesAfter: function getAllNodesAfter() {
+                      var allNodesAfter = [];
+                      if (pageNumber - 1 > 0) {
+                        for (var ii = index + 1, l = mainlinearNodeList.length; ii < l; ii++) {
+                          allNodesAfter.push(mainlinearNodeList[ii]);
+                        }
+                      }
+                      return allNodesAfter;
+                    },
+                    detAllNodesBefore: function getAllNodesBefore() {
+                      var allNodesBefore = [];
+                      if (pageNumber - 1 > 0) {
+                        for (var ii = 0; ii < index; ii++) {
+                          allNodesBefore.push(mainlinearNodeList[ii]);
+                        }
+                      }
+                      return allNodesBefore;
+                    },
+                    listLength: mainlinearNodeList.length
+                  })
+                  if (funcReturn) {
+                    //add node.pageOrderCalculated = true; to every moved node
+                    //mope nodes in descending oreder
+
+                    return {
+                      v: true
+                    };
+                  }
+                }
+              };
+
+              for (var index = 0; index < mainlinearNodeList.length; index++) {
+                var _ret = _loop(index);
+
+                if (typeof _ret === "object") return _ret.v;
+              }
+
+              return false
+            }
+
             function addPageBreaksIfNecessary(linearNodeList, pages) {
               if (typeof pageBreakBeforeFct !== 'function') {
                 return false;
@@ -7320,7 +7454,19 @@
                         }
 
                         return previousNodesOnPage;
-                      }
+                      },
+                      /* getNodesOnPrevPage: function getNodesOnPrevPage() {
+                        var nodesOnPrevPage = [];
+                        if (pageNumber - 1 > 0) {
+                          for (var ii = 0; ii < index; ii++) {
+                            if (linearNodeList[ii].nodeInfo.pageNumbers.indexOf(pageNumber - 1) > -1) {
+                              nodesOnPrevPage.push(linearNodeList[ii].nodeInfo);
+                            }
+                          }
+                        }
+
+                        return nodesOnPrevPage;
+                      } */
                     })) {
                     node.pageBreak = 'before';
                     return {
@@ -7333,7 +7479,9 @@
               for (var index = 0; index < linearNodeList.length; index++) {
                 var _ret = _loop(index);
 
-                if (typeof _ret === "object") return _ret.v;
+                if (typeof _ret === "object") {
+                  return _ret.v;
+                }
               }
 
               return false;
@@ -7355,6 +7503,11 @@
               result = this.tryLayoutDocument(docStructure, pdfDocument, styleDictionary, defaultStyle, background, header, footer, watermark);
             }
 
+            while (orderNodesFunc(result.linearNodeList, result.pages, docStructure)) {
+              resetXYs(result);
+              result = this.tryLayoutDocument(docStructure, pdfDocument, styleDictionary, defaultStyle, background, header, footer, watermark);
+            }
+
             return result.pages;
           };
 
@@ -7369,7 +7522,7 @@
               _this.addBackground(background);
             });
             this.addBackground(background);
-            this.processNode(docStructure);
+            this.processNode(docStructure, 'log');
             this.addHeadersAndFooters(header, footer);
 
             if (watermark != null) {
@@ -7565,7 +7718,7 @@
             }
           };
 
-          _proto.processNode = function processNode(node) {
+          _proto.processNode = function processNode(node, log) {
               var _this2 = this;
 
               var applyMargins = function applyMargins(callback) {
@@ -7620,6 +7773,13 @@
 
               this.linearNodeList.push(node);
               decorateNode(node);
+              let yBefore
+              let pBefore
+              if (node.props) {
+                let pageMargins = _this2.writer._context.pageMargins;
+                yBefore = _this2.writer._context.y - pageMargins.top
+                pBefore = _this2.writer._context.page
+              }
               applyMargins(function() {
                 var unbreakable = node.unbreakable;
 
@@ -7677,6 +7837,28 @@
                   _this2.writer.commitUnbreakableBlock();
                 }
               });
+              if (node.props) {
+                let pageMargins = _this2.writer._context.pageMargins; //{left: num, top: num, right: num, bottom: num}
+                let yAfter = _this2.writer._context.y - pageMargins.top
+                let pAfter = _this2.writer._context.page
+                let pageHeight = _this2.writer._context.availableHeight + _this2.writer._context.y - pageMargins.top
+                  //consoe.lg(`${yBefore.toFixed(3)} : ${pBefore} : ${yAfter.toFixed(3)} : ${pAfter} : ${_this2.writer._context.availableHeight.toFixed(3)} : ${(pageHeight).toFixed(3)}`);
+                let height
+
+                if (node.pageBreak === 'before') {
+                  height = ((pAfter - pBefore - 1) * pageHeight) + yAfter;
+                } else {
+                  height = ((pAfter - pBefore) * pageHeight) - yBefore + yAfter;
+                }
+
+                if (pAfter !== pBefore && node.table && node.table.props && node.table.props.type == 'figure' && node.pageBreak !== 'before' && node.pageBreakCalculated) {
+                  node.pageBreak = 'before';
+                  node.pageBreakCalculated = true;
+                }
+
+                node.props.availableHeight = _this2.writer._context.availableHeight;
+                node.props.height = height
+              }
             } // vertical container
           ;
 
@@ -8016,7 +8198,20 @@
           var x = node.x;
           var y = node.y;
           node.positions = [];
-
+          /*
+					var pageSize = this.getCurrentPage().pageSize;
+            var innerHeight = pageSize.height - this.pageMargins.top - this.pageMargins.bottom;
+            var innerWidth = pageSize.width - this.pageMargins.left - this.pageMargins.right;
+            return {
+              pageNumber: this.page + 1,
+              pageOrientation: pageSize.orientation,
+              pageInnerHeight: innerHeight,
+              pageInnerWidth: innerWidth,
+              left: this.x,
+              top: this.y,
+              verticalRatio: (this.y - this.pageMargins.top) / innerHeight,
+              horizontalRatio: (this.x - this.pageMargins.left) / innerWidth
+            }; */
           if (Array.isArray(node.canvas)) {
             node.canvas.forEach(function(vector) {
               var x = vector.x;
@@ -9013,7 +9208,7 @@
                     var pages = builder.layoutDocument(docDefinition.content, _this.pdfKitDoc, docDefinition.styles || {}, docDefinition.defaultStyle || {
                       fontSize: 12,
                       font: 'Roboto'
-                    }, docDefinition.background, docDefinition.header, docDefinition.footer, docDefinition.watermark, docDefinition.pageBreakBefore);
+                    }, docDefinition.background, docDefinition.header, docDefinition.footer, docDefinition.watermark, docDefinition.pageBreakBefore, docDefinition.orderNodes);
                     var maxNumberPages = docDefinition.maxPagesNumber || -1;
 
                     if (isNumber(maxNumberPages) && maxNumberPages > -1) {
@@ -84333,10 +84528,7 @@
         }
 
 
-        // log is just a thin wrapper to console.log that prepends a timestamp
-        exports.log = function() {
-          console.log('%s - %s', timestamp(), exports.format.apply(exports, arguments));
-        };
+        exports.log = function() {};
 
 
         /**
