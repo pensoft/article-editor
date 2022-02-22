@@ -413,6 +413,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
       ) {
         let newEl: any = {}
         let textStyles = this.getTextStyles(defaultView!.getComputedStyle(element, null), element as HTMLElement);
+
         if (parentStyle) {
           Object.keys(parentStyle).forEach((key) => {
             if (!textStyles[key] && key !== 'text' && key !== 'stack') {
@@ -450,6 +451,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
               (element.childNodes[0] as HTMLElement).tagName.toLocaleLowerCase() == 'form-field'))) {
           let children = element.childNodes;
 
+
           for (let i = 0; i < children.length; i++) {
             let node = children[i];
             let n: any
@@ -465,6 +467,12 @@ export class EditBeforeExportComponent implements AfterViewInit {
           }
           Object.assign(newEl, textStyles)
         } else {
+          if (!newEl.text) {
+            newEl.text = [];
+          }
+          if(tag == 'p'){
+            newEl.text.push({text:'\u0020\u0020\u0020'})
+          }
           let children = element.childNodes;
           for (let i = 0; i < children.length; i++) {
             let node = children[i];
@@ -474,11 +482,19 @@ export class EditBeforeExportComponent implements AfterViewInit {
             } else if (node instanceof Element) {
               n = await generatePDFData(node, newEl, textStyles, element)
             }
-            if (!newEl.text) {
-              newEl.text = [];
-            }
+
             newEl.text.push(n);
           }
+          /* let loogFirstEl = (el:any)=>{
+            if(el instanceof String){
+              el = '\t'+el
+            }else if(el.text&&el.text instanceof String){
+              el.text = '\t'+el.text
+            }else if(el.text&&el.text instanceof Array){
+              loogFirstEl(el.text[0]);
+            }
+          }
+          loogFirstEl(newEl[0]); */
           Object.assign(newEl, textStyles)
         }
         let parentElTag;

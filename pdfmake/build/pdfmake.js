@@ -8760,6 +8760,7 @@ const { nodes } = require("prosemirror-schema-basic");
                     break;
 
                   case 'image':
+                    //console.log('Rendering image', item.item);
                     this.renderImage(item.item);
                     break;
 
@@ -31108,6 +31109,7 @@ const { nodes } = require("prosemirror-schema-basic");
 
             _this = _super.call(this);
             _this.document = document;
+
             _this.indent = options.indent || 0;
             _this.characterSpacing = options.characterSpacing || 0;
             _this.wordSpacing = options.wordSpacing === 0;
