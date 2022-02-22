@@ -1,1 +1,8 @@
-<div #printElement>qwe</div>
+<div #printElement class="main-element-conatiner" (contextmenu)="onRightClick($event,printElement)">qwe</div>
+<div style="visibility: hidden; position: fixed;" [style.left]="menuTopLeftPosition.x" [style.top]="menuTopLeftPosition.y" [matMenuTriggerFor]="rightMenu"></div>
+<mat-menu #rightMenu="matMenu">
+  <ng-template matMenuContent let-item="item">
+    <button mat-menu-item (click)="addPageBreakBeforeItem(printElement)" (selectstart)="false">{{!hasPageBreakBefore?'Add page break befor this item.':'Remove the page break befor this item.'}}</button>
+    <!-- <button mat-menu-item (click)="addPageBreakAfterItem(printElement)" (selectstart)="false"> {{!hasPageBreakAfter?'Add page break after this item.':'Remove the page brak after this item.'}}</button> -->
+  </ng-template>
+</mat-menu>

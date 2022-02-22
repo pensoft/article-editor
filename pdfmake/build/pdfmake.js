@@ -2829,7 +2829,6 @@ const { nodes } = require("prosemirror-schema-basic");
             if (node.image.type !== undefined && node.image.data !== undefined && node.image.type === 'Buffer' && Array.isArray(node.image.data)) {
               node.image = DocPreprocessor_Buffer.from(node.image.data);
             }
-
             return node;
           };
 
