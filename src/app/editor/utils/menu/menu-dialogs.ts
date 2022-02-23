@@ -26,14 +26,18 @@ export const insertImageItem = new MenuItem({
     if (dispatch) {
       const dialogRef = sharedDialog.open(InsertImageDialogComponent, {
         width: '444px',
-        height: '326px',
+        height: '454px',
         panelClass: 'editor-dialog-container',
         data: { image: '' }
       });
       dialogRef.afterClosed().subscribe(image => {
-        if (!image) {
+        if (!image||!image.imgURL) {
           return;
         }
+        if(image.imgURL){
+          view?.dispatch(view.state.tr.replaceSelectionWith(state.schema.nodes.image.create({src:image.imgURL})));
+        }
+
         // view?.dispatch(view.state.tr.replaceSelectionWith(state.schema.nodes.image.createAndFill(attrs)!))
         // view?.focus();
       });

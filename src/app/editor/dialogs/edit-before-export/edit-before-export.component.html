@@ -11,10 +11,22 @@
       <mat-option value="A5">A5</mat-option>
     </mat-select>
   </div>
-  <div>
+  <div class='margin-fields'>
     <mat-form-field class="margin-field" appearance="fill">
-      <mat-label class="margin-label">Margin :</mat-label>
-      <input type="email" matInput [formControl]="marginControl" placeholder="Ex. pat@example.com">
+      <mat-label class="margin-label">Margin Top:</mat-label>
+      <input type="email" matInput [formControl]="marginTopControl" placeholder="Ex. pat@example.com">
+    </mat-form-field>
+    <mat-form-field class="margin-field" appearance="fill">
+      <mat-label class="margin-label">Margin Right:</mat-label>
+      <input type="email" matInput [formControl]="marginRightControl" placeholder="Ex. pat@example.com">
+    </mat-form-field>
+    <mat-form-field class="margin-field" appearance="fill">
+      <mat-label class="margin-label">Margin Bottom:</mat-label>
+      <input type="email" matInput [formControl]="marginBottomControl" placeholder="Ex. pat@example.com">
+    </mat-form-field>
+    <mat-form-field class="margin-field" appearance="fill">
+      <mat-label class="margin-label">Margin Left:</mat-label>
+      <input type="email" matInput [formControl]="marginLeftControl" placeholder="Ex. pat@example.com">
     </mat-form-field>
   </div>
 
@@ -41,3 +53,6 @@
   </div>
   <iframe class="pdfVi1" id='pdfV'></iframe>
 </div>
+<p id="width-measure-container" style="display:inline-block">
+
+</p>

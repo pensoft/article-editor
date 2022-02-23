@@ -26,7 +26,10 @@ export class PrintElementComponent implements AfterViewInit {
 
   async ngAfterViewInit() {
     if(this.end){
-      await this.refreshContent()
+      console.log('lastElementRender');
+      setTimeout(async()=>{
+        await this.refreshContent()
+      },1000)
     }
     //@ts-ignore
     this.printElement?.nativeElement.innerHTML = this.elementHTML
@@ -37,7 +40,7 @@ export class PrintElementComponent implements AfterViewInit {
     this.changeDetectorRef.detectChanges();
   }
 
-  menuTopLeftPosition =  {x: '0', y: '0'}
+  menuTopLeftPosition =  {x: '0', y: '0'};
 
   // reference to the MatMenuTrigger in the DOM
 

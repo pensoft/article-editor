@@ -1,4 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
@@ -8,9 +9,19 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 export class InsertImageDialogComponent implements OnInit {
 
+  imgLinkControl = new FormControl('',Validators.pattern('(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)'));
+
   constructor(
     private dialogRef: MatDialogRef<InsertImageDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
+  }
+
+  getErrorMessage(){
+    if(this.imgLinkControl.invalid&&this.imgLinkControl.touched){
+      return 'This is not a valid img url.'
+    }else{
+      return ''
+    }
   }
 
   ngOnInit() {
@@ -21,6 +32,6 @@ export class InsertImageDialogComponent implements OnInit {
   }
 
   doAction(data: any) {
-    this.dialogRef.close({ data });
+    this.dialogRef.close({ data,imgURL:this.imgLinkControl.value });
   }
 }

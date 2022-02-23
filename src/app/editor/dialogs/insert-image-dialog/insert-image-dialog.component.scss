@@ -38,7 +38,7 @@
       }
     }
     arpha-button.upload-row {
-      ::ng-deep {
+       ::ng-deep {
         button {
           width: 202px !important;
           height: 35px !important;
@@ -63,6 +63,10 @@
   }
 }
 
+.img-control {
+  width: 100%;
+}
+
 .actions {
   float: right;
   .action-button {
@@ -72,7 +76,7 @@
     &:last-of-type {
       margin-right: -3px;
     }
-    ::ng-deep {
+     ::ng-deep {
       button {
         width: 100px !important;
         height: 33px !important;
@@ -80,7 +84,7 @@
     }
   }
   .negative-button {
-    ::ng-deep {
+     ::ng-deep {
       button {
         color: var(--color-676767) !important;
         border-color: var(--color-676767) !important;

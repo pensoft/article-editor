@@ -2296,28 +2296,40 @@ const { nodes } = require("prosemirror-schema-basic");
             return this.fontCache[familyName][type];
           };
 
-          _proto.provideImage = function provideImage(src) {
-              var _this2 = this;
+          _proto.provideImageSource = function provideImageSource(src) {
+            var _this2 = this;
 
-              var realImageSrc = function realImageSrc(src) {
-                var image = _this2.images[src];
+            var getRealImageSrc = function getRealImageSrc(src) {
+              var image = _this2.images[src];
 
-                if (!image) {
-                  return src;
-                }
+              if (!image) {
+                return src;
+              }
 
-                if (_this2.virtualfs && _this2.virtualfs.existsSync(image)) {
-                  return _this2.virtualfs.readFileSync(image);
-                }
+              if (_this2.virtualfs && _this2.virtualfs.existsSync(image)) {
+                return _this2.virtualfs.readFileSync(image);
+              }
 
-                var index = image.indexOf('base64,');
+              var index = image.indexOf('base64,');
 
-                if (index < 0) {
-                  return _this2.images[src];
-                }
+              if (index < 0) {
+                return _this2.images[src];
+              }
 
-                return Buffer.from(image.substring(index + 7), 'base64');
-              };
+              return Buffer.from(image.substring(index + 7), 'base64');
+            };
+
+            const realImageSrc = getRealImageSrc(src);
+
+            // convert to Buffer if in browser context
+            if (realImageSrc instanceof ArrayBuffer) {
+              return Buffer.from(new Uint8Array(realImageSrc));
+            }
+
+            return realImageSrc;
+          }
+
+          _proto.provideImage = function provideImage(src, imageSource) {
 
               if (this._imageRegistry[src]) {
                 return this._imageRegistry[src];
@@ -2326,7 +2338,7 @@ const { nodes } = require("prosemirror-schema-basic");
               var image;
 
               try {
-                image = this.openImage(realImageSrc(src));
+                image = this.openImage(imageSource);
 
                 if (!image) {
                   throw new Error('No image');
@@ -4932,7 +4944,7 @@ const { nodes } = require("prosemirror-schema-basic");
           };
 
           _proto.convertIfBase64Image = function convertIfBase64Image(node) {
-            if (/^data:image\/(jpeg|jpg|png);base64,/.test(node.image)) {
+            if (/^data:image\/(jpeg|jpg|png|svg+xml);base64,/.test(node.image)) {
               // base64 image
               var label = "$$pdfmake$$" + this.autoImageIndex++;
               this.pdfDocument.images[label] = node.image;
@@ -4940,9 +4952,21 @@ const { nodes } = require("prosemirror-schema-basic");
             }
           };
 
+          _proto.chekIfIsSVG = function chekIfIsSVG(imageSource) {
+            // read the first 1000 bytes instead of 4 to allow for possible whitespace
+            return imageSource.toString('utf-8', 0, 1000).includes('<svg');
+          }
+
           _proto.measureImage = function measureImage(node) {
             this.convertIfBase64Image(node);
-            var image = this.pdfDocument.provideImage(node.image);
+            let imageSource = this.pdfDocument.provideImageSource(node.image);
+
+            if (this.chekIfIsSVG(imageSource)) {
+              delete node.image;
+              node.svg = imageSource.toString('utf-8');
+              return this.measureSVG(node);
+            }
+            var image = this.pdfDocument.provideImage(node.image, imageSource);
             var imageSize = {
               width: image.width,
               height: image.height
@@ -4952,6 +4976,14 @@ const { nodes } = require("prosemirror-schema-basic");
           };
 
           _proto.measureSVG = function measureSVG(node) {
+            let imageSource = this.pdfDocument.provideImageSource(node.svg);
+
+            if (!this.chekIfIsSVG(imageSource)) {
+              throw new Error('DocMeasure.measureSVG: No valid SVG image provided');
+            } else {
+              node.svg = imageSource;
+            }
+
             var dimensions = this.svgMeasure.measureSVG(node.svg);
             this.measureImageWithDimensions(node, dimensions);
             node.font = this.styleStack.getProperty('font'); // scale SVG based on final dimension
@@ -7497,6 +7529,7 @@ const { nodes } = require("prosemirror-schema-basic");
 
             var result = this.tryLayoutDocument(docStructure, pdfDocument, styleDictionary, defaultStyle, background, header, footer, watermark);
 
+
             while (addPageBreaksIfNecessary(result.linearNodeList, result.pages)) {
               resetXYs(result);
               result = this.tryLayoutDocument(docStructure, pdfDocument, styleDictionary, defaultStyle, background, header, footer, watermark);
@@ -7506,6 +7539,11 @@ const { nodes } = require("prosemirror-schema-basic");
               resetXYs(result);
               result = this.tryLayoutDocument(docStructure, pdfDocument, styleDictionary, defaultStyle, background, header, footer, watermark);
             }
+
+            resetXYs(result);
+            result = this.tryLayoutDocument(docStructure, pdfDocument, styleDictionary, defaultStyle, background, header, footer, watermark);
+            resetXYs(result);
+            result = this.tryLayoutDocument(docStructure, pdfDocument, styleDictionary, defaultStyle, background, header, footer, watermark);
 
             return result.pages;
           };
@@ -7849,6 +7887,7 @@ const { nodes } = require("prosemirror-schema-basic");
                 } else {
                   height = ((pAfter - pBefore) * pageHeight) - yBefore + yAfter;
                 }
+
 
                 if (pAfter !== pBefore && node.table && node.table.props && node.table.props.type == 'figure' && node.pageBreak !== 'before' && node.pageBreakCalculated) {
                   node.pageBreak = 'before';
@@ -8330,6 +8369,11 @@ const { nodes } = require("prosemirror-schema-basic");
 
           _proto.writeDimensions = function writeDimensions(svgString, dimensions) {
             var doc = parseSVG(svgString);
+            if (typeof doc.attr.viewBox !== 'string') {
+              doc.attr.viewBox = `0 0 ${stripUnits(doc.attr.width)} ${stripUnits(doc.attr.height)}`;
+            }
+
+
             doc.attr.width = "" + dimensions.width;
             doc.attr.height = "" + dimensions.height;
             return doc.toString();
@@ -8760,7 +8804,6 @@ const { nodes } = require("prosemirror-schema-basic");
                     break;
 
                   case 'image':
-                    //console.log('Rendering image', item.item);
                     this.renderImage(item.item);
                     break;
 

@@ -7,6 +7,14 @@
   </div>
   <div class="text">Supported formats are JPEG, GIF & PNG up to size is 15 MB.</div>
 </div>
+<div class="title">Or add image with a link:</div>
+<div>
+  <mat-form-field appearance="fill" class="img-control">
+    <mat-label>Enter your img URL here.</mat-label>
+    <input matInput placeholder="pat@example.com" [formControl]="imgLinkControl" required>
+    <mat-error *ngIf="imgLinkControl.invalid">{{getErrorMessage()}}</mat-error>
+  </mat-form-field>
+</div>
 <div class="actions">
   <arpha-button label="Cancel" (clickEvent)="onNoClick()" class="small secondary action-button negative-button">
   </arpha-button>

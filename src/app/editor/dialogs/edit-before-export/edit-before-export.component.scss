@@ -2,12 +2,18 @@
   height: 100px;
 }
 
-.margin-field {
+::ng-deep .margin-field {
   padding: 0;
   margin-left: 30px;
   color: black !important;
   height: 76px;
+  width: 120px;
+  .mat-form-field-label {
+    transform: translate(-20px, -13px) scale(0.75) !important;
+  }
 }
+
+.margin-fields {}
 
 .format-label {
   margin-right: 9px;

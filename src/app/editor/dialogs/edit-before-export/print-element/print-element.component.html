@@ -1,4 +1,6 @@
-{{hasPageBreakBefore?'&#182;':''}}
+<div class="page-break">
+  {{hasPageBreakBefore?'------------- Page Break -------------&#182;':''}}
+</div>
 <div #printElement class="main-element-conatiner" (contextmenu)="onRightClick($event,printElement)">qwe</div>
 <div style="visibility: hidden; position: fixed;" [style.left]="menuTopLeftPosition.x" [style.top]="menuTopLeftPosition.y" [matMenuTriggerFor]="rightMenu"></div>
 <mat-menu #rightMenu="matMenu">
