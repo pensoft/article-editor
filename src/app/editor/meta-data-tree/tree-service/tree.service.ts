@@ -7,7 +7,7 @@ import * as Y from 'yjs'
 import { uuidv4 } from 'lib0/random';
 import { articleSection, editorData } from '../../utils/interfaces/articleSection';
 import { FormGroup } from '@angular/forms';
-import { editorFactory, renderSectionFunc } from '@app/editor/utils/articleBasicStructure';
+import { checkIfSectionsAreAboveOrAtMax, checkIfSectionsAreUnderOrAtMin, editorFactory, renderSectionFunc } from '@app/editor/utils/articleBasicStructure';
 import { formIODefaultValues, formIOTemplates, htmlNodeTemplates } from '@app/editor/utils/section-templates';
 import { FormBuilderService } from '@app/editor/services/form-builder.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
@@ -340,7 +340,6 @@ export class TreeService implements OnDestroy{
 
     let sec = renderSectionFunc(newSection, container);
 
-    console.log(sec);
     this.renderForms(sec)
 
     if(typeof place == 'string' && place == 'end'){
@@ -470,6 +469,39 @@ export class TreeService implements OnDestroy{
     }
     find(this.articleSectionsStructure!)
     return containerofNode!
+  }
+
+  showDeleteButton(node:articleSection){
+    let r = true
+    let parentNode = this.findParentNodeWithChildID(node.sectionID)!;
+    if(parentNode&&parentNode!=='parentNode'){
+      r = checkIfSectionsAreUnderOrAtMin(node,parentNode)
+    }
+    return r
+  }
+
+  showAddBtn(node:articleSection){
+    let r = true
+    let parentNode = this.findParentNodeWithChildID(node.sectionID)!;
+    if(parentNode&&parentNode!=='parentNode'){
+      r = checkIfSectionsAreAboveOrAtMax(node,parentNode)
+    }
+    return r
+  }
+
+  findParentNodeWithChildID(nodeid: string) {
+    let parent: undefined | articleSection | 'parentNode'= undefined
+    let find = (container: articleSection[],parentNode:articleSection|'parentNode') => {
+      container.forEach((section) => {
+        if (section.sectionID == nodeid) {
+          parent = parentNode
+        } else if (section.children.length > 0 && parent == undefined) {
+          find(section.children,section);
+        }
+      })
+    }
+    find(this.articleSectionsStructure!,'parentNode')
+    return parent!
   }
 
   async attachChildToNode(clickedNode: string, node: any) {

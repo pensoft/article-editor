@@ -30,22 +30,22 @@ export const figureJson = {
             "defaultValue": [
                 {
                     "container": {
-                        "url": "https://cdn.britannica.com/q:60/91/181391-050-1DA18304/cat-toes-paw-number-paws-tiger-tabby.jpg",
-                        "description": `<p align="set-align-left" class="set-align-left">cat</p>`,
+                        "url": "https://static.scientificamerican.com/sciam/cache/file/DB41BE97-01C6-496F-873B5B4E3360B3A5_source.jpg",
+                        "description": `<p align="set-align-left" class="set-align-left">dream</p>`,
                         "componentType": "image",
                     }
                 },
                 {
                     "container": {
-                        "url": "https://imjeffreyrex.files.wordpress.com/2014/06/linkin-park.png",
-                        "description": `<p align="set-align-left" class="set-align-left">Linkin Park</p>`,
+                        "url": "https://static.scientificamerican.com/sciam/cache/file/5366EE82-A0FE-4690-885904445F73D44A.jpg",
+                        "description": `<p align="set-align-left" class="set-align-left">Brain</p>`,
                         "componentType": "image",
                     }
                 },
                 {
                     "container": {
-                        "url": "https://www.everythingreptiles.com/wp-content/uploads/2020/12/Bearded-dragon-fluffing-beard.jpg",
-                        "description": `<p align="set-align-left" class="set-align-left">bearded dragon</p>`,
+                        "url": "https://static.scientificamerican.com/sciam/cache/file/9B084B0E-73C7-45A9-A004F4543EED300F.jpg",
+                        "description": `<p align="set-align-left" class="set-align-left">metaverse</p>`,
                         "componentType": "image",
                     }
                 },

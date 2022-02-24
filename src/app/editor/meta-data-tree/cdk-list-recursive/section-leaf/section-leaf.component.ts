@@ -22,6 +22,7 @@ import { E, I } from '@angular/cdk/keycodes';
 import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
+import { checkIfSectionsAreAboveOrAtMax, checkIfSectionsAreUnderOrAtMin } from '@app/editor/utils/articleBasicStructure';
 
 @Component({
   selector: 'app-section-leaf',
@@ -82,6 +83,8 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
 
   }
+
+
 
   ngOnInit() {
     this.expandIcon = 'chevron_right';
@@ -303,11 +306,17 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     }
     Array.from(div.children).forEach((el: any) => {
       if (el.classList.contains('section_btn_container')) {
-        Array.from(el.children).forEach((el: any) => {
+        Array.from(el.children).forEach((el: any,index) => {
           if (el.classList.contains('hidden')) {
 
             if (mouseOn) {
-              el.style.display = 'inline';
+              if(index==1&&this.treeService.showAddBtn(node)){ // add btn
+                el.style.display = 'inline';
+              }else if(index == 2&&this.treeService.showDeleteButton(node)){ // delete btn
+                el.style.display = 'inline';
+              }else if(index == 0){
+                el.style.display = 'inline';
+              }
             } else {
               el.style.display = 'none';
             }

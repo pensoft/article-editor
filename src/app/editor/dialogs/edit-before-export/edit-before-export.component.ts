@@ -327,7 +327,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     /* let newPdfData: any = { content: [], styles: {}, images: [], defaultStyle: {} }
     newPdfData.pageMargins = [pagePadding, pagePadding, pagePadding, pagePadding]; */
 
-    let generateFigure = (element: Element) => {
+    let generateFigure = async (element: Element) => {
       let figureTable: any = {
         color: 'black',
         table: {
@@ -345,15 +345,36 @@ export class EditBeforeExportComponent implements AfterViewInit {
       let figureHeader = figuresDescriptions.childNodes.item(0).textContent;
       let figureDescription = figuresDescriptions.childNodes.item(1).textContent;
 
-      let figuresData: { src: string, description: string, name: string, descName: string }[] = []
+      let figuresData: { dataUrl:string,src: string, description: string, name: string, descName: string }[] = []
       let figureNumber = figureHeader?.split(' ')[1]
 
       for (let i = 0; i < figuresCount; i++) {
         let src = (figuresViewsContainer.childNodes.item(i) as HTMLElement).getElementsByTagName('img').item(0)!.src;
+        let img = (figuresViewsContainer.childNodes.item(i) as HTMLElement).getElementsByTagName('img').item(0)!
+        let dataURLString :any
+        await  new Promise((resolve, reject) => {
+          toCanvas(img).then((canvasData) => {
+            let result
+            let canvasWidth = element.clientWidth !== 0 ? element.clientWidth : element.getBoundingClientRect().width;
+            if (canvasData.toDataURL() == 'data:,') {
+              html2canvas(img).then((canvasData1) => {
+                let result
+                let canvasWidth = element.clientWidth !== 0 ? element.clientWidth : element.getBoundingClientRect().width;
+                dataURLString = canvasData1.toDataURL()
+                //resolve(result)
+                resolve(result)
+              })
+            } else {
+              dataURLString = canvasData.toDataURL()
+              //resolve(result)
+              resolve(result)
+            }
+          })
+        })
         let descText = (figuresDescriptions.childNodes.item(i + 2) as HTMLElement).textContent!;
         let description = descText.split(':')[1].trim();
         let imgName = 'figure' + figureNumber + i;
-        figuresData.push({ src, description, name: imgName, descName: descText.split(':')[0].trim() + ':' });
+        figuresData.push({ dataUrl:dataURLString,src, description, name: imgName, descName: descText.split(':')[0].trim() + ':' });
       }
 
 
@@ -364,11 +385,11 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
       for (let i = 0; i < figuresCount; i += 2) {
         if (figuresData[i] && figuresData[i + 1]) {
-          let name1 = figuresData[i].name;
+          let name1 = figuresData[i].dataUrl;
           let desc1 = figuresData[i].description
           let descLabel1 = figuresData[i].descName
 
-          let name2 = figuresData[i + 1].name;
+          let name2 = figuresData[i + 1].dataUrl;
           let desc2 = figuresData[i + 1].description
           let descLabel2 = figuresData[i + 1].descName
 
@@ -380,7 +401,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             { text: descLabel1, colSpan: 1 }, { text: desc1, colSpan: 11 }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
             { text: descLabel2, colSpan: 1 }, { text: desc2, colSpan: 11 }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
         } else {
-          let name1 = figuresData[i].name;
+          let name1 = figuresData[i].dataUrl;
           let desc1 = figuresData[i].description
           let descLabel1 = figuresData[i].descName
 
@@ -671,6 +692,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
         }
         return Promise.resolve(newEl)
       } else if (tag == 'img') {
+        if(element.className="ProseMirror-separator"){
+          return {};
+        }
         let img = element
         var canvas = document.createElement("canvas");
         let bounRec = img.getBoundingClientRect();
@@ -689,7 +713,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
         return {image:dataURL,width:pxToPt(bounRec.width)}
       } else if (tag == 'block-figure') {
-        let pdfFigure = generateFigure(element);
+        let pdfFigure = await generateFigure(element);
 
         pdfFigure.data.forEach((imgData, index) => {
           let images: string[] = [
@@ -724,6 +748,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
               props: { type: 'taxonomicTable' }
             },
             alingment: 'center',
+            headerRows: 1,
             margin: [0, 0, 0, 15]
           }
           for (let i = 0; i < 24; i++) {
@@ -781,6 +806,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
               props: { type: 'taxonomicTable' }
             },
             alingment: 'center',
+            headerRows: 1,
             margin: [0, 0, 0, 15]
           }
           if (!parentPDFel) {
@@ -858,17 +884,16 @@ export class EditBeforeExportComponent implements AfterViewInit {
               let result
               let canvasWidth = element.clientWidth !== 0 ? element.clientWidth : element.getBoundingClientRect().width;
               if (canvasData.toDataURL() == 'data:,') {
-                html2canvas(element as HTMLElement).then((canvasData) => {
+                html2canvas(element as HTMLElement).then((canvasData1) => {
                   let result
                   let canvasWidth = element.clientWidth !== 0 ? element.clientWidth : element.getBoundingClientRect().width;
-                  if (canvasData.toDataURL() == 'data:,') {
-                    html2canvas
-                  }
-                  result = { image: canvasData.toDataURL(), width: pxToPt(canvasWidth) }
+                  console.log(canvasData1.toDataURL());
+                  result = { image: canvasData1.toDataURL(), width: pxToPt(canvasWidth) }
                   //resolve(result)
                   resolve(result)
                 })
               } else {
+                console.log(canvasData.toDataURL());
                 result = { image: canvasData.toDataURL(), width: pxToPt(canvasWidth) }
                 //resolve(result)
                 resolve(result)
@@ -924,7 +949,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
           doneSubject.next('done');
         }
       }
-
+      console.log(cont);
       this.data.content = cont
       /* var myjson = JSON.stringify(data, null, 2);
       var x = window.open();

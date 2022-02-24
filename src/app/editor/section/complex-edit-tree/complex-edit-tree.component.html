@@ -1,25 +1,25 @@
 <button mat-raised-button class="add-subsection-button" (click)="addNewSubsection()">Add Subsection</button>
 <div class="list-children-sections" cdkDropList (cdkDropListDropped)="drop($event)" [cdkDropListData]="sectionChildren">
-    <ng-container *ngFor="let node of sectionChildren;let i = index">
-        <div class="child-box" cdkDrag [cdkDragData]="{node,canDropBool}">
-            <div [style.position]='"relative"' [style.display]='"flex"' [style.width]="'100%'">
-                <div class="child-border-placeholder" *cdkDragPlaceholder>
-                    <div class="border-view"></div>
-                </div>
-                <div class='child-border' #parentOfText>
-                    <button mat-icon-button cdkDragHandle class="child-drag-btn "><mat-icon >drag_indicator</mat-icon></button>
-                    <div *ngIf="node.title.editable" class="child-text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="makeEditable(nodeTitle,$event,parentOfText,node)" (blur)="makeEditable(nodeTitle,$event,parentOfText,node)" #nodeTitle>
-                        {{node.title.label}}
-                    </div>
-                    <div *ngIf="!node.title.editable" class="child-text-section-div">
-                        {{node.title.label}}
-                    </div>
-                </div>
-                <div class="child-section-btn-container">
-                    <button mat-mini-fab class="child-section-btn" *ngIf="node?.add?.bool" (click)="addNodeHandle(node,i)"><mat-icon class="matIcon">add</mat-icon ></button>
-                    <button mat-mini-fab class="child-section-btn" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node,i)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
-                </div>
-            </div>
+  <ng-container *ngFor="let node of sectionChildren;let i = index">
+    <div class="child-box" cdkDrag [cdkDragData]="{node,canDropBool}">
+      <div [style.position]='"relative"' [style.display]='"flex"' [style.width]="'100%'">
+        <div class="child-border-placeholder" *cdkDragPlaceholder>
+          <div class="border-view"></div>
         </div>
-    </ng-container>
+        <div class='child-border' #parentOfText>
+          <button mat-icon-button cdkDragHandle class="child-drag-btn "><mat-icon >drag_indicator</mat-icon></button>
+          <div *ngIf="node.title.editable" class="child-text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="makeEditable(nodeTitle,$event,parentOfText,node)" (blur)="makeEditable(nodeTitle,$event,parentOfText,node)" #nodeTitle>
+            {{node.title.label}}
+          </div>
+          <div *ngIf="!node.title.editable" class="child-text-section-div">
+            {{node.title.label}}
+          </div>
+        </div>
+        <div class="child-section-btn-container">
+          <button [ngStyle]="{'display':showAddBtn(node)?'inline':'none'}" mat-mini-fab class="child-section-btn" *ngIf="node?.add?.bool" (click)="addNodeHandle(node,i)"><mat-icon class="matIcon">add</mat-icon ></button>
+          <button [ngStyle]="{'display':showDeleteBtn(node)?'inline':'none'}" mat-mini-fab class="child-section-btn" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node,i)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
+        </div>
+      </div>
+    </div>
+  </ng-container>
 </div>

@@ -4,6 +4,7 @@ import { formIODefaultValues, formIOTemplates, htmlNodeTemplates } from "./secti
 
 import { complexSectionFormIoSchema } from '@app/editor/utils/section-templates/form-io-json/complexSection';
 import { ViewPlugin } from "@codemirror/view";
+import { ArticlesService } from "@app/core/services/articles.service";
 export function editorFactory(data?: editorMeta): editorData {
   return { editorId: uuidv4(), menuType: 'fullMenu', editorMeta: data }
 }
@@ -23,6 +24,7 @@ export const articleBasicStructure: articleSection[] = [
     prosemirrorHTMLNodesTempl: htmlNodeTemplates['taxonomicCoverage'],
     children: [],
     type: 'simple',
+    sectionTypeVersion: 1,
     sectionTypeID: 1,
     sectionMeta: { main: false }
   },
@@ -40,6 +42,7 @@ export const articleBasicStructure: articleSection[] = [
     children: [],
     type: 'simple',
     sectionTypeID: 2,
+    sectionTypeVersion: 1,
     sectionMeta: { main: false }
   }];
 
@@ -69,6 +72,7 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
         children: children,
         type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
         sectionTypeID: sectionFromBackend.id,
+        sectionTypeVersion: sectionFromBackend.version,
         sectionMeta: { main: false }
       }
     } else if (sectionFromBackend.type == 1) {
@@ -86,9 +90,12 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
         children: children,
         type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
         sectionTypeID: sectionFromBackend.id,
+        sectionTypeVersion: sectionFromBackend.version,
         sectionMeta: { main: false },
         compatibility: sectionFromBackend.compatibility ? sectionFromBackend.compatibility : undefined
       }
+      let subsectionValidations = loopChildrenForMinMax(sectionFromBackend)
+      newArticleSection.subsectionValidations = subsectionValidations;
     }
 
     filterSectionChildren(newArticleSection!);
@@ -105,9 +112,74 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
     if (!index) {
       parentContainer.push(newArticleSection!);
     }
+    console.log(newArticleSection!);
     return newArticleSection!
   }
 
+export const loopChildrenForMinMax = (complexFromBackend:any) => {
+  let subsectionValidations:{[id:number]:{[version:number]:{min:number,max:number}}} = {} // {id[number(section id from backend)]:{version[num(version of section)]:{min:num,max:num,vers}}}
+  complexFromBackend.schema.forEach((element:any)=>{
+    if(element.settings&&element.settings.min_instances&&element.settings.max_instances){
+      if(!subsectionValidations[element.id]){
+        subsectionValidations[element.id] = {}
+      }
+      subsectionValidations[element.id][element.version] = {min:element.settings.min_instances,max:element.settings.max_instances}
+    }
+  })
+  return subsectionValidations
+}
+
+export const checkIfSectionsAreUnderOrAtMin = (childToCheck:articleSection,parentNode:articleSection,container?:articleSection[])=>{
+  let v = parentNode.subsectionValidations
+  if(v&&Object.keys(v).length>0){
+    let nodeId = childToCheck.sectionTypeID;
+    let nodeVersion = childToCheck.sectionTypeVersion;
+    if(v[nodeId]&&v[nodeId][nodeVersion]){
+      let nOfNodesOfSameType = 0;
+      (container?container:parentNode.children).forEach((child:articleSection)=>{
+        if(child.sectionTypeID == nodeId&&child.sectionTypeVersion == nodeVersion){
+          nOfNodesOfSameType++;
+        }
+      })
+      if(v[nodeId][nodeVersion].min>=nOfNodesOfSameType){
+        return false;
+      }
+    }
+  }
+  return true
+}
+
+export const subsectionsAreAtMaxOrAbove = (child:any) => {
+
+}
+
+export const checkIfSectionsAreAboveOrAtMax = (childToCheck:articleSection,parentNode:articleSection,container?:articleSection[])=>{
+  let v = parentNode.subsectionValidations
+  if(v&&Object.keys(v).length>0){
+    let nodeId = childToCheck.sectionTypeID;
+    let nodeVersion = childToCheck.sectionTypeVersion;
+    if(v[nodeId]&&v[nodeId][nodeVersion]){
+      let nOfNodesOfSameType = 0;
+      (container?container:parentNode.children).forEach((child:articleSection)=>{
+        if(child.sectionTypeID == nodeId&&child.sectionTypeVersion == nodeVersion){
+          nOfNodesOfSameType++;
+        }
+      })
+      if(v[nodeId][nodeVersion].max<=nOfNodesOfSameType){
+        return false;
+      }
+    }
+  }
+  return true
+}
+
+export const checkMinWhenMoovingASectionOut = (moovingNode:articleSection,outOfNode:articleSection) => {
+  return checkIfSectionsAreUnderOrAtMin(moovingNode,outOfNode)
+}
+
+export const checkMaxWhenMoovingASectionIn = (moovingNode:articleSection,inNode:articleSection) => {
+  return checkIfSectionsAreAboveOrAtMax(moovingNode,inNode);
+}
 
 export const checkCompatibilitySection = (compatibility: any, section: articleSection) => {
 

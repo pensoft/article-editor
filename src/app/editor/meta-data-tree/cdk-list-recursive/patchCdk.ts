@@ -2,7 +2,7 @@
 import { coerceElement } from "@angular/cdk/coercion";
 import { DragRef, DropListRef } from "@angular/cdk/drag-drop";
 import { MatCardXlImage } from "@angular/material/card";
-import { checkCompatibilitySection } from "@app/editor/utils/articleBasicStructure";
+import { checkCompatibilitySection, checkMaxWhenMoovingASectionIn, checkMinWhenMoovingASectionOut } from "@app/editor/utils/articleBasicStructure";
 import { articleSection } from "@app/editor/utils/interfaces/articleSection";
 import { TreeService } from "../tree-service/tree.service";
 
@@ -44,7 +44,8 @@ export function installPatch(treeService:TreeService) {
     }
 
     canReceive(matchingTarget,item,treeService)
-
+    canMoveOut(matchingTarget,item,treeService)
+    canMoveIn(matchingTarget,item,treeService)
     // Can the matching target receive the item?
     /* if (!matchingTarget._canReceive(item, x, y)) {
       return undefined;q
@@ -53,6 +54,38 @@ export function installPatch(treeService:TreeService) {
     // Return matching target
     return matchingTarget;
   };
+}
+
+function canMoveOut(target:any,item:any,treeService:TreeService){
+  if(item._initialContainer.data.id){
+    if(item._initialContainer.data.id!=="parentList"){
+      // the initial parent of the node , from where we start dragging the node
+      let parentNode = treeService.findNodeById(item._initialContainer.data.id)!
+      if(parentNode.subsectionValidations){
+        let moovingNode = item.data.data.node
+        let canMove = checkMinWhenMoovingASectionOut(moovingNode,parentNode);
+        if(!canMove){
+          item.data.data.canDropBool[0] = false;
+          item.data.data.canDropBool[1] = 'Cannot move out more of these type of sections from this list.'
+        }
+      }
+    }
+  }
+}
+
+function canMoveIn(target:any,item:any,treeService:TreeService){
+  if(target.data.id!=="parentList"){
+    // the initial parent of the node , from where we start dragging the node
+    let moovingInNode = treeService.findNodeById(target.data.id)!
+    if(moovingInNode.subsectionValidations){
+      let moovingNode = item.data.data.node
+      let canMove = checkMaxWhenMoovingASectionIn(moovingNode,moovingInNode);
+      if(!canMove){
+        item.data.data.canDropBool[0] = false;
+        item.data.data.canDropBool[1] = 'Cannot move in more of these type of section in this list.'
+      }
+    }
+  }
 }
 
 function canReceive(target:any,item:any,treeService:TreeService){

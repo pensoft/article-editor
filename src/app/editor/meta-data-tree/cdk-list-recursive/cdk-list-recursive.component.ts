@@ -19,6 +19,7 @@ import * as Y from 'yjs'
 import { ySyncPluginKey } from '../../../y-prosemirror-src/plugins/keys.js';
 import { checkCompatibilitySection } from '@app/editor/utils/articleBasicStructure';
 import { ArticlesService } from '@app/core/services/articles.service';
+import { P } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-cdk-list-recursive',
@@ -59,6 +60,8 @@ export class CdkListRecursiveComponent implements OnInit,OnDestroy{
     this.connectedTo = treeService.connectedLists
   }
 
+
+
   ngOnInit(): void {
     this.connectedTo = this.treeService.connectedLists
     this.treeService.registerConnection(this.listParentId!)
@@ -95,6 +98,10 @@ export class CdkListRecursiveComponent implements OnInit,OnDestroy{
   }
 
   drop(event: CdkDragDrop<string[]>) {
+    if(!this.treeService.canDropBool[0]){
+      this.treeService.errorSnackbarSubject.next(true);
+      return
+    }
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
       this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, event.previousContainer.id,event.container.id);
