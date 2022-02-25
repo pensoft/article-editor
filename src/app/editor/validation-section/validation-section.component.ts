@@ -47,6 +47,7 @@ export class ValidationSectionComponent implements OnDestroy {
   articleFormFieldsValidation: validationResult[] = []
   nonCitedFiguresValidation: validationResult[] = []
   articleValidationsErrors:validationResult[] = []
+  complexSectionsMinMaxErrors:validationResult[] = []
 
   articleLength = 0;
 
@@ -392,6 +393,9 @@ export class ValidationSectionComponent implements OnDestroy {
                   }
                 })
                 donevalidationSubject.next(null)
+              } else if (el.rule == "ValidateComplexSections"){
+
+                donevalidationSubject.next(null)
               }
             }catch(e){
               this.articleValidationsErrors.push({ fulfilled: false, errorMessage:
@@ -415,6 +419,7 @@ export class ValidationSectionComponent implements OnDestroy {
       this.results += this.articleFormFieldsValidation.length;
       this.results += this.nonCitedFiguresValidation.length;
       this.results += this.articleValidationsErrors.length;
+      this.results += this.complexSectionsMinMaxErrors.length;
       this.changeDetectorRef.detectChanges();
     }
   }

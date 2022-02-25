@@ -109,10 +109,9 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
         parentContainer.push(newArticleSection!)
       }
     }
-    if (!index) {
+    if (!index&&index!==0) {
       parentContainer.push(newArticleSection!);
     }
-    console.log(newArticleSection!);
     return newArticleSection!
   }
 
@@ -149,7 +148,37 @@ export const checkIfSectionsAreUnderOrAtMin = (childToCheck:articleSection,paren
   return true
 }
 
-export const subsectionsAreAtMaxOrAbove = (child:any) => {
+export let getSubSecCountWithValidation = (complexSection: articleSection, validation: { secID: number, secVers: number },complexSectionChildren?:articleSection[]) => {
+  let count = 0;
+  (complexSectionChildren?complexSectionChildren:complexSection.children).forEach((child:articleSection) => {
+    if (
+      child.sectionTypeID == validation.secID &&
+      child.sectionTypeVersion == validation.secVers
+    ) {
+      count++
+    }
+  })
+  return count;
+}
+export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFromBackend: any[], complexSection: articleSection,sectionChildren?:articleSection[]) => {
+  return  sectionsFromBackend.filter((section, index) => {
+    let sectionID = section.id;
+    let sectionVersion = section.version;
+    if (
+      complexSection.subsectionValidations &&
+      complexSection.subsectionValidations[sectionID] &&
+      complexSection.subsectionValidations[sectionID][sectionVersion]
+    ) {
+      let min = complexSection.subsectionValidations[sectionID][sectionVersion].min;
+      let max = complexSection.subsectionValidations[sectionID][sectionVersion].max;
+      let count = getSubSecCountWithValidation(complexSection,{secID:sectionID,secVers:sectionVersion},sectionChildren)
+      if(count>=max){
+        return false
+      }
+    }
+
+    return true;
+  })
 
 }
 

@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
 import { ChooseSectionComponent } from '@app/editor/dialogs/choose-section/choose-section.component';
 import { TreeService } from '@app/editor/meta-data-tree/tree-service/tree.service';
-import { checkCompatibilitySectionFromBackend, checkIfSectionsAreAboveOrAtMax, checkIfSectionsAreUnderOrAtMin, countSectionFromBackendLevel, filterChooseSectionsFromBackend, renderSectionFunc } from '@app/editor/utils/articleBasicStructure';
+import { checkCompatibilitySectionFromBackend, checkIfSectionsAreAboveOrAtMax, checkIfSectionsAreUnderOrAtMin, countSectionFromBackendLevel, filterChooseSectionsFromBackend, filterSectionsFromBackendWithComplexMinMaxValidations, renderSectionFunc } from '@app/editor/utils/articleBasicStructure';
 import { articleSection } from '@app/editor/utils/interfaces/articleSection';
 import { complexSectionFormIoSchema } from '@app/editor/utils/section-templates/form-io-json/complexSection';
 import { uuidv4 } from 'lib0/random';
@@ -18,11 +18,11 @@ import { uuidv4 } from 'lib0/random';
 })
 export class ComplexEditTreeComponent implements OnInit {
 
-  mouseOn:any;
-  focusedId:any;
-  focusIdHold:any;
+  mouseOn: any;
+  focusedId: any;
+  focusIdHold: any;
 
-  canDropBool?:boolean[]
+  canDropBool?: boolean[]
 
   @Input() section!: articleSection;
   @Output() sectionChange = new EventEmitter<articleSection>();
@@ -37,9 +37,9 @@ export class ComplexEditTreeComponent implements OnInit {
   @Output() addedSectionsChange = new EventEmitter<articleSection[]>();
 
   constructor(
-    private sectionsService:ArticleSectionsService,
+    private sectionsService: ArticleSectionsService,
     public dialog: MatDialog,
-    private treeService:TreeService,
+    private treeService: TreeService,
   ) {
 
   }
@@ -114,55 +114,55 @@ export class ComplexEditTreeComponent implements OnInit {
 
 
 
-  oldTextValue ?:string
-  checkTextInput(element:HTMLDivElement,maxlength:number,event:Event){
-    if(/<\/?[a-z][\s\S]*>/i.test(element.innerHTML)){
+  oldTextValue?: string
+  checkTextInput(element: HTMLDivElement, maxlength: number, event: Event) {
+    if (/<\/?[a-z][\s\S]*>/i.test(element.innerHTML)) {
       element.innerHTML = element.textContent!;
     }
-    if(element.textContent?.trim().length! > maxlength){
+    if (element.textContent?.trim().length! > maxlength) {
       element.innerHTML = this.oldTextValue!
-    }else if(element.textContent?.trim().length! == maxlength){
+    } else if (element.textContent?.trim().length! == maxlength) {
       this.oldTextValue = element.textContent!.trim();
     }
   }
 
-  oldZIndex ?: string
-  makeEditable(element:HTMLDivElement,event:Event,parentNode:any,node:articleSection){
-    if(event.type == 'blur'){
-      element.setAttribute('contenteditable','false');
+  oldZIndex?: string
+  makeEditable(element: HTMLDivElement, event: Event, parentNode: any, node: articleSection) {
+    if (event.type == 'blur') {
+      element.setAttribute('contenteditable', 'false');
       (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;
       let childRef = this.findSectionById(node.sectionID)
       childRef.title.label = element.textContent!;
 
-    }else if (event.type == 'click'){
+    } else if (event.type == 'click') {
       this.oldZIndex = (parentNode as HTMLDivElement).style.zIndex!
-      element.setAttribute('contenteditable','true');
+      element.setAttribute('contenteditable', 'true');
       (parentNode as HTMLDivElement).style.zIndex = '5';
       element.focus()
     }
 
   }
 
-  addNewSubsection(){
+  addNewSubsection() {
     let nodeLevel = this.treeService.getNodeLevel(this.section);
-    this.sectionsService.getAllSections({page:1,pageSize:999}).subscribe((response:any)=>{
-      let sectionTemplates1 = filterChooseSectionsFromBackend(this.section.compatibility,response.data)
+    this.sectionsService.getAllSections({ page: 1, pageSize: 999 }).subscribe((response: any) => {
+      let sectionTemplates1 = filterChooseSectionsFromBackend(this.section.compatibility, response.data)
       let sectionlevel = this.treeService.getNodeLevel(this.section)
-      let sectionTemplates = (sectionTemplates1 as any[]).filter((el:any)=>{
+      let sectionTemplates = (sectionTemplates1 as any[]).filter((el: any) => {
         let elementLevel = countSectionFromBackendLevel(el)
-        return (elementLevel+sectionlevel < 3);
+        return (elementLevel + sectionlevel < 3);
       });
-      console.log('sections From backend',sectionTemplates,this.section.subsectionValidations);
+
+      sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates,this.section,this.sectionChildren)
       const dialogRef = this.dialog.open(ChooseSectionComponent, {
         width: '563px',
-        panelClass:'choose-namuscript-dialog',
-        data: { templates: sectionTemplates,sectionlevel }
+        panelClass: 'choose-namuscript-dialog',
+        data: { templates: sectionTemplates, sectionlevel }
       });
       dialogRef.afterClosed().subscribe(result => {
-        this.sectionsService.getSectionById(result).subscribe((res:any)=>{
+        this.sectionsService.getSectionById(result).subscribe((res: any) => {
           let sectionTemplate = res.data
-          console.log(sectionTemplate);
-          let newSection = renderSectionFunc(sectionTemplate,this.sectionChildren)
+          let newSection = renderSectionFunc(sectionTemplate, this.sectionChildren)
           this.addedSections.push(newSection);
         })
       });
@@ -170,33 +170,33 @@ export class ComplexEditTreeComponent implements OnInit {
   }
 
   drop(event: CdkDragDrop<any>) {
-      moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
+    moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
 
   }
 
-  showAddBtn(node:articleSection){
-    return checkIfSectionsAreAboveOrAtMax(node,this.section,this.sectionChildren);
+  showAddBtn(node: articleSection) {
+    return checkIfSectionsAreAboveOrAtMax(node, this.section, this.sectionChildren);
   }
 
-  showDeleteBtn(node:articleSection){
-    return checkIfSectionsAreUnderOrAtMin(node,this.section,this.sectionChildren);
+  showDeleteBtn(node: articleSection) {
+    return checkIfSectionsAreUnderOrAtMin(node, this.section, this.sectionChildren);
   }
 
-  deleteNodeHandle(node:articleSection,index:number){
-    this.sectionChildren.splice(index,1);
-    let indexOfAdded = this.addedSections.findIndex((el)=>el.sectionID == node.sectionID)
-    if(indexOfAdded!==-1){
-      this.addedSections.splice(indexOfAdded,1);
-    }else{
+  deleteNodeHandle(node: articleSection, index: number) {
+    this.sectionChildren.splice(index, 1);
+    let indexOfAdded = this.addedSections.findIndex((el) => el.sectionID == node.sectionID)
+    if (indexOfAdded !== -1) {
+      this.addedSections.splice(indexOfAdded, 1);
+    } else {
       this.deletedSections.push(node);
     }
   }
 
-  findSectionById(sectionID:string):articleSection{
+  findSectionById(sectionID: string): articleSection {
     let returnValue
-    this.sectionChildren.forEach((section)=>{
-      if(section.sectionID == sectionID){
-        returnValue =  section;
+    this.sectionChildren.forEach((section) => {
+      if (section.sectionID == sectionID) {
+        returnValue = section;
       }
     })
     //@ts-ignore
@@ -205,10 +205,10 @@ export class ComplexEditTreeComponent implements OnInit {
 
 
 
-  addNodeHandle(node:articleSection,index:number){
-    this.sectionsService.getSectionById(node.sectionTypeID).subscribe((res:any)=>{
+  addNodeHandle(node: articleSection, index: number) {
+    this.sectionsService.getSectionById(node.sectionTypeID).subscribe((res: any) => {
       let sectionTemplate = res.data;
-      let newSection = renderSectionFunc(sectionTemplate,this.sectionChildren,index);
+      let newSection = renderSectionFunc(sectionTemplate, this.sectionChildren, index);
       this.addedSections.push(newSection);
     })
   }
