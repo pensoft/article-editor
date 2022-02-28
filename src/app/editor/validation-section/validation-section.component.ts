@@ -2,6 +2,7 @@ import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, E
 import { AbstractControl, FormArray, FormControl, FormGroup } from '@angular/forms';
 import { MatProgressBar } from '@angular/material/progress-bar';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
+import { setBlockType } from 'prosemirror-commands';
 import { Subject } from 'rxjs';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
 import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
@@ -57,6 +58,8 @@ export class ValidationSectionComponent implements OnDestroy {
     this.articleValidations = []
     this.articleFormFieldsValidation = []
     this.nonCitedFiguresValidation = []
+    this.articleValidationsErrors = []
+    this.complexSectionsMinMaxErrors = []
     this.results = 0;
     let loopFormGroupChildren = (form: FormGroup | FormArray, callback: (child: FormControl, key: string) => void) => {
       if (form instanceof FormGroup) {
@@ -101,7 +104,7 @@ export class ValidationSectionComponent implements OnDestroy {
       this.donevalidationSubject = donevalidationSubject
       rules.push({ rule: 'FormControls' })
       rules.push({ rule: 'CitatedFigures' })
-
+      rules.push({rule:'ValidateComplexSections'})
       /* rules.push(
         {
           rule: 'SectionPosition',
@@ -394,8 +397,48 @@ export class ValidationSectionComponent implements OnDestroy {
                 })
                 donevalidationSubject.next(null)
               } else if (el.rule == "ValidateComplexSections"){
+                let articleSectionStructure = this.treeService.articleSectionsStructure;
+                let validateComplexSecMinMax = (complexSection:articleSection,sectionsFromBackend:any) => {
+                  let errors:string[] = []
+                  let children = complexSection.children;
+                  Object.keys(complexSection.subsectionValidations!).forEach((sectionTypeId:any)=>{
+                    Object.keys(complexSection.subsectionValidations![sectionTypeId]).forEach((sectionVersion:any)=>{
+                      let subSecMinMax = complexSection.subsectionValidations![sectionTypeId][sectionVersion];
+                      let countOfType = 0;
 
-                donevalidationSubject.next(null)
+                      children.forEach((child)=>{
+                        if(child.sectionTypeID == sectionTypeId&&child.sectionTypeVersion == sectionVersion){
+                          countOfType++;
+                        }
+                      })
+                      let sectionFromBackend = sectionsFromBackend.find((el:any)=>el.id == sectionTypeId)
+                      let secName = sectionFromBackend.name
+                      if(countOfType<subSecMinMax.min){
+                        errors.push(`Number of "${secName}" sections should be more than ${subSecMinMax.min-1}`);
+                      }
+                      if(countOfType>subSecMinMax.max){
+                        errors.push(`Number of "${secName}" sections should be less than ${subSecMinMax.max+1}`);
+                      }
+                    })
+                  })
+                  if(errors.length>0){
+                    this.complexSectionsMinMaxErrors.push({ fulfilled: false, errorMessage: `Complex section "${complexSection.title.label}" should match the required minimum and maximum validations. ${errors.join('. ')}` })
+                  }
+                }
+                this.articleSectionsService.getAllSections({page:1,pageSize:999}).subscribe((resData:any)=>{
+                  let loopTree = (section:articleSection)=>{
+                    if(section.type == 'complex'&&section.subsectionValidations&&Object.keys(section.subsectionValidations).length>0){
+                      validateComplexSecMinMax(section,resData.data);
+                    }
+                    section.type == 'complex'?section.children.forEach((sec)=>{
+                        loopTree(sec);
+                    }):undefined
+                  }
+                  articleSectionStructure?.forEach((section)=>{
+                    loopTree(section)
+                  })
+                  donevalidationSubject.next(null)
+                })
               }
             }catch(e){
               this.articleValidationsErrors.push({ fulfilled: false, errorMessage:

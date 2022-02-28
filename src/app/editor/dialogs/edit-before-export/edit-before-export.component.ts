@@ -23,7 +23,8 @@ import { FormControl, Validators } from '@angular/forms';
 import { getFontEmbedCSS, toBlob, toCanvas, toJpeg, toPixelData, toPng, toSvg } from 'html-to-image'
 import { elementEventFullName } from '@angular/compiler/src/view_compiler/view_compiler';
 //@ts-ignore
-import {imageDataURI} from 'image-data-uri'
+import { imageDataURI } from 'image-data-uri'
+import { textAlign } from 'html2canvas/dist/types/css/property-descriptors/text-align';
 pdfMake.vfs = vfs;
 
 pdfMake.fonts = {
@@ -251,14 +252,14 @@ export class EditBeforeExportComponent implements AfterViewInit {
     var pdf = pdfmake.createPdf(docDefinition);
     return pdf.getDataUrl();
   } */
-  async getDataUrl(img:HTMLImageElement){
+  async getDataUrl(img: HTMLImageElement) {
     //@ts-ignore
     //dataURLString = imageDataURI.encodeFromURL(src)
-    img.crossOrigin="anonymous"
+    img.crossOrigin = "anonymous"
     let canvas = document.createElement('canvas');
 
     await new Promise((resolve, reject) => {
-      img.onload = ()=>{
+      img.onload = () => {
         resolve('loaded')
       }
     })
@@ -571,8 +572,10 @@ export class EditBeforeExportComponent implements AfterViewInit {
             loopAndParseChildren(element as HTMLElement, true);
             newEl.stack = [];
             let buildLineTables = async (stack: any[], pageWidth: number, element: HTMLElement) => {
+              pageWidth = pageWidth-250;
               let elCount = 0;
-              let lineWidth = 4;
+              let lineWidth = 0;
+              let realLineWidth = 0
               let chN = element.childNodes
               while (elCount < chN.length) {
                 let child = chN.item(elCount) as HTMLElement;
@@ -581,8 +584,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
                     body: [[]]
                   },
                   layout: {
-                    paddingLeft: function (i: number, node: any) { return 2; },
-                    paddingRight: function (i: number, node: any) { return 2; },
+                    paddingLeft: function (i: number, node: any) { return 1; },
+                    paddingRight: function (i: number, node: any) { return 1; },
                     paddingTop: function (i: number, node: any) { return 0; },
                     paddingBottom: function (i: number, node: any) { return 0; },
                     hLineWidth: function hLineWidth(i: number) { return 0; },
@@ -590,14 +593,14 @@ export class EditBeforeExportComponent implements AfterViewInit {
                   }
                 }
                 let childWidth: number;
-                let getWidth = (el: HTMLElement) => {
+                let getWidth = (child: HTMLElement) => {
                   let childWidth: any
                   if (child.clientWidth || (child.getBoundingClientRect && child.getBoundingClientRect().width > 0)) {
                     if (child.tagName && child.tagName.toLocaleLowerCase() == "a") {
                       let container = document.getElementById('width-measure-container')!;
                       container.innerHTML = element.outerHTML;
                       (container.firstChild! as HTMLElement).style.fontSize = textStyles.fontSize + 'px';
-                      (container.firstChild! as HTMLElement).innerHTML = child.textContent! + ' ' + (child as HTMLAnchorElement).href;
+                      (container.firstChild! as HTMLElement).innerHTML = child.textContent!.trim()  + (child as HTMLAnchorElement).href;
                       childWidth = container.clientWidth!
                     } else {
                       childWidth = child.clientWidth! !== 0 ? child.clientWidth : child.getBoundingClientRect().width
@@ -606,17 +609,22 @@ export class EditBeforeExportComponent implements AfterViewInit {
                     let container = document.getElementById('width-measure-container')!;
                     container.innerHTML = element.outerHTML;
                     (container.firstChild! as HTMLElement).style.fontSize = textStyles.fontSize + 'px';
-                    (container.firstChild! as HTMLElement).innerHTML = child.textContent!;
+                    (container.firstChild! as HTMLElement).innerHTML = child.textContent!.trim();
                     childWidth = container.clientWidth!
                   }
-                  return childWidth
+                  if(child.tagName&&inlineBreakableNodes.includes(child.tagName.toLocaleLowerCase())){
+                    if(child.tagName.toLocaleLowerCase() == 'math-inline'){
+                      return child.getBoundingClientRect().width*0.8;
+                    }
+                  }
+                  return childWidth/* +(el.textContent?.trim().length!*3); */
                 }
                 if (elCount < chN.length) {
                   child = chN.item(elCount) as HTMLElement;
                   childWidth = getWidth(child)
                 }
                 //@ts-ignore
-                while (lineWidth + childWidth + 15 < pageWidth && elCount < chN.length) {
+                while (lineWidth + childWidth  < pageWidth && elCount < chN.length) {
                   if (child instanceof Text) {
                     let n: any = { text: child.textContent };
                     Object.assign(n, textStyles)
@@ -626,19 +634,79 @@ export class EditBeforeExportComponent implements AfterViewInit {
                     //@ts-ignore
                     tableTemplate.table.body[0].push(await generatePDFData(child, newEl, textStyles, element))
                   }
-                  lineWidth += childWidth! + 15;
+                  lineWidth += childWidth! ;
+                  realLineWidth += childWidth!
                   elCount++;
                   if (elCount < chN.length) {
                     child = chN.item(elCount) as HTMLElement;
                     childWidth = getWidth(child)
+                    if (lineWidth + childWidth  >= pageWidth) {
+                      let lastElement = tableTemplate.table.body[0][tableTemplate.table.body[0].length - 1]
+                      //@ts-ignore
+                      if (!lastElement.props) { lastElement.props = {} }
+                      //@ts-ignore
+                      lastElement.props.lastElInLine = true;
+                    }
+                  } else {
+                    let lastElement = tableTemplate.table.body[0][tableTemplate.table.body[0].length - 1]
+                    //@ts-ignore
+                    if (!lastElement.props) { lastElement.props = {} }
+                    //@ts-ignore
+                    lastElement.props.lastElInLine = true;
                   }
-                }
-                lineWidth = 0;
-                stack.push(tableTemplate);
-              }
-            }
-            await buildLineTables(newEl.stack, parentStyle && parentStyle.parentWidth ? parentStyle.parentWidth : pageWidth, element as HTMLElement);
 
+                }
+
+
+
+                /* if ((textStyles.alignment == "justify" || textStyles.alignment == 'left') || (!textStyles || !textStyles.alignment)) {
+                  let missingPadding = (pageWidth - lineWidth+65) / ((tableTemplate.table.body[0].length)*2)*1.25;
+                  //missingPadding = 0;
+                  console.log(missingPadding,pageWidth - lineWidth);
+                  if (pageWidth - lineWidth < 70) {
+                    tableTemplate.layout.paddingLeft = (i: number, node: any)=> {
+                      if (i == 0) {
+                        return 0;
+                      } else {
+                        return pxToPt(missingPadding);
+                      }
+                    }
+                    tableTemplate.layout.paddingRight = (i: number, node: any)=> {
+                      if (node.props && node.props.lastElInLine) {
+                        return 0;
+                      } else {
+                        return pxToPt(missingPadding);
+                      }
+                    }
+                  }
+                  stack.push(tableTemplate);
+                } else if (textStyles && textStyles.alignment && textStyles.alignment == "right") {
+                  let columns = {
+                    columns: [
+                      { width: '*', text: '' },
+                      tableTemplate,
+                      { width: '*', text: '' },
+                    ]
+                  }
+                  stack.push(columns);
+                } else if (textStyles && textStyles.alignment && textStyles.alignment == "center") {
+                  let columns = {
+                    columns: [
+                      { width: '*', text: '' },
+                      { width: '*', text: '' },
+                      tableTemplate,
+                    ]
+                  }
+                  stack.push(columns);
+                } */
+
+                stack.push(tableTemplate);
+                lineWidth = 0;
+                realLineWidth = 0;
+              }
+              return Promise.resolve(stack.length)
+            }
+            let Num = await buildLineTables(newEl.stack, parentStyle && parentStyle.parentWidth ? parentStyle.parentWidth : pageWidth, element as HTMLElement);
           } else {
             if (!newEl.text) {
               newEl.text = [];
@@ -652,7 +720,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
               } else if (node instanceof Element) {
                 n = await generatePDFData(node, newEl, textStyles, element)
               }
-
               newEl.text.push(n);
             }
           }
@@ -702,7 +769,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
         let img = element as HTMLImageElement
 
 
-       let dataURL = await this.getDataUrl(img)
+        let dataURL = await this.getDataUrl(img)
 
         return { image: dataURL, width: pxToPt(img.getBoundingClientRect().width) }
       } else if (tag == 'block-figure') {
@@ -930,7 +997,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
         }
       }
       this.data.content = cont
-      this.data.content.push({image:"image1"})
+      this.data.content.push({ image: "image1" })
       this.data.images = {}
       this.data.images.image1 = "https://miro.medium.com/max/600/1*HiGTRdjkmzqdcRiSaemB1A.png"
       /* var myjson = JSON.stringify(data, null, 2);
@@ -1153,7 +1220,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
         element.tagName == 'H5' ||
         element.tagName == 'H6',
       italics: element.tagName == 'EM',
-      alignment: element.style.textAlign == 'left'?'justify':element.style.textAlign,
+      alignment: element.style.textAlign == 'left' ? 'justify' : element.style.textAlign,
       //@ts-ignore
       color: (elementStyles.color && elementStyles.color.trim() !== "") ? rgbToHex(...elementStyles.color.replace('rgb', '').replace('(', '').replace(')', '').replace('a', '').split(', ').map((el) => +el)) : undefined,
       //@ts-ignore
@@ -1173,9 +1240,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
       }
     })
     if (elementStyles.textAlign == 'left' || elementStyles.textAlign == 'right' || elementStyles.textAlign == 'center' || elementStyles.textAlign == 'justify') {
-      if(elementStyles.textAlign == 'left'){
+      if (elementStyles.textAlign == 'left') {
         clearedStyles.alignment = 'justify'
-      }else{
+      } else {
         clearedStyles.alignment = elementStyles.textAlign;
       }
     }
