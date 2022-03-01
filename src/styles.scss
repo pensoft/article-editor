@@ -504,6 +504,18 @@ img[ychange_type="removed"] {
   color: transparent;
 }
 
+.math-node .math-render {
+  font-size: inherit !important;
+}
+
+math-inline {
+  display: inline-block !important;
+}
+
+.math-node {
+  font-size: inherit !important;
+}
+
 app-edit-section-dialog,
 app-add-figure-dialog,
 app-add-link-dialog,

@@ -10,21 +10,19 @@ import pdfMake from "pdfmake/build/pdfmake.js";
 import vfs from "pdfmake/build/vfs_fonts.js";
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { E, N } from '@angular/cdk/keycodes';
-import { table } from 'console';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { articleSection } from '@app/editor/utils/interfaces/articleSection';
 
 import html2canvas from 'html2canvas'
-import { resolve } from 'dns';
-import { reject } from 'lodash';
 import { Subject } from 'rxjs';
-import { leadingComment } from '@angular/compiler';
 import { FormControl, Validators } from '@angular/forms';
 import { getFontEmbedCSS, toBlob, toCanvas, toJpeg, toPixelData, toPng, toSvg } from 'html-to-image'
 import { elementEventFullName } from '@angular/compiler/src/view_compiler/view_compiler';
 //@ts-ignore
 import { imageDataURI } from 'image-data-uri'
 import { textAlign } from 'html2canvas/dist/types/css/property-descriptors/text-align';
+//@ts-ignore
+import {applyVerticalAlignment} from './alignFunc.js'
 pdfMake.vfs = vfs;
 
 pdfMake.fonts = {
@@ -571,142 +569,121 @@ export class EditBeforeExportComponent implements AfterViewInit {
             }
             loopAndParseChildren(element as HTMLElement, true);
             newEl.stack = [];
-            let buildLineTables = async (stack: any[], pageWidth: number, element: HTMLElement) => {
-              pageWidth = pageWidth-250;
+            let buildLineTables = async (stack: any[], pageWidth: number, element: HTMLElement,parentStyle:any) => {
+              pageWidth = pageWidth;
               let elCount = 0;
               let lineWidth = 0;
-              let realLineWidth = 0
-              let chN = element.childNodes
+              let chN = element.childNodes;
+              let getWidth = (child: HTMLElement) => {
+                let measureDiv = document.createElement('div');
+                measureDiv.style.display = 'inline';
+                child.parentElement?.append(measureDiv);
+
+                if(child instanceof Text){
+                  measureDiv.textContent = child.textContent;
+                }else{
+                  measureDiv.innerHTML = child.outerHTML;
+                }
+
+                let width = measureDiv.getBoundingClientRect().width;
+                child.parentElement?.removeChild(measureDiv);
+                return width;
+              }
               while (elCount < chN.length) {
-                let child = chN.item(elCount) as HTMLElement;
-                let tableTemplate = {
+                let child = chN[elCount] as HTMLElement;
+                let childWidth = getWidth(child)-20;
+                let table :any = {
                   table: {
-                    body: [[]]
+                    body: [
+                      [],
+                    ],
+                    widths:'*',
                   },
                   layout: {
-                    paddingLeft: function (i: number, node: any) { return 1; },
-                    paddingRight: function (i: number, node: any) { return 1; },
-                    paddingTop: function (i: number, node: any) { return 0; },
-                    paddingBottom: function (i: number, node: any) { return 0; },
+                    paddingLeft: function paddingLeft(i: number, node: any) { return 0; },
+                    paddingRight: function paddingRight(i: number, nodeQWE: any) {
+                      return 0;
+                    },
+                    paddingTop:  (i1: number, node: any)=> {
+                      applyVerticalAlignment(node,i1,'center')
+                      return 0;
+                    },
+                    paddingBottom: function paddingBottom(i: number, node: any) { return 0; },
                     hLineWidth: function hLineWidth(i: number) { return 0; },
                     vLineWidth: function vLineWidth(i: number) { return 0; },
                   }
                 }
-                let childWidth: number;
-                let getWidth = (child: HTMLElement) => {
-                  let childWidth: any
-                  if (child.clientWidth || (child.getBoundingClientRect && child.getBoundingClientRect().width > 0)) {
-                    if (child.tagName && child.tagName.toLocaleLowerCase() == "a") {
-                      let container = document.getElementById('width-measure-container')!;
-                      container.innerHTML = element.outerHTML;
-                      (container.firstChild! as HTMLElement).style.fontSize = textStyles.fontSize + 'px';
-                      (container.firstChild! as HTMLElement).innerHTML = child.textContent!.trim()  + (child as HTMLAnchorElement).href;
-                      childWidth = container.clientWidth!
-                    } else {
-                      childWidth = child.clientWidth! !== 0 ? child.clientWidth : child.getBoundingClientRect().width
-                    }
-                  } else {
-                    let container = document.getElementById('width-measure-container')!;
-                    container.innerHTML = element.outerHTML;
-                    (container.firstChild! as HTMLElement).style.fontSize = textStyles.fontSize + 'px';
-                    (container.firstChild! as HTMLElement).innerHTML = child.textContent!.trim();
-                    childWidth = container.clientWidth!
+                while(lineWidth+childWidth<pageWidth&&elCount < chN.length){
+                  let newElement :any
+                  if(child instanceof Text){
+                    newElement = {text:child.textContent};
+                  }else{
+                    newElement = await generatePDFData(child,table,textStyles,element);
                   }
-                  if(child.tagName&&inlineBreakableNodes.includes(child.tagName.toLocaleLowerCase())){
-                    if(child.tagName.toLocaleLowerCase() == 'math-inline'){
-                      return child.getBoundingClientRect().width*0.8;
+                  lineWidth += childWidth;
+                  if((parentStyle&&parentStyle.alignment&&(parentStyle.alignment == 'left'||parentStyle.alignment == 'justify'))||!parentStyle){
+                    if(table.table.body[0].length == 0){
+                      newElement.alignment = 'left';
+                    }else{
+                      newElement.alignment = 'center';
                     }
                   }
-                  return childWidth/* +(el.textContent?.trim().length!*3); */
-                }
-                if (elCount < chN.length) {
-                  child = chN.item(elCount) as HTMLElement;
-                  childWidth = getWidth(child)
-                }
-                //@ts-ignore
-                while (lineWidth + childWidth  < pageWidth && elCount < chN.length) {
-                  if (child instanceof Text) {
-                    let n: any = { text: child.textContent };
-                    Object.assign(n, textStyles)
-                    //@ts-ignore
-                    tableTemplate.table.body[0].push(n)
-                  } else {
-                    //@ts-ignore
-                    tableTemplate.table.body[0].push(await generatePDFData(child, newEl, textStyles, element))
-                  }
-                  lineWidth += childWidth! ;
-                  realLineWidth += childWidth!
+                  table.table.body[0].push(newElement);
                   elCount++;
-                  if (elCount < chN.length) {
-                    child = chN.item(elCount) as HTMLElement;
-                    childWidth = getWidth(child)
-                    if (lineWidth + childWidth  >= pageWidth) {
-                      let lastElement = tableTemplate.table.body[0][tableTemplate.table.body[0].length - 1]
-                      //@ts-ignore
-                      if (!lastElement.props) { lastElement.props = {} }
-                      //@ts-ignore
-                      lastElement.props.lastElInLine = true;
-                    }
-                  } else {
-                    let lastElement = tableTemplate.table.body[0][tableTemplate.table.body[0].length - 1]
-                    //@ts-ignore
-                    if (!lastElement.props) { lastElement.props = {} }
-                    //@ts-ignore
-                    lastElement.props.lastElInLine = true;
+                  if(elCount < chN.length){
+                    child = chN[elCount] as HTMLElement;
+                    childWidth = getWidth(child)+5;
                   }
-
+                }
+                if((parentStyle&&parentStyle.alignment&&(parentStyle.alignment == 'left'||parentStyle.alignment == 'justify'))||!parentStyle){
+                  if(table.table.body[0]![table.table.body[0].length-1]){
+                    table.table.body[0]![table.table.body[0].length-1].alignment = 'right'
+                  }
+                }
+                let widths :any = []
+                let cells:any = []
+                let itemStartsWithSpace:any = (item:any)=>{
+                  if(typeof item.text == 'string'&&(item.text.startsWith(' ')||item.text.startsWith(" "))){
+                    return true
+                  }else if(item.text instanceof Array){
+                    return itemStartsWithSpace(item.text[0])
+                  }
+                  return false;
+                }
+                if(elCount == chN.length){
+                  table.table.body[0].forEach((cell:any,i:number)=>{
+                    if(itemStartsWithSpace(cell)&&i!==0){
+                      widths.push(5)
+                      widths.push('auto')
+                      cells.push({});
+                      cells.push(cell);
+                    }else{
+                      widths.push('auto')
+                      cells.push(cell);
+                    }
+                  })
+                }else{
+                  table.table.body[0].forEach((cell:any,i:number)=>{
+                    if(itemStartsWithSpace(cell)&&i!==0){
+                      widths.push('*')
+                      widths.push('auto')
+                      cells.push({});
+                      cells.push(cell);
+                    }else{
+                      widths.push('auto')
+                      cells.push(cell);
+                    }
+                  })
                 }
 
-
-
-                /* if ((textStyles.alignment == "justify" || textStyles.alignment == 'left') || (!textStyles || !textStyles.alignment)) {
-                  let missingPadding = (pageWidth - lineWidth+65) / ((tableTemplate.table.body[0].length)*2)*1.25;
-                  //missingPadding = 0;
-                  console.log(missingPadding,pageWidth - lineWidth);
-                  if (pageWidth - lineWidth < 70) {
-                    tableTemplate.layout.paddingLeft = (i: number, node: any)=> {
-                      if (i == 0) {
-                        return 0;
-                      } else {
-                        return pxToPt(missingPadding);
-                      }
-                    }
-                    tableTemplate.layout.paddingRight = (i: number, node: any)=> {
-                      if (node.props && node.props.lastElInLine) {
-                        return 0;
-                      } else {
-                        return pxToPt(missingPadding);
-                      }
-                    }
-                  }
-                  stack.push(tableTemplate);
-                } else if (textStyles && textStyles.alignment && textStyles.alignment == "right") {
-                  let columns = {
-                    columns: [
-                      { width: '*', text: '' },
-                      tableTemplate,
-                      { width: '*', text: '' },
-                    ]
-                  }
-                  stack.push(columns);
-                } else if (textStyles && textStyles.alignment && textStyles.alignment == "center") {
-                  let columns = {
-                    columns: [
-                      { width: '*', text: '' },
-                      { width: '*', text: '' },
-                      tableTemplate,
-                    ]
-                  }
-                  stack.push(columns);
-                } */
-
-                stack.push(tableTemplate);
+                table.table.widths = widths;
+                table.table.body[0] = cells;
                 lineWidth = 0;
-                realLineWidth = 0;
+                newEl.stack.push(table)
               }
               return Promise.resolve(stack.length)
             }
-            let Num = await buildLineTables(newEl.stack, parentStyle && parentStyle.parentWidth ? parentStyle.parentWidth : pageWidth, element as HTMLElement);
+            let Num = await buildLineTables(newEl.stack, parentStyle && parentStyle.parentWidth ? parentStyle.parentWidth : pageWidth, element as HTMLElement,parentStyle);
           } else {
             if (!newEl.text) {
               newEl.text = [];
@@ -929,19 +906,21 @@ export class EditBeforeExportComponent implements AfterViewInit {
       } else if (tag == 'math-inline' || tag == 'math-display') {
         if (tag == 'math-inline') {
           return new Promise((resolve, reject) => {
+            let fit:any = (parentStyle&&parentStyle.fontSize)?['*',parentStyle.fontSize*1.12]:['*',11.5];
+            let margin = [0, 0, 0,20]
             toCanvas(element as HTMLElement).then((canvasData: any) => {
               let result
-              let canvasWidth = element.clientWidth !== 0 ? element.clientWidth : element.getBoundingClientRect().width;
+              let canvasWidth = pxToPt(element.getBoundingClientRect().width);
               if (canvasData.toDataURL() == 'data:,') {
                 html2canvas(element as HTMLElement).then((canvasData1) => {
                   let result
-                  let canvasWidth = element.clientWidth !== 0 ? element.clientWidth : element.getBoundingClientRect().width;
-                  result = { image: canvasData1.toDataURL(), width: pxToPt(canvasWidth) }
+                  let canvasWidth = pxToPt(element.getBoundingClientRect().width);
+                  result = { image: canvasData1.toDataURL(),width:canvasWidth }
                   //resolve(result)
                   resolve(result)
                 })
               } else {
-                result = { image: canvasData.toDataURL(), width: pxToPt(canvasWidth) }
+                result = { image: canvasData.toDataURL(),width:canvasWidth  }
                 //resolve(result)
                 resolve(result)
               }
