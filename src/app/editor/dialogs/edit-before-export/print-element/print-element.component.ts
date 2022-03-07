@@ -26,7 +26,6 @@ export class PrintElementComponent implements AfterViewInit {
 
   async ngAfterViewInit() {
     if(this.end){
-      console.log('lastElementRender');
       setTimeout(async()=>{
         await this.refreshContent()
       },1000)
@@ -65,7 +64,6 @@ export class PrintElementComponent implements AfterViewInit {
   }
 
   addPageBreakBeforeItem(item:HTMLDivElement){
-    console.log(item);
     let element = item.firstChild! as HTMLElement;
     if(this.hasPageBreakBefore){
       element.setAttribute('page-break-before','false')
@@ -77,7 +75,6 @@ export class PrintElementComponent implements AfterViewInit {
   }
 
   addPageBreakAfterItem(item:HTMLDivElement){
-    console.log(item);
     let element = item.firstChild! as HTMLElement;
     if(this.hasPageBreakAfter){
       element.setAttribute('page-break-before','false')

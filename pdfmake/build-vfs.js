@@ -21,7 +21,6 @@ var files = fs.readdirSync(sourcePath);
 
 files.forEach(function(file) {
   var fileBase64 = fs.readFileSync(sourcePath + '/' + file).toString('base64');
-
   vfs[file] = fileBase64;
 });
 

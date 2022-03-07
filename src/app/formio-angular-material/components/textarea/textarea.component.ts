@@ -61,7 +61,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     public ref: ChangeDetectorRef) {
     super(element, ref)
     this.editorContainer = undefined;
-    this.renderEditor = true
+    //this.renderEditor = true
   }
 
   setInstance(instance: any) {
@@ -166,7 +166,6 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       this.value = this.control.value;
       //let node = editorData?[schema.nodeFromJSON(editorData)]:[];
       let options: any = {}
-      console.log(this.instance.component);
       Object.keys(this.instance.component.properties).forEach((key) => {
         options[key] = this.instance.component.properties[key]
       })
@@ -175,7 +174,6 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       let temp = document.createElement('div');
       temp.innerHTML = this.value!;
       let node = this.value! ? this.DOMPMParser.parseSlice(temp) : undefined;
-      //@ts-ignore
       this.editorContainer = this.prosemirrorService.renderEditorWithNoSync(this.ProsemirrorEditor?.nativeElement, this.instance, this.control, options, node);
       let containersCount = 0
       let edView = this.editorContainer.editorView;

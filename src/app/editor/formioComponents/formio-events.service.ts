@@ -6,6 +6,14 @@ import { Subject } from 'rxjs';
 })
 export class FormioEventsService {
 
+  figureData : any
   events:Subject<{event:string,data?:any}> = new Subject();
-  constructor() { }
+
+  constructor() {
+    this.events.subscribe((event:any)=>{
+      if(event.event == 'save-data-for-submit'){
+        this.figureData = event.data
+      }
+    })
+  }
 }

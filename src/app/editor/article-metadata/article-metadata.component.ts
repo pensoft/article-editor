@@ -40,7 +40,7 @@ export class ArticleMetadataComponent implements OnInit {
 
   openFiguresDialog(){
     this.dialog.open(FiguresDialogComponent, {
-      width: '95%',
+      width: '100%',
       height: '90%',
       data: { },
       disableClose: false
@@ -87,7 +87,6 @@ export class ArticleMetadataComponent implements OnInit {
     dialogRef.afterClosed().subscribe(result => {
       this.sectionsService.getSectionById(result).subscribe((res:any)=>{
         let sectionTemplate = res.data
-        console.log(sectionTemplate);
         this.treeService.addNodeAtPlaceChange('parentList',sectionTemplate,'end');
       })
     });

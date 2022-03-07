@@ -24,6 +24,7 @@ export const math_display = {
     content: "text*",
     atom: true,
     code: true,
+    marks:"",
     attrs:{
         ...getGenericAttributes()
     },

@@ -1,27 +1,27 @@
 import {
-    AfterViewInit,
-    ChangeDetectorRef,
-    Compiler,
-    Component,
-    CUSTOM_ELEMENTS_SCHEMA,
-    ElementRef,
-    EventEmitter,
-    Inject,
-    Input,
-    NgModule,
-    NO_ERRORS_SCHEMA,
-    OnInit,
-    Output,
-    ViewChild,
-    ViewContainerRef
-  } from '@angular/core';
+  AfterViewInit,
+  ChangeDetectorRef,
+  Compiler,
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+  ElementRef,
+  EventEmitter,
+  Inject,
+  Input,
+  NgModule,
+  NO_ERRORS_SCHEMA,
+  OnInit,
+  Output,
+  ViewChild,
+  ViewContainerRef
+} from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { figure, figure_component } from 'src/app/editor/utils/interfaces/figureComponent';
 import { figureJson } from '@app/editor/utils/section-templates/form-io-json/FIGUREjson';
 import { FiguresControllerService } from '@app/editor/services/figures-controller.service';
 import { catchError } from 'rxjs/operators';
-import { basicSetup, EditorState, EditorView} from '@codemirror/basic-setup';
+import { basicSetup, EditorState, EditorView } from '@codemirror/basic-setup';
 import { html } from '@codemirror/lang-html';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { Subject } from 'rxjs';
@@ -70,165 +70,165 @@ let figuresHtmlTemplate = `
 
 `
 @Component({
-    selector: 'app-add-figure-dialog',
-    templateUrl: './add-figure-dialog.component.html',
-    styleUrls: ['./add-figure-dialog.component.scss']
+  selector: 'app-add-figure-dialog',
+  templateUrl: './add-figure-dialog.component.html',
+  styleUrls: ['./add-figure-dialog.component.scss']
 })
 export class AddFigureDialogComponent implements AfterViewInit {
-    renderForm = false;
-    hidehtml = true;
-    sectionContent = JSON.parse(JSON.stringify(figureJson));
-    codemirrorHTMLEditor?: EditorView
-    @ViewChild('codemirrorHtmlTemplate', { read: ElementRef }) codemirrorHtmlTemplate?: ElementRef;
-    @ViewChild('container', { read: ViewContainerRef }) container?: ViewContainerRef;
-    figuresTemplatesObj:any
+  renderForm = false;
+  hidehtml = true;
+  sectionContent = JSON.parse(JSON.stringify(figureJson));
+  codemirrorHTMLEditor?: EditorView
+  @ViewChild('codemirrorHtmlTemplate', { read: ElementRef }) codemirrorHtmlTemplate?: ElementRef;
+  @ViewChild('container', { read: ViewContainerRef }) container?: ViewContainerRef;
+  figuresTemplatesObj: any
 
-    section = { mode: 'editMode' }
-    sectionForm = new FormGroup({})
-    figureID?:string 
-    constructor(
-        private prosemirrorEditorsService:ProsemirrorEditorsService,
-        private compiler: Compiler,
-        private changeDetectorRef: ChangeDetectorRef,
-        private dialogRef: MatDialogRef<AddFigureDialogComponent>,
-        private figuresControllerService: FiguresControllerService,
-        private ydocService: YdocService,
-        @Inject(MAT_DIALOG_DATA) public data: { fig: figure | undefined, updateOnSave: boolean, index: number,figID:string|undefined }
-    ) { 
+  section = { mode: 'editMode' }
+  sectionForm = new FormGroup({})
+  figureID?: string
+  constructor(
+    private prosemirrorEditorsService: ProsemirrorEditorsService,
+    private compiler: Compiler,
+    private changeDetectorRef: ChangeDetectorRef,
+    private dialogRef: MatDialogRef<AddFigureDialogComponent>,
+    private figuresControllerService: FiguresControllerService,
+    private ydocService: YdocService,
+    @Inject(MAT_DIALOG_DATA) public data: { fig: figure | undefined, updateOnSave: boolean, index: number, figID: string | undefined }
+  ) {
 
+  }
+
+  ngAfterViewInit(): void {
+    try {
+      this.figureID = this.data.figID || uuidv4();
+      if (!this.data.fig) {
+        this.renderForm = true
+      } else {
+        //@ts-ignore
+        this.sectionContent.components[0].columns[0].components[0].defaultValue = this.data.fig.description
+        let componentsDefaultValues: any = []
+        this.data.fig.components.forEach((component) => {
+          let componentDefault = {
+            container: {
+              url: component.url,
+              description: component.description,
+              componentType: component.componentType
+            }
+          }
+          componentsDefaultValues.push(componentDefault)
+        })
+        this.sectionContent.components[0].columns[0].components[1].defaultValue = componentsDefaultValues;
+        this.renderForm = true
+      }
+      this.renderCodemMirrorEditors(this.figureID!)
+    } catch (e) {
+      console.error(e);
     }
+  }
 
-    ngAfterViewInit(): void {
-        try {
-            this.figureID = this.data.figID||uuidv4();
-            if (!this.data.fig) {
-                this.renderForm = true
-            } else {
-                //@ts-ignore
-                this.sectionContent.components[1].defaultValue = this.data.fig.description
-                let componentsDefaultValues: any = []
-                this.data.fig.components.forEach((component) => {
-                    let componentDefault = {
-                        container: {
-                            url: component.url,
-                            description: component.description,
-                            componentType: component.componentType
-                        }
-                    }
-                    componentsDefaultValues.push(componentDefault)
-                })
-                this.sectionContent.components[2].defaultValue = componentsDefaultValues;
-                this.renderForm = true
+  async onSubmit(submision?: any) {
+    try {
+      let escapeHTMLInSubmission = (obj: any) => {
+        Object.keys(obj).forEach((key) => {
+          if (typeof obj[key] == 'string') {
+            obj[key] = obj[key].replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+          } else {
+            try {
+              escapeHTMLInSubmission(obj[key])
+            } catch (e) {
+              console.error(e);
             }
-            this.renderCodemMirrorEditors(this.figureID!)
-        } catch (e) {
-            console.error(e);
-        }
+          }
+        })
+      }
+      escapeHTMLInSubmission(submision);
+      let tr = this.codemirrorHTMLEditor?.state.update()
+      this.codemirrorHTMLEditor?.dispatch(tr!);
+
+      let prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
+
+      submision.data.figureID = this.figureID!
+
+      submision.data.viewed_by_citat = this.data.figID ? this.data.fig?.viewed_by_citat! : "endEditor"
+      this.figuresTemplatesObj[this.figureID!] = { html: prosemirrorNewNodeContent }
+      this.ydocService.figuresMap?.set('figuresTemplates', this.figuresTemplatesObj)
+
+      submision.data.figureNumber = this.data.index
+      let interpolated: any
+      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, new FormGroup({}));
+      let templ = document.createElement('div')
+      templ.innerHTML = interpolated
+      let Slice = DOMParser.fromSchema(schema).parse(templ.firstChild!)
+      let newFigure: figure = {
+        figureNumber: this.data.index,
+        description: submision.data.figureDescription,
+        components: submision.data.figureComponents.reduce((prev: any, curr: any, index: number, array: any) => {
+          let newFigureComponent: figure_component = {
+            description: curr.container.description,
+            componentType: curr.container.componentType,
+            url: curr.container.url,
+          }
+          return prev.concat([newFigureComponent])
+        }, []),
+        "figureID": submision.data.figureID,
+        "figurePlace": this.data.figID ? this.data.fig?.figurePlace! : "endEditor",
+        "viewed_by_citat": this.data.figID ? this.data.fig?.viewed_by_citat! : "endEditor"
+      }
+      /* if (this.data.updateOnSave) {
+          this.figuresControllerService.updateSingleFigure(newFigure, this.data.index)
+      } */
+      //@ts-ignore
+      this.dialogRef.close({ figure: newFigure, figureNode: Slice.content.content[0] })
+    } catch (error) {
+      console.error(error);
     }
+  }
 
-    async onSubmit(submision?: any) {
-        try {
-            let escapeHTMLInSubmission= (obj:any)=>{
-                Object.keys(obj).forEach((key)=>{
-                    if(typeof obj[key] == 'string'){
-                        obj[key] = obj[key].replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&amp;/g,'&');
-                    }else{
-                        try{
-                            escapeHTMLInSubmission(obj[key])
-                        }catch(e){
-                            console.error(e);
-                        }
-                    }
-                })
-            }
-            escapeHTMLInSubmission(submision);
-            let tr = this.codemirrorHTMLEditor?.state.update()
-            this.codemirrorHTMLEditor?.dispatch(tr!);
+  renderCodemMirrorEditors(figID: string) {
+    try {
+      this.figuresTemplatesObj = this.ydocService.figuresMap?.get('figuresTemplates')
+      let currFigTemplates
+      if (!this.figuresTemplatesObj[figID]) {
+        this.figuresTemplatesObj[figID] = { html: figuresHtmlTemplate }
+        currFigTemplates = this.figuresTemplatesObj[figID]
+      } else {
+        currFigTemplates = this.figuresTemplatesObj[figID]
+      }
+      //this.ydocService.figuresMap?.set('figuresTemplates',figuresTemplatesObj)
+      let prosemirrorNodesHtml = currFigTemplates.html
 
-            let prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
-            
-            submision.data.figureID = this.figureID!
-            
-            submision.data.viewed_by_citat = this.data.figID?this.data.fig?.viewed_by_citat!:"endEditor"
-            this.figuresTemplatesObj[this.figureID!] = { html: prosemirrorNewNodeContent }
-            this.ydocService.figuresMap?.set('figuresTemplates',this.figuresTemplatesObj)
-
-            submision.data.figureNumber = this.data.index
-            let interpolated: any
-            interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data,new FormGroup({}));
-            let templ = document.createElement('div')
-            templ.innerHTML = interpolated
-            let Slice = DOMParser.fromSchema(schema).parse(templ.firstChild!)
-            let newFigure: figure = {
-                figureNumber: this.data.index,
-                description: submision.data.figureDescription,
-                components: submision.data.figureComponents.reduce((prev: any, curr: any, index: number, array: any) => {
-                    let newFigureComponent: figure_component = {
-                        description: curr.container.description,
-                        componentType: curr.container.componentType,
-                        url: curr.container.url,
-                    }
-                    return prev.concat([newFigureComponent])
-                }, []),
-                "figureID":submision.data.figureID,
-                "figurePlace":this.data.figID?this.data.fig?.figurePlace!:"endEditor",
-                "viewed_by_citat":this.data.figID?this.data.fig?.viewed_by_citat!:"endEditor"
-            }
-            /* if (this.data.updateOnSave) {
-                this.figuresControllerService.updateSingleFigure(newFigure, this.data.index)
-            } */
-            //@ts-ignore
-            this.dialogRef.close({ figure: newFigure,figureNode: Slice.content.content[0]})
-        } catch (error) {
-            console.error(error);
-        }
+      //prosemirrorNodesHtml = this.formatHTML(prosemirrorNodesHtml)
+      this.codemirrorHTMLEditor = new EditorView({
+        state: EditorState.create({
+          doc: prosemirrorNodesHtml,
+          extensions: [basicSetup, html()],
+        }),
+        parent: this.codemirrorHtmlTemplate?.nativeElement,
+      })
+    } catch (e) {
+      console.error(e);
     }
+  }
 
-    renderCodemMirrorEditors(figID: string) {
-        try {
-            this.figuresTemplatesObj = this.ydocService.figuresMap?.get('figuresTemplates')
-            let currFigTemplates 
-            if (!this.figuresTemplatesObj[figID]) {
-                this.figuresTemplatesObj[figID] = { html: figuresHtmlTemplate }
-                currFigTemplates = this.figuresTemplatesObj[figID]
-            }else{
-                currFigTemplates = this.figuresTemplatesObj[figID]
-            }
-            //this.ydocService.figuresMap?.set('figuresTemplates',figuresTemplatesObj)
-            let prosemirrorNodesHtml = currFigTemplates.html
+  formatHTML(html: string) {
+    var tab = '\t';
+    var result = '';
+    var indent = '';
 
-            //prosemirrorNodesHtml = this.formatHTML(prosemirrorNodesHtml)
-            this.codemirrorHTMLEditor = new EditorView({
-                state: EditorState.create({
-                    doc: prosemirrorNodesHtml,
-                    extensions: [basicSetup, html()],
-                }),
-                parent: this.codemirrorHtmlTemplate?.nativeElement,
-            })
-        } catch (e) {
-            console.error(e);
-        }
-    }
+    html.split(/>\s*</).forEach(function (element) {
+      if (element.match(/^\/\w/)) {
+        indent = indent.substring(tab.length);
+      }
 
-    formatHTML(html: string) {
-        var tab = '\t';
-        var result = '';
-        var indent = '';
+      result += indent + '<' + element + '>\r\n';
 
-        html.split(/>\s*</).forEach(function (element) {
-            if (element.match(/^\/\w/)) {
-                indent = indent.substring(tab.length);
-            }
+      if (element.match(/^<?\w[^>]*[^\/]$/) && !element.startsWith("input")) {
+        indent += tab;
+      }
+    });
 
-            result += indent + '<' + element + '>\r\n';
+    return result.substring(1, result.length - 3);
+  }
 
-            if (element.match(/^<?\w[^>]*[^\/]$/) && !element.startsWith("input")) {
-                indent += tab;
-            }
-        });
 
-        return result.substring(1, result.length - 3);
-    }
-
-    
 }

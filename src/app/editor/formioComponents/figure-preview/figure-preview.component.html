@@ -1,14 +1,45 @@
 <div *ngIf="displayComponents">
-    <div class="figure-preview-components">
-        <div class="preview-component" *ngFor="let component of figureComponents">
-            <div *ngIf="component.container.componentType == 'image'">
-                <img src='{{component.container.url}}' height="100" />
-            </div>
-            <div *ngIf="component.container.componentType == 'video'">
-                <iframe width="200" height="100" [src]="custumPipe(component.container.url)" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="">
-            </iframe>
-            </div>
-            <div class="component-description"><span>{{getHTMLContent(component.container.description)}}</span></div>
-        </div>
+  <div class="figure-preview-components">
+    <div class="preview-upper">
+      <div class="row-select" *ngIf="rowOrder.length>1">
+        <h4>Items on a single row:</h4>
+        <mat-form-field class="items-on-row-form-field" appearance="fill">
+          <mat-label>Select items...</mat-label>
+          <mat-select [formControl]="itemsOnRowSelect">
+            <mat-option *ngFor="let row of rowOrder" [value]="row">
+              <span>
+                {{row}}
+              </span>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="preview-description">
+        This preview shows how the figure's images will look like on a A4 paper.
+      </div>
     </div>
+    <div class="a4-figure-preview" #a4 [ngStyle]="{'height':(a4.getBoundingClientRect().width*1.4142)+'px','border':'1px dashed black','overflow':'hidden'}">
+      <div class="row-component" *ngFor="let row of figureRows" [ngStyle]="{'max-height':maxImgHeightPers+'%',width:'100%'}">
+        <div class="cell-component" *ngFor="let i of rowTemplate" [ngStyle]="{width:maxImgWidthPers+'%',height:'100%'}">
+          <div *ngIf="row[i]" class="fig-img">
+            <img *ngIf="row[i].container.hpers&&row[i].container.wpers" src='{{row[i].container.url}}' [ngStyle]="{width:row[i].container.wpers*a4.getBoundingClientRect().width+'px',height:row[i].container.hpers*a4.getBoundingClientRect().height*(1-bottomOffset)+'px'}">
+            <img *ngIf="!(row[i].container.hpers&&row[i].container.wpers)&&row[i].container.height&&!row[i].container.width" src='{{row[i].container.url}}' [ngStyle]="{height:row[i].container.height*a4.getBoundingClientRect().height*(1-bottomOffset)+'px'}" />
+            <img *ngIf="!(row[i].container.hpers&&row[i].container.wpers)&&row[i].container.width&&!row[i].container.height" src='{{row[i].container.url}}' [ngStyle]="{width:row[i].container.width*a4.getBoundingClientRect().width+'px'}" />
+            <img *ngIf="!(row[i].container.hpers&&row[i].container.wpers)&&row[i].container.width&&row[i].container.height" src='{{row[i].container.url}}' [ngStyle]="{width:row[i].container.width*a4.getBoundingClientRect().width+'px',height:row[i].container.height*a4.getBoundingClientRect().height*(1-bottomOffset)+'px'}"
+            />
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- <div class="preview-component" *ngFor="let component of figureComponents">
+      <div *ngIf="component.container.componentType == 'image'">
+        <img src='{{component.container.url}}' height="100" />
+      </div>
+      <div *ngIf="component.container.componentType == 'video'">
+        <iframe width="200" height="100" [src]="custumPipe(component.container.url)" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen="">
+            </iframe>
+      </div>
+      <div class="component-description"><span>{{getHTMLContent(component.container.description)}}</span></div>
+    </div> -->
+  </div>
 </div>

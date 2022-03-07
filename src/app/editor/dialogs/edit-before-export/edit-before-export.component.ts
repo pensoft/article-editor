@@ -9,29 +9,32 @@ import pdfMake from "pdfmake/build/pdfmake.js";
 //@ts-ignore
 import vfs from "pdfmake/build/vfs_fonts.js";
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { E, N } from '@angular/cdk/keycodes';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { articleSection } from '@app/editor/utils/interfaces/articleSection';
-
 import html2canvas from 'html2canvas'
 import { Subject } from 'rxjs';
 import { FormControl, Validators } from '@angular/forms';
 import { getFontEmbedCSS, toBlob, toCanvas, toJpeg, toPixelData, toPng, toSvg } from 'html-to-image'
-import { elementEventFullName } from '@angular/compiler/src/view_compiler/view_compiler';
 //@ts-ignore
-import { imageDataURI } from 'image-data-uri'
-import { textAlign } from 'html2canvas/dist/types/css/property-descriptors/text-align';
+import { applyVerticalAlignment } from './alignFunc.js'
+import * as katex  from 'katex'
 //@ts-ignore
-import {applyVerticalAlignment} from './alignFunc.js'
+import {render as canvasRender} from './canvasRenderer.js'
 pdfMake.vfs = vfs;
 
 pdfMake.fonts = {
   Roboto: {
-    normal: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Regular.ttf',
-    bold: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Medium.ttf',
-    italics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-Italic.ttf',
-    bolditalics: 'https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.66/fonts/Roboto/Roboto-MediumItalic.ttf'
+    normal: 'Roboto-Regular.ttf',
+    bold: 'Roboto-Medium.ttf',
+    italics: 'Roboto-Italic.ttf',
+    bolditalics: 'Roboto-MediumItalic.ttf'
   },
+  CodeFont: {
+    normal: 'SourceCodePro-Regular.ttf',
+    bold: 'SourceCodePro-Medium.ttf',
+    italics: 'SourceCodePro-Italic.ttf',
+    bolditalics: 'SourceCodePro-MediumItalic.ttf'
+  }
 }
 
 let pageSizeDimensions = { // in milimeters
@@ -243,7 +246,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
     })
 
     this.changeDetectorRef.detectChanges()
-    //await this.refreshContent()
   }
 
   /* createPdfBinary(docDefinition:any) {
@@ -256,11 +258,13 @@ export class EditBeforeExportComponent implements AfterViewInit {
     img.crossOrigin = "anonymous"
     let canvas = document.createElement('canvas');
 
-    await new Promise((resolve, reject) => {
-      img.onload = () => {
-        resolve('loaded')
-      }
-    })
+    if(!img.complete){
+      await new Promise((resolve, reject) => {
+        img.onload = () => {
+          resolve('loaded')
+        }
+      })
+    }
 
     canvas.width = img.getBoundingClientRect().width;
     canvas.height = img.getBoundingClientRect().height;
@@ -345,9 +349,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
     //[left, top, right, bottom]
     this.data.pageMargins = [this.pageMargin[3], this.pageMargin[0], this.pageMargin[1], this.pageMargin[2]];
 
-    /* let newPdfData: any = { content: [], styles: {}, images: [], defaultStyle: {} }
-    newPdfData.pageMargins = [pagePadding, pagePadding, pagePadding, pagePadding]; */
-
     let generateFigure = async (element: Element) => {
       let figureTable: any = {
         color: 'black',
@@ -364,9 +365,13 @@ export class EditBeforeExportComponent implements AfterViewInit {
       let figuresDescriptions = element.childNodes.item(1)!;
 
       let figureHeader = figuresDescriptions.childNodes.item(0).textContent;
-      let figureDescription = figuresDescriptions.childNodes.item(1).textContent;
+      let figureDesc = figuresDescriptions.childNodes.item(1) as HTMLElement
+      let figureDescription :any = []
+      for(let j= 0 ;j<figureDesc.childNodes.length;j++){
+        figureDescription.push(await generatePDFData(figureDesc.childNodes[j] as HTMLElement,figureTable,{parentWidth:19*0.0416667*pageWidth},element))
+      }
 
-      let figuresData: { dataUrl: string, src: string, description: string, name: string, descName: string }[] = []
+      let figuresData: { dataUrl: string, src: string, description: any, name: string, descName: string }[] = []
       let figureNumber = figureHeader?.split(' ')[1]
 
       for (let i = 0; i < figuresCount; i++) {
@@ -374,10 +379,23 @@ export class EditBeforeExportComponent implements AfterViewInit {
         let src = img.src
         let dataURLString = await this.getDataUrl(img)
 
-        let descText = (figuresDescriptions.childNodes.item(i + 2) as HTMLElement).textContent!;
-        let description = descText.split(':')[1].trim();
+        let descText = (figuresDescriptions.childNodes.item(i + 2) as HTMLElement);
+        let description ;
+        if(i%2!==0&&i == figuresCount-1){
+          let descStack :any = []
+          for(let j= 1 ;j<descText.childNodes.length;j++){
+            descStack.push(await generatePDFData(descText.childNodes[j] as HTMLElement,figureTable,{parentWidth:22*0.0416667*pageWidth},element))
+          }
+          description = descStack
+        }else{
+          let descStack :any = []
+          for(let j= 1 ;j<descText.childNodes.length;j++){
+            descStack.push(await generatePDFData(descText.childNodes[j] as HTMLElement,figureTable,{parentWidth:10*0.0416667*pageWidth},element))
+          }
+          description = descStack
+        }
         let imgName = 'figure' + figureNumber + i;
-        figuresData.push({ dataUrl: dataURLString, src, description, name: imgName, descName: descText.split(':')[0].trim() + ':' });
+        figuresData.push({ dataUrl: dataURLString, src, description, name: imgName, descName: descText.textContent!.split(':')[0].trim() + ':' });
       }
 
 
@@ -401,8 +419,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
             { image: name1, colSpan: 12, width: usedFrame, alignment: 'center' }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
             { image: name2, colSpan: 12, width: usedFrame, alignment: 'center' }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
           figuresPdfDescriptions.push([
-            { text: descLabel1, colSpan: 1 }, { text: desc1, colSpan: 11 }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
-            { text: descLabel2, colSpan: 1 }, { text: desc2, colSpan: 11 }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
+            { text: descLabel1, colSpan: 2 },{}, { stack: desc1, colSpan: 10 },  {}, {}, {}, {}, {}, {}, {}, {}, {},
+            { text: descLabel2, colSpan: 2 }, {},{ stack: desc2, colSpan: 10 },  {}, {}, {}, {}, {}, {}, {}, {}, {}])
         } else {
           let name1 = figuresData[i].dataUrl;
           let desc1 = figuresData[i].description
@@ -413,14 +431,14 @@ export class EditBeforeExportComponent implements AfterViewInit {
             { image: name1, colSpan: 12, width: usedFrame, alignment: 'center' }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
             { text: '', colSpan: 12, }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},])
           figuresPdfDescriptions.push([
-            { text: descLabel1, colSpan: 1 }, { text: desc1, colSpan: 23 }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},])
+            { text: descLabel1, colSpan: 2 },{}, { stack: desc1, colSpan: 22 },  {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},])
         }
 
       }
 
       figureTable.table.body.push(...figuresPdfViews);
       figureTable.table.body.push([{ text: figureHeader, colSpan: 24, }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
-      figureTable.table.body.push([{ text: 'Description:', colSpan: 4, }, {}, {}, {}, { text: figureDescription, colSpan: 20 }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
+      figureTable.table.body.push([{ text: 'Description:', colSpan: 5, }, {}, {}, {}, {},  { stack: figureDescription, colSpan: 19 },{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
       figureTable.table.body.push(...figuresPdfDescriptions);
       return { pdfFigure: figureTable, data: figuresData }
     }
@@ -441,6 +459,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
         tag == 'strong' ||
         tag == 'sub' ||
         tag == 'sup' ||
+        tag == 'code' ||
         tag == 'citation' ||
         tag == 'u' ||
         tag == 'em' ||
@@ -569,7 +588,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
             }
             loopAndParseChildren(element as HTMLElement, true);
             newEl.stack = [];
-            let buildLineTables = async (stack: any[], pageWidth: number, element: HTMLElement,parentStyle:any) => {
+            let buildLineTables = async (stack: any[], pageWidth: number, element: HTMLElement, parentStyle: any, elementStyle: any) => {
+              let alignment = (elementStyle && elementStyle.alignment) ? elementStyle.alignment : (parentStyle && parentStyle.alignment) ? parentStyle.alignment : undefined;
+              let fontSize = (elementStyle && elementStyle.fontSize) ? elementStyle.fontSize : (parentStyle && parentStyle.fontSize) ? parentStyle.fontSize : undefined;
               pageWidth = pageWidth;
               let elCount = 0;
               let lineWidth = 0;
@@ -579,9 +600,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
                 measureDiv.style.display = 'inline';
                 child.parentElement?.append(measureDiv);
 
-                if(child instanceof Text){
+                if (child instanceof Text) {
                   measureDiv.textContent = child.textContent;
-                }else{
+                } else {
                   measureDiv.innerHTML = child.outerHTML;
                 }
 
@@ -591,21 +612,33 @@ export class EditBeforeExportComponent implements AfterViewInit {
               }
               while (elCount < chN.length) {
                 let child = chN[elCount] as HTMLElement;
-                let childWidth = getWidth(child)-20;
-                let table :any = {
+                let childWidth = getWidth(child);
+                let table: any = {
                   table: {
                     body: [
                       [],
                     ],
-                    widths:'*',
+                    widths: '*',
                   },
                   layout: {
-                    paddingLeft: function paddingLeft(i: number, node: any) { return 0; },
-                    paddingRight: function paddingRight(i: number, nodeQWE: any) {
+                    paddingLeft: (i: number, node: any) => {
+                      if (alignment == 'center') {
+                        return fontSize / 8
+                      } else if (alignment == 'right') {
+                        return fontSize / 8
+                      }
                       return 0;
                     },
-                    paddingTop:  (i1: number, node: any)=> {
-                      applyVerticalAlignment(node,i1,'center')
+                    paddingRight: (i: number, nodeQWE: any) => {
+                      if (alignment == 'center') {
+                        return fontSize / 8
+                      } else if (alignment == 'right') {
+                        return fontSize / 8
+                      }
+                      return 0;
+                    },
+                    paddingTop: (i1: number, node: any) => {
+                      applyVerticalAlignment(node, i1, 'center')
                       return 0;
                     },
                     paddingBottom: function paddingBottom(i: number, node: any) { return 0; },
@@ -613,77 +646,101 @@ export class EditBeforeExportComponent implements AfterViewInit {
                     vLineWidth: function vLineWidth(i: number) { return 0; },
                   }
                 }
-                while(lineWidth+childWidth<pageWidth&&elCount < chN.length){
-                  let newElement :any
-                  if(child instanceof Text){
-                    newElement = {text:child.textContent};
-                  }else{
-                    newElement = await generatePDFData(child,table,textStyles,element);
+                while (lineWidth + childWidth < pageWidth && elCount < chN.length) {
+                  let newElement: any
+                  if (child instanceof Text) {
+                    newElement = { text: child.textContent };
+                  } else {
+                    newElement = await generatePDFData(child, table, textStyles, element);
                   }
                   lineWidth += childWidth;
-                  if((parentStyle&&parentStyle.alignment&&(parentStyle.alignment == 'left'||parentStyle.alignment == 'justify'))||!parentStyle){
-                    if(table.table.body[0].length == 0){
+                  if ((alignment == 'left' || alignment == 'justify') || !alignment) {
+                    if (table.table.body[0].length == 0) {
                       newElement.alignment = 'left';
-                    }else{
+                    } else {
                       newElement.alignment = 'center';
                     }
                   }
                   table.table.body[0].push(newElement);
                   elCount++;
-                  if(elCount < chN.length){
+                  if (elCount < chN.length) {
                     child = chN[elCount] as HTMLElement;
-                    childWidth = getWidth(child)+5;
+                    childWidth = getWidth(child) + 5;
                   }
                 }
-                if((parentStyle&&parentStyle.alignment&&(parentStyle.alignment == 'left'||parentStyle.alignment == 'justify'))||!parentStyle){
-                  if(table.table.body[0]![table.table.body[0].length-1]){
-                    table.table.body[0]![table.table.body[0].length-1].alignment = 'right'
+                if ((alignment == 'left' || alignment == 'justify') || !alignment) {
+                  if (table.table.body[0]![table.table.body[0].length - 1]) {
+                    table.table.body[0]![table.table.body[0].length - 1].alignment = 'right'
                   }
                 }
-                let widths :any = []
-                let cells:any = []
-                let itemStartsWithSpace:any = (item:any)=>{
-                  if(typeof item.text == 'string'&&(item.text.startsWith(' ')||item.text.startsWith(" "))){
+                let widths: any = []
+                let cells: any = []
+                let itemStartsWithSpace: any = (item: any) => {
+                  if (typeof item.text == 'string' && (item.text.startsWith(' ') || item.text.startsWith(" "))) {
                     return true
-                  }else if(item.text instanceof Array){
+                  } else if (item.text instanceof Array) {
                     return itemStartsWithSpace(item.text[0])
                   }
                   return false;
                 }
-                if(elCount == chN.length){
-                  table.table.body[0].forEach((cell:any,i:number)=>{
-                    if(itemStartsWithSpace(cell)&&i!==0){
-                      widths.push(5)
-                      widths.push('auto')
-                      cells.push({});
-                      cells.push(cell);
-                    }else{
-                      widths.push('auto')
-                      cells.push(cell);
-                    }
-                  })
-                }else{
-                  table.table.body[0].forEach((cell:any,i:number)=>{
-                    if(itemStartsWithSpace(cell)&&i!==0){
-                      widths.push('*')
-                      widths.push('auto')
-                      cells.push({});
-                      cells.push(cell);
-                    }else{
-                      widths.push('auto')
-                      cells.push(cell);
-                    }
-                  })
+                if ((alignment == 'left' || alignment == 'justify') || !alignment) {
+                  if (elCount == chN.length) {
+                    table.table.body[0].forEach((cell: any, i: number) => {
+                      if (itemStartsWithSpace(cell) && i !== 0) {
+                        widths.push(5)
+                        widths.push('auto')
+                        cells.push({});
+                        cells.push(cell);
+                      } else {
+                        widths.push('auto')
+                        cells.push(cell);
+                      }
+                    })
+                  } else {
+                    table.table.body[0].forEach((cell: any, i: number) => {
+                      if (itemStartsWithSpace(cell) && i !== 0) {
+                        widths.push('*')
+                        widths.push('auto')
+                        cells.push({});
+                        cells.push(cell);
+                      } else {
+                        widths.push('auto')
+                        cells.push(cell);
+                      }
+                    })
+                  }
+                  table.table.widths = widths;
+                  table.table.body[0] = cells;
+                  newEl.stack.push(table);
+                } else if (alignment == 'center') {
+                  table.width = 'auto'
+                  table.table.widths = undefined
+                  let columns = {
+                    columns: [
+                      { width: '*', text: '' },
+                      table,
+                      { width: '*', text: '' },
+                    ]
+                  }
+                  newEl.stack.push(columns);
+                } else if (alignment == 'right') {
+                  table.width = 'auto'
+                  table.table.widths = undefined
+                  let columns = {
+                    columns: [
+                      { width: '*', text: '' },
+                      { width: '*', text: '' },
+                      table,
+                    ]
+                  }
+                  newEl.stack.push(columns);
                 }
 
-                table.table.widths = widths;
-                table.table.body[0] = cells;
                 lineWidth = 0;
-                newEl.stack.push(table)
               }
               return Promise.resolve(stack.length)
             }
-            let Num = await buildLineTables(newEl.stack, parentStyle && parentStyle.parentWidth ? parentStyle.parentWidth : pageWidth, element as HTMLElement,parentStyle);
+            let Num = await buildLineTables(newEl.stack, parentStyle && parentStyle.parentWidth ? parentStyle.parentWidth : pageWidth, element as HTMLElement, parentStyle, textStyles);
           } else {
             if (!newEl.text) {
               newEl.text = [];
@@ -905,9 +962,12 @@ export class EditBeforeExportComponent implements AfterViewInit {
         return Promise.resolve(linkTemplate)
       } else if (tag == 'math-inline' || tag == 'math-display') {
         if (tag == 'math-inline') {
-          return new Promise((resolve, reject) => {
-            let fit:any = (parentStyle&&parentStyle.fontSize)?['*',parentStyle.fontSize*1.12]:['*',11.5];
-            let margin = [0, 0, 0,20]
+          let canvas = document.createElement('canvas');
+
+
+          let returnVal = await new Promise((resolve, reject) => {
+            let fit: any = (parentStyle && parentStyle.fontSize) ? ['*', parentStyle.fontSize * 1.12] : ['*', 11.5];
+            let margin = [0, 0, 0, 20]
             toCanvas(element as HTMLElement).then((canvasData: any) => {
               let result
               let canvasWidth = pxToPt(element.getBoundingClientRect().width);
@@ -915,17 +975,23 @@ export class EditBeforeExportComponent implements AfterViewInit {
                 html2canvas(element as HTMLElement).then((canvasData1) => {
                   let result
                   let canvasWidth = pxToPt(element.getBoundingClientRect().width);
-                  result = { image: canvasData1.toDataURL(),width:canvasWidth }
+                  result = { image: canvasData1.toDataURL(), width: canvasWidth }
                   //resolve(result)
                   resolve(result)
                 })
               } else {
-                result = { image: canvasData.toDataURL(),width:canvasWidth  }
+                result = { image: canvasData.toDataURL(), width: canvasWidth }
                 //resolve(result)
                 resolve(result)
               }
             })
           })
+          let elementExpression = element.getElementsByTagName('annotation').item(0)?.textContent!;
+          element.appendChild(canvas);
+          //@ts-ignore
+          let dom = katex.__renderToHTMLTree(elementExpression,{displayMode:false,output:'html'})
+          canvasRender(dom.children[0],canvas,0,element.getBoundingClientRect().height,{});
+          return Promise.resolve(returnVal);
         } else if (tag == 'math-display') {
           return new Promise((resolve, reject) => {
             toCanvas(element as HTMLElement).then((canvasData: any) => {
@@ -975,10 +1041,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
           doneSubject.next('done');
         }
       }
-      this.data.content = cont
-      this.data.content.push({ image: "image1" })
-      this.data.images = {}
-      this.data.images.image1 = "https://miro.medium.com/max/600/1*HiGTRdjkmzqdcRiSaemB1A.png"
+      this.data.content = cont;
       /* var myjson = JSON.stringify(data, null, 2);
       var x = window.open();
       x!.document.open();
@@ -1142,52 +1205,41 @@ export class EditBeforeExportComponent implements AfterViewInit {
         //(document.getElementById('pdfV') as HTMLIFrameElement).src = data;
       }).then((data: any) => {
         (document.getElementById('pdfV') as HTMLIFrameElement).src = data;
+        resolve(true);
       });
-      resolve(true);
     })
     return Promise.resolve(val)
   }
 
   getTextStyles(elementStyles: any, element: HTMLElement) {
-    function getLineHeight(el: HTMLElement) {
-      var temp = document.createElement(el.nodeName), ret;
-      temp.setAttribute("style", "margin:0; padding:0; "
-        + "font-family:" + (el.style.fontFamily || "inherit") + "; "
-        + "font-size:" + (el.style.fontSize || "inherit"));
-      temp.innerHTML = "A";
 
-      el.parentNode!.appendChild(temp);
-      ret = temp.clientHeight;
-      temp.parentNode!.removeChild(temp);
 
-      return ret;
-    }
-    // text styling
-    /*
-    font: string: name of the font
-    fontSize: number: size of the font in pt
-    fontFeatures: string[]: array of advanced typographic features supported in TTF fonts (supported features depend on font file)
-    lineHeight: number: the line height (default: 1)
-    bold: boolean: whether to use bold text (default: false)
-    italics: boolean: whether to use italic text (default: false)
-    alignment: string: (‘left’ or ‘center’ or ‘right’ or ‘justify’) the alignment of the text
-    characterSpacing: number: size of the letter spacing in pt
-    color: string: the color of the text (color name e.g., ‘blue’ or hexadecimal color e.g., ‘#ff5500’)
-    background: string the background color of the text
-    markerColor: string: the color of the bullets in a buletted list
-    decoration: string: the text decoration to apply (‘underline’ or ‘lineThrough’ or ‘overline’)
-    decorationStyle: string: the style of the text decoration (‘dashed’ or ‘dotted’ or ‘double’ or ‘wavy’)
-    decorationColor: string: the color of the text decoration, see color */
     var style = elementStyles.getPropertyValue('font-size');
     var align = elementStyles.getPropertyValue('text-aling');
-    var fontSize = parseFloat(style);
+    var fontSize: any = parseFloat(style);
+    let sub: any
+    let sup: any
+    if (element.tagName && (element.tagName == "SUB" || element.tagName == "SUP")) {
+      if (element.tagName == "SUB") {
+        sub = { offset: '0%' };
+      } else if (element.tagName == "SUP") {
+        sup = { offset: '0%' };
+      }
+    }
+    let font: any
+    if (element.tagName == 'CODE') {
+      font = 'CodeFont'
+    }
     // now you have a proper float for the font size (yes, it can be a float, not just an integer)
 
     (element as HTMLElement).style.textAlign
     //@ts-ignore
     //@ts-ignore
     let textStyles: any = {
-      fontSize: pxToPt(fontSize),
+      fontSize: (sub || sub) ? undefined : pxToPt(fontSize),
+      sub,
+      font,
+      sup,
       //lineHeight: pxToPt(getLineHeight(element)),
       bold:
         elementStyles.font.split(' ')[0] >= 500 ||

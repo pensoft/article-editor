@@ -25,7 +25,6 @@ app.all("/*", function(req, res, next) {
 });
 
 app.get('/buildPdf', (req, res) => {
-  console.log(req.query);
   res.send({ text: 'Hello  QWEQWE Worlddsssdasd!' })
 })
 
@@ -150,15 +149,11 @@ app.post('/buildPdf', async(req, res) => {
             }
             if (node.scaleTry == 1) {
               node.pageOrderCalculated = false;
-              console.log('scaling');
               loopTableAndChangeWidth(node, threeImgOnRowWidth)
-              console.log('scaling2');
 
             } else {
               node.pageOrderCalculated = false;
-              console.log('scaling');
               loopTableAndChangeWidth(node, fourImgOnRowWidth)
-              console.log('scaling3');
 
 
             }
@@ -182,6 +177,4 @@ app.post('/buildPdf', async(req, res) => {
   res.send(dataURL)
 })
 
-app.listen(3000, () => {
-  console.log(`Example app listening on port 3000`)
-})
+app.listen(3000, () => {})

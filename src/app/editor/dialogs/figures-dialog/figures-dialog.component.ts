@@ -7,6 +7,7 @@ import { YdocService } from '../../services/ydoc.service';
 import { figure } from '../../utils/interfaces/figureComponent';
 import { AddFigureDialogComponent } from './add-figure-dialog/add-figure-dialog.component';
 import { Node } from 'prosemirror-model';
+import { FormioEventsService } from '@app/editor/formioComponents/formio-events.service';
 @Component({
   selector: 'app-figures-dialog',
   templateUrl: './figures-dialog.component.html',
@@ -25,6 +26,7 @@ export class FiguresDialogComponent implements AfterViewInit {
     private ydocService:YdocService,
     public dialog: MatDialog,
     private dialogRef: MatDialogRef<FiguresDialogComponent>,
+    private formioEventsService:FormioEventsService,
     private figuresControllerService:FiguresControllerService
   ) {
     let figuresNumbersArray = ydocService.figuresMap!.get('ArticleFiguresNumbers')
@@ -46,8 +48,8 @@ export class FiguresDialogComponent implements AfterViewInit {
 
   editFigure(fig:figure,figIndex:number){
     this.dialog.open(AddFigureDialogComponent, {
-      width: '70%',
-      height: '70%',
+      width: '100%',
+      height: '90%',
       data: {fig,updateOnSave:false,index:figIndex,figID:fig.figureID},
       disableClose: false
     }).afterClosed().subscribe((result:{figure:figure,figureNode:Node}) => {
@@ -56,8 +58,95 @@ export class FiguresDialogComponent implements AfterViewInit {
         this.figures![result.figure.figureID] = result.figure
         this.newFigureNodes[result.figure.figureID] = result.figureNode
         this.editedFigures[result.figure.figureID] = true
+        this.getFigureRowsOrderData()
       }
     })
+  }
+
+  getFigureRowsOrderData(){
+    let data = this.formioEventsService.figureData
+
+    let figs = data.figRows;
+    let rows = data.nOfRows;
+    let columns = data.nOfColumns;
+
+    let pixDimensions = data.a4Pixels//[width,height]
+
+    let loadPromises:Promise<any>[] = [];
+
+    for(let i = 0 ; i < rows ; i++){
+      for(let j = 0 ; j < columns ; j++){
+        if(figs[i][j]){
+          let figure = figs[i][j].container;
+          let height:any
+          let width:any
+          if(figure.height&&figure.width){
+            height = figure.height*pixDimensions[1]
+            width = figure.width*pixDimensions[0]
+          }else if(figure.height){
+            height = figure.height*pixDimensions[1]
+          }else if(figure.width){
+            width = figure.width*pixDimensions[0]
+          }else if(figure.hpers&&figure.wpers){
+            height = figure.hpers*pixDimensions[1]
+            width = figure.wpers*pixDimensions[0]
+          }
+          let img = new Image(width,height);
+          loadPromises.push(new Promise((resolve,reject)=>{
+            img.addEventListener('load',((img,height,width,i,j,figure)=>{
+              return ()=>{
+
+                let h = height;
+                let w = width;
+
+                let naturalHeight = img.naturalHeight
+                let naturalWidth = img.naturalWidth;
+
+                if(height&&!width){
+                  w = (naturalWidth*height)/naturalHeight;
+                }else if(!height&&width){
+                  h = (naturalHeight*width)/naturalWidth
+                }
+
+                figure.h = h;
+                figure.w = w;
+
+                resolve(true)
+              }
+            })(img,height,width,i,j,figure))
+          }))
+          img.src = figure.url
+        }
+
+      }
+    }
+
+    Promise.all(loadPromises).then(()=>{
+      console.log(figs);
+      let rowsH:number[] = []
+      for(let i = 0 ; i < rows ; i++){
+        let rowH = 0;
+        for(let j = 0 ; j < columns ; j++){
+          if(figs[i][j]){
+            let cel = figs[i][j].container;
+            if(rowH<cel.h){
+              rowH = cel.h;
+            }
+          }
+        }
+        rowsH.push(rowH)
+      }
+      let canvasHeight = rowsH.reduce((prev,curr,i,arr)=>{return prev+=curr},0);
+      let canvasWidth = pixDimensions[0];
+      console.log(pixDimensions,canvasHeight,canvasWidth);
+
+      let canvas = document.createElement('canvas');
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+
+      let ctx = canvas.getContext("2d");
+    })
+
   }
 
   deleteFigure(fig:figure,figIndex:number){
@@ -98,8 +187,8 @@ export class FiguresDialogComponent implements AfterViewInit {
 
   addFigure(){
     this.dialog.open(AddFigureDialogComponent, {
-      width: '70%',
-      height: '70%',
+      width: '100%',
+      height: '90%',
       data:{fig:undefined,updateOnSave:false,index:this.figuresNumbers?.length},
       disableClose: false
     }).afterClosed().subscribe((result:{figure:figure,figureNode:Node}) => {
@@ -107,6 +196,7 @@ export class FiguresDialogComponent implements AfterViewInit {
         this.figuresNumbers?.push(result.figure.figureID)
         this.figures![result.figure.figureID] = result.figure
         this.newFigureNodes[result.figure.figureID] = result.figureNode
+        this.getFigureRowsOrderData()
       }
     })
   }

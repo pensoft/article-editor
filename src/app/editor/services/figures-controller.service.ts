@@ -241,6 +241,7 @@ export class FiguresControllerService {
 
   writeFiguresDataGlobal(newFigureNodes: { [key: string]: Node }, newFigures: { [key: string]: figure; }, figureNumbers: string[], editedFigures: { [key: string]: boolean }) {
     //this.mergeFigureViews(newFigureNodes, editedFigures)
+    this.prosemirrorEditorsService.saveScrollPosition()
     this.updateFiguresNumbers(newFigures, figureNumbers)
     this.ydocService.figuresMap!.set('ArticleFiguresNumbers', figureNumbers)
     this.ydocService.figuresMap!.set('ArticleFigures', newFigures)
@@ -264,6 +265,7 @@ export class FiguresControllerService {
     } catch (e) {
       console.error(e);
     } */
+    this.prosemirrorEditorsService.applyLastScrollPosition();
   }
 
   citateFigures(selectedFigures: boolean[], figuresComponentsChecked: { [key: string]: boolean[] }, sectionID: string, citatAttrs: any) {

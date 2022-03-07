@@ -22,7 +22,7 @@ import {
 import { DOMSerializer, Node, Slice } from 'prosemirror-model';
 //@ts-ignore
 import { EditorView } from 'prosemirror-view';
-import { EditorState, Plugin, PluginKey, Transaction, TextSelection, Selection } from 'prosemirror-state';
+import { EditorState, Plugin, PluginKey, Transaction, TextSelection, Selection, NodeSelection } from 'prosemirror-state';
 import { keymap } from 'prosemirror-keymap';
 //import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from 'y-prosemirror';
 import { chainCommands, deleteSelection, joinBackward, selectNodeBackward } from 'prosemirror-commands';
@@ -60,7 +60,7 @@ import { menuBar } from '../utils/prosemirror-menu-master/src/menubar.js'
 import { Form } from 'formiojs';
 import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
 import { I } from '@angular/cdk/keycodes';
-import { Mapping, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform';
+import { AddMarkStep, Mapping, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform';
 import { ViewFlags } from '@angular/compiler/src/core';
 import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn, selectWholeCitatMarks, handleScrollToSelection } from '../utils/prosemirrorHelpers';
 //@ts-ignore
@@ -69,6 +69,7 @@ import { figure } from '../utils/interfaces/figureComponent';
 import { CitatContextMenuService } from '../utils/citat-context-menu/citat-context-menu.service';
 import { ServiceShare } from './service-share.service';
 import { YjsHistoryService } from '../utils/yjs-history.service';
+import { leadingComment } from '@angular/compiler';
 @Injectable({
   providedIn: 'root'
 })
@@ -183,6 +184,17 @@ export class ProsemirrorEditorsService {
     })
   }
 
+  preservedScrollPosition : number = 0;
+  saveScrollPosition(){
+    let articleProsemirrorsContainer = document.getElementById('app-article-element');
+    this.preservedScrollPosition = articleProsemirrorsContainer!.scrollTop!;
+  }
+
+  applyLastScrollPosition(){
+    let articleProsemirrorsContainer = document.getElementById('app-article-element');
+    articleProsemirrorsContainer!.scrollTop =  this.preservedScrollPosition;
+  }
+
   collab(config: any = {}) {
     config = {
       version: config.version || 0,
@@ -198,12 +210,14 @@ export class ProsemirrorEditorsService {
     this.xmlFragments[id] = xmlFragment;
     return xmlFragment
   }
+
   deleteXmlFragment(id: string) {
     if (this.xmlFragments[id]) {
       this.xmlFragments[id].delete(0, this.xmlFragments[id].length);
     }
     delete this.xmlFragments[id]
   }
+
   deleteEditor(id: any) {
     let deleteContainer = this.editorContainers[id];
     if (deleteContainer) {
@@ -211,6 +225,7 @@ export class ProsemirrorEditorsService {
       delete this.editorContainers[id]
     }
   }
+
   clearDeleteArray() {
     while (this.editorsDeleteArray.length > 0) {
       let deleteId = this.editorsDeleteArray.shift()!;
@@ -218,30 +233,11 @@ export class ProsemirrorEditorsService {
       this.deleteXmlFragment(deleteId)
     }
   }
+
   addEditorForDelete(editorId: string) {
     this.commentsService.removeEditorComment(editorId)
     this.editorsDeleteArray.push(editorId);
   }
-  /* markSectionForDelete(section: articleSection) {
-    let markEditor = (editorData: editorData) => {
-      let editorId = editorData.editorId
-      this.addEditorForDelete(editorId)
-    }
-    let markContent = (content: titleContent | sectionContent) => {
-      if (content.type == 'editorContentType') {
-        markEditor(content.contentData as editorData)
-      } else if (content.type == 'taxonomicCoverageContentType') {
-        let taxonomicContentData = content.contentData as taxonomicCoverageContentData
-        markEditor(taxonomicContentData.description)
-        taxonomicContentData.taxaArray.forEach((el, i, arr) => {
-          markEditor(arr[i].commonName)
-          markEditor(arr[i].scietificName)
-        })
-      }
-    }
-    markContent(section.title)
-    markContent(section.sectionContent)
-  } */
 
   resetProsemirrorEditors() {
     this.ydoc = undefined;
@@ -398,15 +394,22 @@ export class ProsemirrorEditorsService {
           transaction.setMeta('editingTitle', true);
         }
 
-        /* if(transaction.getMeta('y-sync$')||transaction.getMeta('yjs-cursor$')){
-  transaction = transaction.setMeta("addToHistory", false)
-} */
         //@ts-ignore
         if (lastStep == transaction.steps[0] && !transaction.getMeta('emptyTR')) {
           if (lastStep) { return }
         }
         lastStep = transaction.steps[0]
+        let isMath = false
         if (transaction.steps.length > 0) {
+          if(transaction.selection instanceof NodeSelection&&(transaction.selection.node.type.name == 'math_inline'|| transaction.selection.node.type.name == 'math_display')){
+            let hasmarkAddRemoveStep = transaction.steps.filter((step)=>{
+              return (step instanceof AddMarkStep||step instanceof RemoveMarkStep)
+            }).length>0;
+            if(hasmarkAddRemoveStep){
+              return
+            }
+            isMath = true
+          }
           //@ts-ignore
           if (transaction.getMeta('y-sync$') || transaction.meta['y-sync$'] || transaction.getMeta('addToLastHistoryGroup')) {
             if (transaction.getMeta('addToLastHistoryGroup')) {
@@ -424,7 +427,7 @@ export class ProsemirrorEditorsService {
             }
           }
         }
-        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false) {
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false||isMath) {
 
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
@@ -629,11 +632,20 @@ export class ProsemirrorEditorsService {
         /* if (lastStep == transaction.steps[0]) {
           if (lastStep) { return }
         } */
-
+        let isMath = false
+        if(transaction.selection instanceof NodeSelection&&(transaction.selection.node.type.name == 'math_inline'|| transaction.selection.node.type.name == 'math_display')){
+          let hasmarkAddRemoveStep = transaction.steps.filter((step)=>{
+            return (step instanceof AddMarkStep||step instanceof RemoveMarkStep)
+          }).length>0;
+          if(hasmarkAddRemoveStep){
+            return
+          }
+          isMath = true
+        }
         lastStep = transaction.steps[0]
         this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager.preventCapture()
 
-        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false) {
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false||isMath) {
 
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
@@ -712,7 +724,6 @@ export class ProsemirrorEditorsService {
     let container = document.createElement('div');
     let editorView: EditorView;
     let doc: Node;
-    console.log(options);
     if (!options.noLabel) {
       let componentLabel = formIOComponentInstance.component.label;
       let labelTag = document.createElement('div');
@@ -815,7 +826,17 @@ export class ProsemirrorEditorsService {
           if (lastStep) { return }
         }
         lastStep = transaction.steps[0]
-        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false) {
+        let isMath = false;
+        if(transaction.selection instanceof NodeSelection&&(transaction.selection.node.type.name == 'math_inline'|| transaction.selection.node.type.name == 'math_display')){
+          let hasmarkAddRemoveStep = transaction.steps.filter((step)=>{
+            return (step instanceof AddMarkStep||step instanceof RemoveMarkStep)
+          }).length>0;
+          if(hasmarkAddRemoveStep){
+            return
+          }
+          isMath = true
+        }
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false||isMath) {
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
 
