@@ -11,5 +11,6 @@ export interface figure {
     "figureID":string,
     "figureNumber":number,
     "figurePlace":string,
-    "viewed_by_citat":string
+    "viewed_by_citat":string,
+    "canvasData":any
 }

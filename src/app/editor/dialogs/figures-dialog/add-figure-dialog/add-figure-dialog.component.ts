@@ -32,7 +32,7 @@ import { schema } from '@app/editor/utils/Schema';
 import { DOMParser } from 'prosemirror-model';
 import { uuidv4 } from 'lib0/random';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
-import { C } from '@angular/cdk/keycodes';
+import { FormioEventsService } from '@app/editor/formioComponents/formio-events.service';
 
 let basicFigureHTML = '<block-figure figure_number="0"><figure-components-container contenteditablenode="false"><figure-component component_number="0" contenteditablenode="false"><img src="https://cdn.britannica.com/q:60/91/181391-050-1DA18304/cat-toes-paw-number-paws-tiger-tabby.jpg" alt="" title="default image" contenteditable="false" draggable="true"><img class="ProseMirror-separator"><br></figure-component><figure-component component_number="1" contenteditablenode="false"><img src="https://imjeffreyrex.files.wordpress.com/2014/06/linkin-park.png" alt="" title="default image" contenteditable="false" draggable="true"><img class="ProseMirror-separator"><br></figure-component><figure-component component_number="2" contenteditablenode="false"><img src="https://www.everythingreptiles.com/wp-content/uploads/2020/12/Bearded-dragon-fluffing-beard.jpg" alt="" title="default image" contenteditable="false" draggable="true"><img class="ProseMirror-separator"><br></figure-component><figure-component component_number="3" contenteditablenode="false"><img src="https://static.scientificamerican.com/sciam/cache/file/A4406EF9-FC62-42E4-9628F374B062AE07.jpg" alt="" title="default image" contenteditable="false" draggable="true"><img class="ProseMirror-separator"><br></figure-component></figure-components-container><figure-descriptions-container><h3 tagname="h3" contenteditablenode="false">Figure: 1</h3><figure-description style="display:block;"><p align="set-align-left" class="set-align-left">Caption basic example</p></figure-description><figure-component-description component_number="0" style="display:flex;"><form-field><p align="set-align-left" contenteditablenode="false" class="set-align-left">a:</p></form-field><form-field><p align="set-align-left" class="set-align-left"><br></p></form-field></figure-component-description><figure-component-description component_number="1" style="display:flex;"><form-field><p align="set-align-left" contenteditablenode="false" class="set-align-left">b:</p></form-field><form-field><p align="set-align-left" class="set-align-left"><br></p></form-field></figure-component-description><figure-component-description component_number="2" style="display:flex;"><form-field><p align="set-align-left" contenteditablenode="false" class="set-align-left">c:</p></form-field><form-field><p align="set-align-left" class="set-align-left">bearded dragon</p></form-field></figure-component-description><figure-component-description component_number="3" style="display:flex;"><form-field><p align="set-align-left" contenteditablenode="false" class="set-align-left">d:</p></form-field><form-field><p align="set-align-left" class="set-align-left">dog</p></form-field></figure-component-description></figure-descriptions-container></block-figure>'
 
@@ -93,6 +93,7 @@ export class AddFigureDialogComponent implements AfterViewInit {
     private dialogRef: MatDialogRef<AddFigureDialogComponent>,
     private figuresControllerService: FiguresControllerService,
     private ydocService: YdocService,
+    private formioEventsService:FormioEventsService,
     @Inject(MAT_DIALOG_DATA) public data: { fig: figure | undefined, updateOnSave: boolean, index: number, figID: string | undefined }
   ) {
 
@@ -118,6 +119,7 @@ export class AddFigureDialogComponent implements AfterViewInit {
           componentsDefaultValues.push(componentDefault)
         })
         this.sectionContent.components[0].columns[0].components[1].defaultValue = componentsDefaultValues;
+        this.sectionContent.components[0].columns[1].components[0].properties = {rows:this.data.fig.canvasData.nOfColumns}
         this.renderForm = true
       }
       this.renderCodemMirrorEditors(this.figureID!)
@@ -172,7 +174,8 @@ export class AddFigureDialogComponent implements AfterViewInit {
         }, []),
         "figureID": submision.data.figureID,
         "figurePlace": this.data.figID ? this.data.fig?.figurePlace! : "endEditor",
-        "viewed_by_citat": this.data.figID ? this.data.fig?.viewed_by_citat! : "endEditor"
+        "viewed_by_citat": this.data.figID ? this.data.fig?.viewed_by_citat! : "endEditor",
+        "canvasData":JSON.parse(JSON.stringify(this.formioEventsService.figureData))
       }
       /* if (this.data.updateOnSave) {
           this.figuresControllerService.updateSingleFigure(newFigure, this.data.index)

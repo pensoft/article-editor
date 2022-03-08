@@ -1,6 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Pipe, PipeTransform } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
+import { pageDimensionsInPT } from '@app/editor/dialogs/edit-before-export/edit-before-export.component';
 import { MaterialComponent } from 'src/app/formio-angular-material/angular-material-formio.module';
 import { SafePipe } from 'src/app/formio-angular-material/components/MaterialComponent';
 import { FormioEventsService } from '../formio-events.service';
@@ -62,7 +63,9 @@ export class FigurePreviewComponent extends MaterialComponent implements AfterVi
       }
 
     })
-    let a4Pixels = [595 , 842-(842*this.bottomOffset)];
+    let key = 'A3'
+    //@ts-ignore
+    let a4Pixels = [pageDimensionsInPT[key][0], pageDimensionsInPT[key][1]-(pageDimensionsInPT[key][1]*this.bottomOffset)];
     if(differrance||!checkDiff){
       if(!hasEmptyFields){
         this.figureComponents = JSON.parse(JSON.stringify(this.instance.data.figureComponents));
@@ -112,13 +115,27 @@ export class FigurePreviewComponent extends MaterialComponent implements AfterVi
             let widthPersent = img.naturalWidth/a4PixelRec[0];
             figComp.container.hpers = heightPersent
             figComp.container.wpers = widthPersent
+
+            figComp.container.h = img.naturalHeight
+            figComp.container.w = img.naturalWidth
           }else if(img.naturalHeight/maxImgHeight > img.naturalWidth/maxImgWidth){
             figComp.container.height = maxImgHeight/a4PixelRec[1];
+
+            let scalePers = maxImgHeight/img.naturalHeight;
+            figComp.container.h = maxImgHeight
+            figComp.container.w = scalePers*img.naturalWidth
           }else if(img.naturalHeight/maxImgHeight < img.naturalWidth/maxImgWidth){
             figComp.container.width = maxImgWidth/a4PixelRec[0];
+
+            let scalePers = maxImgWidth/img.naturalWidth;
+            figComp.container.h = scalePers*img.naturalHeight;
+            figComp.container.w = maxImgWidth
           }else if(img.naturalHeight/maxImgHeight == img.naturalWidth/maxImgWidth){
             figComp.container.height = maxImgHeight/a4PixelRec[1];
             figComp.container.width = maxImgWidth/a4PixelRec[0];
+
+            figComp.container.h = maxImgHeight
+            figComp.container.w = maxImgWidth
           }
         }
         for(let i = 0;i<this.figureRows.length;i++){
@@ -145,7 +162,9 @@ export class FigurePreviewComponent extends MaterialComponent implements AfterVi
   }
 
   ngAfterViewInit(): void {
-
+    if(this.instance.originalComponent.properties.rows){
+      this.itemsOnRowSelect.setValue(this.instance.originalComponent.properties.rows)
+    }
     this.itemsOnRowSelect.valueChanges.subscribe((change)=>{
       this.updatePreview(false)
     })

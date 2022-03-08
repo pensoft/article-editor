@@ -239,8 +239,99 @@ export class FiguresControllerService {
     }, 30)
   }
 
+  getFigureRowsOrderData(data:any,figuresObj:{[key:string]:figure},key:string){
+    let figs = data.figRows;
+    let rows = data.nOfRows;
+    let columns = data.nOfColumns;
+
+    let pixDimensions = data.a4Pixels//[width,height]
+
+    let loadPromises:Promise<any>[] = [];
+
+    let rowsH:number[] = []
+    let cellWidth = pixDimensions[0]/data.nOfColumns;
+
+    for(let i = 0 ; i < rows ; i++){
+      let rowH = 0;
+      for(let j = 0 ; j < columns ; j++){
+        if(figs[i][j]){
+          let cel = figs[i][j].container;
+          if(rowH<cel.h){
+            rowH = cel.h;
+          }
+        }
+      }
+      rowsH.push(rowH)
+    }
+    let canvasHeight = rowsH.reduce((prev,curr,i,arr)=>{return prev+=curr},0);
+    let canvasWidth = pixDimensions[0];
+
+    let canvas = document.createElement('canvas');
+    let ctx = canvas.getContext("2d")!;
+    ctx.imageSmoothingEnabled = false;
+
+    canvas.width = canvasWidth;
+    canvas.height = canvasHeight;
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.font = '40px serif';
+    ctx.fillStyle = 'black'
+
+    for(let i = 0 ; i < rows ; i++){
+      for(let j = 0 ; j < columns ; j++){
+        if(figs[i][j]){
+          let figure = figs[i][j].container;
+          let img = new Image();
+          loadPromises.push(new Promise((resolve,reject)=>{
+            img.addEventListener('load',((img,i,j,figure,ctx)=>{
+              return ()=>{
+
+                let startX = cellWidth*j;
+                let endX = cellWidth*(j+1);
+                let startY = rowsH.reduce((prev,curr,idx,arr)=>{if(idx<i){return prev+=curr}else{return prev}},0);
+                let endY = startY + rowsH[i];
+
+                let imgW = figure.w;
+                let imgH = figure.h;
+
+                let whiteSpaceX = (endX-startX-imgW)/2;
+                let whiteSpaceY = (endY-startY-imgH)/2;
+
+                let imgN = data.nOfColumns*i + j;
+                let imageText = String.fromCharCode(65+imgN)
+
+                let dx = startX+whiteSpaceX;
+                let dy = startY+whiteSpaceY;
+                let dx1 = endX-whiteSpaceX;
+                let dy1 = endY-whiteSpaceY;
+
+                ctx.drawImage(img,dx,dy,imgW,imgH);
+                if(!(rows==1&&columns==1)){
+                  ctx.fillText(imageText, 10+dx, 35+dy);
+                }
+                resolve(true)
+              }
+            })(img,i,j,figure,ctx!))
+          }))
+          img.crossOrigin = "anonymous"
+          img.src = figure.url
+        }
+      }
+    }
+
+
+    Promise.all(loadPromises).then(()=>{
+      let figureDataURL = canvas.toDataURL('image/jpeg',0.9);
+      figuresObj[key].canvasData.dataURL = figureDataURL;
+      this.ydocService.figuresMap!.set('ArticleFigures', figuresObj);
+    })
+
+  }
+
   writeFiguresDataGlobal(newFigureNodes: { [key: string]: Node }, newFigures: { [key: string]: figure; }, figureNumbers: string[], editedFigures: { [key: string]: boolean }) {
-    //this.mergeFigureViews(newFigureNodes, editedFigures)
+    Object.keys(newFigureNodes).forEach((key)=>{
+      this.getFigureRowsOrderData(newFigures[key].canvasData,newFigures,key);
+    })
     this.prosemirrorEditorsService.saveScrollPosition()
     this.updateFiguresNumbers(newFigures, figureNumbers)
     this.ydocService.figuresMap!.set('ArticleFiguresNumbers', figureNumbers)

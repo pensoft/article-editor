@@ -55,27 +55,6 @@ export const figureJson = {
                     "description": `<p align="set-align-left" class="set-align-left">dog</p>`,
                     "componentType": "image",
                   }
-                },
-                {
-                  "container": {
-                    "url": "https://cms-assets.tutsplus.com/cdn-cgi/image/width=850/uploads/users/107/posts/26488/final_image/41-space-scrolling-background850-2.jpg",
-                    "description": `<p align="set-align-left" class="set-align-left">dog</p>`,
-                    "componentType": "image",
-                  }
-                },
-                {
-                  "container": {
-                    "url": "https://tinypng.com/images/example-shrunk.png",
-                    "description": `<p align="set-align-left" class="set-align-left">dog</p>`,
-                    "componentType": "image",
-                  }
-                },
-                {
-                  "container": {
-                    "url": "https://cms-assets.tutsplus.com/cdn-cgi/image/width=850/uploads/users/107/posts/26488/final_image/41-space-scrolling-background850-2.jpg",
-                    "description": `<p align="set-align-left" class="set-align-left">dog</p>`,
-                    "componentType": "image",
-                  }
                 }
               ],
               "key": "figureComponents",

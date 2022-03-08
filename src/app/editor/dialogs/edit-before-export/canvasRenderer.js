@@ -622,10 +622,8 @@ function PreparedBox(canvas, atoms, fontsUsed, xshift) {
           var image64 = b64Start + svg64;
           let svgImage = new Image();
           svgImage.onload = () => {
-            console.log('load', svgImage)
             ctxt.drawImage(svgImage, atom.x + x, atom.y + y);
           }
-          console.log(svgImage);
           svgImage.src = image64;
 
         }

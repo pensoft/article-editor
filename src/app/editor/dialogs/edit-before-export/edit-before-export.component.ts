@@ -17,9 +17,10 @@ import { FormControl, Validators } from '@angular/forms';
 import { getFontEmbedCSS, toBlob, toCanvas, toJpeg, toPixelData, toPng, toSvg } from 'html-to-image'
 //@ts-ignore
 import { applyVerticalAlignment } from './alignFunc.js'
-import * as katex  from 'katex'
+import * as katex from 'katex'
 //@ts-ignore
-import {render as canvasRender} from './canvasRenderer.js'
+import { render as canvasRender } from './canvasRenderer.js'
+import { FigureComponent } from '../figures-dialog/figure/figure.component';
 pdfMake.vfs = vfs;
 
 pdfMake.fonts = {
@@ -46,7 +47,7 @@ let pageSizeDimensions = { // in milimeters
   'A5': { width: 148, height: 210 },
 }
 
-var pageDimensionsInPT = {
+export var pageDimensionsInPT = {
   '4A0': [4767.87, 6740.79],
   '2A0': [3370.39, 4767.87],
   A0: [2383.94, 3370.39],
@@ -258,7 +259,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     img.crossOrigin = "anonymous"
     let canvas = document.createElement('canvas');
 
-    if(!img.complete){
+    if (!img.complete) {
       await new Promise((resolve, reject) => {
         img.onload = () => {
           resolve('loaded')
@@ -350,16 +351,100 @@ export class EditBeforeExportComponent implements AfterViewInit {
     this.data.pageMargins = [this.pageMargin[3], this.pageMargin[0], this.pageMargin[1], this.pageMargin[2]];
 
     let generateFigure = async (element: Element) => {
+      let figuresObj = this.ydocService.figuresMap!.get('ArticleFigures');
+
+      let figureID = element.getAttribute('figure_id')!;
+
       let figureTable: any = {
         color: 'black',
+        layout: {
+          paddingBottom: function paddingBottom(i: number, node: any) { return 0; },
+          hLineWidth: function hLineWidth(i: number) { return 0; },
+          vLineWidth: function vLineWidth(i: number) { return 0; },
+        },
         table: {
-          widths: ['4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%', '4.16667%'],
           body: [],
           props: { type: 'figure' }
         },
         alingment: 'center',
         margin: [0, 0, 0, 15]
       }
+
+      let figuresCount = element.firstChild?.childNodes.length!;
+      let figuresDescriptions = element.childNodes.item(1)!;
+
+      let figureHeader = figuresDescriptions.childNodes.item(0) as HTMLElement
+      let figureDesc = figuresDescriptions.childNodes.item(1) as HTMLElement
+      let figureLabel: any = []
+      for (let j = 0; j < figureHeader.childNodes.length; j++) {
+        figureLabel.push(await generatePDFData(figureHeader.childNodes[j] as HTMLElement, figureTable, { parentWidth: 24 * 0.0416667 * pageWidth }, element))
+      }
+      let figureDescription: any = []
+      for (let j = 0; j < figureDesc.childNodes.length; j++) {
+        figureDescription.push(await generatePDFData(figureDesc.childNodes[j] as HTMLElement, figureTable, { parentWidth: 24 * 0.0416667 * pageWidth }, element))
+      }
+
+      let descriptions: any = [];
+      for (let i = 0; i < figuresCount; i++) {
+        let descText = (figuresDescriptions.childNodes.item(i + 2) as HTMLElement);
+        let description: any = [];
+        for (let j = 1; j < descText.childNodes.length; j++) {
+          description.push(await generatePDFData(descText.childNodes[j] as HTMLElement, figureTable, { parentWidth: 24 * 0.0416667 * pageWidth }, element))
+        }
+        if(figuresCount == 1){
+          let columns = {
+            alignment: 'justify',
+            columnGap: 10,
+            columns: [
+              {
+                width: 'auto',
+                text: String.fromCharCode(65 + i), fontSize: 11, bold: true,
+              },
+              {
+                width: 'auto',
+                stack: description
+              }
+            ]
+          }
+          descriptions.push(columns)
+        }else{
+          let columns = {
+            alignment: 'justify',
+            columnGap: 10,
+            columns: [
+              {
+                width: 'auto',
+                text: String.fromCharCode(65 + i), fontSize: 11, bold: true,
+              },
+              {
+                width: 'auto',
+                stack: description
+              }
+            ],
+          }
+          descriptions.push(columns)
+
+        }
+      }
+
+      let bottomTable = {
+        table: {
+          widths: ['*'],
+          body: [
+            [{
+              fillColor: '#fafaf8',
+              borderColor: ['#e2e2dc', '#e2e2dc', '#e2e2dc', '#e2e2dc'],
+              stack: [{stack:[...figureLabel],margin : [0, 0, 0, 4]},{stack:[...figureDescription],margin : [0, 0, 0, 4]},...descriptions]
+            }]
+          ]
+        }
+      }
+      let imageWidth = singleimgOnRowWidth;
+      figureTable.table.body.push([{ image: figuresObj[figureID].canvasData.dataURL ,fit:[imageWidth,pageHeight]}]);
+
+      figureTable.table.body.push([bottomTable])
+      return Promise.resolve(figureTable);
+      /*
       let figuresCount = element.firstChild?.childNodes.length!;
       let figuresViewsContainer = element.firstChild!
       let figuresDescriptions = element.childNodes.item(1)!;
@@ -414,7 +499,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
           let desc2 = figuresData[i + 1].description
           let descLabel2 = figuresData[i + 1].descName
 
-
           figuresPdfViews.push([
             { image: name1, colSpan: 12, width: usedFrame, alignment: 'center' }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
             { image: name2, colSpan: 12, width: usedFrame, alignment: 'center' }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
@@ -433,14 +517,13 @@ export class EditBeforeExportComponent implements AfterViewInit {
           figuresPdfDescriptions.push([
             { text: descLabel1, colSpan: 2 },{}, { stack: desc1, colSpan: 22 },  {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},])
         }
-
       }
 
       figureTable.table.body.push(...figuresPdfViews);
       figureTable.table.body.push([{ text: figureHeader, colSpan: 24, }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
       figureTable.table.body.push([{ text: 'Description:', colSpan: 5, }, {}, {}, {}, {},  { stack: figureDescription, colSpan: 19 },{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
       figureTable.table.body.push(...figuresPdfDescriptions);
-      return { pdfFigure: figureTable, data: figuresData }
+      return { pdfFigure: figureTable, data: figuresData } */
     }
 
     let generatePDFData = async (element: Element, parentPDFel?: any, parentStyle?: any, parentElement?: Element) => {
@@ -808,10 +891,11 @@ export class EditBeforeExportComponent implements AfterViewInit {
         return { image: dataURL, width: pxToPt(img.getBoundingClientRect().width) }
       } else if (tag == 'block-figure') {
         let pdfFigure = await generateFigure(element);
-        if (!parentPDFel) {
+        /*if (!parentPDFel) {
           pdfFigure.pdfFigure.props = { main: true }
-        }
-        return Promise.resolve(pdfFigure.pdfFigure)
+        } */
+        //return Promise.resolve(pdfFigure.pdfFigure)
+        return Promise.resolve(pdfFigure)
       } else if (tag == 'table' || (tag == 'div' && element.className == 'tableWrapper')) {
         let tableElement
         if ((tag == 'div' && element.className == 'tableWrapper')) {
@@ -989,8 +1073,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
           let elementExpression = element.getElementsByTagName('annotation').item(0)?.textContent!;
           element.appendChild(canvas);
           //@ts-ignore
-          let dom = katex.__renderToHTMLTree(elementExpression,{displayMode:false,output:'html'})
-          canvasRender(dom.children[0],canvas,0,element.getBoundingClientRect().height,{});
+          let dom = katex.__renderToHTMLTree(elementExpression, { displayMode: false, output: 'html' })
+          canvasRender(dom.children[0], canvas, 0, element.getBoundingClientRect().height, {});
           return Promise.resolve(returnVal);
         } else if (tag == 'math-display') {
           return new Promise((resolve, reject) => {
@@ -1049,7 +1133,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
       x!.document.close();
       */
 
-      this.data.orderNodes = (node: any, nodeFunc: any) => {
+      /* this.data.orderNodes = (node: any, nodeFunc: any) => {
         let nodeInfo = node.nodeInfo;
         if (nodeInfo.table && nodeInfo.table.props && nodeInfo.table.props.type == 'figure' && node.pageBreak == 'before') {
           let scaling = false;
@@ -1099,14 +1183,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
               let figureNode = structuredNodes.splice(nodesBefore.length, 1);
               let biggestIndex = Math.max(...movedIndexes);
 
-              /*  let movingNodes: any = []
-               nodesToMove.forEach((indx) => {
-                 movingNodes.unshift(...structuredNodes.splice(indx, 1));
-               })
 
-               movingNodes.forEach((node: any) => {
-                 node.pageOrderCalculated = true;
-               }) */
 
               structuredNodes.splice(biggestIndex, 0, figureNode);
               //
@@ -1138,7 +1215,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
                 cannotMove = true
               }
               counter--
-            } /**/
+            }
             if (!scaling && movedIndexes.length > 0 && enoughFreeSpace) {
               let moveNodeFrom = nodesBefore.length;
               let moveTo = Math.min(...movedIndexes);
@@ -1193,7 +1270,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
           }
         }
         return false;
-      }
+      } */
       this.data.threeImgOnRowWidth = threeImgOnRowWidth;
       this.data.fourImgOnRowWidth = fourImgOnRowWidth;
       this.data.singleimgOnRowWidth = singleimgOnRowWidth;
@@ -1201,10 +1278,11 @@ export class EditBeforeExportComponent implements AfterViewInit {
       /* this.http.post('http://localhost:3000/buildPdf',{pdfJsonStruct:data},{ responseType: 'text' }).subscribe((res)=>{
         (document.getElementById('pdfV') as HTMLIFrameElement).src = res;
       }); */
-      pdfMake.createPdf(this.data).getDataUrl((data: any) => {
+      pdfMake.createPdf(this.data).getBlob((data: any) => {
         //(document.getElementById('pdfV') as HTMLIFrameElement).src = data;
-      }).then((data: any) => {
-        (document.getElementById('pdfV') as HTMLIFrameElement).src = data;
+      }).then((blob: any) => {
+        let url = URL.createObjectURL(blob);
+        (document.getElementById('pdfV') as HTMLIFrameElement).src = url;
         resolve(true);
       });
     })
