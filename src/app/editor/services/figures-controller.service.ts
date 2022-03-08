@@ -274,7 +274,7 @@ export class FiguresControllerService {
     canvas.height = canvasHeight;
     ctx.fillStyle = '#ffffff';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = '40px serif';
+    ctx.font = '30px serif';
     ctx.fillStyle = 'black'
 
     for(let i = 0 ; i < rows ; i++){
@@ -307,7 +307,7 @@ export class FiguresControllerService {
 
                 ctx.drawImage(img,dx,dy,imgW,imgH);
                 if(!(rows==1&&columns==1)){
-                  ctx.fillText(imageText, 10+dx, 35+dy);
+                  ctx.fillText(imageText, 8+dx, 28+dy);
                 }
                 resolve(true)
               }

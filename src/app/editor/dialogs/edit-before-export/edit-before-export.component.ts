@@ -308,9 +308,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
     let tablePadding = this.tablepadding;;
     let pageInPoints = pxToPt(pageWidth);
     let singleimgOnRowWidth = pageInPoints - tablePadding * 2;
-    let twoImgOnRowWidth = (pageInPoints - tablePadding * 4) / 2;
-    let threeImgOnRowWidth = (pageInPoints - tablePadding * 6) / 3;
-    let fourImgOnRowWidth = (pageInPoints - tablePadding * 8) / 4;
+    let twoImgOnRowWidth = (pageInPoints - tablePadding * 2) * 0.8;
+    let threeImgOnRowWidth = (pageInPoints - tablePadding * 2) * 0.6;
+    let fourImgOnRowWidth = (pageInPoints - tablePadding * 2) *0.4;
 
     let elementsContainer = document.getElementById('pm-elements-container') as HTMLDivElement;
     elementsContainer.style.width = pageWidth + "px";
@@ -325,29 +325,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     previewContainer.style.backgroundColor = 'gray';
 
     elementsContainer.style.margin = '10px auto'
-    /* elementsContainer.style.marginRight = '10px';
-    elementsContainer.style.marginTop = '10px';
-    elementsContainer.style.marginBottom = '10px';
-    elementsContainer.style.marginLeft = '10px'; */
 
-    /* let hrLinesContainer = (document.getElementById('hr-lines') as HTMLDivElement);
-    hrLinesContainer.style.width = pageWidth + 'px';
-    hrLinesContainer.innerHTML = ''
-    hrLinesContainer.style.margin = '10px auto';
-    for (let i = 0; i < numberOfHorizontalLines; i++) {
-      let hr = document.createElement('div');
-      hr.className = 'horizontal-line';
-      hr.style.height = '0';
-      hr.style.display = 'block';
-      hr.style.position = 'absolute';
-      hr.style.borderBottom = '3px dashed #9b41ff'
-      hr.style.transform = `translate(0, ${(i + 1) * mmToPx(pageSizeDimensions[this.pageSize].height) + pagePadding}px)`
-      hr.style.width = '100%'
-      hrLinesContainer.appendChild(hr);
-
-    } */
-    //pdfmake()
-    //[left, top, right, bottom]
     this.data.pageMargins = [this.pageMargin[3], this.pageMargin[0], this.pageMargin[1], this.pageMargin[2]];
 
     let generateFigure = async (element: Element) => {
@@ -364,6 +342,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
         },
         table: {
           body: [],
+          widths:['*'],
           props: { type: 'figure' }
         },
         alingment: 'center',
@@ -391,7 +370,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
         for (let j = 1; j < descText.childNodes.length; j++) {
           description.push(await generatePDFData(descText.childNodes[j] as HTMLElement, figureTable, { parentWidth: 24 * 0.0416667 * pageWidth }, element))
         }
-        if(figuresCount == 1){
+        if (figuresCount == 1) {
           let columns = {
             alignment: 'justify',
             columnGap: 10,
@@ -407,7 +386,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             ]
           }
           descriptions.push(columns)
-        }else{
+        } else {
           let columns = {
             alignment: 'justify',
             columnGap: 10,
@@ -434,13 +413,14 @@ export class EditBeforeExportComponent implements AfterViewInit {
             [{
               fillColor: '#fafaf8',
               borderColor: ['#e2e2dc', '#e2e2dc', '#e2e2dc', '#e2e2dc'],
-              stack: [{stack:[...figureLabel],margin : [0, 0, 0, 4]},{stack:[...figureDescription],margin : [0, 0, 0, 4]},...descriptions]
+              stack: [{ stack: [...figureLabel], margin: [0, 0, 0, 4] }, { stack: [...figureDescription], margin: [0, 0, 0, 4] }, ...descriptions]
             }]
           ]
         }
       }
       let imageWidth = singleimgOnRowWidth;
-      figureTable.table.body.push([{ image: figuresObj[figureID].canvasData.dataURL ,fit:[imageWidth,pageHeight]}]);
+
+      figureTable.table.body.push([{image: figuresObj[figureID].canvasData.dataURL, fit: [imageWidth, pageHeight],alignment:'center'}]);
 
       figureTable.table.body.push([bottomTable])
       return Promise.resolve(figureTable);
@@ -1126,14 +1106,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
         }
       }
       this.data.content = cont;
-      /* var myjson = JSON.stringify(data, null, 2);
-      var x = window.open();
-      x!.document.open();
-      x!.document.write('<html><body><pre>' + myjson.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</pre></body></html>');
-      x!.document.close();
-      */
 
-      /* this.data.orderNodes = (node: any, nodeFunc: any) => {
+
+      this.data.orderNodes = (node: any, nodeFunc: any) => {
         let nodeInfo = node.nodeInfo;
         if (nodeInfo.table && nodeInfo.table.props && nodeInfo.table.props.type == 'figure' && node.pageBreak == 'before') {
           let scaling = false;
@@ -1155,6 +1130,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
               node.pageBreak = undefined;
               return true
             }
+
+
 
             // try move text from uder the figure
 
@@ -1186,17 +1163,11 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
 
               structuredNodes.splice(biggestIndex, 0, figureNode);
-              //
-
-              //retrun true so we contonue to the nex node
-
-
+              console.log('moveing node down');
+              //retrun true so we contonue to the next node
               return true;
             }
-
             // try move figure above the text before it
-
-
             let freeSpaceBefore = availableHeightAfterLastNode;
 
             counter = nodesBefore.length - 1;
@@ -1223,6 +1194,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
               let movingNode = structuredNodes.splice(moveNodeFrom, 1);
               movingNode[0].pageBreak = undefined;
               structuredNodes.splice(moveTo, 0, ...movingNode);
+              console.log('moveing node up');
+
               return true
             }
 
@@ -1230,20 +1203,19 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
 
             let loopTableAndChangeWidth = (nodeToChange: any, newWidth: number) => {
-              if (nodeToChange.table) {
-                nodeToChange.table.body.forEach((row: any) => {
-                  row.forEach((element: any) => {
-                    if (element.image && element.width) {
-                      element.width = newWidth;
-                    }
-                  });
-                })
-              }
+              debugger
+              nodeToChange.table.body[0][0].fit = [newWidth,pageHeight]
+            }
+
+            if(availableHeightAfterLastNode < 100){
+              return true
             }
 
             if (node.scaleTry == 2) {
+              loopTableAndChangeWidth(node,singleimgOnRowWidth)
               return true
             } else {
+              console.log('scaling');
               if (!node.scaleTry) {
                 node.scaleTry = 1
               } else {
@@ -1251,11 +1223,11 @@ export class EditBeforeExportComponent implements AfterViewInit {
               }
               if (node.scaleTry == 1) {
                 node.pageOrderCalculated = false;
-                loopTableAndChangeWidth(node, threeImgOnRowWidth)
+                loopTableAndChangeWidth(node, twoImgOnRowWidth)
                 return true
               } else {
                 node.pageOrderCalculated = false;
-                loopTableAndChangeWidth(node, fourImgOnRowWidth)
+                loopTableAndChangeWidth(node, threeImgOnRowWidth)
                 return true
               }
             }
@@ -1270,7 +1242,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
           }
         }
         return false;
-      } */
+      }
       this.data.threeImgOnRowWidth = threeImgOnRowWidth;
       this.data.fourImgOnRowWidth = fourImgOnRowWidth;
       this.data.singleimgOnRowWidth = singleimgOnRowWidth;
