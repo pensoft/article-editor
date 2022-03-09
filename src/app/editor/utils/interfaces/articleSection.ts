@@ -45,6 +45,7 @@ export interface articleSection {
     title:titleContent,
     prosemirrorHTMLNodesTempl?:string,
     formIOSchema?:any,
+    fomrIOSchemaComplex?:any,
     sectionVersionId:number,
     defaultFormIOValues?:any,
     type:'complex'|'simple',

@@ -21,7 +21,6 @@ export function installPatch(treeService:TreeService) {
     if(!item.data.data){
       return undefined
     }
-    item.data.data.canDropBool[0] = true;
     // Only consider targets where the drag postition is within the client rect
     // (this avoids calling enterPredicate on each possible target)
     let matchingTargets = targets.filter(ref => {
@@ -42,6 +41,7 @@ export function installPatch(treeService:TreeService) {
     if (matchingTarget === this) {
       return undefined;
     }
+    item.data.data.canDropBool[0] = true;
 
     canReceive(matchingTarget,item,treeService)
     canMoveOut(matchingTarget,item,treeService)

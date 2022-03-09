@@ -52,7 +52,7 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
   = (sectionFromBackend: any, parentContainer: articleSection[], index?: number | string) => {
     let children: any[] = []
     if (sectionFromBackend.type == 1) {
-      sectionFromBackend.schema.forEach((childSection: any) => {
+      sectionFromBackend.sections.forEach((childSection: any) => {
         renderSectionFunc(childSection, children)
       })
     }
@@ -88,6 +88,7 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
         delete: { bool: true, main: false },
         mode: 'documentMode',
         formIOSchema: complexSectionFormIoSchema,
+        fomrIOSchemaComplex: sectionFromBackend.schema,
         defaultFormIOValues: undefined,
         prosemirrorHTMLNodesTempl: sectionFromBackend.template,
         children: children,
@@ -260,8 +261,8 @@ export const countSectionFromBackendLevel = (section:any)=>{
     if(l>level){
       level = l
     }
-    if(section.type == 1&&section.schema.length>0){
-      section.schema.forEach((child:any)=>{
+    if(section.type == 1&&section.sections.length>0){
+      section.sections.forEach((child:any)=>{
         count(child,l+1);
       })
     }
