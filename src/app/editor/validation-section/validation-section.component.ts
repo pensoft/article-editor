@@ -401,17 +401,16 @@ export class ValidationSectionComponent implements OnDestroy {
                 let validateComplexSecMinMax = (complexSection:articleSection,sectionsFromBackend:any) => {
                   let errors:string[] = []
                   let children = complexSection.children;
-                  Object.keys(complexSection.subsectionValidations!).forEach((sectionTypeId:any)=>{
-                    Object.keys(complexSection.subsectionValidations![sectionTypeId]).forEach((sectionVersion:any)=>{
-                      let subSecMinMax = complexSection.subsectionValidations![sectionTypeId][sectionVersion];
+                    Object.keys(complexSection.subsectionValidations!).forEach((sectionVersionID:any)=>{
+                      let subSecMinMax = complexSection.subsectionValidations![sectionVersionID];
                       let countOfType = 0;
 
                       children.forEach((child)=>{
-                        if(child.sectionTypeID == sectionTypeId&&child.sectionTypeVersion == sectionVersion){
+                        if(child.sectionVersionId == sectionVersionID){
                           countOfType++;
                         }
                       })
-                      let sectionFromBackend = sectionsFromBackend.find((el:any)=>el.id == sectionTypeId)
+                      let sectionFromBackend = sectionsFromBackend.find((el:any)=>el.version_id == sectionVersionID)
                       let secName = sectionFromBackend.name
                       if(countOfType<subSecMinMax.min){
                         errors.push(`Number of "${secName}" sections should be more than ${subSecMinMax.min-1}`);
@@ -420,7 +419,6 @@ export class ValidationSectionComponent implements OnDestroy {
                         errors.push(`Number of "${secName}" sections should be less than ${subSecMinMax.max+1}`);
                       }
                     })
-                  })
                   if(errors.length>0){
                     this.complexSectionsMinMaxErrors.push({ fulfilled: false, errorMessage: `Complex section "${complexSection.title.label}" should match the required minimum and maximum validations. ${errors.join('. ')}` })
                   }

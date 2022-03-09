@@ -61,7 +61,6 @@ export class FormBuilderService {
   buildFormGroupFromSchema(formGroup: FormGroup, jsonSchema: any, node: articleSection) {
 
     formGroup = formGroup || new FormGroup({});
-
     if (node.title.editable) {
       let titleFormControl = new FormControl(node.title.label, [Validators.maxLength(34)]);
       formGroup.addControl('sectionTreeTitle', titleFormControl);

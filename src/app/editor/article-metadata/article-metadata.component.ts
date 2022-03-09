@@ -72,9 +72,7 @@ export class ArticleMetadataComponent implements OnInit {
   addNewSectionToArticle(){
     let articleSections = this.ydocService.articleData.layout.template.sections.filter((data:any)=>{
       return (
-        this.treeService.articleSectionsStructure?.findIndex((element)=>{return (data.id == element.sectionTypeID&&(data.settings.main_section==true))}) == -1
-
-
+        this.treeService.articleSectionsStructure?.findIndex((element)=>{return (data.id == element.sectionTypeID&&(data.settings&&data.settings.main_section==true))}) == -1
       )
     })
     //let articleSections = this.ydocService.articleData.layout.template.sections

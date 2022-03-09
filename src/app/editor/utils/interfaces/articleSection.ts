@@ -45,11 +45,12 @@ export interface articleSection {
     title:titleContent,
     prosemirrorHTMLNodesTempl?:string,
     formIOSchema?:any,
+    sectionVersionId:number,
     defaultFormIOValues?:any,
     type:'complex'|'simple',
     sectionTypeID:number,
     sectionTypeVersion:number,
     sectionMeta:{main:boolean},
-    subsectionValidations?:{[id:number]:{[version:number]:{min:number,max:number}}},
+    subsectionValidations?:{[version_id:number]:{min:number,max:number}},
     compatibility?:{allow:{all:boolean,values:number[]},deny:{all:boolean,values:number[]}}
 }

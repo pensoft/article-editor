@@ -21,6 +21,7 @@ import * as katex from 'katex'
 //@ts-ignore
 import { render as canvasRender } from './canvasRenderer.js'
 import { FigureComponent } from '../figures-dialog/figure/figure.component';
+import { N } from '@angular/cdk/keycodes';
 pdfMake.vfs = vfs;
 
 pdfMake.fonts = {
@@ -154,17 +155,20 @@ export class EditBeforeExportComponent implements AfterViewInit {
   ];
 
   @ViewChild('elementsContainer', { read: ElementRef }) elementsContainer?: ElementRef;
+  @ViewChild('spinnerEl', { read: ElementRef }) spinnerEl?: ElementRef;
 
   pageSize: 'A0' | 'A1' | 'A2' | 'A3' | 'A4' | 'A5' = 'A4';
   data: any
   readyRendering = new Subject<any>();
-  pageMargin = [10, 10, 10, 10];
+  pageMargin = [72, 72, 72, 72];
 
   marginTopControl = new FormControl(this.pageMargin[0])
   marginRightControl = new FormControl(this.pageMargin[1])
   marginBottomControl = new FormControl(this.pageMargin[2])
   marginLeftControl = new FormControl(this.pageMargin[3])
 
+  headerControl = new FormControl('Header should be displayed here.');
+  footerControl = new FormControl('Footer should be displayed here.');
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: { selected: 'pdf' | 'rtf' | 'msWord' | 'jatsXml' },
     private changeDetectorRef: ChangeDetectorRef,
@@ -214,6 +218,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
   }
 
   async ngAfterViewInit() {
+    this.resumeSpinner()
     let articleElement = document.getElementById('app-article-element') as HTMLElement;
     let prosemirrorEditors = articleElement.getElementsByClassName('ProseMirror-example-setup-style');
     this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
@@ -284,8 +289,37 @@ export class EditBeforeExportComponent implements AfterViewInit {
   closePdfPrintDialog() {
     this.dialogRef.close()
   }
+  intervalID:any
+  deg = 0
+  resumeSpinner(){
+    (this.spinnerEl!.nativeElement as HTMLImageElement).style.display = 'flex'
+    this.intervalID = setInterval(() => {
+      this.deg = this.deg + 30;
+      if (this.deg == -360) {
+        this.deg = 0;
+      }
+      (this.spinnerEl!.nativeElement.firstChild as HTMLImageElement).style.webkitTransform = 'rotate(' + this.deg + 'deg)';
+      //@ts-ignore
+      (this.spinnerEl!.nativeElement.firstChild as HTMLImageElement).style.mozTransform = 'rotate(' + this.deg + 'deg)';
+      //@ts-ignore
+      (this.spinnerEl!.nativeElement.firstChild as HTMLImageElement).style.msTransform = 'rotate(' + this.deg + 'deg)';
+      //@ts-ignore
+      (this.spinnerEl!.nativeElement.firstChild as HTMLImageElement).style.oTransform = 'rotate(' + this.deg + 'deg)';
+      //@ts-ignore
+      (this.spinnerEl!.nativeElement.firstChild as HTMLImageElement).style.transform = 'rotate(' + this.deg + 'deg)';
+    }, 100)
+  }
+
+  stopSpinner = () => {
+    if(this.intervalID){
+      (this.spinnerEl!.nativeElement as HTMLImageElement).style.display = 'none'
+      clearInterval(this.intervalID);
+      this.intervalID = undefined
+    }
+  }
 
   refreshContent = async () => {
+    this.resumeSpinner()
     this.fillElementsArray()
     this.pageMargin = [
       +this.marginTopControl.value,
@@ -307,10 +341,10 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
     let tablePadding = this.tablepadding;;
     let pageInPoints = pxToPt(pageWidth);
-    let singleimgOnRowWidth = pageInPoints - tablePadding * 2;
-    let twoImgOnRowWidth = (pageInPoints - tablePadding * 2) * 0.8;
-    let threeImgOnRowWidth = (pageInPoints - tablePadding * 2) * 0.6;
-    let fourImgOnRowWidth = (pageInPoints - tablePadding * 2) *0.4;
+    let singleimgOnRowWidth = pageInPoints - (tablePadding * 2);
+    let twoImgOnRowWidth = (pageInPoints * 0.8) - (tablePadding * 2);
+    let threeImgOnRowWidth = (pageInPoints * 0.6) - (tablePadding * 2);
+    let fourImgOnRowWidth = (pageInPoints * 0.4) - (tablePadding * 2);
 
     let elementsContainer = document.getElementById('pm-elements-container') as HTMLDivElement;
     elementsContainer.style.width = pageWidth + "px";
@@ -326,8 +360,59 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
     elementsContainer.style.margin = '10px auto'
 
-    this.data.pageMargins = [this.pageMargin[3], this.pageMargin[0], this.pageMargin[1], this.pageMargin[2]];
+    this.data.pageMargins = [pxToPt(this.pageMargin[3]), pxToPt(this.pageMargin[0]), pxToPt(this.pageMargin[1]), pxToPt(this.pageMargin[2])];
 
+    let marginFooter = [pxToPt(this.pageMargin[0]), 15, pxToPt(this.pageMargin[2]), 15];
+    let marginHeader = [pxToPt(+this.pageMargin[0]), 20, pxToPt(+this.pageMargin[2]), 15];
+    let footer = this.footerControl.value;
+    let header = this.headerControl.value;
+    this.data.footer = function (currentPage: any, pageCount: any) {
+      return [{
+        margin: marginFooter,
+        columnGap: 10,
+        columns: [
+          {
+            width: 'auto',
+            alignment: 'left',
+            text: '',
+          },
+          {
+            width: '*',
+            alignment: 'center',
+            text: footer
+          },
+          {
+            width: 'auto',
+            alignment: 'right',
+            text: ''
+          }
+        ]
+      }]
+    },
+      this.data.header = function (currentPage: any, pageCount: any, pageSize: any) {
+        // you can apply any logic and return any valid pdfmake element
+        return [{
+          margin: marginHeader,
+          columnGap: 10,
+          columns: [
+            {
+              width: 'auto',
+              alignment: 'left',
+              text: currentPage.toString()
+            },
+            {
+              width: '*',
+              alignment: 'center',
+              text: header
+            },
+            {
+              width: 'auto',
+              alignment: 'right',
+              text: ''
+            }
+          ]
+        }]
+      }
     let generateFigure = async (element: Element) => {
       let figuresObj = this.ydocService.figuresMap!.get('ArticleFigures');
 
@@ -342,7 +427,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
         },
         table: {
           body: [],
-          widths:['*'],
+          widths: '*',
           props: { type: 'figure' }
         },
         alingment: 'center',
@@ -356,11 +441,24 @@ export class EditBeforeExportComponent implements AfterViewInit {
       let figureDesc = figuresDescriptions.childNodes.item(1) as HTMLElement
       let figureLabel: any = []
       for (let j = 0; j < figureHeader.childNodes.length; j++) {
-        figureLabel.push(await generatePDFData(figureHeader.childNodes[j] as HTMLElement, figureTable, { parentWidth: 24 * 0.0416667 * pageWidth }, element))
+        figureLabel.push(await generatePDFData(figureHeader.childNodes[j] as HTMLElement, figureTable, { parentWidth: pageWidth }, element))
       }
-      let figureDescription: any = []
+      let figureDescription = document.createElement('p');
+      let moveNodeInlineChildren = (node: HTMLElement, containerNode: HTMLElement) => {
+        let findParagraphChild = (node: HTMLElement, container: HTMLElement) => {
+          if (node.tagName == 'P') {
+            container.append(...Array.from(node.childNodes).map((n) => { return (n as HTMLElement).cloneNode(true) }));
+          } else {
+            node.childNodes.forEach((ch) => {
+              findParagraphChild(ch as HTMLElement, container);
+            })
+          }
+        }
+        findParagraphChild(node, containerNode);
+      }
       for (let j = 0; j < figureDesc.childNodes.length; j++) {
-        figureDescription.push(await generatePDFData(figureDesc.childNodes[j] as HTMLElement, figureTable, { parentWidth: 24 * 0.0416667 * pageWidth }, element))
+        let descEl = figureDesc.childNodes[j] as HTMLElement
+        moveNodeInlineChildren(descEl, figureDescription);
       }
 
       let descriptions: any = [];
@@ -368,44 +466,18 @@ export class EditBeforeExportComponent implements AfterViewInit {
         let descText = (figuresDescriptions.childNodes.item(i + 2) as HTMLElement);
         let description: any = [];
         for (let j = 1; j < descText.childNodes.length; j++) {
-          description.push(await generatePDFData(descText.childNodes[j] as HTMLElement, figureTable, { parentWidth: 24 * 0.0416667 * pageWidth }, element))
-        }
-        if (figuresCount == 1) {
-          let columns = {
-            alignment: 'justify',
-            columnGap: 10,
-            columns: [
-              {
-                width: 'auto',
-                text: String.fromCharCode(65 + i), fontSize: 11, bold: true,
-              },
-              {
-                width: 'auto',
-                stack: description
-              }
-            ]
+          let descEl = descText.childNodes[j] as HTMLElement
+          if (figuresCount > 1) {
+            let strong = document.createElement('strong');
+            strong.append(document.createTextNode(" " + String.fromCharCode(65 + i) + " "))
+            figureDescription.append(strong)
           }
-          descriptions.push(columns)
-        } else {
-          let columns = {
-            alignment: 'justify',
-            columnGap: 10,
-            columns: [
-              {
-                width: 'auto',
-                text: String.fromCharCode(65 + i), fontSize: 11, bold: true,
-              },
-              {
-                width: 'auto',
-                stack: description
-              }
-            ],
-          }
-          descriptions.push(columns)
-
+          moveNodeInlineChildren(descEl, figureDescription);
         }
       }
 
+      let descriptionPDFNode = await generatePDFData(figureDescription, figureTable, { parentWidth: pageWidth }, element);
+      descriptionPDFNode.alignment = 'justify'
       let bottomTable = {
         table: {
           widths: ['*'],
@@ -413,97 +485,18 @@ export class EditBeforeExportComponent implements AfterViewInit {
             [{
               fillColor: '#fafaf8',
               borderColor: ['#e2e2dc', '#e2e2dc', '#e2e2dc', '#e2e2dc'],
-              stack: [{ stack: [...figureLabel], margin: [0, 0, 0, 4] }, { stack: [...figureDescription], margin: [0, 0, 0, 4] }, ...descriptions]
+              stack: [{ stack: [...figureLabel]/* , margin: 4 */ }, { stack: [descriptionPDFNode]/* , margin: 4 */ }, ...descriptions]
             }]
           ]
         }
       }
       let imageWidth = singleimgOnRowWidth;
 
-      figureTable.table.body.push([{image: figuresObj[figureID].canvasData.dataURL, fit: [imageWidth, pageHeight],alignment:'center'}]);
+      figureTable.table.body.push([{ image: figuresObj[figureID].canvasData.dataURL, fit: [imageWidth, pageHeight], alignment: 'center' }]);
 
       figureTable.table.body.push([bottomTable])
       return Promise.resolve(figureTable);
-      /*
-      let figuresCount = element.firstChild?.childNodes.length!;
-      let figuresViewsContainer = element.firstChild!
-      let figuresDescriptions = element.childNodes.item(1)!;
 
-      let figureHeader = figuresDescriptions.childNodes.item(0).textContent;
-      let figureDesc = figuresDescriptions.childNodes.item(1) as HTMLElement
-      let figureDescription :any = []
-      for(let j= 0 ;j<figureDesc.childNodes.length;j++){
-        figureDescription.push(await generatePDFData(figureDesc.childNodes[j] as HTMLElement,figureTable,{parentWidth:19*0.0416667*pageWidth},element))
-      }
-
-      let figuresData: { dataUrl: string, src: string, description: any, name: string, descName: string }[] = []
-      let figureNumber = figureHeader?.split(' ')[1]
-
-      for (let i = 0; i < figuresCount; i++) {
-        let img = (figuresViewsContainer.childNodes.item(i) as HTMLElement).getElementsByTagName('img').item(0)!
-        let src = img.src
-        let dataURLString = await this.getDataUrl(img)
-
-        let descText = (figuresDescriptions.childNodes.item(i + 2) as HTMLElement);
-        let description ;
-        if(i%2!==0&&i == figuresCount-1){
-          let descStack :any = []
-          for(let j= 1 ;j<descText.childNodes.length;j++){
-            descStack.push(await generatePDFData(descText.childNodes[j] as HTMLElement,figureTable,{parentWidth:22*0.0416667*pageWidth},element))
-          }
-          description = descStack
-        }else{
-          let descStack :any = []
-          for(let j= 1 ;j<descText.childNodes.length;j++){
-            descStack.push(await generatePDFData(descText.childNodes[j] as HTMLElement,figureTable,{parentWidth:10*0.0416667*pageWidth},element))
-          }
-          description = descStack
-        }
-        let imgName = 'figure' + figureNumber + i;
-        figuresData.push({ dataUrl: dataURLString, src, description, name: imgName, descName: descText.textContent!.split(':')[0].trim() + ':' });
-      }
-
-
-      let figuresPdfViews: any = []
-      let figuresPdfDescriptions: any = []
-
-      let usedFrame = twoImgOnRowWidth;
-
-      for (let i = 0; i < figuresCount; i += 2) {
-        if (figuresData[i] && figuresData[i + 1]) {
-          let name1 = figuresData[i].dataUrl;
-          let desc1 = figuresData[i].description
-          let descLabel1 = figuresData[i].descName
-
-          let name2 = figuresData[i + 1].dataUrl;
-          let desc2 = figuresData[i + 1].description
-          let descLabel2 = figuresData[i + 1].descName
-
-          figuresPdfViews.push([
-            { image: name1, colSpan: 12, width: usedFrame, alignment: 'center' }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
-            { image: name2, colSpan: 12, width: usedFrame, alignment: 'center' }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
-          figuresPdfDescriptions.push([
-            { text: descLabel1, colSpan: 2 },{}, { stack: desc1, colSpan: 10 },  {}, {}, {}, {}, {}, {}, {}, {}, {},
-            { text: descLabel2, colSpan: 2 }, {},{ stack: desc2, colSpan: 10 },  {}, {}, {}, {}, {}, {}, {}, {}, {}])
-        } else {
-          let name1 = figuresData[i].dataUrl;
-          let desc1 = figuresData[i].description
-          let descLabel1 = figuresData[i].descName
-
-
-          figuresPdfViews.push([
-            { image: name1, colSpan: 12, width: usedFrame, alignment: 'center' }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},
-            { text: '', colSpan: 12, }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},])
-          figuresPdfDescriptions.push([
-            { text: descLabel1, colSpan: 2 },{}, { stack: desc1, colSpan: 22 },  {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {},])
-        }
-      }
-
-      figureTable.table.body.push(...figuresPdfViews);
-      figureTable.table.body.push([{ text: figureHeader, colSpan: 24, }, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
-      figureTable.table.body.push([{ text: 'Description:', colSpan: 5, }, {}, {}, {}, {},  { stack: figureDescription, colSpan: 19 },{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}])
-      figureTable.table.body.push(...figuresPdfDescriptions);
-      return { pdfFigure: figureTable, data: figuresData } */
     }
 
     let generatePDFData = async (element: Element, parentPDFel?: any, parentStyle?: any, parentElement?: Element) => {
@@ -533,6 +526,10 @@ export class EditBeforeExportComponent implements AfterViewInit {
         if (parentStyle && parentStyle.parentWidth) {
           textStyles.parentWidth = parentStyle.parentWidth
         }
+        if ((parentStyle && parentStyle.margin && parentStyle.margin.find((el: number) => el > 0)) || (parentStyle && parentStyle.calcMargin == false)) {
+          textStyles.margin = undefined;
+          textStyles.calcMargin = false;
+        }
         if (parentStyle) {
           Object.keys(parentStyle).forEach((key) => {
             if (!textStyles[key] && key !== 'text' && key !== 'stack') {
@@ -560,14 +557,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             tag == 'h5' ||
             tag == 'h6' ||
             tag == 'form-field'
-          ) /* && (
-              (element.childNodes[0] as HTMLElement).tagName.toLocaleLowerCase() == 'h1' ||
-              (element.childNodes[0] as HTMLElement).tagName.toLocaleLowerCase() == 'h2' ||
-              (element.childNodes[0] as HTMLElement).tagName.toLocaleLowerCase() == 'h3' ||
-              (element.childNodes[0] as HTMLElement).tagName.toLocaleLowerCase() == 'h4' ||
-              (element.childNodes[0] as HTMLElement).tagName.toLocaleLowerCase() == 'h5' ||
-              (element.childNodes[0] as HTMLElement).tagName.toLocaleLowerCase() == 'h6' ||
-              (element.childNodes[0] as HTMLElement).tagName.toLocaleLowerCase() == 'form-field')*/)) {
+          ))) {
           let children = element.childNodes;
 
 
@@ -844,7 +834,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
             tag == 'h6' ||
             tag == 'form-field'
           )) {
-          newEl.margin = [0, 0, 0, 15]
         }
         if (newEl.background == '#ffd0d0' && newEl.decoration == 'lineThrough') {
           newEl.decoration = undefined;
@@ -949,7 +938,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             color: 'black',
             table: {
               headerRows: 1,
-              widths: [],
+              widths: 'auto',
               body: [],
               props: { type: 'taxonomicTable' }
             },
@@ -960,9 +949,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
             baseTable.props = { main: true }
           }
 
-          for (let i = 0; i < nOfColums; i++) {
-            baseTable.table.widths.push(100 / nOfColums + '%');
-          }
+          /* for (let i = 0; i < nOfColums; i++) {
+            baseTable.table.widths.push('auto');
+          } */
 
           let tabbleCellWidthNumber
           if (parentStyle && parentStyle.parentWidth) {
@@ -1022,8 +1011,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
       } else if (tag == 'br') {
         return Promise.resolve({ text: ' \n' })
       } else if (tag == 'a') {
-        let linkTemplate = { text: [{ text: element.textContent, color: 'blue' }, { text: element.getAttribute('href'), color: 'lightblue', decoration: 'underline' }] }
-        return Promise.resolve(linkTemplate)
+        let link = { text: element.textContent, link: element.getAttribute('href'), color: '#1B8AAE', decoration: 'underline' }
+        //let linkTemplate = { text: [{ text: element.textContent, color: 'blue' }, { text: element.getAttribute('href'), color: 'lightblue', decoration: 'underline' }] }
+        return Promise.resolve(link)
       } else if (tag == 'math-inline' || tag == 'math-display') {
         if (tag == 'math-inline') {
           let canvas = document.createElement('canvas');
@@ -1031,7 +1021,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
           let returnVal = await new Promise((resolve, reject) => {
             let fit: any = (parentStyle && parentStyle.fontSize) ? ['*', parentStyle.fontSize * 1.12] : ['*', 11.5];
-            let margin = [0, 0, 0, 20]
             toCanvas(element as HTMLElement).then((canvasData: any) => {
               let result
               let canvasWidth = pxToPt(element.getBoundingClientRect().width);
@@ -1098,7 +1087,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
         if (hasPageBreakAfter) {
           pdfElement.pageBreak = 'after'
         }
-        pdfElement.margin = [0, 0, 0, 15]
         cont.push(pdfElement)
         if (i == mainNodes.length - 1) {
 
@@ -1163,7 +1151,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
 
               structuredNodes.splice(biggestIndex, 0, figureNode);
-              console.log('moveing node down');
               //retrun true so we contonue to the next node
               return true;
             }
@@ -1194,7 +1181,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
               let movingNode = structuredNodes.splice(moveNodeFrom, 1);
               movingNode[0].pageBreak = undefined;
               structuredNodes.splice(moveTo, 0, ...movingNode);
-              console.log('moveing node up');
 
               return true
             }
@@ -1203,19 +1189,17 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
 
             let loopTableAndChangeWidth = (nodeToChange: any, newWidth: number) => {
-              debugger
-              nodeToChange.table.body[0][0].fit = [newWidth,pageHeight]
+              nodeToChange.table.body[0][0].fit = [newWidth, pageHeight]
             }
 
-            if(availableHeightAfterLastNode < 100){
+            if (availableHeightAfterLastNode < 100) {
               return true
             }
 
             if (node.scaleTry == 2) {
-              loopTableAndChangeWidth(node,singleimgOnRowWidth)
+              loopTableAndChangeWidth(node, singleimgOnRowWidth)
               return true
             } else {
-              console.log('scaling');
               if (!node.scaleTry) {
                 node.scaleTry = 1
               } else {
@@ -1254,7 +1238,13 @@ export class EditBeforeExportComponent implements AfterViewInit {
         //(document.getElementById('pdfV') as HTMLIFrameElement).src = data;
       }).then((blob: any) => {
         let url = URL.createObjectURL(blob);
-        (document.getElementById('pdfV') as HTMLIFrameElement).src = url;
+        let iframe = document.getElementById('pdfV') as HTMLIFrameElement;
+
+        iframe.addEventListener('load',()=>{
+          this.stopSpinner()
+        })
+        iframe.src = url;
+
         resolve(true);
       });
     })
@@ -1262,6 +1252,14 @@ export class EditBeforeExportComponent implements AfterViewInit {
   }
 
   getTextStyles(elementStyles: any, element: HTMLElement) {
+
+    //margin: [left, top, right, bottom]
+
+
+    let tag = element.tagName.toLocaleLowerCase();
+    let elementMargin = [+elementStyles.marginLeft.replace('px', ''), +elementStyles.marginTop.replace('px', ''), +elementStyles.marginRight.replace('px', ''), +elementStyles.marginBottom.replace('px', '')];
+
+
 
 
     var style = elementStyles.getPropertyValue('font-size');
@@ -1328,6 +1326,26 @@ export class EditBeforeExportComponent implements AfterViewInit {
       }
     }
 
+    let margin = elementMargin.map((el) => {
+      if (typeof el == 'number') {
+        return pxToPt(el);
+      } else {
+        return 0;
+      }
+    })
+    if (margin.reduce((p: boolean, m: number) => { return m !== 0 ? false : p }, true)) {
+      if (tag == 'p' || tag == 'form-field') {
+        margin = [0, 0, 0, 5]
+      } else if (tag == 'h1' ||
+        tag == 'h2') {
+        margin = [0, 0, 0, 15]
+      } else if (tag == 'h3' ||
+        tag == 'h4' ||
+        tag == 'h5' || tag == 'h6') {
+        margin = [0, 0, 0, 10]
+      }
+    }
+    clearedStyles.margin = margin;
     return clearedStyles
   }
 

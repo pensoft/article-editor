@@ -14,24 +14,36 @@
   <div class='margin-fields'>
     <mat-form-field class="margin-field" appearance="fill">
       <mat-label class="margin-label">Margin Top:</mat-label>
-      <input type="email" matInput [formControl]="marginTopControl" placeholder="Ex. pat@example.com">
+      <input type="number" matInput [formControl]="marginTopControl">
     </mat-form-field>
     <mat-form-field class="margin-field" appearance="fill">
       <mat-label class="margin-label">Margin Right:</mat-label>
-      <input type="email" matInput [formControl]="marginRightControl" placeholder="Ex. pat@example.com">
+      <input type="number" matInput [formControl]="marginRightControl">
     </mat-form-field>
     <mat-form-field class="margin-field" appearance="fill">
       <mat-label class="margin-label">Margin Bottom:</mat-label>
-      <input type="email" matInput [formControl]="marginBottomControl" placeholder="Ex. pat@example.com">
+      <input type="number" matInput [formControl]="marginBottomControl">
     </mat-form-field>
     <mat-form-field class="margin-field" appearance="fill">
       <mat-label class="margin-label">Margin Left:</mat-label>
-      <input type="email" matInput [formControl]="marginLeftControl" placeholder="Ex. pat@example.com">
+      <input type="number" matInput [formControl]="marginLeftControl">
     </mat-form-field>
   </div>
 
   <div class="right-btn-container">
     <button mat-raised-button (click)="closePdfPrintDialog()">Close</button>
+  </div>
+</mat-toolbar>
+<mat-toolbar class="toolbar">
+  <div class='hf-fields'>
+    <mat-form-field class="field-hf" appearance="fill">
+      <mat-label class="margin-label">Header:</mat-label>
+      <input type="text" matInput [formControl]="headerControl">
+    </mat-form-field>
+    <mat-form-field class="field-hf" appearance="fill">
+      <mat-label class="margin-label">Footer:</mat-label>
+      <input type="text" matInput [formControl]="footerControl">
+    </mat-form-field>
   </div>
 </mat-toolbar>
 <div class='preview-container'>
@@ -52,6 +64,9 @@
     </div>
   </div>
   <iframe class="pdfVi1" id='pdfV'></iframe>
+  <div class="loader" #spinnerEl style="display: flex;">
+    <div class="spinnerSpace"><img spinner class="spinnerImg" src="./../../../../assets/icons/spinner.svg" alt=""></div>
+  </div>
 </div>
 <p id="width-measure-container" style="display:inline-block">
 

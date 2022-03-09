@@ -66,7 +66,7 @@ function canMoveOut(target:any,item:any,treeService:TreeService){
         let canMove = checkMinWhenMoovingASectionOut(moovingNode,parentNode);
         if(!canMove){
           item.data.data.canDropBool[0] = false;
-          item.data.data.canDropBool[1] = 'Cannot move out more of these type of sections from this list.'
+          item.data.data.canDropBool[1] = 'Cannot move more of these type of sections out of this list.'
         }
       }
     }

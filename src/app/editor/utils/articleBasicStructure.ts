@@ -24,6 +24,7 @@ export const articleBasicStructure: articleSection[] = [
     prosemirrorHTMLNodesTempl: htmlNodeTemplates['taxonomicCoverage'],
     children: [],
     type: 'simple',
+    sectionVersionId:0,
     sectionTypeVersion: 1,
     sectionTypeID: 1,
     sectionMeta: { main: false }
@@ -36,6 +37,7 @@ export const articleBasicStructure: articleSection[] = [
     add: { bool: true, main: false },
     delete: { bool: true, main: false },
     mode: 'documentMode',
+    sectionVersionId:0,
     formIOSchema: formIOTemplates['collectionData'],
     defaultFormIOValues: formIODefaultValues['collectionData'],
     prosemirrorHTMLNodesTempl: htmlNodeTemplates['collectionData'],
@@ -66,10 +68,11 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
         add: { bool: true, main: false },
         delete: { bool: true, main: false },
         mode: 'documentMode',
-        formIOSchema: sectionFromBackend.schema[0],
+        formIOSchema: sectionFromBackend.schema,
         defaultFormIOValues: undefined,
         prosemirrorHTMLNodesTempl: sectionFromBackend.template,
         children: children,
+        sectionVersionId:sectionFromBackend.version_id,
         type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
         sectionTypeID: sectionFromBackend.id,
         sectionTypeVersion: sectionFromBackend.version,
@@ -89,13 +92,21 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
         prosemirrorHTMLNodesTempl: sectionFromBackend.template,
         children: children,
         type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
+        sectionVersionId:sectionFromBackend.version_id,
         sectionTypeID: sectionFromBackend.id,
         sectionTypeVersion: sectionFromBackend.version,
         sectionMeta: { main: false },
         compatibility: sectionFromBackend.compatibility ? sectionFromBackend.compatibility : undefined
       }
-      let subsectionValidations = loopChildrenForMinMax(sectionFromBackend)
-      newArticleSection.subsectionValidations = subsectionValidations;
+      if(sectionFromBackend.complex_section_settings){
+        let minmaxValds:any = {};
+        sectionFromBackend.complex_section_settings.forEach((secMinMax:{"min_instances": number,
+        "max_instances": number,
+        "version_id": number})=>{
+          minmaxValds[secMinMax.version_id] = {min:secMinMax.min_instances,max:secMinMax.max_instances};
+        })
+        newArticleSection.subsectionValidations = minmaxValds;
+      }
     }
 
     filterSectionChildren(newArticleSection!);
@@ -115,32 +126,18 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
     return newArticleSection!
   }
 
-export const loopChildrenForMinMax = (complexFromBackend:any) => {
-  let subsectionValidations:{[id:number]:{[version:number]:{min:number,max:number}}} = {} // {id[number(section id from backend)]:{version[num(version of section)]:{min:num,max:num,vers}}}
-  complexFromBackend.schema.forEach((element:any)=>{
-    if(element.settings&&element.settings.min_instances&&element.settings.max_instances){
-      if(!subsectionValidations[element.id]){
-        subsectionValidations[element.id] = {}
-      }
-      subsectionValidations[element.id][element.version] = {min:element.settings.min_instances,max:element.settings.max_instances}
-    }
-  })
-  return subsectionValidations
-}
-
 export const checkIfSectionsAreUnderOrAtMin = (childToCheck:articleSection,parentNode:articleSection,container?:articleSection[])=>{
   let v = parentNode.subsectionValidations
   if(v&&Object.keys(v).length>0){
-    let nodeId = childToCheck.sectionTypeID;
-    let nodeVersion = childToCheck.sectionTypeVersion;
-    if(v[nodeId]&&v[nodeId][nodeVersion]){
+    let nodeVersionID = childToCheck.sectionVersionId;
+    if(v[nodeVersionID]){
       let nOfNodesOfSameType = 0;
       (container?container:parentNode.children).forEach((child:articleSection)=>{
-        if(child.sectionTypeID == nodeId&&child.sectionTypeVersion == nodeVersion){
+        if(child.sectionVersionId == nodeVersionID){
           nOfNodesOfSameType++;
         }
       })
-      if(v[nodeId][nodeVersion].min>=nOfNodesOfSameType){
+      if(v[nodeVersionID].min>=nOfNodesOfSameType){
         return false;
       }
     }
@@ -148,12 +145,11 @@ export const checkIfSectionsAreUnderOrAtMin = (childToCheck:articleSection,paren
   return true
 }
 
-export let getSubSecCountWithValidation = (complexSection: articleSection, validation: { secID: number, secVers: number },complexSectionChildren?:articleSection[]) => {
+export let getSubSecCountWithValidation = (complexSection: articleSection, validation: { secVersionId: number },complexSectionChildren?:articleSection[]) => {
   let count = 0;
   (complexSectionChildren?complexSectionChildren:complexSection.children).forEach((child:articleSection) => {
     if (
-      child.sectionTypeID == validation.secID &&
-      child.sectionTypeVersion == validation.secVers
+      child.sectionVersionId == validation.secVersionId
     ) {
       count++
     }
@@ -162,16 +158,14 @@ export let getSubSecCountWithValidation = (complexSection: articleSection, valid
 }
 export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFromBackend: any[], complexSection: articleSection,sectionChildren?:articleSection[]) => {
   return  sectionsFromBackend.filter((section, index) => {
-    let sectionID = section.id;
-    let sectionVersion = section.version;
+    let sectionVersionId = section.version_id;
     if (
       complexSection.subsectionValidations &&
-      complexSection.subsectionValidations[sectionID] &&
-      complexSection.subsectionValidations[sectionID][sectionVersion]
+      complexSection.subsectionValidations[sectionVersionId]
     ) {
-      let min = complexSection.subsectionValidations[sectionID][sectionVersion].min;
-      let max = complexSection.subsectionValidations[sectionID][sectionVersion].max;
-      let count = getSubSecCountWithValidation(complexSection,{secID:sectionID,secVers:sectionVersion},sectionChildren)
+      let min = complexSection.subsectionValidations[sectionVersionId].min;
+      let max = complexSection.subsectionValidations[sectionVersionId].max;
+      let count = getSubSecCountWithValidation(complexSection,{secVersionId:sectionVersionId},sectionChildren)
       if(count>=max){
         return false
       }
@@ -185,16 +179,15 @@ export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFrom
 export const checkIfSectionsAreAboveOrAtMax = (childToCheck:articleSection,parentNode:articleSection,container?:articleSection[])=>{
   let v = parentNode.subsectionValidations
   if(v&&Object.keys(v).length>0){
-    let nodeId = childToCheck.sectionTypeID;
-    let nodeVersion = childToCheck.sectionTypeVersion;
-    if(v[nodeId]&&v[nodeId][nodeVersion]){
+    let secVersionId = childToCheck.sectionVersionId;
+    if(v[secVersionId]){
       let nOfNodesOfSameType = 0;
       (container?container:parentNode.children).forEach((child:articleSection)=>{
-        if(child.sectionTypeID == nodeId&&child.sectionTypeVersion == nodeVersion){
+        if(child.sectionVersionId == secVersionId){
           nOfNodesOfSameType++;
         }
       })
-      if(v[nodeId][nodeVersion].max<=nOfNodesOfSameType){
+      if(v[secVersionId].max<=nOfNodesOfSameType){
         return false;
       }
     }

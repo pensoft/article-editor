@@ -387,6 +387,7 @@ export class TreeService implements OnDestroy{
   }
 
   deleteNodeById(id: string) {
+
     let nodeRef: articleSection | undefined
     let i: number | undefined
     let arrayRef: articleSection[] | undefined
@@ -537,12 +538,13 @@ export class TreeService implements OnDestroy{
         let container: any[] = []
         let newSec = renderSectionFunc(sectionFromBackendOrigin, container);
         this.renderForms(newSec);
+        newChild =  container[0]
         newNodeContainer.splice(newNodeContainer.findIndex((s) => s.sectionID == nodeRef.sectionID)! + 1, 0, container[0]);
         resolve(undefined)
       })
     })
-    //@ts-ignore
-    return newChild
+
+    return Promise.resolve(newChild)
   }
 
   applyEditChange(id: string) {

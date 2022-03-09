@@ -36,9 +36,13 @@ export class ArticleComponent implements OnInit {
       this.makeFlat();
       setTimeout(() => {
         if (this.detectFocusService.sectionName) {
-          let editorView = this.prosemirrorEditorsService.editorContainers[this.detectFocusService.sectionName].editorView
-          editorView.focus();
-          editorView.dispatch(editorView.state.tr.scrollIntoView());
+          if(!this.prosemirrorEditorsService.editorContainers[this.detectFocusService.sectionName]){
+            this.detectFocusService.sectionName = undefined;
+          }else{
+            let editorView = this.prosemirrorEditorsService.editorContainers[this.detectFocusService.sectionName].editorView
+            editorView.focus();
+            editorView.dispatch(editorView.state.tr.scrollIntoView());
+          }
 
         }
       }, 10)
