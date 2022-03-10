@@ -376,16 +376,19 @@ export class EditBeforeExportComponent implements AfterViewInit {
             width: 'auto',
             alignment: 'left',
             text: '',
+            fontSize: 9
           },
           {
             width: '*',
             alignment: 'center',
-            text: footer
+            text: footer,
+            fontSize: 9
           },
           {
             width: 'auto',
             alignment: 'right',
-            text: ''
+            text: '',
+            fontSize: 9
           }
         ]
       }]
@@ -399,17 +402,20 @@ export class EditBeforeExportComponent implements AfterViewInit {
             {
               width: 'auto',
               alignment: 'left',
-              text: currentPage.toString()
+              text: currentPage.toString(),
+              fontSize: 9
             },
             {
               width: '*',
               alignment: 'center',
-              text: header
+              text: header,
+              fontSize: 9
             },
             {
               width: 'auto',
               alignment: 'right',
-              text: ''
+              text: '',
+              fontSize: 9
             }
           ]
         }]
