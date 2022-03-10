@@ -98,7 +98,6 @@ export class CdkListRecursiveComponent implements OnInit,OnDestroy{
   }
 
   drop(event: CdkDragDrop<string[]>) {
-    console.log(this.treeService.canDropBool[0]);
     if(!this.treeService.canDropBool[0]){
       this.treeService.errorSnackbarSubject.next(true);
       return

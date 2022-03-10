@@ -36,7 +36,7 @@ export class MenuService {
         ['alignMenu'],
         ['insertLink','addAnchorTagMenuItem'],
         ['toggleSubscriptItem', 'toggleSuperscriptItem'],
-        ['undoItem', 'redoItem']
+        ['undoItem', 'redoItem','insertPageBreak']
       ],
     'fullMenu1': [
       ['toggleStrong', 'toggleEm', 'toggleCode', 'insertLink','addAnchorTagMenuItem'],
@@ -59,40 +59,40 @@ export class MenuService {
       ['insertVideoItem',
         { dropdownName: 'Math', content: ['addMathInlineMenuItem', 'addMathBlockMenuItem'] }
       ],
-      ['tableMenu','addMathBlockMenuItem']
+      ['tableMenu','addMathBlockMenuItem','insertPageBreak']
     ],
     'fullMenu': [
       ['textMenu'],
       ['alignMenu'],
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
-      ['insertMenu','logNodesMenuItem','insertFigure']
+      ['insertMenu','logNodesMenuItem','insertFigure','insertPageBreak']
     ],
     'fullMenuPMundoRedo':[
       ['textMenu'],
       ['alignMenu'],
       ['undoItemPM', 'redoItemPM'],
       ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
-      ['insertMenu','logNodesMenuItem']
+      ['insertMenu','logNodesMenuItem','insertPageBreak']
     ],
     'fullMenuWithLog': [
       ['textMenu'],
       ['alignMenu'],
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
-      ['insertMenu']
+      ['insertMenu','insertPageBreak']
     ],
     'SimpleMenu': [
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItem', 'redoItem','insertVideoItem'],
-      ['logNodesMenuItem','insertFigure']
+      ['logNodesMenuItem','insertFigure','insertPageBreak']
     ],
     'SimpleMenuPMundoRedo':[
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItemPM', 'redoItemPM','insertVideoItem'],
-      ['logNodesMenuItem']
+      ['logNodesMenuItem','insertPageBreak'],
     ]
   }
 

@@ -58,6 +58,7 @@ export class YdocService {
   figuresMap?: YMap<any>
   trackChangesMetadata?: YMap<any>
   usersDataMap?: YMap<any>
+  mathMap?: YMap<any>
   userInfo: any
   getCommentsMap(): YMap<any> {
     return this.comments!
@@ -192,6 +193,8 @@ export class YdocService {
     let figuresTemplates = this.figuresMap!.get('figuresTemplates');
     let figures = this.figuresMap!.get('ArticleFigures');
     this.usersDataMap = this.ydoc.getMap('userDataMap')
+    this.mathMap = this.ydoc.getMap('mathDataURLMap');
+    let mathObj = this.mathMap.get('dataURLObj')
     let usersColors = this.usersDataMap.get('usersColors');
     if (!usersColors) {
       this.usersDataMap.set('usersColors', { });
@@ -206,6 +209,9 @@ export class YdocService {
     }
     if (!figuresNumbers) {
       this.figuresMap!.set('ArticleFiguresNumbers', []);
+    }
+    if(!mathObj){
+      this.mathMap!.set('dataURLObj', {});
     }
 
     this.articleStructure = this.ydoc.getMap('articleStructure');
@@ -250,6 +256,7 @@ export class YdocService {
     this.figuresMap = undefined;
     this.trackChangesMetadata = undefined;
     this.userInfo = undefined;
+    this.mathMap = undefined;
   }
 
   setUserColor(userInfo: any) {

@@ -15,7 +15,7 @@ import { wrapInList } from "prosemirror-schema-list";
 import { Subject } from 'rxjs';
 import { canInsert, createCustomIcon } from './common-methods';
 import { insertFigure, insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem } from './menu-dialogs';
-import { MarkType, Node, NodeType, DOMParser, DOMSerializer, Mark } from 'prosemirror-model';
+import { MarkType, Node, NodeType, DOMParser, DOMSerializer, Mark, Fragment } from 'prosemirror-model';
 //@ts-ignore
 import { undo as undoLocalHistory,redo as redoLocalHistory} from '../prosemirror-history/history.js'
 //@ts-ignore
@@ -296,6 +296,36 @@ const highLightMenuItem = new MenuItem({
     icon: createCustomIcon('highlight.svg')
 })
 
+function insertPB(state: EditorState, dispatch: (p: Transaction) => void, view: EditorView, event: Event){
+  let pbnode = state.schema.nodes.page_break
+  let selectionEnd = state.selection.to;
+
+  let pbinsertplace = 0;
+  state.doc.forEach((node,offset,i)=>{
+    if(selectionEnd>pbinsertplace){
+      pbinsertplace=offset+node.nodeSize;
+    }
+  })
+  let text = state.schema.text('Page Break')
+  let pageBreak = pbnode.create({contenteditableNode:false},text)
+  if(state.doc.nodeAt(pbinsertplace)?.type.name == 'page_break'){
+    dispatch(state.tr.replaceWith(pbinsertplace,pbinsertplace+state.doc.nodeAt(pbinsertplace)?.nodeSize!+1,Fragment.empty))
+  }else{
+    dispatch(state.tr.insert(pbinsertplace,pageBreak))
+  }
+}
+
+function canInsertPB(state:EditorState){
+  return true;
+}
+
+const insertPageBreak = new MenuItem({
+  title: 'Insert page break after this block node.',
+  run:insertPB,
+  enable:canInsertPB,
+  icon: createCustomIcon('pagebreak.svg',20,20,0,3)
+})
+
 const footnoteMenuItem = new MenuItem({
     title: 'Add Footnote',
     // @ts-ignore
@@ -392,6 +422,7 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
     'makeParagraph': makeParagraph,
     'makeCodeBlock': makeCodeBlock,
     'headings': headings,
+    'insertPageBreak':insertPageBreak,
     'insertHorizontalRule': insertHorizontalRule,
     /* 'undoItem': undoYJS,
     'redoItem': redoYJS, */

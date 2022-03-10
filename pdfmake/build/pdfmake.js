@@ -7448,7 +7448,7 @@ const { nodes } = require("prosemirror-schema-basic");
               var _loop = function _loop(index) {
                 var node = linearNodeList[index];
 
-                if (node.pageBreak !== 'before' && !node.pageBreakCalculated) {
+                if (!node.pageBreak && !node.pageBreakCalculated) {
                   node.pageBreakCalculated = true;
                   var pageNumber = node.nodeInfo.pageNumbers[0];
 

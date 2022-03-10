@@ -64,7 +64,7 @@ export const nodes = {
         }}],
         toDOM: function toDOM(node:Node) { return ["pre", {...genericAttributtesToDom(node)},["code", 0]] }
     },
-    
+
     hard_break: {
         inline: true,
         group: "inline",
@@ -78,6 +78,20 @@ export const nodes = {
             }
         }}],
         toDOM(node:Node) { return ["br",{...genericAttributtesToDom(node)}] }
+    },
+    page_break:{
+      group: "block",
+      content:'inline*',
+      attrs:{
+          ...getGenericAttributes()
+      },
+      selectable: false,
+      parseDOM: [{ tag: "page-break" ,getAttrs(dom: any) {
+          return {
+              ...parseGenericAttributes(dom),
+          }
+      }}],
+      toDOM(node:Node) { return ["page-break",{...genericAttributtesToDom(node)},0] }
     },
     spacer:{
         inline: false,

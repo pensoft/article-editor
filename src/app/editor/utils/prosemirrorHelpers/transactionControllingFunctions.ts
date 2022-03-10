@@ -14,6 +14,7 @@ import { ReplaceStep } from "prosemirror-transform";
 export const updateControlsAndFigures = (
   schema: Schema,
   figuresMap: YMap<any>,
+  mathMap: YMap<any>,
   editorContainers: {
     [key: string]: {
       editorID: string,
@@ -606,7 +607,7 @@ export const updateControlsAndFigures = (
 }
 
 
-export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>, rerenderFigures: (citats: any) => any, sectionID: string, citatsEditingSubject?: Subject<any>) => {
+export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathMap:YMap<any>, rerenderFigures: (citats: any) => any, sectionID: string, citatsEditingSubject?: Subject<any>) => {
 
   return (transaction: Transaction<any>, state: EditorState) => {
     try {
@@ -644,8 +645,14 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>, rere
                     }, 10)
                   }
                 }
+              }else if(node.type.name == 'math_inline'||node.type.name == 'math_display'){
+                if (!transaction.getMeta('y-sync$')) {
+                  let mathObj = mathMap?.get('dataURLObj')
+                  let math_id = node.attrs.math_id;
+                  mathObj[sectionID][math_id] = undefined
+                }
               }
-            })
+            });
           }
         })
       }

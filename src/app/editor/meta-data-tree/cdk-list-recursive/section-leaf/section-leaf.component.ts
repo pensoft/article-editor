@@ -160,6 +160,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
       this.ydocService.ydoc.on('update',registerUpdateFunc )
 
+      let oldMathObj = JSON.parse(JSON.stringify(this.ydocService.mathMap?.get('dataURLObj')));
       node.formIOSchema = sectionContent
       this.dialog.open(EditSectionDialogComponent, {
         width: '95%',
@@ -167,6 +168,9 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
         data: { node: node, form: formGroup, sectionContent },
         disableClose: false
       }).afterClosed().subscribe(result => {
+        if(!result){
+          this.ydocService.mathMap?.set('dataURLObj',oldMathObj)
+        }
         if (result && result.compiledHtml) {
           this.treeService.editNodeChange(node.sectionID)
 

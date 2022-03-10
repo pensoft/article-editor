@@ -152,6 +152,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     'ol',
     'ul',
     'math-display',
+    'page-break',
   ];
 
   @ViewChild('elementsContainer', { read: ElementRef }) elementsContainer?: ElementRef;
@@ -498,6 +499,18 @@ export class EditBeforeExportComponent implements AfterViewInit {
       return Promise.resolve(figureTable);
 
     }
+
+    let math_url_obj = this.ydocService.mathMap?.get('dataURLObj');
+    let math_data_url_obj:any = {}
+    Object .keys(math_url_obj).forEach((sectionId)=>{
+      if(math_url_obj[sectionId]){
+        Object .keys(math_url_obj[sectionId]).forEach((mathID)=>{
+          if(math_url_obj[sectionId][mathID]){
+            math_data_url_obj[mathID] = math_url_obj[sectionId][mathID]
+          }
+        })
+      }
+    })
 
     let generatePDFData = async (element: Element, parentPDFel?: any, parentStyle?: any, parentElement?: Element) => {
       let defaultView = (element.ownerDocument || document).defaultView
@@ -1015,47 +1028,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
         //let linkTemplate = { text: [{ text: element.textContent, color: 'blue' }, { text: element.getAttribute('href'), color: 'lightblue', decoration: 'underline' }] }
         return Promise.resolve(link)
       } else if (tag == 'math-inline' || tag == 'math-display') {
-        if (tag == 'math-inline') {
-          let canvas = document.createElement('canvas');
-
-
-          let returnVal = await new Promise((resolve, reject) => {
-            let fit: any = (parentStyle && parentStyle.fontSize) ? ['*', parentStyle.fontSize * 1.12] : ['*', 11.5];
-            toCanvas(element as HTMLElement).then((canvasData: any) => {
-              let result
-              let canvasWidth = pxToPt(element.getBoundingClientRect().width);
-              if (canvasData.toDataURL() == 'data:,') {
-                html2canvas(element as HTMLElement).then((canvasData1) => {
-                  let result
-                  let canvasWidth = pxToPt(element.getBoundingClientRect().width);
-                  result = { image: canvasData1.toDataURL(), width: canvasWidth }
-                  //resolve(result)
-                  resolve(result)
-                })
-              } else {
-                result = { image: canvasData.toDataURL(), width: canvasWidth }
-                //resolve(result)
-                resolve(result)
-              }
-            })
-          })
-          let elementExpression = element.getElementsByTagName('annotation').item(0)?.textContent!;
-          element.appendChild(canvas);
-          //@ts-ignore
-          let dom = katex.__renderToHTMLTree(elementExpression, { displayMode: false, output: 'html' })
-          canvasRender(dom.children[0], canvas, 0, element.getBoundingClientRect().height, {});
-          return Promise.resolve(returnVal);
-        } else if (tag == 'math-display') {
-          return new Promise((resolve, reject) => {
-            toCanvas(element as HTMLElement).then((canvasData: any) => {
-              let result
-              let canvasWidth = +canvasData.style.width.replace('px', '');
-              result = { image: canvasData.toDataURL(), width: pxToPt(element.clientWidth) }
-              //resolve(result)
-              resolve(result)
-            })
-          })
-        }
+        let canvasWidth = pxToPt(element.getBoundingClientRect().width);
+        let result = { image: math_data_url_obj[element.getAttribute('mathid')!], width: canvasWidth }
+        return Promise.resolve(result);
       } else {
         return Promise.resolve('')
       }
@@ -1068,28 +1043,21 @@ export class EditBeforeExportComponent implements AfterViewInit {
       let mainNodes = this.elements;
       for (let i = 0; i < mainNodes.length; i++) {
         let el = mainNodes[i] as HTMLElement;
-        let pdfElement = await generatePDFData(el);
-        if (!pdfElement.props) {
-          pdfElement.props = { main: true }
-        } else if (!pdfElement.props.main) {
-          pdfElement.props.main = true;
-
+        if(el.tagName.toLocaleLowerCase() == 'page-break'){
+          if(cont[i-1]){
+            cont[i-1].pageBreak = 'after';
+          }
+          cont.push({})
+        }else{
+          let pdfElement = await generatePDFData(el);
+          if (!pdfElement.props) {
+            pdfElement.props = { main: true }
+          } else if (!pdfElement.props.main) {
+            pdfElement.props.main = true;
+          }
+          cont.push(pdfElement)
         }
-
-        let pbbefore = (el as HTMLElement).getAttribute('page-break-before')
-        let pbbafter = (el as HTMLElement).getAttribute('page-break-after')
-        let hasPageBreakBefore = pbbefore ? pbbefore == 'true' ? true : false : false;
-        let hasPageBreakAfter = pbbafter ? pbbafter == 'true' ? true : false : false;
-
-        if (hasPageBreakBefore) {
-          pdfElement.pageBreak = 'before'
-        }
-        if (hasPageBreakAfter) {
-          pdfElement.pageBreak = 'after'
-        }
-        cont.push(pdfElement)
         if (i == mainNodes.length - 1) {
-
           doneSubject.next('done');
         }
       }

@@ -6,54 +6,61 @@ import { Fragment, ResolvedPos, Slice, Node } from "prosemirror-model";
 import { PluginKey, PluginSpec, TextSelection, Selection, EditorState } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import { EditorView } from "prosemirror-view";
+import { YMap } from "yjs/dist/src/internals";
 import { articleSection } from "../interfaces/articleSection";
 
-export function handlePaste(view: EditorView, event: Event, slice: Slice) {
-  slice.content.nodesBetween(0, slice.size - 2, (node, pos, parent) => {
-    if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
-      let mark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
-      mark.attrs.citateid = uuidv4()
-    }
-  })
-  let sel = view.state.selection
-  let { $from, $to } = sel;
-  let noneditableNodes = false;
-  if ($from.depth == $to.depth) {
-    //@ts-ignore
-    let pathAtFrom: Array<Node | number> = $from.path
-    //@ts-ignore
-    let pathAtTo: Array<Node | number> = $to.path
-
-    if (sel instanceof CellSelection) {
+export function handlePaste(mathMap:YMap<any>,sectionID:string){
+  return function handlePaste(view: EditorView, event: Event, slice: Slice) {
+    slice.content.nodesBetween(0, slice.size - 2, (node, pos, parent) => {
+      if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
+        let mark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
+        mark.attrs.citateid = uuidv4()
+      }
+      if (node.type.name == 'math_inline'||node.type.name == 'math_display') {
+        let oldId = node.attrs.math_id;
+        node.attrs.math_id = uuidv4()
+      }
+    })
+    let sel = view.state.selection
+    let { $from, $to } = sel;
+    let noneditableNodes = false;
+    if ($from.depth == $to.depth) {
       //@ts-ignore
-      pathAtFrom = sel.$anchorCell.path
+      let pathAtFrom: Array<Node | number> = $from.path
       //@ts-ignore
-      pathAtTo = sel.$headCell.path
-    }
+      let pathAtTo: Array<Node | number> = $to.path
 
-    let parentRef: Node | undefined
-    //search parents
-    for (let i = pathAtTo.length; i > -1; i--) {
-      if (i % 3 == 0) {
-        let parentFrom = pathAtFrom[i] as Node
-        let parentTo = pathAtTo[i] as Node
-        if (parentFrom == parentTo) {
-          if (!parentRef) {
-            parentRef = parentFrom
-          } else if (parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && parentRef?.attrs.contenteditableNode !== 'false') {
-            parentRef = parentFrom
+      if (sel instanceof CellSelection) {
+        //@ts-ignore
+        pathAtFrom = sel.$anchorCell.path
+        //@ts-ignore
+        pathAtTo = sel.$headCell.path
+      }
+
+      let parentRef: Node | undefined
+      //search parents
+      for (let i = pathAtTo.length; i > -1; i--) {
+        if (i % 3 == 0) {
+          let parentFrom = pathAtFrom[i] as Node
+          let parentTo = pathAtTo[i] as Node
+          if (parentFrom == parentTo) {
+            if (!parentRef) {
+              parentRef = parentFrom
+            } else if (parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && parentRef?.attrs.contenteditableNode !== 'false') {
+              parentRef = parentFrom
+            }
           }
         }
       }
+      if (parentRef?.attrs.contenteditableNode == 'false') {
+        noneditableNodes = true;
+      }
     }
-    if (parentRef?.attrs.contenteditableNode == 'false') {
-      noneditableNodes = true;
+    if (noneditableNodes) {
+      return true
     }
+    return false
   }
-  if (noneditableNodes) {
-    return true
-  }
-  return false
 }
 
 export function selectWholeCitatMarks(view: EditorView, anchor: ResolvedPos, head: ResolvedPos) {
