@@ -22,6 +22,7 @@ import * as katex from 'katex'
 import { render as canvasRender } from './canvasRenderer.js'
 import { FigureComponent } from '../figures-dialog/figure/figure.component';
 import { N } from '@angular/cdk/keycodes';
+import { leadingComment } from '@angular/compiler';
 pdfMake.vfs = vfs;
 
 pdfMake.fonts = {
@@ -290,9 +291,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
   closePdfPrintDialog() {
     this.dialogRef.close()
   }
-  intervalID:any
+  intervalID: any
   deg = 0
-  resumeSpinner(){
+  resumeSpinner() {
     (this.spinnerEl!.nativeElement as HTMLImageElement).style.display = 'flex'
     this.intervalID = setInterval(() => {
       this.deg = this.deg + 30;
@@ -312,7 +313,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
   }
 
   stopSpinner = () => {
-    if(this.intervalID){
+    if (this.intervalID) {
       (this.spinnerEl!.nativeElement as HTMLImageElement).style.display = 'none'
       clearInterval(this.intervalID);
       this.intervalID = undefined
@@ -342,6 +343,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
     let tablePadding = this.tablepadding;;
     let pageInPoints = pxToPt(pageWidth);
+    let pageheightInPoints = pxToPt(pageHeight);
     let singleimgOnRowWidth = pageInPoints - (tablePadding * 2);
     let twoImgOnRowWidth = (pageInPoints * 0.8) - (tablePadding * 2);
     let threeImgOnRowWidth = (pageInPoints * 0.6) - (tablePadding * 2);
@@ -467,7 +469,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
         let descEl = figureDesc.childNodes[j] as HTMLElement
         moveNodeInlineChildren(descEl, figureDescription);
       }
-
+      let separatorSymbols = ['.',',','/',':',';','!','?']
       let descriptions: any = [];
       for (let i = 0; i < figuresCount; i++) {
         let descText = (figuresDescriptions.childNodes.item(i + 2) as HTMLElement);
@@ -476,14 +478,20 @@ export class EditBeforeExportComponent implements AfterViewInit {
           let descEl = descText.childNodes[j] as HTMLElement
           if (figuresCount > 1) {
             let strong = document.createElement('strong');
-            strong.append(document.createTextNode(" " + String.fromCharCode(65 + i) + " "))
+            let lastSymbol = figureDescription.childNodes[figureDescription.childNodes.length-1].textContent![figureDescription.childNodes[figureDescription.childNodes.length-1].textContent!.length-1];
+
+            if(separatorSymbols.includes(lastSymbol)){
+              strong.append(document.createTextNode(" " + String.fromCharCode(65 + i) + " "))
+            }else{
+              strong.append(document.createTextNode("; " + String.fromCharCode(65 + i) + " "))
+            }
             figureDescription.append(strong)
           }
           moveNodeInlineChildren(descEl, figureDescription);
         }
       }
 
-      let descriptionPDFNode = await generatePDFData(figureDescription, figureTable, { parentWidth: pageWidth }, element);
+      let descriptionPDFNode = await generatePDFData(figureDescription, figureTable, { parentWidth: pageWidth,fontSize: 10  }, element);
       descriptionPDFNode.alignment = 'justify'
       let bottomTable = {
         table: {
@@ -499,7 +507,20 @@ export class EditBeforeExportComponent implements AfterViewInit {
       }
       let imageWidth = singleimgOnRowWidth;
 
-      figureTable.table.body.push([{ image: figuresObj[figureID].canvasData.dataURL, fit: [imageWidth, pageHeight], alignment: 'center' }]);
+      let imageRectangle = figuresObj[figureID].canvasData.a4Pixels
+
+      let a4Rectangle = pageDimensionsInPT['A4']
+
+      let imageA4Rectangle: number[] = [a4Rectangle[0] - (tablePadding * 2)];
+
+      imageA4Rectangle[1] = (imageRectangle[1] / imageRectangle[0]) * a4Rectangle[0]
+      if (imageA4Rectangle[0] > pxToPt(pageWidth)) {
+        imageA4Rectangle[0] = pxToPt(pageWidth) - (tablePadding * 2);
+        imageA4Rectangle[1] = (imageRectangle[1] / imageRectangle[0]) * imageA4Rectangle[0];
+      }
+      //[width,height]
+
+      figureTable.table.body.push([{ image: figuresObj[figureID].canvasData.dataURL, fit: imageA4Rectangle, alignment: 'center', props: { initRect: imageA4Rectangle } }]);
 
       figureTable.table.body.push([bottomTable])
       return Promise.resolve(figureTable);
@@ -507,11 +528,11 @@ export class EditBeforeExportComponent implements AfterViewInit {
     }
 
     let math_url_obj = this.ydocService.mathMap?.get('dataURLObj');
-    let math_data_url_obj:any = {}
-    Object .keys(math_url_obj).forEach((sectionId)=>{
-      if(math_url_obj[sectionId]){
-        Object .keys(math_url_obj[sectionId]).forEach((mathID)=>{
-          if(math_url_obj[sectionId][mathID]){
+    let math_data_url_obj: any = {}
+    Object.keys(math_url_obj).forEach((sectionId) => {
+      if (math_url_obj[sectionId]) {
+        Object.keys(math_url_obj[sectionId]).forEach((mathID) => {
+          if (math_url_obj[sectionId][mathID]) {
             math_data_url_obj[mathID] = math_url_obj[sectionId][mathID]
           }
         })
@@ -540,6 +561,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
         tag == 'em' ||
         tag == 'form-field'
       ) {
+
         let newEl: any = {}
         let textStyles = this.getTextStyles(defaultView!.getComputedStyle(element, null), element as HTMLElement);
         if (parentStyle && parentStyle.parentWidth) {
@@ -556,6 +578,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             }
           })
         }
+
         if (element.childNodes.length == 1 && element.childNodes[0] instanceof Text) {
           newEl.text = element.childNodes[0].textContent;
           Object.assign(newEl, textStyles)
@@ -813,6 +836,10 @@ export class EditBeforeExportComponent implements AfterViewInit {
               return Promise.resolve(stack.length)
             }
             let Num = await buildLineTables(newEl.stack, parentStyle && parentStyle.parentWidth ? parentStyle.parentWidth : pageWidth, element as HTMLElement, parentStyle, textStyles);
+            if (!newEl.props) {
+              newEl.props = {};
+            }
+            newEl.props.type = 'paragraphTable';
           } else {
             if (!newEl.text) {
               newEl.text = [];
@@ -863,8 +890,13 @@ export class EditBeforeExportComponent implements AfterViewInit {
         if (typeof newEl.text == 'string' && newEl.text.includes('Cited item deleted')) {
           newEl.text = '';
         }
-        if (!parentPDFel) {
-          newEl.props = { main: true }
+        if (tag == 'p') {
+          if (!newEl.props) {
+            newEl.props = {};
+          }
+          if (!newEl.props.type) {
+            newEl.props.type = 'paragraph';
+          }
         }
         return Promise.resolve(newEl)
       } else if (tag == 'img') {
@@ -879,10 +911,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
         return { image: dataURL, width: pxToPt(img.getBoundingClientRect().width) }
       } else if (tag == 'block-figure') {
         let pdfFigure = await generateFigure(element);
-        /*if (!parentPDFel) {
-          pdfFigure.pdfFigure.props = { main: true }
-        } */
-        //return Promise.resolve(pdfFigure.pdfFigure)
         return Promise.resolve(pdfFigure)
       } else if (tag == 'table' || (tag == 'div' && element.className == 'tableWrapper')) {
         let tableElement
@@ -908,9 +936,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
           }
           for (let i = 0; i < 24; i++) {
             taxonomicTable.table.widths.push(tabbleCellWidth)
-          }
-          if (!parentPDFel) {
-            taxonomicTable.props = { main: true }
           }
           let tbody = tableElement.getElementsByTagName('tbody').item(0)!;
           let tbodyCh = tbody.childNodes;
@@ -944,9 +969,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
               stack3.push(val);
             }
             taxonomicTable.table.body.push([
-              { stack: stack1, colSpan: col1Span }, {}, {}, {},
-              { stack: stack2, colSpan: col2Span }, {}, {}, {}, {}, {}, {}, {}, {}, {},
-              { stack: stack3, colSpan: col3Span }, {}, {}, {}, {}, {}, {}, {}, {}, {}])
+              { stack: stack1, colSpan: col1Span,borderColor: ['#e2e2dc', '#e2e2dc', '#e2e2dc', '#e2e2dc'], }, {}, {}, {},
+              { stack: stack2, colSpan: col2Span,borderColor: ['#e2e2dc', '#e2e2dc', '#e2e2dc', '#e2e2dc'], }, {}, {}, {}, {}, {}, {}, {}, {}, {},
+              { stack: stack3, colSpan: col3Span,borderColor: ['#e2e2dc', '#e2e2dc', '#e2e2dc', '#e2e2dc'], }, {}, {}, {}, {}, {}, {}, {}, {}, {}])
           }
           return Promise.resolve(taxonomicTable)
         } else {
@@ -963,9 +988,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
             },
             alingment: 'center',
             margin: [0, 0, 0, 15]
-          }
-          if (!parentPDFel) {
-            baseTable.props = { main: true }
           }
 
           /* for (let i = 0; i < nOfColums; i++) {
@@ -993,7 +1015,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
                 let val = await generatePDFData(cellnode as Element, baseTable, { parentWidth: tabbleCellWidthNumber }, tableElement)
                 stack.push(val);
               }
-              row.push({ stack })
+              row.push({ stack ,borderColor: ['#e2e2dc', '#e2e2dc', '#e2e2dc', '#e2e2dc'],})
             }
             baseTable.table.body.push(row)
           }
@@ -1023,9 +1045,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
           }
           listTemplate[tag].push(listEl);
         }
-        if (!parentPDFel) {
-          listTemplate.props = { main: true }
-        }
         return Promise.resolve(listTemplate);
       } else if (tag == 'br') {
         return Promise.resolve({ text: ' \n' })
@@ -1036,6 +1055,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
       } else if (tag == 'math-inline' || tag == 'math-display') {
         let canvasWidth = pxToPt(element.getBoundingClientRect().width);
         let result = { image: math_data_url_obj[element.getAttribute('mathid')!], width: canvasWidth }
+        if (tag == 'math-display') {
+          result.width = pageInPoints;
+        }
         return Promise.resolve(result);
       } else {
         return Promise.resolve('')
@@ -1047,26 +1069,28 @@ export class EditBeforeExportComponent implements AfterViewInit {
       let cont: any = [];
 
       let mainNodes = this.elements;
+      let pbs = 0 // page breaks
       for (let i = 0; i < mainNodes.length; i++) {
         let el = mainNodes[i] as HTMLElement;
-        if(el.tagName.toLocaleLowerCase() == 'page-break'){
-          if(cont[i-1]){
-            cont[i-1].pageBreak = 'after';
+        if (el.tagName.toLocaleLowerCase() == 'page-break') {
+          if (cont[i - 1 - pbs]) {
+            cont[i - 1 - pbs].pageBreak = 'after';
           }
-          cont.push({})
-        }else{
+          pbs++;
+        } else {
           let pdfElement = await generatePDFData(el);
           if (!pdfElement.props) {
-            pdfElement.props = { main: true }
-          } else if (!pdfElement.props.main) {
-            pdfElement.props.main = true;
+            pdfElement.props = {}
           }
+          pdfElement.props.main = true;
+
           cont.push(pdfElement)
         }
         if (i == mainNodes.length - 1) {
           doneSubject.next('done');
         }
       }
+
       this.data.content = cont;
 
 
@@ -1081,7 +1105,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
           let structuredNodes = nodeFunc.getContent();
           let nodesBefore = nodeFunc.detAllNodesBefore();
           let nodesAfter = nodeFunc.getAllNodesAfter();
-
           if (nodesBefore.length > 0) {
             let lastNodeBefore = nodesBefore[nodesBefore.length - 1];
             let availableHeightAfterLastNode = lastNodeBefore.props.availableHeight;
@@ -1123,7 +1146,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
               let biggestIndex = Math.max(...movedIndexes);
 
 
-
+              node.pageOrderCalculated = false;
               structuredNodes.splice(biggestIndex, 0, figureNode);
               //retrun true so we contonue to the next node
               return true;
@@ -1150,6 +1173,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
             }
             if (!scaling && movedIndexes.length > 0 && enoughFreeSpace) {
               let moveNodeFrom = nodesBefore.length;
+              for (let i = 0; i > movedIndexes.length; i++) {
+                structuredNodes[movedIndexes[i]].pageOrderCalculated = false;
+              }
               let moveTo = Math.min(...movedIndexes);
 
               let movingNode = structuredNodes.splice(moveNodeFrom, 1);
@@ -1162,8 +1188,22 @@ export class EditBeforeExportComponent implements AfterViewInit {
             // try scale the images and then the above operations again
 
 
-            let loopTableAndChangeWidth = (nodeToChange: any, newWidth: number) => {
-              nodeToChange.table.body[0][0].fit = [newWidth, pageHeight]
+            let loopTableAndChangeWidth = (nodeToChange: any) => {
+              structuredNodes;
+              nodesBefore;
+              nodesAfter;
+              let availableHeightOnLastPage = nodesBefore[nodesBefore.length - 1].props.availableHeight;
+              let figureHeight = nodeToChange.props.height;
+              let figureImageInitHeight = nodeToChange.table.body[0][0].props.initRect[1];
+              let figureDescriptionHeight = figureHeight - figureImageInitHeight;
+              let imageNewHeight = availableHeightOnLastPage - figureDescriptionHeight - 1;
+              let dawnScalePercent = imageNewHeight / figureImageInitHeight;
+              if (dawnScalePercent >= 0.8) {
+                nodeToChange.pageOrderCalculated = false;
+                nodeToChange.table.body[0][0].fit = [nodeToChange.table.body[0][0].props.initRect[0], figureImageInitHeight * dawnScalePercent]
+              } else if (pageheightInPoints < figureHeight) {
+                nodeToChange.pageBreak = undefined;
+              }
             }
 
             if (availableHeightAfterLastNode < 100) {
@@ -1171,10 +1211,13 @@ export class EditBeforeExportComponent implements AfterViewInit {
             }
 
             if (node.scaleTry == 2) {
-              loopTableAndChangeWidth(node, singleimgOnRowWidth)
+              //loopTableAndChangeWidth(node, singleimgOnRowWidth)
               return true
             } else {
-              if (!node.scaleTry) {
+              node.scaleTry = 2;
+              loopTableAndChangeWidth(node)
+              return true
+              /* if (!node.scaleTry) {
                 node.scaleTry = 1
               } else {
                 node.scaleTry = 2
@@ -1187,9 +1230,26 @@ export class EditBeforeExportComponent implements AfterViewInit {
                 node.pageOrderCalculated = false;
                 loopTableAndChangeWidth(node, threeImgOnRowWidth)
                 return true
-              }
+              } */
             }
           }
+        } else if (node.props.type == 'paragraph') {
+          if (node.text && nodeInfo.pageNumbers.length > 1 && node.positions.length > 0) {
+            if (node.positions[0].pageNumber !== node.positions[1].pageNumber) {
+              node.pageBreak = 'before'
+              return true
+            }
+          }
+        } else if (node.props.type == 'paragraphTable' && nodeInfo.pageNumbers.length > 0 && node.stack.length > 1) {
+          let firstLinePage = node.stack[0].nodeInfo.pageNumbers[0]
+          let secondLinePage = node.stack[1].nodeInfo.pageNumbers[0]
+          if (firstLinePage !== secondLinePage) {
+            node.pageBreak = 'before'
+            return true
+          }
+        } else if (node.props.type == 'paragraphTable' && nodeInfo.pageNumbers.length > 0 && node.stack.length == 1) {
+          node.pageBreak = 'before'
+          return true
         }
         return false;
       }
@@ -1214,7 +1274,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
         let url = URL.createObjectURL(blob);
         let iframe = document.getElementById('pdfV') as HTMLIFrameElement;
 
-        iframe.addEventListener('load',()=>{
+        iframe.addEventListener('load', () => {
           this.stopSpinner()
         })
         iframe.src = url;

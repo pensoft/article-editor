@@ -669,7 +669,7 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathM
         let anchorFormField: Node
         stateSel.$head.path.forEach((element: number | Node) => {
           if (element instanceof Node) {
-            if (element.attrs.contenteditableNode == "false") {
+            if (element.attrs.contenteditableNode == "false"||element.attrs.contenteditableNode == false) {
               noneditableNodesOnDropPosition = true
             }
             if (element.type.name == 'form_field') {
@@ -682,7 +682,7 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathM
         });
         stateSel.$anchor.path.forEach((element: number | Node) => {
           if (element instanceof Node) {
-            if (element.attrs.contenteditableNode == "false") {
+            if (element.attrs.contenteditableNode == "false"||element.attrs.contenteditableNode == false) {
               noneditableNodesOnDropPosition = true
             }
             if (element.type.name == 'form_field') {
@@ -717,7 +717,7 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathM
           let trSelFormField: Node
           trSel.$anchor.path.forEach((element: number | Node) => {
             if (element instanceof Node) {
-              if (element.attrs.contenteditableNode == "false") {
+              if (element.attrs.contenteditableNode == "false"||element.attrs.contenteditableNode == false) {
                 noneditableNodesOnDropPosition = true
               }
               if (element.type.name == 'form_field') {

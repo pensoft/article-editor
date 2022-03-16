@@ -81,7 +81,7 @@ export const nodes = {
     },
     page_break:{
       group: "block",
-      content:'inline*',
+      content:'block*',
       attrs:{
           ...getGenericAttributes()
       },

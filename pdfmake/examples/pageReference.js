@@ -117,11 +117,11 @@ var docDefinition = {
 	],
 	styles: {
 		header: {
-			fontSize: 18,
+			fontSize: 14,
 			bold: true
 		},
 		subheader: {
-			fontSize: 15,
+			fontSize: 11,
 			bold: true
 		},
 		quote: {

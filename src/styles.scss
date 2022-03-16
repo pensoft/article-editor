@@ -624,6 +624,9 @@ page-break {
   width: 100%;
   display: inline-block;
   font-size: inherit;
+  p {
+    display: inline;
+  }
 }
 
 page-break:after {

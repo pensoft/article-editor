@@ -46,13 +46,13 @@ export function handlePaste(mathMap:YMap<any>,sectionID:string){
           if (parentFrom == parentTo) {
             if (!parentRef) {
               parentRef = parentFrom
-            } else if (parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && parentRef?.attrs.contenteditableNode !== 'false') {
+            } else if (parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && (parentRef?.attrs.contenteditableNode !== 'false'&&parentRef?.attrs.contenteditableNode !== false)) {
               parentRef = parentFrom
             }
           }
         }
       }
-      if (parentRef?.attrs.contenteditableNode == 'false') {
+      if (parentRef?.attrs.contenteditableNode == 'false'||parentRef?.attrs.contenteditableNode == false) {
         noneditableNodes = true;
       }
     }
@@ -180,19 +180,19 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
           if (parentFrom == parentTo) {
             if (!parentRef) {
               parentRef = parentFrom
-            } else if (parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && parentRef?.attrs.contenteditableNode !== 'false') {
+            } else if (parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && (parentRef?.attrs.contenteditableNode !== 'false'||parentRef?.attrs.contenteditableNode !== false)) {
               parentRef = parentFrom
             }
 
           }
         }
       }
-      if (parentRef?.attrs.contenteditableNode !== 'false') {
+      if (parentRef?.attrs.contenteditableNode !== 'false'&&parentRef?.attrs.contenteditableNode !== false) {
         canEdit = true
       }
     }
-    let NodeBeforeHasNoneditableMark = sel.$anchor.nodeBefore?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false' }).length! > 0
-    let NodeAfterHasNoneditableMark = sel.$anchor.nodeAfter?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false' }).length! > 0
+    let NodeBeforeHasNoneditableMark = sel.$anchor.nodeBefore?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode == false }).length! > 0
+    let NodeAfterHasNoneditableMark = sel.$anchor.nodeAfter?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode == false  }).length! > 0
 
     let onNoneditableMarkBorder: undefined | 'left' | 'right' = undefined
     if (NodeBeforeHasNoneditableMark && !NodeAfterHasNoneditableMark && sel.empty) {
@@ -218,7 +218,7 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
     let check = (node: Node) => {
       let returnValue = false
       if (node) {
-        returnValue = node.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false' }).length > 0
+        returnValue = node.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode == false  }).length > 0
       }
       return returnValue
     }
@@ -364,7 +364,7 @@ export const createSelectionBetween = (editorsEditableObj: any, editorId: string
       let from = Math.min(view.state.selection.$anchor.pos, newHeadResolvedPosition.pos)
       let to = Math.max(view.state.selection.$anchor.pos, newHeadResolvedPosition.pos)
       view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-        if (node.attrs.contenteditableNode == 'false') {
+        if (node.attrs.contenteditableNode == 'false'||node.attrs.contenteditableNode == false ) {
           editorsEditableObj[editorId] = false;
 
         }
@@ -375,7 +375,7 @@ export const createSelectionBetween = (editorsEditableObj: any, editorId: string
     let from = Math.min(anchor.pos, head.pos)
     let to = Math.max(anchor.pos, head.pos)
     view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-      if (node.attrs.contenteditableNode == 'false') {
+      if (node.attrs.contenteditableNode == 'false'||node.attrs.contenteditableNode == false ) {
         editorsEditableObj[editorId] = false;
       }
     })

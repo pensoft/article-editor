@@ -298,6 +298,7 @@ const highLightMenuItem = new MenuItem({
 
 function insertPB(state: EditorState, dispatch: (p: Transaction) => void, view: EditorView, event: Event){
   let pbnode = state.schema.nodes.page_break
+  let p = state.schema.nodes.paragraph
   let selectionEnd = state.selection.to;
 
   let pbinsertplace = 0;
@@ -307,9 +308,10 @@ function insertPB(state: EditorState, dispatch: (p: Transaction) => void, view: 
     }
   })
   let text = state.schema.text('Page Break')
-  let pageBreak = pbnode.create({contenteditableNode:false},text)
+  let paragraph = p.create({contenteditableNode:false},text)
+  let pageBreak = pbnode.create({contenteditableNode:false},paragraph)
   if(state.doc.nodeAt(pbinsertplace)?.type.name == 'page_break'){
-    dispatch(state.tr.replaceWith(pbinsertplace,pbinsertplace+state.doc.nodeAt(pbinsertplace)?.nodeSize!+1,Fragment.empty))
+    dispatch(state.tr.replaceWith(pbinsertplace,pbinsertplace+state.doc.nodeAt(pbinsertplace)?.nodeSize!,Fragment.empty))
   }else{
     dispatch(state.tr.insert(pbinsertplace,pageBreak))
   }

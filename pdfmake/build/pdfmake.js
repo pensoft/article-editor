@@ -7890,8 +7890,19 @@ const { nodes } = require("prosemirror-schema-basic");
 
 
                 if (pAfter !== pBefore && node.table && node.table.props && node.table.props.type == 'figure' && node.pageBreak !== 'before' && node.pageBreakCalculated) {
-                  node.pageBreak = 'before';
-                  node.pageBreakCalculated = true;
+                  if (!node.scaleTry) {
+                    node.pageBreak = 'before';
+                    node.pageBreakCalculated = true;
+                  } else {
+                    if (!node.preventNodeTableFromBreak) {
+                      node.preventNodeTableFromBreak = true;
+                      if (node.nodeInfo.pageNumbers.length == 2 &&
+                        node.table.body[1][0].positions.length > 0 &&
+                        node.table.body[1][0].positions[0].verticalRatio < 0.009) {
+                        node.table.body[1][0].pageBreak = 'before';
+                      }
+                    }
+                  }
                 }
 
                 node.props.availableHeight = _this2.writer._context.availableHeight;

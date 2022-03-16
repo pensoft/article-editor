@@ -86,7 +86,7 @@ export class MenuService {
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItem', 'redoItem','insertVideoItem'],
-      ['logNodesMenuItem','insertFigure','insertPageBreak']
+      ['logNodesMenuItem','insertFigure','insertPageBreak',{ dropdownName: 'Headings', content: ['insertImage', 'insertHorizontalRule'] }]
     ],
     'SimpleMenuPMundoRedo':[
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
@@ -139,7 +139,8 @@ export class MenuService {
         item = new Dropdown(menuItems[itemName], { label: 'Insert',class:'horizontal-dropdown' })
       } else if (itemName == 'headings') {
         //@ts-ignore
-        item = Object.values(menuItems['headings'])
+        item = Object.values(menuItems[itemName])
+
       }  else if (itemName == 'redoItem') {
         item = this.yjsHistory.redoYjs()
       } else if (itemName == 'undoItem') {
