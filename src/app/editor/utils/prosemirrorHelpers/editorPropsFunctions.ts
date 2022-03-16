@@ -52,9 +52,11 @@ export function handlePaste(mathMap:YMap<any>,sectionID:string){
           }
         }
       }
-      if (parentRef?.attrs.contenteditableNode == 'false'||parentRef?.attrs.contenteditableNode == false) {
+      if (parentRef?.attrs.contenteditableNode === 'false'||parentRef?.attrs.contenteditableNode === false) {
+        debugger
         noneditableNodes = true;
       }
+      console.log(noneditableNodes,parentRef?.attrs.contenteditableNode);
     }
     if (noneditableNodes) {
       return true
@@ -180,19 +182,20 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
           if (parentFrom == parentTo) {
             if (!parentRef) {
               parentRef = parentFrom
-            } else if (parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && (parentRef?.attrs.contenteditableNode !== 'false'||parentRef?.attrs.contenteditableNode !== false)) {
+            } else if (parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && (parentRef?.attrs.contenteditableNode != 'false'||parentRef?.attrs.contenteditableNode !== false)) {
               parentRef = parentFrom
             }
 
           }
         }
       }
-      if (parentRef?.attrs.contenteditableNode !== 'false'&&parentRef?.attrs.contenteditableNode !== false) {
+      if (parentRef?.attrs.contenteditableNode != 'false'&&parentRef?.attrs.contenteditableNode !== false) {
         canEdit = true
+        console.log(parentRef);
       }
     }
-    let NodeBeforeHasNoneditableMark = sel.$anchor.nodeBefore?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode == false }).length! > 0
-    let NodeAfterHasNoneditableMark = sel.$anchor.nodeAfter?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode == false  }).length! > 0
+    let NodeBeforeHasNoneditableMark = sel.$anchor.nodeBefore?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode === false }).length! > 0
+    let NodeAfterHasNoneditableMark = sel.$anchor.nodeAfter?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode === false  }).length! > 0
 
     let onNoneditableMarkBorder: undefined | 'left' | 'right' = undefined
     if (NodeBeforeHasNoneditableMark && !NodeAfterHasNoneditableMark && sel.empty) {
@@ -218,7 +221,7 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
     let check = (node: Node) => {
       let returnValue = false
       if (node) {
-        returnValue = node.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode == false  }).length > 0
+        returnValue = node.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode === false  }).length > 0
       }
       return returnValue
     }
@@ -237,74 +240,6 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
       canEdit = false
     }
 
-    /* view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-        if (node.attrs.contenteditableNode == "false") {
-            if(node.type.name == ){
-
-            }
-            noneditableNodes = true;
-        }
-
-        if (node.type.name == "form_field") {
-            let nodeEnd = node.nodeSize + pos
-            // there is a form_field that is in the selection we should not edit if or outside of it
-            if ((from <= pos && pos <= to) || (from <= nodeEnd && nodeEnd <= to)) {
-                if ((from <= pos && pos <= to)) {
-                    from = pos + 2
-                }
-                if ((from <= nodeEnd && nodeEnd <= to)) {
-                    to = nodeEnd - 2
-                }
-                view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(from), view.state.doc.resolve(to))))
-            }
-        }
-    }) */
-    /* if (key == 'Delete' || key == 'Backspace') {
-        view.state.tr = view.state.tr.setMeta('userDeletion',true)
-    } */
-    /* if (key == 'Delete' || key == 'Backspace') {
-      if (!sel.empty) {
-        return noneditableNodes
-      } else {
-        if (noneditableNodes) {
-          return noneditableNodes
-        } else {
-          if (key == 'Delete') {
-            if (sel.$anchor.nodeAfter == null && sel.$anchor.parent.type.name == 'paragraph') {
-              //@ts-ignore
-              let s = sel.$anchor.parent.parent.content.lastChild === sel.$anchor.parent
-              if (s) {
-                return true
-              }
-            }
-          } else if (key == 'Backspace') {
-            if (sel.$anchor.nodeBefore == null && sel.$anchor.parent.type.name == 'paragraph') {
-              //@ts-ignore
-              let s = sel.$anchor.parent.parent.content.firstChild === sel.$anchor.parent
-              if (s) {
-                return true
-              }
-            }
-          }
-        }
-
-      }
-      if (noneditableNodes) {
-        return noneditableNodes
-      }
-    }*/
-    /*  if(
-       !canEdit&&
-       key!=='Backspace'&&
-       sel.empty&&
-       sel.$anchor.nodeAfter?.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length==0&&
-       sel.$anchor.nodeBefore?.marks.filter((mark)=>{return mark.attrs.contenteditableNode == 'false'}).length!>0&&
-       sel.$anchor.nodeBefore!.type.name == 'text'){
-       let resolvedPosition = view.state.doc.resolve(sel.from+2)
-       //view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,sel.from+1)))
-       return false
-       //view.dispatch(view.state.tr.setSelection(new Selection(resolvedPosition,resolvedPosition)))
-   } */
     if (!canEdit) {
       if (key == 'ArrowRight' ||
         key == 'ArrowLeft' ||
@@ -364,7 +299,7 @@ export const createSelectionBetween = (editorsEditableObj: any, editorId: string
       let from = Math.min(view.state.selection.$anchor.pos, newHeadResolvedPosition.pos)
       let to = Math.max(view.state.selection.$anchor.pos, newHeadResolvedPosition.pos)
       view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-        if (node.attrs.contenteditableNode == 'false'||node.attrs.contenteditableNode == false ) {
+        if (node.attrs.contenteditableNode === 'false'||node.attrs.contenteditableNode === false ) {
           editorsEditableObj[editorId] = false;
 
         }
@@ -375,7 +310,7 @@ export const createSelectionBetween = (editorsEditableObj: any, editorId: string
     let from = Math.min(anchor.pos, head.pos)
     let to = Math.max(anchor.pos, head.pos)
     view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-      if (node.attrs.contenteditableNode == 'false'||node.attrs.contenteditableNode == false ) {
+      if (node.attrs.contenteditableNode === 'false'||node.attrs.contenteditableNode === false ) {
         editorsEditableObj[editorId] = false;
       }
     })

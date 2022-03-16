@@ -689,7 +689,15 @@ export class EditBeforeExportComponent implements AfterViewInit {
               pageWidth = pageWidth;
               let elCount = 0;
               let lineWidth = 0;
-              let chN = element.childNodes;
+              let chN = [...Array.from(element.childNodes).filter((el )=>{
+                let htmlel = el as HTMLElement
+                if(htmlel.tagName == "BR"){
+                  return false;
+                }else if(htmlel.tagName == "IMG"&&htmlel.className == "ProseMirror-separator"){
+                  return false;
+                }
+                return true;
+              })];
               let getWidth = (child: HTMLElement) => {
                 let measureDiv = document.createElement('div');
                 measureDiv.style.display = 'inline';
@@ -1240,14 +1248,14 @@ export class EditBeforeExportComponent implements AfterViewInit {
               return true
             }
           }
-        } else if (node.props.type == 'paragraphTable' && nodeInfo.pageNumbers.length > 0 && node.stack.length > 1) {
+        } else if (node.props.type == 'paragraphTable' && nodeInfo.pageNumbers.length > 1 && node.stack.length > 1) {
           let firstLinePage = node.stack[0].nodeInfo.pageNumbers[0]
           let secondLinePage = node.stack[1].nodeInfo.pageNumbers[0]
           if (firstLinePage !== secondLinePage) {
             node.pageBreak = 'before'
             return true
           }
-        } else if (node.props.type == 'paragraphTable' && nodeInfo.pageNumbers.length > 0 && node.stack.length == 1) {
+        } else if (node.props.type == 'paragraphTable' && nodeInfo.pageNumbers.length > 1 && node.stack.length == 1) {
           node.pageBreak = 'before'
           return true
         }

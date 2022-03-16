@@ -23,6 +23,7 @@ import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/
 import { ArticlesService } from '@app/core/services/articles.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { checkIfSectionsAreAboveOrAtMax, checkIfSectionsAreUnderOrAtMin } from '@app/editor/utils/articleBasicStructure';
+import { PmDialogSessionService } from '@app/editor/services/pm-dialog-session.service';
 
 @Component({
   selector: 'app-section-leaf',
@@ -67,6 +68,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     private serviceShare: ServiceShare,
     public detectFocusService: DetectFocusService,
     public prosemirrorEditorsService: ProsemirrorEditorsService,
+    public PmDialogSessionService:PmDialogSessionService,
     public dialog: MatDialog) {
     detectFocusService.getSubject().subscribe((focusedEditorId: any) => {
       if (focusedEditorId) {
@@ -160,7 +162,9 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
       this.ydocService.ydoc.on('update',registerUpdateFunc )
 
-      let oldMathObj = JSON.parse(JSON.stringify(this.ydocService.mathMap?.get('dataURLObj')));
+      //let oldMathObj = JSON.parse(JSON.stringify(this.ydocService.mathMap?.get('dataURLObj')));
+      this.PmDialogSessionService.createSession();
+
       node.formIOSchema = sectionContent
       this.dialog.open(EditSectionDialogComponent, {
         width: '95%',
@@ -168,10 +172,11 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
         data: { node: node, form: formGroup, sectionContent },
         disableClose: false
       }).afterClosed().subscribe(result => {
-        if(!result){
+        /* if(!result){
           this.ydocService.mathMap?.set('dataURLObj',oldMathObj)
-        }
+        } */
         if (result && result.compiledHtml) {
+          this.PmDialogSessionService.endSession(true);
           this.treeService.editNodeChange(node.sectionID)
 
           let copyOriginUpdatesBeforeReplace = [...originUpdates]
@@ -220,6 +225,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
           }, 30)
         } else {
           setTimeout(() => {
+            this.serviceShare.PmDialogSessionService!.endSession(false);
             this.prosemirrorEditorsService.citatEditingSubject.next({ action: 'clearDeletedCitatsFromPopup' })
           }, 30)
         }

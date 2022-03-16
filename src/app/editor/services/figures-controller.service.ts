@@ -730,58 +730,6 @@ export class FiguresControllerService {
         view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, figureNodes).setMeta('shouldTrack', false).setMeta('addToLastHistoryGroup',true))
       }
     }
-
-
-
-    /*
-    let figure: any = JSON.parse(JSON.stringify(figure1))
-    let view = this.prosemirrorEditorsService.editorContainers[figure.path].editorView
-    let nodeStart: number = view.state.doc.nodeSize - 2
-    let nodeEnd: number = view.state.doc.nodeSize - 2
-    let foundExistingFigure = false
-    view.state.doc.nodesBetween(0, view.state.doc.nodeSize - 2, (node, pos, parent) => {
-      if (node.type.name == "block_figure" && node.attrs.figure_number == figureNumber) {
-        foundExistingFigure = true
-        nodeStart = pos;
-        nodeEnd = pos + node.nodeSize
-      }
-    })
-
-    if (!foundExistingFigure) {
-    }
-    let schema = view.state.schema
-    let n = schema.nodes
-
-    let figDesc = schema.nodes.figure_description.create({}, this.getNodeFromHTML(figure.description))
-    let figuresDescriptions: any[] = []
-    let figurecomponents = figure.components.reduce((prev: any, curr: any, i: number) => {
-      figuresDescriptions.push(schema.nodes.figure_component_description.create({ component_number: i }, [
-        schema.nodes.form_field.create({}, schema.nodes.paragraph.create({contenteditableNode:'false'}, [
-          schema.text(String.fromCharCode(97 + i) + ':')
-        ])),
-        schema.nodes.form_field.create({}, this.getNodeFromHTML(curr.description)),
-      ]))
-      if (curr.componentType == 'video') {
-        return prev.concat(...[schema.nodes.figure_component.create({ component_number: i,contenteditableNode:'false' }, [
-          schema.nodes.video.create({ src: curr.url }),
-        ])])
-      } else if (curr.componentType == 'image') {
-        return prev.concat([schema.nodes.figure_component.create({ component_number: i,contenteditableNode:'false' }, [
-          schema.nodes.image.create({ src: curr.url })
-        ])])
-      }
-    }, [])
-    view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!,
-      schema.nodes.block_figure.create({ figure_number: figureNumber }, [
-        n.figure_components_container.create({contenteditableNode:'false'}, figurecomponents),
-        schema.nodes.figure_descriptions_container.create({}, [
-          schema.nodes.heading.create({ tagName: 'h3',contenteditableNode:'false' }, [schema.text(`Figure: ${+figureNumber+1}`)]),
-          figDesc,
-          ...figuresDescriptions
-        ])]
-      )).setMeta('shouldTrack', false))
-
-   */
   }
 
 }

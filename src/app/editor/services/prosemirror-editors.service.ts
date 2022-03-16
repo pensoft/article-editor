@@ -107,10 +107,10 @@ export class ProsemirrorEditorsService {
   permanentUserData?: Y.PermanentUserData;
   colors = userSpec.colors;
   menu: any = buildMenuItems(schema);
-  menuTypes:any = {}
+  menuTypes: any = {}
 
-  inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, schema.nodes.math_inline,(match:any)=>{return {math_id:uuidv4()}});
-  blockMathInputRule = makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, schema.nodes.math_display,(match:any)=>{return {math_id:uuidv4()}});
+  inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, schema.nodes.math_inline, (match: any) => { return { math_id: uuidv4() } });
+  blockMathInputRule = makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, schema.nodes.math_display, (match: any) => { return { math_id: uuidv4() } });
 
   OnOffTrackingChangesShowTrackingSubject = new Subject<{ trackTransactions: boolean }>()
   trackChangesMeta: any
@@ -145,9 +145,9 @@ export class ProsemirrorEditorsService {
     private citatContextPluginService: CitatContextMenuService,
     private trackChangesService: TrackChangesService,
     private yjsHistory: YjsHistoryService,
-    private seviceShare: ServiceShare) {
+    private serviceShare: ServiceShare) {
 
-    this.seviceShare.shareSelf('ProsemirrorEditorsService', this)
+    this.serviceShare.shareSelf('ProsemirrorEditorsService', this)
 
 
     this.mobileVersionSubject.subscribe((data) => {
@@ -191,15 +191,15 @@ export class ProsemirrorEditorsService {
     })
   }
 
-  preservedScrollPosition : number = 0;
-  saveScrollPosition(){
+  preservedScrollPosition: number = 0;
+  saveScrollPosition() {
     let articleProsemirrorsContainer = document.getElementById('app-article-element');
     this.preservedScrollPosition = articleProsemirrorsContainer!.scrollTop!;
   }
 
-  applyLastScrollPosition(){
+  applyLastScrollPosition() {
     let articleProsemirrorsContainer = document.getElementById('app-article-element');
-    articleProsemirrorsContainer!.scrollTop =  this.preservedScrollPosition;
+    articleProsemirrorsContainer!.scrollTop = this.preservedScrollPosition;
   }
 
   collab(config: any = {}) {
@@ -329,8 +329,8 @@ export class ProsemirrorEditorsService {
     let GroupControl = this.treeService.sectionFormGroups;
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!,this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.yjsHistory.YjsHistoryKey, this.interpolateTemplate, GroupControl, section),
-      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.ydocService.mathMap!, this.rerenderFigures, editorID),
+      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.yjsHistory.YjsHistoryKey, this.interpolateTemplate, GroupControl, section),
+      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, editorID),
       //@ts-ignore
       historyPreserveItems: true,
     })
@@ -408,11 +408,11 @@ export class ProsemirrorEditorsService {
         lastStep = transaction.steps[0]
         let isMath = false
         if (transaction.steps.length > 0) {
-          if(transaction.selection instanceof NodeSelection&&(transaction.selection.node.type.name == 'math_inline'|| transaction.selection.node.type.name == 'math_display')){
-            let hasmarkAddRemoveStep = transaction.steps.filter((step)=>{
-              return (step instanceof AddMarkStep||step instanceof RemoveMarkStep)
-            }).length>0;
-            if(hasmarkAddRemoveStep){
+          if (transaction.selection instanceof NodeSelection && (transaction.selection.node.type.name == 'math_inline' || transaction.selection.node.type.name == 'math_display')) {
+            let hasmarkAddRemoveStep = transaction.steps.filter((step) => {
+              return (step instanceof AddMarkStep || step instanceof RemoveMarkStep)
+            }).length > 0;
+            if (hasmarkAddRemoveStep) {
               return
             }
             isMath = true
@@ -434,7 +434,7 @@ export class ProsemirrorEditorsService {
             }
           }
         }
-        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false||isMath) {
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false || isMath) {
 
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
@@ -509,7 +509,7 @@ export class ProsemirrorEditorsService {
         }
       },
       dispatchTransaction,
-      handlePaste:handlePaste(mathMap!,editorID),
+      handlePaste: handlePaste(mathMap!, editorID),
       handleClick: handleClick(hideshowPluginKEey, this.citatContextPluginService.citatContextPluginKey),
       handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
       handleTripleClickOn,
@@ -568,8 +568,8 @@ export class ProsemirrorEditorsService {
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!,this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate, this.yjsHistory.YjsHistoryKey),
-      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.ydocService.mathMap!, this.rerenderFigures, editorId),
+      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate, this.yjsHistory.YjsHistoryKey),
+      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, editorId),
     })
     let container = document.createElement('div');
     let editorView: EditorView;
@@ -638,11 +638,11 @@ export class ProsemirrorEditorsService {
           if (lastStep) { return }
         } */
         let isMath = false
-        if(transaction.selection instanceof NodeSelection&&(transaction.selection.node.type.name == 'math_inline'|| transaction.selection.node.type.name == 'math_display')){
-          let hasmarkAddRemoveStep = transaction.steps.filter((step)=>{
-            return (step instanceof AddMarkStep||step instanceof RemoveMarkStep)
-          }).length>0;
-          if(hasmarkAddRemoveStep){
+        if (transaction.selection instanceof NodeSelection && (transaction.selection.node.type.name == 'math_inline' || transaction.selection.node.type.name == 'math_display')) {
+          let hasmarkAddRemoveStep = transaction.steps.filter((step) => {
+            return (step instanceof AddMarkStep || step instanceof RemoveMarkStep)
+          }).length > 0;
+          if (hasmarkAddRemoveStep) {
             return
           }
           isMath = true
@@ -650,7 +650,7 @@ export class ProsemirrorEditorsService {
         lastStep = transaction.steps[0]
         this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager.preventCapture()
 
-        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false||isMath) {
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false || isMath) {
 
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
@@ -695,7 +695,7 @@ export class ProsemirrorEditorsService {
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,
-      handlePaste:handlePaste(mathMap!,editorID),
+      handlePaste: handlePaste(mathMap!, editorID),
       handleClick: handleClick(hideshowPluginKEey),
       handleTripleClickOn,
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
@@ -768,7 +768,7 @@ export class ProsemirrorEditorsService {
         containerElement.appendChild(htmlNOdeRepresentation);
         options.onChange(true, containerElement.innerHTML)
       },
-      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!,this.ydocService.mathMap!, this.rerenderFigures, sectionID, this.citatEditingSubject)
+      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, sectionID, this.citatEditingSubject)
 
     })
 
@@ -784,9 +784,9 @@ export class ProsemirrorEditorsService {
 
     this.editorsEditableObj[editorID] = true
 
-    let menu :any = undefined
-    if(options.menuType){
-      menu = {main:this.menuTypes[options.menuType]}
+    let menu: any = undefined
+    if (options.menuType) {
+      menu = { main: this.menuTypes[options.menuType] }
     }
 
     let edState = EditorState.create({
@@ -808,7 +808,7 @@ export class ProsemirrorEditorsService {
         inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
         ...menuBar({
           floating: true,
-          content: menu?menu:this.menuTypes, containerClass: menuContainerClass
+          content: menu ? menu : this.menuTypes, containerClass: menuContainerClass
         })
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
       ,
@@ -832,16 +832,16 @@ export class ProsemirrorEditorsService {
         }
         lastStep = transaction.steps[0]
         let isMath = false;
-        if(transaction.selection instanceof NodeSelection&&(transaction.selection.node.type.name == 'math_inline'|| transaction.selection.node.type.name == 'math_display')){
-          let hasmarkAddRemoveStep = transaction.steps.filter((step)=>{
-            return (step instanceof AddMarkStep||step instanceof RemoveMarkStep)
-          }).length>0;
-          if(hasmarkAddRemoveStep){
+        if (transaction.selection instanceof NodeSelection && (transaction.selection.node.type.name == 'math_inline' || transaction.selection.node.type.name == 'math_display')) {
+          let hasmarkAddRemoveStep = transaction.steps.filter((step) => {
+            return (step instanceof AddMarkStep || step instanceof RemoveMarkStep)
+          }).length > 0;
+          if (hasmarkAddRemoveStep) {
             return
           }
           isMath = true
         }
-        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false||isMath) {
+        if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false || isMath) {
           let state = editorView?.state.apply(transaction);
           editorView?.updateState(state!);
 
@@ -908,7 +908,7 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
-  buildMenus(){
+  buildMenus() {
     this.menuTypes = this.menuService.buildMenuTypes()
   }
 
@@ -934,66 +934,68 @@ export class ProsemirrorEditorsService {
     this.ydoc.gc = false;
     this.buildMenus()
     let ydocservice = this.ydocService
+    let seviceShare = this.serviceShare
     let mathObj = ydocservice.mathMap?.get('dataURLObj');
     let oldMathFunc = MathView.prototype.renderMath
-      //@ts-ignore
+    //@ts-ignore
     MathView.prototype.renderMath = undefined;
-      //@ts-ignore
-      MathView.prototype.renderMathOld = oldMathFunc;
-      //@ts-ignore
-      MathView.prototype.afterRender = (ret:any,mathview:any)=>{
-        mathObj = ydocservice.mathMap?.get('dataURLObj');
-        let matDom = mathview.dom;
-          let nodeDomAttrs = mathview._node.type.spec.toDOM(mathview._node)[1];
-          Object.keys(nodeDomAttrs).forEach((key)=>{
-            ((matDom as HTMLElement).hasAttribute(key)&&nodeDomAttrs[key]!==''&&nodeDomAttrs[key])?undefined:(matDom as HTMLElement).setAttribute(key,nodeDomAttrs[key]);
-          });
-        let secID = mathview._outerView.state.hideShowPlugin$.sectionName
-        let setDataURL = (dataURL:string)=>{
+    //@ts-ignore
+    MathView.prototype.renderMathOld = oldMathFunc;
+    //@ts-ignore
+    MathView.prototype.afterRender = (ret: any, mathview: any) => {
+      mathObj = ydocservice.mathMap?.get('dataURLObj');
+      console.log(seviceShare.PmDialogSessionService?seviceShare.PmDialogSessionService!.inSession():undefined);
+      let matDom = mathview.dom;
+      let nodeDomAttrs = mathview._node.type.spec.toDOM(mathview._node)[1];
+      Object.keys(nodeDomAttrs).forEach((key) => {
+        ((matDom as HTMLElement).hasAttribute(key) && nodeDomAttrs[key] !== '' && nodeDomAttrs[key]) ? undefined : (matDom as HTMLElement).setAttribute(key, nodeDomAttrs[key]);
+      });
+      let secID = mathview._outerView.state.hideShowPlugin$.sectionName
+      let setDataURL = (dataURL: string) => {
 
-          if(!mathObj[secID]){
-            mathObj[secID] = {}
-          }
-          mathObj[secID][mathview._node.attrs.math_id] = dataURL;
-          ydocservice.mathMap?.set('dataURLObj',mathObj)
-
+        if (!mathObj[secID]) {
+          mathObj[secID] = {}
         }
-        mathObj = this.ydocService.mathMap?.get('dataURLObj')
-        if(!mathObj[secID]||(mathObj[secID]&&!mathObj[secID][mathview._node.attrs.math_id])){
-          setTimeout(()=>{
-            toCanvas(mathview.dom as HTMLElement).then((canvasData: any) => {
-              if (canvasData.toDataURL() == 'data:,') {
-                html2canvas(mathview.dom as HTMLElement).then((canvasData1) => {
-                  setDataURL(canvasData.toDataURL())
-                })
-              } else {
-                setDataURL(canvasData.toDataURL())
-              }
-            })
-          },100)
-        }else if(mathview._isEditing){
+        mathObj[secID][mathview._node.attrs.math_id] = dataURL;
+        ydocservice.mathMap?.set('dataURLObj', mathObj)
 
-          setTimeout(()=>{
-            toCanvas(mathview.dom as HTMLElement).then((canvasData: any) => {
-              if (canvasData.toDataURL() == 'data:,') {
-                html2canvas(mathview.dom as HTMLElement).then((canvasData1) => {
-                  setDataURL(canvasData.toDataURL())
-                })
-              } else {
-                setDataURL(canvasData.toDataURL())
-              }
-            })
-          },100)
-
-          return ret
-        }
-      };
-      MathView.prototype.renderMath = function renderMath(){
-        //@ts-ignore
-        let ret = this.renderMathOld()
-        //@ts-ignore
-        return this.afterRender(ret,this)
       }
+      mathObj = this.ydocService.mathMap?.get('dataURLObj')
+      if (!mathObj[secID] || (mathObj[secID] && !mathObj[secID][mathview._node.attrs.math_id])) {
+        setTimeout(() => {
+          toCanvas(mathview.dom as HTMLElement).then((canvasData: any) => {
+            if (canvasData.toDataURL() == 'data:,') {
+              html2canvas(mathview.dom as HTMLElement).then((canvasData1) => {
+                setDataURL(canvasData.toDataURL())
+              })
+            } else {
+              setDataURL(canvasData.toDataURL())
+            }
+          })
+        }, 100)
+      } else if (mathview._isEditing) {
+
+        setTimeout(() => {
+          toCanvas(mathview.dom as HTMLElement).then((canvasData: any) => {
+            if (canvasData.toDataURL() == 'data:,') {
+              html2canvas(mathview.dom as HTMLElement).then((canvasData1) => {
+                setDataURL(canvasData.toDataURL())
+              })
+            } else {
+              setDataURL(canvasData.toDataURL())
+            }
+          })
+        }, 100)
+
+        return ret
+      }
+    };
+    MathView.prototype.renderMath = function renderMath() {
+      //@ts-ignore
+      let ret = this.renderMathOld()
+      //@ts-ignore
+      return this.afterRender(ret, this)
+    }
   }
 
   setIntFunction(interpulateFunction: any) {

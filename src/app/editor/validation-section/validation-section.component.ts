@@ -5,6 +5,7 @@ import { ArticleSectionsService } from '@app/core/services/article-sections.serv
 import { setBlockType } from 'prosemirror-commands';
 import { Subject } from 'rxjs';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
+import { PmDialogSessionService } from '../services/pm-dialog-session.service';
 import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
 import { YdocService } from '../services/ydoc.service';
 import { articleSection } from '../utils/interfaces/articleSection';
@@ -38,8 +39,9 @@ export class ValidationSectionComponent implements OnDestroy {
     private articleSectionsService: ArticleSectionsService,
     private changeDetectorRef: ChangeDetectorRef,
     private ydocService: YdocService,
+    private pmSessionService:PmDialogSessionService,
   ) {
-
+    this.pmSessionService.hasDialogSession = false;
   }
 
   results = 0;

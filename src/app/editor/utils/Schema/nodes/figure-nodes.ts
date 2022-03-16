@@ -116,43 +116,6 @@ export const block_figure = {
         }, 0]
     }
 }
-/* export const citation = {
-    group: 'inline',
-    content: "inline+",
-    inline: true,
-    isolating: true,
-    attrs: {
-        citated_figures: { default: [] },
-
-        citateid: { default: '' },
-        last_time_updated: { default: '' },
-        figures_display_view: { default: [] },
-        ...getGenericAttributes(),
-    },
-    parseDOM: [{
-        tag: "citation", getAttrs(dom: HTMLElement) {
-            let attrs = {
-                citated_figures: dom.getAttribute('citated_figures')!.split(','),
-                citateid: dom.getAttribute('citateid'),
-                last_time_updated: dom.getAttribute('last_time_updated'),
-                figures_display_view: dom.getAttribute('figures_display_view')!.split(','),
-                ...parseGenericAttributes(dom)
-            }
-            attrs.contenteditableNode = 'false';
-            return attrs
-        }
-    }],
-    toDOM(node: Node) {
-        node.attrs.contenteditableNode = 'false';
-        return ["citation", {
-            "citated_figures": node.attrs.citated_figures.join(','),
-            "citateid": node.attrs.citateid,
-            "last_time_updated": node.attrs.last_time_updated,
-            "figures_display_view": node.attrs.figures_display_view.join(','),
-            ...genericAttributtesToDom(node)
-        }, 0]
-    }
-} */
 
 export const figure_components_container = {
     group: 'block',
