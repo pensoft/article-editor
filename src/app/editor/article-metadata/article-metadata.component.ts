@@ -39,13 +39,18 @@ export class ArticleMetadataComponent implements OnInit {
   }
 
   openFiguresDialog(){
+    this.serviceShare.PmDialogSessionService!.createSession()
     this.dialog.open(FiguresDialogComponent, {
       width: '100%',
       height: '90%',
       data: { },
       disableClose: false
     }).afterClosed().subscribe(result => {
-
+      if(result){
+        this.serviceShare.PmDialogSessionService!.endSession(true)
+      }else{
+        this.serviceShare.PmDialogSessionService!.endSession(false)
+      }
     })
   }
 

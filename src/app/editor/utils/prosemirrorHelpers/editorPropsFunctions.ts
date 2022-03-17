@@ -56,7 +56,6 @@ export function handlePaste(mathMap:YMap<any>,sectionID:string){
         debugger
         noneditableNodes = true;
       }
-      console.log(noneditableNodes,parentRef?.attrs.contenteditableNode);
     }
     if (noneditableNodes) {
       return true
@@ -191,7 +190,6 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
       }
       if (parentRef?.attrs.contenteditableNode != 'false'&&parentRef?.attrs.contenteditableNode !== false) {
         canEdit = true
-        console.log(parentRef);
       }
     }
     let NodeBeforeHasNoneditableMark = sel.$anchor.nodeBefore?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode === false }).length! > 0

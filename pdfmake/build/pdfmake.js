@@ -7372,7 +7372,7 @@ const { nodes } = require("prosemirror-schema-basic");
                     },
                     getNodesOnPageAfter: function getNodesOnPrevPage(pageAfter) {
                       var nodesOnPageAfter = [];
-                      if (pageNumber - 1 > 0) {
+                      if (pageNumber - 1 > -1) {
                         for (var ii = index + 1, l = mainlinearNodeList.length; ii < l; ii++) {
                           if (mainlinearNodeList[ii].nodeInfo.pageNumbers.indexOf(pageNumber + pageAfter) > -1) {
                             nodesOnPageAfter.push(mainlinearNodeList[ii]);
@@ -7383,16 +7383,16 @@ const { nodes } = require("prosemirror-schema-basic");
                     },
                     getAllNodesAfter: function getAllNodesAfter() {
                       var allNodesAfter = [];
-                      if (pageNumber - 1 > 0) {
+                      if (pageNumber - 1 > -1) {
                         for (var ii = index + 1, l = mainlinearNodeList.length; ii < l; ii++) {
                           allNodesAfter.push(mainlinearNodeList[ii]);
                         }
                       }
                       return allNodesAfter;
                     },
-                    detAllNodesBefore: function getAllNodesBefore() {
+                    getAllNodesBefore: function getAllNodesBefore() {
                       var allNodesBefore = [];
-                      if (pageNumber - 1 > 0) {
+                      if (pageNumber - 1 > -1) {
                         for (var ii = 0; ii < index; ii++) {
                           allNodesBefore.push(mainlinearNodeList[ii]);
                         }

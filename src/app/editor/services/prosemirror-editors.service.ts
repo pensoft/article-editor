@@ -330,7 +330,7 @@ export class ProsemirrorEditorsService {
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
       appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.yjsHistory.YjsHistoryKey, this.interpolateTemplate, GroupControl, section),
-      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, editorID),
+      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, editorID, this.serviceShare),
       //@ts-ignore
       historyPreserveItems: true,
     })
@@ -569,7 +569,7 @@ export class ProsemirrorEditorsService {
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
       appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate, this.yjsHistory.YjsHistoryKey),
-      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, editorId),
+      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, editorId, this.serviceShare),
     })
     let container = document.createElement('div');
     let editorView: EditorView;
@@ -768,7 +768,7 @@ export class ProsemirrorEditorsService {
         containerElement.appendChild(htmlNOdeRepresentation);
         options.onChange(true, containerElement.innerHTML)
       },
-      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, sectionID, this.citatEditingSubject)
+      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, sectionID, this.serviceShare, this.citatEditingSubject)
 
     })
 
@@ -936,65 +936,69 @@ export class ProsemirrorEditorsService {
     let ydocservice = this.ydocService
     let seviceShare = this.serviceShare
     let mathObj = ydocservice.mathMap?.get('dataURLObj');
-    let oldMathFunc = MathView.prototype.renderMath
     //@ts-ignore
-    MathView.prototype.renderMath = undefined;
-    //@ts-ignore
-    MathView.prototype.renderMathOld = oldMathFunc;
-    //@ts-ignore
-    MathView.prototype.afterRender = (ret: any, mathview: any) => {
-      mathObj = ydocservice.mathMap?.get('dataURLObj');
-      console.log(seviceShare.PmDialogSessionService?seviceShare.PmDialogSessionService!.inSession():undefined);
-      let matDom = mathview.dom;
-      let nodeDomAttrs = mathview._node.type.spec.toDOM(mathview._node)[1];
-      Object.keys(nodeDomAttrs).forEach((key) => {
-        ((matDom as HTMLElement).hasAttribute(key) && nodeDomAttrs[key] !== '' && nodeDomAttrs[key]) ? undefined : (matDom as HTMLElement).setAttribute(key, nodeDomAttrs[key]);
-      });
-      let secID = mathview._outerView.state.hideShowPlugin$.sectionName
-      let setDataURL = (dataURL: string) => {
+    if (!MathView.prototype.isPatched) {
+      //@ts-ignore
 
-        if (!mathObj[secID]) {
-          mathObj[secID] = {}
+      MathView.prototype.isPatched = true;
+      let oldMathFunc = MathView.prototype.renderMath
+      //@ts-ignore
+      MathView.prototype.renderMath = undefined;
+      //@ts-ignore
+      MathView.prototype.renderMathOld = oldMathFunc;
+      //@ts-ignore
+      MathView.prototype.afterRender = (ret: any, mathview: any) => {
+        mathObj = ydocservice.mathMap?.get('dataURLObj');
+        let matDom = mathview.dom;
+        let nodeDomAttrs = mathview._node.type.spec.toDOM(mathview._node)[1];
+        Object.keys(nodeDomAttrs).forEach((key) => {
+          ((matDom as HTMLElement).hasAttribute(key) && nodeDomAttrs[key] !== '' && nodeDomAttrs[key]) ? undefined : (matDom as HTMLElement).setAttribute(key, nodeDomAttrs[key]);
+        });
+        let setDataURL = (dataURL: string) => {
+          let session = seviceShare.PmDialogSessionService ? seviceShare.PmDialogSessionService!.inSession() : 'nosession';
+          if(session !== 'nosession'){
+            seviceShare.PmDialogSessionService!.addElement(mathview._node.attrs.math_id,dataURL)
+          }else{
+            mathObj[mathview._node.attrs.math_id] = dataURL;
+            ydocservice.mathMap?.set('dataURLObj', mathObj)
+          }
         }
-        mathObj[secID][mathview._node.attrs.math_id] = dataURL;
-        ydocservice.mathMap?.set('dataURLObj', mathObj)
-
-      }
-      mathObj = this.ydocService.mathMap?.get('dataURLObj')
-      if (!mathObj[secID] || (mathObj[secID] && !mathObj[secID][mathview._node.attrs.math_id])) {
-        setTimeout(() => {
-          toCanvas(mathview.dom as HTMLElement).then((canvasData: any) => {
-            if (canvasData.toDataURL() == 'data:,') {
-              html2canvas(mathview.dom as HTMLElement).then((canvasData1) => {
+        mathObj = this.ydocService.mathMap?.get('dataURLObj')
+        if (!mathObj[mathview._node.attrs.math_id]) {
+          setTimeout(() => {
+            toCanvas(mathview.dom as HTMLElement).then((canvasData: any) => {
+              if (canvasData.toDataURL() == 'data:,') {
+                html2canvas(mathview.dom as HTMLElement).then((canvasData1) => {
+                  setDataURL(canvasData.toDataURL())
+                })
+              } else {
                 setDataURL(canvasData.toDataURL())
-              })
-            } else {
-              setDataURL(canvasData.toDataURL())
-            }
-          })
-        }, 100)
-      } else if (mathview._isEditing) {
+              }
+            })
+          }, 100)
+        } else if (mathview._isEditing) {
 
-        setTimeout(() => {
-          toCanvas(mathview.dom as HTMLElement).then((canvasData: any) => {
-            if (canvasData.toDataURL() == 'data:,') {
-              html2canvas(mathview.dom as HTMLElement).then((canvasData1) => {
+          setTimeout(() => {
+            toCanvas(mathview.dom as HTMLElement).then((canvasData: any) => {
+              if (canvasData.toDataURL() == 'data:,') {
+                html2canvas(mathview.dom as HTMLElement).then((canvasData1) => {
+                  setDataURL(canvasData.toDataURL())
+                })
+              } else {
                 setDataURL(canvasData.toDataURL())
-              })
-            } else {
-              setDataURL(canvasData.toDataURL())
-            }
-          })
-        }, 100)
+              }
+            })
+          }, 100)
 
-        return ret
+          return ret
+        }
+      };
+      MathView.prototype.renderMath = function renderMath() {
+        //@ts-ignore
+        let ret = this.renderMathOld()
+        //@ts-ignore
+        return this.afterRender(ret, this)
       }
-    };
-    MathView.prototype.renderMath = function renderMath() {
-      //@ts-ignore
-      let ret = this.renderMathOld()
-      //@ts-ignore
-      return this.afterRender(ret, this)
     }
   }
 

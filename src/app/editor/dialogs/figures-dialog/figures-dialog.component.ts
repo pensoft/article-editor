@@ -8,6 +8,7 @@ import { figure } from '../../utils/interfaces/figureComponent';
 import { AddFigureDialogComponent } from './add-figure-dialog/add-figure-dialog.component';
 import { Node } from 'prosemirror-model';
 import { FormioEventsService } from '@app/editor/formioComponents/formio-events.service';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 @Component({
   selector: 'app-figures-dialog',
   templateUrl: './figures-dialog.component.html',
@@ -15,19 +16,20 @@ import { FormioEventsService } from '@app/editor/formioComponents/formio-events.
 })
 export class FiguresDialogComponent implements AfterViewInit {
 
-  figuresMap ?:YMap<any>
-  figuresNumbers ?: string[]
-  figures ?: {[key:string]:figure}
-  editedFigures:{[key:string]:boolean} ={}
-  newFigureNodes :{[key:string]:Node} = {}
-  deletedFigures : string[] = []
+  figuresMap?: YMap<any>
+  figuresNumbers?: string[]
+  figures?: { [key: string]: figure }
+  editedFigures: { [key: string]: boolean } = {}
+  newFigureNodes: { [key: string]: Node } = {}
+  deletedFigures: string[] = []
 
   constructor(
-    private ydocService:YdocService,
+    private ydocService: YdocService,
     public dialog: MatDialog,
     private dialogRef: MatDialogRef<FiguresDialogComponent>,
-    private formioEventsService:FormioEventsService,
-    private figuresControllerService:FiguresControllerService
+    private formioEventsService: FormioEventsService,
+    private figuresControllerService: FiguresControllerService,
+    private serviceShare: ServiceShare
   ) {
     let figuresNumbersArray = ydocService.figuresMap!.get('ArticleFiguresNumbers')
     let figures = ydocService.figuresMap!.get('ArticleFigures')
@@ -35,7 +37,6 @@ export class FiguresDialogComponent implements AfterViewInit {
     figuresControllerService.figures = figures
     this.figuresNumbers = JSON.parse(JSON.stringify(figuresNumbersArray))
     this.figures = JSON.parse(JSON.stringify(figures));
-
   }
 
   ngAfterViewInit(): void {
@@ -46,28 +47,30 @@ export class FiguresDialogComponent implements AfterViewInit {
     moveItemInArray(this.figuresNumbers!, event.previousIndex, event.currentIndex);
   }
 
-  editFigure(fig:figure,figIndex:number){
+  editFigure(fig: figure, figIndex: number) {
+    this.serviceShare.PmDialogSessionService!.createSubsession();
     this.dialog.open(AddFigureDialogComponent, {
       width: '100%',
       height: '90%',
-      data: {fig,updateOnSave:false,index:figIndex,figID:fig.figureID},
+      data: { fig, updateOnSave: false, index: figIndex, figID: fig.figureID },
       disableClose: false
-    }).afterClosed().subscribe((result:{figure:figure,figureNode:Node}) => {
-      if(result&&result.figure&&result.figureNode){
-        this.figuresNumbers?.splice(figIndex,1,result.figure.figureID)
+    }).afterClosed().subscribe((result: { figure: figure, figureNode: Node }) => {
+      if (result && result.figure && result.figureNode) {
+        this.serviceShare.PmDialogSessionService!.endSubsession(true)
+        this.figuresNumbers?.splice(figIndex, 1, result.figure.figureID)
         this.figures![result.figure.figureID] = result.figure
         this.newFigureNodes[result.figure.figureID] = result.figureNode
         this.editedFigures[result.figure.figureID] = true
+      } else {
+        this.serviceShare.PmDialogSessionService!.endSubsession(false)
       }
     })
   }
 
-
-
-  deleteFigure(fig:figure,figIndex:number){
-    this.figuresNumbers?.splice(figIndex,1);
+  deleteFigure(fig: figure, figIndex: number) {
+    this.figuresNumbers?.splice(figIndex, 1);
     delete this.figures![fig.figureID]
-    if(this.editedFigures[fig.figureID]){
+    if (this.editedFigures[fig.figureID]) {
       delete this.editedFigures[fig.figureID]
     }
     /* if(!Object.keys(this.newFigureNodes).includes(fig.figureID)){
@@ -100,27 +103,31 @@ export class FiguresDialogComponent implements AfterViewInit {
 
   }
 
-  addFigure(){
+  addFigure() {
+    this.serviceShare.PmDialogSessionService!.createSubsession();
     this.dialog.open(AddFigureDialogComponent, {
       width: '100%',
       height: '90%',
-      data:{fig:undefined,updateOnSave:false,index:this.figuresNumbers?.length},
+      data: { fig: undefined, updateOnSave: false, index: this.figuresNumbers?.length },
       disableClose: false
-    }).afterClosed().subscribe((result:{figure:figure,figureNode:Node}) => {
-      if(result&&result.figure&&result.figureNode){
+    }).afterClosed().subscribe((result: { figure: figure, figureNode: Node }) => {
+      if (result && result.figure && result.figureNode) {
+        this.serviceShare.PmDialogSessionService!.endSubsession(true);
         this.figuresNumbers?.push(result.figure.figureID)
         this.figures![result.figure.figureID] = result.figure
         this.newFigureNodes[result.figure.figureID] = result.figureNode
+      } else {
+        this.serviceShare.PmDialogSessionService!.endSubsession(false);
       }
     })
   }
 
-  saveFigures(){
-    this.figuresControllerService.writeFiguresDataGlobal(this.newFigureNodes,this.figures!,this.figuresNumbers!,this.editedFigures)
-    this.dialogRef.close()
+  saveFigures() {
+    this.figuresControllerService.writeFiguresDataGlobal(this.newFigureNodes, this.figures!, this.figuresNumbers!, this.editedFigures)
+    this.dialogRef.close(true)
   }
 
-  cancelFiguresEdit(){
+  cancelFiguresEdit() {
     this.dialogRef.close()
   }
 }

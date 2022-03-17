@@ -11,6 +11,7 @@ import { split } from "lodash";
 import { notEqual } from "assert";
 import { C, I } from "@angular/cdk/keycodes";
 import { ReplaceStep } from "prosemirror-transform";
+import { ServiceShare } from "@app/editor/services/service-share.service";
 export const updateControlsAndFigures = (
   schema: Schema,
   figuresMap: YMap<any>,
@@ -607,7 +608,7 @@ export const updateControlsAndFigures = (
 }
 
 
-export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathMap:YMap<any>, rerenderFigures: (citats: any) => any, sectionID: string, citatsEditingSubject?: Subject<any>) => {
+export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathMap:YMap<any>, rerenderFigures: (citats: any) => any, sectionID: string,sharedService:ServiceShare, citatsEditingSubject?: Subject<any>) => {
 
   return (transaction: Transaction<any>, state: EditorState) => {
     try {
@@ -647,9 +648,14 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathM
                 }
               }else if(node.type.name == 'math_inline'||node.type.name == 'math_display'){
                 if (!transaction.getMeta('y-sync$')) {
-                  let mathObj = mathMap?.get('dataURLObj')
-                  let math_id = node.attrs.math_id;
-                  mathObj[sectionID][math_id] = undefined
+                  if(sharedService.PmDialogSessionService!.inSession()!=='nosession'){
+                    sharedService.PmDialogSessionService!.removeElement(node.attrs.math_id);
+                  }else{
+                    let mathObj = mathMap?.get('dataURLObj')
+                    let math_id = node.attrs.math_id;
+                    mathObj[math_id] = undefined
+                    mathMap?.set('dataURLObj',mathObj);
+                  }
                 }
               }
             });
