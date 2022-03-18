@@ -629,6 +629,14 @@ page-break {
   }
 }
 
+math-display{
+  .math-render{
+    width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 page-break:after {
   width: 35%;
   margin-left: 5%;

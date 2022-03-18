@@ -190,12 +190,12 @@ const makeCodeBlock = blockTypeItem(schema.nodes.code_block, {
 let headingsObj: any = {};
 
 for (let i = 1; i <= 10; i++)
-    headingsObj["makeHead" + i] = blockTypeItem(schema.nodes.heading, {
+    headingsObj["makeHead" + i] = wrapItem(schema.nodes.heading, {
         title: "Change to heading " + i,
         label: "Level " + i,
         attrs: { level: i }
     })
-const headings = headingsObj;
+const headings = Object.values(headingsObj);
 
 const insertHorizontalRule = new MenuItem({
     title: "Insert horizontal rule",

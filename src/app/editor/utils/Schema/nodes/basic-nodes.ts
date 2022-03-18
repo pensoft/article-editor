@@ -29,7 +29,7 @@ export const nodes = {
         toDOM: function toDOM(node:Node) { return ["hr",{...genericAttributtesToDom(node)}] }
     },
     heading: {
-        attrs: { tagName: { default: 'heading' },...getGenericAttributes() },
+        attrs: { tagName: { default: 'h1' },...getGenericAttributes() },
         content: "block+",
         group: "block",
         defining: true,

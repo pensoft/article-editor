@@ -11,7 +11,6 @@ import { buildMenuItems, exampleSetup } from '../utils/prosemirror-example-setup
 import { /* endEditorSchema, */schema } from '../utils/Schema';
 import {
   insertMathCmd,
-  makeBlockMathInputRule,
   makeInlineMathInputRule,
   mathBackspaceCmd,
   mathPlugin,
@@ -20,7 +19,7 @@ import {
   REGEX_BLOCK_MATH_DOLLARS,
   REGEX_INLINE_MATH_DOLLARS
 } from '@benrbray/prosemirror-math';
-import { DOMSerializer, Node, Slice } from 'prosemirror-model';
+import { DOMSerializer, Node, NodeType, Slice } from 'prosemirror-model';
 //@ts-ignore
 import { EditorView } from 'prosemirror-view';
 import { EditorState, Plugin, PluginKey, Transaction, TextSelection, Selection, NodeSelection } from 'prosemirror-state';
@@ -34,7 +33,7 @@ import { CellSelection, columnResizing, goToNextCell, tableEditing } from 'prose
 //@ts-ignore
 import * as trackedTransaction from '../utils/trackChanges/track-changes/index.js';
 import { CommentsService } from '../utils/commentsService/comments.service';
-import { inputRules } from 'prosemirror-inputrules';
+import { InputRule, inputRules } from 'prosemirror-inputrules';
 import { YdocService } from './ydoc.service';
 import { TrackChangesService } from '../utils/trachChangesService/track-changes.service';
 import { PlaceholderPluginService } from '../utils/placeholderPlugin/placeholder-plugin.service';
@@ -60,7 +59,7 @@ import { history } from '../utils/prosemirror-history/history.js';
 import { menuBar } from '../utils/prosemirror-menu-master/src/menubar.js'
 import { Form } from 'formiojs';
 import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
-import { I } from '@angular/cdk/keycodes';
+import { E, I } from '@angular/cdk/keycodes';
 import { AddMarkStep, Mapping, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform';
 import { ViewFlags } from '@angular/compiler/src/core';
 import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn, selectWholeCitatMarks, handleScrollToSelection } from '../utils/prosemirrorHelpers';
@@ -109,8 +108,19 @@ export class ProsemirrorEditorsService {
   menu: any = buildMenuItems(schema);
   menuTypes: any = {}
 
+  makeBlockMathInputRule(pattern: RegExp, nodeType: NodeType, getAttrs?: (match: string[]) => any) {
+    return new InputRule(pattern, (state, match, start, end) => {
+      let $start = state.doc.resolve(start)
+      let attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs
+      let tr = state.tr.replaceWith(start,end,nodeType.create({}))
+      return tr.setSelection(NodeSelection.create(
+        tr.doc, start+1
+      ))
+    })
+  }
+
   inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, schema.nodes.math_inline, (match: any) => { return { math_id: uuidv4() } });
-  blockMathInputRule = makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, schema.nodes.math_display, (match: any) => { return { math_id: uuidv4() } });
+  blockMathInputRule = this.makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, schema.nodes.math_display, (match: any) => { return { math_id: uuidv4() } });
 
   OnOffTrackingChangesShowTrackingSubject = new Subject<{ trackTransactions: boolean }>()
   trackChangesMeta: any
@@ -147,17 +157,15 @@ export class ProsemirrorEditorsService {
     private yjsHistory: YjsHistoryService,
     private serviceShare: ServiceShare) {
 
+    // change the mathBlock input rule
+
+
     this.serviceShare.shareSelf('ProsemirrorEditorsService', this)
-
-
     this.mobileVersionSubject.subscribe((data) => {
       // data == true => mobule version
       this.mobileVersion = data
 
     })
-
-
-
     this.OnOffTrackingChangesShowTrackingSubject.subscribe((data) => {
       this.shouldTrackChanges = data.trackTransactions
       let trackCHangesMetadata = this.ydocService.trackChangesMetadata?.get('trackChangesMetadata');
@@ -908,6 +916,123 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
+  renderSeparatedEditorWithNoSync(EditorContainer: HTMLDivElement,menuContainerClass:string,startingText?:string): {
+    editorID: string,
+    containerDiv: HTMLDivElement,
+    editorState: EditorState,
+    editorView: EditorView,
+    dispatchTransaction: any
+  } {
+
+    let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
+    EditorContainer.innerHTML = ''
+    let editorID = random.uuidv4()
+    let container = document.createElement('div');
+    let editorView: EditorView;
+    let doc: Node;
+
+    container.setAttribute('class', 'editor-container');
+
+    let filterTransaction = false
+
+    let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
+
+    /*fieldFormControl?.valueChanges.subscribe((data) => {
+
+       let tr = recreateTransform(
+        doc ,
+        endDoc,
+        complexSteps = true, // Whether step types other than ReplaceStep are allowed.
+        wordDiffs = false // Whether diffs in text nodes should cover entire words.
+      )
+    })*/
+
+    this.editorsEditableObj[editorID] = true
+
+    let menu: any = undefined
+    menu = { main: this.menuTypes['onlyPmMenu'] }
+    if(startingText){
+      doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, schema.nodes.paragraph.create({},schema.text(startingText))))
+    }else{
+      doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, schema.nodes.paragraph.create({})))
+    }
+    let edState = EditorState.create({
+      doc,
+      schema: schema,
+      plugins: [
+        mathPlugin,
+        keymap({
+          'Mod-Space': insertMathCmd(schema.nodes.math_inline),
+          'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
+          'Tab': goToNextCell(1),
+          'Shift-Tab': goToNextCell(-1)
+        }),
+        columnResizing({}),
+        tableEditing(),
+        this.placeholderPluginService.getPlugin(),
+        inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
+        ...menuBar({
+          floating: true,
+          content: menu ? menu : this.menuTypes, containerClass: menuContainerClass
+        })
+      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
+      ,
+      //@ts-ignore
+      /*  editorType: 'popupEditor' */
+    });
+    setTimeout(() => {
+      this.initDocumentReplace[editorID] = false;
+    }, 600);
+
+    this.editorsEditableObj[editorID] = true
+    let lastStep: any
+    let lastContainingInsertionMark: any
+    const dispatchTransaction = (transaction: Transaction) => {
+      this.transactionCount++
+      try {
+        if (lastStep == transaction.steps[0]) {
+          if (lastStep) { return }
+        }
+        lastStep = transaction.steps[0]
+        let isMath = false;
+        if (transaction.selection instanceof NodeSelection && (transaction.selection.node.type.name == 'math_inline' || transaction.selection.node.type.name == 'math_display')) {
+          let hasmarkAddRemoveStep = transaction.steps.filter((step) => {
+            return (step instanceof AddMarkStep || step instanceof RemoveMarkStep)
+          }).length > 0;
+          if (hasmarkAddRemoveStep) {
+            return
+          }
+          isMath = true
+        }
+        let state = editorView?.state.apply(transaction);
+        editorView?.updateState(state!);
+
+      } catch (err) { console.error(err); }
+    };
+    editorView = new EditorView(container, {
+      state: edState,
+      clipboardTextSerializer: (slice: Slice) => {
+        return mathSerializer.serializeSlice(slice);
+      },
+      editable: (state: EditorState) => {
+        return !this.mobileVersion && this.editorsEditableObj[editorID]
+        // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
+      },
+      dispatchTransaction,
+
+    });
+    EditorContainer.appendChild(container);
+
+    let editorCont: any = {
+      editorID: editorID,
+      containerDiv: container,
+      editorState: edState,
+      editorView: editorView,
+      dispatchTransaction: dispatchTransaction
+    };
+    return editorCont
+  }
+
   buildMenus() {
     this.menuTypes = this.menuService.buildMenuTypes()
   }
@@ -949,10 +1074,10 @@ export class ProsemirrorEditorsService {
       //@ts-ignore
       MathView.prototype.afterRender = (ret: any, mathview: any) => {
         mathObj = ydocservice.mathMap?.get('dataURLObj');
-        let matDom = mathview.dom;
+        let matDom = (mathview.dom as HTMLElement).getElementsByClassName('math-render')[0].getElementsByClassName('katex-display')[0];
         let nodeDomAttrs = mathview._node.type.spec.toDOM(mathview._node)[1];
         Object.keys(nodeDomAttrs).forEach((key) => {
-          ((matDom as HTMLElement).hasAttribute(key) && nodeDomAttrs[key] !== '' && nodeDomAttrs[key]) ? undefined : (matDom as HTMLElement).setAttribute(key, nodeDomAttrs[key]);
+          ((mathview.dom as HTMLElement).hasAttribute(key) && nodeDomAttrs[key] !== '' && nodeDomAttrs[key]) ? undefined : (mathview.dom as HTMLElement).setAttribute(key, nodeDomAttrs[key]);
         });
         let setDataURL = (dataURL: string) => {
           let session = seviceShare.PmDialogSessionService ? seviceShare.PmDialogSessionService!.inSession() : 'nosession';
@@ -966,9 +1091,9 @@ export class ProsemirrorEditorsService {
         mathObj = this.ydocService.mathMap?.get('dataURLObj')
         if (!mathObj[mathview._node.attrs.math_id]) {
           setTimeout(() => {
-            toCanvas(mathview.dom as HTMLElement).then((canvasData: any) => {
+            toCanvas(matDom as HTMLElement).then((canvasData: any) => {
               if (canvasData.toDataURL() == 'data:,') {
-                html2canvas(mathview.dom as HTMLElement).then((canvasData1) => {
+                html2canvas(matDom as HTMLElement).then((canvasData1) => {
                   setDataURL(canvasData.toDataURL())
                 })
               } else {
@@ -977,11 +1102,10 @@ export class ProsemirrorEditorsService {
             })
           }, 100)
         } else if (mathview._isEditing) {
-
           setTimeout(() => {
-            toCanvas(mathview.dom as HTMLElement).then((canvasData: any) => {
+            toCanvas(matDom as HTMLElement).then((canvasData: any) => {
               if (canvasData.toDataURL() == 'data:,') {
-                html2canvas(mathview.dom as HTMLElement).then((canvasData1) => {
+                html2canvas(matDom as HTMLElement).then((canvasData1) => {
                   setDataURL(canvasData.toDataURL())
                 })
               } else {

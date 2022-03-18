@@ -23,6 +23,9 @@ import { render as canvasRender } from './canvasRenderer.js'
 import { FigureComponent } from '../figures-dialog/figure/figure.component';
 import { N } from '@angular/cdk/keycodes';
 import { leadingComment } from '@angular/compiler';
+import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
+import { EditorState } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
 pdfMake.vfs = vfs;
 
 pdfMake.fonts = {
@@ -158,6 +161,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
   @ViewChild('elementsContainer', { read: ElementRef }) elementsContainer?: ElementRef;
   @ViewChild('spinnerEl', { read: ElementRef }) spinnerEl?: ElementRef;
+  @ViewChild('headerPMEditor', { read: ElementRef }) headerPMEditor?: ElementRef;
+  @ViewChild('footerPMEditor', { read: ElementRef }) footerPMEditor?: ElementRef;
 
   pageSize: 'A0' | 'A1' | 'A2' | 'A3' | 'A4' | 'A5' = 'A4';
   data: any
@@ -169,14 +174,30 @@ export class EditBeforeExportComponent implements AfterViewInit {
   marginBottomControl = new FormControl(this.pageMargin[2])
   marginLeftControl = new FormControl(this.pageMargin[3])
 
-  headerControl = new FormControl('Header should be displayed here.');
-  footerControl = new FormControl('Footer should be displayed here.');
+  headerPmContainer ?:{
+    editorID: string;
+    containerDiv: HTMLDivElement;
+    editorState: EditorState;
+    editorView: EditorView;
+    dispatchTransaction: any;
+}
+
+footerPmContainer ?:{
+  editorID: string;
+  containerDiv: HTMLDivElement;
+  editorState: EditorState;
+  editorView: EditorView;
+  dispatchTransaction: any;
+}
+
+
   constructor(
     @Inject(MAT_DIALOG_DATA) public dialogData: { selected: 'pdf' | 'rtf' | 'msWord' | 'jatsXml' },
     private changeDetectorRef: ChangeDetectorRef,
     public dialogRef: MatDialogRef<EditBeforeExportComponent>,
     private http: HttpClient,
     private ydocService: YdocService,
+    private prosemirrorEditorsService:ProsemirrorEditorsService
   ) {
     this.data = data;
   }
@@ -219,6 +240,13 @@ export class EditBeforeExportComponent implements AfterViewInit {
     return articleSectionsStructureFlat
   }
 
+  renderProsemirrorEditors() {
+    let header = this.headerPMEditor?.nativeElement
+    this.headerPmContainer = this.prosemirrorEditorsService.renderSeparatedEditorWithNoSync(header,'pm-pdf-menu-container','Header should be displayed here.')
+    let footer = this.footerPMEditor?.nativeElement
+    this.footerPmContainer = this.prosemirrorEditorsService.renderSeparatedEditorWithNoSync(footer,'pm-pdf-menu-container','Footer should be displayed here.')
+  }
+
   async ngAfterViewInit() {
     this.resumeSpinner()
     let articleElement = document.getElementById('app-article-element') as HTMLElement;
@@ -226,7 +254,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
     this.makeFlat()
     this.elementOuterHtml = []
-
+    this.renderProsemirrorEditors()
 
 
     let loopChildrenRecursivly = (element: Element, sectionContainer: string[], section?: articleSection) => {
@@ -365,63 +393,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
     this.data.pageMargins = [pxToPt(this.pageMargin[3]), pxToPt(this.pageMargin[0]), pxToPt(this.pageMargin[1]), pxToPt(this.pageMargin[2])];
 
-    let marginFooter = [pxToPt(this.pageMargin[0]), 15, pxToPt(this.pageMargin[2]), 15];
-    let marginHeader = [pxToPt(+this.pageMargin[0]), 20, pxToPt(+this.pageMargin[2]), 15];
-    let footer = this.footerControl.value;
-    let header = this.headerControl.value;
-    this.data.footer = function (currentPage: any, pageCount: any) {
-      return [{
-        margin: marginFooter,
-        columnGap: 10,
-        columns: [
-          {
-            width: 'auto',
-            alignment: 'left',
-            text: '',
-            fontSize: 9
-          },
-          {
-            width: '*',
-            alignment: 'center',
-            text: footer,
-            fontSize: 9
-          },
-          {
-            width: 'auto',
-            alignment: 'right',
-            text: '',
-            fontSize: 9
-          }
-        ]
-      }]
-    },
-      this.data.header = function (currentPage: any, pageCount: any, pageSize: any) {
-        // you can apply any logic and return any valid pdfmake element
-        return [{
-          margin: marginHeader,
-          columnGap: 10,
-          columns: [
-            {
-              width: 'auto',
-              alignment: 'left',
-              text: currentPage.toString(),
-              fontSize: 9
-            },
-            {
-              width: '*',
-              alignment: 'center',
-              text: header,
-              fontSize: 9
-            },
-            {
-              width: 'auto',
-              alignment: 'right',
-              text: '',
-              fontSize: 9
-            }
-          ]
-        }]
-      }
+
     let generateFigure = async (element: Element) => {
       let figuresObj = this.ydocService.figuresMap!.get('ArticleFigures');
 
@@ -1053,15 +1025,118 @@ export class EditBeforeExportComponent implements AfterViewInit {
         return Promise.resolve(link)
       } else if (tag == 'math-inline' || tag == 'math-display') {
         let canvasWidth = pxToPt(element.getBoundingClientRect().width);
-        let result = { image: math_data_url_obj[element.getAttribute('mathid')!], width: canvasWidth, props: { canvasDims: [pxToPt(element.getBoundingClientRect().width), pxToPt(element.getBoundingClientRect().height)] } }
+        let result: any = { image: math_data_url_obj[element.getAttribute('mathid')!], width: canvasWidth, props: { canvasDims: [pxToPt(element.getBoundingClientRect().width), pxToPt(element.getBoundingClientRect().height)] } }
         if (tag == 'math-display') {
-          result.width = pageInPoints;
+          let katexelRect = (element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] || element).getBoundingClientRect()
+          result.width = pxToPt(katexelRect.width);
+          let img = result;
+          img.props.canvasDims = [pxToPt(katexelRect.width), pxToPt(katexelRect.height)]
+          result = {
+            columns: [
+              {
+                text: '', width: "*"
+              },
+              {
+                width: 'auto',
+                stack: [img]
+              },
+              {
+                text: '', width: "*"
+              }
+            ],
+            props: { type: "block-math" }
+          }
         }
-        return Promise.resolve(result);
+        if (math_data_url_obj[element.getAttribute('mathid')!] && 'data:,' !== math_data_url_obj[element.getAttribute('mathid')!]) {
+          return Promise.resolve(result);
+        } else {
+          return Promise.resolve({
+            columns: [
+              {
+                text: '', width: "*"
+              },
+              {
+                width: 'auto',
+                stack: ['(empty)'], color: 'red'
+              },
+              {
+                text: '', width: "*"
+              }
+            ]
+          })
+        }
       } else {
         return Promise.resolve('')
       }
     }
+
+    let marginFooter = [pxToPt(this.pageMargin[0]), 15, pxToPt(this.pageMargin[2]), 15];
+    let marginHeader = [pxToPt(+this.pageMargin[0]), 20, pxToPt(+this.pageMargin[2]), 15];
+    console.log(this.footerPmContainer,this.headerPmContainer);
+    let headerStack:any = []
+    let footerStack:any = []
+    let headerCh = Array.from(this.headerPmContainer?.editorView.dom.childNodes!)
+    let footerCh = Array.from(this.footerPmContainer?.editorView.dom.childNodes!)
+    for(let i = 0 ; i < headerCh.length;i++){
+      headerStack.push(await generatePDFData(headerCh[i] as HTMLElement))
+    }
+    for(let i = 0 ; i < footerCh.length;i++){
+      footerStack.push(await generatePDFData(footerCh[i] as HTMLElement))
+    }
+
+    this.data.footer = function (currentPage: any, pageCount: any) {
+      return [{
+        margin: marginFooter,
+        columnGap: 10,
+        columns: [
+          {
+            width: 'auto',
+            alignment: 'left',
+            text: '',
+            fontSize: 9
+          },
+          {
+            width: '*',
+            alignment: 'center',
+            stack: footerStack,
+            fontSize: 9
+          },
+          {
+            width: 'auto',
+            alignment: 'right',
+            text: '',
+            fontSize: 9
+          }
+        ]
+      }]
+    },
+      this.data.header = function (currentPage: any, pageCount: any, pageSize: any) {
+        // you can apply any logic and return any valid pdfmake element
+        return [{
+          margin: marginHeader,
+          columnGap: 10,
+          columns: [
+            {
+              width: 'auto',
+              alignment: 'left',
+              text: currentPage.toString(),
+              fontSize: 9
+            },
+            {
+              width: '*',
+              alignment: 'center',
+              stack: headerStack,
+              fontSize: 9
+            },
+            {
+              width: 'auto',
+              alignment: 'right',
+              text: '',
+              fontSize: 9
+            }
+          ]
+        }]
+      }
 
     let val = await new Promise(async (resolve, reject) => {
       let doneSubject = new Subject();
@@ -1200,7 +1275,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
               if (dawnScalePercent >= 0.8) {
                 nodeToChange.pageOrderCalculated = true;
                 nodeToChange.pageBreak = undefined;
-                nodeToChange.table.body[0][0].fit = [nodeToChange.table.body[0][0].props.initRect[0]* dawnScalePercent, imageNewHeight]
+                nodeToChange.table.body[0][0].fit = [nodeToChange.table.body[0][0].props.initRect[0] * dawnScalePercent, imageNewHeight]
               } else if (pageheightInPoints < figureHeight) {
                 nodeToChange.pageBreak = undefined;
               }
@@ -1240,90 +1315,108 @@ export class EditBeforeExportComponent implements AfterViewInit {
               return true
             }
           }
-        } else if (node.props.type == 'paragraphTable' && nodeInfo.pageNumbers.length > 1 ) {
+        } else if (node.props.type == 'paragraphTable' && nodeInfo.pageNumbers.length > 1) {
           let structuredNodes = nodeFunc.getContent();
           let nodesBefore = nodeFunc.getAllNodesBefore();
           let nodesAfter = nodeFunc.getAllNodesAfter();
-          let firstLinePage =  node.stack[0]?node.stack[0].nodeInfo.pageNumbers.length==1?node.stack[0].nodeInfo.pageNumbers[0]:undefined:undefined
-          let secondLinePage = node.stack[1]?node.stack[1].nodeInfo.pageNumbers.length==1?node.stack[1].nodeInfo.pageNumbers[0]:undefined:undefined
-          if (firstLinePage&&secondLinePage&&firstLinePage !== secondLinePage&&false) {
+          let firstLinePage = node.stack[0] ? node.stack[0].nodeInfo.pageNumbers.length == 1 ? node.stack[0].nodeInfo.pageNumbers[0] : undefined : undefined
+          let secondLinePage = node.stack[1] ? node.stack[1].nodeInfo.pageNumbers.length == 1 ? node.stack[1].nodeInfo.pageNumbers[0] : undefined : undefined
+          if (firstLinePage && secondLinePage && firstLinePage !== secondLinePage && false) {
             node.pageBreak = 'before'
             return true
-          }else{
-            let breakingLine:any
-            for(let i = 0 ; i < node.stack.length;i++){
-              if(node.stack[i].nodeInfo.pageNumbers.length==2&&!node.stack[i].pageBreak){
+          } else {
+            let breakingLine: any
+            for (let i = 0; i < node.stack.length; i++) {
+              if (node.stack[i].nodeInfo.pageNumbers.length == 2 && !node.stack[i].pageBreak) {
                 breakingLine = node.stack[i]
               }
             }
-            if(breakingLine){
-              let tableBody :any;
-              if(breakingLine.table){
+            if (breakingLine) {
+              let tableBody: any;
+              if (breakingLine.table) {
                 tableBody = breakingLine.table.body
-              }else if(breakingLine.columns){
-                breakingLine.columns.forEach((col:any)=>{
-                  if(col.table){
+              } else if (breakingLine.columns) {
+                breakingLine.columns.forEach((col: any) => {
+                  if (col.table) {
                     tableBody = col.table.body
                   }
                 })
               }
-              if(tableBody){
-                let images:any[] = []
-                tableBody[0].forEach((cell:any)=>{
-                  if(cell.image){
+              if (tableBody) {
+                let images: any[] = []
+                tableBody[0].forEach((cell: any) => {
+                  if (cell.image) {
                     images.push(cell)
                   }
                 })
-                if(images.length>0){
-                  let imagesHeights :any[]= [];
-                  let freeSpace = nodesBefore[nodesBefore.length-1].props.availableHeight-2; // free space on the page before
+                if (images.length > 0) {
+                  let imagesHeights: any[] = [];
+                  let freeSpace = nodesBefore[nodesBefore.length - 1].props.availableHeight - 2; // free space on the page before
                   let canFitWithScale = true
-                  images.forEach((image)=>{
+                  images.forEach((image) => {
                     let imageInitDims = image.props.canvasDims;
                     let imageWidth = image.width
-                    let imageDims = [imageWidth,(imageInitDims[1]/imageInitDims[0])*imageWidth];
-                    imagesHeights.push({h:imageDims[1],rect:imageDims});
-                    let requiredScale = freeSpace/imageDims[1];
-                    if(requiredScale<0.8){
+                    let imageDims = [imageWidth, (imageInitDims[1] / imageInitDims[0]) * imageWidth];
+                    imagesHeights.push({ h: imageDims[1], rect: imageDims });
+                    let requiredScale = freeSpace / imageDims[1];
+                    if (requiredScale < 0.8) {
                       canFitWithScale = false;
                     }
                   })
-                  let isfit = imagesHeights.reduce((prev,curr,i,arr)=>{return prev&&curr.h<freeSpace},true)
-                  if(breakingLine.pageBreak !== "after"&&isfit){
+                  let isfit = imagesHeights.reduce((prev, curr, i, arr) => { return prev && curr.h < freeSpace }, true)
+                  if (breakingLine.pageBreak !== "after" && isfit) {
                     breakingLine.pageBreak = "after"
                     node.pageOrderCalculated = false;
-                  }else if(canFitWithScale&&!isfit){
+                  } else if (canFitWithScale && !isfit) {
                     let scaled = false
-                    imagesHeights.forEach((dims,index)=>{
-                      if(dims.h>freeSpace){
-                        let requiredScale = (freeSpace-4)/dims.rect[1];
+                    imagesHeights.forEach((dims, index) => {
+                      if (dims.h > freeSpace) {
+                        let requiredScale = (freeSpace - 4) / dims.rect[1];
                         let imageToScale = images[index];
-                        imageToScale.width = imageToScale.width*requiredScale
+                        imageToScale.width = imageToScale.width * requiredScale
                         scaled = true
                       }
                     })
-                    if(scaled){
+                    if (scaled) {
                       breakingLine.pageBreak = "after"
                       node.pageOrderCalculated = false;
                     }
                   }
                 }
               }
-            }else{
-              let lineOnNewPage :any = undefined
+            } else {
+              let lineOnNewPage: any = undefined
               let page
-              for(let i = 0 ; i < node.stack.length;i++){
-                if(!lineOnNewPage&&page&&node.stack[i].nodeInfo.pageNumbers[0]>page&&!node.stack[i].pageBreak){
+              for (let i = 0; i < node.stack.length; i++) {
+                if (!lineOnNewPage && page && node.stack[i].nodeInfo.pageNumbers[0] > page && !node.stack[i].pageBreak) {
                   lineOnNewPage = node.stack[i]
                 }
-                page = node.stack[i].pageBreak!=='after'?node.stack[i].nodeInfo.pageNumbers[0]:undefined
+                page = node.stack[i].pageBreak !== 'after' ? node.stack[i].nodeInfo.pageNumbers[0] : undefined
               }
-              if(lineOnNewPage){
+              if (lineOnNewPage) {
                 lineOnNewPage.pageBreak = 'before';
                 node.pageOrderCalculated = false;
               }
             }
             return true
+          }
+        } else if (node.props.type == 'block-math') {
+          let structuredNodes = nodeFunc.getContent();
+          let nodesBefore = nodeFunc.getAllNodesBefore();
+          let nodesAfter = nodeFunc.getAllNodesAfter();
+          let nodeBeforeMath = nodesBefore.length > 0 ? nodesBefore[nodesBefore.length - 1] : undefined;
+          if (nodeBeforeMath && nodeBeforeMath.nodeInfo.pageNumbers[nodeBeforeMath.nodeInfo.pageNumbers.length - 1] < node.nodeInfo.pageNumbers[0]) {
+            let availableHeightOnPageBeforeMath = nodeBeforeMath.props.availableHeight - 4;
+            let imagePdf = node.columns[1].stack[0];
+            let imgDims = imagePdf.props.canvasDims;//[width,height]
+            let mathWidth = imagePdf.width
+            let imageHeight = (imgDims[1] / imgDims[0]) * mathWidth;
+            let requiredScalePercent = availableHeightOnPageBeforeMath / imageHeight;
+            if (requiredScalePercent > 0.8 && requiredScalePercent < 1) {
+              let newWidth = mathWidth * requiredScalePercent
+              imagePdf.width = newWidth
+              return true;
+            }
           }
         }
         return false;

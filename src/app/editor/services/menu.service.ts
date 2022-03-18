@@ -1,5 +1,5 @@
 //@ts-ignore
-import { Dropdown as Dropdown2} from '../utils/prosemirror-menu-master/src/index.js';
+import { Dropdown as Dropdown2 } from '../utils/prosemirror-menu-master/src/index.js';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Dropdown, DropdownSubmenu } from 'prosemirror-menu';
@@ -22,24 +22,24 @@ export class MenuService {
 
   constructor(
     public dialog: MatDialog,
-    private commentsService:CommentsService,
-    private yjsHistory:YjsHistoryService,
-    ) {
+    private commentsService: CommentsService,
+    private yjsHistory: YjsHistoryService,
+  ) {
     menuDialogs.shareDialog(dialog);
-    this.addCommentSubject=commentsService.addCommentSubject;
+    this.addCommentSubject = commentsService.addCommentSubject;
   }
 
-  sectionMenus: { [key: string]: (string | { dropdownName?: string, dropdownIcon?:string,label?: string, content: (string | { dropdownSubmenuName?: string,dropdownSubmenuIcon?:string, label?: string, content: any })[] })[][] } = {
+  sectionMenus: { [key: string]: (string | { dropdownName?: string, dropdownIcon?: string, label?: string, content: (string | { dropdownSubmenuName?: string, dropdownSubmenuIcon?: string, label?: string, content: any })[] })[][] } = {
     'Title':
       [
         ['toggleStrong', 'toggleEm', 'toggleCode'],
         ['alignMenu'],
-        ['insertLink','addAnchorTagMenuItem'],
+        ['insertLink', 'addAnchorTagMenuItem'],
         ['toggleSubscriptItem', 'toggleSuperscriptItem'],
-        ['undoItem', 'redoItem','insertPageBreak']
+        ['undoItem', 'redoItem', 'insertPageBreak']
       ],
     'fullMenu1': [
-      ['toggleStrong', 'toggleEm', 'toggleCode', 'insertLink','addAnchorTagMenuItem'],
+      ['toggleStrong', 'toggleEm', 'toggleCode', 'insertLink', 'addAnchorTagMenuItem'],
       [
         { dropdownName: 'Insert', content: ['insertImage', 'insertHorizontalRule'] },
         {
@@ -59,40 +59,47 @@ export class MenuService {
       ['insertVideoItem',
         { dropdownName: 'Math', content: ['addMathInlineMenuItem', 'addMathBlockMenuItem'] }
       ],
-      ['tableMenu','addMathBlockMenuItem','insertPageBreak']
+      ['tableMenu', 'addMathBlockMenuItem', 'insertPageBreak']
     ],
     'fullMenu': [
       ['textMenu'],
       ['alignMenu'],
       ['undoItem', 'redoItem'],
-      ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
-      ['insertMenu','logNodesMenuItem','insertFigure','insertPageBreak']
+      ['insertLink', 'addAnchorTagMenuItem', 'highLightMenuItem'],
+      ['insertMenu', 'logNodesMenuItem', 'insertFigure', 'insertPageBreak']
     ],
-    'fullMenuPMundoRedo':[
+    'fullMenuPMundoRedo': [
       ['textMenu'],
       ['alignMenu'],
       ['undoItemPM', 'redoItemPM'],
-      ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
-      ['insertMenu','logNodesMenuItem','insertPageBreak']
+      ['insertLink', 'addAnchorTagMenuItem', 'highLightMenuItem'],
+      ['insertMenu', 'logNodesMenuItem', 'insertPageBreak']
     ],
     'fullMenuWithLog': [
       ['textMenu'],
       ['alignMenu'],
       ['undoItem', 'redoItem'],
-      ['insertLink', 'addAnchorTagMenuItem','highLightMenuItem'],
-      ['insertMenu','insertPageBreak']
+      ['insertLink', 'addAnchorTagMenuItem', 'highLightMenuItem'],
+      ['insertMenu', 'insertPageBreak']
     ],
     'SimpleMenu': [
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
-      ['undoItem', 'redoItem','insertVideoItem'],
-      ['logNodesMenuItem','insertFigure','insertPageBreak',{ dropdownName: 'Headings', content: ['insertImage', 'insertHorizontalRule'] }]
+      ['undoItem', 'redoItem', 'insertVideoItem'],
+      ['logNodesMenuItem', 'insertFigure', 'insertPageBreak', { dropdownName: 'Headings', content: ['insertImage', 'insertHorizontalRule'] }]
     ],
-    'SimpleMenuPMundoRedo':[
+    'SimpleMenuPMundoRedo': [
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
-      ['undoItemPM', 'redoItemPM','insertVideoItem'],
-      ['logNodesMenuItem','insertPageBreak'],
+      ['undoItemPM', 'redoItemPM', 'insertVideoItem'],
+      ['logNodesMenuItem', 'insertPageBreak'],
+    ],
+    'onlyPmMenu': [
+      ['textMenu'],
+      ['alignMenu'],
+      ['undoItem', 'redoItem'],
+      ['insertLink', 'addAnchorTagMenuItem', 'highLightMenuItem'],
+      ['insertMenu', 'headings' ],
     ]
   }
 
@@ -108,7 +115,7 @@ export class MenuService {
     menu.fullMenu[5].push(menuItems.subscriptItem);
     menu.fullMenu[6] = [];
     menu.fullMenu[6].push(menuItems.insertVideoItem);
-    menu.fullMenu[6].push(new Dropdown(m.cut([menuItems.mathInlineItem, menuItems.mathBlockItem]), { label: "Math",class:'horizontal-dropdown' }));
+    menu.fullMenu[6].push(new Dropdown(m.cut([menuItems.mathInlineItem, menuItems.mathBlockItem]), { label: "Math", class: 'horizontal-dropdown' }));
     menu.fullMenu[7] = [];
     menu.fullMenu[7].push(new Dropdown(menuItems.tableMenu, { label: "Table", title: "Table" }));
     menu.fullMenu[8] = [];
@@ -126,29 +133,29 @@ export class MenuService {
     let menuBuild: any[] = []
     let menuItems = m.getItems()
     let getMenuItem = (itemName: string) => {
-      let item : any;
+      let item: any;
       if (itemName == 'alignMenu') {
 
-        item = new Dropdown2(menuItems[itemName], { class: "horizontal-dropdown" ,dropdownType:'alignmenu',icon:createCustomIcon('align2.svg', 18)})
+        item = new Dropdown2(menuItems[itemName], { class: "horizontal-dropdown", dropdownType: 'alignmenu', icon: createCustomIcon('align2.svg', 18) })
       } else if (itemName == 'tableMenu') {
         item = new Dropdown(menuItems[itemName], { class: "table-icon vertival-dropdown" })
       } else if (itemName == 'textMenu') {
-        let dropdown = new Dropdown2(menuItems[itemName], { class: " horizontal-dropdown",icon:createCustomIcon('text.svg',16) })
+        let dropdown = new Dropdown2(menuItems[itemName], { class: " horizontal-dropdown", icon: createCustomIcon('text.svg', 16) })
         item = dropdown
       } else if (itemName == 'insertMenu') {
-        item = new Dropdown(menuItems[itemName], { label: 'Insert',class:'horizontal-dropdown' })
+        item = new Dropdown(menuItems[itemName], { label: 'Insert', class: 'horizontal-dropdown' })
       } else if (itemName == 'headings') {
         //@ts-ignore
-        item = Object.values(menuItems[itemName])
+        item = new Dropdown(menuItems[itemName], { label: 'Headings',class: "vertival-dropdown" })
 
-      }  else if (itemName == 'redoItem') {
+      } else if (itemName == 'redoItem') {
         item = this.yjsHistory.redoYjs()
       } else if (itemName == 'undoItem') {
         item = this.yjsHistory.undoYjs()
-      }else {
+      } else {
         item = menuItems[itemName]
       }
-      if(!item){
+      if (!item) {
         console.error(`Could not find menu item with name "${itemName}" !!`);
       }
       return item
@@ -184,19 +191,19 @@ export class MenuService {
           menuBuild[i][j] = getMenuItem(menuItem);
         } else {
 
-          menuBuild[i][j] = buildDropDown( menuItem.dropdownIcon!, 'dropdown', menuItem.content)!
+          menuBuild[i][j] = buildDropDown(menuItem.dropdownIcon!, 'dropdown', menuItem.content)!
         }
       })
     })
     return menuBuild;
   }
 
-  buildMenuTypes(){
-    let menuTypes:any = {}
+  buildMenuTypes() {
+    let menuTypes: any = {}
 
     menuTypes.main = this.attachMenuItems('SimpleMenu');
-    Object.keys(this.sectionMenus).forEach((key)=>{
-      if(key!=='SimpleMenu'){
+    Object.keys(this.sectionMenus).forEach((key) => {
+      if (key !== 'SimpleMenu') {
         menuTypes[key] = this.attachMenuItems(key);
       }
     })

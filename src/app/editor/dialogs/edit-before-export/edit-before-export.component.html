@@ -34,18 +34,27 @@
     <button mat-raised-button (click)="closePdfPrintDialog()">Close</button>
   </div>
 </mat-toolbar>
-<mat-toolbar class="toolbar">
+<div class="pm-toolbar">
+  <div class="pm-pdf-menu-container"></div>
   <div class='hf-fields'>
-    <mat-form-field class="field-hf" appearance="fill">
-      <mat-label class="margin-label">Header:</mat-label>
-      <input type="text" matInput [formControl]="headerControl">
-    </mat-form-field>
-    <mat-form-field class="field-hf" appearance="fill">
-      <mat-label class="margin-label">Footer:</mat-label>
-      <input type="text" matInput [formControl]="footerControl">
-    </mat-form-field>
+
+    <div class="pm-editor-label">
+      Header:
+    </div>
+    <div class="pm-editor-label">
+      Footer:
+    </div>
   </div>
-</mat-toolbar>
+  <div class='hf-fields'>
+
+    <div class="pm-editor" #headerPMEditor>
+
+    </div>
+    <div class="pm-editor" #footerPMEditor>
+
+    </div>
+  </div>
+</div>
 <div class='preview-container'>
   <div class="elements-container">
     <!-- <div class="horizontal-lines" id="hr-lines">horizontal lines</div> -->
