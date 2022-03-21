@@ -53,7 +53,6 @@ export function handlePaste(mathMap:YMap<any>,sectionID:string){
         }
       }
       if (parentRef?.attrs.contenteditableNode === 'false'||parentRef?.attrs.contenteditableNode === false) {
-        debugger
         noneditableNodes = true;
       }
     }

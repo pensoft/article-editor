@@ -25,6 +25,9 @@ import { N } from '@angular/cdk/keycodes';
 import { leadingComment } from '@angular/compiler';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
 import { EditorState } from 'prosemirror-state';
+import { EditorView as EditorViewCM, EditorState as EditorStateCM } from '@codemirror/basic-setup'
+import { basicSetup } from '@codemirror/basic-setup';
+import { javascript } from '@codemirror/lang-javascript';
 import { EditorView } from 'prosemirror-view';
 pdfMake.vfs = vfs;
 
@@ -147,10 +150,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'p',
     'table',
-    'blockquote',
-    'pre',
     'br',
-    'spacer',
     'img',
     'block-figure',
     'ol',
@@ -167,28 +167,28 @@ export class EditBeforeExportComponent implements AfterViewInit {
   pageSize: 'A0' | 'A1' | 'A2' | 'A3' | 'A4' | 'A5' = 'A4';
   data: any
   readyRendering = new Subject<any>();
-  pageMargin = [72, 72, 72, 72];
+  pageMarg = [72, 72, 72, 72];
 
-  marginTopControl = new FormControl(this.pageMargin[0])
-  marginRightControl = new FormControl(this.pageMargin[1])
-  marginBottomControl = new FormControl(this.pageMargin[2])
-  marginLeftControl = new FormControl(this.pageMargin[3])
+  margTopControl = new FormControl(this.pageMarg[0])
+  margRightControl = new FormControl(this.pageMarg[1])
+  margBottomControl = new FormControl(this.pageMarg[2])
+  margLeftControl = new FormControl(this.pageMarg[3])
 
-  headerPmContainer ?:{
+  headerPmContainer?: {
     editorID: string;
     containerDiv: HTMLDivElement;
     editorState: EditorState;
     editorView: EditorView;
     dispatchTransaction: any;
-}
+  }
 
-footerPmContainer ?:{
-  editorID: string;
-  containerDiv: HTMLDivElement;
-  editorState: EditorState;
-  editorView: EditorView;
-  dispatchTransaction: any;
-}
+  footerPmContainer?: {
+    editorID: string;
+    containerDiv: HTMLDivElement;
+    editorState: EditorState;
+    editorView: EditorView;
+    dispatchTransaction: any;
+  }
 
 
   constructor(
@@ -197,11 +197,12 @@ footerPmContainer ?:{
     public dialogRef: MatDialogRef<EditBeforeExportComponent>,
     private http: HttpClient,
     private ydocService: YdocService,
-    private prosemirrorEditorsService:ProsemirrorEditorsService
+    private prosemirrorEditorsService: ProsemirrorEditorsService
   ) {
     this.data = data;
   }
-
+  codemirrorJsonEditor?: EditorViewCM
+  @ViewChild('codemirrorJson', { read: ElementRef }) codemirrorJson?: ElementRef;
   fillElementsArray() {
     this.elements = []
     let loopChildren = (element: HTMLElement) => {
@@ -240,14 +241,29 @@ footerPmContainer ?:{
     return articleSectionsStructureFlat
   }
 
+  renderCodeMirrorEditor() {
+    this.codemirrorJsonEditor = new EditorViewCM({
+      state: EditorStateCM.create({
+        doc:
+          `${JSON.stringify(this.marginByTags, null, "\t")}`,
+        extensions: [basicSetup, javascript()],
+      }),
+
+      parent: this.codemirrorJson?.nativeElement,
+      /* dispatch:()=>{
+
+      }, */
+    })
+  }
   renderProsemirrorEditors() {
     let header = this.headerPMEditor?.nativeElement
-    this.headerPmContainer = this.prosemirrorEditorsService.renderSeparatedEditorWithNoSync(header,'pm-pdf-menu-container','Header should be displayed here.')
+    this.headerPmContainer = this.prosemirrorEditorsService.renderSeparatedEditorWithNoSync(header, 'pm-pdf-menu-container', 'Header should be displayed here.')
     let footer = this.footerPMEditor?.nativeElement
-    this.footerPmContainer = this.prosemirrorEditorsService.renderSeparatedEditorWithNoSync(footer,'pm-pdf-menu-container','Footer should be displayed here.')
+    this.footerPmContainer = this.prosemirrorEditorsService.renderSeparatedEditorWithNoSync(footer, 'pm-pdf-menu-container', 'Footer should be displayed here.')
   }
 
   async ngAfterViewInit() {
+    this.renderCodeMirrorEditor()
     this.resumeSpinner()
     let articleElement = document.getElementById('app-article-element') as HTMLElement;
     let prosemirrorEditors = articleElement.getElementsByClassName('ProseMirror-example-setup-style');
@@ -316,6 +332,25 @@ footerPmContainer ?:{
   }
   tablepadding = 6;
 
+  // [left, top, right, bottom]
+
+  marginByTags: { [key: string]: number[] } = {
+    'h1': [10, 40],
+    'h2': [5, 30],
+    'h3': [5, 25],
+    'h4': [5, 20],
+    'h5': [4, 15],
+    'h6': [3, 10],
+    'p': [2, 8],
+    'table': [5, 10],
+    'block-figure': [10, 40],
+    'ol': [5, 10],
+    'ul': [5, 10],
+    'math-display': [10, 10],
+    'form-field': [5, 10],
+    'br': [2, 2],
+  }
+
   closePdfPrintDialog() {
     this.dialogRef.close()
   }
@@ -343,30 +378,54 @@ footerPmContainer ?:{
   stopSpinner = () => {
     if (this.intervalID) {
       (this.spinnerEl!.nativeElement as HTMLImageElement).style.display = 'none'
+
       clearInterval(this.intervalID);
       this.intervalID = undefined
     }
   }
 
+  fillMargins() {
+    let oldMargins = this.marginByTags;
+    let returnMargins: any = {}
+    try {
+      let data = JSON.parse(this.codemirrorJsonEditor!.state.doc.sliceString(0, this.codemirrorJsonEditor!.state.doc.length))
+      this.marginByTags = data
+      Object.keys(this.marginByTags).forEach((key) => {
+        let m = this.marginByTags[key]
+        returnMargins[key] = [0, m[0], 0, m[1]];
+      })
+    } catch (e) {
+      console.error(e);
+      this.marginByTags = oldMargins
+      Object.keys(this.marginByTags).forEach((key) => {
+        let m = this.marginByTags[key]
+        returnMargins[key] = [0, m[0], 0, m[1]];
+      })
+    }
+    return returnMargins
+  }
   refreshContent = async () => {
     this.resumeSpinner()
     this.fillElementsArray()
-    this.pageMargin = [
-      +this.marginTopControl.value,
-      +this.marginRightControl.value,
-      +this.marginBottomControl.value,
-      +this.marginLeftControl.value,
+    this.pageMarg = [
+      +this.margTopControl.value,
+      +this.margRightControl.value,
+      +this.margBottomControl.value,
+      +this.margLeftControl.value,
     ];
 
+    let margingsByTags: any = this.fillMargins()
+
     let elementsContainerElements = (this.elementsContainer?.nativeElement as Element)
+
 
     //elementsContainerElements.append(...this.elements)
 
     let fullHeight = elementsContainerElements.clientHeight;
     let pageFullHeight = pageDimensionsInPT[this.pageSize][1] // in pt
     let pageFullWidth = pageDimensionsInPT[this.pageSize][0]  // in pt
-    let pageHeight = ptToPx(pageFullHeight) - this.pageMargin[0] - this.pageMargin[2];
-    let pageWidth = ptToPx(pageFullWidth) - this.pageMargin[1] - this.pageMargin[3];
+    let pageHeight = ptToPx(pageFullHeight) - this.pageMarg[0] - this.pageMarg[2];
+    let pageWidth = ptToPx(pageFullWidth) - this.pageMarg[1] - this.pageMarg[3];
     let numberOfHorizontalLines = Math.floor(fullHeight / pageHeight);
 
     let tablePadding = this.tablepadding;;
@@ -381,20 +440,20 @@ footerPmContainer ?:{
     elementsContainer.style.width = pageWidth + "px";
     elementsContainer.style.backgroundColor = 'white';
 
-    elementsContainer.style.paddingTop = this.pageMargin[0] + 'px';
-    elementsContainer.style.paddingRight = this.pageMargin[1] + 'px';
-    elementsContainer.style.paddingBottom = this.pageMargin[2] + 'px';
-    elementsContainer.style.paddingLeft = this.pageMargin[3] + 'px';
+    elementsContainer.style.paddingTop = this.pageMarg[0] + 'px';
+    elementsContainer.style.paddingRight = this.pageMarg[1] + 'px';
+    elementsContainer.style.paddingBottom = this.pageMarg[2] + 'px';
+    elementsContainer.style.paddingLeft = this.pageMarg[3] + 'px';
 
     let previewContainer = document.getElementsByClassName('preview-container')[0] as HTMLDivElement;
     previewContainer.style.backgroundColor = 'gray';
 
     elementsContainer.style.margin = '10px auto'
 
-    this.data.pageMargins = [pxToPt(this.pageMargin[3]), pxToPt(this.pageMargin[0]), pxToPt(this.pageMargin[1]), pxToPt(this.pageMargin[2])];
+    this.data.pageMargins = [pxToPt(this.pageMarg[3]), pxToPt(this.pageMarg[0]), pxToPt(this.pageMarg[1]), pxToPt(this.pageMarg[2])];
 
 
-    let generateFigure = async (element: Element) => {
+    let generateFigure = async (element: Element, style: any) => {
       let figuresObj = this.ydocService.figuresMap!.get('ArticleFigures');
 
       let figureID = element.getAttribute('figure_id')!;
@@ -411,10 +470,15 @@ footerPmContainer ?:{
           widths: '*',
           props: { type: 'figure' }
         },
+        props: { type: 'figure-container' },
         alingment: 'center',
-        margin: [0, 0, 0, 15]
       }
-
+      /* Object.keys(style).forEach((key)=>{
+        figureTable[key] = style.key
+      })
+      if(style.margin){
+        style.margin = undefined
+      } */
       let figuresCount = element.firstChild?.childNodes.length!;
       let figuresDescriptions = element.childNodes.item(1)!;
 
@@ -422,9 +486,11 @@ footerPmContainer ?:{
       let figureDesc = figuresDescriptions.childNodes.item(1) as HTMLElement
       let figureLabel: any = []
       for (let j = 0; j < figureHeader.childNodes.length; j++) {
-        figureLabel.push(await generatePDFData(figureHeader.childNodes[j] as HTMLElement, figureTable, { parentWidth: pageWidth }, element))
+        figureLabel.push(await generatePDFData(figureHeader.childNodes[j] as HTMLElement, figureTable, { parentWidth: pageWidth, ...style }, element))
       }
       let figureDescription = document.createElement('p');
+      figureDescription.style.fontSize = ptToPx(10) + 'px'
+      element.parentElement?.append(figureDescription)
       let moveNodeInlineChildren = (node: HTMLElement, containerNode: HTMLElement) => {
         let findParagraphChild = (node: HTMLElement, container: HTMLElement) => {
           if (node.tagName == 'P') {
@@ -450,20 +516,24 @@ footerPmContainer ?:{
           let descEl = descText.childNodes[j] as HTMLElement
           if (figuresCount > 1) {
             let strong = document.createElement('strong');
+            strong.style.display = 'inline'
             let lastSymbol = figureDescription.childNodes[figureDescription.childNodes.length - 1].textContent![figureDescription.childNodes[figureDescription.childNodes.length - 1].textContent!.length - 1];
 
             if (separatorSymbols.includes(lastSymbol)) {
-              strong.append(document.createTextNode(" " + String.fromCharCode(65 + i) + " "))
+              strong.textContent = "&#032;" + String.fromCharCode(65 + i) + "&#032;";
+              //strong.append(document.createTextNode("&#032;" + String.fromCharCode(65 + i) + "&#032;."))
             } else {
-              strong.append(document.createTextNode("; " + String.fromCharCode(65 + i) + " "))
+              strong.textContent = "&#032;;&#032;" + String.fromCharCode(65 + i) + "&#032;";
+              //strong.append(document.createTextNode(";&#032;" + String.fromCharCode(65 + i) + "&#032;."))
             }
-            figureDescription.append(strong)
+            strong.style.fontSize = ptToPx(5) + 'px'
+            figureDescription.append(document.createTextNode("; " + String.fromCharCode(65 + i) + " "))
           }
           moveNodeInlineChildren(descEl, figureDescription);
         }
       }
 
-      let descriptionPDFNode = await generatePDFData(figureDescription, figureTable, { parentWidth: pageWidth, fontSize: 10 }, element);
+      let descriptionPDFNode = await generatePDFData(figureDescription, figureTable, { parentWidth: pageWidth, fontSize: 10, nodetype: 'figure-container', ...style }, element);
       descriptionPDFNode.alignment = 'justify'
       let bottomTable = {
         table: {
@@ -485,6 +555,8 @@ footerPmContainer ?:{
 
       let imageA4Rectangle: number[] = [a4Rectangle[0] - (tablePadding * 2)];
 
+      element.parentElement?.removeChild(figureDescription)
+
       imageA4Rectangle[1] = (imageRectangle[1] / imageRectangle[0]) * a4Rectangle[0]
       if (imageA4Rectangle[0] > pxToPt(pageWidth)) {
         imageA4Rectangle[0] = pxToPt(pageWidth) - (tablePadding * 2);
@@ -502,41 +574,31 @@ footerPmContainer ?:{
     let math_url_obj = this.ydocService.mathMap?.get('dataURLObj');
     let math_data_url_obj: any = math_url_obj
 
-    let generatePDFData = async (element: Element, parentPDFel?: any, parentStyle?: any, parentElement?: Element) => {
+    let generatePDFData = async (element: Element, parentPDFel: any, parentStyle: any, parentElement: Element | undefined) => {
       let defaultView = (element.ownerDocument || document).defaultView
-
       let tag = element.tagName.toLocaleLowerCase()
       if (
-        tag == 'p' ||
-        tag == 'h1' ||
-        tag == 'h2' ||
-        tag == 'h3' ||
-        tag == 'h4' ||
-        tag == 'h5' ||
-        tag == 'h6' ||
-        tag == 'span' ||
-        tag == 'strong' ||
-        tag == 'sub' ||
-        tag == 'sup' ||
-        tag == 'code' ||
-        tag == 'citation' ||
-        tag == 'u' ||
-        tag == 'em' ||
-        tag == 'form-field'
+        tag == 'p' || tag == 'h1' || tag == 'h2' || tag == 'h3' || tag == 'h4' || tag == 'h5' ||
+        tag == 'h6' || tag == 'span' || tag == 'strong' || tag == 'sub' || tag == 'sup' ||
+        tag == 'code' || tag == 'citation' || tag == 'u' || tag == 'em' || tag == 'form-field'
       ) {
 
         let newEl: any = {}
         let textStyles = this.getTextStyles(defaultView!.getComputedStyle(element, null), element as HTMLElement);
+
         if (parentStyle && parentStyle.parentWidth) {
           textStyles.parentWidth = parentStyle.parentWidth
         }
-        if ((parentStyle && parentStyle.margin && parentStyle.margin.find((el: number) => el > 0)) || (parentStyle && parentStyle.calcMargin == false)) {
-          textStyles.margin = undefined;
-          textStyles.calcMargin = false;
+        if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
+          newEl.margin = margingsByTags[tag]
+          textStyles.parentHasMargin = true;
+        }
+        if (parentStyle && parentStyle.parentHasMargin) {
+          textStyles.parentHasMargin = true;
         }
         if (parentStyle) {
           Object.keys(parentStyle).forEach((key) => {
-            if (!textStyles[key] && key !== 'text' && key !== 'stack') {
+            if (!textStyles[key] && key !== 'text' && key !== 'stack' && key !== 'table' && key !== 'columns') {
               textStyles[key] = parentStyle[key];
             }
           })
@@ -686,6 +748,7 @@ footerPmContainer ?:{
                     ],
                     widths: '*',
                   },
+                  props: {},
                   layout: {
                     paddingLeft: (i: number, node: any) => {
                       if (alignment == 'center') {
@@ -717,6 +780,7 @@ footerPmContainer ?:{
                   if (child instanceof Text) {
                     newElement = { text: child.textContent };
                   } else {
+                    textStyles.calcMargin = false
                     newElement = await generatePDFData(child, table, textStyles, element);
                   }
                   lineWidth += childWidth;
@@ -872,16 +936,27 @@ footerPmContainer ?:{
         return Promise.resolve(newEl)
       } else if (tag == 'img') {
         if (element.className = "ProseMirror-separator") {
-          return {};
+          return Promise.resolve({});
         }
         let img = element as HTMLImageElement
 
 
         let dataURL = await this.getDataUrl(img)
-
-        return { image: dataURL, width: pxToPt(img.getBoundingClientRect().width) }
+        let result: any = { image: dataURL, width: pxToPt(img.getBoundingClientRect().width) }
+        if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
+          result.margin = margingsByTags[tag]
+        }
+        return Promise.resolve(result);
       } else if (tag == 'block-figure') {
-        let pdfFigure = await generateFigure(element);
+        let figureStyling: any = {};
+        if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
+          figureStyling.margin = margingsByTags[tag]
+          figureStyling.parentHasMargin = true;
+        }
+        if (parentStyle.parentHasMargin) {
+          figureStyling.parentHasMargin = true;
+        }
+        let pdfFigure = await generateFigure(element, figureStyling);
         return Promise.resolve(pdfFigure)
       } else if (tag == 'table' || (tag == 'div' && element.className == 'tableWrapper')) {
         let tableElement
@@ -891,6 +966,15 @@ footerPmContainer ?:{
           tableElement = element
         }
         let sectionName = tableElement.getAttribute('section-name');
+        let tableMargin: any = {};
+        let tableTag = 'table'
+        if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tableTag]) {
+          tableMargin.margin = margingsByTags[tableTag]
+          tableMargin.parentHasMargin = true;
+        }
+        if (parentStyle.parentHasMargin) {
+          tableMargin.parentHasMargin = true;
+        }
         if (sectionName == 'Taxonomic coverage') {
           let tabbleCellWidth = '4.16667%'
           let tabbleCellWidthNumber = +tabbleCellWidth.replace('%', '')
@@ -902,8 +986,14 @@ footerPmContainer ?:{
               body: [],
               props: { type: 'taxonomicTable' }
             },
+            layout: {
+              paddingBottom: function paddingBottom(i: number, node: any) { return 3; },
+            },
             alingment: 'center',
-            margin: [0, 0, 0, 15]
+            margin: tableMargin.margin
+          }
+          if (tableMargin.margin) {
+            tableMargin.margin = undefined
           }
           for (let i = 0; i < 24; i++) {
             taxonomicTable.table.widths.push(tabbleCellWidth)
@@ -920,7 +1010,7 @@ footerPmContainer ?:{
             let cell1Nodes = el.childNodes.item(0).childNodes
             for (let j = 0; j < cell1Nodes.length; j++) {
               let cellnode = cell1Nodes[j];
-              let val = await generatePDFData(cellnode as Element, taxonomicTable, { parentWidth: (col1Span * tabbleCellWidthNumber) * outerWidth / 100 }, tableElement)
+              let val = await generatePDFData(cellnode as Element, taxonomicTable, { parentWidth: (col1Span * tabbleCellWidthNumber) * outerWidth / 100, ...tableMargin }, tableElement)
               stack1.push(val);
             }
             let col2Span = 10
@@ -928,7 +1018,7 @@ footerPmContainer ?:{
             let cell2Nodes = el.childNodes.item(1).childNodes
             for (let j = 0; j < cell2Nodes.length; j++) {
               let cellnode = cell2Nodes[j];
-              let val = await generatePDFData(cellnode as Element, taxonomicTable, { parentWidth: (col2Span * tabbleCellWidthNumber) * outerWidth / 100 }, tableElement)
+              let val = await generatePDFData(cellnode as Element, taxonomicTable, { parentWidth: (col2Span * tabbleCellWidthNumber) * outerWidth / 100, ...tableMargin }, tableElement)
               stack2.push(val);
             }
             let col3Span = 10
@@ -936,7 +1026,7 @@ footerPmContainer ?:{
             let cell3Nodes = el.childNodes.item(2).childNodes
             for (let j = 0; j < cell3Nodes.length; j++) {
               let cellnode = cell3Nodes[j];
-              let val = await generatePDFData(cellnode as Element, taxonomicTable, { parentWidth: (col3Span * tabbleCellWidthNumber) * outerWidth / 100 }, tableElement)
+              let val = await generatePDFData(cellnode as Element, taxonomicTable, { parentWidth: (col3Span * tabbleCellWidthNumber) * outerWidth / 100, ...tableMargin }, tableElement)
               stack3.push(val);
             }
             taxonomicTable.table.body.push([
@@ -955,15 +1045,17 @@ footerPmContainer ?:{
               headerRows: 1,
               widths: 'auto',
               body: [],
-              props: { type: 'taxonomicTable' }
+              props: {},
+            },
+            layout: {
+              paddingBottom: function paddingBottom(i: number, node: any) { return 3; },
             },
             alingment: 'center',
-            margin: [0, 0, 0, 15]
+            margin: tableMargin.margin
           }
-
-          /* for (let i = 0; i < nOfColums; i++) {
-            baseTable.table.widths.push('auto');
-          } */
+          if (tableMargin.margin) {
+            tableMargin.margin = undefined
+          }
 
           let tabbleCellWidthNumber
           if (parentStyle && parentStyle.parentWidth) {
@@ -983,7 +1075,7 @@ footerPmContainer ?:{
               for (let k = 0; k < cellNodes.length; k++) {
                 let cellnode = cellNodes[k]
 
-                let val = await generatePDFData(cellnode as Element, baseTable, { parentWidth: tabbleCellWidthNumber }, tableElement)
+                let val = await generatePDFData(cellnode as Element, baseTable, { parentWidth: tabbleCellWidthNumber, ...tableMargin }, tableElement)
                 stack.push(val);
               }
               row.push({ stack, borderColor: ['#e2e2dc', '#e2e2dc', '#e2e2dc', '#e2e2dc'], })
@@ -996,6 +1088,18 @@ footerPmContainer ?:{
         let listTemplate: any = {}
         listTemplate[tag] = []
         let elChildren = element.childNodes;
+        let listMargin: any = {}
+        if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
+          listMargin.margin = margingsByTags[tag]
+          listMargin.parentHasMargin = true;
+        }
+        if (parentStyle.parentHasMargin) {
+          listMargin.parentHasMargin = true;
+        }
+        if (listMargin.margin) {
+          listTemplate.margin = listMargin.margin;
+          listMargin.margin = undefined
+        }
         for (let i = 0; i < elChildren.length; i++) {
           let chnode = elChildren[i];
           let listEl: any = { stack: [] }
@@ -1010,26 +1114,50 @@ footerPmContainer ?:{
               } else {
                 itemWidth = pageWidth - 50;
               }
-              let pdfFromNode = await generatePDFData(nodeInItem as Element, listTemplate, { parentWidth: itemWidth }, element);
+              let pdfFromNode = await generatePDFData(nodeInItem as Element, listTemplate, { parentWidth: itemWidth, ...listMargin }, element);
               listEl.stack.push(pdfFromNode);
             }
           }
           listTemplate[tag].push(listEl);
         }
+
         return Promise.resolve(listTemplate);
       } else if (tag == 'br') {
-        return Promise.resolve({ text: ' \n' })
+        let brMargin: any = {}
+        if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
+          brMargin.margin = margingsByTags[tag]
+        }
+        let br: any = { text: ' \n' }
+        if (brMargin.margin) {
+          br.margin = brMargin.margin
+        }
+        return Promise.resolve(br)
       } else if (tag == 'a') {
-        let link = { text: element.textContent, link: element.getAttribute('href'), color: '#1B8AAE', decoration: 'underline' }
+        let link: any = { text: element.textContent, link: element.getAttribute('href'), color: '#1B8AAE', decoration: 'underline' }
+        let linkMargin: any = {}
+        if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
+          linkMargin.margin = margingsByTags[tag]
+        }
+        link.margin = linkMargin.margin;
         //let linkTemplate = { text: [{ text: element.textContent, color: 'blue' }, { text: element.getAttribute('href'), color: 'lightblue', decoration: 'underline' }] }
         return Promise.resolve(link)
       } else if (tag == 'math-inline' || tag == 'math-display') {
-        let canvasWidth = pxToPt(element.getBoundingClientRect().width);
-        let result: any = { image: math_data_url_obj[element.getAttribute('mathid')!], width: canvasWidth, props: { canvasDims: [pxToPt(element.getBoundingClientRect().width), pxToPt(element.getBoundingClientRect().height)] } }
+        let width = pxToPt((element.getElementsByClassName('katex-html')[0] || element).getBoundingClientRect().width);
+        let height = pxToPt((element.getElementsByClassName('katex-html')[0] || element).getBoundingClientRect().height);
+
+        let canvasWidth = width;
+
+        /* if(parentStyle){
+          if('figure-container' == parentStyle.nodetype){
+            let heightWhenInFigure =
+          }
+        } */
+        let result: any = { image: math_data_url_obj[element.getAttribute('mathid')!], width: canvasWidth, props: { canvasDims: [width, height] } }
         if (tag == 'math-display') {
           let katexelRect = (element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] || element).getBoundingClientRect()
           result.width = pxToPt(katexelRect.width);
           let img = result;
+
           img.props.canvasDims = [pxToPt(katexelRect.width), pxToPt(katexelRect.height)]
           result = {
             columns: [
@@ -1047,10 +1175,8 @@ footerPmContainer ?:{
             props: { type: "block-math" }
           }
         }
-        if (math_data_url_obj[element.getAttribute('mathid')!] && 'data:,' !== math_data_url_obj[element.getAttribute('mathid')!]) {
-          return Promise.resolve(result);
-        } else {
-          return Promise.resolve({
+        if (!math_data_url_obj[element.getAttribute('mathid')!] || 'data:,' == math_data_url_obj[element.getAttribute('mathid')!]) {
+          result = {
             columns: [
               {
                 text: '', width: "*"
@@ -1063,30 +1189,44 @@ footerPmContainer ?:{
                 text: '', width: "*"
               }
             ]
-          })
+          }
         }
+        let blockMathMargin: any = {}
+        if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
+          blockMathMargin.margin = margingsByTags[tag]
+        }
+        result.margin = blockMathMargin.margin;
+        return Promise.resolve(result);
+
       } else {
-        return Promise.resolve('')
+        let stack: any = {
+          stack: []
+        }
+        let ch = Array.from(element.childNodes)
+        for (let i = 0; i < ch.length; i++) {
+          let pdfCh = await generatePDFData(ch[i] as HTMLElement, parentPDFel, parentStyle, parentElement);
+          stack.stack.push(pdfCh)
+        }
+        return Promise.resolve(stack)
       }
     }
 
-    let marginFooter = [pxToPt(this.pageMargin[0]), 15, pxToPt(this.pageMargin[2]), 15];
-    let marginHeader = [pxToPt(+this.pageMargin[0]), 20, pxToPt(+this.pageMargin[2]), 15];
-    console.log(this.footerPmContainer,this.headerPmContainer);
-    let headerStack:any = []
-    let footerStack:any = []
+    let margFooter = [pxToPt(this.pageMarg[0]), 15, pxToPt(this.pageMarg[2]), 15];
+    let margHeader = [pxToPt(+this.pageMarg[0]), 20, pxToPt(+this.pageMarg[2]), 15];
+    let headerStack: any = []
+    let footerStack: any = []
     let headerCh = Array.from(this.headerPmContainer?.editorView.dom.childNodes!)
     let footerCh = Array.from(this.footerPmContainer?.editorView.dom.childNodes!)
-    for(let i = 0 ; i < headerCh.length;i++){
-      headerStack.push(await generatePDFData(headerCh[i] as HTMLElement))
+    for (let i = 0; i < headerCh.length; i++) {
+      headerStack.push(await generatePDFData(headerCh[i] as HTMLElement, {}, {}, undefined))
     }
-    for(let i = 0 ; i < footerCh.length;i++){
-      footerStack.push(await generatePDFData(footerCh[i] as HTMLElement))
+    for (let i = 0; i < footerCh.length; i++) {
+      footerStack.push(await generatePDFData(footerCh[i] as HTMLElement, {}, {}, undefined))
     }
 
     this.data.footer = function (currentPage: any, pageCount: any) {
       return [{
-        margin: marginFooter,
+        margin: margFooter,
         columnGap: 10,
         columns: [
           {
@@ -1113,7 +1253,7 @@ footerPmContainer ?:{
       this.data.header = function (currentPage: any, pageCount: any, pageSize: any) {
         // you can apply any logic and return any valid pdfmake element
         return [{
-          margin: marginHeader,
+          margin: margHeader,
           columnGap: 10,
           columns: [
             {
@@ -1152,7 +1292,7 @@ footerPmContainer ?:{
           }
           pbs++;
         } else {
-          let pdfElement = await generatePDFData(el);
+          let pdfElement = await generatePDFData(el, {}, {}, undefined);
           if (!pdfElement.props) {
             pdfElement.props = {}
           }
@@ -1170,6 +1310,7 @@ footerPmContainer ?:{
 
       this.data.orderNodes = (node: any, nodeFunc: any) => {
         let nodeInfo = node.nodeInfo;
+        console.log(node,node.props);
         if (nodeInfo.table && nodeInfo.table.props && nodeInfo.table.props.type == 'figure' && node.pageBreak == 'before') {
           let scaling = false;
           if (2 !== node.scaleTry && node.nodeInfo.pageNumbers.length > 1) {
@@ -1247,7 +1388,7 @@ footerPmContainer ?:{
             }
             if (!scaling && movedIndexes.length > 0 && enoughFreeSpace) {
               let moveNodeFrom = nodesBefore.length;
-              for (let i = 0; i > movedIndexes.length; i++) {
+              for (let i = 0; i < movedIndexes.length; i++) {
                 structuredNodes[movedIndexes[i]].pageOrderCalculated = false;
               }
               let moveTo = Math.min(...movedIndexes);
@@ -1255,7 +1396,6 @@ footerPmContainer ?:{
               let movingNode = structuredNodes.splice(moveNodeFrom, 1);
               movingNode[0].pageBreak = undefined;
               structuredNodes.splice(moveTo, 0, ...movingNode);
-
               return true
             }
 
@@ -1315,20 +1455,26 @@ footerPmContainer ?:{
               return true
             }
           }
-        } else if (node.props.type == 'paragraphTable' && nodeInfo.pageNumbers.length > 1) {
+        } else if (node.props.type == 'paragraphTable' /* && nodeInfo.pageNumbers.length > 1 */) {
           let structuredNodes = nodeFunc.getContent();
           let nodesBefore = nodeFunc.getAllNodesBefore();
           let nodesAfter = nodeFunc.getAllNodesAfter();
           let firstLinePage = node.stack[0] ? node.stack[0].nodeInfo.pageNumbers.length == 1 ? node.stack[0].nodeInfo.pageNumbers[0] : undefined : undefined
           let secondLinePage = node.stack[1] ? node.stack[1].nodeInfo.pageNumbers.length == 1 ? node.stack[1].nodeInfo.pageNumbers[0] : undefined : undefined
-          if (firstLinePage && secondLinePage && firstLinePage !== secondLinePage && false) {
+          if (node.stack.length == 1 && node.nodeInfo.pageNumbers.length > 1) {
             node.pageBreak = 'before'
             return true
+          }
+          if (firstLinePage && secondLinePage && firstLinePage !== secondLinePage) {
+            node.pageBreak = 'before'
+            return true;
           } else {
             let breakingLine: any
+            let breakingLineI: any
             for (let i = 0; i < node.stack.length; i++) {
               if (node.stack[i].nodeInfo.pageNumbers.length == 2 && !node.stack[i].pageBreak) {
                 breakingLine = node.stack[i]
+                breakingLineI = i
               }
             }
             if (breakingLine) {
@@ -1351,7 +1497,20 @@ footerPmContainer ?:{
                 })
                 if (images.length > 0) {
                   let imagesHeights: any[] = [];
-                  let freeSpace = nodesBefore[nodesBefore.length - 1].props.availableHeight - 2; // free space on the page before
+                  let freeSpace = (nodesBefore[nodesBefore.length - 1].props.availableHeight) - 2; // free space on the page before
+                  if (node.stack[breakingLineI - 1]) {
+                    let table: any
+                    if (node.stack[breakingLineI - 1].table) {
+                      table = node.stack[breakingLineI - 1]
+                    } else if (node.stack[breakingLineI - 1].columns) {
+                      node.stack[breakingLineI - 1].columns.forEach((col: any) => {
+                        if (col.table) {
+                          table = col
+                        }
+                      })
+                    }
+                    freeSpace = table.props.availableHeight - 2
+                  }
                   let canFitWithScale = true
                   images.forEach((image) => {
                     let imageInitDims = image.props.canvasDims;
@@ -1367,6 +1526,7 @@ footerPmContainer ?:{
                   if (breakingLine.pageBreak !== "after" && isfit) {
                     breakingLine.pageBreak = "after"
                     node.pageOrderCalculated = false;
+                    return true;
                   } else if (canFitWithScale && !isfit) {
                     let scaled = false
                     imagesHeights.forEach((dims, index) => {
@@ -1380,25 +1540,33 @@ footerPmContainer ?:{
                     if (scaled) {
                       breakingLine.pageBreak = "after"
                       node.pageOrderCalculated = false;
+                      return true;
                     }
+                  } else {
+                    breakingLine.pageBreak = "before"
+                    node.pageOrderCalculated = false;
+                    return true;
                   }
                 }
               }
             } else {
-              let lineOnNewPage: any = undefined
-              let page
-              for (let i = 0; i < node.stack.length; i++) {
-                if (!lineOnNewPage && page && node.stack[i].nodeInfo.pageNumbers[0] > page && !node.stack[i].pageBreak) {
-                  lineOnNewPage = node.stack[i]
+              if(node.nodeInfo.pageNumbers.length>1){
+                let lineOnNewPage: any = undefined
+                let page = undefined
+                for (let i = 0; i < node.stack.length; i++) {
+                  if (!lineOnNewPage && page && node.stack[i].nodeInfo.pageNumbers[0] > page && !node.stack[i].pageBreak) {
+                    lineOnNewPage = node.stack[i]
+                  }
+                  page = node.stack[i].pageBreak !== 'after' ? node.stack[i].nodeInfo.pageNumbers[0] : undefined
                 }
-                page = node.stack[i].pageBreak !== 'after' ? node.stack[i].nodeInfo.pageNumbers[0] : undefined
-              }
-              if (lineOnNewPage) {
-                lineOnNewPage.pageBreak = 'before';
-                node.pageOrderCalculated = false;
+                if (lineOnNewPage) {
+                  lineOnNewPage.pageBreak = 'before';
+                  node.pageOrderCalculated = false;
+                  return true
+                }
               }
             }
-            return true
+            return false
           }
         } else if (node.props.type == 'block-math') {
           let structuredNodes = nodeFunc.getContent();
@@ -1441,11 +1609,11 @@ footerPmContainer ?:{
       }).then((blob: any) => {
         let url = URL.createObjectURL(blob);
         let iframe = document.getElementById('pdfV') as HTMLIFrameElement;
-
         iframe.addEventListener('load', () => {
           this.stopSpinner()
         })
         iframe.src = url;
+        //iframe.style.display = "none"
 
         resolve(true);
       });
@@ -1547,7 +1715,7 @@ footerPmContainer ?:{
         margin = [0, 0, 0, 10]
       }
     }
-    clearedStyles.margin = margin;
+    //clearedStyles.margin = margin;
     return clearedStyles
   }
 

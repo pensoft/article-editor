@@ -22,6 +22,7 @@ import * as Y from 'yjs'
 import { ySyncPluginKey } from '../../y-prosemirror-src/plugins/keys.js';
 //@ts-ignore
 import { updateYFragment } from '../../y-prosemirror-src/plugins/sync-plugin.js'
+import { buildFigureForm } from '../utils/prosemirrorHelpers';
 @Injectable({
   providedIn: 'root'
 })
@@ -654,7 +655,8 @@ export class FiguresControllerService {
         serializedFigureToFormIOsubmission.figureDescription = figureData.description
         serializedFigureToFormIOsubmission.figureID = figureData.figureID
         serializedFigureToFormIOsubmission.figureNumber = figureData.figureNumber
-        this.prosemirrorEditorsService.interpolateTemplate(figureTemplate.html, serializedFigureToFormIOsubmission, new FormGroup({})).then((data: string) => {
+        let figureFormGroup = buildFigureForm(serializedFigureToFormIOsubmission)
+        this.prosemirrorEditorsService.interpolateTemplate(figureTemplate.html, serializedFigureToFormIOsubmission,figureFormGroup).then((data: string) => {
           let templ = document.createElement('div')
           templ.innerHTML = data
           let pmnodes = this.DOMPMParser.parse(templ.firstChild!).content.firstChild;

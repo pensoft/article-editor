@@ -1,4 +1,4 @@
-import { FormControl, FormGroup } from "@angular/forms";
+import { FormArray, FormControl, FormGroup } from "@angular/forms";
 import { DOMSerializer, Schema, Node, Fragment, ResolvedPos, Slice, Mark } from "prosemirror-model";
 import { EditorState, PluginKey, Transaction } from "prosemirror-state";
 import { DecorationSet, EditorView } from "prosemirror-view";
@@ -334,7 +334,8 @@ export const updateControlsAndFigures = (
                           serializedFigureToFormIOsubmission.figureDescription = undefined
                         }
                       } */
-                      interpolateTemplate(figureTemplate!.html, serializedFigureToFormIOsubmission).then((data: any) => {
+                      let figureFormGroup = buildFigureForm(serializedFigureToFormIOsubmission)
+                      interpolateTemplate(figureTemplate!.html, serializedFigureToFormIOsubmission,figureFormGroup).then((data: any) => {
                         let templ = document.createElement('div')
                         templ.innerHTML = data
                         let Slice = DOMPMParser.parse(templ.firstChild!)
@@ -558,31 +559,32 @@ export const updateControlsAndFigures = (
                 } else {
 
                   const control = fg.get(controlPath) as FormControl;
-                  //@ts-ignore
-
-                  if (control.componentType && control.componentType == "textarea") {
-                    let html = getHtmlFromFragment(node.content)
-                    if (node.attrs.menuType) {
-                      //@ts-ignore
-                      if (!control.componentProps) {
+                  if(control){
+                    //@ts-ignore
+                    if (control.componentType && control.componentType == "textarea") {
+                      let html = getHtmlFromFragment(node.content)
+                      if (node.attrs.menuType) {
                         //@ts-ignore
-                        control.componentProps = {}
+                        if (!control.componentProps) {
+                          //@ts-ignore
+                          control.componentProps = {}
+                        }
+                        //@ts-ignore
+                        control.componentProps.menuType = node.attrs.menuType;
                       }
-                      //@ts-ignore
-                      control.componentProps.menuType = node.attrs.menuType;
+                      control.setValue(html, { emitEvent: true })
+                    } else {
+                      control.setValue(node.textContent, { emitEvent: true })
                     }
-                    control.setValue(html, { emitEvent: true })
-                  } else {
-                    control.setValue(node.textContent, { emitEvent: true })
-                  }
-                  control.updateValueAndValidity()
-                  const mark = schema.mark('invalid')
-                  if (control.invalid && node.attrs.invalid !== "true") {
-                    // newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
-                    tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "true" }).setMeta('addToLastHistoryGroup', true)
-                  } else if (control.valid && node.attrs.invalid !== "false") {
-                    if (node.attrs.invalid !== "false") {
-                      tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "false" }).setMeta('addToLastHistoryGroup', true)
+                    control.updateValueAndValidity()
+                    const mark = schema.mark('invalid')
+                    if (control.invalid && node.attrs.invalid !== "true") {
+                      // newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
+                      tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "true" }).setMeta('addToLastHistoryGroup', true)
+                    } else if (control.valid && node.attrs.invalid !== "false") {
+                      if (node.attrs.invalid !== "false") {
+                        tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "false" }).setMeta('addToLastHistoryGroup', true)
+                      }
                     }
                   }
                 }
@@ -776,4 +778,21 @@ export const handleClickOn = (citatContextPluginKey: PluginKey) => {
       return false
     }
   }
+}
+
+export function buildFigureForm(submision:any):FormGroup{
+  console.log(submision);
+  let figureFormGroup =  new FormGroup({})
+  let figDesc = new FormControl(submision.figureDescription);
+  let formComponents :FormGroup[]= []
+  submision.figureComponents.forEach((comp:any)=>{
+    let compFormGroup = new FormGroup({});
+    let compDescription = new FormControl(comp.container.description);
+    compFormGroup.addControl('figureComponentDescription',compDescription);
+    formComponents.push(compFormGroup);
+  })
+  let figComponentArray = new FormArray(formComponents);
+  figureFormGroup.addControl('figureDescription',figDesc);
+  figureFormGroup.addControl('figureComponents',figComponentArray);
+  return figureFormGroup
 }

@@ -32,7 +32,7 @@ export class ArticlesService {
   }
 
   deleteArticleById(articleId:number){ // article id !== uuid !
-    return this._http.delete(`${API_ARTICLES_URL}/${articleId}`)
+    return this._http.delete(`${API_ARTICLES_URL}/${articleId}`,{observe:'response'})
   }
 
   createArticle(name:string,layout_id:number){

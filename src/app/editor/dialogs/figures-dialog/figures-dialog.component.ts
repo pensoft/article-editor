@@ -55,6 +55,7 @@ export class FiguresDialogComponent implements AfterViewInit {
       data: { fig, updateOnSave: false, index: figIndex, figID: fig.figureID },
       disableClose: false
     }).afterClosed().subscribe((result: { figure: figure, figureNode: Node }) => {
+      console.log(result);
       if (result && result.figure && result.figureNode) {
         this.serviceShare.PmDialogSessionService!.endSubsession(true)
         this.figuresNumbers?.splice(figIndex, 1, result.figure.figureID)
@@ -111,6 +112,7 @@ export class FiguresDialogComponent implements AfterViewInit {
       data: { fig: undefined, updateOnSave: false, index: this.figuresNumbers?.length },
       disableClose: false
     }).afterClosed().subscribe((result: { figure: figure, figureNode: Node }) => {
+      console.log(result);
       if (result && result.figure && result.figureNode) {
         this.serviceShare.PmDialogSessionService!.endSubsession(true);
         this.figuresNumbers?.push(result.figure.figureID)

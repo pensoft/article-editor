@@ -36,7 +36,7 @@ export class MenuService {
         ['alignMenu'],
         ['insertLink', 'addAnchorTagMenuItem'],
         ['toggleSubscriptItem', 'toggleSuperscriptItem'],
-        ['undoItem', 'redoItem', 'insertPageBreak']
+        ['undoItem', 'redoItem', 'insertPageBreak', 'headings']
       ],
     'fullMenu1': [
       ['toggleStrong', 'toggleEm', 'toggleCode', 'insertLink', 'addAnchorTagMenuItem'],
@@ -66,33 +66,33 @@ export class MenuService {
       ['alignMenu'],
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem', 'highLightMenuItem'],
-      ['insertMenu', 'logNodesMenuItem', 'insertFigure', 'insertPageBreak']
+      ['insertMenu', 'logNodesMenuItem', 'insertFigure', 'insertPageBreak', 'headings']
     ],
     'fullMenuPMundoRedo': [
       ['textMenu'],
       ['alignMenu'],
       ['undoItemPM', 'redoItemPM'],
       ['insertLink', 'addAnchorTagMenuItem', 'highLightMenuItem'],
-      ['insertMenu', 'logNodesMenuItem', 'insertPageBreak']
+      ['insertMenu', 'logNodesMenuItem', 'insertPageBreak', 'headings']
     ],
     'fullMenuWithLog': [
       ['textMenu'],
       ['alignMenu'],
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem', 'highLightMenuItem'],
-      ['insertMenu', 'insertPageBreak']
+      ['insertMenu', 'insertPageBreak', 'headings']
     ],
     'SimpleMenu': [
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItem', 'redoItem', 'insertVideoItem'],
-      ['logNodesMenuItem', 'insertFigure', 'insertPageBreak', { dropdownName: 'Headings', content: ['insertImage', 'insertHorizontalRule'] }]
+      ['logNodesMenuItem', 'insertFigure', 'insertPageBreak', 'headings']
     ],
     'SimpleMenuPMundoRedo': [
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItemPM', 'redoItemPM', 'insertVideoItem'],
-      ['logNodesMenuItem', 'insertPageBreak'],
+      ['logNodesMenuItem', 'insertPageBreak', 'headings'],
     ],
     'onlyPmMenu': [
       ['textMenu'],

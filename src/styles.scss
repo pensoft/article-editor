@@ -508,9 +508,13 @@ img[ychange_type="removed"] {
   font-size: inherit !important;
 }
 
-math-inline {
-  display: inline-block !important;
-}
+
+/* math-inline {
+  display: inline !important;
+  .math-render {
+    display: inline !important;
+  }
+} */
 
 .math-node {
   font-size: inherit !important;
@@ -629,8 +633,8 @@ page-break {
   }
 }
 
-math-display{
-  .math-render{
+math-display {
+  .math-render {
     width: fit-content;
     margin-left: auto;
     margin-right: auto;

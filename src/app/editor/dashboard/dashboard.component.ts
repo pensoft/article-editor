@@ -184,9 +184,15 @@ export class DashboardComponent implements AfterViewInit {
     this.router.navigate([articleData.uuid])
   }
 
-  deleteArticle(articleData: any) {
-    this.articlesService.deleteArticleById(articleData.id).subscribe((deleteResponse) => {
-      this.refreshSubject.next(deleteResponse);
+  deleteArticle(deleteArticle: any) {
+    this.articlesService.deleteArticleById(deleteArticle.id).subscribe((deleteResponse) => {
+      console.log(deleteResponse,deleteArticle,this.allArticlesData);
+      if(deleteResponse.status == 204){
+        this.allArticlesData = this.allArticlesData.filter((article:any)=>{
+          return article.id!==deleteArticle.id
+        })
+        this.refreshSubject.next(deleteResponse);
+      }
     })
   }
 }

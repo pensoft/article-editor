@@ -2,7 +2,7 @@
 import { DocumentHelpers } from 'wax-prosemirror-utilities';
 import { toggleMark } from "prosemirror-commands";
 import { Dropdown, MenuItem} from "prosemirror-menu"
-import { EditorState, NodeSelection, Transaction } from "prosemirror-state"
+import { EditorState, NodeSelection, Selection, Transaction } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
 import { schema } from "../Schema";
 import { addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow, mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell, deleteTable } from "prosemirror-tables";
@@ -189,11 +189,55 @@ const makeCodeBlock = blockTypeItem(schema.nodes.code_block, {
 
 let headingsObj: any = {};
 
-for (let i = 1; i <= 10; i++)
-    headingsObj["makeHead" + i] = wrapItem(schema.nodes.heading, {
+function wrapParagraphIn(nodeType:NodeType, options:any) {
+  let passedOptions:any = {
+    run(state:EditorState, dispatch:any) {
+      console.log(state.selection);
+      let paragraphNode : any = undefined;
+      let paragraphStartPos :number|undefined = undefined
+      let paragraphParent : any = undefined;
+      let paragraphParentStartPos :number|undefined = undefined
+
+      //@ts-ignore
+      let path = state.selection.$anchor.path;
+      for(let i=0;i<path.length;i+=3){
+        let node = path[i];
+        let nodeIndexAsChild = path[i+1];
+        let nodePosition = path[i+2];
+        if(!paragraphNode&&node.type.name == 'paragraph'){
+          paragraphNode = node;
+          paragraphStartPos = nodePosition
+          if(path[i-1]!==undefined&&path[i-2]!==undefined&&path[i-3]!==undefined){
+            paragraphParent = path[i-3];
+            paragraphParentStartPos = path[i-1];
+          }
+        }
+      }
+      if(paragraphStartPos&&paragraphParentStartPos){
+        let paragraph = state.doc.slice(paragraphStartPos-1,paragraphStartPos-1+paragraphNode.nodeSize);
+        let newNode = nodeType.create(options.attrs||{},paragraph.content)
+        let from = state.selection.from
+        let to = state.selection.to
+
+        return dispatch(state.tr.replaceWith(paragraphParentStartPos-1,paragraphParent.nodeSize+paragraphParentStartPos-1,newNode))
+      }
+
+      return dispatch(state.tr)
+    },
+    select(state:EditorState) {
+      //console.log(state.selection);
+      return true
+    }
+  }
+  for (let prop in options) {passedOptions[prop] = options[prop]}
+  return new MenuItem(passedOptions)
+}
+
+for (let i = 1; i <= 6; i++)
+    headingsObj["makeHead" + i] = wrapParagraphIn(schema.nodes.heading, {
         title: "Change to heading " + i,
         label: "Level " + i,
-        attrs: { level: i }
+        attrs: { tagName: 'h'+i }
     })
 const headings = Object.values(headingsObj);
 
