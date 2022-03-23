@@ -781,7 +781,6 @@ export const handleClickOn = (citatContextPluginKey: PluginKey) => {
 }
 
 export function buildFigureForm(submision:any):FormGroup{
-  console.log(submision);
   let figureFormGroup =  new FormGroup({})
   let figDesc = new FormControl(submision.figureDescription);
   let formComponents :FormGroup[]= []

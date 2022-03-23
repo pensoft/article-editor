@@ -4,11 +4,11 @@ import FormioComponent from 'formiojs/components/_classes/component/Component.js
 export default (() => {
   const beforeSubmit = FormioComponent.prototype.beforeSubmit;
   FormioComponent.prototype.beforeSubmit = function(...args:any) {
-    let control 
+    let control
     if (this.materialComponent) {
       control = this.materialComponent.beforeSubmit();
     }
-    
+
     return beforeSubmit.call(this,...args);
   };
 
@@ -28,9 +28,9 @@ export default (() => {
         this.clearOnHide();
         this.redraw();
       }
-      if (this.materialComponent) {
+     /*  if (this.materialComponent) {
         this.materialComponent.setVisible(visible);
-      }
+      } */
     }
   });
   return FormioComponent;

@@ -186,7 +186,6 @@ export class DashboardComponent implements AfterViewInit {
 
   deleteArticle(deleteArticle: any) {
     this.articlesService.deleteArticleById(deleteArticle.id).subscribe((deleteResponse) => {
-      console.log(deleteResponse,deleteArticle,this.allArticlesData);
       if(deleteResponse.status == 204){
         this.allArticlesData = this.allArticlesData.filter((article:any)=>{
           return article.id!==deleteArticle.id

@@ -38,6 +38,11 @@ export class ArticleMetadataComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  logToWorker(){
+    //this.serviceShare.WorkerService?.logToWorker('qweqwe');
+    this.serviceShare.WorkerService?.convertImgInWorker('https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image1.jpg');
+  }
+
   openFiguresDialog(){
     this.serviceShare.PmDialogSessionService!.createSession()
     this.dialog.open(FiguresDialogComponent, {

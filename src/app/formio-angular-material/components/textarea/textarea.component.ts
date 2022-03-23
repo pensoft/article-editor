@@ -72,7 +72,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     this.instanceValidations = this.instance.component.validate
     this.instance.component.validate = {}
     this.instance.disabled = this.instance.shouldDisabled;
-    this.setVisible(this.instance.visible);
+    /* this.setVisible(this.instance.visible); */
   }
 
   ngOnInit() {
@@ -104,6 +104,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       value = this.getValue()!;
     }
     this.instance.updateValue(value, { modified: true });
+    this.instance.root.changeVisibility(this.instance);
   }
 
   beforeSubmit() {
@@ -159,6 +160,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   }
 
   renderComponents() {
+    /* this.setVisible(this.instance.visible); */
     if (!this.rerender) {
       return
     }

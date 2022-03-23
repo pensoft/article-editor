@@ -16,6 +16,7 @@ import { YjsHistoryService } from '../utils/yjs-history.service';
 import { FiguresControllerService } from './figures-controller.service';
 import { PmDialogSessionService } from './pm-dialog-session.service';
 import { ProsemirrorEditorsService } from './prosemirror-editors.service';
+import { WorkerService } from './worker.service';
 import { YdocService } from './ydoc.service';
 
 @Injectable({
@@ -36,6 +37,7 @@ export class ServiceShare {
   ArticlesService?:ArticlesService
   YjsHistoryService?:YjsHistoryService
   PmDialogSessionService?:PmDialogSessionService
+  WorkerService?:WorkerService
 
   constructor(
     public dialog: MatDialog,

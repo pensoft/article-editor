@@ -46,6 +46,7 @@ export class MaterialSignatureComponent extends MaterialComponent implements Aft
     if (this.signatureElement) {
       this.instance.attach(this.signatureElement.nativeElement);
     }
+    /* this.setVisible(this.instance.visible); */
   }
 
   ngAfterViewInit() {

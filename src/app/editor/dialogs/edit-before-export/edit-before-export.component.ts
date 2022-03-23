@@ -1142,8 +1142,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
         //let linkTemplate = { text: [{ text: element.textContent, color: 'blue' }, { text: element.getAttribute('href'), color: 'lightblue', decoration: 'underline' }] }
         return Promise.resolve(link)
       } else if (tag == 'math-inline' || tag == 'math-display') {
-        let width = pxToPt((element.getElementsByClassName('katex-html')[0] || element).getBoundingClientRect().width);
-        let height = pxToPt((element.getElementsByClassName('katex-html')[0] || element).getBoundingClientRect().height);
+        let width = pxToPt((element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] ||element).getBoundingClientRect().width);
+        let height = pxToPt((element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] ||element).getBoundingClientRect().height);
 
         let canvasWidth = width;
 
@@ -1310,7 +1310,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
       this.data.orderNodes = (node: any, nodeFunc: any) => {
         let nodeInfo = node.nodeInfo;
-        console.log(node,node.props);
         if (nodeInfo.table && nodeInfo.table.props && nodeInfo.table.props.type == 'figure' && node.pageBreak == 'before') {
           let scaling = false;
           if (2 !== node.scaleTry && node.nodeInfo.pageNumbers.length > 1) {
@@ -1461,10 +1460,10 @@ export class EditBeforeExportComponent implements AfterViewInit {
           let nodesAfter = nodeFunc.getAllNodesAfter();
           let firstLinePage = node.stack[0] ? node.stack[0].nodeInfo.pageNumbers.length == 1 ? node.stack[0].nodeInfo.pageNumbers[0] : undefined : undefined
           let secondLinePage = node.stack[1] ? node.stack[1].nodeInfo.pageNumbers.length == 1 ? node.stack[1].nodeInfo.pageNumbers[0] : undefined : undefined
-          if (node.stack.length == 1 && node.nodeInfo.pageNumbers.length > 1) {
+          /* if (node.stack.length == 1 && node.nodeInfo.pageNumbers.length > 1) {
             node.pageBreak = 'before'
-            return true
-          }
+            return trueß
+          } */
           if (firstLinePage && secondLinePage && firstLinePage !== secondLinePage) {
             node.pageBreak = 'before'
             return true;

@@ -3,15 +3,15 @@ import { MatTableDataSource } from '@angular/material/table';
 import { MaterialNestedComponent } from '../MaterialNestedComponent';
 //@ts-ignore
 import DataGridComponent from 'formiojs/components/datagrid/DataGrid.js';
-import {CdkDragDrop, moveItemInArray, DragDropModule} from '@angular/cdk/drag-drop';
-import {MatTable} from '@angular/material/table';
+import { CdkDragDrop, moveItemInArray, DragDropModule } from '@angular/cdk/drag-drop';
+import { MatTable } from '@angular/material/table';
 import { FormioEventsService } from 'src/app/editor/formioComponents/formio-events.service';
-import { ElementRef ,ChangeDetectorRef} from '@angular/core';
+import { ElementRef, ChangeDetectorRef } from '@angular/core';
 import { ViewFlags } from '@angular/compiler/src/core';
 import { T } from '@angular/cdk/keycodes';
 @Component({
   selector: 'mat-formio-datagrid',
-  styleUrls:['./datagrid.component.scss'],
+  styleUrls: ['./datagrid.component.scss'],
   template: `
     <mat-formio-form-field [instance]="instance"
                            [componentTemplate]="componentTemplate"
@@ -65,7 +65,7 @@ import { T } from '@angular/cdk/keycodes';
             </ng-container>
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
             <div *ngIf="instance?.component?.reorder">
-              
+
               <tr class="row-placeholder" *cdkDragPlaceholder ></tr>
               <tr class="datagrid-row" mat-row *matRowDef="let row; columns: displayedColumns;" cdkDrag [cdkDragDisabled]="!dragEnabled"
                   [cdkDragData]="row"></tr>
@@ -100,11 +100,11 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
   columns: any;
   dataSource = new MatTableDataSource();
   dragEnabled = false;
-  constructor(ref:ElementRef,changeDetection:ChangeDetectorRef,private formioEventsService:FormioEventsService){
-    super(ref,changeDetection)
+  constructor(ref: ElementRef, changeDetection: ChangeDetectorRef, private formioEventsService: FormioEventsService) {
+    super(ref, changeDetection)
   }
 
-  getColumnLabel(column:any) {
+  getColumnLabel(column: any) {
     return column.label || column.key;
   }
 
@@ -114,7 +114,8 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
     this.columns = {};
     this.displayedColumns = [];
     this.formColumns = [];
-    instance.getColumns().map((column:any) => {
+    instance.component.clearOnHide = false;
+    instance.getColumns().map((column: any) => {
       this.formColumns!.push(column.key);
       this.displayedColumns!.push(column.key);
       this.columns[column.key] = column;
@@ -123,12 +124,12 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
     if (this.instance.component.reorder) {
       this.displayedColumns.push('position');
     }
-    instance.viewContainer = (component:any) => {
+    instance.viewContainer = (component: any) => {
       let viewContainer;
       if (this.instance.component.disabled) {
         component.component.disabled = true;
       }
-      this.viewContainers.forEach((container:any) => {
+      this.viewContainers.forEach((container: any) => {
         const td = container.element.nativeElement.parentNode;
         if (
           component.rowIndex === parseInt(td.getAttribute('rowIndex'), 10) &&
@@ -143,6 +144,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
   }
 
   addAnother() {
+    this.dataSource._updateChangeSubscription
     this.checkRowsNumber();
     this.instance.addRow();
     if (this.dataSource.data.length < this.instance.rows.length) {
@@ -157,54 +159,112 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
     }
   }
 
-  removeRow(index:any) {
+  removeRow(index: any) {
     this.instance.removeRow(index);
     this.dataSource.data.splice(index, 1);
     this.dataSource.data = [...this.dataSource.data];
   }
 
   dropTable(event: CdkDragDrop<any>) {
-    try{
+    try {
       const prevIndex = this.dataSource.data.findIndex((d) => d === event.item.data);
-      
-      
+
+
       moveItemInArray(this.control.value, prevIndex, event.currentIndex);
 
       this.renderComponents();
 
-      this.formioEventsService.events.next({event:'data-grid-drag-drop'})
-    }catch(e){
+      this.formioEventsService.events.next({ event: 'data-grid-drag-drop' })
+    } catch (e) {
       console.error(e);
     }
   }
 
+  findAndSetValue() {
+    //console.log( this.instance.root._submission,this.instance.component);
+    setTimeout(() => {
+      if (this.instance.root._submission.data[this.instance.component.key]) {
+        console.log('setting',this.instance.root._submission.data[this.instance.component.key]);
+        //this.setValue(this.instance.root._submission.data[this.instance.component.key])
+        this.instance.updateValue(this.instance.root._submission.data[this.instance.component.key], { modified: true });
+
+        /* this.dataSource.data = [...this.dataSource.data]
+        for (let i = this.instance.rows.length - 1; i > -1; i--) {
+          //this.dataSource.data.splice(i, 1);
+          this.instance.removeRow(i);
+        }
+        this.checkRowsNumber() */
+      }
+
+      /* this.dataSource.data = this.instance.root._submission.data[this.instance.component.key]; */
+      /* if(this.instance.root._submission.data[this.instance.component.key]){
+        this.dataSource.data = []
+        this.instance.root._submission.data[this.instance.component.key].forEach((el:any)=>{
+          this.dataSource.data.push(el);
+          console.log(el);
+          this.instance
+        })
+        //this.dataSource.data = this.dataSource.data.map(()=>{this.instance.addRow();return {}});
+        console.log(JSON.stringify(this.instance.root._submission.data[this.instance.component.key]));
+      } */
+    }, 300)
+  }
+
+  updateVisibility(instance: any) {
+
+    if (instance == null) {
+      this.setVisible(this.instance.visible)
+    }
+    if (instance &&
+      this.instance.component.conditional &&
+      this.instance.component.conditional.when == instance.component.key) {
+      this.instance.root.setFullValue();
+      setTimeout(() => {
+        this.setVisible((instance.getValue() == this.instance.component.conditional.eq) ? this.instance.component.conditional.show : !this.instance.component.conditional.show)
+      }, 200)
+    }
+    if (this.instance.components && this.instance.components.length > 0) {
+      this.instance.components.forEach((component: any) => {
+        if (component.materialComponent) {
+          component.materialComponent.updateVisibility(instance);
+        }
+      })
+    }
+    //this.findAndSetValue()
+
+  }
+
   renderComponents() {
-    try{
-      let recursiveSetRealValue = (instance:any)=>{
-        instance.components.forEach((el:any)=>{
-          if(el.component.type == 'textarea'){
-            if(el.materialComponent){
+    try {
+      /* this.setVisible(this.instance.visible); */
+      let recursiveSetRealValue = (instance: any) => {
+        instance.components.forEach((el: any) => {
+          if (el.component.type == 'textarea') {
+            if (el.materialComponent) {
               el.materialComponent.setRealValue();
             }
           }
-          if(el.components&&el.components.length>0){
+          if (el.components && el.components.length > 0) {
             recursiveSetRealValue(el);
           }
         })
       }
       recursiveSetRealValue(this.instance);
-      //this.instance.getRows();
-      //this.instance.updateValue(this.control.value || [], { modified: true });
+      this.instance.getRows();
+      this.instance.updateValue(this.control.value || [], { modified: true });
       this.instance.setValue(this.control.value || []);
       super.renderComponents()
-    }catch(e){
+    } catch (e) {
       console.error(e);
     }
   }
 
   setValue(value: [] | null) {
+    if(value == null || value.length == 0||value.length!==this.instance.rows.length){
+      return
+    }
+    console.log(value);
     const gridLength = value ? value.length : 0;
-
     while (this.instance.rows.length < gridLength) {
       this.addAnother();
       this.instance.dataValue = value;

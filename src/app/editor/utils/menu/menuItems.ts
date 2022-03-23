@@ -192,7 +192,6 @@ let headingsObj: any = {};
 function wrapParagraphIn(nodeType:NodeType, options:any) {
   let passedOptions:any = {
     run(state:EditorState, dispatch:any) {
-      console.log(state.selection);
       let paragraphNode : any = undefined;
       let paragraphStartPos :number|undefined = undefined
       let paragraphParent : any = undefined;
@@ -225,7 +224,6 @@ function wrapParagraphIn(nodeType:NodeType, options:any) {
       return dispatch(state.tr)
     },
     select(state:EditorState) {
-      //console.log(state.selection);
       return true
     }
   }

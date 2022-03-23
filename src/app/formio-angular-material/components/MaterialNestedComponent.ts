@@ -21,6 +21,8 @@ export class MaterialNestedComponent extends MaterialComponent implements AfterV
     }
   }
 
+
+
   render() {
     this.viewContainers = this.components?.toArray();
     this.renderComponents();
@@ -28,6 +30,9 @@ export class MaterialNestedComponent extends MaterialComponent implements AfterV
   }
 
   ngAfterViewInit() {
+    /* setInterval(()=>{
+      this.setVisible(this.instance.visible)
+    },2000) */
     this.components?.changes.subscribe(() => this.render());
     this.render();
   }

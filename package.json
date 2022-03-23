@@ -6,6 +6,7 @@
     "config": "ts-node ./setenv.ts",
     "serve": "npm run config -- --environment=dev && ng serve --proxy-config proxy.conf.js --open",
     "start": "npm run config -- --environment=dev && ng serve --proxy-config proxy.conf.js --open",
+    "startSSL": "npm run config -- --environment=dev && ng serve --ssl --proxy-config proxy.conf.js --open",
     "startPdfMakeServer": "nodemon expressPDFMakeServer/server.js",
     "startBuild": "http-server -p 8080 -c-1 dist/article-editor ",
     "startBuildWithProxy": "http-server -P https://ps-article-editor.dev.scalewest.com/ -p 8080 -c-1 dist/article-editor ",

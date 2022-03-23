@@ -110,6 +110,7 @@ export class MaterialTimeComponent extends MaterialComponent {
       super.onChange();
     }
     this.selectedEvent.emit(this.control);
+    this.instance.root.changeVisibility(this.instance);
   }
 
   setValue(value:any) {

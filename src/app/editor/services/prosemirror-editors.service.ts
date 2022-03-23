@@ -1085,7 +1085,6 @@ export class ProsemirrorEditorsService {
         });
 
         let setDataURL = (dataURL: string) => {
-          console.log(matDom);
 
           let session = seviceShare.PmDialogSessionService ? seviceShare.PmDialogSessionService!.inSession() : 'nosession';
           if(session !== 'nosession'){
@@ -1133,6 +1132,7 @@ export class ProsemirrorEditorsService {
         return this.afterRender(ret, this)
       }
     }
+    this.serviceShare.WorkerService!.logToWorker('rendering prosemirrors')
   }
 
   setIntFunction(interpulateFunction: any) {

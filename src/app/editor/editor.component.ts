@@ -32,6 +32,7 @@ import { ExportOptionsComponent } from './dialogs/export-options/export-options.
 import { FiguresDialogComponent } from './dialogs/figures-dialog/figures-dialog.component';
 import { TreeService } from './meta-data-tree/tree-service/tree.service';
 import { ProsemirrorEditorsService } from './services/prosemirror-editors.service';
+import { WorkerService } from './services/worker.service';
 import { YdocService } from './services/ydoc.service';
 import { CommentsService } from './utils/commentsService/comments.service';
 import { articleSection } from './utils/interfaces/articleSection';
@@ -79,7 +80,8 @@ export class EditorComponent implements OnInit, AfterViewInit {
     public config: FormioAppConfig,
     private authService: AuthService,
     private articleSectionsService: ArticleSectionsService,
-    private articlesService: ArticlesService
+    private articlesService: ArticlesService,
+    private workerService:WorkerService
   ) {
     this.titleControl.valueChanges
       .pipe(

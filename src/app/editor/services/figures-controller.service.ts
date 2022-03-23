@@ -386,7 +386,7 @@ export class FiguresControllerService {
           citatEndPos,
           Fragment.empty).setMeta('createNewHistoryGroup',true)
         )
-
+        this.markCitatsViews(citats)
         return
       }
 

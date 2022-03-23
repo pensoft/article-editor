@@ -61,6 +61,7 @@ export class MaterialSelectBoxesComponent extends MaterialRadioComponent {
   onChange() {
     this.instance.updateValue(this.getValue(), {modified: true});
     this.instance.triggerChange({modified: true});
+    this.instance.root.changeVisibility(this.instance);
   }
 }
 SelectBoxesComponent.MaterialComponent = MaterialSelectBoxesComponent;

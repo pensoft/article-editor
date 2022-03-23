@@ -15,6 +15,8 @@ export class MaterialCurrencyComponent extends MaterialNumberComponent {
   onChange() {
     const newValue = _.isNil(this.getValue()) ? '' : this.getValue();
     this.instance.updateValue(newValue, {modified: true});
+    this.instance.root.changeVisibility(this.instance);
+
   }
 }
 CurrencyComponent.MaterialComponent = MaterialCurrencyComponent;
