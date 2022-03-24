@@ -658,11 +658,12 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
     let generatePDFData = async (element: Element, parentPDFel: any, parentStyle: any, parentElement: Element | undefined) => {
       let defaultView = (element.ownerDocument || document).defaultView
-      let tag = element.tagName.toLocaleLowerCase()
+      //console.log(element);
+      let tag = /*  element.tagName? */element.tagName.toLocaleLowerCase()
       if (
         tag == 'p' || tag == 'h1' || tag == 'h2' || tag == 'h3' || tag == 'h4' || tag == 'h5' ||
         tag == 'h6' || tag == 'span' || tag == 'strong' || tag == 'sub' || tag == 'sup' ||
-        tag == 'code' || tag == 'citation' || tag == 'u' || tag == 'em' || tag == 'form-field'
+        tag == 'code' || tag == 'citation' || tag == 'u' || tag == 'em' || tag == 'form-field'|| tag == 'form-field-inline'
       ) {
 
         let newEl: any = {}
@@ -833,6 +834,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
                       return 0;
                     },
                     paddingTop: (i1: number, node: any) => {
+                      console.log(node,i1);
                       applyVerticalAlignment(node, i1, 'center')
                       return 0;
                     },
