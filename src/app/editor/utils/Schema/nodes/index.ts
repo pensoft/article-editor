@@ -34,6 +34,28 @@ export const paragraph = {
     }
 }
 
+export const form_field_inline = {
+  content: "inline*",
+    group: "block",
+    isolating: true,
+    attrs: {
+        ...getGenericAttributes()
+    },
+    parseDOM: [{
+        tag: "form-field-inline", getAttrs(dom: any) {
+            return {
+                ...parseGenericAttributes(dom),
+            }
+        },
+    }],
+    toDOM(node: any) {
+        let attributesToDom: any = {
+            ...genericAttributtesToDom(node),
+
+        }
+        return ["form-field-inline", attributesToDom, 0];
+    }
+}
 export const form_field = {
     content: "block*",
     group: "block",
@@ -83,6 +105,7 @@ export const nodes: NodeSpec = {
         content: "block*"
     },
     form_field,
+    form_field_inline,
     inline_block_container,
     paragraph,
     ...tableNodes({

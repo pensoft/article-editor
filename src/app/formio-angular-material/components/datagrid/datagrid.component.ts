@@ -260,9 +260,9 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
   }
 
   setValue(value: [] | null) {
-    if(value == null || value.length == 0||value.length!==this.instance.rows.length){
+    /* if(value == null || value.length == 0||value.length!==this.instance.rows.length){
       return
-    }
+    } */
     console.log(value);
     const gridLength = value ? value.length : 0;
     while (this.instance.rows.length < gridLength) {

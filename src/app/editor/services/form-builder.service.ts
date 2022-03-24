@@ -1,5 +1,7 @@
 import { Injectable } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { addRowBefore } from 'prosemirror-tables';
+import { retryWhen } from 'rxjs/operators';
 import { articleSection } from '../utils/interfaces/articleSection';
 import { pmMaxLength, pmMinLength, pmPattern, pmRequired } from '../utils/pmEditorFormValidators/validators';
 import { ServiceShare } from './service-share.service';
@@ -13,7 +15,7 @@ export class FormBuilderService {
 
   }
 
-  populateDefaultValues(savedForm: any, schema: any, sectionID: string,formGroup?:FormGroup) {
+  populateDefaultValues(savedForm: any, schema: any, sectionID: string, formGroup?: FormGroup) {
     let attachSectionId = (componentArray: any[]) => {
       componentArray.forEach((component) => {
         if (component.componentProperties) {
@@ -32,26 +34,60 @@ export class FormBuilderService {
     }
     for (let index = 0; index < schema.components.length; index++) {
       const component: any = schema.components[index];
-      const componentKey: string = component['key'];
-      const componentType: string = (component['type'] as string).toLocaleLowerCase();
+      this.updateDefaultValue(component,savedForm,formGroup)
+    }
+    console.log(schema,savedForm);
+    return schema;
+  }
 
-      if ( //avoids non-dynamic (non-filled) elements
-        componentType === 'button' || // a button
-        componentType === 'content')  // plain text and not an input field
-      { continue; }
-      if (savedForm[componentKey]) {
-        component.defaultValue = savedForm[componentKey];
-        if(formGroup){
-          let componentControl = formGroup.controls[componentKey];
+  updateValue(component: any, submission: any, formGroup?: FormGroup) {
+    let key = component.key
+    let type = component.type
+    if ( //avoids non-dynamic (non-filled) elements
+      type === 'button' || // a button
+      type === 'content')  // plain text and not an input field
+    { } else if (submission[key]) {
+      component.defaultValue = submission[key];
+      if (formGroup) {
+        let form = formGroup!.controls[key]
+        //@ts-ignore
+        if (form && form.componentProps) {
           //@ts-ignore
-          if(componentControl&&componentControl.componentProps){
-          //@ts-ignore
-            Object.keys(componentControl.componentProps).forEach(key=>{component["properties"][key] = componentControl.componentProps[key]});
-          }
+          Object.keys(form.componentProps).forEach(key => { component["properties"][key] = form.componentProps[key] });
         }
       }
     }
-    return schema;
+  }
+
+  updateDefaultValue(component: any, submission: any, formGroup?: FormGroup) {
+    let type = component.type
+    let key = component.key
+    if (type == 'datagrid') {
+      this.updateValue(component, submission, formGroup)
+    } else if (component.type == 'columns') {
+      this.updateValue(component, submission, formGroup)
+    } else if (type == "select") {
+      this.updateValue(component, submission, formGroup)
+
+    } else if (type == "container") {
+      this.updateValue(component, submission, formGroup)
+
+    } else if (type == 'panel') {
+      component.components.forEach((subcomp: any) => {
+        this.updateDefaultValue(subcomp, submission, formGroup)
+      })
+    } else if (type == 'table') {
+      component.rows.forEach((row: any[]) => {
+        row.forEach((cell) => {
+          cell.components.forEach((cellSubComp: any) => {
+            this.updateDefaultValue(cellSubComp, submission, formGroup)
+          })
+        })
+      })
+    } else {
+      this.updateValue(component, submission, formGroup)
+    }
+
   }
 
   labelupdateLocalMeta: any = {}
@@ -59,7 +95,6 @@ export class FormBuilderService {
 
 
   buildFormGroupFromSchema(formGroup: FormGroup, jsonSchema: any, node: articleSection) {
-
     formGroup = formGroup || new FormGroup({});
     if (node.title.editable) {
       let titleFormControl = new FormControl(node.title.label, [Validators.maxLength(34)]);
@@ -79,8 +114,15 @@ export class FormBuilderService {
     return formGroup;
   }
 
-  resolveComponent(formGroup: FormGroup, component: any) {
+  renderSimpleFromControl(formGroup: FormGroup, component: any) {
+    let formControl = this.resolveFormControl(component);
+    if (formControl) {
+      formGroup.addControl(component.key, formControl);
+    }
+  }
 
+  resolveComponent(formGroup: FormGroup, component: any) {
+    let type = component.type
     if (component.type == 'datagrid') {
 
       let formArray = new FormArray([]);
@@ -97,6 +139,14 @@ export class FormBuilderService {
       }
       formGroup.addControl(component.key, formArray);
 
+    } else if (component.type == 'container') {
+      let containerGroup = new FormGroup({});
+      for (let i = 0; i < component.components?.length || 0; i++) {
+        let subComponent = component.components[i];
+        this.resolveComponent(containerGroup,subComponent);
+      }
+      formGroup.addControl(component.key, containerGroup);
+
     } else if (component.type == 'columns') {
       let formArray = new FormArray([]);
       for (let i = 0; i < component.columns?.length || 0; i++) {
@@ -111,81 +161,28 @@ export class FormBuilderService {
       }
       formGroup.addControl(component.key, formArray);
 
-      /* {
-          "label": "Columns",
-          "columns": [
-              {
-                  "components": [
-                      {
-                          "label": "East",
-                          "autoExpand": false,
-                          "tableView": true,
-                          "key": "east",
-                          "type": "textarea",
-                          "input": true
-                      },
-                      {
-                          "label": "South",
-                          "autoExpand": false,
-                          "tableView": true,
-                          "key": "south",
-                          "type": "textarea",
-                          "input": true
-                      }
-                  ],
-                  "width": 6,
-                  "offset": 0,
-                  "push": 0,
-                  "pull": 0,
-                  "size": "md",
-                  "currentWidth": 6
-              },
-              {
-                  "components": [
-                      {
-                          "label": "West",
-                          "autoExpand": false,
-                          "tableView": true,
-                          "key": "west",
-                          "type": "textarea",
-                          "input": true
-                      },
-                      {
-                          "label": "North",
-                          "autoExpand": false,
-                          "tableView": true,
-                          "key": "north",
-                          "type": "textarea",
-                          "input": true
-                      }
-                  ],
-                  "width": 6,
-                  "offset": 0,
-                  "push": 0,
-                  "pull": 0,
-                  "size": "md",
-                  "currentWidth": 6
-              }
-          ],
-          "key": "columns",
-          "conditional": {
-              "show": false,
-              "when": "setGlobalCoverage",
-              "eq": "checked"
-          },
-          "type": "columns",
-          "input": false,
-          "tableView": false,
-          "properties": {
-              "sectionID": "30a194b4-5292-4e53-92fc-8d723eb1b4fd"
-          }
-      } */
+    } else if (type == "select") {
+      this.renderSimpleFromControl(formGroup, component)
+    } else if (type == 'panel') {
+      component.components.forEach((subcomp: any) => {
+        this.resolveComponent(formGroup, subcomp)
+      })
+    } else if (type == 'table') {
+      //let tableArray = new FormArray([])
+      component.rows.forEach((row: any[]) => {
+        //let rowFormGroup = new FormArray([]);
+        row.forEach((cell) => {
+          //let cellFormGroup = new FormGroup({})
+          cell.components.forEach((cellSubComp: any) => {
+            this.resolveComponent(formGroup, cellSubComp)
+          })
+          //rowFormGroup.push(cellFormGroup)
+        })
+        //tableArray.push(rowFormGroup);
+      })
+      //formGroup.addControl(component.key,tableArray)
     } else {
-
-      let formControl = this.resolveFormControl(component);
-      if (formControl) {
-        formGroup.addControl(component.key, formControl);
-      }
+      this.renderSimpleFromControl(formGroup, component)
     }
     return formGroup;
   }

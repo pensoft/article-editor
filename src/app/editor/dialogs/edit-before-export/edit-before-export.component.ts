@@ -107,6 +107,12 @@ export var pageDimensionsInPT = {
   LETTER: [612.00, 792.00],
   TABLOID: [792.00, 1224.00]
 };
+function isNumeric(str: any) {
+  if (typeof str != "string") return false // we only process strings!
+  //@ts-ignore
+  return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
+    !isNaN(parseFloat(str)) // ...and ensure strings of whitespace fail
+}
 
 function mmToPx(mm: number) {
   return mm * 3.7795275591;
@@ -245,7 +251,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     this.codemirrorJsonEditor = new EditorViewCM({
       state: EditorStateCM.create({
         doc:
-          `${JSON.stringify(this.marginByTags, null, "\t")}`,
+          `${JSON.stringify(this.pdfSettings, null, "\t")}`,
         extensions: [basicSetup, javascript()],
       }),
 
@@ -334,21 +340,28 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
   // [left, top, right, bottom]
 
-  marginByTags: { [key: string]: number[] } = {
-    'h1': [10, 40],
-    'h2': [5, 30],
-    'h3': [5, 25],
-    'h4': [5, 20],
-    'h5': [4, 15],
-    'h6': [3, 10],
-    'p': [2, 8],
-    'table': [5, 10],
-    'block-figure': [10, 40],
-    'ol': [5, 10],
-    'ul': [5, 10],
-    'math-display': [10, 10],
-    'form-field': [5, 10],
-    'br': [2, 2],
+  pdfSettings: any = {
+    nodes: {
+      'h1': { marginTop: 10, marginBottom: 40, fontSize: 'auto' },
+      'h2': { marginTop: 5, marginBottom: 30, fontSize: 'auto' },
+      'h3': { marginTop: 5, marginBottom: 25, fontSize: 'auto' },
+      'h4': { marginTop: 5, marginBottom: 20, fontSize: 'auto' },
+      'h5': { marginTop: 4, marginBottom: 15, fontSize: 'auto' },
+      'h6': { marginTop: 3, marginBottom: 10, fontSize: 'auto' },
+      'p': { marginTop: 2, marginBottom: 8, fontSize: 'auto' },
+      'table': { marginTop: 5, marginBottom: 10 },
+      'block-figure': { marginTop: 10, marginBottom: 40 },
+      'ol': { marginTop: 5, marginBottom: 10, fontSize: 'auto' },
+      'ul': { marginTop: 5, marginBottom: 10, fontSize: 'auto' },
+      'math-display': { marginTop: 10, marginBottom: 10, fontSize: 'auto' },
+      'form-field': { marginTop: 5, marginBottom: 10, fontSize: 'auto' },
+      'br': { marginTop: 2, marginBottom: 2, fontSize: 'auto' },
+    },
+    'maxFiguresImagesDownscale': '80%',
+    'maxMathDownscale': '80%',
+    'maxParagraphLinesAtEndOfPage': 1,
+    'header': { marginTop: 20, marginBottom: 15, fontSize: 'auto' },
+    'footer': { marginTop: 15, marginBottom: 15, fontSize: 'auto' },
   }
 
   closePdfPrintDialog() {
@@ -384,25 +397,44 @@ export class EditBeforeExportComponent implements AfterViewInit {
     }
   }
 
-  fillMargins() {
-    let oldMargins = this.marginByTags;
-    let returnMargins: any = {}
+  fillSettings() {
+    let oldSettings = JSON.parse(JSON.stringify(this.pdfSettings));
+    let settings: any
+    let buildNodeSettings = (settingsFromUser: any) => {
+      let nodeSettings: any;
+      nodeSettings = JSON.parse(JSON.stringify(settingsFromUser.nodes));
+      return nodeSettings;
+    }
+    let buildPdfSettings = (settingsFromUser: any) => {
+      let pdfSettings: any = {};
+      pdfSettings.maxFiguresImagesDownscale = settingsFromUser.maxFiguresImagesDownscale;
+      pdfSettings.maxMathDownscale = settingsFromUser.maxMathDownscale;
+      pdfSettings.maxParagraphLinesAtEndOfPage = settingsFromUser.maxParagraphLinesAtEndOfPage;
+      pdfSettings.header = settingsFromUser.header;
+      pdfSettings.footer = settingsFromUser.footer;
+      return pdfSettings;
+    }
+    let buildSettings = (settingsFromUser: any) => {
+      let settings: any = {};
+      //nodes settings
+      let nodesSettings = buildNodeSettings(settingsFromUser);
+      //other pdf settings
+      let pdfSettings = buildPdfSettings(settingsFromUser);
+      settings.nodes = nodesSettings;
+      settings.pdf = pdfSettings;
+      return settings
+    }
     try {
       let data = JSON.parse(this.codemirrorJsonEditor!.state.doc.sliceString(0, this.codemirrorJsonEditor!.state.doc.length))
-      this.marginByTags = data
-      Object.keys(this.marginByTags).forEach((key) => {
-        let m = this.marginByTags[key]
-        returnMargins[key] = [0, m[0], 0, m[1]];
-      })
+      this.pdfSettings = data
+
+      settings = buildSettings(data);
     } catch (e) {
       console.error(e);
-      this.marginByTags = oldMargins
-      Object.keys(this.marginByTags).forEach((key) => {
-        let m = this.marginByTags[key]
-        returnMargins[key] = [0, m[0], 0, m[1]];
-      })
+      this.pdfSettings = oldSettings
+      settings = buildSettings(oldSettings);
     }
-    return returnMargins
+    return settings
   }
   refreshContent = async () => {
     this.resumeSpinner()
@@ -414,8 +446,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
       +this.margLeftControl.value,
     ];
 
-    let margingsByTags: any = this.fillMargins()
-
+    let pdfSettings: any = this.fillSettings()
     let elementsContainerElements = (this.elementsContainer?.nativeElement as Element)
 
 
@@ -574,6 +605,57 @@ export class EditBeforeExportComponent implements AfterViewInit {
     let math_url_obj = this.ydocService.mathMap?.get('dataURLObj');
     let math_data_url_obj: any = math_url_obj
 
+    let attachStylesToNode = (
+      node: any, nodeStyles: any,
+      parentStyle: any,
+      element: Element,
+      appentParentStyles: boolean,
+      parentElement: Element | undefined,
+      provideTag: string) => {
+      let tag = element.tagName.toLocaleLowerCase()
+      if (provideTag !== '') {
+        tag = provideTag
+      }
+      if (parentStyle && parentStyle.parentWidth) {
+        nodeStyles.parentWidth = parentStyle.parentWidth
+      }
+      if (parentStyle && !parentStyle.parentHasMargin && pdfSettings.nodes[tag]) {
+        let nS = pdfSettings.nodes[tag] // node settings
+        let margin = [0, nS.marginTop, 0, nS.marginBottom];
+        node.margin = margin;
+        /* if(nS.fontSize !=='auto'){
+          let fontSize = +nS.fontSize;
+          nodeStyles.fontSize = fontSize;
+        } */
+        nodeStyles.parentHasMargin = true;
+      }
+      if (parentStyle && parentStyle.parentHasMargin) {
+        nodeStyles.parentHasMargin = true;
+      }
+      if (parentStyle && appentParentStyles) {
+        Object.keys(parentStyle).forEach((key) => {
+          if (!nodeStyles[key] && key !== 'text' && key !== 'stack' && key !== 'table' && key !== 'columns' && key !== 'image') {
+            nodeStyles[key] = parentStyle[key];
+          }
+        })
+      }
+      Object.assign(node, nodeStyles);
+      let nS = pdfSettings.nodes[tag]
+      if (nS && nS.fontSize && nS.fontSize !== 'auto') {
+        let fontSize = +nS.fontSize;
+        node.fontSize = fontSize;
+        nodeStyles.fontSize = fontSize;
+      }
+      if (parentElement &&/* nS&&nS.fontSize&& */
+        pdfSettings.nodes[parentElement?.tagName.toLocaleLowerCase()!] && parentStyle &&
+        typeof parentStyle.fontSize == 'number' &&
+        typeof node.fontSize == 'number') {
+        if (pdfSettings.nodes[parentElement?.tagName.toLocaleLowerCase()!].fontSize !== 'auto') {
+          node.fontSize = parentStyle.fontSize;
+        }
+      }
+    }
+
     let generatePDFData = async (element: Element, parentPDFel: any, parentStyle: any, parentElement: Element | undefined) => {
       let defaultView = (element.ownerDocument || document).defaultView
       let tag = element.tagName.toLocaleLowerCase()
@@ -586,27 +668,11 @@ export class EditBeforeExportComponent implements AfterViewInit {
         let newEl: any = {}
         let textStyles = this.getTextStyles(defaultView!.getComputedStyle(element, null), element as HTMLElement);
 
-        if (parentStyle && parentStyle.parentWidth) {
-          textStyles.parentWidth = parentStyle.parentWidth
-        }
-        if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
-          newEl.margin = margingsByTags[tag]
-          textStyles.parentHasMargin = true;
-        }
-        if (parentStyle && parentStyle.parentHasMargin) {
-          textStyles.parentHasMargin = true;
-        }
-        if (parentStyle) {
-          Object.keys(parentStyle).forEach((key) => {
-            if (!textStyles[key] && key !== 'text' && key !== 'stack' && key !== 'table' && key !== 'columns') {
-              textStyles[key] = parentStyle[key];
-            }
-          })
-        }
+        attachStylesToNode(newEl, textStyles, parentStyle, element, true, parentElement, '')
 
         if (element.childNodes.length == 1 && element.childNodes[0] instanceof Text) {
           newEl.text = element.childNodes[0].textContent;
-          Object.assign(newEl, textStyles)
+          //Object.assign(newEl, textStyles)
         } else if ((element.childNodes.length > 1 &&
           (
             tag == 'h1' ||
@@ -641,7 +707,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             }
             newEl.stack.push(n);
           }
-          Object.assign(newEl, textStyles)
+          //Object.assign(newEl, textStyles)
         } else {
           //serch for inline img , math , video or svg node;
           let inlineBreakableNodes = ['img', 'video', 'svg', 'math-inline', 'a'];
@@ -891,7 +957,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
               newEl.text.push(n);
             }
           }
-          Object.assign(newEl, textStyles)
+          //Object.assign(newEl, textStyles)
         }
         let parentElTag;
         if (parentElement) {
@@ -922,9 +988,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
         if (newEl.background) {
           newEl.background = undefined;
         }
-        if (typeof newEl.text == 'string' && newEl.text.includes('Cited item deleted')) {
+        /* if (typeof newEl.text == 'string' && newEl.text.includes('Cited item deleted')) {
           newEl.text = '';
-        }
+        } */
         if (tag == 'p') {
           if (!newEl.props) {
             newEl.props = {};
@@ -942,20 +1008,22 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
 
         let dataURL = await this.getDataUrl(img)
-        let result: any = { image: dataURL, width: pxToPt(img.getBoundingClientRect().width) }
-        if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
+        let node: any = { image: dataURL, width: pxToPt(img.getBoundingClientRect().width) }
+        /* if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
           result.margin = margingsByTags[tag]
-        }
-        return Promise.resolve(result);
+        } */
+        attachStylesToNode(node, {}, parentStyle, element, false, parentElement, '')
+        return Promise.resolve(node);
       } else if (tag == 'block-figure') {
         let figureStyling: any = {};
-        if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
+        attachStylesToNode(figureStyling, figureStyling, parentStyle, element, false, parentElement, '');
+        /* if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
           figureStyling.margin = margingsByTags[tag]
           figureStyling.parentHasMargin = true;
         }
         if (parentStyle.parentHasMargin) {
           figureStyling.parentHasMargin = true;
-        }
+        } */
         let pdfFigure = await generateFigure(element, figureStyling);
         return Promise.resolve(pdfFigure)
       } else if (tag == 'table' || (tag == 'div' && element.className == 'tableWrapper')) {
@@ -966,15 +1034,16 @@ export class EditBeforeExportComponent implements AfterViewInit {
           tableElement = element
         }
         let sectionName = tableElement.getAttribute('section-name');
-        let tableMargin: any = {};
+        /* let tableMargin: any = {};
         let tableTag = 'table'
+
         if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tableTag]) {
           tableMargin.margin = margingsByTags[tableTag]
           tableMargin.parentHasMargin = true;
         }
         if (parentStyle.parentHasMargin) {
           tableMargin.parentHasMargin = true;
-        }
+        } */
         if (sectionName == 'Taxonomic coverage') {
           let tabbleCellWidth = '4.16667%'
           let tabbleCellWidthNumber = +tabbleCellWidth.replace('%', '')
@@ -990,11 +1059,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
               paddingBottom: function paddingBottom(i: number, node: any) { return 3; },
             },
             alingment: 'center',
-            margin: tableMargin.margin
           }
-          if (tableMargin.margin) {
-            tableMargin.margin = undefined
-          }
+          attachStylesToNode(taxonomicTable, {}, parentStyle, element, false, parentElement, 'table');
+
           for (let i = 0; i < 24; i++) {
             taxonomicTable.table.widths.push(tabbleCellWidth)
           }
@@ -1010,7 +1077,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             let cell1Nodes = el.childNodes.item(0).childNodes
             for (let j = 0; j < cell1Nodes.length; j++) {
               let cellnode = cell1Nodes[j];
-              let val = await generatePDFData(cellnode as Element, taxonomicTable, { parentWidth: (col1Span * tabbleCellWidthNumber) * outerWidth / 100, ...tableMargin }, tableElement)
+              let val = await generatePDFData(cellnode as Element, taxonomicTable, { parentWidth: (col1Span * tabbleCellWidthNumber) * outerWidth / 100 }, tableElement)
               stack1.push(val);
             }
             let col2Span = 10
@@ -1018,7 +1085,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             let cell2Nodes = el.childNodes.item(1).childNodes
             for (let j = 0; j < cell2Nodes.length; j++) {
               let cellnode = cell2Nodes[j];
-              let val = await generatePDFData(cellnode as Element, taxonomicTable, { parentWidth: (col2Span * tabbleCellWidthNumber) * outerWidth / 100, ...tableMargin }, tableElement)
+              let val = await generatePDFData(cellnode as Element, taxonomicTable, { parentWidth: (col2Span * tabbleCellWidthNumber) * outerWidth / 100 }, tableElement)
               stack2.push(val);
             }
             let col3Span = 10
@@ -1026,7 +1093,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             let cell3Nodes = el.childNodes.item(2).childNodes
             for (let j = 0; j < cell3Nodes.length; j++) {
               let cellnode = cell3Nodes[j];
-              let val = await generatePDFData(cellnode as Element, taxonomicTable, { parentWidth: (col3Span * tabbleCellWidthNumber) * outerWidth / 100, ...tableMargin }, tableElement)
+              let val = await generatePDFData(cellnode as Element, taxonomicTable, { parentWidth: (col3Span * tabbleCellWidthNumber) * outerWidth / 100 }, tableElement)
               stack3.push(val);
             }
             taxonomicTable.table.body.push([
@@ -1051,11 +1118,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
               paddingBottom: function paddingBottom(i: number, node: any) { return 3; },
             },
             alingment: 'center',
-            margin: tableMargin.margin
           }
-          if (tableMargin.margin) {
-            tableMargin.margin = undefined
-          }
+          attachStylesToNode(baseTable, {}, parentStyle, element, false, parentElement, 'table');
+
 
           let tabbleCellWidthNumber
           if (parentStyle && parentStyle.parentWidth) {
@@ -1075,7 +1140,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
               for (let k = 0; k < cellNodes.length; k++) {
                 let cellnode = cellNodes[k]
 
-                let val = await generatePDFData(cellnode as Element, baseTable, { parentWidth: tabbleCellWidthNumber, ...tableMargin }, tableElement)
+                let val = await generatePDFData(cellnode as Element, baseTable, { parentWidth: tabbleCellWidthNumber }, tableElement)
                 stack.push(val);
               }
               row.push({ stack, borderColor: ['#e2e2dc', '#e2e2dc', '#e2e2dc', '#e2e2dc'], })
@@ -1088,8 +1153,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
         let listTemplate: any = {}
         listTemplate[tag] = []
         let elChildren = element.childNodes;
-        let listMargin: any = {}
-        if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
+        let listStyles = {}
+        /*let listMargin: any = {}
+         if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
           listMargin.margin = margingsByTags[tag]
           listMargin.parentHasMargin = true;
         }
@@ -1099,7 +1165,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
         if (listMargin.margin) {
           listTemplate.margin = listMargin.margin;
           listMargin.margin = undefined
-        }
+        } */
+        attachStylesToNode(listTemplate, listStyles, parentStyle, element, false, parentElement, '');
         for (let i = 0; i < elChildren.length; i++) {
           let chnode = elChildren[i];
           let listEl: any = { stack: [] }
@@ -1114,7 +1181,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
               } else {
                 itemWidth = pageWidth - 50;
               }
-              let pdfFromNode = await generatePDFData(nodeInItem as Element, listTemplate, { parentWidth: itemWidth, ...listMargin }, element);
+              let pdfFromNode = await generatePDFData(nodeInItem as Element, listTemplate, { parentWidth: itemWidth, ...listStyles }, element);
               listEl.stack.push(pdfFromNode);
             }
           }
@@ -1123,27 +1190,30 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
         return Promise.resolve(listTemplate);
       } else if (tag == 'br') {
-        let brMargin: any = {}
-        if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
-          brMargin.margin = margingsByTags[tag]
-        }
+        /*let brMargin: any = {}
+       if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
+         brMargin.margin = margingsByTags[tag]
+       } */
         let br: any = { text: ' \n' }
-        if (brMargin.margin) {
+        attachStylesToNode(br, {}, parentStyle, element, true, parentElement, '');
+        /* if (brMargin.margin) {
           br.margin = brMargin.margin
-        }
+        } */
         return Promise.resolve(br)
       } else if (tag == 'a') {
         let link: any = { text: element.textContent, link: element.getAttribute('href'), color: '#1B8AAE', decoration: 'underline' }
-        let linkMargin: any = {}
+        /* let linkMargin: any = {}
         if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
           linkMargin.margin = margingsByTags[tag]
         }
-        link.margin = linkMargin.margin;
+        link.margin = linkMargin.margin; */
+        attachStylesToNode(link, {}, parentStyle, element, true, parentElement, '');
+
         //let linkTemplate = { text: [{ text: element.textContent, color: 'blue' }, { text: element.getAttribute('href'), color: 'lightblue', decoration: 'underline' }] }
         return Promise.resolve(link)
       } else if (tag == 'math-inline' || tag == 'math-display') {
-        let width = pxToPt((element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] ||element).getBoundingClientRect().width);
-        let height = pxToPt((element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] ||element).getBoundingClientRect().height);
+        let width = pxToPt((element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] || element).getBoundingClientRect().width);
+        let height = pxToPt((element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] || element).getBoundingClientRect().height);
 
         let canvasWidth = width;
 
@@ -1191,11 +1261,13 @@ export class EditBeforeExportComponent implements AfterViewInit {
             ]
           }
         }
-        let blockMathMargin: any = {}
-        if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
-          blockMathMargin.margin = margingsByTags[tag]
-        }
-        result.margin = blockMathMargin.margin;
+        /*  let blockMathMargin: any = {}
+         if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
+           blockMathMargin.margin = margingsByTags[tag]
+         }
+         result.margin = blockMathMargin.margin; */
+        attachStylesToNode(result, {}, parentStyle, element, false, parentElement, '');
+
         return Promise.resolve(result);
 
       } else {
@@ -1203,6 +1275,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
           stack: []
         }
         let ch = Array.from(element.childNodes)
+
         for (let i = 0; i < ch.length; i++) {
           let pdfCh = await generatePDFData(ch[i] as HTMLElement, parentPDFel, parentStyle, parentElement);
           stack.stack.push(pdfCh)
@@ -1213,17 +1286,31 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
     let margFooter = [pxToPt(this.pageMarg[0]), 15, pxToPt(this.pageMarg[2]), 15];
     let margHeader = [pxToPt(+this.pageMarg[0]), 20, pxToPt(+this.pageMarg[2]), 15];
+    if (pdfSettings.pdf.footer) {
+      margFooter = [pxToPt(this.pageMarg[0]), pdfSettings.pdf.footer.marginTop, pxToPt(this.pageMarg[2]), pdfSettings.pdf.footer.marginBottom];
+    }
+    if (pdfSettings.pdf.header) {
+      margHeader = [pxToPt(+this.pageMarg[0]), pdfSettings.pdf.header.marginTop, pxToPt(+this.pageMarg[2]), pdfSettings.pdf.header.marginTop];
+    }
     let headerStack: any = []
     let footerStack: any = []
     let headerCh = Array.from(this.headerPmContainer?.editorView.dom.childNodes!)
     let footerCh = Array.from(this.footerPmContainer?.editorView.dom.childNodes!)
     for (let i = 0; i < headerCh.length; i++) {
-      headerStack.push(await generatePDFData(headerCh[i] as HTMLElement, {}, {}, undefined))
+      headerStack.push(await generatePDFData(headerCh[i] as HTMLElement, {}, { parentHasMargin: true }, undefined))
     }
     for (let i = 0; i < footerCh.length; i++) {
-      footerStack.push(await generatePDFData(footerCh[i] as HTMLElement, {}, {}, undefined))
+      footerStack.push(await generatePDFData(footerCh[i] as HTMLElement, {}, { parentHasMargin: true }, undefined))
     }
 
+    let footerFontSize = 9;
+    let headerFontSize = 9;
+    if (pdfSettings.pdf.footer && pdfSettings.pdf.footer.fontSize !== 'auto') {
+      footerFontSize = pdfSettings.pdf.footer.fontSize
+    }
+    if (pdfSettings.pdf.header && pdfSettings.pdf.header.fontSize !== 'auto') {
+      headerFontSize = pdfSettings.pdf.header.fontSize
+    }
     this.data.footer = function (currentPage: any, pageCount: any) {
       return [{
         margin: margFooter,
@@ -1233,19 +1320,19 @@ export class EditBeforeExportComponent implements AfterViewInit {
             width: 'auto',
             alignment: 'left',
             text: '',
-            fontSize: 9
+            fontSize: footerFontSize
           },
           {
             width: '*',
             alignment: 'center',
             stack: footerStack,
-            fontSize: 9
+            fontSize: footerFontSize
           },
           {
             width: 'auto',
             alignment: 'right',
             text: '',
-            fontSize: 9
+            fontSize: footerFontSize
           }
         ]
       }]
@@ -1260,19 +1347,19 @@ export class EditBeforeExportComponent implements AfterViewInit {
               width: 'auto',
               alignment: 'left',
               text: currentPage.toString(),
-              fontSize: 9
+              fontSize: headerFontSize
             },
             {
               width: '*',
               alignment: 'center',
               stack: headerStack,
-              fontSize: 9
+              fontSize: headerFontSize
             },
             {
               width: 'auto',
               alignment: 'right',
               text: '',
-              fontSize: 9
+              fontSize: headerFontSize
             }
           ]
         }]
@@ -1324,14 +1411,10 @@ export class EditBeforeExportComponent implements AfterViewInit {
             let availableHeightAfterLastNode = lastNodeBefore.props.availableHeight;
 
             // check if there is space above for the figure
-
             if (availableHeightAfterLastNode > node.props.height) {
               node.pageBreak = undefined;
               return true
             }
-
-
-
             // try move text from uder the figure
 
             let filledSpace = 0;
@@ -1411,7 +1494,12 @@ export class EditBeforeExportComponent implements AfterViewInit {
               let figureDescriptionHeight = figureHeight - figureImageInitHeight;
               let imageNewHeight = availableHeightOnLastPage - figureDescriptionHeight - 1;
               let dawnScalePercent = imageNewHeight / figureImageInitHeight;
-              if (dawnScalePercent >= 0.8) {
+              let scaleFromUserInput = pdfSettings.pdf.maxFiguresImagesDownscale.replace("%", '');
+              let scale = 0.8;
+              if (isNumeric(scaleFromUserInput)) {
+                scale = +scaleFromUserInput / 100
+              }
+              if (dawnScalePercent >= scale) {
                 nodeToChange.pageOrderCalculated = true;
                 nodeToChange.pageBreak = undefined;
                 nodeToChange.table.body[0][0].fit = [nodeToChange.table.body[0][0].props.initRect[0] * dawnScalePercent, imageNewHeight]
@@ -1448,13 +1536,28 @@ export class EditBeforeExportComponent implements AfterViewInit {
             }
           }
         } else if (node.props.type == 'paragraph') {
-          if (node.text && nodeInfo.pageNumbers.length > 1 && node.positions.length > 0) {
-            if (node.positions[0].pageNumber !== node.positions[1].pageNumber) {
+          let maxLinesOnLastPage = pdfSettings.pdf.maxParagraphLinesAtEndOfPage ? pdfSettings.pdf.maxParagraphLinesAtEndOfPage : 1
+          if (node.text && nodeInfo.pageNumbers.length > 1 && node.positions.length > maxLinesOnLastPage) {
+            let lines: number[] = [];
+            nodeInfo.pageNumbers.forEach((page: number, index: number) => {
+              lines[index] = 0
+              node.positions.forEach((pos: any) => {
+                if (pos.pageNumber == page) {
+                  lines[index]++;
+                }
+              })
+            })
+            if (lines[0] < maxLinesOnLastPage) {
               node.pageBreak = 'before'
               return true
             }
           }
         } else if (node.props.type == 'paragraphTable' /* && nodeInfo.pageNumbers.length > 1 */) {
+          let maxMathDownscale = pdfSettings.pdf.maxMathDownscale.replace("%", '');
+          let scale = 0.8;
+          if (isNumeric(maxMathDownscale)) {
+            scale = +maxMathDownscale / 100
+          }
           let structuredNodes = nodeFunc.getContent();
           let nodesBefore = nodeFunc.getAllNodesBefore();
           let nodesAfter = nodeFunc.getAllNodesAfter();
@@ -1517,7 +1620,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
                     let imageDims = [imageWidth, (imageInitDims[1] / imageInitDims[0]) * imageWidth];
                     imagesHeights.push({ h: imageDims[1], rect: imageDims });
                     let requiredScale = freeSpace / imageDims[1];
-                    if (requiredScale < 0.8) {
+                    if (requiredScale < scale) {
                       canFitWithScale = false;
                     }
                   })
@@ -1549,7 +1652,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
                 }
               }
             } else {
-              if(node.nodeInfo.pageNumbers.length>1){
+              if (node.nodeInfo.pageNumbers.length > 1) {
                 let lineOnNewPage: any = undefined
                 let page = undefined
                 for (let i = 0; i < node.stack.length; i++) {
@@ -1568,20 +1671,27 @@ export class EditBeforeExportComponent implements AfterViewInit {
             return false
           }
         } else if (node.props.type == 'block-math') {
+          let maxMathDownscale = pdfSettings.pdf.maxMathDownscale.replace("%", '');
+          let scale = 0.8;
+          if (isNumeric(maxMathDownscale)) {
+            scale = +maxMathDownscale / 100
+          }
           let structuredNodes = nodeFunc.getContent();
           let nodesBefore = nodeFunc.getAllNodesBefore();
           let nodesAfter = nodeFunc.getAllNodesAfter();
           let nodeBeforeMath = nodesBefore.length > 0 ? nodesBefore[nodesBefore.length - 1] : undefined;
           if (nodeBeforeMath && nodeBeforeMath.nodeInfo.pageNumbers[nodeBeforeMath.nodeInfo.pageNumbers.length - 1] < node.nodeInfo.pageNumbers[0]) {
-            let availableHeightOnPageBeforeMath = nodeBeforeMath.props.availableHeight - 4;
+            let availableHeightOnPageBeforeMath = nodeBeforeMath.props.availableHeight - 10;
             let imagePdf = node.columns[1].stack[0];
             let imgDims = imagePdf.props.canvasDims;//[width,height]
             let mathWidth = imagePdf.width
             let imageHeight = (imgDims[1] / imgDims[0]) * mathWidth;
             let requiredScalePercent = availableHeightOnPageBeforeMath / imageHeight;
-            if (requiredScalePercent > 0.8 && requiredScalePercent < 1) {
+            console.log(imagePdf,scale,availableHeightOnPageBeforeMath,imageHeight,requiredScalePercent);
+            if (requiredScalePercent > scale && requiredScalePercent < 1) {
               let newWidth = mathWidth * requiredScalePercent
-              imagePdf.width = newWidth
+              imagePdf.width = newWidth;
+              imagePdf.fit = [newWidth,availableHeightOnPageBeforeMath]
               return true;
             }
           }

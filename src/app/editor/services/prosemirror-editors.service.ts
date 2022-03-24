@@ -112,7 +112,8 @@ export class ProsemirrorEditorsService {
     return new InputRule(pattern, (state, match, start, end) => {
       let $start = state.doc.resolve(start)
       let attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs
-      let tr = state.tr.replaceWith(start,end,nodeType.create({}))
+      console.log(attrs);
+      let tr = state.tr.replaceWith(start,end,nodeType.create(attrs))
       return tr.setSelection(NodeSelection.create(
         tr.doc, start+1
       ))
