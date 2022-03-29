@@ -57,7 +57,6 @@ export class PasswordSetupComponent implements OnInit {
     this.profileService
       .changePassword(setPassword, confirmPassword)
       .subscribe((data) => {
-        console.log('data ', data);
       });
   }
 }

@@ -8,7 +8,7 @@ import { IDemographic } from '../interfaces/demographic.interface';
 export class DemogrphicService {
   constructor(private http: HttpClient) {}
 
-  public submitDemographicForm(demographicData: IDemographic) {
+  public submitDemographicForm(demographicData: IDemographic){
     console.log('---demographicData ' + demographicData);
     return this.http.post(`http://localhost:4200/profileData`, demographicData);
     // ne znam kam koi link da go post-na

@@ -3,408 +3,414 @@ $textFontWeight: 500;
 $textFontSize: 15px;
 $itemHeight: 30px;
 ::ng-deep .drag_btn {
-    height: 20px !important;
-    width: 20px !important;
-    line-height: 0px;
-    .mat-icon {
-        font-size: 15px;
-        vertical-align: baseline;
-    }
+  height: 20px !important;
+  width: 20px !important;
+  line-height: 0px;
+  .mat-icon {
+    font-size: 15px;
+    vertical-align: baseline;
+  }
+}
+
+::ng-deep .addSectionBtn {
+  mat-icon {
+    transform: scale(1.2);
+  }
 }
 
 ::ng-deep .cant-drop {
-    background-color: rgb(245, 217, 217) !important;
-    border-color: rgb(250, 141, 141) !important;
+  background-color: rgb(245, 217, 217) !important;
+  border-color: rgb(250, 141, 141) !important;
 }
 
 ::ng-deep .matIcon {
-    font-size: 18px !important;
+  font-size: 18px !important;
 }
 
 ::ng-deep .section_btn_outerList {
-    height: 30px !important;
-    width: 30px !important;
+  height: 30px !important;
+  width: 30px !important;
+  padding: 0px;
+  line-height: 0px;
+  .mat-button-wrapper {
     padding: 0px;
+    padding-top: 7px;
     line-height: 0px;
-    .mat-button-wrapper {
-        padding: 0px;
-        padding-top: 7px;
-        line-height: 0px;
-    }
+  }
 }
 
 .section_btn_outerList {
-    color: #223361;
-    background-color: white;
-    margin-right: 1px;
-    margin-left: 2px;
-    z-index: 5;
-    vertical-align: middle;
-    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
+  color: #223361;
+  background-color: white;
+  margin-right: 1px;
+  margin-left: 2px;
+  z-index: 5;
+  vertical-align: middle;
+  box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
 }
 
 ::ng-deep .section_btn {
-    height: 30px !important;
-    width: 30px !important;
+  height: 30px !important;
+  width: 30px !important;
+  padding: 0px;
+  line-height: 0px;
+  .mat-button-wrapper {
     padding: 0px;
+    padding-top: 7px;
     line-height: 0px;
-    .mat-button-wrapper {
-        padding: 0px;
-        padding-top: 7px;
-        line-height: 0px;
-    }
+  }
 }
 
 ::ng-deep .section_btn_nestedList {
-    height: 30px !important;
-    width: 30px !important;
+  height: 30px !important;
+  width: 30px !important;
+  padding: 0px;
+  line-height: 0px;
+  .mat-button-wrapper {
     padding: 0px;
+    padding-top: 7px;
     line-height: 0px;
-    .mat-button-wrapper {
-        padding: 0px;
-        padding-top: 7px;
-        line-height: 0px;
-    }
+  }
 }
 
 .sectionBorderNestedInactive {
-    display: inline-flex;
-    padding-left: 30px;
-    min-height: $itemHeight;
-    width: fit-content;
-    z-index: 4;
-    width: calc(100% - 65px);
-    position: relative;
+  display: inline-flex;
+  padding-left: 30px;
+  min-height: $itemHeight;
+  width: fit-content;
+  z-index: 4;
+  width: calc(100% - 65px);
+  position: relative;
 }
 
 .sectionBorderNested {
-    display: inline-flex;
-    padding-left: 30px;
-    margin-left: 0px !important;
-    background-color: white;
-    border-radius: 4px;
-    height: $itemHeight;
-    z-index: 4;
-    width: calc(100% - 65px);
-    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
-    position: relative;
+  display: inline-flex;
+  padding-left: 30px;
+  margin-left: 0px !important;
+  background-color: white;
+  border-radius: 4px;
+  height: $itemHeight;
+  z-index: 4;
+  width: calc(100% - 65px);
+  box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
+  position: relative;
 }
 
 .sectionBorderListNestedInactive {
-    display: inline-flex;
-    margin-left: 26px;
-    height: $itemHeight;
-    background-color: #f9fafc;
-    z-index: 4;
-    width: calc(100% - 35px);
-    position: relative;
+  display: inline-flex;
+  margin-left: 26px;
+  height: $itemHeight;
+  background-color: #f9fafc;
+  z-index: 4;
+  width: calc(100% - 35px);
+  position: relative;
 }
 
 .sectionBorderListNested {
-    display: inline-flex;
-    padding-left: 26px;
-    background-color: white;
-    border-radius: 4px;
-    height: $itemHeight;
-    z-index: 4;
-    position: relative;
-    width: calc(100% - 61px);
-    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
-    position: relative;
+  display: inline-flex;
+  padding-left: 26px;
+  background-color: white;
+  border-radius: 4px;
+  height: $itemHeight;
+  z-index: 4;
+  position: relative;
+  width: calc(100% - 61px);
+  box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
+  position: relative;
 }
 
 .sectionBorderListItem {
-    display: inline-flex;
-    background-color: white;
-    border-radius: 4px;
-    width: calc(100% - 37px);
-    z-index: 4;
-    position: relative;
-    vertical-align: middle;
-    height: $itemHeight;
-    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
+  display: inline-flex;
+  background-color: white;
+  border-radius: 4px;
+  width: calc(100% - 37px);
+  z-index: 4;
+  position: relative;
+  vertical-align: middle;
+  height: $itemHeight;
+  box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
 }
 
 .sectionBorderListItemInactive {
-    display: inline-flex;
-    width: fit-content;
-    vertical-align: middle;
-    background-color: #f9fafc;
-    height: $itemHeight;
-    width: calc(100% - 37px);
-    z-index: 4;
-    position: relative;
+  display: inline-flex;
+  width: fit-content;
+  vertical-align: middle;
+  background-color: #f9fafc;
+  height: $itemHeight;
+  width: calc(100% - 37px);
+  z-index: 4;
+  position: relative;
 }
 
 .sectionBorderInactive {
-    display: inline-flex;
-    padding-left: 30px;
-    height: $itemHeight;
-    width: fit-content;
-    z-index: 4;
-    width: calc(100% - 65px);
-    position: relative;
+  display: inline-flex;
+  padding-left: 30px;
+  height: $itemHeight;
+  width: fit-content;
+  z-index: 4;
+  width: calc(100% - 65px);
+  position: relative;
 }
 
 .vertical_line_nestedList {
-    border-left: 2px solid #6cd0d2;
-    display: inline;
-    position: absolute;
-    height: 100%;
-    width: 60%;
-    transform: translate(17px, -37px);
+  border-left: 2px solid #6cd0d2;
+  display: inline;
+  position: absolute;
+  height: 100%;
+  width: 60%;
+  transform: translate(17px, -37px);
 }
 
 .sectionBorder {
-    display: inline-flex;
-    padding-left: 30px;
-    background-color: white;
-    border-radius: 4px;
-    z-index: 4;
-    position: relative;
-    height: $itemHeight;
-    width: calc(100% - 65px);
-    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
+  display: inline-flex;
+  padding-left: 30px;
+  background-color: white;
+  border-radius: 4px;
+  z-index: 4;
+  position: relative;
+  height: $itemHeight;
+  width: calc(100% - 65px);
+  box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
 }
 
 ::ng-deep .expandBTN {
-    height: 20px !important;
-    width: 20px !important;
-    margin-left: 8px;
-    margin-right: 1px;
-    align-self: center;
-    line-height: 0px !important;
-    .mat-icon {
-        line-height: 20px !important;
-        vertical-align: baseline;
-    }
+  height: 20px !important;
+  width: 20px !important;
+  margin-left: 8px;
+  margin-right: 1px;
+  align-self: center;
+  line-height: 0px !important;
+  .mat-icon {
+    line-height: 20px !important;
+    vertical-align: baseline;
+  }
 }
 
 .drag_btn {
-    cursor: move;
+  cursor: move;
 }
 
 .drag_btn_leaf_node {
-    position: absolute;
-    transform: translate(-34px);
-    align-self: center;
-    .mat-icon {
-        height: 20px;
-        width: 20px;
-        line-height: 20px;
-    }
+  position: absolute;
+  transform: translate(-34px);
+  align-self: center;
+  .mat-icon {
+    height: 20px;
+    width: 20px;
+    line-height: 20px;
+  }
 }
 
 .drag_btn_list_node {
-    position: absolute;
-    transform: translate(-4px);
-    align-self: center;
-    .mat-icon {
-        height: 20px;
-        width: 20px;
-        line-height: 20px;
-    }
+  position: absolute;
+  transform: translate(-4px);
+  align-self: center;
+  .mat-icon {
+    height: 20px;
+    width: 20px;
+    line-height: 20px;
+  }
 }
 
 .example-list-dropdownbox {
-    display: block;
-    padding-top: 5px;
-    margin-left: -17px;
-    padding-bottom: 5px;
+  display: block;
+  padding-top: 5px;
+  margin-left: -17px;
+  padding-bottom: 5px;
 }
 
 .text-placeholder-nested {
-    border-left: 2px solid #6cd0d2;
-    padding-left: 8px;
-    z-index: 3;
-    display: initial;
-    position: absolute;
-    border-bottom: 2px solid #6cd0d2;
-    transform: translate(17px, -24px);
-    height: 36px;
+  border-left: 2px solid #6cd0d2;
+  padding-left: 8px;
+  z-index: 3;
+  display: initial;
+  position: absolute;
+  border-bottom: 2px solid #6cd0d2;
+  transform: translate(17px, -24px);
+  height: 36px;
 }
 
 .section_btn {
-    color: #223361;
-    background-color: white;
-    margin-right: 1px;
-    z-index: 5;
-    margin-left: 2px;
-    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
+  color: #223361;
+  background-color: white;
+  margin-right: 1px;
+  z-index: 5;
+  margin-left: 2px;
+  box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
 }
 
 .node-box-dropdownbox {
-    position: relative !important;
-    //padding: 10px 5px 10px 5px;
-    background-color: #f9fafc;
-    color: rgba(0, 0, 0, 0.87);
-    //padding-left: 5px;
-    margin-left: 7px;
-    min-height: 45px;
-    font-size: $textFontSize !important;
-    font-weight: $textFontWeight !important;
+  position: relative !important;
+  //padding: 10px 5px 10px 5px;
+  background-color: #f9fafc;
+  color: rgba(0, 0, 0, 0.87);
+  //padding-left: 5px;
+  margin-left: 7px;
+  min-height: 45px;
+  font-size: $textFontSize !important;
+  font-weight: $textFontWeight !important;
 }
 
 .node-box {
-    position: relative;
-    //padding: 10px 5px 10px 5px;
-    background-color: #f9fafc;
-    color: rgba(0, 0, 0, 0.87);
-    font-size: $textFontSize;
-    padding-left: 7px;
-    font-weight: $textFontWeight;
-    height: 45px;
+  position: relative;
+  //padding: 10px 5px 10px 5px;
+  background-color: #f9fafc;
+  color: rgba(0, 0, 0, 0.87);
+  font-size: $textFontSize;
+  padding-left: 7px;
+  font-weight: $textFontWeight;
+  height: 45px;
 }
 
 .cdk-drag-preview {
-    background-color: transparent;
+  background-color: transparent;
 }
 
 .cdk-drag-animating {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .example-box:last-child {
-    border: none;
+  border: none;
 }
 
 .outer-list.cdk-drop-list-dragging .node-box:not( .border-view) {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .outer-list.cdk-drop-list-dragging .node-box-dropdownbox:not(.border-view) {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .nested-list.cdk-drop-list-dragging .node-box-nested:not(.border-view) {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .nested-list.cdk-drop-list-dragging .node-box-dropdownbox-nested:not( .border-view) {
-    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
 .border-placeholder {
-    .border-view {
-        background: #e0f3f4;
-        border-style: dashed;
-        border-radius: 5px;
-        border-width: 2px;
-        border-color: #1ebabb;
-        margin-left: 3px;
-        min-height: 28px;
-        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-    }
+  .border-view {
+    background: #e0f3f4;
+    border-style: dashed;
+    border-radius: 5px;
+    border-width: 2px;
+    border-color: #1ebabb;
+    margin-left: 3px;
+    min-height: 28px;
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
 }
 
 .border-placeholder-nested {
-    .border-view {
-        background: #e0f3f4;
-        border-style: dashed;
-        border-radius: 5px;
-        border-width: 2px;
-        border-color: #1ebabb;
-        min-height: 28px;
-        margin-left: 3px;
-        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
-    }
+  .border-view {
+    background: #e0f3f4;
+    border-style: dashed;
+    border-radius: 5px;
+    border-width: 2px;
+    border-color: #1ebabb;
+    min-height: 28px;
+    margin-left: 3px;
+    transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+  }
 }
 
 .border {
-    position: relative;
+  position: relative;
 }
 
 .expand_more {
-    color: #09b4b4;
+  color: #09b4b4;
 }
 
 // level > 0 css
 .node-box-nested {
-    position: relative;
-    //padding-left: 20px;
-    color: rgba(0, 0, 0, 0.87);
-    height: 35px;
-    font-size: $textFontSize;
-    font-weight: $textFontWeight;
+  position: relative;
+  //padding-left: 20px;
+  color: rgba(0, 0, 0, 0.87);
+  height: 35px;
+  font-size: $textFontSize;
+  font-weight: $textFontWeight;
 }
 
 .node-box-dropdownbox-nested {
-    position: relative !important;
-    color: rgba(0, 0, 0, 0.87);
-    font-size: $textFontSize;
-    font-weight: $textFontWeight;
-    //padding-left: 20px;
+  position: relative !important;
+  color: rgba(0, 0, 0, 0.87);
+  font-size: $textFontSize;
+  font-weight: $textFontWeight;
+  //padding-left: 20px;
 }
 
 .section_btn_container {
-    display: inline-grid;
-    height: fit-content;
-    align-content: center;
-    width: 30px;
-    position: absolute;
-    z-index: 5;
-    top: 50%;
-    transform: translate(4%, -50%);
-    margin-top: -2px;
+  display: inline-grid;
+  height: fit-content;
+  align-content: center;
+  width: 30px;
+  position: absolute;
+  z-index: 5;
+  top: 50%;
+  transform: translate(4%, -50%);
+  margin-top: -2px;
 }
 
 .drag_btn_leaf_node_nested {
-    position: absolute;
-    transform: translate(-34px, 0px);
-    align-self: center;
-    .mat-icon {
-        height: 20px;
-        width: 20px;
-        line-height: 20px;
-    }
+  position: absolute;
+  transform: translate(-34px, 0px);
+  align-self: center;
+  .mat-icon {
+    height: 20px;
+    width: 20px;
+    line-height: 20px;
+  }
 }
 
 .drag_btn_list_node_nested {
-    position: absolute;
-    transform: translate(-24px, 0px);
-    align-self: center;
-    .mat-icon {
-        height: 20px;
-        width: 20px;
-        line-height: 20px;
-    }
+  position: absolute;
+  transform: translate(-24px, 0px);
+  align-self: center;
+  .mat-icon {
+    height: 20px;
+    width: 20px;
+    line-height: 20px;
+  }
 }
 
 .section_btn_nestedList {
-    color: #223361;
-    background-color: white;
-    margin-right: 1px;
-    margin-left: 2px;
-    z-index: 5;
-    vertical-align: top;
-    box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
+  color: #223361;
+  background-color: white;
+  margin-right: 1px;
+  margin-left: 2px;
+  z-index: 5;
+  vertical-align: top;
+  box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
 }
 
 ::ng-deep .expandBTNNested {
-    height: 20px !important;
-    width: 20px !important;
-    align-self: center;
+  height: 20px !important;
+  width: 20px !important;
+  align-self: center;
+  line-height: 0px !important;
+  .mat-button-wrapper {
     line-height: 0px !important;
-    .mat-button-wrapper {
-        line-height: 0px !important;
-    }
-    .mat-icon {
-        height: 20px;
-        width: 20px;
-        line-height: 20px;
-        vertical-align: baseline;
-    }
+  }
+  .mat-icon {
+    height: 20px;
+    width: 20px;
+    line-height: 20px;
+    vertical-align: baseline;
+  }
 }
 
 .example-list-dropdownbox-nested {
-    display: block;
-    padding-top: 5px;
-    padding-bottom: 5px;
+  display: block;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 .selectedEditor {
-    background-color: #e4f6f6;
-    /* width: calc(100% - 44px);
+  background-color: #e4f6f6;
+  /* width: calc(100% - 44px);
     z-index: 4;
     .text-section-div {
         margin-left: 17px !important;
@@ -412,8 +418,8 @@ $itemHeight: 30px;
 }
 
 .selectedEditorNestedLeaf {
-    background-color: #e4f6f6;
-    /* margin-left: 18.7px;
+  background-color: #e4f6f6;
+  /* margin-left: 18.7px;
     padding-left: 11.3px;
     width: calc(100% - 44px);
     z-index: 4;
@@ -423,8 +429,8 @@ $itemHeight: 30px;
 }
 
 .selectedEditorNestedList {
-    background-color: #e4f6f6;
-    /* margin-left: 19px;
+  background-color: #e4f6f6;
+  /* margin-left: 19px;
     padding-left: 7px;
     width: calc(100% - 44px);
     z-index: 4;
@@ -434,159 +440,159 @@ $itemHeight: 30px;
 }
 
 .text-placeholder {
-    border-left: 2px solid #6cd0d2;
-    padding-left: 8px;
-    z-index: 3;
-    display: initial;
-    position: absolute;
-    height: 113%;
-    border-bottom: 2px solid #6cd0d2;
-    transform: translate(17px, -20px);
+  border-left: 2px solid #6cd0d2;
+  padding-left: 8px;
+  z-index: 3;
+  display: initial;
+  position: absolute;
+  height: 113%;
+  border-bottom: 2px solid #6cd0d2;
+  transform: translate(17px, -20px);
 }
 
 .node-box {
-    .text-section-div[contenteditable=true] {
-        overflow: visible;
-        text-overflow: clip;
-        width: calc(100% - 40px);
-        background-color: white;
-        display: inline-table;
-        z-index: 10;
-        height: 20px;
-        white-space: pre-line;
-        border: #8dc5c6 2px solid;
-        border-radius: 4px;
-        position: absolute;
-    }
+  .text-section-div[contenteditable=true] {
+    overflow: visible;
+    text-overflow: clip;
+    width: calc(100% - 40px);
+    background-color: white;
+    display: inline-table;
+    z-index: 10;
+    height: 20px;
+    white-space: pre-line;
+    border: #8dc5c6 2px solid;
+    border-radius: 4px;
+    position: absolute;
+  }
 }
 
 .node-box-dropdownbox {
-    .text-section-div[contenteditable=true] {
-        overflow: visible;
-        text-overflow: clip;
-        width: calc(100% - 40px);
-        background-color: white;
-        display: inline-table;
-        z-index: 10;
-        height: 20px;
-        white-space: pre-line;
-        border: #8dc5c6 2px solid;
-        border-radius: 4px;
-        position: absolute;
-        margin-left: 30px;
-    }
+  .text-section-div[contenteditable=true] {
+    overflow: visible;
+    text-overflow: clip;
+    width: calc(100% - 40px);
+    background-color: white;
+    display: inline-table;
+    z-index: 10;
+    height: 20px;
+    white-space: pre-line;
+    border: #8dc5c6 2px solid;
+    border-radius: 4px;
+    position: absolute;
+    margin-left: 30px;
+  }
 }
 
 .node-box-dropdownbox-nested {
-    .text-section-div-nested[contenteditable=true] {
-        overflow: visible;
-        text-overflow: clip;
-        width: calc(100% - 57px);
-        background-color: white;
-        display: inline-table;
-        border: #8dc5c6 2px solid;
-        border-radius: 4px;
-        height: 20px;
-        z-index: 10;
-        white-space: pre-line;
-        position: absolute;
-        margin-left: 20px;
-    }
+  .text-section-div-nested[contenteditable=true] {
+    overflow: visible;
+    text-overflow: clip;
+    width: calc(100% - 57px);
+    background-color: white;
+    display: inline-table;
+    border: #8dc5c6 2px solid;
+    border-radius: 4px;
+    height: 20px;
+    z-index: 10;
+    white-space: pre-line;
+    position: absolute;
+    margin-left: 20px;
+  }
 }
 
 .node-box-nested {
-    .text-section-div-nested[contenteditable=true] {
-        overflow: visible;
-        text-overflow: clip;
-        width: calc(100% - 37px);
-        background-color: white;
-        display: inline-table;
-        border: #8dc5c6 2px solid;
-        border-radius: 4px;
-        height: 20px;
-        z-index: 10;
-        white-space: pre-line;
-        position: absolute;
-        margin-left: 0px;
-    }
+  .text-section-div-nested[contenteditable=true] {
+    overflow: visible;
+    text-overflow: clip;
+    width: calc(100% - 37px);
+    background-color: white;
+    display: inline-table;
+    border: #8dc5c6 2px solid;
+    border-radius: 4px;
+    height: 20px;
+    z-index: 10;
+    white-space: pre-line;
+    position: absolute;
+    margin-left: 0px;
+  }
 }
 
 .text-section-div-nested {
-    align-self: center;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    direction: ltr;
-    white-space: nowrap;
+  align-self: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  direction: ltr;
+  white-space: nowrap;
 }
 
 .text-section-div {
-    align-self: center;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    direction: ltr;
-    white-space: nowrap;
+  align-self: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  direction: ltr;
+  white-space: nowrap;
 }
 
 .text-section-list-item-div {
-    align-self: center;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    margin-left: 4px;
-    white-space: nowrap;
+  align-self: center;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  margin-left: 4px;
+  white-space: nowrap;
 }
 
 @media screen and (max-width: 600px) {
-    .outer-list {
-        .node-box-dropdownbox {
-            background-color: white;
-        }
-        .node-box {
-            background-color: white;
-        }
-        background-color: white;
-        padding-top: 36px;
-        .text-placeholder {
-            border-left: 2px solid #6cd0d2;
-            padding-left: 8px;
-            z-index: 3;
-            display: initial;
-            position: absolute;
-            height: 113%;
-            border-bottom: 2px solid #6cd0d2;
-            transform: translate(17px, -20px);
-        }
-        .sectionBorderListItemInactive {
-            background-color: white;
-            z-index: 4;
-        }
-        .sectionBorderListNestedInactive {
-            background-color: white;
-            padding-left: 0px;
-            margin-left: 26px;
-            z-index: 4;
-        }
-        .selectedEditorNestedLeaf {
-            z-index: 4;
-            background-color: #e4f6f6;
-            margin-left: 18px;
-            padding-left: 8px;
-            width: 60%;
-        }
-        .selectedEditor {
-            background-color: #e4f6f6;
-            width: 60%;
-            z-index: 4;
-        }
-        .selectedEditorNestedList {
-            background-color: #e4f6f6;
-            margin-left: 18px;
-            padding-left: 8px;
-            width: 60%;
-            z-index: 4;
-        }
+  .outer-list {
+    .node-box-dropdownbox {
+      background-color: white;
     }
+    .node-box {
+      background-color: white;
+    }
+    background-color: white;
+    padding-top: 36px;
+    .text-placeholder {
+      border-left: 2px solid #6cd0d2;
+      padding-left: 8px;
+      z-index: 3;
+      display: initial;
+      position: absolute;
+      height: 113%;
+      border-bottom: 2px solid #6cd0d2;
+      transform: translate(17px, -20px);
+    }
+    .sectionBorderListItemInactive {
+      background-color: white;
+      z-index: 4;
+    }
+    .sectionBorderListNestedInactive {
+      background-color: white;
+      padding-left: 0px;
+      margin-left: 26px;
+      z-index: 4;
+    }
+    .selectedEditorNestedLeaf {
+      z-index: 4;
+      background-color: #e4f6f6;
+      margin-left: 18px;
+      padding-left: 8px;
+      width: 60%;
+    }
+    .selectedEditor {
+      background-color: #e4f6f6;
+      width: 60%;
+      z-index: 4;
+    }
+    .selectedEditorNestedList {
+      background-color: #e4f6f6;
+      margin-left: 18px;
+      padding-left: 8px;
+      width: 60%;
+      z-index: 4;
+    }
+  }
 }
 
 .outer-list {
-    padding-top: 41px;
+  padding-top: 41px;
 }

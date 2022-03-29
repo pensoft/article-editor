@@ -650,14 +650,14 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathM
                 }
               }else if(node.type.name == 'math_inline'||node.type.name == 'math_display'){
                 if (!transaction.getMeta('y-sync$')) {
-                  if(sharedService.PmDialogSessionService!.inSession()!=='nosession'){
+                  /* if(sharedService.PmDialogSessionService!.inSession()!=='nosession'){
                     sharedService.PmDialogSessionService!.removeElement(node.attrs.math_id);
                   }else{
+                  } */
                     let mathObj = mathMap?.get('dataURLObj')
                     let math_id = node.attrs.math_id;
                     mathObj[math_id] = undefined
                     mathMap?.set('dataURLObj',mathObj);
-                  }
                 }
               }
             });

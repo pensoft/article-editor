@@ -1,3 +1,4 @@
+@import "../../../../assets/colors";
 .toolbar {
   min-height: 60px;
 }
@@ -39,6 +40,30 @@
   .eye-icon {
     cursor: pointer;
   }
+  .text-dashbord-header{
+    font-size: 14px;
+    font-weight: normal;
+    color: $primary-green;
+    padding: 0 0 0 5px;
+animation: fade-out 1s;
+  }
+  @keyframes fade-in {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
 
   .arrow-icon {
     margin-right: 8px !important;

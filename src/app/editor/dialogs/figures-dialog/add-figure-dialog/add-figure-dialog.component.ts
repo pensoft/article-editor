@@ -52,7 +52,9 @@ let figuresHtmlTemplate = `
     </figure-components-container>
     <figure-descriptions-container>
         <h3 tagname="h3" contenteditablenode="false">Figure: {{data.figureNumber+1}}</h3>
-        <figure-description *ngIf="data.figureDescription" style="display:block;" formControlName="figureDescription">
+        <figure-description *ngIf="data.figureDescription" style="display:block;">
+          <form-field formControlName="figureDescription">
+          </form-field>
         </figure-description>
         <ng-container  formArrayName="figureComponents" >
           <ng-container *ngFor="let control of formGroup.controls.figureComponents.controls;let i = index" formGroupName="{{i}}">
@@ -160,6 +162,7 @@ export class AddFigureDialogComponent implements AfterViewInit {
       let interpolated: any
 
       let figureFormGroup = buildFigureForm(submision.data)
+
       interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data,figureFormGroup);
       let templ = document.createElement('div')
       templ.innerHTML = interpolated

@@ -86,7 +86,7 @@ export class MaterialComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   renderComponents() {
-    //this.setVisible(this.instance.visible);
+    //this.setVisible(true);
   }
 
   onChange(keepInputRaw?: boolean) {
@@ -157,15 +157,18 @@ export class MaterialComponent implements AfterViewInit, OnInit, OnDestroy {
     }
   }
 
-  updateVisibility(instance: any) {
-    if(instance == null){
-      this.setVisible(this.instance.visible)
+  updateVisibility(instance: any,visibleParent?:true) {
+    if(instance == null/* ||visibleParent */){
+      //console.log(visibleParent);
+      //this.setVisible(visibleParent?visibleParent:this.instance.visible)
+      this.setVisible(this.instance._visible)
     }
     if (instance&&
       this.instance.component.conditional &&
       this.instance.component.conditional.when == instance.component.key) {
         this.instance.root.setFullValue();
         setTimeout(()=>{
+          console.log(this.instance.component.key,(instance.getValue() == this.instance.component.conditional.eq)?this.instance.component.conditional.show:!this.instance.component.conditional.show);
           this.setVisible((instance.getValue() == this.instance.component.conditional.eq)?this.instance.component.conditional.show:!this.instance.component.conditional.show)
         },200)
     }

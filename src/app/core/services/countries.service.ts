@@ -6,9 +6,10 @@ import { countriesInfo } from '../../../assets/json/country';
   providedIn: 'root',
 })
 export class CountriesService {
+
   constructor(private http: HttpClient) {}
 
-  public getCountriesData(): any {
+  public getCountriesData():any {
     return this.http.get(`${countriesInfo}`);
   }
 }

@@ -1,118 +1,99 @@
 <div fxLayout="column" class="mt50px">
-    <div fxLayout="row" fxLayoutAlign="start">
-        <span class="text14px-primary-dark-blue mb15px">ACCOUNT PERMISSIONS</span>
-    </div>
-    <div fxLayout="row" fxLayoutAlign="start center" fxFlex="100%">
-        <form #permissionForm="ngForm" (submit)="submitPermissionForm()" fxLayout="column">
-            <div fxLayout="column" fxFlex="100%" class="border-bottom-grye pt15px pb15px">
-                <div fxLayout="row" fxLayoutAlign="start center">
-                    <div fxFlex="88%" class="font-size14px"><span class="text14px-primary-dark-blue bold">Record account
+  <div fxLayout="row" fxLayoutAlign="start">
+    <span class="text14px-primary-dark-blue mb15px">ACCOUNT PERMISSIONS</span>
+  </div>
+  <div fxLayout="row" fxLayoutAlign="start center" fxFlex="100%">
+    <form #permissionForm="ngForm" (submit)="submitPermissionForm()" fxLayout="column">
+      <div fxLayout="column" fxFlex="100%" class="border-bottom-grye pt15px pb15px">
+        <div fxLayout="row" fxLayoutAlign="start center">
+          <div fxFlex="88%" class="font-size14px"><span class="text14px-primary-dark-blue bold">Record account
                             activity</span></div>
-                    <div fxFlex="10%" align="end">
-                        <arpha-toggle-button [(ngModel)]="model.record" name="record" #record="ngModel"
-                            class="permission-toggle">
-                        </arpha-toggle-button>
-                    </div>
-                </div>
-                <div fxLayout="row" fxFlex="100%" class="font-size14px">
-                    <p>By enabling account activity recording you will be able to see a timeline of how you use CONNECT
-                        across different
-                        websites, in your account activity</p>
-                </div>
-            </div>
-            <div fxLayout="column" fxFlex="100%" class="border-bottom-grye pt15px pb15px">
-                <div fxLayout="row" fxLayoutAlign="start center">
-                    <div fxFlex="88%" class="font-size14px">
-                        <span class="text14px-primary-dark-blue bold">Automatic creation and renewal of institutional
+          <div fxFlex="10%" align="end">
+            <arpha-toggle-button [(ngModel)]="model.record" name="record" #record="ngModel" class="permission-toggle">
+            </arpha-toggle-button>
+          </div>
+        </div>
+        <div fxLayout="row" fxFlex="100%" class="font-size14px">
+          <p>By enabling account activity recording you will be able to see a timeline of how you use CONNECT across different websites, in your account activity</p>
+        </div>
+      </div>
+      <div fxLayout="column" fxFlex="100%" class="border-bottom-grye pt15px pb15px">
+        <div fxLayout="row" fxLayoutAlign="start center">
+          <div fxFlex="88%" class="font-size14px">
+            <span class="text14px-primary-dark-blue bold">Automatic creation and renewal of institutional
                             memberships</span>
-                    </div>
-                    <div fxFlex="10%" align="end">
-                        <arpha-toggle-button [(ngModel)]="model.automaticCreation" name="automaticCreation"
-                            #automaticCreation="ngModel">
-                        </arpha-toggle-button>
-                    </div>
-                </div>
-                <div fxLayout="row" fxFlex="100%" class="font-size14px">
-                    <p>Authorize CONNECT to use your IP address in order to automatically add or renew Institutional
-                        Memberships when you
-                        visit
-                        other websites that you have authorized from inside an IP address range of known institutions.
-                    </p>
-                </div>
-            </div>
-            <div fxLayout="column" fxFlex="100%" class="border-bottom-grye pt15px pb15px">
-                <div fxLayout="row" fxLayoutAlign="start center">
-                    <div fxFlex="88%" class="font-size14px">
-                        <span class="text14px-primary-dark-blue bold">Institutional membership usage</span>
-                    </div>
-                    <div fxFlex="10%" align="end">
-                        <arpha-toggle-button [(ngModel)]="model.institutionalMembership" name="institutionalMembership"
-                            #institutionalMembership="ngModel"></arpha-toggle-button>
-                    </div>
-                </div>
-                <div fxLayout="row" fxFlex="100%" class="font-size14px">
-                    <p>By enabling account activity recording you will be able to see a timeline of how you use CONNECT
-                        across
-                        different
-                        websites, in your account activity</p>
-                </div>
-            </div>
+          </div>
+          <div fxFlex="10%" align="end">
+            <arpha-toggle-button [(ngModel)]="model.automaticCreation" name="automaticCreation" #automaticCreation="ngModel">
+            </arpha-toggle-button>
+          </div>
+        </div>
+        <div fxLayout="row" fxFlex="100%" class="font-size14px">
+          <p>Authorize CONNECT to use your IP address in order to automatically add or renew Institutional Memberships when you visit other websites that you have authorized from inside an IP address range of known institutions.
+          </p>
+        </div>
+      </div>
+      <div fxLayout="column" fxFlex="100%" class="border-bottom-grye pt15px pb15px">
+        <div fxLayout="row" fxLayoutAlign="start center">
+          <div fxFlex="88%" class="font-size14px">
+            <span class="text14px-primary-dark-blue bold">Institutional membership usage</span>
+          </div>
+          <div fxFlex="10%" align="end">
+            <arpha-toggle-button [(ngModel)]="model.institutionalMembership" name="institutionalMembership" #institutionalMembership="ngModel"></arpha-toggle-button>
+          </div>
+        </div>
+        <div fxLayout="row" fxFlex="100%" class="font-size14px">
+          <p>By enabling account activity recording you will be able to see a timeline of how you use CONNECT across different websites, in your account activity</p>
+        </div>
+      </div>
 
-            <div fxLayout="column" fxFlex="100%" class="border-bottom-grye pt15px pb15px">
-                <div fxLayout="row" fxLayoutAlign="start center">
-                    <div fxFlex="88%" class="font-size14px">
-                        <span class="text14px-primary-dark-blue bold">Marketable profile</span>
-                    </div>
-                    <div fxFlex="10%" align="end">
-                        <arpha-toggle-button [(ngModel)]="model.marketableProfile" name="marketableProfile"
-                            #marketableProfile="ngModel">
-                        </arpha-toggle-button>
-                    </div>
-                </div>
-                <div fxLayout="column" fxFlex="100%" class="font-size14px">
-                    <p>Authorize CONNECT to use your IP address in order to automatically add or renew Institutional
-                        Memberships
-                        when you visit
-                        other websites that you have authorized from inside an IP address range of known institutions.
-                    </p>
-                    <mat-form-field appearance="outline" class="email-box">
-                        <mat-select name="email">
-                            <mat-option *ngFor="let email of otherEmailInfo" value="{{email.email}}"
-                                [(ngModel)]="model.email">
-                                {{email.email}}</mat-option>
-                        </mat-select>
-                    </mat-form-field>
-                </div>
-            </div>
+      <div fxLayout="column" fxFlex="100%" class="border-bottom-grye pt15px pb15px">
+        <div fxLayout="row" fxLayoutAlign="start center">
+          <div fxFlex="88%" class="font-size14px">
+            <span class="text14px-primary-dark-blue bold">Marketable profile</span>
+          </div>
+          <div fxFlex="10%" align="end">
+            <arpha-toggle-button [(ngModel)]="model.marketableProfile" name="marketableProfile" #marketableProfile="ngModel">
+            </arpha-toggle-button>
+          </div>
+        </div>
+        <div fxLayout="column" fxFlex="100%" class="font-size14px">
+          <p>Authorize CONNECT to use your IP address in order to automatically add or renew Institutional Memberships when you visit other websites that you have authorized from inside an IP address range of known institutions.
+          </p>
+          <mat-form-field appearance="outline" class="email-box">
+            <mat-select name="email">
+              <mat-option *ngFor="let email of otherEmailInfo" value="{{email.email}}" [(ngModel)]="model.email">
+                {{email.email}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
 
-            <div fxLayout="column" fxFlex="100%" class="border-bottom-grye pt15px pb15px">
-                <div fxLayout="row" fxLayoutAlign="start center">
-                    <div fxFlex="88%" class="font-size14px">
-                        <span class="text14px-primary-dark-blue bold">Searchable profile</span>
-                    </div>
-                    <div fxFlex="10%" align="end">
-                        <arpha-toggle-button [(ngModel)]="model.searchableProfile" name="searchableProfile"
-                            #searchableProfile="ngModel">
-                        </arpha-toggle-button>
-                    </div>
-                </div>
-                <div fxLayout="row" fxFlex="100%" class="font-size14px">
-                    <p>Allow the use of your institutional memberships by the applications that you visit with your
-                        CONNECT profile. Publishing
-                        websites may provide you with access to your institutional entitlements when this setting is
-                        enabled.</p>
-                </div>
-            </div>
+      <div fxLayout="column" fxFlex="100%" class="border-bottom-grye pt15px pb15px">
+        <div fxLayout="row" fxLayoutAlign="start center">
+          <div fxFlex="88%" class="font-size14px">
+            <span class="text14px-primary-dark-blue bold">Searchable profile</span>
+          </div>
+          <div fxFlex="10%" align="end">
+            <arpha-toggle-button [(ngModel)]="model.searchableProfile" name="searchableProfile" #searchableProfile="ngModel">
+            </arpha-toggle-button>
+          </div>
+        </div>
+        <div fxLayout="row" fxFlex="100%" class="font-size14px">
+          <p>Allow the use of your institutional memberships by the applications that you visit with your CONNECT profile. Publishing websites may provide you with access to your institutional entitlements when this setting is enabled.
+          </p>
+        </div>
+      </div>
 
-            <div fxLayout="row" fxLayoutAlign="end center" fxFlex="100%" class="pt15px pb15px">
-                <div>
-                    <button mat-flat-button color="primary" type="submit">Save</button>
-                </div>
-                <div>
-                    <button mat-button (click)="setDeleteAccount()" type="delete" class="text-primary-blue">Delete
+      <div fxLayout="row" fxLayoutAlign="end center" fxFlex="100%" class="pt15px pb15px">
+        <div>
+          <button mat-flat-button color="primary" type="submit">Save</button>
+        </div>
+        <div>
+          <button mat-button (click)="setDeleteAccount()" type="delete" class="text-primary-blue">Delete
                         acount</button>
-                </div>
-            </div>
-        </form>
-    </div>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>

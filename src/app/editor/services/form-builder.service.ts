@@ -16,9 +16,10 @@ export class FormBuilderService {
   }
 
   populateDefaultValues(savedForm: any, schema: any, sectionID: string, formGroup?: FormGroup) {
+    //console.log('savedForm',savedForm);
     let attachSectionId = (componentArray: any[]) => {
       componentArray.forEach((component) => {
-        if (component.componentProperties) {
+        if (component["properties"]) {
           component["properties"]["sectionID"] = sectionID
         } else {
           component["properties"] = {}
@@ -42,11 +43,16 @@ export class FormBuilderService {
   updateValue(component: any, submission: any, formGroup?: FormGroup) {
     let key = component.key
     let type = component.type
+    //component.clearOnHide = false;
     if ( //avoids non-dynamic (non-filled) elements
       type === 'button' || // a button
       type === 'content')  // plain text and not an input field
-    { } else if (submission[key]) {
-      component.defaultValue = submission[key];
+    { } else if (submission[key]||submission[key]==0) {
+      if(typeof submission[key] == 'number'){
+        component.defaultValue = `${submission[key]}`;
+      }else{
+        component.defaultValue = submission[key];
+      }
       if (formGroup) {
         let form = formGroup!.controls[key]
         //@ts-ignore
@@ -67,11 +73,12 @@ export class FormBuilderService {
       this.updateValue(component, submission, formGroup)
     } else if (type == "select") {
       this.updateValue(component, submission, formGroup)
-
     } else if (type == "container") {
       this.updateValue(component, submission, formGroup)
 
-    } else if (type == 'panel') {
+    } else if(type == "radio"){
+      this.updateValue(component, submission, formGroup)
+    }else if (type == 'panel') {
       component.components.forEach((subcomp: any) => {
         this.updateDefaultValue(subcomp, submission, formGroup)
       })
@@ -215,6 +222,8 @@ export class FormBuilderService {
       component.readOnly ? control.disable() : undefined
       //@ts-ignore
       control.componentType = component.type
+      //@ts-ignore
+      if(!control.componentProps){control.componentProps = {}}control.componentProps.placeholder = component.placeholder
       return control
     }
     let validators = component.type === 'number' ? [Validators.pattern("^[0-9]*$")] : [];

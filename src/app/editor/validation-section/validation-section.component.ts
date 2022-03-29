@@ -39,9 +39,9 @@ export class ValidationSectionComponent implements OnDestroy {
     private articleSectionsService: ArticleSectionsService,
     private changeDetectorRef: ChangeDetectorRef,
     private ydocService: YdocService,
-    private pmSessionService:PmDialogSessionService,
+    //private pmSessionService:PmDialogSessionService,
   ) {
-    this.pmSessionService.hasDialogSession = false;
+    //this.pmSessionService.hasDialogSession = false;
   }
 
   results = 0;

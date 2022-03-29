@@ -80,6 +80,30 @@ export const form_field_inline_view = {
     }
 }
 
+
+/* export const placeholder = {
+  content:"inline*",
+  group: "block",
+  atom:true,
+  attrs: {
+      ...getGenericAttributes()
+  },
+  parseDOM: [{
+      tag: "pm-placeholder", getAttrs(dom: any) {
+          return {
+              ...parseGenericAttributes(dom),
+          }
+      },
+  }],
+  toDOM(node: any) {
+      let attributesToDom: any = {
+          ...genericAttributtesToDom(node),
+
+      }
+      return ["pm-placeholder", attributesToDom,0];
+  }
+} */
+
 export const form_field = {
     content: "block*",
     group: "block",
@@ -129,10 +153,11 @@ export const nodes: NodeSpec = {
         content: "block*"
     },
     form_field,
-    form_field_inline,
     inline_block_container,
-    form_field_inline_view,
     paragraph,
+    form_field_inline,
+    form_field_inline_view,
+    //placeholder,
     ...tableNodes({
         tableGroup: "block",
         cellContent: "form_field{1}",

@@ -21,7 +21,7 @@ import * as katex from 'katex'
 //@ts-ignore
 import { render as canvasRender } from './canvasRenderer.js'
 import { FigureComponent } from '../figures-dialog/figure/figure.component';
-import { N } from '@angular/cdk/keycodes';
+import { C, G, N } from '@angular/cdk/keycodes';
 import { leadingComment } from '@angular/compiler';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
 import { EditorState } from 'prosemirror-state';
@@ -29,6 +29,7 @@ import { EditorView as EditorViewCM, EditorState as EditorStateCM } from '@codem
 import { basicSetup } from '@codemirror/basic-setup';
 import { javascript } from '@codemirror/lang-javascript';
 import { EditorView } from 'prosemirror-view';
+import { stringify } from 'querystring';
 pdfMake.vfs = vfs;
 
 pdfMake.fonts = {
@@ -107,7 +108,7 @@ export var pageDimensionsInPT = {
   LETTER: [612.00, 792.00],
   TABLOID: [792.00, 1224.00]
 };
-function isNumeric(str: any) {
+export function isNumeric(str: any) {
   if (typeof str != "string") return false // we only process strings!
   //@ts-ignore
   return !isNaN(str) && // use type coercion to parse the _entirety_ of the string (`parseFloat` alone does not do this)...
@@ -399,6 +400,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
     }
   }
 
+  mathObj: any = {};
+
   fillSettings() {
     let oldSettings = JSON.parse(JSON.stringify(this.pdfSettings));
     let settings: any
@@ -485,12 +488,11 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
     this.data.pageMargins = [pxToPt(this.pageMarg[3]), pxToPt(this.pageMarg[0]), pxToPt(this.pageMarg[1]), pxToPt(this.pageMarg[2])];
 
+    let ImagesByKeys: { [key: string]: string } = {}
 
     let generateFigure = async (element: Element, style: any) => {
       let figuresObj = this.ydocService.figuresMap!.get('ArticleFigures');
-
       let figureID = element.getAttribute('figure_id')!;
-
       let figureTable: any = {
         color: 'black',
         layout: {
@@ -506,12 +508,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
         props: { type: 'figure-container' },
         alingment: 'center',
       }
-      /* Object.keys(style).forEach((key)=>{
-        figureTable[key] = style.key
-      })
-      if(style.margin){
-        style.margin = undefined
-      } */
       let figuresCount = element.firstChild?.childNodes.length!;
       let figuresDescriptions = element.childNodes.item(1)!;
 
@@ -595,23 +591,87 @@ export class EditBeforeExportComponent implements AfterViewInit {
         imageA4Rectangle[0] = pxToPt(pageWidth) - (tablePadding * 2);
         imageA4Rectangle[1] = (imageRectangle[1] / imageRectangle[0]) * imageA4Rectangle[0];
       }
-      //[width,height]
 
-      figureTable.table.body.push([{ image: figuresObj[figureID].canvasData.dataURL, fit: imageA4Rectangle, alignment: 'center', props: { initRect: imageA4Rectangle } }]);
+      figuresObj;
+      figureID;
+      let figImagesData = figuresObj[figureID].canvasData
+      let dataURLSObj = this.ydocService!.figuresMap!.get('ArticleFiguresDataURLS');
+      let fullTableWidth = imageA4Rectangle[0]
+      let fullTableHeight = imageA4Rectangle[0]
+      let nCol = figImagesData.nOfColumns;
+      let nRows = figImagesData.nOfRows;
+      let widthOfCell = fullTableWidth/nCol
+      let heightOfCell = fullTableHeight/nRows
+      let imagesTable: any = {
+        color: 'black',
+        layout: {
+          paddingBottom: function paddingBottom(i: number, node: any) { return 0; },
+          paddingTop: function paddingBottom(i1: number, node: any) {
+            applyVerticalAlignment(node, i1, 'center')
+            return 0; },
+          paddingRight: function paddingBottom(i: number, node: any) { return 0; },
+          paddingLeft: function paddingBottom(i: number, node: any) { return 0; },
+          hLineWidth: function hLineWidth(i: number) { return 0; },
+          vLineWidth: function vLineWidth(i: number) { return 0; },
+        },
+        table: {
+          body: [],
+          widths: [],
+        },
+        width:fullTableWidth,
+        props: { initProps:{} },
+        alingment: 'center',
+      }
+      let bodyRows = [];
+      let widthPercentage = 100/nCol+'%';
+      for(let i=0;i<nCol;i++){
+        imagesTable.table.widths.push(widthPercentage);
+      }
+      for(let i = 0;i< figImagesData.figRows.length;i++){
+        let figureRow = figImagesData.figRows[i];
+        let tablerow:any = [];
+        for(let j = 0;j<nCol;j++){
+          if(figureRow[j]){
+            let cel = figureRow[j].container
+            let imageName = cel.url.replace('https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/').split('.')[0]
+            if(!ImagesByKeys[imageName]){
+              ImagesByKeys[imageName] = dataURLSObj[cel.url];
+            }
+            tablerow.push({image:imageName,fit:[widthOfCell,heightOfCell],alignment:'center'})
+          }else{
+            tablerow.push({})
+          }
+        }
+        imagesTable.table.body.push(tablerow);
+      }
+
+      let columns = {
+        columns: [
+          { width: '*', text: '' },
+          imagesTable,
+          { width: '*', text: '' },
+        ],
+        props:{}
+      }
+
+
+      figureTable.table.body.push([columns]);
 
       figureTable.table.body.push([bottomTable])
       return Promise.resolve(figureTable);
 
     }
 
-    let math_url_obj = this.ydocService.mathMap?.get('dataURLObj');
-    let math_data_url_obj: any = math_url_obj
+    //let math_url_obj = this.ydocService.mathMap?.get('dataURLObj');
+    //let math_data_url_obj: any = {math_url_obj}
+    let math_data_url_obj: any = this.mathObj;
 
     let attachStylesToNode = (
-      node: any, nodeStyles: any,
+      node: any,
+      nodeStyles: any,
       parentStyle: any,
       element: Element,
-      appentParentStyles: boolean,
+      appendParentStyles: boolean,
       parentElement: Element | undefined,
       provideTag: string) => {
       let tag = element.tagName.toLocaleLowerCase()
@@ -634,9 +694,16 @@ export class EditBeforeExportComponent implements AfterViewInit {
       if (parentStyle && parentStyle.parentHasMargin) {
         nodeStyles.parentHasMargin = true;
       }
-      if (parentStyle && appentParentStyles) {
+      if (parentStyle && appendParentStyles) {
         Object.keys(parentStyle).forEach((key) => {
-          if (!nodeStyles[key] && key !== 'text' && key !== 'stack' && key !== 'table' && key !== 'columns' && key !== 'image') {
+          if (!nodeStyles[key] &&
+            key !== 'text' &&
+            key !== 'stack' &&
+            key !== 'table' &&
+            key !== 'columns' &&
+            key !== 'margin' &&
+            key !== 'image'
+            ) {
             nodeStyles[key] = parentStyle[key];
           }
         })
@@ -658,16 +725,61 @@ export class EditBeforeExportComponent implements AfterViewInit {
       }
     }
 
+    let loopNodeChildrenAndRunFunc = async (element: HTMLElement, whenTagEquals: string[] | string, func: (element: HTMLElement) => Promise<any>) => {
+      let tag = element.tagName ? element.tagName.toLocaleLowerCase() : undefined;
+      if (tag && ((typeof whenTagEquals == "string" && whenTagEquals == tag) || (whenTagEquals instanceof Array && whenTagEquals.includes(tag)))) {
+        await func(element)
+      }
+      if (element.childNodes.length > 0) {
+        let ch = Array.from(element.childNodes);
+        for (let i = 0; i < ch.length; i++) {
+          let child = ch[i];
+          await loopNodeChildrenAndRunFunc(child as HTMLElement, whenTagEquals, func);
+        }
+      }
+      return Promise.resolve(true)
+    }
+
+    let mainNodes = this.elements;
+    for (let i = 0; i < mainNodes.length; i++) {
+      let el = mainNodes[i] as HTMLElement;
+
+      await loopNodeChildrenAndRunFunc(el, ['math-inline', 'math-display'], async (element: HTMLElement) => {
+        return new Promise((resolve, reject) => {
+          let mathEl = (element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] || element)
+          //let width = pxToPt(mathEl.getBoundingClientRect().width);
+          let math_id = element.getAttribute('mathid')!
+          if (!math_data_url_obj[math_id]) {
+            toCanvas(mathEl as HTMLElement).then((canvasData: any) => {
+              if (canvasData.toDataURL() == 'data:,') {
+                html2canvas(mathEl as HTMLElement, { backgroundColor: null }).then((canvasData1) => {
+                  math_data_url_obj[math_id] = canvasData1.toDataURL()
+                  resolve(true)
+                })
+              } else {
+                math_data_url_obj[math_id] = canvasData.toDataURL()
+                resolve(true)
+              }
+            })
+          } else {
+            resolve(true)
+          }
+        })
+      })
+    }
+
     let generatePDFData = async (element: Element, parentPDFel: any, parentStyle: any, parentElement: Element | undefined) => {
       let defaultView = (element.ownerDocument || document).defaultView
       let tag = element.tagName.toLocaleLowerCase()
       if (
         tag == 'p' || tag == 'h1' || tag == 'h2' || tag == 'h3' || tag == 'h4' || tag == 'h5' ||
         tag == 'h6' || tag == 'span' || tag == 'strong' || tag == 'sub' || tag == 'sup' ||
-        tag == 'code' || tag == 'citation' || tag == 'u' || tag == 'em' || tag == 'form-field'||
+        tag == 'code' || tag == 'citation' || tag == 'u' || tag == 'em' || tag == 'form-field' ||
         tag == 'form-field-inline' || tag == 'form-field-inline-view'
       ) {
-
+        if(tag == 'span'&&element.classList.contains('ProseMirror__placeholder')){
+          return Promise.resolve({})
+        }
         let newEl: any = {}
         let textStyles = this.getTextStyles(defaultView!.getComputedStyle(element, null), element as HTMLElement);
 
@@ -945,7 +1057,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
             }
             newEl.props.type = 'paragraphTable';
           } else {
-            debugger
             if (!newEl.text) {
               newEl.text = [];
             }
@@ -1019,15 +1130,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
         attachStylesToNode(node, {}, parentStyle, element, false, parentElement, '')
         return Promise.resolve(node);
       } else if (tag == 'block-figure') {
-        let figureStyling: any = {};
+        let figureStyling: any = {parentHasMargin:true};
         attachStylesToNode(figureStyling, figureStyling, parentStyle, element, false, parentElement, '');
-        /* if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
-          figureStyling.margin = margingsByTags[tag]
-          figureStyling.parentHasMargin = true;
-        }
-        if (parentStyle.parentHasMargin) {
-          figureStyling.parentHasMargin = true;
-        } */
+        console.log(figureStyling);
         let pdfFigure = await generateFigure(element, figureStyling);
         return Promise.resolve(pdfFigure)
       } else if (tag == 'table' || (tag == 'div' && element.className == 'tableWrapper')) {
@@ -1218,14 +1323,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
       } else if (tag == 'math-inline' || tag == 'math-display') {
         let width = pxToPt((element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] || element).getBoundingClientRect().width);
         let height = pxToPt((element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] || element).getBoundingClientRect().height);
-
         let canvasWidth = width;
-
-        /* if(parentStyle){
-          if('figure-container' == parentStyle.nodetype){
-            let heightWhenInFigure =
-          }
-        } */
         let result: any = { image: math_data_url_obj[element.getAttribute('mathid')!], width: canvasWidth, props: { canvasDims: [width, height] } }
         if (tag == 'math-display') {
           let katexelRect = (element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] || element).getBoundingClientRect()
@@ -1271,7 +1369,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
          }
          result.margin = blockMathMargin.margin; */
         attachStylesToNode(result, {}, parentStyle, element, false, parentElement, '');
-
+        if (tag == 'math-inline') {
+          result.margin = [0, 0.5, 0, 0];
+        }
         return Promise.resolve(result);
 
       } else {
@@ -1395,9 +1495,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
           doneSubject.next('done');
         }
       }
-
+      this.data.images = ImagesByKeys
       this.data.content = cont;
-
+      console.log(this.data.content);
 
       this.data.orderNodes = (node: any, nodeFunc: any) => {
         let nodeInfo = node.nodeInfo;
@@ -1489,15 +1589,21 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
 
             let loopTableAndChangeWidth = (nodeToChange: any) => {
-              structuredNodes;
-              nodesBefore;
-              nodesAfter;
               let availableHeightOnLastPage = nodesBefore[nodesBefore.length - 1].props.availableHeight;
               let figureHeight = nodeToChange.props.height;
-              let figureImageInitHeight = nodeToChange.table.body[0][0].props.initRect[1];
-              let figureDescriptionHeight = figureHeight - figureImageInitHeight;
-              let imageNewHeight = availableHeightOnLastPage - figureDescriptionHeight - 1;
-              let dawnScalePercent = imageNewHeight / figureImageInitHeight;
+              let imagesTable = nodeToChange.table.body[0][0].columns[1]
+              let descriptionTable = nodeToChange.table.body[1][0]
+
+              let imageTableHeight = imagesTable.props.height;
+              let descriptionHeight = figureHeight-imageTableHeight;
+              let imageNewHeight = availableHeightOnLastPage - descriptionHeight - 3;
+
+              //let figureImageInitHeight = nodeToChange.table.body[0][0].props.initRect[1];
+              //let figureDescriptionHeight = figureHeight - figureImageInitHeight;
+              let dawnScalePercent = imageNewHeight / imageTableHeight;
+
+              //let imageNewHeight = availableHeightOnLastPage - figureDescriptionHeight - 3;
+              //let dawnScalePercent = imageNewHeight / figureImageInitHeight;
               let scaleFromUserInput = pdfSettings.pdf.maxFiguresImagesDownscale.replace("%", '');
               let scale = 0.8;
               if (isNumeric(scaleFromUserInput)) {
@@ -1505,9 +1611,21 @@ export class EditBeforeExportComponent implements AfterViewInit {
               }
               if (dawnScalePercent >= scale) {
                 nodeToChange.pageOrderCalculated = true;
-                nodeToChange.pageBreak = undefined;
-                nodeToChange.table.body[0][0].fit = [nodeToChange.table.body[0][0].props.initRect[0] * dawnScalePercent, imageNewHeight]
+                nodeToChange.pageBreak = 'after';
+                for(let r = 0;r<imagesTable.table.body.length;r++){
+                  let row = imagesTable.table.body[r];
+                  for(let c = 0;c<row.length;c++){
+
+                    let cell = row[c];
+                    if(cell.fit&&cell.fit[1]){
+                      cell.fit[1] = cell.fit[1]*dawnScalePercent;
+                    }
+                  }
+                }
+                //imagesTable.table.body
+                //nodeToChange.table.body[0][0].fit = [nodeToChange.table.body[0][0].props.initRect[0] * dawnScalePercent, imageNewHeight]
               } else if (pageheightInPoints < figureHeight) {
+                nodeToChange.pageOrderCalculated = true;
                 nodeToChange.pageBreak = undefined;
               }
             }
@@ -1541,7 +1659,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
           }
         } else if (node.props.type == 'paragraph') {
           let maxLinesOnLastPage = pdfSettings.pdf.maxParagraphLinesAtEndOfPage ? pdfSettings.pdf.maxParagraphLinesAtEndOfPage : 1
-          if (node.text && nodeInfo.pageNumbers.length > 1 && node.positions.length > maxLinesOnLastPage) {
+          if (node.text && nodeInfo.pageNumbers.length > 1 && node.positions.length >= maxLinesOnLastPage) {
             let lines: number[] = [];
             nodeInfo.pageNumbers.forEach((page: number, index: number) => {
               lines[index] = 0
@@ -1551,7 +1669,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
                 }
               })
             })
-            if (lines[0] < maxLinesOnLastPage) {
+            console.log(lines[0],maxLinesOnLastPage);
+            if (lines[0] <= maxLinesOnLastPage) {
               node.pageBreak = 'before'
               return true
             }
@@ -1694,7 +1813,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             if (requiredScalePercent > scale && requiredScalePercent < 1) {
               let newWidth = mathWidth * requiredScalePercent
               imagePdf.width = newWidth;
-              imagePdf.fit = [newWidth,availableHeightOnPageBeforeMath]
+              imagePdf.fit = [newWidth, availableHeightOnPageBeforeMath]
               return true;
             }
           }
@@ -1791,7 +1910,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
       //@ts-ignore
       decorationColor: (elementStyles.textDecorationColor && elementStyles.textDecorationColor.trim() !== '') ? rgbToHex(...elementStyles.textDecorationColor.replace('rgb', '').replace('a', '').replace('(', '').replace(')', '').split(', ').map((el) => +el)) : undefined,
     }
-
+    if(textStyles.background == '#ecb9b9')textStyles.background = undefined;
     let clearedStyles: any = {}
 
     Object.keys(textStyles).forEach((key) => {

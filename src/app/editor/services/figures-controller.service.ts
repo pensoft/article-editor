@@ -247,7 +247,7 @@ export class FiguresControllerService {
 
     let pixDimensions = data.a4Pixels//[width,height]
 
-    let loadPromises:Promise<any>[] = [];
+    /*let loadPromises:Promise<any>[] = [];
 
     let rowsH:number[] = []
     let cellWidth = pixDimensions[0]/data.nOfColumns;
@@ -267,7 +267,7 @@ export class FiguresControllerService {
     let canvasHeight = rowsH.reduce((prev,curr,i,arr)=>{return prev+=curr},0);
     let canvasWidth = pixDimensions[0];
 
-    let canvas = document.createElement('canvas');
+     let canvas = document.createElement('canvas');
     let ctx = canvas.getContext("2d")!;
     ctx.imageSmoothingEnabled = false;
 
@@ -325,8 +325,22 @@ export class FiguresControllerService {
       let figureDataURL = canvas.toDataURL('image/jpeg',0.9);
       figuresObj[key].canvasData.dataURL = figureDataURL;
       this.ydocService.figuresMap!.set('ArticleFigures', figuresObj);
-    })
+    }) */
+    //figuresObj[key].canvasData.data = data;
+    //this.ydocService.figuresMap!.set('ArticleFigures', figuresObj);
 
+    for(let i = 0 ; i < rows ; i++){
+      let rowH = 0;
+      for(let j = 0 ; j < columns ; j++){
+        if(figs[i][j]){
+          let cel = figs[i][j].container;
+          if(rowH<cel.h){
+            let url:string = cel.url
+            this.serviceShare.WorkerService?.convertImgInWorker(url)
+          }
+        }
+      }
+    }
   }
 
   writeFiguresDataGlobal(newFigureNodes: { [key: string]: Node }, newFigures: { [key: string]: figure; }, figureNumbers: string[], editedFigures: { [key: string]: boolean }) {

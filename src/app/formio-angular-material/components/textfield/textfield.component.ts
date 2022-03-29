@@ -6,7 +6,7 @@ import { MaterialComponent } from '../MaterialComponent';
 export const TEXTFIELD_TEMPLATE = `
   <mat-formio-form-field [instance]="instance" [componentTemplate]="componentTemplate"></mat-formio-form-field>
   <ng-template #componentTemplate let-hasLabel>
-    <mat-form-field [appearance]="getFormFieldAppearance()" fxFill>
+    <mat-form-field class="formio-formfield" [appearance]="getFormFieldAppearance()" fxFill>
 
       <mat-label *ngIf="hasLabel">
           <span [instance]="instance" matFormioLabel></span>
@@ -37,6 +37,7 @@ export const TEXTFIELD_TEMPLATE = `
 
 @Component({
   selector: 'mat-formio-textfield',
+  styleUrls: ['./textfield.scss'],
   template: TEXTFIELD_TEMPLATE
 })
 export class MaterialTextfieldComponent extends MaterialComponent implements AfterContentInit {

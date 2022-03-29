@@ -73,6 +73,7 @@ import { leadingComment } from '@angular/compiler';
 import { toCanvas } from 'html-to-image';
 import html2canvas from 'html2canvas';
 import { uuidv4 } from 'lib0/random.js';
+import { filterSectionChildren } from '../utils/articleBasicStructure';
 @Injectable({
   providedIn: 'root'
 })
@@ -392,6 +393,8 @@ export class ProsemirrorEditorsService {
       ,
       // @ts-ignore
       sectionName: editorID,
+      // @ts-ignore
+      sectionID:editorID,
       // @ts-ignore
     });
 
@@ -731,6 +734,7 @@ export class ProsemirrorEditorsService {
     dispatchTransaction: any
   } {
 
+    let placeholder = (formIOComponentInstance.component.placeholder&&formIOComponentInstance.component.placeholder!=='')?formIOComponentInstance.component.placeholder:undefined
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
     EditorContainer.innerHTML = ''
     let editorID = random.uuidv4()
@@ -745,7 +749,8 @@ export class ProsemirrorEditorsService {
       EditorContainer.appendChild(labelTag);
     }
     let sectionID = options.sectionID
-    if (!nodesArray) {
+    console.log(nodesArray);
+    if (!nodesArray||nodesArray.size == 0) {
       doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, schema.nodes.paragraph.create({})))
     } else {
       doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, nodesArray.content))
@@ -820,6 +825,8 @@ export class ProsemirrorEditorsService {
         })
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
       ,
+      // @ts-ignore
+      data:{placeHolder:placeholder},
       // @ts-ignore
       sectionName: editorID,
       sectionID: sectionID,
@@ -1073,18 +1080,15 @@ export class ProsemirrorEditorsService {
       MathView.prototype.renderMathOld = oldMathFunc;
       //@ts-ignore
       MathView.prototype.afterRender = (ret: any, mathview: any) => {
-        mathObj = ydocservice.mathMap?.get('dataURLObj');
+       /*  mathObj = ydocservice.mathMap?.get('dataURLObj');
         let matDom = (mathview.dom as HTMLElement).getElementsByClassName('katex-display')[0]||(mathview.dom as HTMLElement).getElementsByClassName('math-render')[0]||mathview.dom;
-        /* if(+window.getComputedStyle(matDom).fontSize.replace('px','')+9>matDom.getBoundingClientRect().height&&
-        (mathview.dom as HTMLElement).getElementsByClassName('katex')[0]){
-          matDom = (mathview.dom as HTMLElement).getElementsByClassName('katex')[0]
-        } */
+*/
         let nodeDomAttrs = mathview._node.type.spec.toDOM(mathview._node)[1];
         Object.keys(nodeDomAttrs).forEach((key) => {
           ((mathview.dom as HTMLElement).hasAttribute(key) && nodeDomAttrs[key] !== '' && nodeDomAttrs[key]) ? undefined : (mathview.dom as HTMLElement).setAttribute(key, nodeDomAttrs[key]);
         });
 
-        let setDataURL = (dataURL: string) => {
+        /* let setDataURL = (dataURL: string) => {
 
           let session = seviceShare.PmDialogSessionService ? seviceShare.PmDialogSessionService!.inSession() : 'nosession';
           if(session !== 'nosession'){
@@ -1122,7 +1126,7 @@ export class ProsemirrorEditorsService {
           }, 100)
 
           return ret
-        }
+        } */
       };
       MathView.prototype.renderMath = function renderMath() {
         //@ts-ignore

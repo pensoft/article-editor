@@ -30,7 +30,6 @@ export class SingInDetailsComponent implements OnInit {
       .getOtherEmailsInfo(this.img, this.email)
       // .pipe(untilDestroyed(this))
       .subscribe((response) => {
-        console.log('response', response);
       });
   }
 }

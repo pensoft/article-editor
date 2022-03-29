@@ -1,3 +1,15 @@
+/*
+https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image1.jpg
+
+https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image2.jpg
+
+https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image3.jpg
+
+https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image4.jpg
+
+https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image5.jpg
+
+https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image6.jpg */
 export const figureJson = {
   "components": [
     {
@@ -30,28 +42,28 @@ export const figureJson = {
               "defaultValue": [
                 {
                   "container": {
-                    "url": "https://static.scientificamerican.com/sciam/cache/file/DB41BE97-01C6-496F-873B5B4E3360B3A5_source.jpg",
+                    "url": "https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image1.jpg",
                     "description": `<p align="set-align-left" class="set-align-left">dream</p>`,
                     "componentType": "image",
                   }
                 },
                 {
                   "container": {
-                    "url": "https://static.scientificamerican.com/sciam/cache/file/5366EE82-A0FE-4690-885904445F73D44A.jpg",
+                    "url": "https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image2.jpg",
                     "description": `<p align="set-align-left" class="set-align-left">Brain</p>`,
                     "componentType": "image",
                   }
                 },
                 {
                   "container": {
-                    "url": "https://static.scientificamerican.com/sciam/cache/file/9B084B0E-73C7-45A9-A004F4543EED300F.jpg",
+                    "url": "https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image3.jpg",
                     "description": `<p align="set-align-left" class="set-align-left">metaverse</p>`,
                     "componentType": "image",
                   }
                 },
                 {
                   "container": {
-                    "url": "https://static.scientificamerican.com/sciam/cache/file/A4406EF9-FC62-42E4-9628F374B062AE07.jpg",
+                    "url": "https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image4.jpg",
                     "description": `<p align="set-align-left" class="set-align-left">dog</p>`,
                     "componentType": "image",
                   }

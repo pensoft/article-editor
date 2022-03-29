@@ -110,6 +110,11 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
 
   setInstance(instance: any) {
     super.setInstance(instance);
+    //console.log(JSON.parse(JSON.stringify(instance.dataValue)),JSON.parse(JSON.stringify(instance.defaultValue)));
+    //instance.dataValue =
+    let newValue = JSON.parse(JSON.stringify(instance.defaultValue))
+    this.instance.dataValue = newValue;
+    this.instance.setValue(newValue);
     this.dataSource.data = instance.dataValue;
     this.columns = {};
     this.displayedColumns = [];
@@ -205,6 +210,28 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
     }, 300)
   }
 
+  /* updateVisibility(instance: any) {
+    if(instance == null){
+      console.log('visible',this.instance.visible,'_visible',this.instance._visible,this.instance.component.key);
+      this.setVisible(this.instance.visible)
+    }
+    if (instance&&
+      this.instance.component.conditional &&
+      this.instance.component.conditional.when == instance.component.key) {
+        this.instance.root.setFullValue();
+        setTimeout(()=>{
+          this.setVisible((instance.getValue() == this.instance.component.conditional.eq)?this.instance.component.conditional.show:!this.instance.component.conditional.show)
+        },200)
+    }
+    if (this.instance.components && this.instance.components.length > 0) {
+      this.instance.components.forEach((component: any) => {
+        if (component.materialComponent) {
+          component.materialComponent.updateVisibility(instance);
+        }
+      })
+    }
+  }
+
   updateVisibility(instance: any) {
 
     if (instance == null) {
@@ -226,7 +253,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
       })
     }
 
-  }
+  } */
 
   renderComponents() {
     try {
@@ -252,17 +279,18 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
       console.error(e);
     }
   }
-  //oldvalue :any
+  oldvalue :any
   setValue(value: [] | null) {
-    /* if(value == null || value.length == 0||value.length!==this.instance.rows.length){
-      return
-    } */
     if(value!==null&&value?.length>0&&value?.reduce((prev:any,curr:any,i:number,arr)=>{return prev&&(Object.keys(curr).length==0)},true)){
-      console.trace();
+      value = JSON.parse(JSON.stringify(this.oldvalue))
+      setTimeout(()=>{
+        this.instance.getRows();
+        this.instance.updateValue(value, { modified: true });
+        this.instance.setValue(value);
+      },10)
+    }else{
+      this.oldvalue =  JSON.parse(JSON.stringify(value))
     }
-    /* if(value!==null){
-      this.oldvalue = JSON.parse(JSON.stringify(value))
-    } */
     const gridLength = value ? value.length : 0;
     while (this.instance.rows.length < gridLength) {
       this.addAnother();

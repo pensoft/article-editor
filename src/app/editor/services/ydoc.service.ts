@@ -192,6 +192,7 @@ export class YdocService {
     let figuresNumbers = this.figuresMap!.get('ArticleFiguresNumbers');
     let figuresTemplates = this.figuresMap!.get('figuresTemplates');
     let figures = this.figuresMap!.get('ArticleFigures');
+    let figuresImagesDataURL = this.figuresMap!.get('ArticleFiguresDataURLS');
     this.usersDataMap = this.ydoc.getMap('userDataMap')
     this.mathMap = this.ydoc.getMap('mathDataURLMap');
     let mathObj = this.mathMap.get('dataURLObj')
@@ -203,6 +204,9 @@ export class YdocService {
 
     if (!figures) {
       this.figuresMap!.set('ArticleFigures', {})
+    }
+    if (!figuresImagesDataURL) {
+      this.figuresMap!.set('ArticleFiguresDataURLS', {})
     }
     if (!figuresTemplates) {
       this.figuresMap!.set('figuresTemplates', {})

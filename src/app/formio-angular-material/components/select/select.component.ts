@@ -25,7 +25,7 @@ import _ from 'lodash';
                 [compareWith]="compareObjects"
         >
           <div class="mat-option">
-            
+
             <input class="mat-input-element" placeholder="Type to search" (input)="onFilter($event)">
           </div>
           <mat-option *ngIf="!filteredOptionsLength" disabled>
@@ -48,7 +48,7 @@ export class MaterialSelectComponent extends MaterialComponent implements OnInit
   selectOptions?: Promise<any[]>;
   filteredOptions?: Promise<any[]>;
   filteredOptionsLength?: number;
-  
+
   selectOptionsResolve: any;
 
   setInstance(instance: any) {

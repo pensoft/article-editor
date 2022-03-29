@@ -1,27 +1,27 @@
 <section fxLayout="row" fxLayoutAlign="center" class="container-center mt30px dark-blue">
-    <mat-card class="mat-card-shadow mb50px" fxFlex="100%">
-        <article fxLayout="column" fxFlex="20%">
-            <button mat-button (click)="backClicked()" class="mt20px">
+  <mat-card class="mat-card-shadow mb50px" fxFlex="100%">
+    <article fxLayout="column" fxFlex="20%">
+      <button mat-button (click)="backClicked()" class="mt20px">
                 <mat-icon svgIcon="chevronCircleLeft"></mat-icon> <span class="text14px-primary ml-10px">BACK </span>
             </button>
-        </article>
-        <article fxLayout="column" fxLayoutAlign="center" fxFlex="60%">
-            <mat-tab-group class="tab-profile-info">
-                <mat-tab id="recent">
-                    <ng-template mat-tab-label>
-                        <img src="../../../../../assets/img/timer_green_24px.svg" class="icon-label-tab" />
-                        <span>Recent activity</span>
-                    </ng-template>
-                    <app-recent></app-recent>
-                </mat-tab>
-                <mat-tab  id="permission">
-                    <ng-template mat-tab-label>
-                        <img src="../../../../../assets/img/settings-green.svg" class="icon-label-tab" />
-                        <span>Permissions</span>
-                    </ng-template>
-                    <app-permission></app-permission>
-                </mat-tab>
-            </mat-tab-group>
-        </article>
-    </mat-card>
+    </article>
+    <article fxLayout="column" fxLayoutAlign="center" fxFlex="60%">
+      <mat-tab-group class="tab-profile-info">
+        <mat-tab id="recent">
+          <ng-template mat-tab-label>
+            <img src="../../../../../assets/img/timer_green_24px.svg" class="icon-label-tab" />
+            <span>Recent activity</span>
+          </ng-template>
+          <app-recent></app-recent>
+        </mat-tab>
+        <mat-tab id="permission">
+          <ng-template mat-tab-label>
+            <img src="../../../../../assets/img/settings-green.svg" class="icon-label-tab" />
+            <span>Permissions</span>
+          </ng-template>
+          <app-permission></app-permission>
+        </mat-tab>
+      </mat-tab-group>
+    </article>
+  </mat-card>
 </section>

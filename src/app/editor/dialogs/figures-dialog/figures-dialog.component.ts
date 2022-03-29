@@ -48,7 +48,7 @@ export class FiguresDialogComponent implements AfterViewInit {
   }
 
   editFigure(fig: figure, figIndex: number) {
-    this.serviceShare.PmDialogSessionService!.createSubsession();
+    //this.serviceShare.PmDialogSessionService!.createSubsession();
     this.dialog.open(AddFigureDialogComponent, {
       width: '100%',
       height: '90%',
@@ -56,13 +56,13 @@ export class FiguresDialogComponent implements AfterViewInit {
       disableClose: false
     }).afterClosed().subscribe((result: { figure: figure, figureNode: Node }) => {
       if (result && result.figure && result.figureNode) {
-        this.serviceShare.PmDialogSessionService!.endSubsession(true)
+        //this.serviceShare.PmDialogSessionService!.endSubsession(true)
         this.figuresNumbers?.splice(figIndex, 1, result.figure.figureID)
         this.figures![result.figure.figureID] = result.figure
         this.newFigureNodes[result.figure.figureID] = result.figureNode
         this.editedFigures[result.figure.figureID] = true
       } else {
-        this.serviceShare.PmDialogSessionService!.endSubsession(false)
+        //this.serviceShare.PmDialogSessionService!.endSubsession(false)
       }
     })
   }
@@ -104,7 +104,7 @@ export class FiguresDialogComponent implements AfterViewInit {
   }
 
   addFigure() {
-    this.serviceShare.PmDialogSessionService!.createSubsession();
+    //this.serviceShare.PmDialogSessionService!.createSubsession();
     this.dialog.open(AddFigureDialogComponent, {
       width: '100%',
       height: '90%',
@@ -112,12 +112,12 @@ export class FiguresDialogComponent implements AfterViewInit {
       disableClose: false
     }).afterClosed().subscribe((result: { figure: figure, figureNode: Node }) => {
       if (result && result.figure && result.figureNode) {
-        this.serviceShare.PmDialogSessionService!.endSubsession(true);
+        //this.serviceShare.PmDialogSessionService!.endSubsession(true);
         this.figuresNumbers?.push(result.figure.figureID)
         this.figures![result.figure.figureID] = result.figure
         this.newFigureNodes[result.figure.figureID] = result.figureNode
       } else {
-        this.serviceShare.PmDialogSessionService!.endSubsession(false);
+        //this.serviceShare.PmDialogSessionService!.endSubsession(false);
       }
     })
   }

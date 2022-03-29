@@ -69,5 +69,5 @@ export class PermissionComponent implements OnInit {
     this.profileService.deleteAccount();
     this.router.navigate(['/']);
   }
-  
+
 }

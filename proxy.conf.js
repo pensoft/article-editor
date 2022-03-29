@@ -6,15 +6,15 @@ const PROXY_CONFIG = {
     "changeOrigin": true,
     autoRewrite: true,
     "ws": true,
-  }
-  /* , "/public": {
-     "target": "https://s3-pensoft.s3.eu-west-1.amazonaws.com/",
-     "secure": false,
-     "logLevel": "debug",
-     "changeOrigin": true,
-     autoRewrite: true,
-     "ws": true,
-   }, */
+  },
+  "/public": {
+    "target": "https://s3-pensoft.s3.eu-west-1.amazonaws.com/",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true,
+    autoRewrite: true,
+    "ws": true,
+  },
 
   /* "/webrtc": {
     "target": "wss://ps-article-editor.dev.scalewest.com/",

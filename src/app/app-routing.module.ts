@@ -18,10 +18,10 @@ import { SettingsComponent } from './layout/pages/settings/settings.component';
 // import { SignPasswordDevicesComponent } from './layout/pages/sign-password-devices/sign-password-devices.component';
 import { AnyProjectsGuard } from './core/guards/any-projects.guard';
 import { EditBeforeExportComponent } from './editor/dialogs/edit-before-export/edit-before-export.component';
-import { RecentPermissionComponent } from './layout/pages/recent-permission/recent-permission.component';
-
 import { ProfileComponent } from './layout/pages/profile/profile.component';
 import { ProfileInfoComponent } from './layout/pages/profile/profile-info/profile-info.component';
+import { RecentPermissionComponent } from './layout/pages/recent-permission/recent-permission.component';
+
 import { AddContributorsDialogComponent } from './editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
 
 const routes: Routes = [
@@ -34,41 +34,14 @@ const routes: Routes = [
     children: [
       { path: '', canActivate: [LoginGuard], component: LandingComponent },
       { path: 'login', canActivate: [LoginGuard], component: LoginComponent },
-      {
-        path: 'register',
-        canActivate: [LoginGuard],
-        component: SignupComponent,
-      },
-      {
-        path: 'recent-permission',
-        canActivate: [AuthGuard],
-        component: RecentPermissionComponent,
-      },
-      {
-        path: 'user-profile',
-        canActivate: [AuthGuard],
-        component: SettingsComponent,
-      },
-      {
-        path: 'edit-profile',
-        canActivate: [AuthGuard],
-        component: ProfileComponent,
-      },
-      {
-        path: 'create',
-        canActivate: [AuthGuard],
-        component: CreateNewProjectComponent,
-      },
-      {
-        path: 'add-files',
-        canActivate: [AuthGuard],
-        component: DialogAddFilesComponent,
-      },
-      {
-        path: 'dashboard',
-        canActivate: [AuthGuard, AnyProjectsGuard],
-        component: DashboardComponent,
-      },
+      { path: 'register', canActivate: [LoginGuard], component: SignupComponent },
+      //{ path: 'choose',canActivate: [AuthGuard], component: ChooseManuscriptDialogComponent },
+      { path: 'create', canActivate: [AuthGuard], component: CreateNewProjectComponent },
+      { path: 'add-files', canActivate: [AuthGuard], component: DialogAddFilesComponent },
+      { path: 'dashboard', canActivate: [AuthGuard, AnyProjectsGuard], component: DashboardComponent },
+      { path: 'profile', canActivate: [AuthGuard, AnyProjectsGuard], component: ProfileComponent },
+      { path: 'profile-info', canActivate: [AuthGuard, AnyProjectsGuard], component: ProfileInfoComponent },
+      { path: 'recent-permisson', canActivate: [AuthGuard, AnyProjectsGuard], component: RecentPermissionComponent },
       { path: ':id', canActivate: [AuthGuard], component: EditorComponent },
     ],
   },

@@ -75,8 +75,6 @@ import { DashboardComponent } from './editor/dashboard/dashboard.component';
 import { GravatarModule,GravatarConfig, FALLBACK, } from 'ngx-gravatar';
 import { ChooseSectionComponent } from './editor/dialogs/choose-section/choose-section.component';
 import { SettingsComponent } from './layout/pages/settings/settings.component';
-// import { ActivityPermissionComponent } from './layout/pages/activity-permission/activity-permission.component';
-// import { SignPasswordDevicesComponent } from './layout/pages/sign-password-devices/sign-password-devices.component';
 import { AskBeforeDeleteComponent } from './editor/dialogs/ask-before-delete/ask-before-delete.component';
 import { ComplexEditTreeComponent } from './editor/section/complex-edit-tree/complex-edit-tree.component';
 import { SnackBarErrorComponentComponent } from './editor/meta-data-tree/snack-bar-error-component/snack-bar-error-component.component';
@@ -159,8 +157,6 @@ const gravatarConfig: GravatarConfig = {
     DashboardComponent,
     ChooseSectionComponent,
     SettingsComponent,
-    // ActivityPermissionComponent,
-    // SignPasswordDevicesComponent,
     AskBeforeDeleteComponent,
     ComplexEditTreeComponent,
     SnackBarErrorComponentComponent,

@@ -3,6 +3,7 @@ import {Plugin, PluginKey} from 'prosemirror-state';
 import { Decoration, DecorationSet } from 'prosemirror-view';
 import {Node as ProseMirrorNode} from 'prosemirror-model';
 import { editorMeta } from '../interfaces/articleSection';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,7 @@ export class PlaceholderPluginService {
   placeholderPlugin: Plugin;
   key: any;
 
-  constructor() {
+  constructor(private sharedService:ServiceShare) {
     let key =  new PluginKey('placeholderPlugin');
     this.key =key
 
@@ -19,7 +20,7 @@ export class PlaceholderPluginService {
       key: this.key,
       state: {
         init: (_, state)=> {
-          return { data: _.data };
+          return { data: _.data,sectionID:_.sectionID };
         },
         apply(tr, prev, _, newState) {
           return prev
@@ -27,18 +28,41 @@ export class PlaceholderPluginService {
       },
       props: {
         decorations(state) {
-          let data = key.getState(state).data;
-          const doc: any = state.doc;
-          const hasNoChildren = doc.childCount === 0;
-          const isEmptyTextBlock =
-            doc.childCount === 1 && doc.firstChild.isTextblock && doc.firstChild.content.size === 0;
-          if (hasNoChildren || isEmptyTextBlock) {
-            const position = doc.inlineContent ? 0 : 1;
-            const placeholder = document.createElement('span');
+          let pluginData = key.getState(state)
+          let data = pluginData.data;
+          let doc = state.doc!;
+          let hasNoChildren = doc.childCount === 0;
+          let isEmptyTextBlock =
+            doc.childCount === 1 && doc.firstChild!.isTextblock && doc.firstChild!.content.size === 0;
+            let hasNoTextContent = doc.textContent == ''
+          if (hasNoChildren || isEmptyTextBlock || hasNoTextContent) {
+            let position = doc.inlineContent ? 0 : 1;
+            let placeholder = document.createElement('span');
             placeholder.classList.add('ProseMirror__placeholder');
-            placeholder.setAttribute('data-placeholder', data?data.placeHolder:'Type here...');
+            placeholder.setAttribute('data-placeholder', (data&&data.placeHolder)?data.placeHolder:'Type here...');
 
             return DecorationSet.create(doc, [Decoration.widget(position, placeholder)]);
+          }else{
+            let formGroup = sharedService.TreeService!.sectionFormGroups[pluginData.sectionID]
+            let decorations:Decoration[] = []
+            if(state.doc&&formGroup){
+              let nodeSize = state.doc.content.size
+              state.doc.nodesBetween(0,nodeSize,(node,pos,parent,i)=>{
+                if(node.attrs.controlPath&&node.attrs.controlPath!==''&&node.textContent == ''){
+                  let control = formGroup.get(node.attrs.controlPath);
+                  if(control){
+                    let placeholder = document.createElement('span');
+                    placeholder.classList.add('ProseMirror__placeholder');
+                    //@ts-ignore
+                    placeholder.setAttribute('data-placeholder', (control.componentProps&&control.componentProps.placeholder)?control.componentProps.placeholder:'Type here...');
+                    console.log(node);
+                    decorations.push(Decoration.widget(pos+1,placeholder))
+                  }
+                }
+              })
+              console.log(decorations);
+              return DecorationSet.create(doc,decorations);
+            }
           }
         }
       }

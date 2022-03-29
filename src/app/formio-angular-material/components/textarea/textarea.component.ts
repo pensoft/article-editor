@@ -103,6 +103,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       this.control.setValue(this.input.nativeElement.value);
       value = this.getValue()!;
     }
+    console.log(value);
     this.instance.updateValue(value, { modified: true });
     this.instance.root.changeVisibility(this.instance);
   }
@@ -131,10 +132,17 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     if (this.instance.component.validate.maxLength) {
       this.instance.component.validate.maxLength = undefined
     }
-    this.control.markAsTouched();
+    this.control.markAsTouched()
     let containerElement = document.createElement('div');
     let htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(this.editorContainer?.editorView.state.doc.content.firstChild!.content!)
     containerElement.appendChild(htmlNOdeRepresentation);
+    console.log(htmlNOdeRepresentation.textContent,htmlNOdeRepresentation.childNodes.length,this.instance);
+    /* if(htmlNOdeRepresentation.textContent == ''&&htmlNOdeRepresentation.childNodes.length==0){
+      let placeholder = (this.instance.component.placeholder&&this.instance.component.placeholder!=='')?this.instance.component.placeholder:undefined
+      if(placeholder){
+        containerElement.innerHTML = `<pm-placeholder>${placeholder}</pm-placeholder>`
+      }
+    } */
     this.instance.updateValue(containerElement.innerHTML, { modified: true });
     this.control.setValue(containerElement.innerHTML);
     return this.control
@@ -176,6 +184,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       let temp = document.createElement('div');
       temp.innerHTML = this.value!;
       let node = this.value! ? this.DOMPMParser.parseSlice(temp) : undefined;
+      //this.onChange1(true, this.value!)
       this.editorContainer = this.prosemirrorService.renderEditorWithNoSync(this.ProsemirrorEditor?.nativeElement, this.instance, this.control, options, node);
       let containersCount = 0
       let edView = this.editorContainer.editorView;
@@ -201,7 +210,6 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
         del()
       }
       this.instance.component.validate = this.instanceValidations
-      this.onChange1(true, this.value!)
 
       this.renderEditor = true;
 

@@ -22,8 +22,9 @@ import { E, I } from '@angular/cdk/keycodes';
 import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-import { checkIfSectionsAreAboveOrAtMax, checkIfSectionsAreUnderOrAtMin } from '@app/editor/utils/articleBasicStructure';
+import { checkIfSectionsAreAboveOrAtMax, checkIfSectionsAreUnderOrAtMin, countSectionFromBackendLevel, filterChooseSectionsFromBackend, filterSectionsFromBackendWithComplexMinMaxValidations, renderSectionFunc } from '@app/editor/utils/articleBasicStructure';
 import { PmDialogSessionService } from '@app/editor/services/pm-dialog-session.service';
+import { ChooseSectionComponent } from '@app/editor/dialogs/choose-section/choose-section.component';
 
 @Component({
   selector: 'app-section-leaf',
@@ -161,7 +162,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       }
 
       this.ydocService.ydoc.on('update',registerUpdateFunc )
-      this.PmDialogSessionService.createSession();
+      //this.PmDialogSessionService.createSession();
 
       node.formIOSchema = sectionContent
       this.dialog.open(EditSectionDialogComponent, {
@@ -172,7 +173,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       }).afterClosed().subscribe(result => {
 
         if (result && result.compiledHtml) {
-          this.PmDialogSessionService.endSession(true);
+          //this.PmDialogSessionService.endSession(true);
           this.treeService.editNodeChange(node.sectionID)
 
           let copyOriginUpdatesBeforeReplace = [...originUpdates]
@@ -221,7 +222,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
           }, 30)
         } else {
           setTimeout(() => {
-            this.serviceShare.PmDialogSessionService!.endSession(false);
+            //this.serviceShare.PmDialogSessionService!.endSession(false);
             this.prosemirrorEditorsService.citatEditingSubject.next({ action: 'clearDeletedCitatsFromPopup' })
           }, 30)
         }
@@ -304,6 +305,30 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     }
   };
 
+  addSectionToNode(node:articleSection){
+    console.log(node);
+    this.serviceShare.ArticleSectionsService!.getAllSections({ page: 1, pageSize: 999 }).subscribe((response: any) => {
+      let sectionTemplates1 = filterChooseSectionsFromBackend(node.compatibility, response.data)
+      let sectionlevel = this.treeService.getNodeLevel(node)
+      let sectionTemplates = (sectionTemplates1 as any[]).filter((el: any) => {
+        let elementLevel = countSectionFromBackendLevel(el)
+        return (elementLevel + sectionlevel < 3);
+      });
+
+      sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates,node,node.children)
+      const dialogRef = this.dialog.open(ChooseSectionComponent, {
+        width: '563px',
+        panelClass: 'choose-namuscript-dialog',
+        data: { templates: sectionTemplates, sectionlevel }
+      });
+      dialogRef.afterClosed().subscribe(result => {
+        this.serviceShare.ArticleSectionsService!.getSectionById(result).subscribe((res: any) => {
+          this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID,res.data,0)
+        })
+      });
+    })
+  }
+
   showButtons(div: HTMLDivElement, mouseOn: boolean, borderClass: string, focusClass: string, node: articleSection) {
     if (mouseOn) {
       this.mouseOn = node.sectionID;
@@ -314,11 +339,12 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       if (el.classList.contains('section_btn_container')) {
         Array.from(el.children).forEach((el: any,index) => {
           if (el.classList.contains('hidden')) {
-
             if (mouseOn) {
               if(index==1&&this.treeService.showAddBtn(node)){ // add btn
                 el.style.display = 'inline';
               }else if(index == 2&&this.treeService.showDeleteButton(node)){ // delete btn
+                el.style.display = 'inline';
+              }else if(index == 3&&node.type=='complex'){
                 el.style.display = 'inline';
               }else if(index == 0){
                 el.style.display = 'inline';
@@ -326,17 +352,14 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
             } else {
               el.style.display = 'none';
             }
-
           }
         });
       } else if (el.classList.contains('hidden')) {
-
         if (mouseOn) {
           el.style.display = 'inline';
         } else {
           el.style.display = 'none';
         }
-
       } else if (el.classList.contains('border')) {
         if (mouseOn) {
           if (this.focusedId == node.sectionID) {
@@ -346,25 +369,19 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
           }
           el.className = `border ${borderClass} `;
           /* el.classList.remove(borderClass+"Inactive")
-
           el.classList.remove(borderClass)
           el.classList.add(borderClass)
-
           el.classList.remove(focusClass) */
-
           el.children.item(0).style.display = 'inline';
         } else {
           if (this.focusIdHold == node.sectionID) {
-
             this.focusedId = this.focusIdHold;
             this.focusIdHold = '';
           }
           el.className = `border ${borderClass}Inactive`;
-
           /* if(this.focusedId == this.node.sectionID){
             el.classList.add(focusClass);
           } */
-
           /* el.classList.remove(borderClass)
           el.classList.remove(borderClass)
           el.classList.add(borderClass+"Inactive") */

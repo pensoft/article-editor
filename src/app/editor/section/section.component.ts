@@ -128,6 +128,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   }
 
   async onSubmit(submision?: any) {
+    console.log(submision.data,this.sectionForm);
     try {
       //this.prosemirrorEditorsService.updateFormIoDefaultValues(this.section.sectionID, submision.data)
       this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, { data: submision.data, updatedFrom: this.ydocService.ydoc?.guid })
@@ -145,10 +146,9 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
       let interpolated: any
       let prosemirrorNewNodeContent: any
-      this.error = false;
+    this.error = false;
       this.errorMessage = '';
       // get the text content from the codemirror editor which after compiling will be used as the new node structure for sections's Prosemirror
-
       let tr = this.codemirrorHTMLEditor?.state.update()
       this.codemirrorHTMLEditor?.dispatch(tr!);
       prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
@@ -249,6 +249,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     } catch (e) {
       console.error(e);
     }
+    console.log(this.formBuilderService.populateDefaultValues(this.treeService.sectionFormGroups[this.section.sectionID].getRawValue(), this.section.formIOSchema, this.section.sectionID,this.sectionForm));
 
     let editorContainer = this.prosemirrorEditorsService.editorContainers[this.section.sectionID]
     if (editorContainer) {

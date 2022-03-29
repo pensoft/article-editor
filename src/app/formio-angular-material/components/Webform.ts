@@ -24,17 +24,20 @@ Webform.prototype.render2 = function() {
     this.clear();
     this.renderComponents();
     submissionData = JSON.parse(JSON.stringify(this._submission))
+    //console.log(JSON.parse(JSON.stringify(this._submission)));
     this.setValue(this._submission);
-    this.changeVisibility(null)
+    setTimeout(()=>{
+      this.changeVisibility(null)
+    },200)
 
   }
 };
 let submissionData:any = {}
 Webform.prototype.setFullValue  = function(){
-   /* Object.assign(submissionData.data,JSON.parse(JSON.stringify(this._submission.data)))
-  //this.renderComponents();
-  //console.log(JSON.parse(JSON.stringify(submissionData)));
-  this.setValue(JSON.parse(JSON.stringify(submissionData))); */
+    Object.assign(submissionData.data,JSON.parse(JSON.stringify(this._submission.data)))
+    //console.log(JSON.parse(JSON.stringify(this._submission.data)));
+  this.renderComponents();
+  this.setValue(JSON.parse(JSON.stringify(submissionData)));
   //this.setDefaultValue(JSON.parse(JSON.stringify(submissionData)));
   //this.updateValue(JSON.parse(JSON.stringify(submissionData)));
 }
@@ -55,11 +58,11 @@ Webform.prototype.submitForm = async function(){
   }
 }
 Webform.prototype.changeVisibility = function(instance:any){
-  /* if(this.components&&this.components.length>0){
+  if(this.components&&this.components.length>0){
     this.components.forEach((component:any)=>{
       if(component.materialComponent){
         component.materialComponent.updateVisibility(instance);
       }
     })
-  } */
+  }
 }

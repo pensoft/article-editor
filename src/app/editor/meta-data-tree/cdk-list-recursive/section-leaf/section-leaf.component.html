@@ -1,75 +1,77 @@
 <div *ngIf="!nestedNode" [ngClass]="{
     'node-box':!isComplex,
     'node-box-dropdownbox':isComplex}" cdkDrag [cdkDragData]="{node,canDropBool}">
-    <div [style.position]='"relative"' (mouseover)="showButtons(cdkDragSection,true,
+  <div [style.position]='"relative"' (mouseover)="showButtons(cdkDragSection,true,
     !isComplex?'sectionBorder':'sectionBorderListItem','selectedEditor',node)" (mouseout)="showButtons(cdkDragSection,false,
     !isComplex?'sectionBorder':'sectionBorderListItem','selectedEditor',node)" #cdkDragSection>
-        <div class="border-placeholder" *cdkDragPlaceholder>
-            <div [ngClass]="{'border-view':true,'cant-drop':!canDropBool![0]}"></div>
-        </div>
-        <div class=' border' [ngClass]="{
+    <div class="border-placeholder" *cdkDragPlaceholder>
+      <div [ngClass]="{'border-view':true,'cant-drop':!canDropBool![0]}"></div>
+    </div>
+    <div class=' border' [ngClass]="{
             'sectionBorderInactive':!isComplex && mouseOn!==node.sectionID,
             'sectionBorderListItemInactive':isComplex && mouseOn!==node.sectionID,
             'selectedEditor' : node.sectionID == focusedId&&mouseOn!==node.sectionID&&!isComplex}">
-            <button [style.display]="'none'" mat-icon-button cdkDragHandle class="drag_btn hidden " [ngClass]="{
+      <button [style.display]="'none'" mat-icon-button cdkDragHandle class="drag_btn hidden " [ngClass]="{
                 'drag_btn_leaf_node':!isComplex,
                 'drag_btn_list_node':isComplex}"><mat-icon >drag_indicator</mat-icon></button>
-            <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTN" (click)="changeDisplay(childrenDiv);listDiv.style.display == 'none'?expandIcon='chevron_right':expandIcon='expand_more'"><mat-icon class="{{expandIcon}}"  #icon>{{expandIcon}}</mat-icon></button>
-            <div *ngIf="node.title.editable" class="text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="scrollToProsemirror()" (click)="makeEditable(nodeTitle,$event,cdkDragSection,node)" (blur)="makeEditable(nodeTitle,$event,cdkDragSection,node)"
-                #nodeTitle>
-                {{node.title.label | slice:0:180  }} 
-            </div>
-            <div *ngIf="!node.title.editable" class="text-section-div" (click)="scrollToProsemirror()">
-                {{node.title.label}}
-            </div>
-        </div>
-        <div class="section_btn_container">
-            <button [style.display]="'none'" [ngStyle]="node.edit.main?{'order':'1','margin': '2px'}:{}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node.edit.bool" (click)="editNodeHandle(node, nodeFormGroup);node.active = true"><mat-icon class="matIcon" >edit</mat-icon></button>
-            <button [style.display]="'none'" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon ></button>
-            <button [style.display]="'none'" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
-        </div>
+      <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTN" (click)="changeDisplay(childrenDiv);listDiv.style.display == 'none'?expandIcon='chevron_right':expandIcon='expand_more'"><mat-icon class="{{expandIcon}}"  #icon>{{expandIcon}}</mat-icon></button>
+      <div *ngIf="node.title.editable" class="text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="scrollToProsemirror()" (click)="makeEditable(nodeTitle,$event,cdkDragSection,node)" (blur)="makeEditable(nodeTitle,$event,cdkDragSection,node)"
+        #nodeTitle>
+        {{node.title.label | slice:0:180 }}
+      </div>
+      <div *ngIf="!node.title.editable" class="text-section-div" (click)="scrollToProsemirror()">
+        {{node.title.label}}
+      </div>
     </div>
-    <div #listDiv class="example-list-dropdownbox" [style.display]="'none'" #childrenDiv>
-        <app-cdk-list-recursive *ngIf="isComplex" [firstNested]='!nestedNode' [(articleSectionsStructure)]="node.children" [listData]="{expandParentFunc,listDiv}" [nestedList]="true" [listParentId]='node.sectionID'></app-cdk-list-recursive>
+    <div class="section_btn_container">
+      <button [style.display]="'none'" [ngStyle]="node.edit.main?{'order':'1','margin': '2px'}:{}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node.edit.bool" (click)="editNodeHandle(node, nodeFormGroup);node.active = true"><mat-icon class="matIcon" >edit</mat-icon></button>
+      <button [style.display]="'none'" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon ></button>
+      <button [style.display]="'none'" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
+      <button [style.display]="'none'" [ngStyle]="{'order':'3','margin-top': '3px'}" mat-mini-fab class="addSectionBtn section_btn_nestedList hidden" *ngIf="node?.delete?.bool" (click)="addSectionToNode(node)"><mat-icon class="matIcon">post_add</mat-icon></button>
     </div>
+  </div>
+  <div #listDiv class="example-list-dropdownbox" [style.display]="'none'" #childrenDiv>
+    <app-cdk-list-recursive *ngIf="isComplex" [firstNested]='!nestedNode' [(articleSectionsStructure)]="node.children" [listData]="{expandParentFunc,listDiv}" [nestedList]="true" [listParentId]='node.sectionID'></app-cdk-list-recursive>
+  </div>
 </div>
 <div *ngIf="nestedNode" [ngClass]="{
     'node-box-nested':!isComplex,
     'node-box-dropdownbox-nested':isComplex}" cdkDrag [cdkDragData]="{node,canDropBool}">
-    <div [style.position]='"relative"' (mouseover)="showButtons(cdkDragSection,true,
+  <div [style.position]='"relative"' (mouseover)="showButtons(cdkDragSection,true,
     !isComplex?'sectionBorderNested':'sectionBorderListNested',
     !isComplex?'selectedEditorNestedLeaf':'selectedEditorNestedList',node)" (mouseout)="showButtons(cdkDragSection,false,
     !isComplex?'sectionBorderNested':'sectionBorderListNested',
     !isComplex?'selectedEditorNestedLeaf':'selectedEditorNestedList',node)" #cdkDragSection>
-        <div class="text-placeholder"></div>
-        <div class="border-placeholder-nested" *cdkDragPlaceholder>
-            <div [ngClass]="{'border-view':true,'cant-drop':!canDropBool![0]}"></div>
-        </div>
-        <div class=' border' [ngClass]="{
+    <div class="text-placeholder"></div>
+    <div class="border-placeholder-nested" *cdkDragPlaceholder>
+      <div [ngClass]="{'border-view':true,'cant-drop':!canDropBool![0]}"></div>
+    </div>
+    <div class=' border' [ngClass]="{
             'sectionBorderNestedInactive':!isComplex && mouseOn!==node.sectionID,
             'sectionBorderListNestedInactive' : mouseOn!==node.sectionID&&isComplex,
             'selectedEditorNestedLeaf' : node.sectionID == focusedId&&mouseOn!==node.sectionID&&!isComplex,
             'selectedEditorNestedList' : node.sectionID == focusedId&&mouseOn!==node.sectionID&&isComplex}" #parentOfText>
-            <button [style.display]="'none'" mat-icon-button cdkDragHandle class="drag_btn hidden" [ngClass]="{
+      <button [style.display]="'none'" mat-icon-button cdkDragHandle class="drag_btn hidden" [ngClass]="{
                 'drag_btn_leaf_node_nested':!isComplex,
                 'drag_btn_list_node_nested':isComplex}"><mat-icon >drag_indicator</mat-icon></button>
-            <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTNNested" (click)="changeDisplay(childrenDiv);listDiv.style.display == 'none'?expandIcon='chevron_right':expandIcon='expand_more'"><mat-icon class="{{expandIcon}}" #icon>{{expandIcon}}</mat-icon></button>
-            <div *ngIf="node.title.editable" class="text-section-div-nested" (input)="checkTextInput(nodeTitle,35,$event)" (click)="scrollToProsemirror()" (click)="makeEditable(nodeTitle,$event,parentOfText,node)" (blur)="makeEditable(nodeTitle,$event,parentOfText,node)"
-                #nodeTitle>
-                {{node.title.label}}
-            </div>
-            <div *ngIf="!node.title.editable" class="text-section-div-nested" (click)="scrollToProsemirror()">
-                {{node.title.label}}
-            </div>
-        </div>
-        <div class="section_btn_container">
-            <button [style.display]="'none'" [ngStyle]="node.edit.main?{'order':'1','margin': '2px'}:{}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node.edit.bool" (click)="editNodeHandle(node, nodeFormGroup)"><mat-icon class="matIcon">edit</mat-icon></button>
-            <button [style.display]="'none'" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon></button>
-            <button [style.display]="'none'" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
-        </div>
+      <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTNNested" (click)="changeDisplay(childrenDiv);listDiv.style.display == 'none'?expandIcon='chevron_right':expandIcon='expand_more'"><mat-icon class="{{expandIcon}}" #icon>{{expandIcon}}</mat-icon></button>
+      <div *ngIf="node.title.editable" class="text-section-div-nested" (input)="checkTextInput(nodeTitle,35,$event)" (click)="scrollToProsemirror()" (click)="makeEditable(nodeTitle,$event,parentOfText,node)" (blur)="makeEditable(nodeTitle,$event,parentOfText,node)"
+        #nodeTitle>
+        {{node.title.label}}
+      </div>
+      <div *ngIf="!node.title.editable" class="text-section-div-nested" (click)="scrollToProsemirror()">
+        {{node.title.label}}
+      </div>
     </div>
-    <div #listDiv class="example-list-dropdownbox-nested" [style.display]="'none'" #childrenDiv>
-        <div *ngIf="!lastNestedChild&&isComplex" class="vertical_line_nestedList"></div>
-        <app-cdk-list-recursive *ngIf="isComplex" [(articleSectionsStructure)]="node.children" [listData]="{expandParentFunc,listDiv}" [nestedList]="true" [listParentId]='node.sectionID'></app-cdk-list-recursive>
+    <div class="section_btn_container">
+      <button [style.display]="'none'" [ngStyle]="node.edit.main?{'order':'1','margin': '2px'}:{}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node.edit.bool" (click)="editNodeHandle(node, nodeFormGroup)"><mat-icon class="matIcon">edit</mat-icon></button>
+      <button [style.display]="'none'" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon></button>
+      <button [style.display]="'none'" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
+      <button [style.display]="'none'" [ngStyle]="{'order':'3','margin-top': '3px'}" mat-mini-fab class="addSectionBtn section_btn_nestedList hidden" *ngIf="node?.delete?.bool" (click)="addSectionToNode(node)"><mat-icon class="matIcon">post_add</mat-icon></button>
     </div>
+  </div>
+  <div #listDiv class="example-list-dropdownbox-nested" [style.display]="'none'" #childrenDiv>
+    <div *ngIf="!lastNestedChild&&isComplex" class="vertical_line_nestedList"></div>
+    <app-cdk-list-recursive *ngIf="isComplex" [(articleSectionsStructure)]="node.children" [listData]="{expandParentFunc,listDiv}" [nestedList]="true" [listParentId]='node.sectionID'></app-cdk-list-recursive>
+  </div>
 </div>

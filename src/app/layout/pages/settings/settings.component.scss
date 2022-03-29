@@ -1,54 +1,64 @@
 @import "../../../../assets/colors";
-.dark-blue{
-    color: $primary-dark-blue;
-}
-.name-text{
-    font-size: 16px;
-    line-height: 22px;
-    margin-top: 12px;
-}
-.description-text{
-    font-size: 12px;
-    margin: 16px 0 16px 0;
+.dark-blue {
+  color: $primary-dark-blue;
 }
 
-.h265px{
-    height: 265px;
+.name-text {
+  font-size: 16px;
+  line-height: 22px;
+  margin-top: 12px;
 }
 
-.h305px{
-    height: 305px;
+.description-text {
+  font-size: 12px;
+  margin: 16px 0 16px 0;
 }
-.h570px{
-    height: 570px;
+
+.h230px {
+  height: 230px;
 }
-.mb15px{
-    margin-bottom: 15px;
+
+.h305px {
+  height: 305px;
 }
-.flex-end{
-    margin-top: 120px;
+
+.h570px {
+  height: 570px;
 }
-.flex-end-continue{
-    margin-top: 90px;
+
+.mb15px {
+  margin-bottom: 15px;
 }
-.btn-my-profile{
-    width: 156px;
-    height: 40px;
-    font-weight: 300;
-    font-size: 14px;
+
+.flex-end {
+  margin-top: 100px;
 }
-.linkAndIcon{
-    line-height: 18px;
-    padding: 10px 0 10px 0;
+
+.flex-end-continue {
+  margin-top: 90px;
 }
+
+.btn-my-profile {
+  width: 156px;
+  height: 40px;
+  font-weight: 300;
+  font-size: 14px;
+}
+
+.linkAndIcon {
+  line-height: 18px;
+  padding: 10px 0 10px 0;
+}
+
 a.link-custom:link,
 a.link-custom:visited,
 a.link-custom:hover,
-a.link-custom:active{
-    color: $primary-dark-blue!important;
-    text-decoration: none;
+a.link-custom:active {
+  color: $primary-dark-blue!important;
+  text-decoration: none;
 }
-.small-icon{
-    height: 16px!important;
-    color: $primary-dark-grey;
+
+.small-icon {
+  height: 16px!important;
+  color: $primary-dark-grey;
 }
