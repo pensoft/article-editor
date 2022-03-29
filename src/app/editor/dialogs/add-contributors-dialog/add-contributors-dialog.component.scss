@@ -1,0 +1,53 @@
+@import "../../../../assets/colors";
+
+::ng-deep .add-contributer-dialog .mat-dialog-container {
+  background: transparent !important;
+  border-radius: non !important;
+  box-shadow: none !important;
+  .container-shadow-contributor {
+    background: #ffffff;
+    padding: 24px;
+    border-radius: 20px !important;
+  //  box-shadow: 0px 6px 10px $box-shadow !important;
+  }
+}
+// .section-choose {
+//     padding: 24px 0 24px 0;
+// }
+.container-contributers{
+  max-height: 400px;
+  overflow: auto;
+}
+.input-search {
+  border-radius: 18px;
+  border: 1px solid $primary-green;
+  line-height: 39px;
+  padding-left: 25px;
+  width: 95%;
+  color: $black;
+}
+
+.error {
+  background-color: $error-red;
+}
+.blue-bg-owner {
+  background: $bg-light-glue;
+  border-radius: 20px;
+}
+.border1px-primary {
+  border: 1px solid $primary-green;
+}
+.border-radius20 {
+  border-radius: 20px;
+}
+.avatar-owner {
+  padding: 7px 10px 7px 20px;
+}
+.prefix-icon {
+  margin-right: -40px;
+  color: $light-grey;
+  z-index: 1;
+  position: relative;
+  top: -5px;
+  left: 5px;
+}

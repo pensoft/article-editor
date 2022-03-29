@@ -10,9 +10,17 @@
     </a>
 
     <div class="profile-details">
-      <span class="eye-icon" (click)="openDashBoard()">
+      <!-- <span class="eye-icon" (click)="openDashBoard()">
         <mat-icon svgIcon="dashboard" ></mat-icon>Dashboard
-      </span>
+      </span> -->
+      <div (mouseover)="changeText=true" (mouseout)="changeText=false">
+        <div *ngIf="!changeText" class="eye-icon" (click)="openDashBoard()">
+          <mat-icon svgIcon="dashboard"></mat-icon>
+        </div>
+        <div *ngIf="changeText" class="eye-icon" (click)="openDashBoard()">
+          <mat-icon svgIcon="dashboard"></mat-icon><span class="text-dashbord-header">Dashboard</span>
+        </div>
+      </div>
       <app-theme-toggle class="theme-toggle"></app-theme-toggle>
       <!-- <span class="avatar"></span> -->
       <app-avatar></app-avatar>

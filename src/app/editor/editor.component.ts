@@ -28,6 +28,7 @@ import {
 //@ts-ignore
 import * as Y from 'yjs';
 import { EditorSidebarComponent } from '../layout/widgets/editor-sidebar/editor-sidebar.component';
+import { AddContributorsDialogComponent } from './dialogs/add-contributors-dialog/add-contributors-dialog.component';
 import { ExportOptionsComponent } from './dialogs/export-options/export-options.component';
 import { FiguresDialogComponent } from './dialogs/figures-dialog/figures-dialog.component';
 import { TreeService } from './meta-data-tree/tree-service/tree.service';
@@ -56,7 +57,8 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
   titleControl = new FormControl();
 
-  @ViewChild('trachChangesOnOffBtn', { read: ElementRef }) trachChangesOnOffBtn?: ElementRef;
+  @ViewChild('trachChangesOnOffBtn', { read: ElementRef })
+  trachChangesOnOffBtn?: ElementRef;
   OnOffTrackingChangesShowTrackingSubject: Subject<{
     trackTransactions: boolean;
   }>;
@@ -91,11 +93,13 @@ export class EditorComponent implements OnInit, AfterViewInit {
       )
       .subscribe(([oldValue, newName]) => {
         if (oldValue !== newName) {
-          this.articlesService.putArticleById(
-            this.ydocService.articleData.id,
-            newName,this.ydocService.articleData!
-          ).subscribe((data)=>{
-          });
+          this.articlesService
+            .putArticleById(
+              this.ydocService.articleData.id,
+              newName,
+              this.ydocService.articleData!
+            )
+            .subscribe((data) => {});
         }
       });
 
@@ -215,8 +219,6 @@ export class EditorComponent implements OnInit, AfterViewInit {
             .subscribe((data: any) => {
               this.ydocService.setArticleData(data.data);
               this.titleControl.setValue(this.ydocService.articleData.name);
-
-
             });
         } else {
           this.titleControl.setValue(this.ydocService.articleData.name);
@@ -283,18 +285,32 @@ export class EditorComponent implements OnInit, AfterViewInit {
       this.innerWidth <= 600
     ); // pass isMobile ot isNotMobile to prosemirror editors
   }
+  openDialog(): void {
+    const dialogRef = this.dialog.open(AddContributorsDialogComponent, {
+      width: '665px',
+     // height: '531px',
+      panelClass: 'add-contributer-dialog',
+      data: {},
+      disableClose: false,
+    });
+
+    dialogRef.afterClosed().subscribe((result) => {
+      console.log('The dialog was closed');     
+    });
+  }
 
   print() {}
 
   export() {
-    this.dialog.open(ExportOptionsComponent, {
-      width: '465px',
-      height: '531px',
-      data: { },
-      disableClose: false
-    }).afterClosed().subscribe(result => {
-
-    })
+    this.dialog
+      .open(ExportOptionsComponent, {
+        width: '465px',
+        height: '531px',
+        data: {},
+        disableClose: false,
+      })
+      .afterClosed()
+      .subscribe((result) => {});
   }
 
   submit() {}

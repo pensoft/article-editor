@@ -36,7 +36,6 @@ export class FormBuilderService {
       const component: any = schema.components[index];
       this.updateDefaultValue(component,savedForm,formGroup)
     }
-    console.log(schema,savedForm);
     return schema;
   }
 

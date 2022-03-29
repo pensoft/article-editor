@@ -1,6 +1,6 @@
 <div class="section-data-view">
     <div class="section-title">Section Name : {{sectionData.sectionName}}</div>
-    <div class="sectionBtns">
+    <div class="sectionBtns" fxLayoutGap="15px">
         <button mat-raised-button (click)="sectionHTML.style.display = sectionHTML.style.display=='none'? 'block' : 'none'">{{sectionHTML.style.display=='none'? 'Show section html' : 'Hide seection html'}}</button>
         <button mat-raised-button (click)="copyHTMLToClipboard()">Copy HTML</button>
         <button mat-raised-button (click)="sectionJSON.style.display = sectionJSON.style.display=='none'? 'block' : 'none'">{{sectionJSON.style.display=='none'? 'Show section json' : 'Hide section json'}}</button>

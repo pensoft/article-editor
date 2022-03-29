@@ -1,20 +1,20 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { ActivityPermissionComponent } from './activity-permission.component';
+import { RecentComponent } from './recent.component';
 
-describe('ActivityPermissionComponent', () => {
-  let component: ActivityPermissionComponent;
-  let fixture: ComponentFixture<ActivityPermissionComponent>;
+describe('RecentComponent', () => {
+  let component: RecentComponent;
+  let fixture: ComponentFixture<RecentComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ ActivityPermissionComponent ]
+      declarations: [ RecentComponent ]
     })
     .compileComponents();
   });
 
   beforeEach(() => {
-    fixture = TestBed.createComponent(ActivityPermissionComponent);
+    fixture = TestBed.createComponent(RecentComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -1,3 +1,5 @@
+//import { IRule } from "./rule.interface";
+
 export interface IAuthToken {
   accessToken: string;
   status: string;
@@ -9,4 +11,3 @@ export interface IUserDetail {
   name?: string;
   password: string;
 }
-

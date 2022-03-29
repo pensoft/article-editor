@@ -181,11 +181,8 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
   }
 
   findAndSetValue() {
-    //console.log( this.instance.root._submission,this.instance.component);
     setTimeout(() => {
       if (this.instance.root._submission.data[this.instance.component.key]) {
-        console.log('setting',this.instance.root._submission.data[this.instance.component.key]);
-        //this.setValue(this.instance.root._submission.data[this.instance.component.key])
         this.instance.updateValue(this.instance.root._submission.data[this.instance.component.key], { modified: true });
 
         /* this.dataSource.data = [...this.dataSource.data]
@@ -201,11 +198,9 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
         this.dataSource.data = []
         this.instance.root._submission.data[this.instance.component.key].forEach((el:any)=>{
           this.dataSource.data.push(el);
-          console.log(el);
           this.instance
         })
         //this.dataSource.data = this.dataSource.data.map(()=>{this.instance.addRow();return {}});
-        console.log(JSON.stringify(this.instance.root._submission.data[this.instance.component.key]));
       } */
     }, 300)
   }
@@ -230,7 +225,6 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
         }
       })
     }
-    //this.findAndSetValue()
 
   }
 
@@ -258,12 +252,17 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
       console.error(e);
     }
   }
-
+  //oldvalue :any
   setValue(value: [] | null) {
     /* if(value == null || value.length == 0||value.length!==this.instance.rows.length){
       return
     } */
-    console.log(value);
+    if(value!==null&&value?.length>0&&value?.reduce((prev:any,curr:any,i:number,arr)=>{return prev&&(Object.keys(curr).length==0)},true)){
+      console.trace();
+    }
+    /* if(value!==null){
+      this.oldvalue = JSON.parse(JSON.stringify(value))
+    } */
     const gridLength = value ? value.length : 0;
     while (this.instance.rows.length < gridLength) {
       this.addAnother();

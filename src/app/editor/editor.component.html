@@ -1,156 +1,175 @@
 <mat-toolbar class="controls-toolbar" color="primary">
-    <mat-toolbar-row class="controls-toolbar-row">
-        <div class="left-group">
+  <mat-toolbar-row class="controls-toolbar-row">
+    <div class="left-group">
 
-            <button (click)="active='editor'" color="primary" mat-button [class.active]="active=='editor'" style="color:var(--color-192956)">
+      <button (click)="active='editor'" color="primary" mat-button [class.active]="active=='editor'"
+        style="color:var(--color-192956)">
         <mat-icon svgIcon="edit1"></mat-icon>
         <span style="margin-left:2px">Editor</span>
       </button>
-            <button (click)="active='library'" mat-button [class.active]="active=='library'" style="color:var(--color-192956)">
+      <button (click)="active='library'" mat-button [class.active]="active=='library'"
+        style="color:var(--color-192956)">
         <mat-icon svgIcon="library"></mat-icon>
         <span style="margin-left:5px">Library</span>
       </button>
-            <button (click)="active='contributors'" color="primary" mat-button [class.active]="active=='contributors'" style="color:var(--color-192956)">
+      <!-- <button (click)="active='contributors'" color="primary" mat-button [class.active]="active=='contributors'" style="color:var(--color-192956)">
+        <mat-icon svgIcon="contributors"></mat-icon>
+        <span style="margin-left:5px">Contributors</span>
+      </button> -->
+      <button (click)="openDialog()" color="primary" mat-button [class.active]="active=='contributors'"
+        style="color:var(--color-192956)">
         <mat-icon svgIcon="contributors"></mat-icon>
         <span style="margin-left:5px">Contributors</span>
       </button>
+    </div>
+    <div class="middle-group">
+      <mat-form-field class="titel-form-control" appearance="legacy" color="black">
+        <textarea matInput [formControl]="titleControl"></textarea>
+      </mat-form-field>
+      <div class="right-avatars">
+        <div class="more-avatar">
+          <app-avatar></app-avatar>
+          <app-avatar></app-avatar>
+          <app-avatar></app-avatar>
         </div>
-        <div class="middle-group">
-            <mat-form-field class="titel-form-control" appearance="legacy" color="black">
-                <textarea matInput [formControl]="titleControl"></textarea>
-            </mat-form-field>
-        </div>
-        <div class="right-group" style="display:flex;align-items:center;">
-            <span class="vertical-delimiter"></span>
-            <arpha-button (clickEvent)="print()" label="Print" class="small secondary" style="margin-right: 16px;">
-            </arpha-button>
-            <arpha-button (clickEvent)="export()" label="Export" class="small primary" style="margin-right: 16px;">
-            </arpha-button>
-            <arpha-button (clickEvent)="submit()" label="Submit" class="small primary" style="margin-right: 16px;">
-            </arpha-button>
-        </div>
+      </div>
 
-    </mat-toolbar-row>
+
+    </div>
+    <div class="right-group" style="display:flex;align-items:center;">
+      <span class="vertical-delimiter"></span>
+      <arpha-button (clickEvent)="print()" label="Print" class="small secondary" style="margin-right: 16px;">
+      </arpha-button>
+      <arpha-button (clickEvent)="export()" label="Export" class="small primary" style="margin-right: 16px;">
+      </arpha-button>
+      <arpha-button (clickEvent)="submit()" label="Submit" class="small primary" style="margin-right: 16px;">
+      </arpha-button>
+    </div>
+
+  </mat-toolbar-row>
 </mat-toolbar>
 
 
 <ng-container *ngIf="shouldBuild">
 
-    <div class="actions-container">
+  <div class="actions-container">
 
 
-        <!-- <div *ngIf="innerWidth<=600" class="tree_btn_container">
+    <!-- <div *ngIf="innerWidth<=600" class="tree_btn_container">
         <button (click)="showTreeContainer()" class="editor_tree_btn_mobile" mat-icon-button>
     <mat-icon>account_tree</mat-icon>
   </button>
     </div> -->
-        <div class="prosemirror_menu_container">
-            <app-editor-menu>
-            </app-editor-menu>
-        </div>
+    <div class="prosemirror_menu_container">
+      <app-editor-menu>
+      </app-editor-menu>
+    </div>
 
 
-        <div class="side-navbar-actions">
-            <button #trachChangesOnOffBtn [ngStyle]="{'color':this.shouldTrackChanges?'#19d928':'#f37b4a'}" mat-icon-button class="changes_state_btn" [matMenuTriggerFor]="beforeMenu">
+    <div class="side-navbar-actions">
+      <button #trachChangesOnOffBtn [ngStyle]="{'color':this.shouldTrackChanges?'#19d928':'#f37b4a'}" mat-icon-button
+        class="changes_state_btn" [matMenuTriggerFor]="beforeMenu">
         <mat-icon>{{this.shouldTrackChanges?'mode_edit':'edit_off'}}</mat-icon>
       </button>
-            <mat-menu #beforeMenu="matMenu" xPosition="before">
+      <mat-menu #beforeMenu="matMenu" xPosition="before">
 
-                <button (click)="turnOnOffTrachChanges(true)" mat-menu-item>
+        <button (click)="turnOnOffTrachChanges(true)" mat-menu-item>
           <mat-icon class='changes_on_btn'>mode_edit</mat-icon>
           <span>Changes on</span>
         </button>
 
-                <button (click)="turnOnOffTrachChanges(false)" mat-menu-item>
+        <button (click)="turnOnOffTrachChanges(false)" mat-menu-item>
           <mat-icon class='changes_off_btn'>edit_off</mat-icon>
           <span>Changes off</span>
         </button>
 
-            </mat-menu>
-            <button (click)="toggleSidebar('validation')" mat-icon-button [class.active]="sidebar=='validation'">
+      </mat-menu>
+      <button (click)="toggleSidebar('validation')" mat-icon-button [class.active]="sidebar=='validation'">
         <mat-icon svgIcon="validate"></mat-icon>
       </button>
 
-            <button (click)="toggleSidebar('changes')" mat-icon-button [class.active]="sidebar=='changes'">
+      <button (click)="toggleSidebar('changes')" mat-icon-button [class.active]="sidebar=='changes'">
         <mat-icon svgIcon="reference"></mat-icon>
       </button>
 
-            <button (click)="toggleSidebar('comments')" mat-icon-button [class.active]="sidebar=='comments'">
+      <button (click)="toggleSidebar('comments')" mat-icon-button [class.active]="sidebar=='comments'">
         <mat-icon svgIcon="comments"></mat-icon>
       </button>
+    </div>
+  </div>
+
+  <mat-drawer-container autosize hasBackdrop='false'>
+
+    <div class="main-container">
+
+      <mat-drawer #metaDataTreeDrawer class="metadataTreeDrawer" mode='over' position='start' *ngIf="innerWidth <= 600">
+        <div #treeDataDiv class="data-tree">
+          <app-meta-data-tree style="width:100%;height:100%;"></app-meta-data-tree>
         </div>
+      </mat-drawer>
+      <div #treeDataDiv *ngIf="innerWidth > 600" class="data-tree">
+        <app-meta-data-tree></app-meta-data-tree>
+        <app-article-metadata></app-article-metadata>
+      </div>
+
+      <div class="editor-container" [ngClass]="{'editorSpace': !sidebar}" style="flex-direction: column!;">
+        <app-article id="app-article-element" style="height:97%;"></app-article>
+        <!-- <app-prosemirror-editor style="height:97%;"></app-prosemirror-editor> -->
+        <!-- <app-formio ></app-formio> -->
+        <!-- <app-taxonomy-editor></app-taxonomy-editor> -->
+        <div class="editor_buttons">
+          <div class="editor_buttons_wrapper">
+            <div class="commentBtnDiv">
+              <button class="commentsBtn" mat-icon-button>
+                <mat-icon svgIcon="comments"></mat-icon>
+              </button>
+            </div>
+            <div class="trackChangesBtnDiv">
+              <button [ngClass]="shouldTrackChanges?'changes_on_editor_side_btn':'changes_off_editor_side_btn'"
+                (click)="turnOnOffTrachChanges()" class="trackChangesBtn" mat-icon-button>
+                <mat-icon svgIcon="reference"></mat-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <mat-drawer-container autosize hasBackdrop='false'>
+    <mat-drawer #sidebarDrawer class="sidebar-container" mode="side" position="end">
+      <editor-sidebar [sidebar]="sidebar"></editor-sidebar>
+    </mat-drawer>
 
-        <div class="main-container">
-
-            <mat-drawer #metaDataTreeDrawer class="metadataTreeDrawer" mode='over' position='start' *ngIf="innerWidth <= 600">
-                <div #treeDataDiv class="data-tree">
-                    <app-meta-data-tree style="width:100%;height:100%;"></app-meta-data-tree>
-                </div>
-            </mat-drawer>
-            <div #treeDataDiv *ngIf="innerWidth > 600" class="data-tree">
-                <app-meta-data-tree></app-meta-data-tree>
-                <app-article-metadata></app-article-metadata>
-            </div>
-
-            <div class="editor-container" [ngClass]="{'editorSpace': !sidebar}" style="flex-direction: column!;">
-                <app-article id="app-article-element" style="height:97%;"></app-article>
-                <!-- <app-prosemirror-editor style="height:97%;"></app-prosemirror-editor> -->
-                <!-- <app-formio ></app-formio> -->
-                <!-- <app-taxonomy-editor></app-taxonomy-editor> -->
-                <div class="editor_buttons">
-                    <div class="editor_buttons_wrapper">
-                        <div class="commentBtnDiv">
-                            <button class="commentsBtn" mat-icon-button>
-                              <mat-icon svgIcon="comments"></mat-icon>
-                            </button>
-                        </div>
-                        <div class="trackChangesBtnDiv">
-                            <button [ngClass]="shouldTrackChanges?'changes_on_editor_side_btn':'changes_off_editor_side_btn'" (click)="turnOnOffTrachChanges()" class="trackChangesBtn" mat-icon-button>
-                              <mat-icon svgIcon="reference"></mat-icon>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <mat-drawer #sidebarDrawer class="sidebar-container" mode="side" position="end">
-            <editor-sidebar [sidebar]="sidebar"></editor-sidebar>
-        </mat-drawer>
-
-    </mat-drawer-container>
+  </mat-drawer-container>
 </ng-container>
 
 <button mat-fab class="floating-button" [matMenuTriggerFor]="menu2">
   <mat-icon>more_vert</mat-icon>
 </button>
 <mat-menu #menu2="matMenu" class="floating-menu">
-    <button #trachChangesOnOffBtn [ngClass]="shouldTrackChanges?'changes_on_btn_mobile':'changes_off_btn_mobile'" class="changes_state_btn_mobile" mat-menu-item [matMenuTriggerFor]="beforeMenu">
+  <button #trachChangesOnOffBtn [ngClass]="shouldTrackChanges?'changes_on_btn_mobile':'changes_off_btn_mobile'"
+    class="changes_state_btn_mobile" mat-menu-item [matMenuTriggerFor]="beforeMenu">
     <mat-icon>border_color</mat-icon>
   </button>
 
-    <button (click)="toggleSidebar('validation')" mat-menu-item>
+  <button (click)="toggleSidebar('validation')" mat-menu-item>
     <mat-icon svgIcon="validate"></mat-icon>
   </button>
-    <button (click)="toggleSidebar('comments')" mat-menu-item>
+  <button (click)="toggleSidebar('comments')" mat-menu-item>
     <mat-icon svgIcon="comments"></mat-icon>
   </button>
-    <button (click)="toggleSidebar('changes')" mat-menu-item>
+  <button (click)="toggleSidebar('changes')" mat-menu-item>
     <mat-icon svgIcon="reference"></mat-icon>
   </button>
 </mat-menu>
 
 <mat-menu #beforeMenu="matMenu" xPosition="before" yPosition='below'>
 
-    <button (click)="turnOnOffTrachChanges(true)" mat-menu-item>
+  <button (click)="turnOnOffTrachChanges(true)" mat-menu-item>
     <mat-icon class='changes_on_btn'>mode_edit</mat-icon>
     <span>Changes on</span>
   </button>
 
-    <button (click)="turnOnOffTrachChanges(false)" mat-menu-item>
+  <button (click)="turnOnOffTrachChanges(false)" mat-menu-item>
     <mat-icon class='changes_off_btn'>edit_off</mat-icon>
     <span>Changes off</span>
   </button>

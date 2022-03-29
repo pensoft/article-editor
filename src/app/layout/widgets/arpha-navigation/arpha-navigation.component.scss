@@ -36,7 +36,7 @@
     }
   }
 
-  .eye-icon{
+  .eye-icon {
     cursor: pointer;
   }
 
@@ -57,7 +57,7 @@
   }
 }
 ::ng-deep.mat-menu-panel {
-  border-radius: 15px!important;
+  border-radius: 15px !important;
 }
 
 @media screen and (max-width: 600px) {
@@ -88,5 +88,29 @@
   display: flex;
   img {
     width: 95px;
+  }
+}
+.text-dashbord-header {
+  font-size: 14px;
+  font-weight: normal;
+  color: var(--color-00b1b2);
+  padding: 0 0 0 5px;
+  animation: fade-out 1s;
+}
+@keyframes fade-in {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fade-out {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
   }
 }

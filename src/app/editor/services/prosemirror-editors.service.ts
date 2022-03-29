@@ -112,7 +112,6 @@ export class ProsemirrorEditorsService {
     return new InputRule(pattern, (state, match, start, end) => {
       let $start = state.doc.resolve(start)
       let attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs
-      console.log(attrs);
       let tr = state.tr.replaceWith(start,end,nodeType.create(attrs))
       return tr.setSelection(NodeSelection.create(
         tr.doc, start+1
@@ -1076,7 +1075,6 @@ export class ProsemirrorEditorsService {
       MathView.prototype.afterRender = (ret: any, mathview: any) => {
         mathObj = ydocservice.mathMap?.get('dataURLObj');
         let matDom = (mathview.dom as HTMLElement).getElementsByClassName('katex-display')[0]||(mathview.dom as HTMLElement).getElementsByClassName('math-render')[0]||mathview.dom;
-        console.log(matDom);
         /* if(+window.getComputedStyle(matDom).fontSize.replace('px','')+9>matDom.getBoundingClientRect().height&&
         (mathview.dom as HTMLElement).getElementsByClassName('katex')[0]){
           matDom = (mathview.dom as HTMLElement).getElementsByClassName('katex')[0]
@@ -1098,7 +1096,6 @@ export class ProsemirrorEditorsService {
         }
         mathObj = this.ydocService.mathMap?.get('dataURLObj')
         if (!mathObj[mathview._node.attrs.math_id]) {
-
           setTimeout(() => {
             toCanvas(matDom as HTMLElement).then((canvasData: any) => {
               if (canvasData.toDataURL() == 'data:,') {

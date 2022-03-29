@@ -75,8 +75,8 @@ import { DashboardComponent } from './editor/dashboard/dashboard.component';
 import { GravatarModule,GravatarConfig, FALLBACK, } from 'ngx-gravatar';
 import { ChooseSectionComponent } from './editor/dialogs/choose-section/choose-section.component';
 import { SettingsComponent } from './layout/pages/settings/settings.component';
-import { ActivityPermissionComponent } from './layout/pages/activity-permission/activity-permission.component';
-import { SignPasswordDevicesComponent } from './layout/pages/sign-password-devices/sign-password-devices.component';
+// import { ActivityPermissionComponent } from './layout/pages/activity-permission/activity-permission.component';
+// import { SignPasswordDevicesComponent } from './layout/pages/sign-password-devices/sign-password-devices.component';
 import { AskBeforeDeleteComponent } from './editor/dialogs/ask-before-delete/ask-before-delete.component';
 import { ComplexEditTreeComponent } from './editor/section/complex-edit-tree/complex-edit-tree.component';
 import { SnackBarErrorComponentComponent } from './editor/meta-data-tree/snack-bar-error-component/snack-bar-error-component.component';
@@ -87,6 +87,17 @@ import { SectionDataViewComponent } from './editor/dialogs/article-data-view/sec
 import { EditBeforeExportComponent } from './editor/dialogs/edit-before-export/edit-before-export.component';
 import { PrintElementComponent } from './editor/dialogs/edit-before-export/print-element/print-element.component';
 import { CopiedToClipBoardComponent } from './editor/snack-bars/copied-to-clip-board/copied-to-clip-board.component';
+import { ProfileComponent } from './layout/pages/profile/profile.component';
+import { ProfileInfoComponent } from './layout/pages/profile/profile-info/profile-info.component';
+import { MyDevicesComponent } from './layout/pages/profile/profile-info/my-devices/my-devices.component';
+import { PasswordSetupComponent } from './layout/pages/profile/profile-info/password-setup/password-setup.component';
+import { SingInDetailsComponent } from './layout/pages/profile/profile-info/sing-in-details/sing-in-details.component';
+import { RecentPermissionComponent } from './layout/pages/recent-permission/recent-permission.component';
+import { PermissionComponent } from './layout/pages/recent-permission/permission/permission.component';
+import { RecentComponent } from './layout/pages/recent-permission/recent/recent.component';
+import { AddContributorsDialogComponent } from './editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
+import { SearchFilterPipe } from './shared/pipes/search-filter.pipe';
+
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -148,8 +159,8 @@ const gravatarConfig: GravatarConfig = {
     DashboardComponent,
     ChooseSectionComponent,
     SettingsComponent,
-    ActivityPermissionComponent,
-    SignPasswordDevicesComponent,
+    // ActivityPermissionComponent,
+    // SignPasswordDevicesComponent,
     AskBeforeDeleteComponent,
     ComplexEditTreeComponent,
     SnackBarErrorComponentComponent,
@@ -158,7 +169,18 @@ const gravatarConfig: GravatarConfig = {
     EditBeforeExportComponent,
     PrintElementComponent,
     CopiedToClipBoardComponent,
-
+    ProfileComponent,
+    ProfileInfoComponent,
+    MyDevicesComponent,
+    PasswordSetupComponent,
+    PasswordSetupComponent,
+    MyDevicesComponent,
+    SingInDetailsComponent,
+    RecentPermissionComponent,
+    PermissionComponent,
+    RecentComponent,
+    AddContributorsDialogComponent,
+    SearchFilterPipe,
   ],
   imports: [
     PipesModule,
@@ -179,11 +201,12 @@ const gravatarConfig: GravatarConfig = {
       enabled: environment.production,
       // Register the ServiceWorker as soon as the app is stables
       // or after 30 seconds (whichever comes first).
-      registrationStrategy: 'registerWhenStable:30000'
+      registrationStrategy: 'registerWhenStable:30000',
     }),
     NgxSpinnerModule,
-    AvatarModule
+    AvatarModule,
   ],
+
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
@@ -194,13 +217,21 @@ const gravatarConfig: GravatarConfig = {
     { provide: WindowToken, useFactory: windowProvider },
     { provide: FormioAppConfig, useValue: AppConfig },
     { provide: COMPILER_OPTIONS, useValue: {}, multi: true },
-    { provide: CompilerFactory, useClass: JitCompilerFactory, deps: [COMPILER_OPTIONS] },
-    { provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory] }
+    {
+      provide: CompilerFactory,
+      useClass: JitCompilerFactory,
+      deps: [COMPILER_OPTIONS],
+    },
+    { provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory] },
   ],
   bootstrap: [AppComponent],
 })
 export class AppModule {
-  constructor(public iconsRegisterService: IconsRegisterService, injector: Injector, private logSWUpdates: LogSwUpdatesService) {
+  constructor(
+    public iconsRegisterService: IconsRegisterService,
+    injector: Injector,
+    private logSWUpdates: LogSwUpdatesService
+  ) {
     registerFormIOComponents(injector);
   }
 }

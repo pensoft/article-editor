@@ -13,25 +13,30 @@ export const CUSTOM_FORM_DIRECTIVE: any = {
 
 let DOMPMParser = DOMParser.fromSchema(schema);
 @Directive({
-  selector: '*:not(input):not(textarea)[formControlName]',
-  providers: [CUSTOM_FORM_DIRECTIVE]
+  selector: 'form-field[formControlName]',
+  providers: [CUSTOM_FORM_DIRECTIVE],
 })
-
-
 export class FormControlNameDirective implements ControlValueAccessor {
   private innerValue: string = '';
   //@ts-ignore
   ngControl: NgControl;
 
-  constructor(private el: ElementRef, private inj: Injector,  private _renderer: Renderer2) {
-  }
+  constructor(
+    private el: ElementRef,
+    private inj: Injector,
+    private _renderer: Renderer2
+  ) {}
 
-  public onChange: any = () => { /*Empty*/ }
-  public onTouched: any = () => { /*Empty*/ }
+  public onChange: any = () => {
+    /*Empty*/
+  };
+  public onTouched: any = () => {
+    /*Empty*/
+  };
 
   get value(): any {
     return this.innerValue;
-  };
+  }
 
   //set accessor including call the onchange callback
   set value(v: any) {
@@ -41,9 +46,9 @@ export class FormControlNameDirective implements ControlValueAccessor {
     }
   }
 
-  writeValue(val: any) : void {
-    try{
-      this.ngControl = this.inj.get(NgControl)
+  writeValue(val: any): void {
+    try {
+      this.ngControl = this.inj.get(NgControl);
       /* if((val as string).startsWith('<form-field')){
         let temp = document.createElement('div');
         temp.innerHTML = val
@@ -67,9 +72,13 @@ export class FormControlNameDirective implements ControlValueAccessor {
      ${val}
     </p>`; */
       // @ts-ignore
-      this._renderer.setAttribute(this.el.nativeElement, 'controlPath', this.ngControl.path.join('.'));
+      this._renderer.setAttribute(
+        this.el.nativeElement,
+        'controlPath',
+        this.ngControl.path!.join('.')
+      );
       this.innerValue = val;
-    }catch(e){
+    } catch (e) {
       console.error(e);
     }
   }
@@ -81,5 +90,4 @@ export class FormControlNameDirective implements ControlValueAccessor {
   registerOnTouched(fn: any): void {
     this.onTouched = fn;
   }
-
 }

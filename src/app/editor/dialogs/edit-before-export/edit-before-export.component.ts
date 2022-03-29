@@ -163,6 +163,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     'ul',
     'math-display',
     'page-break',
+    'form-field-inline-view',
   ];
 
   @ViewChild('elementsContainer', { read: ElementRef }) elementsContainer?: ElementRef;
@@ -356,6 +357,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
       'math-display': { marginTop: 10, marginBottom: 10, fontSize: 'auto' },
       'form-field': { marginTop: 5, marginBottom: 10, fontSize: 'auto' },
       'br': { marginTop: 2, marginBottom: 2, fontSize: 'auto' },
+      'form-field-inline': { marginTop: 2, marginBottom: 2, fontSize: 'auto' },
     },
     'maxFiguresImagesDownscale': '80%',
     'maxMathDownscale': '80%',
@@ -658,12 +660,12 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
     let generatePDFData = async (element: Element, parentPDFel: any, parentStyle: any, parentElement: Element | undefined) => {
       let defaultView = (element.ownerDocument || document).defaultView
-      //console.log(element);
-      let tag = /*  element.tagName? */element.tagName.toLocaleLowerCase()
+      let tag = element.tagName.toLocaleLowerCase()
       if (
         tag == 'p' || tag == 'h1' || tag == 'h2' || tag == 'h3' || tag == 'h4' || tag == 'h5' ||
         tag == 'h6' || tag == 'span' || tag == 'strong' || tag == 'sub' || tag == 'sup' ||
-        tag == 'code' || tag == 'citation' || tag == 'u' || tag == 'em' || tag == 'form-field'|| tag == 'form-field-inline'
+        tag == 'code' || tag == 'citation' || tag == 'u' || tag == 'em' || tag == 'form-field'||
+        tag == 'form-field-inline' || tag == 'form-field-inline-view'
       ) {
 
         let newEl: any = {}
@@ -711,7 +713,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
           //Object.assign(newEl, textStyles)
         } else {
           //serch for inline img , math , video or svg node;
-          let inlineBreakableNodes = ['img', 'video', 'svg', 'math-inline', 'a'];
+          let inlineBreakableNodes = ['img', 'video', 'svg', 'math-inline'];
           let elementHasLBN = false
           let serchNodes = (el: HTMLElement) => {
             if (el.tagName) {
@@ -834,7 +836,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
                       return 0;
                     },
                     paddingTop: (i1: number, node: any) => {
-                      console.log(node,i1);
                       applyVerticalAlignment(node, i1, 'center')
                       return 0;
                     },
@@ -944,6 +945,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             }
             newEl.props.type = 'paragraphTable';
           } else {
+            debugger
             if (!newEl.text) {
               newEl.text = [];
             }
@@ -1689,7 +1691,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
             let mathWidth = imagePdf.width
             let imageHeight = (imgDims[1] / imgDims[0]) * mathWidth;
             let requiredScalePercent = availableHeightOnPageBeforeMath / imageHeight;
-            console.log(imagePdf,scale,availableHeightOnPageBeforeMath,imageHeight,requiredScalePercent);
             if (requiredScalePercent > scale && requiredScalePercent < 1) {
               let newWidth = mathWidth * requiredScalePercent
               imagePdf.width = newWidth;

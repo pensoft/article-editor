@@ -1,5 +1,6 @@
 ::ng-deep {
   .search-box {
+        margin-bottom: 10px;
     .mat-form-field-wrapper {
       padding-bottom: 0;
     }
@@ -79,7 +80,8 @@
 
 .commentBox {
   padding: 16px 15px 16px 16px !important;
-  width: 295px;
+  width: 90%;
+  //  width: 295px;
   border-radius: 0 !important;
   border-left: 2px solid transparent;
   .commentBox-avatar {

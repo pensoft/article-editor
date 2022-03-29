@@ -397,6 +397,10 @@ img[ychange_type="removed"] {
   margin: 0 auto;
 }
 
+.mb100px {
+  margin-bottom: 100px !important;
+}
+
 .mb50px {
   margin-bottom: 50px !important;
 }
@@ -411,6 +415,10 @@ img[ychange_type="removed"] {
 
 .mb20px {
   margin-bottom: 20px !important;
+}
+
+.mb15px {
+  margin-bottom: 15px !important;
 }
 
 .mb5px {
@@ -437,6 +445,10 @@ img[ychange_type="removed"] {
   margin-top: 20px !important;
 }
 
+.mt10px {
+  margin-top: 10px !important;
+}
+
 .mt70px {
   margin-top: 70px !important;
 }
@@ -445,8 +457,17 @@ img[ychange_type="removed"] {
   margin-right: 15px;
 }
 
+.ml-10px {
+  margin-left: 10px;
+}
+
 .pt15px {
   padding-top: 15px;
+}
+
+.p0 {
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .bold {
@@ -455,6 +476,10 @@ img[ychange_type="removed"] {
 
 .font-size16px {
   font-size: 16px;
+}
+
+.font-size14px {
+  font-size: 14px;
 }
 
 .font-size12px {
@@ -495,6 +520,29 @@ img[ychange_type="removed"] {
   font-weight: 300 !important;
 }
 
+.text-primary {
+  color: $primary-green;
+}
+
+.text-grey {
+  color: $primary-dark-grey;
+}
+
+.text14px-primary {
+  color: $primary-green;
+  font-size: 14px !important;
+  font-weight: normal !important;
+}
+
+.text14px-primary-dark-blue {
+  font-size: 14px;
+  color: $primary-dark-blue;
+}
+
+.text-primary-blue {
+  color: $light-blue!important;
+}
+
 .mat-form-field-appearance-legacy .mat-form-field-underline {
   background-color: transparent !important;
 }
@@ -518,6 +566,10 @@ img[ychange_type="removed"] {
 
 .math-node {
   font-size: inherit !important;
+}
+
+.fix {
+  outline: 1px solid orangered;
 }
 
 app-edit-section-dialog,
@@ -1082,18 +1134,7 @@ router-outlet {
   padding-left: 26px !important;
 }
 
-// .list-container{
-//   .border:last-child{
-//     border-bottom: 1px solid #ffffff;
-//    }
-// }
-// .mat-list-item.mat-list-option:last-child{
-//     border-bottom: 1px solid #ffffff;
-//     background: red;
-//    }
 .mat-list-option.mat-list-item.mat-list-option.mat-focus-indicator.border.mat-accent.ng-star-inserted:last-child {
-  // border-bottom: 1px solid #ffffff;
-  // outline: 1px solid red;
   border-bottom: 1px solid $primary-dark-grey !important;
   border-bottom-left-radius: 15px !important;
   border-bottom-right-radius: 15px !important;
@@ -1102,8 +1143,30 @@ router-outlet {
 
 #avatar {
   app-avatar img {
-    outline: 1px solid red !important;
     width: 70px !important;
     height: 70px !important;
   }
+}
+
+.border-bottom-grye {
+  border-bottom: 1px solid $primary-grey;
+  .checkGreen {
+    height: 12px;
+  }
+}
+
+.icon-label-tab {
+  width: 15px;
+  height: 15px;
+  margin-right: 5px;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
 }

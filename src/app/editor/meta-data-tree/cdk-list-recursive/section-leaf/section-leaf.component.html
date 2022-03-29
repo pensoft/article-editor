@@ -17,7 +17,7 @@
             <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTN" (click)="changeDisplay(childrenDiv);listDiv.style.display == 'none'?expandIcon='chevron_right':expandIcon='expand_more'"><mat-icon class="{{expandIcon}}"  #icon>{{expandIcon}}</mat-icon></button>
             <div *ngIf="node.title.editable" class="text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="scrollToProsemirror()" (click)="makeEditable(nodeTitle,$event,cdkDragSection,node)" (blur)="makeEditable(nodeTitle,$event,cdkDragSection,node)"
                 #nodeTitle>
-                {{node.title.label}}
+                {{node.title.label | slice:0:180  }} 
             </div>
             <div *ngIf="!node.title.editable" class="text-section-div" (click)="scrollToProsemirror()">
                 {{node.title.label}}

@@ -1,7 +1,8 @@
 <mat-card class="comment-box">
 
     <mat-card-header>
-        <div mat-card-avatar class="comment-avatar"></div>
+        <!-- <div mat-card-avatar class="comment-avatar"></div> -->
+        <app-avatar mat-card-avatar class="comment-avatar"></app-avatar>
         <mat-card-title class="comment-title">{{userComment!.initialComment.userData.name}}</mat-card-title>
         <mat-card-subtitle class="comment-subtitle">{{getDate(userComment!.initialComment.date)}}</mat-card-subtitle>
 

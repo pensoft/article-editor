@@ -1,0 +1,21 @@
+<div fxLayout="column" class="mt50px">
+    <div fxLayout="row" fxLayoutAlign="center center">
+        <span class="text14px-primary-dark-blue mb15px"> SIGN IN OPTIONS</span>
+    </div>
+    <div fxLayout="row" class="text-center mb50px">
+        You can sign-in to your CONNECT account with any of the following identities. For safety reasons its recommended
+        to
+        configure at least two.
+    </div>
+
+    <div fxLayout="row" class="list-other-email" fxLayoutAlign="start center" fxLayoutGap="18px"
+        *ngFor="let email of otherEmailInfo">
+        <img src="{{email.img}}" /><span> {{email.email}}</span>
+    </div>
+    <div class="right-btn">
+        <button mat-icon-button color="primary">
+            Add sign in option
+            <mat-icon svgIcon="addCircleGreen" class="add-circle-green"></mat-icon>
+        </button>
+    </div>
+</div>

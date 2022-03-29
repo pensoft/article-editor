@@ -41,6 +41,14 @@ export class IconsRegisterService {
     iconRegistry.addSvgIcon('userIcon', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/usericon-grey.svg'));
     iconRegistry.addSvgIcon('lock', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/lock.svg'));
     iconRegistry.addSvgIcon('iphone', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/iphone-grey.svg'));
+    iconRegistry.addSvgIcon('chevronCircleLeft', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/chevron-circle-left.svg'));
+    iconRegistry.addSvgIcon('modeEdit24px', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/mode_edit_24px.svg'));
+    iconRegistry.addSvgIcon('addCircleGreen', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/add-circle-green.svg'));
+    iconRegistry.addSvgIcon('mail', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/mail.svg'));
+    iconRegistry.addSvgIcon('eyeGreen', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/eye-green.svg'));
+    iconRegistry.addSvgIcon('desktopMac', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/ic_desktop_mac_24px.svg'));
+    iconRegistry.addSvgIcon('checkGreen', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/check-green.svg'));
+    iconRegistry.addSvgIcon('editGreen', sanitizer.bypassSecurityTrustResourceUrl('./assets/icons/edit-green.svg'));
     // iconRegistry.addSvgIconLiteral('thumbs-up', sanitizer.bypassSecurityTrustHtml(THUMBUP_ICON));
   }
 }

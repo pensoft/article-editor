@@ -6,40 +6,37 @@ import { TreeService } from 'src/app/editor/meta-data-tree/tree-service/tree.ser
 @Component({
   selector: 'arpha-navigation',
   templateUrl: './arpha-navigation.component.html',
-  styleUrls: [ './arpha-navigation.component.scss' ]
+  styleUrls: ['./arpha-navigation.component.scss'],
 })
 export class ArphaNavigationComponent implements OnInit {
   public icon = 'expand_more';
+  changeText = false;
 
   constructor(
     private treeService: TreeService,
     public authService: AuthService,
-    private router: Router,) {
+    private router: Router
+  ) {}
 
+  openDashBoard() {
+    this.router.navigate(['dashboard']);
   }
 
-  openDashBoard(){
-    this.router.navigate(['dashboard'])
-  }
-
-  ngOnInit(): void {
-
-  }
+  ngOnInit(): void {}
 
   toggleTreeDrawer() {
     this.treeService.toggleTreeDrawer.next('toggle');
   }
 
-
   isLogIn(): boolean {
     return this.authService.isLoggedIn();
   }
 
-  public changeIcon(expand_less: string ){
+  public changeIcon(expand_less: string) {
     if (this.icon === 'expand_more') {
       this.icon = 'expand_less';
-  } else {
-      this.icon = 'expand_more'
+    } else {
+      this.icon = 'expand_more';
+    }
   }
-}
 }

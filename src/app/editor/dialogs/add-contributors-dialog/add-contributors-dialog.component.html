@@ -1,0 +1,118 @@
+<section class="section-choose relative">
+    <div class="container-shadow-contributor">
+        <article fxLayout="column">
+            <div fxLayout="column" fxFill>
+                <h1 fxFill class="font-size16px">
+                    Add contributors
+                </h1>
+                <div *ngIf="showError" class="error">No Layout selected.</div>
+                <div fxFill fxLayoutAlign="center" fxFlex="100%" fxLayout="column">
+                    <!-- <form (keydown)="search(inputText)" fxFlex="100%" fxLayout="column">
+                        <label>Invite people</label>
+                        <mat-form-field>
+                            <input matInput type="text" #inputText class="input-search">
+                            <mat-icon matPrefix class="prefix-icon">search</mat-icon> -->
+                    <!-- <button color="primary" class="search-button" type="submit" matSuffix mat-raised-button
+                        (click)="search(inputText)">
+                        Search
+                    </button> -->
+                    <!-- </mat-form-field>
+                    </form> -->
+                    <label>Invite people</label>
+                    <!-- <mat-form-field>
+                        <input [(ngModel)]="searchText" [ngModelOptions]="{standalone: true}" matInput
+                            class="input-search" placeholder="Search by name">
+                        <mat-icon matPrefix class="prefix-icon">search</mat-icon>
+                    </mat-form-field> -->
+                    <mat-select>
+                        <ng-container *ngFor="let contributer of contributersData">
+                            <mat-option>
+                                <div fxLayout="row" fxFill fxLayoutAlign="start center"
+                                    class="border1px-primary border-radius20 mt10px">
+                                    <div fxFlex="10%" class="avatar-owner ml-10px">
+                                        <app-avatar></app-avatar> {{contributer.avatar}}
+                                    </div>
+                                    <div fxFlex="65%" class="font-size16px">
+                                        {{contributer.name}}
+                                    </div>
+                                    <div fxFlex="10%" class="text-primary">
+                                        <button mat-icon-button color="primary" type="button"
+                                            *ngIf="!contributer.userIsAdded" (click)="addUser(contributersData)">
+                                            <mat-icon>add</mat-icon>
+                                        </button>                                       
+                                    </div>
+                                </div>
+                            </mat-option>
+                        </ng-container>
+                    </mat-select>
+                </div>
+            </div>
+        </article>
+        <article fxLayout="column">
+            <div fxLayout="row" fxFill fxLayoutAlign="start center" class="blue-bg-owner">
+                <div fxFlex="10%" class="avatar-owner">
+                    <app-avatar></app-avatar>
+                </div>
+                <div fxFlex="80%" class="font-size16px ml-10px">
+                    {{userName}}(you)
+                </div>
+                <div fxFlex="10%" class="text-primary">
+                    Owner
+                </div>
+            </div>
+            <div class="container-contributers">
+                <div fxLayout="row" fxFill fxLayoutAlign="start center" class="border1px-primary border-radius20 mt10px"
+                    *ngFor="let contributer of contributersData">
+                    <div fxFlex="10%" class="avatar-owner ml-10px">
+                        <app-avatar></app-avatar> {{contributer.avatar}}
+                    </div>
+                    <div fxFlex="65%" class="font-size16px">
+                        {{contributer.name}}
+                    </div>
+                    <div fxFlex="15%" class="text-primary">
+                        {{contributersData[0].role?.name}}
+                    </div>
+                    <div fxFlex="10%" class="text-primary">
+                        <!-- <button mat-icon-button color="primary">
+                        <mat-icon svgIcon="editGreen"></mat-icon>
+                    </button> -->
+                        <!-- <button mat-icon-button color="primary" type="button" *ngIf="!contributer.userIsAdded"
+                            (click)="addUser(contributersData)">
+                            <mat-icon>add</mat-icon> -->
+                        <!-- <mat-icon svgIcon="editGreen"></mat-icon> -->
+                        <!-- </button> -->
+                        <button type="button" mat-icon-button (click)="removeUser(contributersData)">
+                            <mat-icon color="warn">delete</mat-icon>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div fxLayout="row" fxLayoutGap="15px" fxFill fxLayoutAlign="end" class="border-radius20 mt10px">
+                <button mat-raised-button>Cancel</button>
+                <button mat-raised-button color="primary" (click)="sendAllSelectContributers()">
+                    Done
+                </button>
+            </div>
+
+        </article>
+    </div>
+    <div class="container-shadow-contributor mt10px ">
+        <article fxLayout="column">
+            <div fxLayout="row" fxFill fxLayoutAlign="start center"><span class="font-size16px bold">Owner
+                    Settings</span></div>
+            <div fxLayout="row" fxFill fxLayoutAlign="start center">
+                <section fxLayout="column" [formGroup]="ownerSettingsForm" (ngSubmit)="submitOwnerSettingsForm()">
+                    <p>
+                        <mat-checkbox formControlName="accessAdding">Prevent editors from changing access and adding new
+                            people</mat-checkbox>
+                    </p>
+                    <p>
+                        <mat-checkbox formControlName="disableOptionsPrint">Disable options to print, copy for
+                            commenters and viewers</mat-checkbox>
+                    </p>
+                </section>
+            </div>
+        </article>
+    </div>
+</section>
