@@ -59,6 +59,7 @@ export class YdocService {
   trackChangesMetadata?: YMap<any>
   usersDataMap?: YMap<any>
   mathMap?: YMap<any>
+  printMap?: YMap<any>
   userInfo: any
   getCommentsMap(): YMap<any> {
     return this.comments!
@@ -195,6 +196,8 @@ export class YdocService {
     let figuresImagesDataURL = this.figuresMap!.get('ArticleFiguresDataURLS');
     this.usersDataMap = this.ydoc.getMap('userDataMap')
     this.mathMap = this.ydoc.getMap('mathDataURLMap');
+    this.printMap = this.ydoc.getMap('print');
+    let pdfSettings = this.printMap.get('pdfPrintSettings')
     let mathObj = this.mathMap.get('dataURLObj')
     let usersColors = this.usersDataMap.get('usersColors');
     if (!usersColors) {
@@ -202,6 +205,15 @@ export class YdocService {
     }
     this.setUserColor(this.userInfo);
 
+    if (!pdfSettings) {
+      let pdfPrintSettings = (
+        this.articleData&&
+        this.articleData.layout&&
+        this.articleData.layout.settings&&
+        this.articleData.layout.settings.print_settings
+        )?this.articleData.layout.settings.print_settings:{}
+      this.printMap.set('pdfPrintSettings',pdfPrintSettings)
+    }
     if (!figures) {
       this.figuresMap!.set('ArticleFigures', {})
     }

@@ -103,7 +103,6 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       this.control.setValue(this.input.nativeElement.value);
       value = this.getValue()!;
     }
-    console.log(value);
     this.instance.updateValue(value, { modified: true });
     this.instance.root.changeVisibility(this.instance);
   }
@@ -132,11 +131,10 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     if (this.instance.component.validate.maxLength) {
       this.instance.component.validate.maxLength = undefined
     }
-    this.control.markAsTouched()
+    this.control.markAsTouched();
     let containerElement = document.createElement('div');
     let htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(this.editorContainer?.editorView.state.doc.content.firstChild!.content!)
     containerElement.appendChild(htmlNOdeRepresentation);
-    console.log(htmlNOdeRepresentation.textContent,htmlNOdeRepresentation.childNodes.length,this.instance);
     /* if(htmlNOdeRepresentation.textContent == ''&&htmlNOdeRepresentation.childNodes.length==0){
       let placeholder = (this.instance.component.placeholder&&this.instance.component.placeholder!=='')?this.instance.component.placeholder:undefined
       if(placeholder){

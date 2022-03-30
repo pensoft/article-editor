@@ -1,6 +1,6 @@
 <mat-toolbar class="toolbar">
   <button mat-raised-button (click)="refreshContent()">Refresh Pdf view</button>
-  <div class="select-format">
+  <!-- <div class="select-format">
     <mat-label class="format-label">Choose format:</mat-label>
     <mat-select [(value)]="pageSize">
       <mat-option value="A0">A0</mat-option>
@@ -28,7 +28,7 @@
       <mat-label class="margin-label">Margin Left:</mat-label>
       <input type="number" matInput [formControl]="margLeftControl">
     </mat-form-field>
-  </div>
+  </div> -->
 
   <div class="right-btn-container">
     <button mat-raised-button (click)="closePdfPrintDialog()">Close</button>

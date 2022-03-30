@@ -35,6 +35,7 @@ export interface sectionContent { type: 'content' | 'taxonomicCoverageContentTyp
 export type titleContentData = editorData|string
 export type sectionContentData = editorData|taxonomicCoverageContentData
 export interface articleSection {
+    initialRender?:true,
     sectionID: string,
     active: boolean,
     children: articleSection[],

@@ -59,9 +59,10 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
     let newId = uuidv4()
     let newArticleSection: articleSection
 
+    let sectionLabel =(sectionFromBackend.settings&&sectionFromBackend.settings.label&&sectionFromBackend.settings.label!="")?sectionFromBackend.settings.label:sectionFromBackend.label
     if (sectionFromBackend.type == 0) {
       newArticleSection = {
-        title: { label: sectionFromBackend.label, name: sectionFromBackend.name, template: sectionFromBackend.label, editable: !/{{\s*\S*\s*}}/gm.test(sectionFromBackend.label) },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+        title: { label: sectionLabel, name: sectionFromBackend.name, template: sectionLabel, editable: !/{{\s*\S*\s*}}/gm.test(sectionLabel) },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
         active: false,
         edit: { bool: true, main: true },
@@ -80,7 +81,7 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
       }
     } else if (sectionFromBackend.type == 1) {
       newArticleSection = {
-        title: { label: sectionFromBackend.label, name: sectionFromBackend.name, template: sectionFromBackend.label, editable: !/{{\s*\S*\s*}}/gm.test(sectionFromBackend.label) },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
+        title: { label: sectionLabel, name: sectionFromBackend.name, template: sectionLabel, editable: !/{{\s*\S*\s*}}/gm.test(sectionLabel) },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
         active: false,
         edit: { bool: true, main: true },

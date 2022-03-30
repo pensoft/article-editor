@@ -55,12 +55,10 @@ export class PlaceholderPluginService {
                     placeholder.classList.add('ProseMirror__placeholder');
                     //@ts-ignore
                     placeholder.setAttribute('data-placeholder', (control.componentProps&&control.componentProps.placeholder)?control.componentProps.placeholder:'Type here...');
-                    console.log(node);
                     decorations.push(Decoration.widget(pos+1,placeholder))
                   }
                 }
               })
-              console.log(decorations);
               return DecorationSet.create(doc,decorations);
             }
           }

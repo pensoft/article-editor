@@ -2,7 +2,7 @@
 import { DocumentHelpers } from 'wax-prosemirror-utilities';
 import { toggleMark } from "prosemirror-commands";
 import { Dropdown, MenuItem} from "prosemirror-menu"
-import { EditorState, NodeSelection, Selection, Transaction } from "prosemirror-state"
+import { EditorState, NodeSelection, Selection, TextSelection, Transaction } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
 import { schema } from "../Schema";
 import { addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow, mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell, deleteTable } from "prosemirror-tables";
@@ -194,7 +194,7 @@ function wrapParagraphIn(nodeType:NodeType, options:any) {
     run(state:EditorState, dispatch:any) {
       let paragraphNode : any = undefined;
       let paragraphStartPos :number|undefined = undefined
-      let paragraphParent : any = undefined;
+      let paragraphParent : Node |undefined= undefined;
       let paragraphParentStartPos :number|undefined = undefined
 
       //@ts-ignore
@@ -218,7 +218,18 @@ function wrapParagraphIn(nodeType:NodeType, options:any) {
         let from = state.selection.from
         let to = state.selection.to
 
-        return dispatch(state.tr.replaceWith(paragraphParentStartPos-1,paragraphParent.nodeSize+paragraphParentStartPos-1,newNode))
+        let tr
+
+        if(paragraphParent!.childCount == 1&&paragraphParent?.firstChild == paragraphNode){
+          tr = state.tr.replaceWith(paragraphParentStartPos-1,paragraphParent!.nodeSize+paragraphParentStartPos-1,newNode);
+          console.log(tr.docs);
+          tr = tr.setSelection(new TextSelection(tr.doc.resolve(from),tr.doc.resolve(to)));
+        }else{
+          tr = state.tr.replaceWith(paragraphStartPos-1,paragraphStartPos+paragraphNode.nodeSize-1,newNode);
+          console.log(tr.docs);
+          tr = tr.setSelection(new TextSelection(tr.doc.resolve(from+1),tr.doc.resolve(to+1)));
+        }
+        return dispatch(tr)
       }
 
       return dispatch(state.tr)

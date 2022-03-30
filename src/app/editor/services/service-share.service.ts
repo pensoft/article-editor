@@ -78,11 +78,14 @@ export class ServiceShare {
           return layout.id == result
         }).template
         let articleStructure: articleSection[] = []
-        let filteredSections = selectedLayout.sections.filter((section: any) => { return section.type == 0 });
+        //let filteredSections = selectedLayout.sections.filter((section: any) => { return section.type == 0 });
 
         selectedLayout.sections.forEach((section: any) => {
           if(section.settings&&section.settings.main_section == true){
-            renderSectionFunc(section,articleStructure,'end');
+            let newSection = renderSectionFunc(section,articleStructure,'end');
+            console.log('rendering section');
+            newSection.initialRender = true;
+            newSection.active = true;
           }
         })
         this.YdocService!.articleStructureFromBackend = articleStructure;

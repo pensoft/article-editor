@@ -105,7 +105,7 @@ export const form_field_inline_view = {
 } */
 
 export const form_field = {
-    content: "block*",
+    content: "(paragraph|block)+",
     group: "block",
     isolating: true,
     attrs: {

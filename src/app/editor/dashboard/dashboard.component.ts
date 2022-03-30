@@ -61,6 +61,10 @@ export class DashboardComponent implements AfterViewInit {
       this.paginator!.pageIndex = 0;
     });
 
+    this.typeChange.subscribe(()=>{
+      this.paginator!.pageIndex = 0;
+    })
+
     /* this.articlesService.getAllArticles().subscribe((responseData:any)=>{
       this.data = responseData.data;
     }) */
@@ -68,15 +72,23 @@ export class DashboardComponent implements AfterViewInit {
       .pipe(
         startWith({}),
         switchMap(() => {
-          this.isLoadingResults = true;
-          if(this.allArticlesData){
-            return of({data:JSON.parse(JSON.stringify(this.allArticlesData))})
-          }else {
-            return this.articlesService.getAllArticles().pipe(catchError(() => new Observable(undefined)))
+          let params :any= {page:(this.paginator?.pageIndex!|0)+1,pageSize:7}
+          if(this.searchValue&&this.searchValue!=''){
+            params['filter[name]']=this.searchValue
           }
+          /* if(this.selectedType!=-1){
+
+          } */
+          console.log(this.paginator,this.searchValue,this.selectedType);
+          this.isLoadingResults = true;
+          /* if(this.allArticlesData){
+            return of({data:JSON.parse(JSON.stringify(this.allArticlesData))})
+          }else { */
+            return this.articlesService.getAllArticles(params).pipe(catchError(() => new Observable(undefined)))
+          //}
+          return 'sd'
         }),
         map((data: any) => {
-          // Flip flag to show that loading has finished.
           this.isLoadingResults = false;
           this.isRateLimitReached = data === null;
 
@@ -84,20 +96,16 @@ export class DashboardComponent implements AfterViewInit {
             return [];
           }
 
-          // Only refresh the result length if there is new data. In case of rate
-          // limit errors, we do not want to reset the paginator to zero, as that
-          // would prevent users from re-triggering requests.
-
-          return data.data;
+          return data;
         }),
       )
       .subscribe(data => {
-        let dataToDisplay: any = data
-        if(!this.allArticlesData){
+        let dataToDisplay: any = data.data
+        /*if(!this.allArticlesData){
           this.allArticlesData = data
-        }
-
-        if (this.sort!.active) {
+        } */
+        console.log(data);
+        /* if (this.sort!.active) {
           dataToDisplay = dataToDisplay.sort((a: any, b: any) => {
             let sb = this.sort!.active;
             //@ts-ignore
@@ -122,8 +130,8 @@ export class DashboardComponent implements AfterViewInit {
             }
 
           })
-        }
-        if (this.selectedType != -1) {
+        } */
+        /* if (this.selectedType != -1) {
           dataToDisplay = dataToDisplay.filter((article: any) => { return article.layout.id == this.selectedType })
         }
 
@@ -148,12 +156,13 @@ export class DashboardComponent implements AfterViewInit {
             return resultArr.length == valueArr.length;
             return (article.name as string).toLowerCase().includes(this.searchValue!)
           })
-        }
-        let page = this.paginator!.pageIndex || 0;
-        let itemsCount = dataToDisplay.length;
-        if (dataToDisplay.length > 7) {
+        } */
+        let pag = data.meta.pagination
+        let page = pag.current_page || 0;
+        let itemsCount = pag.total;
+        /* if (dataToDisplay.length > 7) {
           dataToDisplay = dataToDisplay.slice(page * 7, (page + 1) * 7);
-        }
+        } */
         this.data = dataToDisplay
         this.resultsLength = itemsCount;
       });
@@ -165,7 +174,7 @@ export class DashboardComponent implements AfterViewInit {
       clearTimeout(this.timer);
     }
     this.timer = setTimeout(()=>{
-      this.searchValue = input.value.toLowerCase();
+      this.searchValue = input.value/* .toLowerCase(); */
       this.typeChange.next('typechange')
       this.timer = undefined
     },300)

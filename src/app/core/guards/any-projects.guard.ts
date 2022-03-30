@@ -17,7 +17,7 @@ export class AnyProjectsGuard implements CanActivate {
 
   }
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
-    const isLogged = this.articlesService.getAllArticles().subscribe((res:any)=>{
+    const isLogged = this.articlesService.getAllArticles({page:1,pageSize:1}).subscribe((res:any)=>{
       if(!(res.data&&res.data.length>0)){
         this.router.navigate(['create'])
       }

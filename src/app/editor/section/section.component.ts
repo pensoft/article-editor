@@ -31,6 +31,10 @@ import { YdocService } from '../services/ydoc.service';
 import { YMap } from 'yjs/dist/src/internals';
 import { FiguresControllerService } from '../services/figures-controller.service';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
+//@ts-ignore
+import { updateYFragment } from '../../y-prosemirror-src/plugins/sync-plugin.js';
+import { DOMParser as DOMParserPM } from 'prosemirror-model';
+import { schema } from '../utils/Schema';
 
 @Component({
   selector: 'app-section',
@@ -128,11 +132,10 @@ export class SectionComponent implements AfterViewInit, OnInit {
   }
 
   async onSubmit(submision?: any) {
-    console.log(submision.data,this.sectionForm);
     try {
       //this.prosemirrorEditorsService.updateFormIoDefaultValues(this.section.sectionID, submision.data)
       this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, { data: submision.data, updatedFrom: this.ydocService.ydoc?.guid })
-      this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema, this.section.sectionID,this.sectionForm);
+      this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema, this.section.sectionID, this.sectionForm);
       //this.sectionForm = new FormGroup({});
       Object.keys(this.sectionForm.controls).forEach((key) => {
         this.sectionForm.removeControl(key);
@@ -146,7 +149,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
       let interpolated: any
       let prosemirrorNewNodeContent: any
-    this.error = false;
+      this.error = false;
       this.errorMessage = '';
       // get the text content from the codemirror editor which after compiling will be used as the new node structure for sections's Prosemirror
       let tr = this.codemirrorHTMLEditor?.state.update()
@@ -227,19 +230,74 @@ export class SectionComponent implements AfterViewInit, OnInit {
     }
   }
 
+  async initialRender() {
+    //this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, { data: submision.data, updatedFrom: this.ydocService.ydoc?.guid })
+    //this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema, this.section.sectionID,this.sectionForm);
+    if (this.treeService.sectionFormGroups[this.section.sectionID]) {
+      this.sectionForm = this.treeService.sectionFormGroups[this.section.sectionID]
+      Object.keys(this.sectionForm.controls).forEach((key) => {
+        this.sectionForm.removeControl(key);
+      })
+    } else {
+      this.treeService.sectionFormGroups[this.section.sectionID] = new FormGroup({});
+      this.sectionForm = this.treeService.sectionFormGroups[this.section.sectionID]
+    }
+    this.formBuilderService.buildFormGroupFromSchema(this.sectionForm, this.section.formIOSchema, this.section);
+    this.treeService.setTitleListener(this.section)
+    //this.sectionForm.updateValueAndValidity()
+    let submision: any = {}
+    let interpolated: any
+    let prosemirrorNewNodeContent: any
+    this.error = false;
+    this.errorMessage = '';
+    // get the text content from the codemirror editor which after compiling will be used as the new node structure for sections's Prosemirror
+    let tr = this.codemirrorHTMLEditor?.state.update()
+    this.codemirrorHTMLEditor?.dispatch(tr!);
+    prosemirrorNewNodeContent = this.section.prosemirrorHTMLNodesTempl;
+    interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm);
+    submision.compiledHtml = interpolated
+    this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
+    let figuresMap = this.ydocService.figuresMap!;
+    this.figuresControllerService.markCitatsViews(figuresMap.get('articleCitatsObj'));
+    //this.editSectionService.editChangeSubject.next(submision);
 
+    this.treeService.editNodeChange(this.section.sectionID)
+
+    //let copyOriginUpdatesBeforeReplace = [...originUpdates]
+    //let trackStatus = this.prosemirrorEditorsService.trackChangesMeta.trackTransactions
+    this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = false
+    this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
+      this.prosemirrorEditorsService.trackChangesMeta
+    )
+    let xmlFragment = this.ydocService.ydoc.getXmlFragment(this.section.sectionID);
+    let templDiv = document.createElement('div');
+    templDiv.innerHTML = submision.compiledHtml
+    let node1 = DOMParserPM.fromSchema(schema).parse(templDiv.firstChild!);
+
+    updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
+    console.log(submision.compiledHtml);
+    this.prosemirrorEditorsService.renderEditorInWithId(this.ProsemirrorEditor?.nativeElement, this.section.sectionID, this.section)
+
+
+  }
 
   ngAfterViewInit(): void {
     // const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
     this.sectionContent = this.section.formIOSchema;
     this.renderSection = true
     if (this.section.mode == 'documentMode' && this.section.active) {
-      try {
-        this.prosemirrorEditorsService.renderEditorInWithId(this.ProsemirrorEditor?.nativeElement, this.section.sectionID, this.section)
-      } catch (e) {
-        console.error(e);
+      if (this.section.initialRender) {
+        this.section.initialRender = undefined;
+        this.initialRender()
+        return
+      } else {
+        try {
+          this.prosemirrorEditorsService.renderEditorInWithId(this.ProsemirrorEditor?.nativeElement, this.section.sectionID, this.section)
+        } catch (e) {
+          console.error(e);
+        }
+        return
       }
-      return
     }
     if (this.section.type == 'complex') {
       this.renderComplexSectionTree()
@@ -249,7 +307,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     } catch (e) {
       console.error(e);
     }
-    console.log(this.formBuilderService.populateDefaultValues(this.treeService.sectionFormGroups[this.section.sectionID].getRawValue(), this.section.formIOSchema, this.section.sectionID,this.sectionForm));
+    console.log(this.formBuilderService.populateDefaultValues(this.treeService.sectionFormGroups[this.section.sectionID].getRawValue(), this.section.formIOSchema, this.section.sectionID, this.sectionForm));
 
     let editorContainer = this.prosemirrorEditorsService.editorContainers[this.section.sectionID]
     if (editorContainer) {

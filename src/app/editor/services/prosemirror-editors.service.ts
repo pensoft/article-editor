@@ -749,7 +749,6 @@ export class ProsemirrorEditorsService {
       EditorContainer.appendChild(labelTag);
     }
     let sectionID = options.sectionID
-    console.log(nodesArray);
     if (!nodesArray||nodesArray.size == 0) {
       doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, schema.nodes.paragraph.create({})))
     } else {

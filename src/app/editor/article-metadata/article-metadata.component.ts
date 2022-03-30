@@ -85,7 +85,6 @@ export class ArticleMetadataComponent implements OnInit {
         this.treeService.articleSectionsStructure?.findIndex((element)=>{return (data.id == element.sectionTypeID&&(data.settings&&data.settings.main_section==true))}) == -1
       )
     })
-    //let articleSections = this.ydocService.articleData.layout.template.sections
     this.sectionTemplates = articleSections;
     const dialogRef = this.dialog.open(ChooseSectionComponent, {
       width: '563px',

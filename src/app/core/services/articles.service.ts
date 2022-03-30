@@ -12,8 +12,8 @@ export class ArticlesService {
     this.serviceShare.shareSelf('ArticlesService',this)
   }
 
-  getAllArticles(){
-    return this._http.get(API_ARTICLES_URL,{params:{page:1,pageSize:100}})
+  getAllArticles(params:any){
+    return this._http.get(API_ARTICLES_URL,{params})
   }
 
   getArticleByUuid(uuid:string){

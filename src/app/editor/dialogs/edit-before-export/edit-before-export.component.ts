@@ -165,6 +165,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     'math-display',
     'page-break',
     'form-field-inline-view',
+    'form-field-inline',
   ];
 
   @ViewChild('elementsContainer', { read: ElementRef }) elementsContainer?: ElementRef;
@@ -250,10 +251,21 @@ export class EditBeforeExportComponent implements AfterViewInit {
   }
 
   renderCodeMirrorEditor() {
+    console.log(this.ydocService.articleData);
+    let settings = this.ydocService.printMap!.get('pdfPrintSettings');
+    let pdfPrintSettings = settings ? settings : (
+      this.ydocService.articleData &&
+      this.ydocService.articleData.layout &&
+      this.ydocService.articleData.layout.settings &&
+      this.ydocService.articleData.layout.settings.print_settings
+    ) ? this.ydocService.articleData.layout.settings.print_settings : {};
+    if (!settings) {
+      this.ydocService.printMap!.set('pdfPrintSettings', pdfPrintSettings);
+    }
     this.codemirrorJsonEditor = new EditorViewCM({
       state: EditorStateCM.create({
         doc:
-          `${JSON.stringify(this.pdfSettings, null, "\t")}`,
+          `${JSON.stringify(pdfPrintSettings, null, "\t")}`,
         extensions: [basicSetup, javascript()],
       }),
 
@@ -342,29 +354,41 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
   // [left, top, right, bottom]
 
-  pdfSettings: any = {
-    nodes: {
-      'h1': { marginTop: 10, marginBottom: 40, fontSize: 'auto' },
-      'h2': { marginTop: 5, marginBottom: 30, fontSize: 'auto' },
-      'h3': { marginTop: 5, marginBottom: 25, fontSize: 'auto' },
-      'h4': { marginTop: 5, marginBottom: 20, fontSize: 'auto' },
-      'h5': { marginTop: 4, marginBottom: 15, fontSize: 'auto' },
-      'h6': { marginTop: 3, marginBottom: 10, fontSize: 'auto' },
-      'p': { marginTop: 2, marginBottom: 8, fontSize: 'auto' },
-      'table': { marginTop: 5, marginBottom: 10 },
-      'block-figure': { marginTop: 10, marginBottom: 40 },
-      'ol': { marginTop: 5, marginBottom: 10, fontSize: 'auto' },
-      'ul': { marginTop: 5, marginBottom: 10, fontSize: 'auto' },
-      'math-display': { marginTop: 10, marginBottom: 10, fontSize: 'auto' },
-      'form-field': { marginTop: 5, marginBottom: 10, fontSize: 'auto' },
-      'br': { marginTop: 2, marginBottom: 2, fontSize: 'auto' },
-      'form-field-inline': { marginTop: 2, marginBottom: 2, fontSize: 'auto' },
+  pdfSettingsSave: any = {
+    "nodes": {
+      "h1": { "marginTop": 10, "marginBottom": 40, "fontSize": "auto" },
+      "h2": { "marginTop": 5, "marginBottom": 30, "fontSize": "auto" },
+      "h3": { "marginTop": 5, "marginBottom": 25, "fontSize": "auto" },
+      "h4": { "marginTop": 5, "marginBottom": 20, "fontSize": "auto" },
+      "h5": { "marginTop": 4, "marginBottom": 15, "fontSize": "auto" },
+      "h6": { "marginTop": 3, "marginBottom": 10, "fontSize": "auto" },
+      "p": { "marginTop": 2, "marginBottom": 8, "fontSize": "auto" },
+      "table": { "marginTop": 5, "marginBottom": 10 },
+      "block-figure": { "marginTop": 10, "marginBottom": 40 },
+      "ol": { "marginTop": 5, "marginBottom": 10, "fontSize": "auto" },
+      "ul": { "marginTop": 5, "marginBottom": 10, "fontSize": "auto" },
+      "math-display": { "marginTop": 10, "marginBottom": 10 },
+      "form-field": { "marginTop": 5, "marginBottom": 10, "fontSize": "auto" },
+      "br": { "marginTop": 2, "marginBottom": 2 },
+      "form-field-inline": { "marginTop": 2, "marginBottom": 2, "fontSize": "auto" }
     },
-    'maxFiguresImagesDownscale': '80%',
-    'maxMathDownscale': '80%',
-    'maxParagraphLinesAtEndOfPage': 1,
-    'header': { marginTop: 20, marginBottom: 15, fontSize: 'auto' },
-    'footer': { marginTop: 15, marginBottom: 15, fontSize: 'auto' },
+    "maxFiguresImagesDownscale": "80%",
+    "maxMathDownscale": "80%",
+    "pageMargins": {
+      "marginTop": 72,
+      "marginRight": 72,
+      "marginBottom": 72,
+      "marginLeft": 72
+    },
+    "pageFormat": {
+      "A2": false,
+      "A3": false,
+      "A4": true,
+      "A5": false
+    },
+    "maxParagraphLinesAtEndOfPage": 1,
+    "header": { "marginTop": 20, "marginBottom": 15, "fontSize": "auto" },
+    "footer": { "marginTop": 15, "marginBottom": 15, "fontSize": "auto" }
   }
 
   closePdfPrintDialog() {
@@ -403,7 +427,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
   mathObj: any = {};
 
   fillSettings() {
-    let oldSettings = JSON.parse(JSON.stringify(this.pdfSettings));
+    let oldSettings = JSON.parse(JSON.stringify(this.pdfSettingsSave));
     let settings: any
     let buildNodeSettings = (settingsFromUser: any) => {
       let nodeSettings: any;
@@ -417,6 +441,12 @@ export class EditBeforeExportComponent implements AfterViewInit {
       pdfSettings.maxParagraphLinesAtEndOfPage = settingsFromUser.maxParagraphLinesAtEndOfPage;
       pdfSettings.header = settingsFromUser.header;
       pdfSettings.footer = settingsFromUser.footer;
+      pdfSettings.pageMargins = settingsFromUser.pageMargins;
+      Object.keys(settingsFromUser.pageFormat).forEach((format) => {
+        if (settingsFromUser.pageFormat[format]) {
+          pdfSettings.pageFormat = format;
+        }
+      })
       return pdfSettings;
     }
     let buildSettings = (settingsFromUser: any) => {
@@ -431,29 +461,34 @@ export class EditBeforeExportComponent implements AfterViewInit {
     }
     try {
       let data = JSON.parse(this.codemirrorJsonEditor!.state.doc.sliceString(0, this.codemirrorJsonEditor!.state.doc.length))
-      this.pdfSettings = data
+      //this.pdfSettingsSave = data
 
       settings = buildSettings(data);
+      this.ydocService.printMap!.set('pdfPrintSettings', data);
+      console.log('savedMap', data);
     } catch (e) {
       console.error(e);
-      this.pdfSettings = oldSettings
+      //this.pdfSettingsSave = oldSettings
       settings = buildSettings(oldSettings);
     }
     return settings
   }
   refreshContent = async () => {
+    console.log('asd');
     this.resumeSpinner()
     this.fillElementsArray()
-    this.pageMarg = [
-      +this.margTopControl.value,
-      +this.margRightControl.value,
-      +this.margBottomControl.value,
-      +this.margLeftControl.value,
-    ];
+    this.pageMarg = [];
 
     let pdfSettings: any = this.fillSettings()
+    let margings = pdfSettings.pdf.pageMargins;
+    this.pageMarg = [
+      +margings.marginTop,
+      +margings.marginRight,
+      +margings.marginBottom,
+      +margings.marginLeft,
+    ]
     let elementsContainerElements = (this.elementsContainer?.nativeElement as Element)
-
+    this.pageSize = pdfSettings.pdf.pageFormat;
 
     //elementsContainerElements.append(...this.elements)
 
@@ -600,15 +635,16 @@ export class EditBeforeExportComponent implements AfterViewInit {
       let fullTableHeight = imageA4Rectangle[0]
       let nCol = figImagesData.nOfColumns;
       let nRows = figImagesData.nOfRows;
-      let widthOfCell = fullTableWidth/nCol
-      let heightOfCell = fullTableHeight/nRows
+      let widthOfCell = fullTableWidth / nCol
+      let heightOfCell = fullTableHeight / nRows
       let imagesTable: any = {
         color: 'black',
         layout: {
           paddingBottom: function paddingBottom(i: number, node: any) { return 0; },
           paddingTop: function paddingBottom(i1: number, node: any) {
             applyVerticalAlignment(node, i1, 'center')
-            return 0; },
+            return 0;
+          },
           paddingRight: function paddingBottom(i: number, node: any) { return 0; },
           paddingLeft: function paddingBottom(i: number, node: any) { return 0; },
           hLineWidth: function hLineWidth(i: number) { return 0; },
@@ -618,27 +654,27 @@ export class EditBeforeExportComponent implements AfterViewInit {
           body: [],
           widths: [],
         },
-        width:fullTableWidth,
-        props: { initProps:{} },
+        width: fullTableWidth,
+        props: { initProps: {} },
         alingment: 'center',
       }
       let bodyRows = [];
-      let widthPercentage = 100/nCol+'%';
-      for(let i=0;i<nCol;i++){
+      let widthPercentage = 100 / nCol + '%';
+      for (let i = 0; i < nCol; i++) {
         imagesTable.table.widths.push(widthPercentage);
       }
-      for(let i = 0;i< figImagesData.figRows.length;i++){
+      for (let i = 0; i < figImagesData.figRows.length; i++) {
         let figureRow = figImagesData.figRows[i];
-        let tablerow:any = [];
-        for(let j = 0;j<nCol;j++){
-          if(figureRow[j]){
+        let tablerow: any = [];
+        for (let j = 0; j < nCol; j++) {
+          if (figureRow[j]) {
             let cel = figureRow[j].container
             let imageName = cel.url.replace('https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/').split('.')[0]
-            if(!ImagesByKeys[imageName]){
+            if (!ImagesByKeys[imageName]) {
               ImagesByKeys[imageName] = dataURLSObj[cel.url];
             }
-            tablerow.push({image:imageName,fit:[widthOfCell,heightOfCell],alignment:'center'})
-          }else{
+            tablerow.push({ image: imageName, fit: [widthOfCell, heightOfCell], alignment: 'center' })
+          } else {
             tablerow.push({})
           }
         }
@@ -651,7 +687,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
           imagesTable,
           { width: '*', text: '' },
         ],
-        props:{}
+        props: {}
       }
 
 
@@ -703,7 +739,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             key !== 'columns' &&
             key !== 'margin' &&
             key !== 'image'
-            ) {
+          ) {
             nodeStyles[key] = parentStyle[key];
           }
         })
@@ -777,7 +813,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
         tag == 'code' || tag == 'citation' || tag == 'u' || tag == 'em' || tag == 'form-field' ||
         tag == 'form-field-inline' || tag == 'form-field-inline-view'
       ) {
-        if(tag == 'span'&&element.classList.contains('ProseMirror__placeholder')){
+        if (tag == 'span' && element.classList.contains('ProseMirror__placeholder')) {
           return Promise.resolve({})
         }
         let newEl: any = {}
@@ -822,6 +858,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             }
             newEl.stack.push(n);
           }
+
           //Object.assign(newEl, textStyles)
         } else {
           //serch for inline img , math , video or svg node;
@@ -1078,30 +1115,29 @@ export class EditBeforeExportComponent implements AfterViewInit {
         if (parentElement) {
           parentElTag = parentElement.tagName.toLocaleLowerCase();
         }
-        if ((!parentStyle ||
-          (
-            parentElTag == 'h1' ||
-            parentElTag == 'h2' ||
-            parentElTag == 'h3' ||
-            parentElTag == 'h4' ||
-            parentElTag == 'h5' ||
-            parentElTag == 'h6' ||
-            parentElTag == 'form-field'
-          )) && !(
-            tag == 'h1' ||
-            tag == 'h2' ||
-            tag == 'h3' ||
-            tag == 'h4' ||
-            tag == 'h5' ||
-            tag == 'h6' ||
-            tag == 'form-field'
-          )) {
+        if ((
+          tag == 'h1' ||
+          tag == 'h2' ||
+          tag == 'h3' ||
+          tag == 'h4' ||
+          tag == 'h5' ||
+          tag == 'h6' ||
+          tag == 'form-field')) {
+          if (!newEl.props) {
+            newEl.props = {};
+          }
+          if (!newEl.props.type) {
+            newEl.props.type = 'heading';
+          }
         }
         if (newEl.background == '#ffd0d0' && newEl.decoration == 'lineThrough') {
           newEl.decoration = undefined;
         }
         if (newEl.background) {
           newEl.background = undefined;
+        }
+        if (newEl.color) {
+          newEl.color = undefined;
         }
         /* if (typeof newEl.text == 'string' && newEl.text.includes('Cited item deleted')) {
           newEl.text = '';
@@ -1130,9 +1166,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
         attachStylesToNode(node, {}, parentStyle, element, false, parentElement, '')
         return Promise.resolve(node);
       } else if (tag == 'block-figure') {
-        let figureStyling: any = {parentHasMargin:true};
+        let figureStyling: any = { parentHasMargin: true };
         attachStylesToNode(figureStyling, figureStyling, parentStyle, element, false, parentElement, '');
-        console.log(figureStyling);
         let pdfFigure = await generateFigure(element, figureStyling);
         return Promise.resolve(pdfFigure)
       } else if (tag == 'table' || (tag == 'div' && element.className == 'tableWrapper')) {
@@ -1497,8 +1532,14 @@ export class EditBeforeExportComponent implements AfterViewInit {
       }
       this.data.images = ImagesByKeys
       this.data.content = cont;
-      console.log(this.data.content);
 
+      let checkIfHeadingIsLastNodeOnNonLastPage = (node: any, nodesAfterNodeOnSamePage: any) => {
+        if (node.positions.length > 1) return false;// more than one line in paragraph / heading
+        if (nodesAfterNodeOnSamePage.length > 0) return false;//node is not last node on the page
+        if (node.nodeInfo.pages == node.positions[0].pageNumber) return false//node is on the last page
+        node.pageBreak = 'before'
+        return true;
+      }
       this.data.orderNodes = (node: any, nodeFunc: any) => {
         let nodeInfo = node.nodeInfo;
         if (nodeInfo.table && nodeInfo.table.props && nodeInfo.table.props.type == 'figure' && node.pageBreak == 'before') {
@@ -1595,7 +1636,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
               let descriptionTable = nodeToChange.table.body[1][0]
 
               let imageTableHeight = imagesTable.props.height;
-              let descriptionHeight = figureHeight-imageTableHeight;
+              let descriptionHeight = figureHeight - imageTableHeight;
               let imageNewHeight = availableHeightOnLastPage - descriptionHeight - 3;
 
               //let figureImageInitHeight = nodeToChange.table.body[0][0].props.initRect[1];
@@ -1612,13 +1653,13 @@ export class EditBeforeExportComponent implements AfterViewInit {
               if (dawnScalePercent >= scale) {
                 nodeToChange.pageOrderCalculated = true;
                 nodeToChange.pageBreak = 'after';
-                for(let r = 0;r<imagesTable.table.body.length;r++){
+                for (let r = 0; r < imagesTable.table.body.length; r++) {
                   let row = imagesTable.table.body[r];
-                  for(let c = 0;c<row.length;c++){
+                  for (let c = 0; c < row.length; c++) {
 
                     let cell = row[c];
-                    if(cell.fit&&cell.fit[1]){
-                      cell.fit[1] = cell.fit[1]*dawnScalePercent;
+                    if (cell.fit && cell.fit[1]) {
+                      cell.fit[1] = cell.fit[1] * dawnScalePercent;
                     }
                   }
                 }
@@ -1658,6 +1699,10 @@ export class EditBeforeExportComponent implements AfterViewInit {
             }
           }
         } else if (node.props.type == 'paragraph') {
+          let followingNodes = nodeFunc.getFollowingNodesOnPage();
+          if (checkIfHeadingIsLastNodeOnNonLastPage(node, followingNodes)) {
+            return true
+          }
           let maxLinesOnLastPage = pdfSettings.pdf.maxParagraphLinesAtEndOfPage ? pdfSettings.pdf.maxParagraphLinesAtEndOfPage : 1
           if (node.text && nodeInfo.pageNumbers.length > 1 && node.positions.length >= maxLinesOnLastPage) {
             let lines: number[] = [];
@@ -1669,7 +1714,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
                 }
               })
             })
-            console.log(lines[0],maxLinesOnLastPage);
             if (lines[0] <= maxLinesOnLastPage) {
               node.pageBreak = 'before'
               return true
@@ -1817,6 +1861,11 @@ export class EditBeforeExportComponent implements AfterViewInit {
               return true;
             }
           }
+        } else if (node.props.type == 'heading') {
+          let followingNodes = nodeFunc.getFollowingNodesOnPage();
+          if (checkIfHeadingIsLastNodeOnNonLastPage(node, followingNodes)) {
+            return true
+          }
         }
         return false;
       }
@@ -1910,7 +1959,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
       //@ts-ignore
       decorationColor: (elementStyles.textDecorationColor && elementStyles.textDecorationColor.trim() !== '') ? rgbToHex(...elementStyles.textDecorationColor.replace('rgb', '').replace('a', '').replace('(', '').replace(')', '').split(', ').map((el) => +el)) : undefined,
     }
-    if(textStyles.background == '#ecb9b9')textStyles.background = undefined;
+    if (textStyles.background == '#ecb9b9') textStyles.background = undefined;
     let clearedStyles: any = {}
 
     Object.keys(textStyles).forEach((key) => {
