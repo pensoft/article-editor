@@ -94,9 +94,9 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
         }),
         catchError((error) => {
           this.isalreadyRefreshing = false
-          if(resErr.status == error.status&&resErr.url==error.url&&resErr.name == error.name){
+          /* if(resErr.status == error.status&&resErr.url==error.url&&resErr.name == error.name){
             return throwError(error);
-          }
+          } */
           this._authservice.logout();
           return throwError(error);
         }),

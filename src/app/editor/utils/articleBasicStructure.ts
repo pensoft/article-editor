@@ -130,7 +130,8 @@ export const renderSectionFunc:
         newArticleSection.subsectionValidations = minmaxValds;
       }
     }
-
+    //@ts-ignore
+    console.log(newArticleSection,ydoc.guid);
     //@ts-ignore
     newArticleSection.initialRender = ydoc.guid
     //@ts-ignore

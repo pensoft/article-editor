@@ -285,11 +285,11 @@ export class SectionComponent implements AfterViewInit, OnInit {
   ngAfterViewInit(): void {
     // const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
     this.sectionContent = this.section.formIOSchema;
-    console.log(this.sectionContent);
     this.renderSection = true
     if (this.section.mode == 'documentMode' && this.section.active) {
       if (this.section.initialRender == this.ydocService.ydoc.guid) {
         this.section.initialRender = undefined;
+        console.log('initRender');
         this.initialRender()
         return
       } else {

@@ -80,16 +80,17 @@ export class ServiceShare {
         let articleStructure: articleSection[] = []
         //let filteredSections = selectedLayout.sections.filter((section: any) => { return section.type == 0 });
 
-        selectedLayout.sections.forEach((section: any) => {
-          if(section.settings&&section.settings.main_section == true){
-            let newSection = renderSectionFunc(section,articleStructure,this.YdocService!.ydoc,'end');
-          }
-        })
-        this.YdocService!.articleStructureFromBackend = articleStructure;
         this.ArticlesService!.createArticle('Untitled',+result).subscribe((createArticleRes:any)=>{
           this.resetServicesData();
           this.YdocService!.setArticleData(createArticleRes.data)
           this.router.navigate([createArticleRes.data.uuid])
+
+          selectedLayout.sections.forEach((section: any) => {
+            if(section.settings&&section.settings.main_section == true){
+              let newSection = renderSectionFunc(section,articleStructure,this.YdocService!.ydoc,'end');
+            }
+          })
+          this.YdocService!.articleStructureFromBackend = articleStructure;
         })
       });
     })
