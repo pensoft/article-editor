@@ -22,9 +22,7 @@
 }
 
 ::ng-deep .complex-section-formio {
-  width: calc(100% - 261px);
-  display: inline-block;
-  vertical-align: top;
+  display: block;
 }
 
 ::ng-deep .submit-complex-btn-container {
@@ -38,10 +36,11 @@
   app-complex-edit-tree {
     width: 100%;
   }
-  display: block;
   vertical-align: top;
   width: 70%;
   margin-left: auto;
+  margin-top: 50px;
+  margin-bottom: 50px;
   margin-right: auto;
 }
 

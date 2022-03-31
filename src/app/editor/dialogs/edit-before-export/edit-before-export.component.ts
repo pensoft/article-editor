@@ -251,7 +251,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
   }
 
   renderCodeMirrorEditor() {
-    console.log(this.ydocService.articleData);
     let settings = this.ydocService.printMap!.get('pdfPrintSettings');
     let pdfPrintSettings = settings ? settings : (
       this.ydocService.articleData &&
@@ -465,7 +464,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
       settings = buildSettings(data);
       this.ydocService.printMap!.set('pdfPrintSettings', data);
-      console.log('savedMap', data);
     } catch (e) {
       console.error(e);
       //this.pdfSettingsSave = oldSettings
@@ -474,7 +472,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
     return settings
   }
   refreshContent = async () => {
-    console.log('asd');
     this.resumeSpinner()
     this.fillElementsArray()
     this.pageMarg = [];
@@ -552,13 +549,27 @@ export class EditBeforeExportComponent implements AfterViewInit {
       for (let j = 0; j < figureHeader.childNodes.length; j++) {
         figureLabel.push(await generatePDFData(figureHeader.childNodes[j] as HTMLElement, figureTable, { parentWidth: pageWidth, ...style }, element))
       }
-      let figureDescription = document.createElement('p');
+      let figureDescription = document.createElement('form-field');
       figureDescription.style.fontSize = ptToPx(10) + 'px'
       element.parentElement?.append(figureDescription)
       let moveNodeInlineChildren = (node: HTMLElement, containerNode: HTMLElement) => {
         let findParagraphChild = (node: HTMLElement, container: HTMLElement) => {
           if (node.tagName == 'P') {
-            container.append(...Array.from(node.childNodes).map((n) => { return (n as HTMLElement).cloneNode(true) }));
+            //@ts-ignore
+            if(container.lastChild&&container.lastChild.tagName&&container.lastChild.tagName=="P"){
+              //@ts-ignore
+              container.lastChild.append(...Array.from(node.childNodes).map((n) => {
+                return (n as HTMLElement).cloneNode(true)
+              }));
+            }else{
+              container.append(document.createElement('p'))
+              //@ts-ignore
+              container.lastChild.append(...Array.from(node.childNodes).map((n) => {
+                return (n as HTMLElement).cloneNode(true)
+              }));
+            }
+          }else if(node.tagName == 'MATH-DISPLAY'){
+            container.append(node)
           } else {
             node.childNodes.forEach((ch) => {
               findParagraphChild(ch as HTMLElement, container);
@@ -573,25 +584,47 @@ export class EditBeforeExportComponent implements AfterViewInit {
       }
       let separatorSymbols = ['.', ',', '/', ':', ';', '!', '?']
       let descriptions: any = [];
+      let checkNextTextNodeAndSpace = (node:HTMLElement)=>{
+        if(!(node instanceof Text)){
+          if(node.childNodes&&node.childNodes.length>0){
+            checkNextTextNodeAndSpace(node.childNodes[0] as HTMLElement)
+          }
+        }else{
+          if(!node.textContent?.startsWith(" ")){
+            node.textContent = " "+node.textContent
+          }
+        }
+      }
       for (let i = 0; i < figuresCount; i++) {
         let descText = (figuresDescriptions.childNodes.item(i + 2) as HTMLElement);
         let description: any = [];
         for (let j = 1; j < descText.childNodes.length; j++) {
           let descEl = descText.childNodes[j] as HTMLElement
           if (figuresCount > 1) {
-            let strong = document.createElement('strong');
-            strong.style.display = 'inline'
+            let separator:any
             let lastSymbol = figureDescription.childNodes[figureDescription.childNodes.length - 1].textContent![figureDescription.childNodes[figureDescription.childNodes.length - 1].textContent!.length - 1];
 
             if (separatorSymbols.includes(lastSymbol)) {
-              strong.textContent = "&#032;" + String.fromCharCode(65 + i) + "&#032;";
-              //strong.append(document.createTextNode("&#032;" + String.fromCharCode(65 + i) + "&#032;."))
+              //strong.textContent = "&#032;" + String.fromCharCode(65 + i) + "&#032;";
+              separator = document.createTextNode(" " + String.fromCharCode(65 + i))
             } else {
-              strong.textContent = "&#032;;&#032;" + String.fromCharCode(65 + i) + "&#032;";
-              //strong.append(document.createTextNode(";&#032;" + String.fromCharCode(65 + i) + "&#032;."))
+              //strong.textContent = "&#032;;&#032;" + String.fromCharCode(65 + i) + "&#032;";
+              separator = document.createTextNode("; " + String.fromCharCode(65 + i))
             }
-            strong.style.fontSize = ptToPx(5) + 'px'
-            figureDescription.append(document.createTextNode("; " + String.fromCharCode(65 + i) + " "))
+            //strong.style.fontSize = ptToPx(5) + 'px'
+            //@ts-ignore
+            if(figureDescription.lastChild&&figureDescription.lastChild.tagName&&figureDescription.lastChild.tagName=="P"){
+              //@ts-ignore
+              //figureDescription.lastChild.append(document.createTextNode("; " + String.fromCharCode(65 + i) + " "))
+              figureDescription.lastChild.append(separator)
+            }else{
+              figureDescription.append(document.createElement('p'));
+              //@ts-ignore
+              //figureDescription.lastChild.append(document.createTextNode("; " + String.fromCharCode(65 + i) + " "))
+              figureDescription.lastChild.append(document.createTextNode(String.fromCharCode(65 + i)))
+
+            }
+            checkNextTextNodeAndSpace(descEl)
           }
           moveNodeInlineChildren(descEl, figureDescription);
         }
@@ -1018,7 +1051,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
                 }
                 if ((alignment == 'left' || alignment == 'justify') || !alignment) {
                   if (table.table.body[0]![table.table.body[0].length - 1]) {
-                    table.table.body[0]![table.table.body[0].length - 1].alignment = 'right'
+                    table.table.body[0]![table.table.body[0].length - 1].alignment = 'right';
                   }
                 }
                 let widths: any = []
@@ -1405,7 +1438,20 @@ export class EditBeforeExportComponent implements AfterViewInit {
          result.margin = blockMathMargin.margin; */
         attachStylesToNode(result, {}, parentStyle, element, false, parentElement, '');
         if (tag == 'math-inline') {
-          result.margin = [0, 0.5, 0, 0];
+          let elementFontSize:any = (element.parentElement?.style.fontSize&&element.parentElement?.style.fontSize!=='')?element.parentElement?.style.fontSize:
+          (window.getComputedStyle(element.parentElement!).fontSize)?window.getComputedStyle(element.parentElement!).fontSize:undefined
+          if(elementFontSize&&elementFontSize.includes('px')){
+            elementFontSize = +elementFontSize.replace('px','');
+          }
+          result.margin = [0, 0.3, 0, 0.8];
+          /* if(elementFontSize){
+            result.margin[1] = elementFontSize*0.00
+            if(height){
+            result.margin[1] = elementFontSize*0.00
+            }
+          } */
+          let scaleDown = (ptToPx(parentStyle.fontSize)/elementFontSize)
+          result.width = result.width*scaleDown
         }
         return Promise.resolve(result);
 

@@ -52,7 +52,7 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
 
   handleError(newRequest: HttpRequest<any>, next: HttpHandler, err: any) {
     if (err instanceof HttpErrorResponse && err.status === 401) {
-      return this.handle401(newRequest, next);
+      return this.handle401(newRequest, next,err);
     } else {
       // this._broadcaster.broadcast(CONSTANTS.ERROR, {
       //   error: 'Something went wrong',
@@ -73,7 +73,7 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
   }
 
   /* Refresh handler referred from https://www.intertech.com/angular-4-tutorial-handling-refresh-token-with-new-httpinterceptor/ */
-  handle401(request: HttpRequest<any>, next: HttpHandler) {
+  handle401(request: HttpRequest<any>, next: HttpHandler,resErr:HttpErrorResponse) {
     if (!this.isalreadyRefreshing) {
       //  don't want to have multiple refresh request when multiple unauthorized requests
       this.isalreadyRefreshing = true;
@@ -83,6 +83,7 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
         switchMap((newToken: any) => {
           if (newToken) {
             // update token store & publish new token, yay!!
+            this.isalreadyRefreshing = false
             this._authservice.storeToken(newToken);
             this.tokenSubject.next(newToken);
             return next.handle(this.addToken(request, newToken));
@@ -92,6 +93,10 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
           return throwError('no refresh token found');
         }),
         catchError((error) => {
+          this.isalreadyRefreshing = false
+          if(resErr.status == error.status&&resErr.url==error.url&&resErr.name == error.name){
+            return throwError(error);
+          }
           this._authservice.logout();
           return throwError(error);
         }),

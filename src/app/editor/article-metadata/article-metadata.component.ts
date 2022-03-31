@@ -81,9 +81,10 @@ export class ArticleMetadataComponent implements OnInit {
 
   addNewSectionToArticle(){
     let articleSections = this.ydocService.articleData.layout.template.sections.filter((data:any)=>{
-      return (
-        this.treeService.articleSectionsStructure?.findIndex((element)=>{return (data.id == element.sectionTypeID&&(data.settings&&data.settings.main_section==true))}) == -1
-      )
+      return true
+      /* return (
+        this.treeService.articleSectionsStructure?.findIndex((element)=>{return (data.id == element.sectionTypeID &&(data.settings&&data.settings.main_section==true) )}) == -1
+      ) */
     })
     this.sectionTemplates = articleSections;
     const dialogRef = this.dialog.open(ChooseSectionComponent, {
@@ -92,6 +93,7 @@ export class ArticleMetadataComponent implements OnInit {
       data: { templates: this.sectionTemplates }
     });
     dialogRef.afterClosed().subscribe(result => {
+      console.log(result);
       this.sectionsService.getSectionById(result).subscribe((res:any)=>{
         let sectionTemplate = res.data
         this.treeService.addNodeAtPlaceChange('parentList',sectionTemplate,'end');

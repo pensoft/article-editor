@@ -16,7 +16,6 @@ export class FormBuilderService {
   }
 
   populateDefaultValues(savedForm: any, schema: any, sectionID: string, formGroup?: FormGroup) {
-    //console.log('savedForm',savedForm);
     let attachSectionId = (componentArray: any[]) => {
       componentArray.forEach((component) => {
         if (component["properties"]) {

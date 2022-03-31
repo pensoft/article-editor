@@ -8,6 +8,7 @@ import { ProsemirrorEditorsService } from '../services/prosemirror-editors.servi
 import { FiguresControllerService } from '../services/figures-controller.service';
 import { figure } from '../utils/interfaces/figureComponent';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
+import { ServiceShare } from '../services/service-share.service';
 
 @Component({
   selector: 'app-article',
@@ -27,12 +28,16 @@ export class ArticleComponent implements OnInit {
     public prosemirrorEditorsService: ProsemirrorEditorsService,
     public figuresControllerService: FiguresControllerService,
     public detectFocusService: DetectFocusService,
-
+    public serviceShare:ServiceShare,
   ) {
 
     this.articleStructureMap = this.ydocService.articleStructure!;
     this.ydocService.articleStructure!.observe((data) => {
       this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
+      let change = this.serviceShare?.TreeService?.metadatachangeMap!.get('change');
+      if(change &&change.action == 'editNode'&&this.serviceShare.TreeService!.findNodeById(change.nodeId)?.active){
+        return;
+      }
       this.makeFlat();
       setTimeout(() => {
         if (this.detectFocusService.sectionName) {

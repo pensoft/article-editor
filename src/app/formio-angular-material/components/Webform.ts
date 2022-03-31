@@ -24,7 +24,6 @@ Webform.prototype.render2 = function() {
     this.clear();
     this.renderComponents();
     submissionData = JSON.parse(JSON.stringify(this._submission))
-    //console.log(JSON.parse(JSON.stringify(this._submission)));
     this.setValue(this._submission);
     setTimeout(()=>{
       this.changeVisibility(null)
@@ -35,7 +34,6 @@ Webform.prototype.render2 = function() {
 let submissionData:any = {}
 Webform.prototype.setFullValue  = function(){
     Object.assign(submissionData.data,JSON.parse(JSON.stringify(this._submission.data)))
-    //console.log(JSON.parse(JSON.stringify(this._submission.data)));
   this.renderComponents();
   this.setValue(JSON.parse(JSON.stringify(submissionData)));
   //this.setDefaultValue(JSON.parse(JSON.stringify(submissionData)));

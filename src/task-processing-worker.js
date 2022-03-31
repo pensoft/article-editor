@@ -17,7 +17,6 @@ let returnMessage = (obj) => {
 
 self.addEventListener('message', event => {
   let data = event.data
-  console.log(data);
   if (data.meta && data.meta.action == 'loadImgAsDataURL' && typeof data.data.url == 'string') {
     loadImagAsBlob(data);
   }

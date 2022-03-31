@@ -6,6 +6,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
 import { ChooseSectionComponent } from '@app/editor/dialogs/choose-section/choose-section.component';
 import { TreeService } from '@app/editor/meta-data-tree/tree-service/tree.service';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 import { checkCompatibilitySectionFromBackend, checkIfSectionsAreAboveOrAtMax, checkIfSectionsAreUnderOrAtMin, countSectionFromBackendLevel, filterChooseSectionsFromBackend, filterSectionsFromBackendWithComplexMinMaxValidations, renderSectionFunc } from '@app/editor/utils/articleBasicStructure';
 import { articleSection } from '@app/editor/utils/interfaces/articleSection';
 import { complexSectionFormIoSchema } from '@app/editor/utils/section-templates/form-io-json/complexSection';
@@ -40,6 +41,7 @@ export class ComplexEditTreeComponent implements OnInit {
     private sectionsService: ArticleSectionsService,
     public dialog: MatDialog,
     private treeService: TreeService,
+    private serviceShare:ServiceShare
   ) {
 
   }
@@ -162,7 +164,7 @@ export class ComplexEditTreeComponent implements OnInit {
       dialogRef.afterClosed().subscribe(result => {
         this.sectionsService.getSectionById(result).subscribe((res: any) => {
           let sectionTemplate = res.data
-          let newSection = renderSectionFunc(sectionTemplate, this.sectionChildren)
+          let newSection = renderSectionFunc(sectionTemplate, this.sectionChildren,this.serviceShare.YdocService!.ydoc)
           this.addedSections.push(newSection);
         })
       });
@@ -208,7 +210,7 @@ export class ComplexEditTreeComponent implements OnInit {
   addNodeHandle(node: articleSection, index: number) {
     this.sectionsService.getSectionById(node.sectionTypeID).subscribe((res: any) => {
       let sectionTemplate = res.data;
-      let newSection = renderSectionFunc(sectionTemplate, this.sectionChildren, index);
+      let newSection = renderSectionFunc(sectionTemplate, this.sectionChildren,this.serviceShare.YdocService!.ydoc, index);
       this.addedSections.push(newSection);
     })
   }

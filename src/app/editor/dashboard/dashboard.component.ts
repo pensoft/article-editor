@@ -79,7 +79,6 @@ export class DashboardComponent implements AfterViewInit {
           /* if(this.selectedType!=-1){
 
           } */
-          console.log(this.paginator,this.searchValue,this.selectedType);
           this.isLoadingResults = true;
           /* if(this.allArticlesData){
             return of({data:JSON.parse(JSON.stringify(this.allArticlesData))})
@@ -104,7 +103,6 @@ export class DashboardComponent implements AfterViewInit {
         /*if(!this.allArticlesData){
           this.allArticlesData = data
         } */
-        console.log(data);
         /* if (this.sort!.active) {
           dataToDisplay = dataToDisplay.sort((a: any, b: any) => {
             let sb = this.sort!.active;
@@ -196,9 +194,7 @@ export class DashboardComponent implements AfterViewInit {
   deleteArticle(deleteArticle: any) {
     this.articlesService.deleteArticleById(deleteArticle.id).subscribe((deleteResponse) => {
       if(deleteResponse.status == 204){
-        this.allArticlesData = this.allArticlesData.filter((article:any)=>{
-          return article.id!==deleteArticle.id
-        })
+
         this.refreshSubject.next(deleteResponse);
       }
     })

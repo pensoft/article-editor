@@ -120,7 +120,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   }
 
   cancelComplexSectionEdit() {
-    this.editSectionService.editChangeSubject.next();
+    //this.editSectionService.editChangeSubject.next();
   }
 
   submitComplexSectionEdit() {
@@ -128,11 +128,14 @@ export class SectionComponent implements AfterViewInit, OnInit {
     this.treeService.replaceChildrenChange(this.childrenTreeCopy!, this.section);
     this.complexSectionDeletedChildren.forEach((section) => {
     })
-    this.editSectionService.editChangeSubject.next();
+    //this.editSectionService.editChangeSubject.next();
   }
 
   async onSubmit(submision?: any) {
     try {
+      if(this.section.type=='complex'){
+        this.submitComplexSectionEdit()
+      }
       //this.prosemirrorEditorsService.updateFormIoDefaultValues(this.section.sectionID, submision.data)
       this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, { data: submision.data, updatedFrom: this.ydocService.ydoc?.guid })
       this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema, this.section.sectionID, this.sectionForm);
@@ -141,6 +144,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
         this.sectionForm.removeControl(key);
       })
       this.formBuilderService.buildFormGroupFromSchema(this.sectionForm, this.section.formIOSchema, this.section);
+      console.log(this.sectionForm);
       this.treeService.setTitleListener(this.section)
       //this.treeService.sectionFormGroups[this.section.sectionID] = this.sectionForm;
       //this.sectionForm = nodeForm;
@@ -257,11 +261,9 @@ export class SectionComponent implements AfterViewInit, OnInit {
     interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm);
     submision.compiledHtml = interpolated
     this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
-    let figuresMap = this.ydocService.figuresMap!;
-    this.figuresControllerService.markCitatsViews(figuresMap.get('articleCitatsObj'));
     //this.editSectionService.editChangeSubject.next(submision);
 
-    this.treeService.editNodeChange(this.section.sectionID)
+    //this.treeService.editNodeChange(this.section.sectionID)
 
     //let copyOriginUpdatesBeforeReplace = [...originUpdates]
     //let trackStatus = this.prosemirrorEditorsService.trackChangesMeta.trackTransactions
@@ -275,7 +277,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
     let node1 = DOMParserPM.fromSchema(schema).parse(templDiv.firstChild!);
 
     updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
-    console.log(submision.compiledHtml);
     this.prosemirrorEditorsService.renderEditorInWithId(this.ProsemirrorEditor?.nativeElement, this.section.sectionID, this.section)
 
 
@@ -284,13 +285,15 @@ export class SectionComponent implements AfterViewInit, OnInit {
   ngAfterViewInit(): void {
     // const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
     this.sectionContent = this.section.formIOSchema;
+    console.log(this.sectionContent);
     this.renderSection = true
     if (this.section.mode == 'documentMode' && this.section.active) {
-      if (this.section.initialRender) {
+      if (this.section.initialRender == this.ydocService.ydoc.guid) {
         this.section.initialRender = undefined;
         this.initialRender()
         return
       } else {
+        this.section.initialRender = undefined;
         try {
           this.prosemirrorEditorsService.renderEditorInWithId(this.ProsemirrorEditor?.nativeElement, this.section.sectionID, this.section)
         } catch (e) {
@@ -307,7 +310,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
     } catch (e) {
       console.error(e);
     }
-    console.log(this.formBuilderService.populateDefaultValues(this.treeService.sectionFormGroups[this.section.sectionID].getRawValue(), this.section.formIOSchema, this.section.sectionID, this.sectionForm));
 
     let editorContainer = this.prosemirrorEditorsService.editorContainers[this.section.sectionID]
     if (editorContainer) {

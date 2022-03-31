@@ -35,7 +35,7 @@ export interface sectionContent { type: 'content' | 'taxonomicCoverageContentTyp
 export type titleContentData = editorData|string
 export type sectionContentData = editorData|taxonomicCoverageContentData
 export interface articleSection {
-    initialRender?:true,
+    initialRender?:string,
     sectionID: string,
     active: boolean,
     children: articleSection[],
@@ -46,7 +46,6 @@ export interface articleSection {
     title:titleContent,
     prosemirrorHTMLNodesTempl?:string,
     formIOSchema?:any,
-    fomrIOSchemaComplex?:any,
     sectionVersionId:number,
     defaultFormIOValues?:any,
     type:'complex'|'simple',

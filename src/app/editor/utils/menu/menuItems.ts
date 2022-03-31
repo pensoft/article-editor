@@ -222,11 +222,9 @@ function wrapParagraphIn(nodeType:NodeType, options:any) {
 
         if(paragraphParent!.childCount == 1&&paragraphParent?.firstChild == paragraphNode){
           tr = state.tr.replaceWith(paragraphParentStartPos-1,paragraphParent!.nodeSize+paragraphParentStartPos-1,newNode);
-          console.log(tr.docs);
           tr = tr.setSelection(new TextSelection(tr.doc.resolve(from),tr.doc.resolve(to)));
         }else{
           tr = state.tr.replaceWith(paragraphStartPos-1,paragraphStartPos+paragraphNode.nodeSize-1,newNode);
-          console.log(tr.docs);
           tr = tr.setSelection(new TextSelection(tr.doc.resolve(from+1),tr.doc.resolve(to+1)));
         }
         return dispatch(tr)

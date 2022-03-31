@@ -6,7 +6,7 @@ import { ArticlesService } from '@app/core/services/articles.service';
 import { uuidv4 } from 'lib0/random';
 import { ChooseManuscriptDialogComponent } from '../dialogs/choose-manuscript-dialog/choose-manuscript-dialog.component';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
-import { renderSectionFunc } from '../utils/articleBasicStructure';
+import {  renderSectionFunc } from '../utils/articleBasicStructure';
 import { CommentsService } from '../utils/commentsService/comments.service';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 import { articleSection } from '../utils/interfaces/articleSection';
@@ -82,10 +82,7 @@ export class ServiceShare {
 
         selectedLayout.sections.forEach((section: any) => {
           if(section.settings&&section.settings.main_section == true){
-            let newSection = renderSectionFunc(section,articleStructure,'end');
-            console.log('rendering section');
-            newSection.initialRender = true;
-            newSection.active = true;
+            let newSection = renderSectionFunc(section,articleStructure,this.YdocService!.ydoc,'end');
           }
         })
         this.YdocService!.articleStructureFromBackend = articleStructure;

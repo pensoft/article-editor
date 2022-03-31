@@ -2,32 +2,32 @@
 <!-- <mat-formio class="article-section" [form]="sectionContent" (submit)='submit($event)'></mat-formio> -->
 
 <div>
-    <div [formGroup]="sectionForm" *ngIf='section.mode == "editMode"'>
-        <div *ngIf="!complexSection" class="template-buttons">
-            <button mat-raised-button (click)="hidehtml=!hidehtml">Edit Html Template</button>
-            <button mat-raised-button (click)="hidejson=!hidejson">Show Json Template</button>
-        </div>
-        <div *ngIf="!complexSection" #codemirrorHtmlTemplate class='codemirror-editor' [ngStyle]="{'display': hidehtml ? 'none' : 'block'}"></div>
-        <div *ngIf="!complexSection" #codemirrorJsonTemplate class='codemirror-editor' [ngStyle]="{'display': hidejson ? 'none' : 'block'}"></div>
-        <div *ngIf="error"><pre class="errors-container">{{errorMessage}}</pre></div>
-        <div *ngIf='section.mode == "editMode"&&!complexSection' class="popup-menu-container"></div>
-        <ng-container *ngIf='renderForm'>
-            <div class="complex-section-tree" *ngIf="complexSection">
-                <app-complex-edit-tree [(section)]="section" [(sectionChildren)]="childrenTreeCopy!" [(deletedSections)]="complexSectionDeletedChildren" [(addedSections)]="complexSectionAddedChildren"></app-complex-edit-tree>
-                <div class="submit-complex-btn-container">
-                    <button mat-raised-button class="bottom-complex-action-btn" (click)="cancelComplexSectionEdit()">Cancel</button>
-                    <button mat-raised-button class="bottom-complex-action-btn" (click)="submitComplexSectionEdit()">Submit</button>
-                </div>
-            </div>
-            <div *ngIf="!complexSection" [ngClass]="{'formio-edit-section':true,'formio-taxonomicComponent':section.title.name == 'Taxonomic coverage','complex-section-formio':complexSection}">
-                <mat-formio #formio [form]="sectionContent" (ready)="ready($event)" (change)="onChange($event)" (submit)="onSubmit($event)"></mat-formio>
-            </div>
-        </ng-container>
+  <div [formGroup]="sectionForm" *ngIf='section.mode == "editMode"'>
+    <div class="template-buttons">
+      <button mat-raised-button (click)="hidehtml=!hidehtml">Edit Html Template</button>
+      <button mat-raised-button (click)="hidejson=!hidejson">Show Json Template</button>
     </div>
-    <div #ProsemirrorEditor *ngIf='section.mode == "documentMode"'></div>
+    <div #codemirrorHtmlTemplate class='codemirror-editor' [ngStyle]="{'display': hidehtml ? 'none' : 'block'}"></div>
+    <div #codemirrorJsonTemplate class='codemirror-editor' [ngStyle]="{'display': hidejson ? 'none' : 'block'}"></div>
+    <div *ngIf="error"><pre class="errors-container">{{errorMessage}}</pre></div>
+    <div *ngIf='section.mode == "editMode"' class="popup-menu-container"></div>
+    <ng-container *ngIf='renderForm'>
+      <div class="complex-section-tree" *ngIf="complexSection">
+        <app-complex-edit-tree [(section)]="section" [(sectionChildren)]="childrenTreeCopy!" [(deletedSections)]="complexSectionDeletedChildren" [(addedSections)]="complexSectionAddedChildren"></app-complex-edit-tree>
+        <!-- <div class="submit-complex-btn-container">
+          <button mat-raised-button class="bottom-complex-action-btn" (click)="cancelComplexSectionEdit()">Cancel</button>
+          <button mat-raised-button class="bottom-complex-action-btn" (click)="submitComplexSectionEdit()">Submit</button>
+        </div> -->
+      </div>
+      <div [ngClass]="{'formio-edit-section':true,'formio-taxonomicComponent':section.title.name == 'Taxonomic coverage','complex-section-formio':complexSection}">
+        <mat-formio #formio [form]="sectionContent" (ready)="ready($event)" (change)="onChange($event)" (submit)="onSubmit($event)"></mat-formio>
+      </div>
+    </ng-container>
+  </div>
+  <div #ProsemirrorEditor *ngIf='section.mode == "documentMode"'></div>
 </div>
 <div style="display: none;">
-    <div #container>
+  <div #container>
 
-    </div>
+  </div>
 </div>

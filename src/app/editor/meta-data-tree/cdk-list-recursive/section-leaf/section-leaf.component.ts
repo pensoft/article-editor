@@ -140,12 +140,9 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
   editNodeHandle(node: articleSection, formGroup: FormGroup) {
     try {
-      //let defaultValuesFromProsmeirroNodes = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
-      //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
 
       let defaultValues = formGroup.value;
 
-      //this.formBuilderService.buildFormGroupFromSchema(formGroup, sectionContent);
       let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID,formGroup);
 
       let updateYdoc = new Y.Doc();
@@ -306,7 +303,6 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   };
 
   addSectionToNode(node:articleSection){
-    console.log(node);
     this.serviceShare.ArticleSectionsService!.getAllSections({ page: 1, pageSize: 999 }).subscribe((response: any) => {
       let sectionTemplates1 = filterChooseSectionsFromBackend(node.compatibility, response.data)
       let sectionlevel = this.treeService.getNodeLevel(node)

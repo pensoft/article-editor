@@ -110,8 +110,6 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
 
   setInstance(instance: any) {
     super.setInstance(instance);
-    //console.log(JSON.parse(JSON.stringify(instance.dataValue)),JSON.parse(JSON.stringify(instance.defaultValue)));
-    //instance.dataValue =
     let newValue = JSON.parse(JSON.stringify(instance.defaultValue))
     this.instance.dataValue = newValue;
     this.instance.setValue(newValue);
@@ -212,7 +210,6 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
 
   /* updateVisibility(instance: any) {
     if(instance == null){
-      console.log('visible',this.instance.visible,'_visible',this.instance._visible,this.instance.component.key);
       this.setVisible(this.instance.visible)
     }
     if (instance&&

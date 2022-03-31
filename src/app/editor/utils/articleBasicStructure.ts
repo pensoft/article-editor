@@ -5,10 +5,28 @@ import { formIODefaultValues, formIOTemplates, htmlNodeTemplates } from "./secti
 import { complexSectionFormIoSchema } from '@app/editor/utils/section-templates/form-io-json/complexSection';
 import { ViewPlugin } from "@codemirror/view";
 import { ArticlesService } from "@app/core/services/articles.service";
+import * as Y from 'yjs'
 export function editorFactory(data?: editorMeta): editorData {
   return { editorId: uuidv4(), menuType: 'fullMenu', editorMeta: data }
 }
 
+/* export const removeInitProps: (section: articleSection) => void = (section: articleSection) => {
+  if (section.type == 'complex' && section.children.length > 0) {
+    section.children.forEach((child) => {
+      removeInitProps(child)
+    })
+  }
+  //section.initialRender = undefined;
+} */
+
+/* export const addInitProps:(section:articleSection,ydoc:Y.Doc)=>void = (section:articleSection,ydoc:Y.Doc)=>{
+  if(section.type=='complex'&&section.children.length>0){
+    section.children.forEach((child)=>{
+      removeInitProps(child)
+    })
+  }
+  section.initialRender = ydoc.guid;
+} */
 
 export const articleBasicStructure: articleSection[] = [
   {
@@ -24,7 +42,7 @@ export const articleBasicStructure: articleSection[] = [
     prosemirrorHTMLNodesTempl: htmlNodeTemplates['taxonomicCoverage'],
     children: [],
     type: 'simple',
-    sectionVersionId:0,
+    sectionVersionId: 0,
     sectionTypeVersion: 1,
     sectionTypeID: 1,
     sectionMeta: { main: false }
@@ -37,7 +55,7 @@ export const articleBasicStructure: articleSection[] = [
     add: { bool: true, main: false },
     delete: { bool: true, main: false },
     mode: 'documentMode',
-    sectionVersionId:0,
+    sectionVersionId: 0,
     formIOSchema: formIOTemplates['collectionData'],
     defaultFormIOValues: formIODefaultValues['collectionData'],
     prosemirrorHTMLNodesTempl: htmlNodeTemplates['collectionData'],
@@ -48,18 +66,19 @@ export const articleBasicStructure: articleSection[] = [
     sectionMeta: { main: false }
   }];
 
-export const renderSectionFunc: (sectionFromBackend: any, parentContainer: articleSection[], index?: number | string) => articleSection
-  = (sectionFromBackend: any, parentContainer: articleSection[], index?: number | string) => {
+export const renderSectionFunc:
+  /*  */(sectionFromBackend: any, parentContainer: articleSection[], ydoc: Y.Doc, index?: number | string) => articleSection
+  = /**/(sectionFromBackend: any, parentContainer: articleSection[], ydoc: Y.Doc, index?: number | string) => {
     let children: any[] = []
     if (sectionFromBackend.type == 1) {
       sectionFromBackend.sections.forEach((childSection: any) => {
-        renderSectionFunc(childSection, children)
+        renderSectionFunc(childSection, children, ydoc)
       })
     }
     let newId = uuidv4()
     let newArticleSection: articleSection
 
-    let sectionLabel =(sectionFromBackend.settings&&sectionFromBackend.settings.label&&sectionFromBackend.settings.label!="")?sectionFromBackend.settings.label:sectionFromBackend.label
+    let sectionLabel = (sectionFromBackend.settings && sectionFromBackend.settings.label && sectionFromBackend.settings.label != "") ? sectionFromBackend.settings.label : sectionFromBackend.label
     if (sectionFromBackend.type == 0) {
       newArticleSection = {
         title: { label: sectionLabel, name: sectionFromBackend.name, template: sectionLabel, editable: !/{{\s*\S*\s*}}/gm.test(sectionLabel) },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
@@ -73,7 +92,7 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
         defaultFormIOValues: undefined,
         prosemirrorHTMLNodesTempl: sectionFromBackend.template,
         children: children,
-        sectionVersionId:sectionFromBackend.version_id,
+        sectionVersionId: sectionFromBackend.version_id,
         type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
         sectionTypeID: sectionFromBackend.id,
         sectionTypeVersion: sectionFromBackend.version,
@@ -88,28 +107,34 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
         add: { bool: true, main: false },
         delete: { bool: true, main: false },
         mode: 'documentMode',
-        formIOSchema: complexSectionFormIoSchema,
-        fomrIOSchemaComplex: sectionFromBackend.schema,
+        formIOSchema: sectionFromBackend.schema,
         defaultFormIOValues: undefined,
         prosemirrorHTMLNodesTempl: sectionFromBackend.template,
         children: children,
         type: sectionFromBackend.type == 1 ? 'complex' : 'simple',
-        sectionVersionId:sectionFromBackend.version_id,
+        sectionVersionId: sectionFromBackend.version_id,
         sectionTypeID: sectionFromBackend.id,
         sectionTypeVersion: sectionFromBackend.version,
         sectionMeta: { main: false },
         compatibility: sectionFromBackend.compatibility ? sectionFromBackend.compatibility : undefined
       }
-      if(sectionFromBackend.complex_section_settings){
-        let minmaxValds:any = {};
-        sectionFromBackend.complex_section_settings.forEach((secMinMax:{"min_instances": number,
-        "max_instances": number,
-        "version_id": number})=>{
-          minmaxValds[secMinMax.version_id] = {min:secMinMax.min_instances,max:secMinMax.max_instances};
+      if (sectionFromBackend.complex_section_settings) {
+        let minmaxValds: any = {};
+        sectionFromBackend.complex_section_settings.forEach((secMinMax: {
+          "min_instances": number,
+          "max_instances": number,
+          "version_id": number
+        }) => {
+          minmaxValds[secMinMax.version_id] = { min: secMinMax.min_instances, max: secMinMax.max_instances };
         })
         newArticleSection.subsectionValidations = minmaxValds;
       }
     }
+
+    //@ts-ignore
+    newArticleSection.initialRender = ydoc.guid
+    //@ts-ignore
+    newArticleSection.active = true;
 
     filterSectionChildren(newArticleSection!);
 
@@ -122,24 +147,24 @@ export const renderSectionFunc: (sectionFromBackend: any, parentContainer: artic
         parentContainer.push(newArticleSection!)
       }
     }
-    if (!index&&index!==0) {
+    if (!index && index !== 0) {
       parentContainer.push(newArticleSection!);
     }
     return newArticleSection!
   }
 
-export const checkIfSectionsAreUnderOrAtMin = (childToCheck:articleSection,parentNode:articleSection,container?:articleSection[])=>{
+export const checkIfSectionsAreUnderOrAtMin = (childToCheck: articleSection, parentNode: articleSection, container?: articleSection[]) => {
   let v = parentNode.subsectionValidations
-  if(v&&Object.keys(v).length>0){
+  if (v && Object.keys(v).length > 0) {
     let nodeVersionID = childToCheck.sectionVersionId;
-    if(v[nodeVersionID]){
+    if (v[nodeVersionID]) {
       let nOfNodesOfSameType = 0;
-      (container?container:parentNode.children).forEach((child:articleSection)=>{
-        if(child.sectionVersionId == nodeVersionID){
+      (container ? container : parentNode.children).forEach((child: articleSection) => {
+        if (child.sectionVersionId == nodeVersionID) {
           nOfNodesOfSameType++;
         }
       })
-      if(v[nodeVersionID].min>=nOfNodesOfSameType){
+      if (v[nodeVersionID].min >= nOfNodesOfSameType) {
         return false;
       }
     }
@@ -147,9 +172,9 @@ export const checkIfSectionsAreUnderOrAtMin = (childToCheck:articleSection,paren
   return true
 }
 
-export let getSubSecCountWithValidation = (complexSection: articleSection, validation: { secVersionId: number },complexSectionChildren?:articleSection[]) => {
+export let getSubSecCountWithValidation = (complexSection: articleSection, validation: { secVersionId: number }, complexSectionChildren?: articleSection[]) => {
   let count = 0;
-  (complexSectionChildren?complexSectionChildren:complexSection.children).forEach((child:articleSection) => {
+  (complexSectionChildren ? complexSectionChildren : complexSection.children).forEach((child: articleSection) => {
     if (
       child.sectionVersionId == validation.secVersionId
     ) {
@@ -158,8 +183,8 @@ export let getSubSecCountWithValidation = (complexSection: articleSection, valid
   })
   return count;
 }
-export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFromBackend: any[], complexSection: articleSection,sectionChildren?:articleSection[]) => {
-  return  sectionsFromBackend.filter((section, index) => {
+export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFromBackend: any[], complexSection: articleSection, sectionChildren?: articleSection[]) => {
+  return sectionsFromBackend.filter((section, index) => {
     let sectionVersionId = section.version_id;
     if (
       complexSection.subsectionValidations &&
@@ -167,8 +192,8 @@ export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFrom
     ) {
       let min = complexSection.subsectionValidations[sectionVersionId].min;
       let max = complexSection.subsectionValidations[sectionVersionId].max;
-      let count = getSubSecCountWithValidation(complexSection,{secVersionId:sectionVersionId},sectionChildren)
-      if(count>=max){
+      let count = getSubSecCountWithValidation(complexSection, { secVersionId: sectionVersionId }, sectionChildren)
+      if (count >= max) {
         return false
       }
     }
@@ -178,18 +203,18 @@ export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFrom
 
 }
 
-export const checkIfSectionsAreAboveOrAtMax = (childToCheck:articleSection,parentNode:articleSection,container?:articleSection[])=>{
+export const checkIfSectionsAreAboveOrAtMax = (childToCheck: articleSection, parentNode: articleSection, container?: articleSection[]) => {
   let v = parentNode.subsectionValidations
-  if(v&&Object.keys(v).length>0){
+  if (v && Object.keys(v).length > 0) {
     let secVersionId = childToCheck.sectionVersionId;
-    if(v[secVersionId]){
+    if (v[secVersionId]) {
       let nOfNodesOfSameType = 0;
-      (container?container:parentNode.children).forEach((child:articleSection)=>{
-        if(child.sectionVersionId == secVersionId){
+      (container ? container : parentNode.children).forEach((child: articleSection) => {
+        if (child.sectionVersionId == secVersionId) {
           nOfNodesOfSameType++;
         }
       })
-      if(v[secVersionId].max<=nOfNodesOfSameType){
+      if (v[secVersionId].max <= nOfNodesOfSameType) {
         return false;
       }
     }
@@ -197,27 +222,27 @@ export const checkIfSectionsAreAboveOrAtMax = (childToCheck:articleSection,paren
   return true
 }
 
-export const checkMinWhenMoovingASectionOut = (moovingNode:articleSection,outOfNode:articleSection) => {
-  return checkIfSectionsAreUnderOrAtMin(moovingNode,outOfNode)
+export const checkMinWhenMoovingASectionOut = (moovingNode: articleSection, outOfNode: articleSection) => {
+  return checkIfSectionsAreUnderOrAtMin(moovingNode, outOfNode)
 }
 
-export const checkMaxWhenMoovingASectionIn = (moovingNode:articleSection,inNode:articleSection) => {
-  return checkIfSectionsAreAboveOrAtMax(moovingNode,inNode);
+export const checkMaxWhenMoovingASectionIn = (moovingNode: articleSection, inNode: articleSection) => {
+  return checkIfSectionsAreAboveOrAtMax(moovingNode, inNode);
 }
 
 export const checkCompatibilitySection = (compatibility: any, section: articleSection) => {
 
-  if(!compatibility){
+  if (!compatibility) {
     return true
   }
   if (compatibility.allow.all) {
     return true
-  } else if (!compatibility.allow.all&&compatibility.allow.values.includes(section.sectionTypeID)) {
-      return true
+  } else if (!compatibility.allow.all && compatibility.allow.values.includes(section.sectionTypeID)) {
+    return true
   } else if (compatibility.deny.all) {
     return false;
-  } else if (!compatibility.deny.all&&compatibility.deny.values.includes(section.sectionTypeID)) {
-      return false
+  } else if (!compatibility.deny.all && compatibility.deny.values.includes(section.sectionTypeID)) {
+    return false
   }
   return true;
 }
@@ -236,12 +261,12 @@ export const checkCompatibilitySectionFromBackend = (compatibility: any, section
 }
 
 export const filterChooseSectionsFromBackend = (compatibility: any, data: any) => {
-  if(compatibility){
-    return data.filter((el:any)=>{
+  if (compatibility) {
+    return data.filter((el: any) => {
       let r = checkCompatibilitySectionFromBackend(compatibility, el);
       return r
     });
-  }else{
+  } else {
     return data
   }
 }
@@ -249,25 +274,23 @@ export const filterChooseSectionsFromBackend = (compatibility: any, data: any) =
 
 export const filterSectionChildren = (section: articleSection) => {
   if (section!.type == 'complex' && section!.compatibility && section.children.length > 0) {
-
     section.children = section.children.filter((el) => { return checkCompatibilitySection(section.compatibility, el) })
   } else {
-    console.error(`ection!.type == 'complex' && section!.compatibility&&section.children.length>0 not true`);
   }
 }
 
-export const countSectionFromBackendLevel = (section:any)=>{
+export const countSectionFromBackendLevel = (section: any) => {
   let level = 0;
-  let count = (section:any,l:number) => {
-    if(l>level){
+  let count = (section: any, l: number) => {
+    if (l > level) {
       level = l
     }
-    if(section.type == 1&&section.sections.length>0){
-      section.sections.forEach((child:any)=>{
-        count(child,l+1);
+    if (section.type == 1 && section.sections.length > 0) {
+      section.sections.forEach((child: any) => {
+        count(child, l + 1);
       })
     }
   }
-  count(section,0);
+  count(section, 0);
   return level;
 }

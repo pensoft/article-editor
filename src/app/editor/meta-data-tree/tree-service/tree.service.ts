@@ -7,7 +7,7 @@ import * as Y from 'yjs'
 import { uuidv4 } from 'lib0/random';
 import { articleSection, editorData } from '../../utils/interfaces/articleSection';
 import { FormGroup } from '@angular/forms';
-import { checkIfSectionsAreAboveOrAtMax, checkIfSectionsAreUnderOrAtMin, editorFactory, renderSectionFunc } from '@app/editor/utils/articleBasicStructure';
+import {  checkIfSectionsAreAboveOrAtMax, checkIfSectionsAreUnderOrAtMin, editorFactory,  renderSectionFunc } from '@app/editor/utils/articleBasicStructure';
 import { formIODefaultValues, formIOTemplates, htmlNodeTemplates } from '@app/editor/utils/section-templates';
 import { FormBuilderService } from '@app/editor/services/form-builder.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
@@ -60,7 +60,7 @@ export class TreeService implements OnDestroy{
       } else if (metadatachange.action == 'addNodeAtPlace'){
         this.addNodeAtPlace(metadatachange.parentContainerID,metadatachange.newSection,metadatachange.place,metadatachange.newNode);
       } else if(metadatachange.action == 'replaceChildren'){
-        this.replaceChildren(metadatachange.newChildren,metadatachange.parent);
+        this.replaceChildren(metadatachange.newChildren,metadatachange.parent,true);
       }else if (metadatachange.action == 'buildNewFromGroups'){
         this.buildNewFormGroups(metadatachange.nodes);
       }else if(metadatachange.action == 'saveNewTitle'){
@@ -244,13 +244,13 @@ export class TreeService implements OnDestroy{
     this.treeVisibilityChange.next({action:"buildNewFromGroups",nodes})
   }
 
-  replaceChildren(newChildren:articleSection[],parent:articleSection){
+  replaceChildren(newChildren:articleSection[],parent:articleSection,replaceFromOtherRoot:boolean){
     let nodeRef = this.findNodeById(parent.sectionID);
     nodeRef!.children = newChildren;
   }
 
   replaceChildrenChange(newChildren:articleSection[],parent:articleSection){
-    this.replaceChildren(newChildren,parent)
+    this.replaceChildren(newChildren,parent,false)
     this.treeVisibilityChange.next({action:'replaceChildren',newChildren,parent});
   }
 
@@ -259,12 +259,15 @@ export class TreeService implements OnDestroy{
   }
 
   editNodeChange(nodeId: string) {
-    try {
-      this.applyEditChange(nodeId)
-    } catch (e) {
-      console.error(e);
+    let node = this.findNodeById(nodeId)
+    if(!node?.active){
+      try {
+        this.applyEditChange(nodeId)
+      } catch (e) {
+        console.error(e);
+      }
+      this.treeVisibilityChange.next({ action: 'editNode', nodeId });
     }
-    this.treeVisibilityChange.next({ action: 'editNode', nodeId });
   }
 
   async addNodeChange(nodeId: string) {
@@ -338,7 +341,7 @@ export class TreeService implements OnDestroy{
     }
     let container: any[] = []
 
-    let sec = renderSectionFunc(newSection, container);
+    let sec = renderSectionFunc(newSection, container,this.ydocService.ydoc);
 
     this.renderForms(sec)
 
@@ -536,7 +539,8 @@ export class TreeService implements OnDestroy{
 
         let sectionFromBackendOrigin = sectionData.data
         let container: any[] = []
-        let newSec = renderSectionFunc(sectionFromBackendOrigin, container);
+        let newSec = renderSectionFunc(sectionFromBackendOrigin, container,this.ydocService.ydoc);
+
         this.renderForms(newSec);
         newChild =  container[0]
         newNodeContainer.splice(newNodeContainer.findIndex((s) => s.sectionID == nodeRef.sectionID)! + 1, 0, container[0]);
@@ -549,9 +553,6 @@ export class TreeService implements OnDestroy{
 
   applyEditChange(id: string) {
     let nodeRef = this.findNodeById(id)!;
-    if (!nodeRef.active) {
-      nodeRef.active = true
-
-    }
+    nodeRef.active = true
   }
 }

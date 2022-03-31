@@ -20,7 +20,6 @@ export class WorkerService {
   }
 
   processMessageResponse(data:any){
-    console.log(data);
     if(data.data&&data.data.meta.action == 'loadImgAsDataURL'){
       this.saveImageDataURL(data)
     }
@@ -42,7 +41,6 @@ export class WorkerService {
   }
 
   saveDataURL = (url:string,dataurl:string)=>{
-    console.log(url,dataurl);
     let dataURLObj = this.serviceShare.YdocService!.figuresMap!.get('ArticleFiguresDataURLS');
     dataURLObj[url] = dataurl;
     this.serviceShare.YdocService!.figuresMap!.set('ArticleFiguresDataURLS',dataURLObj);
@@ -57,7 +55,6 @@ export class WorkerService {
     if(!dataURLObj[url]){
       this.worker.postMessage({ meta: { action: 'loadImgAsDataURL' }, data: { url } })
     }else{
-      console.log(dataURLObj);
     }
   }
 }
