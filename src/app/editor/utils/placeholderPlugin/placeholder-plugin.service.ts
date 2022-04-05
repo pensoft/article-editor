@@ -20,7 +20,7 @@ export class PlaceholderPluginService {
       key: this.key,
       state: {
         init: (_, state)=> {
-          return { data: _.data,sectionID:_.sectionID };
+          return JSON.parse(JSON.stringify({ data: _.data,sectionID:_.sectionID }));
         },
         apply(tr, prev, _, newState) {
           return prev
@@ -35,15 +35,16 @@ export class PlaceholderPluginService {
           let isEmptyTextBlock =
             doc.childCount === 1 && doc.firstChild!.isTextblock && doc.firstChild!.content.size === 0;
             let hasNoTextContent = doc.textContent == ''
-          if (hasNoChildren || isEmptyTextBlock || hasNoTextContent) {
-            let position = doc.inlineContent ? 0 : 1;
-            let placeholder = document.createElement('span');
-            placeholder.classList.add('ProseMirror__placeholder');
-            placeholder.setAttribute('data-placeholder', (data&&data.placeHolder)?data.placeHolder:'Type here...');
-
-            return DecorationSet.create(doc, [Decoration.widget(position, placeholder)]);
-          }else{
             let formGroup = sharedService.TreeService!.sectionFormGroups[pluginData.sectionID]
+          if(data&&data.placeHolder){
+            if (hasNoChildren || isEmptyTextBlock || hasNoTextContent) {
+              let position = doc.inlineContent ? 0 : 1;
+              let placeholder = document.createElement('span');
+              placeholder.classList.add('ProseMirror__placeholder');
+              placeholder.setAttribute('data-placeholder', data.placeHolder);
+              return DecorationSet.create(doc, [Decoration.widget(position, placeholder)]);
+            }
+          }else if(formGroup){
             let decorations:Decoration[] = []
             if(state.doc&&formGroup){
               let nodeSize = state.doc.content.size
@@ -60,6 +61,14 @@ export class PlaceholderPluginService {
                 }
               })
               return DecorationSet.create(doc,decorations);
+            }
+          }else{
+            if (hasNoChildren || isEmptyTextBlock || hasNoTextContent) {
+              let position = doc.inlineContent ? 0 : 1;
+              let placeholder = document.createElement('span');
+              placeholder.classList.add('ProseMirror__placeholder');
+              placeholder.setAttribute('data-placeholder', 'Type here...');
+              return DecorationSet.create(doc, [Decoration.widget(position, placeholder)]);
             }
           }
         }

@@ -52,9 +52,7 @@ let figuresHtmlTemplate = `
     </figure-components-container>
     <figure-descriptions-container>
         <h3 tagname="h3" contenteditablenode="false">Figure: {{data.figureNumber+1}}</h3>
-        <figure-description *ngIf="data.figureDescription" style="display:block;">
-          <form-field formControlName="figureDescription">
-          </form-field>
+        <figure-description *ngIf="data.figureDescription" formControlName="figureDescription" style="display:block;">
         </figure-description>
         <ng-container  formArrayName="figureComponents" >
           <ng-container *ngFor="let control of formGroup.controls.figureComponents.controls;let i = index" formGroupName="{{i}}">
@@ -146,7 +144,7 @@ export class AddFigureDialogComponent implements AfterViewInit {
           }
         })
       }
-      escapeHTMLInSubmission(submision);
+      //escapeHTMLInSubmission(submision);
       let tr = this.codemirrorHTMLEditor?.state.update()
       this.codemirrorHTMLEditor?.dispatch(tr!);
 

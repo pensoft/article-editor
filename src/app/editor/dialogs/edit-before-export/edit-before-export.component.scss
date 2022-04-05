@@ -144,28 +144,11 @@
   }
 }
 
-::ng-deep .complex-section-formio {
-  width: calc(100% - 261px);
-  display: inline-block;
-  vertical-align: top;
-}
-
 ::ng-deep .submit-complex-btn-container {
   padding: 22px;
   .bottom-complex-action-btn {
     margin-right: 22px;
   }
-}
-
-::ng-deep .complex-section-tree {
-  app-complex-edit-tree {
-    width: 100%;
-  }
-  display: block;
-  vertical-align: top;
-  width: 70%;
-  margin-left: auto;
-  margin-right: auto;
 }
 
 .pm-editor {

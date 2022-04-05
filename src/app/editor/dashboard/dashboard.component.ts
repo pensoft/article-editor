@@ -32,7 +32,7 @@ export class DashboardComponent implements AfterViewInit {
   isLoadingResults = true;
   isRateLimitReached = false;
   articleTemplates2: any
-  allArticlesData:any;
+  allArticlesData: any;
   searchValue?: string;
   articleLayouts: any;
   typeChange: Subject<any> = new Subject();
@@ -53,28 +53,37 @@ export class DashboardComponent implements AfterViewInit {
     private serviceShare: ServiceShare,
   ) { }
   ngAfterViewInit() {
-    this.articleSectionsService.getAllLayouts().subscribe((articleLayouts: any) => {
+    /* this.articleSectionsService.getAllLayouts().subscribe((articleLayouts: any) => {
       this.articleLayouts = [...articleLayouts.data, { name: 'none', id: -1 }]
-    })
+    }) */
     // If the user changes the sort order, reset back to the first page.
     this.sort!.sortChange.subscribe(() => {
       this.paginator!.pageIndex = 0;
     });
 
-    this.typeChange.subscribe(()=>{
+    this.typeChange.subscribe(() => {
       this.paginator!.pageIndex = 0;
     })
 
     /* this.articlesService.getAllArticles().subscribe((responseData:any)=>{
       this.data = responseData.data;
     }) */
+    this.sort?.sort({ disableClear: false, id: 'id', start: 'desc' })
+
     merge(this.sort!.sortChange, this.paginator!.page, this.typeChange, this.refreshSubject)
       .pipe(
         startWith({}),
         switchMap(() => {
-          let params :any= {page:(this.paginator?.pageIndex!|0)+1,pageSize:7}
-          if(this.searchValue&&this.searchValue!=''){
-            params['filter[name]']=this.searchValue
+          let params: any = {
+            page: (this.paginator?.pageIndex! | 0) + 1,
+            pageSize: 7,
+          }
+          if(this.sort!.active == 'id'){
+            //@ts-ignore
+            params['sort']=this.sort?._direction=='desc'?'-id':'id'
+          }
+          if (this.searchValue && this.searchValue != '') {
+            params['filter[name]'] = this.searchValue
           }
           /* if(this.selectedType!=-1){
 
@@ -83,7 +92,7 @@ export class DashboardComponent implements AfterViewInit {
           /* if(this.allArticlesData){
             return of({data:JSON.parse(JSON.stringify(this.allArticlesData))})
           }else { */
-            return this.articlesService.getAllArticles(params).pipe(catchError(() => new Observable(undefined)))
+          return this.articlesService.getAllArticles(params).pipe(catchError(() => new Observable(undefined)))
           //}
           return 'sd'
         }),
@@ -166,16 +175,16 @@ export class DashboardComponent implements AfterViewInit {
       });
   }
 
-  timer:any
+  timer: any
   public search(input: HTMLInputElement) {
-    if(this.timer){
+    if (this.timer) {
       clearTimeout(this.timer);
     }
-    this.timer = setTimeout(()=>{
+    this.timer = setTimeout(() => {
       this.searchValue = input.value/* .toLowerCase(); */
       this.typeChange.next('typechange')
       this.timer = undefined
-    },300)
+    }, 300)
   }
   filterByType(selectValue: any) {
     this.selectedType = selectValue;
@@ -193,7 +202,7 @@ export class DashboardComponent implements AfterViewInit {
 
   deleteArticle(deleteArticle: any) {
     this.articlesService.deleteArticleById(deleteArticle.id).subscribe((deleteResponse) => {
-      if(deleteResponse.status == 204){
+      if (deleteResponse.status == 204) {
 
         this.refreshSubject.next(deleteResponse);
       }

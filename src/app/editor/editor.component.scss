@@ -1,21 +1,17 @@
 .controls-toolbar {
   border-bottom: 1px solid;
   border-color: var(--color-f1f2f2);
-
   .controls-toolbar-row {
     min-height: 70px;
     justify-content: space-between;
-
     .left-group {
       .active {
         color: var(--color-00b1b2) !important;
         font-weight: bold;
-
-        ::ng-deep {
+         ::ng-deep {
           .b {
             stroke: var(--color-00b1b2) !important;
           }
-
           .a {
             fill: var(--color-00b1b2) !important;
           }
@@ -23,6 +19,12 @@
       }
     }
   }
+}
+
+.user-reference-lib {
+  height: 100%;
+  position: fixed;
+  width: 100%;
 }
 
 ::ng-deep .middle-group {
@@ -44,25 +46,27 @@
     display: flex;
     justify-content: flex-start;
     align-items: center;
-        padding-top: 30px;
-
+    padding-top: 30px;
     textarea {
       resize: none;
     }
   }
 }
+
 .right-avatars {
   align-items: center;
   display: flex;
   justify-content: flex-end;
   margin-top: 5px;
 }
+
 .more-avatar app-avatar {
   float: left;
   margin-left: -10px;
   border: 2px solid #ffffff;
   border-radius: 50%;
 }
+
 ::ng-deep .titel-form-control {
   color: black !important;
 }
@@ -81,11 +85,9 @@
   align-items: center;
   float: right;
   margin-right: 8px;
-
   .active {
     background: var(--color-e4f6f6) !important;
-
-    ::ng-deep {
+     ::ng-deep {
       .a {
         fill: var(--color-559efe) !important;
       }
@@ -156,7 +158,6 @@ $treeSpace: 290px;
     display: block;
     overflow-y: auto;
   }
-
   .editor-container {
     width: 100%;
     height: calc(100% - 20px);
@@ -168,7 +169,6 @@ $treeSpace: 290px;
     overflow: hidden;
     overflow-y: auto;
   }
-
   .editorSpace {
     width: calc(100% - 500px);
     border-top-right-radius: 20px;
@@ -182,7 +182,7 @@ $treeSpace: 290px;
   width: 28x !important;
   height: 41px !important;
   line-height: 28px !important;
-  padding-right: 16px !important ;
+  padding-right: 16px !important;
   .ng-star-inserted {
     display: none !important;
   }
@@ -191,7 +191,6 @@ $treeSpace: 290px;
     height: 25px !important;
     line-height: 25px !important;
   }
-
   .material-icons {
     font-size: 25px !important;
   }
@@ -201,13 +200,11 @@ $treeSpace: 290px;
   width: 28x !important;
   height: 28px !important;
   line-height: 28px !important;
-
   .mat-icon {
     width: 25px !important;
     height: 25px !important;
     line-height: 25px !important;
   }
-
   .material-icons {
     font-size: 25px !important;
   }
@@ -232,9 +229,9 @@ $treeSpace: 290px;
     margin-bottom: 2px;
   }
 }
+
 .prosemirror_menu_container {
   margin-top: 0px !important;
-
   width: calc(100% - 40px);
   display: inline;
   vertical-align: middle;
@@ -251,13 +248,11 @@ $treeSpace: 290px;
 }
 
 .changes_on_editor_side_btn {
-  box-shadow: 0px 1px 2px 1px #19d928, 0px 0px 0px 0px #19d928,
-    0px 1px 3px 0px #19d928 !important;
+  box-shadow: 0px 1px 2px 1px #19d928, 0px 0px 0px 0px #19d928, 0px 1px 3px 0px #19d928 !important;
 }
 
 .changes_off_editor_side_btn {
-  box-shadow: 0px 1px 2px 1px #f37b4a, 0px 0px 0px 0px #f37b4a,
-    0px 1px 3px 0px #f37b4a !important;
+  box-shadow: 0px 1px 2px 1px #f37b4a, 0px 0px 0px 0px #f37b4a, 0px 1px 3px 0px #f37b4a !important;
 }
 
 .track_changes_menu {
@@ -268,30 +263,23 @@ $treeSpace: 290px;
   width: 40px;
   height: 100px;
   margin: 12px 12px 12px 0px;
-
   position: relative;
-
   .editor_buttons_wrapper {
     display: none;
   }
-
   .commentBtnDiv {
     height: 60px;
     //height: 40px;
     display: inline-flex;
-
     .commentsBtn {
       margin-bottom: 20px;
     }
   }
-
   .trackChangesBtnDiv {
     height: 40px;
   }
-
   button {
-    box-shadow: 0px 1px 5px 2px rgb(0 177 178 / 20%),
-      0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 4px 0px rgb(0 177 178 / 20%);
+    box-shadow: 0px 1px 5px 2px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 4px 0px rgb(0 177 178 / 20%);
   }
 }
 
@@ -324,13 +312,11 @@ $treeSpace: 290px;
   text-align: center;
   box-shadow: 0px 3px 6px #00000029;
   z-index: 10000;
-
-  ::ng-deep {
+   ::ng-deep {
     .mat-button-wrapper {
       padding: 0 !important;
     }
   }
-
   mat-icon {
     font-size: 35px;
     width: 35px;
@@ -346,15 +332,12 @@ $treeSpace: 290px;
     border-top-left-radius: 20px !important;
     border-top-right-radius: 20px !important;
     box-shadow: 0px 3px 6px #00000029 !important;
-
     button {
       text-align: center;
-
       &:last-child {
         margin-bottom: 27px;
       }
     }
-
     .mat-icon {
       margin-right: 0 !important;
       font-size: 20px;

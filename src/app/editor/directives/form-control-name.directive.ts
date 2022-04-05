@@ -65,7 +65,7 @@ export class FormControlNameDirective implements ControlValueAccessor {
     }
   }
 
-  writeValue(val: any): void {
+  writeValue(val: string): void {
     try {
       this.ngControl = this.inj.get(NgControl);
       /* if((val as string).startsWith('<form-field')){
@@ -86,7 +86,42 @@ export class FormControlNameDirective implements ControlValueAccessor {
         this.innerValue = wrapper.innerHTML;
         return
       } */
-      this.el.nativeElement.innerHTML = val;
+      //let escapeBraces = val.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+      console.log(val);
+      //let regex = /<math-display[^>]+>([\s\S]+?(?=<\/math-display>))<\/math-display>|<math-inline[^>]+>([\s\S]+?(?=<\/math-inline>))<\/math-inline>/gm
+      let regex = /<math-display[^>]+>((.|\n)*?)<\/math-display>|<math-inline[^>]+>((.|\n)*?)<\/math-inline>/gm
+      let mathInlineRegex =/<math-inline[^>]+>((.|\n)*?)<\/math-inline>/gm
+      let mathBlockRegex =/<math-display[^>]+>((.|\n)*?)<\/math-display>/gm
+
+      let match = regex.exec(val);
+      let inlineMatch = mathInlineRegex.exec(val);
+      let blockMatch = mathBlockRegex.exec(val);
+      if(inlineMatch){
+        console.log(inlineMatch);
+      }
+      if(blockMatch){
+        console.log(blockMatch);
+      }
+      /* if(regex.test(val)){
+        console.log(match);
+      } */
+      let escapedVal = val.replace(regex,(match,args)=>{
+        let inlineContent = mathInlineRegex.exec(match);
+        let blockContent = mathBlockRegex.exec(match);
+        if(inlineContent&&inlineContent[1]){
+          let replaceContent = inlineContent[1].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+          let replaceMatch = match.replace(inlineContent[1],replaceContent)
+          return replaceMatch;
+        }
+        if(blockContent&&blockContent[1]){
+          let replaceContent = blockContent[1].replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+          let replaceMatch = match.replace(blockContent[1],replaceContent)
+          return replaceMatch;
+        }
+        return match
+      })
+      //let escapeBraces = val/* .replace('{','\{') */.replace('}}','}\}');
+      this.el.nativeElement.innerHTML = escapedVal;
       /* this.el.nativeElement.innerHTML = `<p class="set-align-left">
      ${val}
     </p>`; */

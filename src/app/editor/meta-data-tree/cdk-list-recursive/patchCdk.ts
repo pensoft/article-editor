@@ -16,6 +16,9 @@ export function installPatch(treeService:TreeService) {
     y: number
   ): DropListRef | undefined {
     // Possible targets include siblings and 'this'
+    item.data.data.canDropBool[0] = true;
+    item.data.data.canDropBool[1] = '';
+
     //@ts-ignore
     let targets = [this, ...this._siblings];
     if(!item.data.data){
@@ -41,7 +44,6 @@ export function installPatch(treeService:TreeService) {
     if (matchingTarget === this) {
       return undefined;
     }
-    item.data.data.canDropBool[0] = true;
 
     canReceive(matchingTarget,item,treeService)
     canMoveOut(matchingTarget,item,treeService)
@@ -74,6 +76,7 @@ function canMoveOut(target:any,item:any,treeService:TreeService){
 }
 
 function canMoveIn(target:any,item:any,treeService:TreeService){
+  console.log(target.data.id);
   if(target.data.id!=="parentList"){
     // the initial parent of the node , from where we start dragging the node
     let moovingInNode = treeService.findNodeById(target.data.id)!
@@ -92,7 +95,7 @@ function canReceive(target:any,item:any,treeService:TreeService){
   let dropTargetLevel
   let parentCompatibility:any
   if(target.data.id == 'parentList'){
-     dropTargetLevel =0 ;
+     dropTargetLevel = 0 ;
   }else{
     let node = treeService.findNodeById(target.data.id)
     parentCompatibility = node?.compatibility

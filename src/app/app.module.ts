@@ -95,6 +95,8 @@ import { PermissionComponent } from './layout/pages/recent-permission/permission
 import { RecentComponent } from './layout/pages/recent-permission/recent/recent.component';
 import { AddContributorsDialogComponent } from './editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
 import { SearchFilterPipe } from './shared/pipes/search-filter.pipe';
+import { LibraryPage } from './layout/pages/library/library.component';
+import { SelectReferenceComponent } from './layout/pages/library/select-reference/select-reference.component';
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -177,6 +179,8 @@ const gravatarConfig: GravatarConfig = {
     RecentComponent,
     AddContributorsDialogComponent,
     SearchFilterPipe,
+    LibraryPage,
+    SelectReferenceComponent,
   ],
   imports: [
     PipesModule,

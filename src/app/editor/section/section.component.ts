@@ -133,6 +133,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
   async onSubmit(submision?: any) {
     try {
+      console.log(submision);
       if(this.section.type=='complex'){
         this.submitComplexSectionEdit()
       }
@@ -286,6 +287,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     // const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
     this.sectionContent = this.section.formIOSchema;
     this.renderSection = true
+    console.log(this.sectionForm);
     if (this.section.mode == 'documentMode' && this.section.active) {
       if (this.section.initialRender == this.ydocService.ydoc.guid) {
         this.section.initialRender = undefined;

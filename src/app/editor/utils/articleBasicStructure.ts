@@ -71,7 +71,8 @@ export const renderSectionFunc:
   = /**/(sectionFromBackend: any, parentContainer: articleSection[], ydoc: Y.Doc, index?: number | string) => {
     let children: any[] = []
     if (sectionFromBackend.type == 1) {
-      sectionFromBackend.sections.forEach((childSection: any) => {
+      sectionFromBackend.sections.forEach((childSection: any,indexOfChild:number) => {
+        childSection.settings = sectionFromBackend.complex_section_settings[indexOfChild]
         renderSectionFunc(childSection, children, ydoc)
       })
     }
@@ -99,6 +100,7 @@ export const renderSectionFunc:
         sectionMeta: { main: false }
       }
     } else if (sectionFromBackend.type == 1) {
+      console.log(sectionFromBackend);
       newArticleSection = {
         title: { label: sectionLabel, name: sectionFromBackend.name, template: sectionLabel, editable: !/{{\s*\S*\s*}}/gm.test(sectionLabel) },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,
@@ -130,8 +132,6 @@ export const renderSectionFunc:
         newArticleSection.subsectionValidations = minmaxValds;
       }
     }
-    //@ts-ignore
-    console.log(newArticleSection,ydoc.guid);
     //@ts-ignore
     newArticleSection.initialRender = ydoc.guid
     //@ts-ignore

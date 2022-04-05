@@ -410,8 +410,16 @@ $itemHeight: 30px;
 
 .selectedEditor {
   background-color: #e4f6f6;
+  z-index: 1;
   /* width: calc(100% - 44px);
-    z-index: 4;
+    .text-section-div {
+        margin-left: 17px !important;
+    } */
+}
+
+.selectedEditorList {
+  background-color: #e4f6f6;
+  /* width: calc(100% - 44px);
     .text-section-div {
         margin-left: 17px !important;
     } */
@@ -419,6 +427,7 @@ $itemHeight: 30px;
 
 .selectedEditorNestedLeaf {
   background-color: #e4f6f6;
+  z-index: 1;
   /* margin-left: 18.7px;
     padding-left: 11.3px;
     width: calc(100% - 44px);

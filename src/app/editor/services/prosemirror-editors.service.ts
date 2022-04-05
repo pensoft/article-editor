@@ -1086,7 +1086,7 @@ export class ProsemirrorEditorsService {
         Object.keys(nodeDomAttrs).forEach((key) => {
           ((mathview.dom as HTMLElement).hasAttribute(key) && nodeDomAttrs[key] !== '' && nodeDomAttrs[key]) ? undefined : (mathview.dom as HTMLElement).setAttribute(key, nodeDomAttrs[key]);
         });
-
+        //console.log(mathview);
         /* let setDataURL = (dataURL: string) => {
 
           let session = seviceShare.PmDialogSessionService ? seviceShare.PmDialogSessionService!.inSession() : 'nosession';

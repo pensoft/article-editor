@@ -23,6 +23,7 @@ import { ProfileInfoComponent } from './layout/pages/profile/profile-info/profil
 import { RecentPermissionComponent } from './layout/pages/recent-permission/recent-permission.component';
 
 import { AddContributorsDialogComponent } from './editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
+import { LibraryPage } from './layout/pages/library/library.component';
 
 const routes: Routes = [
   { path: 'profile-info', component: ProfileInfoComponent },
@@ -42,6 +43,7 @@ const routes: Routes = [
       { path: 'profile', canActivate: [AuthGuard, AnyProjectsGuard], component: ProfileComponent },
       { path: 'profile-info', canActivate: [AuthGuard, AnyProjectsGuard], component: ProfileInfoComponent },
       { path: 'recent-permisson', canActivate: [AuthGuard, AnyProjectsGuard], component: RecentPermissionComponent },
+      { path: 'library', canActivate: [AuthGuard, AnyProjectsGuard], component: LibraryPage },
       { path: ':id', canActivate: [AuthGuard], component: EditorComponent },
     ],
   },
@@ -56,3 +58,4 @@ const routes: Routes = [
   exports: [RouterModule],
 })
 export class AppRoutingModule {}
+

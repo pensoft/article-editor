@@ -69,12 +69,19 @@ export class FormBuilderService {
     if (type == 'datagrid') {
       this.updateValue(component, submission, formGroup)
     } else if (component.type == 'columns') {
+      component.columns.forEach((col:any,i:number)=>{
+        col.components.forEach((comp:any,j:number)=>{
+          //@ts-ignore
+          console.log(comp,/*  formGroup?.get(component.key+'.'+i).value */submission, formGroup);
+          //@ts-ignore
+          this.updateValue(comp, /* formGroup?.get(component.key+'.'+i).value */submission, formGroup)
+        })
+      })
       this.updateValue(component, submission, formGroup)
     } else if (type == "select") {
       this.updateValue(component, submission, formGroup)
     } else if (type == "container") {
       this.updateValue(component, submission, formGroup)
-
     } else if(type == "radio"){
       this.updateValue(component, submission, formGroup)
     }else if (type == 'panel') {
@@ -153,18 +160,19 @@ export class FormBuilderService {
       formGroup.addControl(component.key, containerGroup);
 
     } else if (component.type == 'columns') {
-      let formArray = new FormArray([]);
+      //let formArray = new FormArray([]);
       for (let i = 0; i < component.columns?.length || 0; i++) {
-        let colFormGroup = new FormGroup({});
+        //let colFormGroup = new FormGroup({});
         component.columns[i].components?.forEach((subComponent: any) => {
-          let formControl = this.resolveComponent(colFormGroup, subComponent);
+          /* let formControl = this.resolveComponent(colFormGroup, subComponent);
           if (formControl) {
             colFormGroup.addControl(subComponent.key, formControl);
-          }
+          } */
+          this.renderSimpleFromControl(formGroup,subComponent);
         });
-        formArray.push(colFormGroup);
+        //formArray.push(colFormGroup);
       }
-      formGroup.addControl(component.key, formArray);
+      //formGroup.addControl(component.key, formArray);
 
     } else if (type == "select") {
       this.renderSimpleFromControl(formGroup, component)

@@ -116,3 +116,41 @@ export const applyVerticalAlignment = function applyVerticalAlignment(node, rowI
     }
   });
 }
+
+export const applyVerticalAlignmentv2 = function applyVerticalAlignment(node, rowIndex) {
+  let tableBody = node.table.body
+  let mostMarginTop = 0
+  if (tableBody) {
+    tableBody[0].forEach((cell) => {
+      if (
+        cell.image &&
+        cell.props &&
+        cell.props.offsetTop &&
+        cell.props.offsetBot &&
+        typeof cell.props.offsetTop == 'number' &&
+        typeof cell.props.offsetBot == 'number') {
+        if (mostMarginTop < cell.props.offsetTop) {
+          mostMarginTop = cell.props.offsetTop;
+        }
+      }
+    })
+  }
+  mostMarginTop += 1
+  if (tableBody) {
+    tableBody[0].forEach((cell) => {
+      if (cell.props && cell.props.canvasDims && cell.image) {
+        if (!cell.margin) {
+          cell.margin = [0, 0, 0, 0];
+        }
+        if (cell.props.offsetTop < mostMarginTop) {
+          cell.margin[1] = mostMarginTop - cell.props.offsetTop
+        }
+      } else {
+        if (!cell.margin) {
+          cell.margin = [0, 0, 0, 0];
+        }
+        cell.margin[1] = mostMarginTop
+      }
+    })
+  }
+}

@@ -323,6 +323,15 @@ export class YdocService {
     }
     this.roomName = roomName
     this.userInfo = userInfo;
+    //@ts-ignore
+    window.indexedDB.databases().then((value:any[])=>{
+      value.forEach((db:{name:string,version:number})=>{
+        if(db.name!==this.roomName){
+          //@ts-ignore
+          window.indexedDB.deleteDatabase(db.name);
+        }
+      })
+    })
     this.providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
     let buildApp = () => {
       this.provider = new WebsocketProvider(`wss://${environment.WEBSOCKET_HOST}:${environment.WEBSOCKET_PORT}`, this.roomName, this.ydoc, {

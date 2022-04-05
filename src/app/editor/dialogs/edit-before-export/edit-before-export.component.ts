@@ -16,20 +16,16 @@ import { Subject } from 'rxjs';
 import { FormControl, Validators } from '@angular/forms';
 import { getFontEmbedCSS, toBlob, toCanvas, toJpeg, toPixelData, toPng, toSvg } from 'html-to-image'
 //@ts-ignore
-import { applyVerticalAlignment } from './alignFunc.js'
-import * as katex from 'katex'
-//@ts-ignore
-import { render as canvasRender } from './canvasRenderer.js'
-import { FigureComponent } from '../figures-dialog/figure/figure.component';
-import { C, G, N } from '@angular/cdk/keycodes';
-import { leadingComment } from '@angular/compiler';
+import { applyVerticalAlignment, applyVerticalAlignmentv2 } from './alignFunc.js'
+
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
 import { EditorState } from 'prosemirror-state';
 import { EditorView as EditorViewCM, EditorState as EditorStateCM } from '@codemirror/basic-setup'
 import { basicSetup } from '@codemirror/basic-setup';
 import { javascript } from '@codemirror/lang-javascript';
 import { EditorView } from 'prosemirror-view';
-import { stringify } from 'querystring';
+import { image } from '@app/editor/utils/Schema/nodes/figure-nodes';
+import { cellAround } from 'prosemirror-tables';
 pdfMake.vfs = vfs;
 
 pdfMake.fonts = {
@@ -385,7 +381,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
       "A4": true,
       "A5": false
     },
-    "maxParagraphLinesAtEndOfPage": 1,
+    "minParagraphLinesAtEndOfPage": 1,
     "header": { "marginTop": 20, "marginBottom": 15, "fontSize": "auto" },
     "footer": { "marginTop": 15, "marginBottom": 15, "fontSize": "auto" }
   }
@@ -437,7 +433,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
       let pdfSettings: any = {};
       pdfSettings.maxFiguresImagesDownscale = settingsFromUser.maxFiguresImagesDownscale;
       pdfSettings.maxMathDownscale = settingsFromUser.maxMathDownscale;
-      pdfSettings.maxParagraphLinesAtEndOfPage = settingsFromUser.maxParagraphLinesAtEndOfPage;
+      pdfSettings.minParagraphLinesAtEndOfPage = settingsFromUser.minParagraphLinesAtEndOfPage;
       pdfSettings.header = settingsFromUser.header;
       pdfSettings.footer = settingsFromUser.footer;
       pdfSettings.pageMargins = settingsFromUser.pageMargins;
@@ -518,7 +514,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
     elementsContainer.style.margin = '10px auto'
 
-    this.data.pageMargins = [pxToPt(this.pageMarg[3]), pxToPt(this.pageMarg[0]), pxToPt(this.pageMarg[1]), pxToPt(this.pageMarg[2])];
+    this.data.pageMargins = [pxToPt(this.pageMarg[0]), pxToPt(this.pageMarg[1]), pxToPt(this.pageMarg[2]), pxToPt(this.pageMarg[3])];
 
     let ImagesByKeys: { [key: string]: string } = {}
 
@@ -556,19 +552,19 @@ export class EditBeforeExportComponent implements AfterViewInit {
         let findParagraphChild = (node: HTMLElement, container: HTMLElement) => {
           if (node.tagName == 'P') {
             //@ts-ignore
-            if(container.lastChild&&container.lastChild.tagName&&container.lastChild.tagName=="P"){
+            if (container.lastChild && container.lastChild.tagName && container.lastChild.tagName == "P") {
               //@ts-ignore
               container.lastChild.append(...Array.from(node.childNodes).map((n) => {
                 return (n as HTMLElement).cloneNode(true)
               }));
-            }else{
+            } else {
               container.append(document.createElement('p'))
               //@ts-ignore
               container.lastChild.append(...Array.from(node.childNodes).map((n) => {
                 return (n as HTMLElement).cloneNode(true)
               }));
             }
-          }else if(node.tagName == 'MATH-DISPLAY'){
+          } else if (node.tagName == 'MATH-DISPLAY') {
             container.append(node)
           } else {
             node.childNodes.forEach((ch) => {
@@ -584,14 +580,14 @@ export class EditBeforeExportComponent implements AfterViewInit {
       }
       let separatorSymbols = ['.', ',', '/', ':', ';', '!', '?']
       let descriptions: any = [];
-      let checkNextTextNodeAndSpace = (node:HTMLElement)=>{
-        if(!(node instanceof Text)){
-          if(node.childNodes&&node.childNodes.length>0){
+      let checkNextTextNodeAndSpace = (node: HTMLElement) => {
+        if (!(node instanceof Text)) {
+          if (node.childNodes && node.childNodes.length > 0) {
             checkNextTextNodeAndSpace(node.childNodes[0] as HTMLElement)
           }
-        }else{
-          if(!node.textContent?.startsWith(" ")){
-            node.textContent = " "+node.textContent
+        } else {
+          if (!node.textContent?.startsWith(" ")) {
+            node.textContent = " " + node.textContent
           }
         }
       }
@@ -601,7 +597,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
         for (let j = 1; j < descText.childNodes.length; j++) {
           let descEl = descText.childNodes[j] as HTMLElement
           if (figuresCount > 1) {
-            let separator:any
+            let separator: any
             let lastSymbol = figureDescription.childNodes[figureDescription.childNodes.length - 1].textContent![figureDescription.childNodes[figureDescription.childNodes.length - 1].textContent!.length - 1];
 
             if (separatorSymbols.includes(lastSymbol)) {
@@ -613,11 +609,11 @@ export class EditBeforeExportComponent implements AfterViewInit {
             }
             //strong.style.fontSize = ptToPx(5) + 'px'
             //@ts-ignore
-            if(figureDescription.lastChild&&figureDescription.lastChild.tagName&&figureDescription.lastChild.tagName=="P"){
+            if (figureDescription.lastChild && figureDescription.lastChild.tagName && figureDescription.lastChild.tagName == "P") {
               //@ts-ignore
               //figureDescription.lastChild.append(document.createTextNode("; " + String.fromCharCode(65 + i) + " "))
               figureDescription.lastChild.append(separator)
-            }else{
+            } else {
               figureDescription.append(document.createElement('p'));
               //@ts-ignore
               //figureDescription.lastChild.append(document.createTextNode("; " + String.fromCharCode(65 + i) + " "))
@@ -810,23 +806,27 @@ export class EditBeforeExportComponent implements AfterViewInit {
     }
 
     let mainNodes = this.elements;
-    for (let i = 0; i < mainNodes.length; i++) {
-      let el = mainNodes[i] as HTMLElement;
-
-      await loopNodeChildrenAndRunFunc(el, ['math-inline', 'math-display'], async (element: HTMLElement) => {
+    let headerCh = Array.from(this.headerPmContainer?.editorView.dom.childNodes!)
+    let footerCh = Array.from(this.footerPmContainer?.editorView.dom.childNodes!)
+    let generateMath = async (el:HTMLElement) => {
+      return loopNodeChildrenAndRunFunc(el, ['math-inline', 'math-display'], async (element: HTMLElement) => {
         return new Promise((resolve, reject) => {
-          let mathEl = (element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] || element)
+          let mathEl = (element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] /* || element */)
           //let width = pxToPt(mathEl.getBoundingClientRect().width);
           let math_id = element.getAttribute('mathid')!
+          //math_data_url_obj[math_id] = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKgAAAEuCAYAAAAa1VnFAAAAAXNSR0IArs4c6QAAF1xJREFUeF7tnQm0dtc5x/9NgyZYomJWipTQoC0hUkHbZUpbxNDUGIqIMbQJS7C0hjatpYOxU8xKJFSMiXmKGBcVrUgoWkOpkBShFU3XL+/e9+775n3vd973/T/vvd/9/nutb+W73z3nf/Z59u88e+/nec7J/ZQWCxxiC9zvEPctXYsFdNCA3l/SW0k6qY0F/VmnT2+U9B8Zz6NngXVgcFrh0yQ9yyR4tqTbTVqROSQWWAToAyS9raR/3kIf8Z4/L+ndJf23pEdJ+rcl18XLvoWkt5f0rpIA8oskvWU7/psk/cgW+nyYL3G+pCdIeqCkd5Z0oaRXznWYMcfef7+FG5nSn327MQ/oKZJ+W9LbSfpISf+whZv4IEkvbdf5LUlfIIkpe0p7G0lfIuliSbdIwiAncvtoSY+R9FnNCGdKesOcQb5X0sdL+mpJ1xUba0p/VgIUz/Q7kl4j6dGS/rf4Brr8F0v62vbDt0r6/hWv28//BEl/teK5R+3wR7aZ5PclfeaCm/s9Se/UHmYe6up2rP6sBCgHv4OkOxY8eZU3wmbphySd2y7yiZL+YoULcv5PSLpJ0rNXOO8oHnqpJP48R9J3LbjBt26b0ju3dPPH6s/KgG6p3/e5zDtK+tW2pnyVpMe2denU/ry5pDdb8Zyp2sfTcddI+mBJnyHpDw5BxzfqT1+D4oFYLzxU0q9JevmSGzu9rU3PkPRqSb8u6V8WHPsQSR8u6V2aFuD9zwRjsax4cTvuWklfM+GcHLJrgVOHmYexHG3+AW3Z9meSflfS/y8xHOvWD5WEp/1ZSf/e9gRonSbpU9q//cqcM2Dz+t6SWFr0tl9/+jFcD1bYAP9i4wlH818c0AF9agOUTr+npHMk/etwIU5g8wIwTL2/KelDGoCP62Lt+B46+g1Jt7UNzE9JunwiSd8o6fPbsV/VjDTx1AM/7Esl3dzW8QfRGQb6xxok4/qTzeMz20YS73qJpF+e6yAb5G9onhdQYAGHQcMRPU0Sm9jrJX1qW5Lxb73h2GDn/SS9vv3jsv509th3sMH9I0l/I+nxLVTI5vyz+0E8Wezmzmthm8+VhKHpCI3wzrdLuqDt8AGVzvcN1SdL+vN2LE8R0wo3jxH6z8QnCQtNaYS5floSTxYNz86UX90+TtLXSWKjNcXbz/fnZEl/2h7er6ju7BL9r5TEQz2uPwHvD9u9ER357gVw4ahe2CIAOAggp72kOasXSEKHZdRVkvCeOB9sRntwg3g+krKoP73rMHaZpOe1P/w7a2aWdkR1njJSTDySpwEDE1f8CEn/1JTYsDy37ew5mYwNcdJvbrtBntT/a8cSx+QGeCK4Uab/75H0M5KYsqc2lhD9CQd+vPLdU09e8zhCL4S88DTzjamK5U2fcZhd5iFm1mFAae+/xQjI2NermyN4YoOS3zEmeMaPbSDgTdm4/NxwIs7nO9r44x17A2aOBxZ+T+gRPVj5wcYAx/ZZ8wckfctw/qL+8OvuWeejRTCF57yibXrvNThrDQYfAwMX6xO8aG/A9YHN9RLCea8GJscxbY9r0LPmpmQ6wFNCaGPVRsD5ynbSkxvkq2psejwzAF71PVr4ipgiswdP+HyUAaMSAeGBflLzpJtef5Xz8XB97zCuP1nb8Yd9xp80wfn1aQdp9J7MnC9rDuvDJN3Tkih90wNIfVyBF8i/TNIvtWss6w+/JnsI1M+fyyT2ZQKeGQ+9J+/d3eu47gNg1gY0ngwW2K9tf/o6Y96IwPTlc/+Id7p1FWu3pQUPAZklPMJdK54/9XAGgmA/GwC8PSE2GtmWF7WHhPX0fg07Eb/9UUm/0KZIBnubrXvwZfFPgveM4Y9L+vqhYyypXtF+xjv2DNP7Ntj+tk39HEL8FCjJ+j1s2GgxY5LcIUyIU6It6894PZaL3bacjw7aOEQeiB1AmbL704UXZKpj3UjneuAbt7xox97vlTUjGybikUyBaLC+4KaYYvr0N3XQWL98Tls495ueeu4qx5EOZG0FpGRZgIzGbELqlA3hsRoeiQHjHm9s4S4GaNlO+Vh66/yedS/ZIdaf3AMBctLIvbEjZ2yZmXjomRXY9BBxuaEdxN97n7E9Uznx6b4ZYrpn2t9ZIzYdIGOMAJSNDjbggVjUH67boXy4pB6PZQmCR2WDxhKEpeNL+poKD/V0ST/Zni6eQtw1i+ueeWAT9Y/DDePCEUKQdWJ3z+M08YVtPcG6hvXt1Abo39mmy1UC9lP1x+MwCvcOiH1qZjok8sBssqjxoI5rUOBgU8m0hHfCMxCOYcbZVvvhtncADHbSTMtk2Gh9TQ9E7C/Y9OJ8gI17pZ//OSRK2IfgaQF63DB3L8wUjd1oIzvo4gXZEPOgcK35/vTrcS4b9N76epeair9ua95zO6A9VYjXelCLg/VQT/8d3hARzmET0NeHkM60SHiF1CgbKTwoa1VSlqxjmPanepOemx8NUz3IRBx4IHmiWY+zLser9PXU/PXn16B4LDwO01Kf2rDVNrNafYDxYDzcjBdek8Z98cCxO8ercizT+b2xRkmEGdl3MNZ4VyBhmqUBOss6GuCxXsUp8fCiwT0CNP8FPmYS2NmvP305idfkoYE7nBmNsBMO6u/YnHdA3625bdYBnEAWoq9FiIGyUfi8YZSY/pkOmQL77poiBXb7dJbfs9Zgp8jNzxcsLAOOwD4hL3aD6K/SmJ6IRqziqdHHBkw5wMjgcf8Ep7k3BmFZdVXvG2tV4sN93d3DTTyk2GRbjQeDNTONWY8HvDsF1tlsbgCVNR5AjOvqHpUhpIeTIYyEZxzXn/0++gzBz2h9W4ObJR4/s/lhWbhff/r6njGj8eAAPaEu+GEm+nRJrxurmaAfrwe5PWw0GpcTAYgBW1YcjAYxMYAk07RKQx8j/mXb+d+7SJ7YgILYKaEsprpVWt8MsPsmnMKy5XVtMPGKRCqWeX+WOezemR7Huta+q8VDMF1tq2EHguVcc5H9GF+8If3dr7FDJ+TDDMjmb77hfFhLwgqbZThi5kV3ZONY/eEcbNtDmjhD4us4xz2bpG0ZcNl1ABuPSR0jxlkWIVh0/phIYGOwah0rMU42C4RoWIPzJPdGXz6pbTqIQvDgYTi8LFGFHnLh+L4uYz3LNMsDx3EMck/fHrSd568PEHh+/tsfMGDDDmScxl32gfT9oCvq+02T8gKEnuqaagx2z0xXH7MgyDxVg+MYIHbyTFHzDS9JtoxpCY+AzViDLqtXWOW6B31sr33gvh/RlmsAy+4bSJkdptbmltzLYQC0ZyGYSpje8VD9T79pvCR9xduxXgIWFu9j+rSHREoMdURFKe4gLMjeg1mEXTuwshZnFz51Y1tmnoMGlJ0imSpHW2d6n78u9lhl7evo90FrMEPwwJMFY+23jbqHyfd80IDy5LKo7x7yWG91dnhGD8vfiSSsunsfjcTuFg/MdEa4jCjC/Ls8k43aDmTgCckQ8K9+tWLVvh03xx80oIfBULzXBNzE7pjm2BgRk2MHPiU8xsPF0qPHFPs9oUsIhtDb1J0852yr0v0w2P6YfQigs0wHOWpCMDQq+3l1ZCyGWGRIQi2EpkhUkMMndrhOYwyoEuIBIanB2i+tWSCAzuAkoN7fh2I3T13jmM4bgSEZQBCbVCZhJna787t/dv1Ax26flxAXNUJrVO0QysGDE47q8UB+x24ar0zKkcwKG0LSvgS1q0sPD80DEkBnOWUyGj3r0yu4KNIda0OJHpAOBCoKKNjcLYrXAifemIA1Kd4x38zA8wDgedGiUp2M1fwHJyjKoE94cTz1M1qtA6/OUL7YizsODUhVHQmgsw0Ru9gxLckGqWdRmPKZfnu9bH8dYplXJM+M9yMjRbque2Y2TfyM92XThGckY7Wo4dXJZfe3VMeiDh6aXnFVxcWh0Q2gs0pxsibkoWlMr+SCKX7oBQ9AwYaHdOqUjRM6TP+A3t/3f59WhU696Pe1fP9+IPTCjF6j2UNyJDOOQpJg0kMQQKVeR9k3Sb1wdnwtgnUnBTRUjRM6Ar79Cqj724xMx0DdW1939hfFCEEtq3WluooCnZ6MoCCFqZ/lAdN/r9+dNNDH60EBdPZyHtM2aT+KHz6qxUFJ/fXq+j6+TNNAyjRN/ScblkVhof7OzbIX/rA7v+PbUryxQK5+/ltJFL1Qd9rfhqXelrUn18Mzrxs1OK5YDaCz4cKjUVkPdAAIFFSFL2vk5PFmF7V1IuvYcaOD90Wvrz+PNZVTjwp4bNj6qzEkDMYNEfW3rIPpY6/FPa5gW6ezAXTXary1SeU5IaZ5z7nMtgTpedOAsA9AM7X3KifWsRRbTG14cnLh/e3XRUF73psC5BMmHRtA9+KzSS6eQl6mfqrS2WWfUJuZqU/hqscF0JnFHLl4QlG8j4UHJm75x8nFr4rjfY8PoJIzFz964OTiN+dzre/BGy57qCSSiz9Uw3HfNdch7t5WupZc/FbMvN5FMsUnF78eOVs6K4AmF78l1Na7TABNLn49crZ0VgBNLn5LqK13mQCaXPx65GzprAA6M3Ry8VsCbtXLBNBdiyUXvyo9Wzg+gPqMnFy8z5Y7SgH0vomLdSuF5nPxy16WKxjGoysZQGdj6ygWQWfMxefDDYbnJoB6i0XGIUmxSAA1WCAfbrAYsUokHjQfbqhiy6IbQFMsYgGpSiSAplikii2LbgBNsYgFpCqRAJpikSq2LLoBNMUiFpCqRALozLIpFqkibEPdALprwBSLbAhTxekBdK9V8+GGCso20AygM+M5cvH5cMMGIC47NYB6c/H5cIMZ0gCaXLwZKa9cAE0u3kuUWS2AJhdvRsorF0CTi/cSZVYLoMnFm5HyygXQ5OK9RJnVAmhy8WakvHIBNLl4L1FmtQCaXLwZKa9cAPXZMx9u8NlyRymA+opF8uGGAFpgAV+xCEr5cIN5iOJBvcUi4/Dkww0GWANoikUMGNVJBNAUi9TRZVAOoCkWMWBUJxFAUyxSR5dBOYCmWMSAUZ1EAE2xSB1dBuUAmmIRA0Z1EgE0xSJ1dBmUA2iKRQwY1UkEUF8uPsUiBZwGUF8uPh9uCKAFFvDm4vPhBvMQxYMmF29GyisXQJOL9xJlVgugycWbkfLKBdDk4r1EmdUCaHLxZqS8cgE0uXgvUWa1AJpcvBkpr1wATS7eS5RZLYAmF29GyisXQH32TC7eZ8sdpQDqM2o+3OCzZQBdYssxl76OuTc9f51rHulz4kFnw+v439DMg3KKpKslXSXpuiNNUeHNBVBvNdM4VPmyiAHcAJpqJgNGdRIBNNVMdXQZlANoqpkMGNVJBNBUM9XRZVAOoKlmMmBUJxFAU81UR5dBOYCmmsmAUZ1EAJ3Z9mJJF0q6XtIFki6XdOM+Zj9Z0vmSLpJ0k2br2NuH4y9teudOGLqzJV0i6U7NNmy3tnNulnSZpBvaz1dKOqf1kb+fEC2A7g7z6ZLOkHSLpDsmjv5Jks6TdHcD+lRJd0m6RtJtkq6YqMNhZ0o6S9K17RwC/UA7ttPav92zgu5xfWgA3Tt8m+TSU81U8CgE0JlRHbn4fFkkgBZYwJuLz5dFzEMUD5pcvBkpr1wATS7eS5RZLYAmF29GyisXQJOL9xJlVgugycWbkfLKBdDk4r1EmdUCaHLxZqS8cgF0Zs/k4r1c2dQC6K4pk4u3YeUTCqA+WyYX77PljlIA3WvUTYpF8mWRAFpggZmko1gEnRHwfLjBMFzxoN5ikXFI8uGGAGqwQIpFLEasEokHTbFIFVsW3QCaYhELSFUiATTFIlVsWXQDaIpFLCBViQTQFItUsWXRDaApFrGAVCUSQGeWTbFIFWEb6gbQXQOmWGRDmCpOD6B7rbpJLj7FIgWEBlBfLj4fbgigBRbw5uLz4QbzEMWDJhdvRsorF0CTi/cSZVYLoMnFm5HyygXQ5OK9RJnVAmhy8WakvHIBNLl4L1FmtQCaXLwZKa9cAE0u3kuUWS2AJhdvRsorF0B99kwu3mfLHaUA6isWyYcbAmiBBXzFIijlww3mIYoH9RaLjMOTDzcYYA2gKRYxYFQnEUBTLFJHl0E5gKZYxIBRnUQATbFIHV0G5QCaYhEDRnUSATTFInV0GZQDaIpFDBjVSQTQFIvU0WVQDqApFjFgVCcRQH25+BSLFHAaQH25+Hy4IYAWWMCbi8+HG8xDFA+aXLwZKa9cAE0u3kuUWS2AJhdvRsorF0CTi/cSZVYLoMnFm5HyygXQ5OK9RJnVAmhy8WakvHIBNLl4L1FmtQCaXLwZKa9cAPXZM7l4ny13lAKor1gkH24IoAUW8BWLoJQPN5iHKB7UWywyDk8+3GCANYCmWMSAUZ1EAE2xSB1dBuUAmmIRA0Z1EgE0xSJ1dBmUA2iKRQwY1UkE0BSL1NFlUA6gKRYxYFQnEUBTLFJHl0E5gKZYxIBRnUQA9eXiUyxSwGkA9eXi8+GGAFpgAW8uPh9uMA9RPGhy8WakvHIBNLl4L1FmtQCaXLwZKa9cAE0u3kuUWS2AJhdvRsorF0CTi/cSZVYLoMnFm5HyygXQ5OK9RJnVAmhy8WakvHIB1GfP5OJ9ttxRCqA+o+bDDT5bBtAlthxz6euYe9Pz17nmkT4nHnQ2vA+X9DRJb5R0s2bB+1duOPKnSLpa0lWSrttQ64Q9PYB6q5lGkPJlEcNjFUBTzWTAqE4igKaaqY4ug3IATTWTAaM6iQCaaqY6ugzKATTVTAaM6iQCaKqZ6ugyKAfQVDMZMKqTCKAz214s6UJJ10u6QNLlkm7cx+wnSzpf0kWSbmqB/duH4y9teudOGLqzJV0i6U7NNmy3tnNIGFwm6Yb285WSzml95O8nRAugu8N8uqQzJN0i6Y6Jo3+SpPMk3d2APlXSXZKukXSbpCsm6nDYmZLOknRtO4dAP9CO7bT2b/esoHtcHxpA9w7fJrn0VDMVPAoBdGZURy4+XxYJoAUW8Obi82UR8xDFgyYXb0bKKxdAk4v3EmVWC6DJxZuR8soF0OTivUSZ1QJocvFmpLxyATS5eC9RZrUAmly8GSmvXACd2TO5eC9XNrUAumvK5OJtWPmEAqjPlsnF+2y5oxRA9xp1k2KRfFkkgBZYYCbpKBZBZwQ8H24wDFc8qLdYZBySfLghgBoskGIRixGrROJBUyxSxZZFN4CmWMQCUpVIAE2xSBVbFt0AmmIRC0hVIgE0xSJVbFl0A2iKRSwgVYkE0JllUyxSRdiGugF014ApFtkQporTA+heq26Si0+xSAGhAdSXi8+HGwJogQW8ufh8uME8RPGgycWbkfLKBdDk4r1EmdUCaHLxZqS8cgE0uXgvUWa1AJpcvBkpr1wATS7eS5RZLYAmF29GyisXQJOL9xJlVgugycWbkfLKBVCfPZOL99lyRymA+opF8uGGAFpgAV+xCEr5cIN5iOJBvcUi4/Dkww0GWANoikUMGNVJBNAUi9TRZVAOoCkWMWBUJxFAUyxSR5dBOYCmWMSAUZ1EAE2xSB1dBuUAmmIRA0Z1EgE0xSJ1dBmUA2iKRQwY1UkEUF8uPsUiBZwGUF8uPh9uCKAFFvDm4vPhBvMQxYMmF29GyisXQJOL9xJlVgugycWbkfLKBdDk4r1EmdUCaHLxZqS8cgE0uXgvUWa1AJpcvBkpr1wATS7eS5RZLYAmF29GyisXQH32TC7eZ8sdpQDqKxbJhxsCaIEFfMUiKOXDDeYhigf1FouMw5MPNxhgDaApFjFgVCcRQFMsUkeXQTmApljEgFGdRABNsUgdXQblAJpiEQNGdRIBNMUidXQZlANoikUMGNVJBNAUi9TRZVAOoCkWMWBUJxFAfbn4FIsUcBpAfbn4fLghgBZYwJuLz4cbzEMUD5pcvBkpr1wATS7eS5RZLYAmF29GyisXQJOL9xJlVgugycWbkfLKBdDk4r1EmdUCaHLxZqS8cgE0uXgvUWa1AJpcvBkpr1wA9dkzuXifLXeUAqjPqPlwg8+WAbTAlkiOufiiS5xYsm8C0sfhBAI3YrgAAAAASUVORK5CYII='
           if (!math_data_url_obj[math_id]) {
             toCanvas(mathEl as HTMLElement).then((canvasData: any) => {
               if (canvasData.toDataURL() == 'data:,') {
                 html2canvas(mathEl as HTMLElement, { backgroundColor: null }).then((canvasData1) => {
                   math_data_url_obj[math_id] = canvasData1.toDataURL()
+                  console.log(canvasData1.toDataURL());
                   resolve(true)
                 })
               } else {
                 math_data_url_obj[math_id] = canvasData.toDataURL()
+                console.log(canvasData.toDataURL());
+
                 resolve(true)
               }
             })
@@ -835,6 +835,18 @@ export class EditBeforeExportComponent implements AfterViewInit {
           }
         })
       })
+    }
+    for (let i = 0; i < headerCh.length; i++) {
+      let el = headerCh[i] as HTMLElement;
+      await generateMath(el);
+    }
+    for (let i = 0; i < footerCh.length; i++) {
+      let el = footerCh[i] as HTMLElement;
+      await generateMath(el);
+    }
+    for (let i = 0; i < mainNodes.length; i++) {
+      let el = mainNodes[i] as HTMLElement;
+      await generateMath(el);
     }
 
     let generatePDFData = async (element: Element, parentPDFel: any, parentStyle: any, parentElement: Element | undefined) => {
@@ -959,6 +971,13 @@ export class EditBeforeExportComponent implements AfterViewInit {
             }
             loopAndParseChildren(element as HTMLElement, true);
             newEl.stack = [];
+            let elementFontSize: any = ((element as HTMLElement).style.fontSize && (element as HTMLElement).style.fontSize !== '') ? (element as HTMLElement).style.fontSize :
+              (window.getComputedStyle(element).fontSize) ? window.getComputedStyle(element).fontSize : undefined
+            if (elementFontSize && elementFontSize.includes('px')) {
+              elementFontSize = +elementFontSize.replace('px', '');
+            }
+            let scaleDown = (newEl.fontSize / pxToPt(elementFontSize));
+            (element as HTMLElement).style.fontSize = ptToPx(newEl.fontSize) + 'px';
             let buildLineTables = async (stack: any[], pageWidth: number, element: HTMLElement, parentStyle: any, elementStyle: any) => {
               let alignment = (elementStyle && elementStyle.alignment) ? elementStyle.alignment : (parentStyle && parentStyle.alignment) ? parentStyle.alignment : undefined;
               let fontSize = (elementStyle && elementStyle.fontSize) ? elementStyle.fontSize : (parentStyle && parentStyle.fontSize) ? parentStyle.fontSize : undefined;
@@ -1018,7 +1037,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
                       return 0;
                     },
                     paddingTop: (i1: number, node: any) => {
-                      applyVerticalAlignment(node, i1, 'center')
+                      applyVerticalAlignmentv2(node, i1,)
                       return 0;
                     },
                     paddingBottom: function paddingBottom(i: number, node: any) { return 0; },
@@ -1032,7 +1051,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
                     newElement = { text: child.textContent };
                   } else {
                     textStyles.calcMargin = false
-                    newElement = await generatePDFData(child, table, textStyles, element);
+                    newElement = await generatePDFData(child, table, { scaleDown, ...textStyles }, element);
                   }
                   lineWidth += childWidth;
                   if ((alignment == 'left' || alignment == 'justify') || !alignment) {
@@ -1064,6 +1083,14 @@ export class EditBeforeExportComponent implements AfterViewInit {
                   }
                   return false;
                 }
+                let itemEndsWithSpace: any = (item: any) => {
+                  if (typeof item.text == 'string' && ((item.text as string).endsWith(' ') || item.text.endsWith(" "))) {
+                    return true
+                  } else if (item.text instanceof Array) {
+                    return itemEndsWithSpace(item.text[item.text.length - 1])
+                  }
+                  return false;
+                }
                 if ((alignment == 'left' || alignment == 'justify') || !alignment) {
                   if (elCount == chN.length) {
                     table.table.body[0].forEach((cell: any, i: number) => {
@@ -1072,6 +1099,10 @@ export class EditBeforeExportComponent implements AfterViewInit {
                         widths.push('auto')
                         cells.push({});
                         cells.push(cell);
+                        if (itemEndsWithSpace(cell) && i !== table.table.body[0].length - 1) {
+                          widths.push(5)
+                          cells.push({});
+                        }
                       } else {
                         widths.push('auto')
                         cells.push(cell);
@@ -1084,6 +1115,10 @@ export class EditBeforeExportComponent implements AfterViewInit {
                         widths.push('auto')
                         cells.push({});
                         cells.push(cell);
+                        if (itemEndsWithSpace(cell) && i !== table.table.body[0].length - 1) {
+                          widths.push("*")
+                          cells.push({});
+                        }
                       } else {
                         widths.push('auto')
                         cells.push(cell);
@@ -1428,7 +1463,10 @@ export class EditBeforeExportComponent implements AfterViewInit {
               {
                 text: '', width: "*"
               }
-            ]
+            ],
+            props:{
+
+            }
           }
         }
         /*  let blockMathMargin: any = {}
@@ -1438,20 +1476,40 @@ export class EditBeforeExportComponent implements AfterViewInit {
          result.margin = blockMathMargin.margin; */
         attachStylesToNode(result, {}, parentStyle, element, false, parentElement, '');
         if (tag == 'math-inline') {
-          let elementFontSize:any = (element.parentElement?.style.fontSize&&element.parentElement?.style.fontSize!=='')?element.parentElement?.style.fontSize:
-          (window.getComputedStyle(element.parentElement!).fontSize)?window.getComputedStyle(element.parentElement!).fontSize:undefined
-          if(elementFontSize&&elementFontSize.includes('px')){
-            elementFontSize = +elementFontSize.replace('px','');
+          let inlineElement = element;
+          let blockElement = element.getElementsByClassName('base')[0] as HTMLElement;
+
+          let inlineElRect = inlineElement.getBoundingClientRect()
+          let blockElRect = blockElement.getBoundingClientRect()
+
+          let inlineElH = inlineElRect.height;
+          let blockElH = blockElRect.height;
+
+          let offsetTopInlineElFromBlockEl = inlineElRect.top - blockElRect.top;
+          let offsetBotInlineElFromBlockEl = blockElRect.bottom - inlineElRect.bottom;
+
+          let centeredOffset = (blockElH - inlineElH) / 2;
+
+          let marginTop = centeredOffset - offsetTopInlineElFromBlockEl
+          let marginBot = centeredOffset - offsetBotInlineElFromBlockEl
+
+          let elementFontSize: any = (element.parentElement?.style.fontSize && element.parentElement?.style.fontSize !== '') ? element.parentElement?.style.fontSize :
+            (window.getComputedStyle(element.parentElement!).fontSize) ? window.getComputedStyle(element.parentElement!).fontSize : undefined
+          if (elementFontSize && elementFontSize.includes('px')) {
+            elementFontSize = +elementFontSize.replace('px', '');
           }
-          result.margin = [0, 0.3, 0, 0.8];
+          let scaleDown = parentStyle.scaleDown/* ||(ptToPx(parentStyle.fontSize) / elementFontSize); */
+          result.width = result.width /* * scaleDown */
+          result.margin = [0, 0, 0, 0];
+          result.props.offsetTop = pxToPt(offsetTopInlineElFromBlockEl) /* * scaleDown */
+          result.props.offsetBot = pxToPt(offsetBotInlineElFromBlockEl) /* * scaleDown */
           /* if(elementFontSize){
             result.margin[1] = elementFontSize*0.00
             if(height){
             result.margin[1] = elementFontSize*0.00
             }
           } */
-          let scaleDown = (ptToPx(parentStyle.fontSize)/elementFontSize)
-          result.width = result.width*scaleDown
+
         }
         return Promise.resolve(result);
 
@@ -1479,8 +1537,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
     }
     let headerStack: any = []
     let footerStack: any = []
-    let headerCh = Array.from(this.headerPmContainer?.editorView.dom.childNodes!)
-    let footerCh = Array.from(this.footerPmContainer?.editorView.dom.childNodes!)
+
+
     for (let i = 0; i < headerCh.length; i++) {
       headerStack.push(await generatePDFData(headerCh[i] as HTMLElement, {}, { parentHasMargin: true }, undefined))
     }
@@ -1521,34 +1579,34 @@ export class EditBeforeExportComponent implements AfterViewInit {
           }
         ]
       }]
-    },
-      this.data.header = function (currentPage: any, pageCount: any, pageSize: any) {
-        // you can apply any logic and return any valid pdfmake element
-        return [{
-          margin: margHeader,
-          columnGap: 10,
-          columns: [
-            {
-              width: 'auto',
-              alignment: 'left',
-              text: currentPage.toString(),
-              fontSize: headerFontSize
-            },
-            {
-              width: '*',
-              alignment: 'center',
-              stack: headerStack,
-              fontSize: headerFontSize
-            },
-            {
-              width: 'auto',
-              alignment: 'right',
-              text: '',
-              fontSize: headerFontSize
-            }
-          ]
-        }]
-      }
+    }
+    this.data.header = function (currentPage: any, pageCount: any, pageSize: any) {
+      // you can apply any logic and return any valid pdfmake element
+      return [{
+        margin: margHeader,
+        columnGap: 10,
+        columns: [
+          {
+            width: 'auto',
+            alignment: 'left',
+            text: currentPage.toString(),
+            fontSize: headerFontSize
+          },
+          {
+            width: '*',
+            alignment: 'center',
+            stack: headerStack,
+            fontSize: headerFontSize
+          },
+          {
+            width: 'auto',
+            alignment: 'right',
+            text: '',
+            fontSize: headerFontSize
+          }
+        ]
+      }]
+    }
 
     let val = await new Promise(async (resolve, reject) => {
       let doneSubject = new Subject();
@@ -1585,6 +1643,28 @@ export class EditBeforeExportComponent implements AfterViewInit {
         if (node.nodeInfo.pages == node.positions[0].pageNumber) return false//node is on the last page
         node.pageBreak = 'before'
         return true;
+      }
+      let checkNodesBeforeIfHeadingAndMove = (node:any,nodesBefore:any[])=>{
+        let c = 0
+        let nonHeading = false
+        while (nodesBefore[nodesBefore.length-1-c]&&c<1&&!nonHeading) {
+          let nodeBefore = nodesBefore[nodesBefore.length-1-c];
+          //should probably check inner nodes if its a nested header
+          if((nodeBefore.props.type == 'heading'||nodeBefore.props.type == 'paragraph'||nodeBefore.props.type == 'paragraphTable')&&
+          nodeBefore.positions.length == 1){
+            nodeBefore.pageBreak = 'before'
+            node.pageBreak = undefined;
+            if(c==1){
+              nodesBefore[nodesBefore.length-1].pageBreak = undefined;
+            }else if(c == 2){
+              nodesBefore[nodesBefore.length-1].pageBreak = undefined;
+              nodesBefore[nodesBefore.length-2].pageBreak = undefined;
+            }
+          }else{
+            nonHeading = true;
+          }
+          c++;
+        }
       }
       this.data.orderNodes = (node: any, nodeFunc: any) => {
         let nodeInfo = node.nodeInfo;
@@ -1668,6 +1748,10 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
               let movingNode = structuredNodes.splice(moveNodeFrom, 1);
               movingNode[0].pageBreak = undefined;
+              if(movingNode[0].stack&&movingNode[0].stack[0]){
+                movingNode[0].stack[0].pageBreak = undefined;
+              }
+
               structuredNodes.splice(moveTo, 0, ...movingNode);
               return true
             }
@@ -1746,10 +1830,13 @@ export class EditBeforeExportComponent implements AfterViewInit {
           }
         } else if (node.props.type == 'paragraph') {
           let followingNodes = nodeFunc.getFollowingNodesOnPage();
+          let nodesBefore = nodeFunc.getAllNodesBefore();
+
           if (checkIfHeadingIsLastNodeOnNonLastPage(node, followingNodes)) {
+            checkNodesBeforeIfHeadingAndMove(node,nodesBefore)
             return true
           }
-          let maxLinesOnLastPage = pdfSettings.pdf.maxParagraphLinesAtEndOfPage ? pdfSettings.pdf.maxParagraphLinesAtEndOfPage : 1
+          let maxLinesOnLastPage = pdfSettings.pdf.minParagraphLinesAtEndOfPage ? pdfSettings.pdf.minParagraphLinesAtEndOfPage : 1
           if (node.text && nodeInfo.pageNumbers.length > 1 && node.positions.length >= maxLinesOnLastPage) {
             let lines: number[] = [];
             nodeInfo.pageNumbers.forEach((page: number, index: number) => {
@@ -1762,6 +1849,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             })
             if (lines[0] <= maxLinesOnLastPage) {
               node.pageBreak = 'before'
+              checkNodesBeforeIfHeadingAndMove(node,nodesBefore)
               return true
             }
           }
@@ -1774,115 +1862,175 @@ export class EditBeforeExportComponent implements AfterViewInit {
           let structuredNodes = nodeFunc.getContent();
           let nodesBefore = nodeFunc.getAllNodesBefore();
           let nodesAfter = nodeFunc.getAllNodesAfter();
-          let firstLinePage = node.stack[0] ? node.stack[0].nodeInfo.pageNumbers.length == 1 ? node.stack[0].nodeInfo.pageNumbers[0] : undefined : undefined
-          let secondLinePage = node.stack[1] ? node.stack[1].nodeInfo.pageNumbers.length == 1 ? node.stack[1].nodeInfo.pageNumbers[0] : undefined : undefined
-          /* if (node.stack.length == 1 && node.nodeInfo.pageNumbers.length > 1) {
-            node.pageBreak = 'before'
-            return trueß
-          } */
-          if (firstLinePage && secondLinePage && firstLinePage !== secondLinePage) {
-            node.pageBreak = 'before'
-            return true;
-          } else {
-            let breakingLine: any
-            let breakingLineI: any
-            for (let i = 0; i < node.stack.length; i++) {
-              if (node.stack[i].nodeInfo.pageNumbers.length == 2 && !node.stack[i].pageBreak) {
-                breakingLine = node.stack[i]
-                breakingLineI = i
+          let followingNodes = nodeFunc.getFollowingNodesOnPage();
+
+          if (checkIfHeadingIsLastNodeOnNonLastPage(node, followingNodes)) {
+            checkNodesBeforeIfHeadingAndMove(node,nodesBefore)
+            return true
+          }
+
+          let minLinesLeftOnLastPage = +pdfSettings.pdf.minParagraphLinesAtEndOfPage;
+
+          let nodeOrLineOnLastPage: any
+          let lineOnNewPage: any
+
+          let hasMathImages = (node: any) => {
+            let tableBody: any;
+            if (node.table) {
+              tableBody = node.table.body
+            } else if (node.columns) {
+              node.columns.forEach((col: any) => {
+                if (col.table) {
+                  tableBody = col.table.body
+                }
+              })
+            }
+            let hasMathImage = false;
+            tableBody[0].forEach((cell: any) => {
+              if (cell.image && cell.props && cell.props.canvasDims) {
+                hasMathImage = true
+              }
+            })
+            return hasMathImage
+          }
+          let isBreakingLine = (node: any, i: number, nodeBefore?: any, i1?: number) => {
+            let isOnMoreThanOnePage = node.nodeInfo.pageNumbers.length > 1;
+            let actualTop = node.nodeInfo.startPosition.top - pxToPt(pdfSettings.pdf.pageMargins.marginTop);
+            let nodeH = node.props.height;
+            let pageH = node.nodeInfo.startPosition.pageInnerHeight;
+            let isBiggerThanLeftSpaceOnPage = pageH < nodeH + actualTop;
+            let isBiggerThanLeftSpaceAfterLastNode = false;
+            if(nodeBefore&&nodeBefore.props.availableHeight){
+              let leftSpace = nodeBefore.props.availableHeight;
+              if(leftSpace<nodeH){
+                isBiggerThanLeftSpaceAfterLastNode = true
               }
             }
-            if (breakingLine) {
-              let tableBody: any;
-              if (breakingLine.table) {
-                tableBody = breakingLine.table.body
-              } else if (breakingLine.columns) {
-                breakingLine.columns.forEach((col: any) => {
-                  if (col.table) {
-                    tableBody = col.table.body
-                  }
-                })
+            if(node.fixedParagraphTable){
+              return false
+            }
+            if (isOnMoreThanOnePage&&isBiggerThanLeftSpaceAfterLastNode) {
+              return true
+            } else {
+              if (isBiggerThanLeftSpaceOnPage||isBiggerThanLeftSpaceAfterLastNode) {
+                return true;
               }
-              if (tableBody) {
-                let images: any[] = []
-                tableBody[0].forEach((cell: any) => {
-                  if (cell.image) {
-                    images.push(cell)
-                  }
-                })
-                if (images.length > 0) {
-                  let imagesHeights: any[] = [];
-                  let freeSpace = (nodesBefore[nodesBefore.length - 1].props.availableHeight) - 2; // free space on the page before
-                  if (node.stack[breakingLineI - 1]) {
-                    let table: any
-                    if (node.stack[breakingLineI - 1].table) {
-                      table = node.stack[breakingLineI - 1]
-                    } else if (node.stack[breakingLineI - 1].columns) {
-                      node.stack[breakingLineI - 1].columns.forEach((col: any) => {
-                        if (col.table) {
-                          table = col
-                        }
-                      })
-                    }
-                    freeSpace = table.props.availableHeight - 2
-                  }
-                  let canFitWithScale = true
-                  images.forEach((image) => {
-                    let imageInitDims = image.props.canvasDims;
-                    let imageWidth = image.width
-                    let imageDims = [imageWidth, (imageInitDims[1] / imageInitDims[0]) * imageWidth];
-                    imagesHeights.push({ h: imageDims[1], rect: imageDims });
-                    let requiredScale = freeSpace / imageDims[1];
-                    if (requiredScale < scale) {
-                      canFitWithScale = false;
+            }
+          }
+          let findImageLinesOnNewPages = (node: any) => {
+            for (let i = 0; i < node.stack.length; i++) {
+              let hasMath = hasMathImages(node.stack[i])
+              let isbreaking = isBreakingLine(node.stack[i], i, node.stack[i - 1] || nodesBefore[nodesBefore.length - 1], i - 1)
+              if (hasMath &&isbreaking) {
+                lineOnNewPage = node.stack[i];
+                nodeOrLineOnLastPage = node.stack[i - 1] || nodesBefore[nodesBefore.length - 1];
+                return true;
+              }
+            }
+            return false;
+          }
+          let findImgCellNodes = (lineNode: any) => {
+            let imagecells: any[] = []
+            let tableBody: any;
+            if (lineNode.table) {
+              tableBody = lineNode.table.body
+            } else if (lineNode.columns) {
+              lineNode.columns.forEach((col: any) => {
+                if (col.table) {
+                  tableBody = col.table.body
+                }
+              })
+            }
+            tableBody[0].forEach((cell: any) => {
+              if (cell.image && cell.props && cell.props.canvasDims) {
+                imagecells.push(cell)
+              }
+            })
+            return imagecells
+          }
+          if(node.nodeInfo.pageNumbers.length == 1){
+            return false;
+          }
+          let countLinesOnFirtPage = (node:any) => {
+            let linesOnFirstPage = 0;
+            let firstPage = node.nodeInfo.pageNumbers[0];
+            for(let i = 0 ; i < node.stack.length;i++){
+              let line = node.stack[i];
+              let lineNumber = line.nodeInfo.pageNumbers[0];
+              if(lineNumber == firstPage&&line.nodeInfo.pageNumbers.length == 1){
+                linesOnFirstPage++;
+              }
+            }
+            return linesOnFirstPage;
+          }
+          if(node.nodeInfo.pageNumbers.length > 1&&!node.lineLeftOnFirstPageChecked){//move lines if there are more left on last page
+            node.lineLeftOnFirstPageChecked = true;
+            let linesOnFirstPage = countLinesOnFirtPage(node);
+            if(linesOnFirstPage<=minLinesLeftOnLastPage){
+              if(node.stack[linesOnFirstPage-1]){
+                node.pageBreak = 'before'
+                //check 3 nodes before if they are headings and move the on the next page with the paragraph
+                checkNodesBeforeIfHeadingAndMove(node,nodesBefore)
+              }
+            }
+            if(linesOnFirstPage>0){
+              node.pageOrderCalculated = false;
+              return true
+            }
+          }
+          if (typeof node.calculatedTimes !== 'number' || node.calculatedTimes < 2) {
+            if (typeof node.calculatedTimes !== 'number') {
+              node.calculatedTimes = 0
+            } else {
+              node.calculatedTimes++
+            }
+            node.pageOrderCalculated = false;
+            return true
+          } else if (node.calculatedTimes == 2) {
+            if (findImageLinesOnNewPages(node)&&!lineOnNewPage.fixedParagraphTable) {  // fix the breaking lines
+              let sp = nodeOrLineOnLastPage.nodeInfo.startPosition
+              //let freeSpaceOnLastPage = sp.pageInnerHeight -sp.top+  pxToPt(pdfSettings.pdf.pageMargins.marginTop)-nodeOrLineOnLastPage.props.height;
+              let freeSpaceOnLastPage = nodeOrLineOnLastPage.props.availableHeight;
+              console.log(lineOnNewPage, nodeOrLineOnLastPage);
+              console.log('freeSpaceOnLastPage', freeSpaceOnLastPage);
+              let imagesInLine = findImgCellNodes(lineOnNewPage);
+              console.log('imagenodes', imagesInLine);
+              if (imagesInLine.length > 0) {
+                let biggestImage = imagesInLine.reduce((prev, curr, i, arr) => { return prev.props.canvasDims[1] < curr.props.canvasDims[1] ? curr : prev }, { props: { canvasDims: [0, 0] } })
+                let bigH = biggestImage._height;
+                let cH = biggestImage.props.canvasDims[1];
+                let adds = bigH - cH;
+                let biggreqSc = (freeSpaceOnLastPage - adds) / cH;
+                if (biggreqSc < scale) {
+                  lineOnNewPage.pageBreak = 'before'
+                  node.calculatedTimes = undefined
+                  lineOnNewPage.fixedParagraphTable = true
+                  node.pageOrderCalculated = false;
+                  return true;
+                } else {
+                  imagesInLine.forEach((img) => {
+                    let imageHeight = img._height;
+                    if (imageHeight > freeSpaceOnLastPage) {
+                      let canvasHeight = img.props.canvasDims[1];
+                      let addedSpace = imageHeight - canvasHeight;
+                      let requiredScale = (freeSpaceOnLastPage - addedSpace-10) / canvasHeight;
+                      console.log('requiredScale', requiredScale, 'scale', scale, 'oldHeight', canvasHeight, 'newHeight', canvasHeight * requiredScale);
+                      img.props.canvasDims[0] = img.props.canvasDims[0] * requiredScale;
+                      img.props.canvasDims[1] = img.props.canvasDims[1] * requiredScale;
+                      img.props.offsetBot = img.props.offsetBot * requiredScale;
+                      img.props.offsetTop = img.props.offsetTop * requiredScale;
+                      img.width = img.props.canvasDims[0]
                     }
                   })
-                  let isfit = imagesHeights.reduce((prev, curr, i, arr) => { return prev && curr.h < freeSpace }, true)
-                  if (breakingLine.pageBreak !== "after" && isfit) {
-                    breakingLine.pageBreak = "after"
-                    node.pageOrderCalculated = false;
-                    return true;
-                  } else if (canFitWithScale && !isfit) {
-                    let scaled = false
-                    imagesHeights.forEach((dims, index) => {
-                      if (dims.h > freeSpace) {
-                        let requiredScale = (freeSpace - 4) / dims.rect[1];
-                        let imageToScale = images[index];
-                        imageToScale.width = imageToScale.width * requiredScale
-                        scaled = true
-                      }
-                    })
-                    if (scaled) {
-                      breakingLine.pageBreak = "after"
-                      node.pageOrderCalculated = false;
-                      return true;
-                    }
-                  } else {
-                    breakingLine.pageBreak = "before"
-                    node.pageOrderCalculated = false;
-                    return true;
-                  }
-                }
-              }
-            } else {
-              if (node.nodeInfo.pageNumbers.length > 1) {
-                let lineOnNewPage: any = undefined
-                let page = undefined
-                for (let i = 0; i < node.stack.length; i++) {
-                  if (!lineOnNewPage && page && node.stack[i].nodeInfo.pageNumbers[0] > page && !node.stack[i].pageBreak) {
-                    lineOnNewPage = node.stack[i]
-                  }
-                  page = node.stack[i].pageBreak !== 'after' ? node.stack[i].nodeInfo.pageNumbers[0] : undefined
-                }
-                if (lineOnNewPage) {
-                  lineOnNewPage.pageBreak = 'before';
                   node.pageOrderCalculated = false;
-                  return true
+                  node.calculatedTimes = undefined;
+                  lineOnNewPage.fixedParagraphTable = true
+                  return true;
                 }
               }
             }
-            return false
           }
+
         } else if (node.props.type == 'block-math') {
           let maxMathDownscale = pdfSettings.pdf.maxMathDownscale.replace("%", '');
           let scale = 0.8;

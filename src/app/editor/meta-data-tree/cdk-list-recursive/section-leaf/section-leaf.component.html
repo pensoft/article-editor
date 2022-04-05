@@ -10,7 +10,8 @@
     <div class=' border' [ngClass]="{
             'sectionBorderInactive':!isComplex && mouseOn!==node.sectionID,
             'sectionBorderListItemInactive':isComplex && mouseOn!==node.sectionID,
-            'selectedEditor' : node.sectionID == focusedId&&mouseOn!==node.sectionID&&!isComplex}">
+            'selectedEditor' : node.sectionID == focusedId&&mouseOn!==node.sectionID&&!isComplex,
+            'selectedEditorList' : node.sectionID == focusedId&&mouseOn!==node.sectionID&&isComplex}">
       <button [style.display]="'none'" mat-icon-button cdkDragHandle class="drag_btn hidden " [ngClass]="{
                 'drag_btn_leaf_node':!isComplex,
                 'drag_btn_list_node':isComplex}"><mat-icon >drag_indicator</mat-icon></button>

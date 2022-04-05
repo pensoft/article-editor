@@ -140,9 +140,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
   editNodeHandle(node: articleSection, formGroup: FormGroup) {
     try {
-
       let defaultValues = formGroup.value;
-
       let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID,formGroup);
 
       let updateYdoc = new Y.Doc();
@@ -257,7 +255,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     if (event.type == 'blur') {
       element.setAttribute('contenteditable', 'false');
       (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;
-      //this.treeService.saveNewTitleChange(node,element.textContent!);
+      this.treeService.saveNewTitleChange(node,element.textContent!);
       this.scrolledToView = false;
     } else if (event.type == 'click') {
       this.oldZIndex = (parentNode as HTMLDivElement).style.zIndex!
