@@ -1,0 +1,90 @@
+::ng-deep .select-ref-form-field {
+  display: block;
+  .mat-form-field-label-wrapper {
+    transform: translate(-20px, -9px) !important;
+  }
+}
+
+::ng-deep .references-lib {
+  height: 100%;
+  .right-side-nav {
+    width: 600px;
+    .mat-drawer-inner-container {
+      overflow: hidden;
+      height: calc(100%);
+    }
+    .rightside-header {
+      height: 49px;
+      background-color: white;
+      border-bottom: 1px solid #e4e4e4 !important;
+    }
+    .rightside-header-level1 {
+      height: 51px;
+      background-color: white;
+      border-bottom: 1px solid #e4e4e4 !important;
+    }
+    .formio-container {
+      height: calc(100% - 233px);
+      overflow-y: scroll;
+      .formio-inner-container {
+        margin: 15px;
+        mat-formio-datagrid {
+          margin-bottom: 0 !important;
+        }
+        table {
+          thead {
+            display: none;
+          }
+          td {
+            padding: 3px !important;
+          }
+        }
+        .mat-column-__removeRow {
+          button {
+            padding: 0;
+            width: 24px !important;
+            min-width: 24px;
+          }
+        }
+        .mat-form-field-wrapper {
+          //padding-bottom: 0 !important;
+        }
+        .mat-form-field.mat-focused .mat-form-field-label {
+          color: transparent !important;
+        }
+        .mat-empty {
+          color: gray !important;
+        }
+        mat-formio-textfield {
+          margin-bottom: 0 !important;
+          label {
+            transform: translate(-26px, -10px) !important;
+            color: transparent !important;
+          }
+          input {
+            color: black !important;
+          }
+        }
+      }
+    }
+  }
+  mat-sidenav-content {
+    width: 100%;
+  }
+  .reference-menu-toolbar {
+    button {
+      margin-right: 10px;
+      position: relative;
+      mat-icon {
+        display: inline !important;
+      }
+      transition: background-color 0.1s;
+    }
+    button:hover {
+      background-color: rgb(232, 232, 232);
+    }
+    height: 50px;
+    padding: 0 50px;
+    border-bottom: 1px solid #e4e4e4 !important;
+  }
+}

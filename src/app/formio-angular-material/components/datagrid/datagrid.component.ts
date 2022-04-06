@@ -150,6 +150,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
     this.dataSource._updateChangeSubscription
     this.checkRowsNumber();
     this.instance.addRow();
+    console.log(this.instance.rows.length,this.dataSource.data.length);
     if (this.dataSource.data.length < this.instance.rows.length) {
       this.dataSource.data.push({});
     }
@@ -271,6 +272,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
       this.instance.getRows();
       this.instance.updateValue(this.control.value || [], { modified: true });
       this.instance.setValue(this.control.value || []);
+      console.log('rendering');
       super.renderComponents()
     } catch (e) {
       console.error(e);
@@ -289,6 +291,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
       this.oldvalue =  JSON.parse(JSON.stringify(value))
     }
     const gridLength = value ? value.length : 0;
+    console.log(this.instance.rows.length,gridLength);
     while (this.instance.rows.length < gridLength) {
       this.addAnother();
       this.instance.dataValue = value;

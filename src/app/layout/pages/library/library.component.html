@@ -1,0 +1,29 @@
+<mat-sidenav-container class="references-lib">
+  <!-- <mat-sidenav opened mode="side">
+    <button mat-button><mat-icon>menu_book</mat-icon> My Library</button>
+  </mat-sidenav> -->
+  <mat-sidenav opened mode="side" position="end" class="right-side-nav">
+    <div class="rightside-header">
+
+    </div>
+    <div class="rightside-header-level1">
+      <mat-form-field *ngIf="creatingReference||editingReference" appearance="fill" #referenceType class="select-ref-form-field">
+        <mat-label class="">Types:</mat-label>
+        <mat-select [formControl]="referenceFormControl" class="select-reference">
+          <mat-option *ngFor="let type of possibleReferenceTypes" [value]="type">
+            {{type.displayName}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div class="formio-container">
+      <div [formGroup]="referenceForms" *ngIf="(creatingReference||editingReference)&&formIOSchema" class="formio-inner-container">
+        <mat-formio #formio [form]="formIOSchema" (ready)="ready($event)" (change)="onChange($event)" (submit)="onSubmit($event)"></mat-formio>
+      </div>
+    </div>
+  </mat-sidenav>
+  <mat-toolbar class="reference-menu-toolbar">
+    <button mat-icon-button (click)="createReference()"><mat-icon>add</mat-icon></button>
+    <button mat-icon-button><mat-icon>delete_forever</mat-icon></button>
+  </mat-toolbar>
+</mat-sidenav-container>

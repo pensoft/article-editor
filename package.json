@@ -55,6 +55,7 @@
     "@types/prosemirror-state": "^1.2.7",
     "@types/prosemirror-transform": "^1.1.4",
     "avatar-generator": "^2.0.4",
+    "citeproc": "^2.4.62",
     "codemirror": "^5.63.3",
     "crel": "^4.2.1",
     "document-register-element": "^1.7.2",
