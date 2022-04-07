@@ -4,7 +4,7 @@
     <button mat-icon-button (click)="createReference()"><mat-icon>add</mat-icon></button>
     <!-- <button mat-icon-button><mat-icon>delete_forever</mat-icon></button> -->
   </mat-toolbar>
-  <table mat-table [dataSource]="userReferences" class="mat-elevation-z8 references-table">
+  <table *ngIf="userReferences" mat-table [dataSource]="userReferences" class="mat-elevation-z8 references-table">
 
     <ng-container matColumnDef="author">
       <th mat-header-cell *matHeaderCellDef> Author </th>
@@ -37,7 +37,11 @@
 
     <ng-container matColumnDef="citate">
       <th mat-header-cell *matHeaderCellDef>Citate</th>
-      <td mat-cell *matCellDef="let element">{{element.basicCitation.data.text}}</td>
+      <td mat-cell *matCellDef="let element">
+        <div [outerHTML]="element.basicCitation.bobliography">
+
+        </div>
+      </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

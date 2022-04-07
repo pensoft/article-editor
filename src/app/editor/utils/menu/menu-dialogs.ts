@@ -32,7 +32,9 @@ let citateRef = (sharedService: ServiceShare) => {
     dialogRef.afterClosed().subscribe(result => {
       console.log(result);
       if(result){
-        let tr = state.tr.replaceWith(start, end, nodeType.create({ contenteditableNode: 'false' }, state.schema.text(result.citateData.text)))
+        let div = document.createElement('div');
+        div.innerHTML = result.citateData.bibliography[1][0];
+        let tr = state.tr.replaceWith(start, end, nodeType.create({ contenteditableNode: 'false' },state.schema.text(div.textContent)))
         dispatch(tr)
       }
     });

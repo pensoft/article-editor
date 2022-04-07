@@ -105,7 +105,7 @@ export class FormControlNameDirective implements ControlValueAccessor {
       /* if(regex.test(val)){
         console.log(match);
       } */
-      let escapedVal = val.replace(regex,(match,args)=>{
+      let escapedVal = val?val.replace(regex,(match,args)=>{
         let inlineContent = mathInlineRegex.exec(match);
         let blockContent = mathBlockRegex.exec(match);
         if(inlineContent&&inlineContent[1]){
@@ -119,7 +119,7 @@ export class FormControlNameDirective implements ControlValueAccessor {
           return replaceMatch;
         }
         return match
-      })
+      }):val
       //let escapeBraces = val/* .replace('{','\{') */.replace('}}','}\}');
       this.el.nativeElement.innerHTML = escapedVal;
       /* this.el.nativeElement.innerHTML = `<p class="set-align-left">

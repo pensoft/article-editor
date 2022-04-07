@@ -52,33 +52,44 @@ export class CslService {
 
   genereteCitationStr(style:string,ref:any){
     this.currentRef = ref.referenceData;
-    this.citeproc = new CSL.Engine(this.citeprocSys, styles[style]);
+    this.citeproc = new CSL.Engine(this.citeprocSys, styles[style]/* basicStyle */);
+    this.citeproc.updateItems([ref.referenceData.id]);
     let newCitationId = uuidv4()
-    let citationData = this.generateCitation([ {
+    let citationData :any= this.generateCitation([ {
       "citationID": newCitationId,
       "citationItems": [{ "id": ref.referenceData.id }],
       "properties": { "noteIndex": 1 }
     },[],[]]);
+    let bibliography = this.citeproc.makeBibliography();
+    citationData.bibliography = bibliography;
     return citationData;
+  }
+
+  deleteCitation(id:string){
+    this.references = this.serviceShare.YdocService!.referenceCitationsMap!.get('references');
+    delete this.references[id]
+    this.serviceShare.YdocService!.referenceCitationsMap!.set('references',this.references)
   }
 
   addReference(ref:any){
     let newRefObj:any = {};
     this.currentRef = ref;
-
     let newCitationId = uuidv4()
     this.citeproc = new CSL.Engine(this.citeprocSys, /* pensoftStyle */basicStyle);
+    this.citeproc.updateItems([ref.id]);
     let citationData = this.generateCitation([ {
       "citationID": newCitationId,
       "citationItems": [{ "id": ref.id }],
       "properties": { "noteIndex": 1 }
     },[],[]]);
-
+    let bibliography = this.citeproc.makeBibliography();
     newRefObj.basicCitation = {
       data:citationData,
       citatId:newCitationId,
       style:'basicStyle'
     }
+    console.log(bibliography[1][0]);
+    newRefObj.basicCitation.bobliography = bibliography[1][0];
     newRefObj.referenceData = ref;
 
     this.references = this.serviceShare.YdocService!.referenceCitationsMap!.get('references');

@@ -34,7 +34,9 @@ export class LibraryPage implements AfterViewInit {
   }
 
   deleteReference(ref:any){
-    console.log('del ref',ref);
+    this.cslService.deleteCitation(ref.referenceData.id);
+    this.userReferences = this.cslService.getRefsArray();
+    this.changeDetection.detectChanges();
   }
 
   genereteNewReference(refData: reference, data: any) {
