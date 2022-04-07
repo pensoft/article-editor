@@ -97,6 +97,7 @@ import { AddContributorsDialogComponent } from './editor/dialogs/add-contributor
 import { SearchFilterPipe } from './shared/pipes/search-filter.pipe';
 import { LibraryPage } from './layout/pages/library/library.component';
 import { ReferenceEditComponent } from './layout/pages/library/reference-edit/reference-edit.component';
+import { CitateReferenceDialogComponent } from './layout/pages/library/citate-reference-dialog/citate-reference-dialog.component';
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -181,6 +182,7 @@ const gravatarConfig: GravatarConfig = {
     SearchFilterPipe,
     LibraryPage,
     ReferenceEditComponent,
+    CitateReferenceDialogComponent,
   ],
   imports: [
     PipesModule,

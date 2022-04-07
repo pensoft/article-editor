@@ -1,5 +1,7 @@
 import { MatDialog } from "@angular/material/dialog";
 import { InsertFigureComponent } from "@app/editor/dialogs/figures-dialog/insert-figure/insert-figure.component";
+import { ServiceShare } from "@app/editor/services/service-share.service";
+import { CitateReferenceDialogComponent } from "@app/layout/pages/library/citate-reference-dialog/citate-reference-dialog.component";
 import { toggleMark } from "prosemirror-commands";
 import { MenuItem } from "prosemirror-menu";
 import { Fragment, Node } from "prosemirror-model";
@@ -19,6 +21,36 @@ export function shareDialog(dialog: MatDialog) {
   sharedDialog = dialog
 }
 
+let citateRef = (sharedService: ServiceShare) => {
+  return (state: EditorState, dispatch: any, view: EditorView) => {
+    let start = state.selection.from;
+    let end = state.selection.to;
+    let nodeType = state.schema.nodes.reference_citation;
+    let dialogRef = sharedDialog.open(CitateReferenceDialogComponent,{
+      panelClass: 'editor-dialog-container'
+    })
+    dialogRef.afterClosed().subscribe(result => {
+      console.log(result);
+      if(result){
+        let tr = state.tr.replaceWith(start, end, nodeType.create({ contenteditableNode: 'false' }, state.schema.text(result.citateData.text)))
+        dispatch(tr)
+      }
+    });
+  }
+}
+let canCitate = (state: EditorState) => {
+
+  return true;
+}
+export const citateReference = (sharedService: ServiceShare) => {
+  return new MenuItem({
+    title: 'Citate a Reference.',
+    run: citateRef(sharedService),
+    enable: canCitate,
+    icon: createCustomIcon('refCitation.svg', 20, 20, 0, 5)
+  })
+};
+
 export const insertImageItem = new MenuItem({
   title: 'Insert image',
   // @ts-ignore
@@ -31,11 +63,11 @@ export const insertImageItem = new MenuItem({
         data: { image: '' }
       });
       dialogRef.afterClosed().subscribe(image => {
-        if (!image||!image.imgURL) {
+        if (!image || !image.imgURL) {
           return;
         }
-        if(image.imgURL){
-          view?.dispatch(view.state.tr.replaceSelectionWith(state.schema.nodes.image.create({src:image.imgURL})));
+        if (image.imgURL) {
+          view?.dispatch(view.state.tr.replaceSelectionWith(state.schema.nodes.image.create({ src: image.imgURL })));
         }
 
         // view?.dispatch(view.state.tr.replaceSelectionWith(state.schema.nodes.image.createAndFill(attrs)!))
@@ -55,22 +87,22 @@ export const insertFigure = new MenuItem({
     let nodeAtCursor = state.selection.$from.parent
     let nodeAt = state.doc.nodeAt(state.selection.from)
     let data
-    let citatmark = nodeAt?.marks.filter((mark)=>{return mark.type.name=='citation'})
-    if(citatmark?.length!>0){
+    let citatmark = nodeAt?.marks.filter((mark) => { return mark.type.name == 'citation' })
+    if (citatmark?.length! > 0) {
       data = JSON.parse(JSON.stringify(citatmark![0].attrs));
     }
     const dialogRef = sharedDialog.open(InsertFigureComponent, {
       width: '80%',
       height: '90%',
       panelClass: 'insert-figure-in-editor',
-      data: { view,citatData:data }
+      data: { view, citatData: data }
     });
     dialogRef.afterClosed().subscribe(result => {
     });
     return true;
   },
   //@ts-ignore
-  enable(state) { return  state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && ['figures_nodes_container', 'block_figure'].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
+  enable(state) { return state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && ['figures_nodes_container', 'block_figure'].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
   icon: createCustomIcon('addfigure.svg', 18)
 })
 
@@ -207,9 +239,9 @@ export const insertTableItem = new MenuItem({
 
       tableSizePickerDialog.afterClosed().subscribe(result => {
         const { rows, cols } = result;
-        let paragraph =  state.schema.nodes.paragraph.createAndFill()
-        let formField = state.schema.nodes.form_field.createAndFill(undefined,paragraph)
-        let singleRow = Fragment.fromArray(new Array(cols).fill(state.schema.nodes.table_cell.createAndFill(undefined,formField), 0, cols));
+        let paragraph = state.schema.nodes.paragraph.createAndFill()
+        let formField = state.schema.nodes.form_field.createAndFill(undefined, paragraph)
+        let singleRow = Fragment.fromArray(new Array(cols).fill(state.schema.nodes.table_cell.createAndFill(undefined, formField), 0, cols));
         let table = Fragment.fromArray(new Array(rows).fill(state.schema.nodes.table_row.create(undefined, singleRow), 0, rows));
         const tr = state.tr.replaceSelectionWith(state.schema.nodes.table.create(undefined, table));
         if (dispatch) { dispatch(tr); }

@@ -1,17 +1,22 @@
 import { Injectable } from '@angular/core';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-import { basicJournalArticleData, jsonSchemaForCSL, possibleReferenceTypes, exampleCitation, pensoftStyle, lang as langData, reference, formioAuthorsDataGrid, formIOTextFieldTemplate, basicStyle } from '../data/data';
+import { basicJournalArticleData, jsonSchemaForCSL, possibleReferenceTypes, exampleCitation, lang as langData, reference, formioAuthorsDataGrid, formIOTextFieldTemplate  } from '../data/data';
 
 //@ts-ignore
 import { CSL } from '../data/citeproc.js'
+import { uuidv4 } from 'lib0/random';
+import { basicStyle, styles } from '../data/styles';
 @Injectable({
   providedIn: 'root'
 })
 export class CslService {
-  references: any
+  references: any;
+  currentRef: any;
 
   getRefsArray(){
     this.references = this.serviceShare.YdocService!.referenceCitationsMap!.get('references');
+    console.log(this.references);
+    console.log(Object.values(this.references));
     return Object.values(this.references)
   }
   citeprocSys = {
@@ -29,7 +34,7 @@ export class CslService {
     // Given an identifier, this retrieves one citation item.  This method
     // must return a valid CSL-JSON object.
     retrieveItem: (id: any) => {
-      return this.references[id];
+      return this.currentRef;
     }
   };
   citeproc: any
@@ -44,9 +49,40 @@ export class CslService {
     });
 
   }
+
+  genereteCitationStr(style:string,ref:any){
+    this.currentRef = ref.referenceData;
+    this.citeproc = new CSL.Engine(this.citeprocSys, styles[style]);
+    let newCitationId = uuidv4()
+    let citationData = this.generateCitation([ {
+      "citationID": newCitationId,
+      "citationItems": [{ "id": ref.referenceData.id }],
+      "properties": { "noteIndex": 1 }
+    },[],[]]);
+    return citationData;
+  }
+
   addReference(ref:any){
+    let newRefObj:any = {};
+    this.currentRef = ref;
+
+    let newCitationId = uuidv4()
+    this.citeproc = new CSL.Engine(this.citeprocSys, /* pensoftStyle */basicStyle);
+    let citationData = this.generateCitation([ {
+      "citationID": newCitationId,
+      "citationItems": [{ "id": ref.id }],
+      "properties": { "noteIndex": 1 }
+    },[],[]]);
+
+    newRefObj.basicCitation = {
+      data:citationData,
+      citatId:newCitationId,
+      style:'basicStyle'
+    }
+    newRefObj.referenceData = ref;
+
     this.references = this.serviceShare.YdocService!.referenceCitationsMap!.get('references');
-    this.references[ref.id] = ref;
+    this.references[ref.id] = newRefObj;
     this.serviceShare.YdocService!.referenceCitationsMap!.set('references',this.references)
   }
   /*

@@ -12,6 +12,7 @@ import * as m from '../utils/menu/menuItems';
 //@ts-ignore
 import { createCustomIcon } from '../utils/menu/common-methods';
 import { YjsHistoryService } from '../utils/yjs-history.service';
+import { ServiceShare } from './service-share.service';
 
 @Injectable({
   providedIn: 'root'
@@ -24,9 +25,11 @@ export class MenuService {
     public dialog: MatDialog,
     private commentsService: CommentsService,
     private yjsHistory: YjsHistoryService,
+    private serviceShare:ServiceShare
   ) {
     menuDialogs.shareDialog(dialog);
     this.addCommentSubject = commentsService.addCommentSubject;
+    this.serviceShare.shareSelf('MenuService',this)
   }
 
   sectionMenus: { [key: string]: (string | { dropdownName?: string, dropdownIcon?: string, label?: string, content: (string | { dropdownSubmenuName?: string, dropdownSubmenuIcon?: string, label?: string, content: any })[] })[][] } = {
@@ -59,21 +62,23 @@ export class MenuService {
       ['insertVideoItem',
         { dropdownName: 'Math', content: ['addMathInlineMenuItem', 'addMathBlockMenuItem'] }
       ],
-      ['tableMenu', 'addMathBlockMenuItem', 'insertPageBreak']
+      ['tableMenu', 'addMathBlockMenuItem', 'insertPageBreak','citateReference']
     ],
     'fullMenu': [
       ['textMenu'],
       ['alignMenu'],
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem', 'highLightMenuItem'],
-      ['insertMenu', 'logNodesMenuItem', 'insertFigure', 'insertPageBreak', 'headings']
+      ['insertMenu', 'logNodesMenuItem', 'insertFigure', 'insertPageBreak', 'headings'],
+      ['citateReference']
     ],
     'fullMenuPMundoRedo': [
       ['textMenu'],
       ['alignMenu'],
       ['undoItemPM', 'redoItemPM'],
       ['insertLink', 'addAnchorTagMenuItem', 'highLightMenuItem'],
-      ['insertMenu', 'logNodesMenuItem', 'insertPageBreak', 'headings']
+      ['insertMenu', 'logNodesMenuItem', 'insertPageBreak', 'headings'],
+      ['citateReference']
     ],
     'fullMenuWithLog': [
       ['textMenu'],
@@ -86,20 +91,22 @@ export class MenuService {
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItem', 'redoItem', 'insertVideoItem'],
-      ['logNodesMenuItem', 'insertFigure', 'insertPageBreak', 'headings']
+      ['logNodesMenuItem', 'insertFigure', 'insertPageBreak', 'headings'],
+      ['citateReference']
     ],
     'SimpleMenuPMundoRedo': [
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItemPM', 'redoItemPM', 'insertVideoItem'],
       ['logNodesMenuItem', 'insertPageBreak', 'headings'],
+      ['citateReference']
     ],
     'onlyPmMenu': [
       ['textMenu'],
       ['alignMenu'],
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem', 'highLightMenuItem'],
-      ['insertMenu', 'headings' ],
+      ['insertMenu', 'headings','citateReference' ],
     ]
   }
 
@@ -137,7 +144,9 @@ export class MenuService {
       if (itemName == 'alignMenu') {
 
         item = new Dropdown2(menuItems[itemName], { class: "horizontal-dropdown", dropdownType: 'alignmenu', icon: createCustomIcon('align2.svg', 18) })
-      } else if (itemName == 'tableMenu') {
+      } else if (itemName == 'citateReference'){
+        item = menuItems[itemName](this.serviceShare)
+      }else if (itemName == 'tableMenu') {
         item = new Dropdown(menuItems[itemName], { class: "table-icon vertival-dropdown" })
       } else if (itemName == 'textMenu') {
         let dropdown = new Dropdown2(menuItems[itemName], { class: " horizontal-dropdown", icon: createCustomIcon('text.svg', 16) })

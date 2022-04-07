@@ -8,76 +8,98 @@ import { nodes as basicNodes } from './basic-nodes'
 import { figureNodes, video } from './figure-nodes';
 
 export const paragraph = {
-    content: "inline*",
-    group:'block',
-    attrs: {
-        align: { default: 'set-align-left' },
-        ...getGenericAttributes()
+  content: "inline*",
+  group: 'block',
+  attrs: {
+    align: { default: 'set-align-left' },
+    ...getGenericAttributes()
+  },
+  parseDOM: [{
+    tag: "p", getAttrs(dom: any) {
+      let classArray = dom.getAttribute('class')
+      return {
+        align: classArray,
+        ...parseGenericAttributes(dom)
+      }
     },
-    parseDOM: [{
-        tag: "p", getAttrs(dom: any) {
-            let classArray = dom.getAttribute('class')
-            return {
-                align: classArray,
-                ...parseGenericAttributes(dom)
-            }
-        },
-    }],
-    toDOM(node: any) {
-        let attributesToDom: any = {
-            ...genericAttributtesToDom(node)
-        }
-
-        attributesToDom['class'] = node.attrs.align
-
-        return ["p", attributesToDom, 0];
+  }],
+  toDOM(node: any) {
+    let attributesToDom: any = {
+      ...genericAttributtesToDom(node)
     }
+
+    attributesToDom['class'] = node.attrs.align
+
+    return ["p", attributesToDom, 0];
+  }
 }
 
 export const form_field_inline = {
   content: "inline*",
-    group: "block",
-    isolating: true,
-    attrs: {
-        ...getGenericAttributes()
+  group: "block",
+  isolating: true,
+  attrs: {
+    ...getGenericAttributes()
+  },
+  parseDOM: [{
+    tag: "form-field-inline", getAttrs(dom: any) {
+      return {
+        ...parseGenericAttributes(dom),
+      }
     },
-    parseDOM: [{
-        tag: "form-field-inline", getAttrs(dom: any) {
-            return {
-                ...parseGenericAttributes(dom),
-            }
-        },
-    }],
-    toDOM(node: any) {
-        let attributesToDom: any = {
-            ...genericAttributtesToDom(node),
+  }],
+  toDOM(node: any) {
+    let attributesToDom: any = {
+      ...genericAttributtesToDom(node),
 
-        }
-        return ["form-field-inline", attributesToDom, 0];
     }
+    return ["form-field-inline", attributesToDom, 0];
+  }
+}
+
+export const reference_citation = {
+  content: "inline*",
+  group: "block",
+  isolating: true,
+  attrs: {
+    ...getGenericAttributes(),
+  },
+  parseDOM: [{
+    tag: "reference-citation", getAttrs(dom: any) {
+      return {
+        ...parseGenericAttributes(dom),
+      }
+    },
+  }],
+  toDOM(node: any) {
+    let attributesToDom: any = {
+      ...genericAttributtesToDom(node),
+    }
+    return ["reference-citation", attributesToDom, 0];
+  }
 }
 
 export const form_field_inline_view = {
-    content: "block*",
-    group: "block",
-    isolating: true,
-    attrs: {
-        ...getGenericAttributes()
+  content: "block*",
+  group: "block",
+  isolating: true,
+  attrs: {
+    ...getGenericAttributes()
+  },
+  parseDOM: [{
+    tag: "form-field-inline-view", getAttrs(dom: any) {
+      return {
+        ...parseGenericAttributes(dom),
+      }
     },
-    parseDOM: [{
-        tag: "form-field-inline-view", getAttrs(dom: any) {
-            return {
-                ...parseGenericAttributes(dom),
-            }
-        },
-    }],
-    toDOM(node: any) {
-        let attributesToDom: any = {
-            ...genericAttributtesToDom(node),
+  }],
+  toDOM(node: any) {
+    let attributesToDom: any = {
+      ...genericAttributtesToDom(node),
 
-        }
-        return ["form-field-inline-view", attributesToDom, 0];
     }
+    return ["form-field-inline-view", attributesToDom, 0];
+  }
 }
 
 
@@ -105,83 +127,84 @@ export const form_field_inline_view = {
 } */
 
 export const form_field = {
-    content: "(paragraph|block)+",
-    group: "block",
-    isolating: true,
-    attrs: {
-        ...getGenericAttributes()
+  content: "(paragraph|block)+",
+  group: "block",
+  isolating: true,
+  attrs: {
+    ...getGenericAttributes()
+  },
+  parseDOM: [{
+    tag: "form-field", getAttrs(dom: any) {
+      return {
+        ...parseGenericAttributes(dom),
+      }
     },
-    parseDOM: [{
-        tag: "form-field", getAttrs(dom: any) {
-            return {
-                ...parseGenericAttributes(dom),
-            }
-        },
-    }],
-    toDOM(node: any) {
-        let attributesToDom: any = {
-            ...genericAttributtesToDom(node),
+  }],
+  toDOM(node: any) {
+    let attributesToDom: any = {
+      ...genericAttributtesToDom(node),
 
-        }
-        return ["form-field", attributesToDom, 0];
     }
+    return ["form-field", attributesToDom, 0];
+  }
 }
 
-export const inline_block_container= {
-    content: "block+",
-    group: "block",
-    attrs: {
-        ...getGenericAttributes()
+export const inline_block_container = {
+  content: "block+",
+  group: "block",
+  attrs: {
+    ...getGenericAttributes()
+  },
+  parseDOM: [{
+    tag: "inline-block-container", getAttrs(dom: any) {
+      return {
+        ...parseGenericAttributes(dom),
+      }
     },
-    parseDOM: [{
-        tag: "inline-block-container", getAttrs(dom: any) {
-            return {
-                ...parseGenericAttributes(dom),
-            }
-        },
-    }],
-    toDOM(node: any) {
-        let attributesToDom: any = {
-            ...genericAttributtesToDom(node),
-        }
-        return ["inline-block-container", attributesToDom, 0];
+  }],
+  toDOM(node: any) {
+    let attributesToDom: any = {
+      ...genericAttributtesToDom(node),
     }
+    return ["inline-block-container", attributesToDom, 0];
+  }
 }
 
 export const nodes: NodeSpec = {
-    doc: {
-        content: "block*"
-    },
-    form_field,
-    inline_block_container,
-    paragraph,
-    form_field_inline,
-    form_field_inline_view,
-    //placeholder,
-    ...tableNodes({
-        tableGroup: "block",
-        cellContent: "form_field{1}",
-        cellAttributes: {
-            background: {
-                default: null,
-                //@ts-ignore
-                getFromDOM(dom) {
-                    return dom.style.backgroundColor || null
-                },
-                setDOMAttr(value: any, attrs: any) {
-                    if (value) attrs.style = (attrs.style || "") + `background-color: ${value};`
-                }
-            }
+  doc: {
+    content: "block*"
+  },
+  form_field,
+  inline_block_container,
+  paragraph,
+  form_field_inline,
+  form_field_inline_view,
+  reference_citation,
+  //placeholder,
+  ...tableNodes({
+    tableGroup: "block",
+    cellContent: "form_field{1}",
+    cellAttributes: {
+      background: {
+        default: null,
+        //@ts-ignore
+        getFromDOM(dom) {
+          return dom.style.backgroundColor || null
+        },
+        setDOMAttr(value: any, attrs: any) {
+          if (value) attrs.style = (attrs.style || "") + `background-color: ${value};`
         }
-    }),
-    ...figureNodes,
-    text: {
-        inline: true,
-        group: "inline"
-    },
-    ...basicNodes,
-    ...MathNodes,
-    ...listNodes,
+      }
+    }
+  }),
+  ...figureNodes,
+  text: {
+    inline: true,
+    group: "inline"
+  },
+  ...basicNodes,
+  ...MathNodes,
+  ...listNodes,
 }
 
 

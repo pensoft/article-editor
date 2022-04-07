@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { basicJournalArticleData, jsonSchemaForCSL, possibleReferenceTypes, exampleCitation, pensoftStyle, lang as langData, reference, formioAuthorsDataGrid, formIOTextFieldTemplate } from './data/data';
+import { basicJournalArticleData, jsonSchemaForCSL, possibleReferenceTypes, exampleCitation,  lang as langData, reference, formioAuthorsDataGrid, formIOTextFieldTemplate } from './data/data';
 import { ReferenceEditComponent } from './reference-edit/reference-edit.component';
 
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -18,7 +18,7 @@ import { CslService } from './lib-service/csl.service';
 export class LibraryPage implements AfterViewInit {
 
   userReferences: any[] = []
-  displayedColumns: string[] = ['id','title','author'];
+  displayedColumns: string[] = ['id','title','author','citate','edit','delete'];
   constructor(
     public serviceShare: ServiceShare,
     public dialog: MatDialog,
@@ -28,6 +28,14 @@ export class LibraryPage implements AfterViewInit {
 
   }
   possibleReferenceTypes: any[] = possibleReferenceTypes
+
+  editReference(ref:any){
+    console.log('edit ref',ref);
+  }
+
+  deleteReference(ref:any){
+    console.log('del ref',ref);
+  }
 
   genereteNewReference(refData: reference, data: any) {
     /* [ {
@@ -122,14 +130,7 @@ export class LibraryPage implements AfterViewInit {
       "id" : "umk3nf9gqp"
     }*/
     this.cslService.addReference(newRef)
-    let newCitat = this.cslService.generateCitation([{
-      "citationID": uuidv4(),
-      "citationItems": [{ "id": newRefID }],
-      //"citationItems": [{ "id": 'umk3nf9gqp' }],
-      "properties": { "noteIndex": 1 }
-    }, [], []]);
-    let bibl = this.cslService.citeproc.makeBibliography();
-    console.log(newCitat, newRef,bibl);
+
   }
 
   createReference(): void {
@@ -146,10 +147,9 @@ export class LibraryPage implements AfterViewInit {
         let ref: reference = result.referenceData;
         let newData = result.submissionData;
         this.genereteNewReference(ref, newData.data)
+        this.userReferences = this.cslService.getRefsArray()
         this.changeDetection.detectChanges();
       }
-      this.userReferences = this.cslService.getRefsArray()
-      console.log(this.userReferences);
     });
   }
 
@@ -157,9 +157,7 @@ export class LibraryPage implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.userReferences = this.cslService.getRefsArray()
-    console.log(this.userReferences);
     this.changeDetection.detectChanges();
-
   }
 }
 

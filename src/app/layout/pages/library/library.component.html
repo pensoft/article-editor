@@ -1,33 +1,43 @@
 <div class="references-lib">
-  <!-- <mat-sidenav opened mode="side">
-    <button mat-button><mat-icon>menu_book</mat-icon> My Library</button>
-  </mat-sidenav> -->
 
   <mat-toolbar class="reference-menu-toolbar">
     <button mat-icon-button (click)="createReference()"><mat-icon>add</mat-icon></button>
-    <button mat-icon-button><mat-icon>delete_forever</mat-icon></button>
+    <!-- <button mat-icon-button><mat-icon>delete_forever</mat-icon></button> -->
   </mat-toolbar>
-  <table mat-table [dataSource]="userReferences" class="mat-elevation-z8">
+  <table mat-table [dataSource]="userReferences" class="mat-elevation-z8 references-table">
 
-    <!--- Note that these columns can be defined in any order.
-          The actual rendered columns are set as a property on the row definition" -->
-
-    <!-- Position Column -->
     <ng-container matColumnDef="author">
       <th mat-header-cell *matHeaderCellDef> Author </th>
-      <td mat-cell *matCellDef="let element"> {{element.author? element.author[0]? element.author[0].family? element.author[0].family :element.author[0].name :'' :''}} </td>
+      <td mat-cell *matCellDef="let element"> {{element.referenceData.author? element.referenceData.author[0]? element.referenceData.author[0].family? element.referenceData.author[0].family :element.referenceData.author[0].name :'' :''}} </td>
     </ng-container>
 
-    <!-- Name Column -->
     <ng-container matColumnDef="id">
       <th mat-header-cell *matHeaderCellDef> ID </th>
-      <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+      <td mat-cell *matCellDef="let element"> {{element.referenceData.id}} </td>
     </ng-container>
 
-    <!-- Weight Column -->
     <ng-container matColumnDef="title">
       <th mat-header-cell *matHeaderCellDef> Title </th>
-      <td mat-cell *matCellDef="let element"> {{element.title||''}} </td>
+      <td mat-cell *matCellDef="let element"> {{element.referenceData.title||''}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="delete">
+      <th mat-header-cell *matHeaderCellDef> </th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-raised-button (click)="deleteReference(element)">Delete</button>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="edit">
+      <th mat-header-cell *matHeaderCellDef> </th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-raised-button (click)="editReference(element)">Edit</button>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="citate">
+      <th mat-header-cell *matHeaderCellDef>Citate</th>
+      <td mat-cell *matCellDef="let element">{{element.basicCitation.data.text}}</td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>

@@ -15,6 +15,7 @@ import { complexSectionFormIoSchema } from '../utils/section-templates/form-io-j
 import { TrackChangesService } from '../utils/trachChangesService/track-changes.service';
 import { YjsHistoryService } from '../utils/yjs-history.service';
 import { FiguresControllerService } from './figures-controller.service';
+import { MenuService } from './menu.service';
 import { PmDialogSessionService } from './pm-dialog-session.service';
 import { ProsemirrorEditorsService } from './prosemirror-editors.service';
 import { WorkerService } from './worker.service';
@@ -40,6 +41,7 @@ export class ServiceShare {
   YjsHistoryService?:YjsHistoryService
   PmDialogSessionService?:PmDialogSessionService
   WorkerService?:WorkerService
+  MenuService?:MenuService
 
   constructor(
     public dialog: MatDialog,

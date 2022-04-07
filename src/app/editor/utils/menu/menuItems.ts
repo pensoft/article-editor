@@ -14,13 +14,14 @@ import { YMap } from "yjs/dist/src/internals";
 import { wrapInList } from "prosemirror-schema-list";
 import { Subject } from 'rxjs';
 import { canInsert, createCustomIcon } from './common-methods';
-import { insertFigure, insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem } from './menu-dialogs';
+import { insertFigure, insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem, citateReference } from './menu-dialogs';
 import { MarkType, Node, NodeType, DOMParser, DOMSerializer, Mark, Fragment } from 'prosemirror-model';
 //@ts-ignore
 import { undo as undoLocalHistory,redo as redoLocalHistory} from '../prosemirror-history/history.js'
 //@ts-ignore
 import * as Y from 'yjs'
 import { D } from '@angular/cdk/keycodes';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 
 export const undoIcon = {
     width: 1024, height: 1024,
@@ -442,6 +443,8 @@ const logNodesMenuItem = new MenuItem({
 
 
 
+
+
 const tableMenu = [
     //@ts-ignore
     insertTableItem,
@@ -489,6 +492,7 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
     'setAlignLeft': setAlignLeft,
     'setAlignCenter': setAlignCenter,
     'setAlignRight': setAlignRight,
+    'citateReference':citateReference,
     'insertVideoItem': insertVideoItem,
     'addCommentMenuItem': addCommentMenuItem,
     'selectParentNodeItem': selectParentNodeItemPM,
