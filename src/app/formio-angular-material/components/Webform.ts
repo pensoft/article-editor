@@ -34,7 +34,7 @@ Webform.prototype.render2 = function() {
 let submissionData:any = {}
 Webform.prototype.setFullValue  = function(){
     Object.assign(submissionData.data,JSON.parse(JSON.stringify(this._submission.data)))
-  this.renderComponents();
+  //this.renderComponents();
   this.setValue(JSON.parse(JSON.stringify(submissionData)));
   //this.setDefaultValue(JSON.parse(JSON.stringify(submissionData)));
   //this.updateValue(JSON.parse(JSON.stringify(submissionData)));
@@ -43,6 +43,7 @@ Webform.prototype.setFullValue  = function(){
 
 let submit = Webform.prototype.submitForm;
 Webform.prototype.submitForm2 = submit;
+
 Webform.prototype.submitForm = async function(){
   let ret = await this.submitForm2()
   if(ret.submission){
@@ -55,6 +56,7 @@ Webform.prototype.submitForm = async function(){
     return Promise.reject(ret)
   }
 }
+
 Webform.prototype.changeVisibility = function(instance:any){
   if(this.components&&this.components.length>0){
     this.components.forEach((component:any)=>{

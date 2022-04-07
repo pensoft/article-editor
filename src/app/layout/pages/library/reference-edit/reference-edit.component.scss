@@ -1,0 +1,82 @@
+::ng-deep .right-side-nav {
+  width: 1200px;
+  .mat-drawer-inner-container {
+    overflow: hidden;
+    height: calc(100%);
+  }
+  .rightside-header {
+    height: 49px;
+    background-color: white;
+    border-bottom: 1px solid #e4e4e4 !important;
+  }
+  .rightside-header-level1 {
+    height: 51px;
+    background-color: white;
+    border-bottom: 1px solid #e4e4e4 !important;
+  }
+  .formio-container {
+    .formio-inner-container {
+      margin: 15px;
+      mat-formio-datagrid {
+        margin-bottom: 0 !important;
+      }
+      table {
+        thead {
+          display: none;
+        }
+        td {
+          padding: 3px !important;
+        }
+      }
+      .mat-column-__removeRow {
+        button {
+          padding: 0;
+          width: 24px !important;
+          min-width: 24px;
+        }
+      }
+      mat-formio-select {
+        .mat-form-field-flex {
+          background: #f6f6f6;
+          border-radius: 4px;
+          transform: translate(0px, 10px);
+        }
+        .mat-form-field-infix {
+          margin-right: 5px;
+          margin-left: 5px;
+        }
+        .mat-form-field-label {
+          transform: scale(0.8) translate(-25px, -22px);
+        }
+        .mat-form-field-empty {
+          transform: translate(-26px, -12px);
+        }
+      }
+      .mat-form-field.mat-focused .mat-form-field-label {
+        color: transparent !important;
+        .required-star {
+          color: transparent !important;
+        }
+      }
+      .mat-empty {
+        color: gray !important;
+        .required-star {
+          color: red !important;
+        }
+      }
+      mat-formio-textfield {
+        margin-bottom: 0 !important;
+        label {
+          transform: translate(-26px, -10px) !important;
+          color: transparent !important;
+          .required-star {
+            color: transparent !important;
+          }
+        }
+        input {
+          color: black !important;
+        }
+      }
+    }
+  }
+}

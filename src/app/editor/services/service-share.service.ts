@@ -3,6 +3,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
 import { ArticlesService } from '@app/core/services/articles.service';
+import { CslService } from '@app/layout/pages/library/lib-service/csl.service';
 import { uuidv4 } from 'lib0/random';
 import { ChooseManuscriptDialogComponent } from '../dialogs/choose-manuscript-dialog/choose-manuscript-dialog.component';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
@@ -26,6 +27,7 @@ export class ServiceShare {
 
   articleLayouts:any
 
+  CslService?:CslService
   ProsemirrorEditorsService?:ProsemirrorEditorsService
   YdocService?:YdocService
   FiguresControllerService?:FiguresControllerService

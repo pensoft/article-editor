@@ -141,7 +141,6 @@ export class MaterialComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   setVisible(visible: any) {
-    //visible = this.instance._visible
     if (this.element && this.element.nativeElement) {
       if (visible) {
         this.element.nativeElement.removeAttribute('hidden');
@@ -161,14 +160,21 @@ export class MaterialComponent implements AfterViewInit, OnInit, OnDestroy {
     if(instance == null/* ||visibleParent */){
       this.setVisible(this.instance._visible)
     }
-    if (instance&&
+    let isvisible = this.instance.conditionallyVisible()
+    if(instance){
+      this.instance.root.setFullValue();
+      setTimeout(()=>{
+        this.setVisible(isvisible);
+      },200)
+    }
+    /* if (instance&&
       this.instance.component.conditional &&
-      this.instance.component.conditional.when == instance.component.key) {
+      this.instance.component.conditional.when == instance.component.path) {
         this.instance.root.setFullValue();
         setTimeout(()=>{
           this.setVisible((instance.getValue() == this.instance.component.conditional.eq)?this.instance.component.conditional.show:!this.instance.component.conditional.show)
         },200)
-    }
+    } */
     if (this.instance.components && this.instance.components.length > 0) {
       this.instance.components.forEach((component: any) => {
         if (component.materialComponent) {

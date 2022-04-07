@@ -1,142 +1,166 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { basicJournalArticleData, jsonSchemaForCSL, possibleReferenceTypes, exampleCitation, pensoftStyle, lang as langData, reference, formioAuthorsDataGrid, formIOTextFieldTemplate } from './data/data';
-import { SelectReferenceComponent } from './select-reference/select-reference.component';
-//@ts-ignore
-import { CSL } from './data/citeproc.js'
+import { ReferenceEditComponent } from './reference-edit/reference-edit.component';
+
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDrawer } from '@angular/material/sidenav';
-let citeprocSys = {
-  // Given a language tag in RFC-4646 form, this method retrieves the
-  // locale definition file.  This method must return a valid *serialized*
-  // CSL locale. (In other words, an blob of XML as an unparsed string.  The
-  // processor will fail on a native XML object or buffer).
-  retrieveLocale: (lang: any) => {
-    /* xhr.open('GET', 'locales-' + lang + '.xml', false);
-    xhr.send(null); */
-    return langData;
-  },
+import { ServiceShare } from '@app/editor/services/service-share.service';
+import { uuidv4 } from 'lib0/random';
+import { I } from '@angular/cdk/keycodes';
+import { CslService } from './lib-service/csl.service';
 
-  // Given an identifier, this retrieves one citation item.  This method
-  // must return a valid CSL-JSON object.
-  retrieveItem: (id: any) => {
-    return basicJournalArticleData;
-  }
-};
 @Component({
   selector: 'app-library',
   templateUrl: './library.component.html',
   styleUrls: ['./library.component.scss']
 })
-export class LibraryPage implements OnInit {
+export class LibraryPage implements AfterViewInit {
 
-  referenceForms: FormGroup = new FormGroup({})
-  formIOSchema: any = undefined;
-  editingReference = false;
-  creatingReference = false;
-  citeproc: any
-  userReferences: reference[] = []
-  referenceFormControl = new FormControl(null, [Validators.required]);
+  userReferences: any[] = []
+  displayedColumns: string[] = ['id','title','author'];
+  constructor(
+    public serviceShare: ServiceShare,
+    public dialog: MatDialog,
+    private cslService: CslService,
+    private changeDetection:ChangeDetectorRef
+  ) {
 
-  constructor(public dialog: MatDialog) {
-    this.citeproc = new CSL.Engine(citeprocSys, pensoftStyle);
-    var citationStrings = this.citeproc.processCitationCluster(exampleCitation[0], exampleCitation[1], [])[1];
   }
   possibleReferenceTypes: any[] = possibleReferenceTypes
 
-
-
-  createReference(): void {
-    const dialogRef = this.dialog.open(SelectReferenceComponent, {
-      data: { possibleReferenceTypes: this.possibleReferenceTypes }
-    });
-
-    dialogRef.afterClosed().subscribe((result: reference) => {
-      if (result) {
-        this.creatingReference = true;
-        this.stopEditingIfTrue();
-        this.referenceFormControl.setValue(result);
-        this.generateFormIOJSON(result)
+  genereteNewReference(refData: reference, data: any) {
+    /* [ {
+            "citationID": "SXDNEKR5AD",
+            "citationItems": [{ "id": "2kntpabvm2" }],
+            "properties": { "noteIndex": 1 }
+          },[],[]] */
+    /*
+    {
+      "type": "article-journal",
+      "title": "Journal Title",
+      "container-title": "Journal Name",
+      "page": "427-454",
+      "volume": "24",
+      "issue": "3",
+      "URL": "http://www.jstor.org/stable/173640",
+      "DOI": "doi",
+      "language": 'Publication language',
+      "ISSN": "0022-0027",
+      "author": [{ "family": "Mandel", "given": "Robert", "multi": { "_key": {} } }],
+      "id": "2kntpabvm2"
+    } */
+    let newRefID = uuidv4();
+    let newRef: any = {};
+    let addCreator = (creator: any, type: string) => {
+      if (!newRef[type]) {
+        newRef[type] = []
       }
-    });
-  }
-
-  generateFormIOJSON(type: reference) {
-    console.log(type);
-    let forms = type.formFields;
-    let newFormIOJSON: any = {
-      "components": [
-
-      ]
+      newRef[type].push(creator)
     }
-    forms.forEach((form) => {
-      let formTemplate: any
-      if (form.cslKey == 'authors' || form.cslKey == 'editor') {
-        formTemplate = JSON.parse(JSON.stringify(formioAuthorsDataGrid));
-        let loopAndChangeConditions = (obj:any)=>{
-          debugger
-          if(obj['conditional']){
-            obj['conditional'].when = obj['conditional'].when.replace(formTemplate.key,form.cslKey)
-          }
-          if(obj instanceof Array){
-            obj.forEach((el:any)=>{
-              loopAndChangeConditions(el);
-            })
-          }else if(typeof obj == 'object'&&Object.keys(obj).length>0){
-            Object.keys(obj).forEach((key)=>{
-              let el = obj[key];
-              if(el){
-                loopAndChangeConditions(el);
-              }
-            })
+    let resolveCreators = (val: any, overRole?: string) => {
+      val.forEach((creator: any) => {
+        if (creator && typeof creator == 'object' && Object.keys(creator).length > 0) {
+          let role = overRole ? overRole : creator.role ? creator.role : 'author';
+          if (
+            creator.type == 'person' &&
+            ((creator.first && creator.first != '') || (creator.last && creator.last != ''))
+          ) {
+            addCreator({ "family": creator.first || '', "given": creator.last || '' }, role);
+          } else if (
+            creator.type == 'institution' &&
+            (creator.name && creator.name != '')
+          ) {
+            addCreator({ "family": '', "given": creator.name }, role);
+          } else if (creator.type == 'anonymous') {
+            addCreator({ "family": 'Anonymous', "given": 'Anonymous' }, role);
           }
         }
-        loopAndChangeConditions(formTemplate)
-      } else {
-        formTemplate = JSON.parse(JSON.stringify(formIOTextFieldTemplate));
-      }
-      formTemplate.label = form.label;
-      formTemplate.key = form.cslKey;
-      if (form.cslKey == 'authors' || form.cslKey == 'editor') {
-        console.log(formTemplate);
-      }
-      newFormIOJSON.components.push(formTemplate)
-    })
-    newFormIOJSON.components.push({
-      "type": "button",
-      "label": "Submit",
-      "key": "submit",
-      "disableOnInvalid": true,
-      "input": true,
-      "tableView": false
-    })
-    console.log(newFormIOJSON);
-    this.formIOSchema = newFormIOJSON
-  }
-
-  onSubmit(submision:any){
-    console.log(submision);
-  }
-
-  onChange(change:any){
-    console.log(change);
-  }
-
-  ready(event:any){
-    console.log(event);
-  }
-
-  stopEditingIfTrue() {
-    if (this.editingReference) {
-      this.editingReference = false;
+      })
     }
+    refData.formFields.forEach((formField) => {
+      if (data[formField.cslKey]) {
+        if (formField.cslKey == 'authors') {
+          let val = data[formField.cslKey];
+          resolveCreators(val)
+        } else if (formField.cslKey == 'editor') {
+          let val = data[formField.cslKey];
+          resolveCreators(val, 'editor')
+        } else {
+          let val = data[formField.cslKey];
+          if (val && val !== '') newRef[formField.cslKey] = val;
+        }
+      }
+    })
+    newRef.type = refData.type;
+    newRef.id = newRefID;
+    /* newRef = {
+      "type": "article-journal",
+      "multi": { "main": {}, "_keys": {} },
+      "title": "Ottoman Tax Registers ( <i>Tahrir Defterleri</i> )",
+      "container-title": "Historical Methods: A Journal of Quantitative and Interdisciplinary History",
+      "page": "87-102",
+      "volume": "37",
+      "issue": "2",
+      "source": "Crossref",
+      "abstract": "The Ottoman government obtained current information on the empire’s sources of revenue through periodic registers called tahrir defterleri. These documents include detailed information on taxpaying subjects and taxable resources, making it possible to study the economic and social history of the Middle East and eastern Europe in the fifteenth and sixteenth centuries. Although the use of these documents has been typically limited to the construction of local histories, adopting a more optimistic attitude toward their potential and using appropriate sampling procedures can greatly increase their contribution to historical scholarship. They can be used in comprehensive quantitative studies and in addressing questions of broader historical significance or larger social scientific relevance.",
+      "URL": "http://www.tandfonline.com/doi/abs/10.3200/HMTS.37.2.87-102",
+      "DOI": "10.3200/HMTS.37.2.87-102",
+      "ISSN": "0161-5440, 1940-1906",
+      "language": "en",
+      "author": [{ "family": "CoşGel", "given": "Metin M", "multi": { "_key": {} } }],
+      "issued": {
+        "date-parts": [
+          ["2004", 4]
+        ]
+      },
+      "accessed": {
+        "date-parts": [
+          ["2018", 6, 5]
+        ]
+      },
+      "id" : "umk3nf9gqp"
+    }*/
+    this.cslService.addReference(newRef)
+    let newCitat = this.cslService.generateCitation([{
+      "citationID": uuidv4(),
+      "citationItems": [{ "id": newRefID }],
+      //"citationItems": [{ "id": 'umk3nf9gqp' }],
+      "properties": { "noteIndex": 1 }
+    }, [], []]);
+    let bibl = this.cslService.citeproc.makeBibliography();
+    console.log(newCitat, newRef,bibl);
   }
 
-  ngOnInit(): void {
+  createReference(): void {
+    const dialogRef = this.dialog.open(ReferenceEditComponent, {
+      data: { possibleReferenceTypes: this.possibleReferenceTypes },
+      panelClass: 'edit-reference-panel',
+      width: 'auto',
+      height: '90%',
+      maxWidth: '100%'
+    });
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        let ref: reference = result.referenceData;
+        let newData = result.submissionData;
+        this.genereteNewReference(ref, newData.data)
+        this.changeDetection.detectChanges();
+      }
+      this.userReferences = this.cslService.getRefsArray()
+      console.log(this.userReferences);
+    });
   }
 
 
+
+  ngAfterViewInit(): void {
+    this.userReferences = this.cslService.getRefsArray()
+    console.log(this.userReferences);
+    this.changeDetection.detectChanges();
+
+  }
 }
-
 
 

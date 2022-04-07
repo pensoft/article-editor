@@ -1,29 +1,36 @@
-<mat-sidenav-container class="references-lib">
+<div class="references-lib">
   <!-- <mat-sidenav opened mode="side">
     <button mat-button><mat-icon>menu_book</mat-icon> My Library</button>
   </mat-sidenav> -->
-  <mat-sidenav opened mode="side" position="end" class="right-side-nav">
-    <div class="rightside-header">
 
-    </div>
-    <div class="rightside-header-level1">
-      <mat-form-field *ngIf="creatingReference||editingReference" appearance="fill" #referenceType class="select-ref-form-field">
-        <mat-label class="">Types:</mat-label>
-        <mat-select [formControl]="referenceFormControl" class="select-reference">
-          <mat-option *ngFor="let type of possibleReferenceTypes" [value]="type">
-            {{type.displayName}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-    <div class="formio-container">
-      <div [formGroup]="referenceForms" *ngIf="(creatingReference||editingReference)&&formIOSchema" class="formio-inner-container">
-        <mat-formio #formio [form]="formIOSchema" (ready)="ready($event)" (change)="onChange($event)" (submit)="onSubmit($event)"></mat-formio>
-      </div>
-    </div>
-  </mat-sidenav>
   <mat-toolbar class="reference-menu-toolbar">
     <button mat-icon-button (click)="createReference()"><mat-icon>add</mat-icon></button>
     <button mat-icon-button><mat-icon>delete_forever</mat-icon></button>
   </mat-toolbar>
-</mat-sidenav-container>
+  <table mat-table [dataSource]="userReferences" class="mat-elevation-z8">
+
+    <!--- Note that these columns can be defined in any order.
+          The actual rendered columns are set as a property on the row definition" -->
+
+    <!-- Position Column -->
+    <ng-container matColumnDef="author">
+      <th mat-header-cell *matHeaderCellDef> Author </th>
+      <td mat-cell *matCellDef="let element"> {{element.author? element.author[0]? element.author[0].family? element.author[0].family :element.author[0].name :'' :''}} </td>
+    </ng-container>
+
+    <!-- Name Column -->
+    <ng-container matColumnDef="id">
+      <th mat-header-cell *matHeaderCellDef> ID </th>
+      <td mat-cell *matCellDef="let element"> {{element.id}} </td>
+    </ng-container>
+
+    <!-- Weight Column -->
+    <ng-container matColumnDef="title">
+      <th mat-header-cell *matHeaderCellDef> Title </th>
+      <td mat-cell *matCellDef="let element"> {{element.title||''}} </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+</div>

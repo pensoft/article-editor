@@ -286,6 +286,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   ngAfterViewInit(): void {
     // const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
     this.sectionContent = this.section.formIOSchema;
+    console.log(this.sectionContent);
     this.renderSection = true
     console.log(this.sectionForm);
     if (this.section.mode == 'documentMode' && this.section.active) {

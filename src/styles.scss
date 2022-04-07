@@ -252,6 +252,14 @@ citation[nonexistingfigure="true"] {
   position: relative;
 }
 
+::ng-deep .edit-reference-panel {
+  transform: none;
+  margin-top: 20px;
+  margin-bottom: 20px;
+  padding: 20px;
+  height: auto;
+}
+
 .ychange-hover {
   display: none;
 }

@@ -1,3 +1,4 @@
+
 import { Component, ViewChild } from '@angular/core';
 import { MatTableDataSource } from '@angular/material/table';
 import { MaterialNestedComponent } from '../MaterialNestedComponent';
@@ -8,7 +9,7 @@ import { MatTable } from '@angular/material/table';
 import { FormioEventsService } from 'src/app/editor/formioComponents/formio-events.service';
 import { ElementRef, ChangeDetectorRef } from '@angular/core';
 import { ViewFlags } from '@angular/compiler/src/core';
-import { T } from '@angular/cdk/keycodes';
+import { F, T } from '@angular/cdk/keycodes';
 @Component({
   selector: 'mat-formio-datagrid',
   styleUrls: ['./datagrid.component.scss'],
@@ -147,10 +148,9 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
   }
 
   addAnother() {
-    this.dataSource._updateChangeSubscription
+    //this.dataSource._updateChangeSubscription
     this.checkRowsNumber();
     this.instance.addRow();
-    console.log(this.instance.rows.length,this.dataSource.data.length);
     if (this.dataSource.data.length < this.instance.rows.length) {
       this.dataSource.data.push({});
     }
@@ -272,14 +272,48 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
       this.instance.getRows();
       this.instance.updateValue(this.control.value || [], { modified: true });
       this.instance.setValue(this.control.value || []);
-      console.log('rendering');
       super.renderComponents()
     } catch (e) {
       console.error(e);
     }
   }
+  updateVisibility(instance: any,visibleParent?:true) {
+    if(instance == null/* ||visibleParent */){
+      this.setVisible(this.instance._visible)
+    }
+
+    let isvisible = this.instance.conditionallyVisible()
+    if(instance){
+      this.instance.root.setFullValue();
+      setTimeout(()=>{
+        this.setVisible(isvisible);
+      },200)
+    }
+    this.instance.rows.forEach((row:any)=>{
+      Object.keys(row).forEach(key=>{
+        if(row[key]){
+          let rowEL = row[key];
+          if(rowEL.materialComponent){
+            rowEL.materialComponent.updateVisibility(instance);
+          }else{
+            rowEL.render();
+          }
+          setTimeout(()=>{
+          },1000 )
+        }
+      })
+    })
+    /* if (this.instance.components && this.instance.components.length > 0) {
+      this.instance.components.forEach((component: any) => {
+        if (component.materialComponent) {
+          component.materialComponent.updateVisibility(instance);
+        }
+      })
+    } */
+  }
   oldvalue :any
   setValue(value: [] | null) {
+
     if(value!==null&&value?.length>0&&value?.reduce((prev:any,curr:any,i:number,arr)=>{return prev&&(Object.keys(curr).length==0)},true)){
       value = JSON.parse(JSON.stringify(this.oldvalue))
       setTimeout(()=>{
@@ -291,13 +325,12 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
       this.oldvalue =  JSON.parse(JSON.stringify(value))
     }
     const gridLength = value ? value.length : 0;
-    console.log(this.instance.rows.length,gridLength);
     while (this.instance.rows.length < gridLength) {
       this.addAnother();
       this.instance.dataValue = value;
       this.instance.setValue(value);
     }
-
+    //this.dataSource = new MatTableDataSource(this.instance.dataValue);
     if (!value && this.instance.component.clearOnHide) {
       this.dataSource = new MatTableDataSource(this.instance.defaultValue);
     }

@@ -59,6 +59,7 @@ export class YdocService {
   trackChangesMetadata?: YMap<any>
   usersDataMap?: YMap<any>
   mathMap?: YMap<any>
+  referenceCitationsMap?:YMap<any>;
   printMap?: YMap<any>
   userInfo: any
   getCommentsMap(): YMap<any> {
@@ -200,6 +201,11 @@ export class YdocService {
     let pdfSettings = this.printMap.get('pdfPrintSettings')
     let mathObj = this.mathMap.get('dataURLObj')
     let usersColors = this.usersDataMap.get('usersColors');
+    this.referenceCitationsMap = this.ydoc.getMap('referenceCitationsMap');
+    let references = this.referenceCitationsMap?.get('references')
+    if(!references){
+      this.referenceCitationsMap?.set('references',{})
+    }
     if (!usersColors) {
       this.usersDataMap.set('usersColors', { });
     }
