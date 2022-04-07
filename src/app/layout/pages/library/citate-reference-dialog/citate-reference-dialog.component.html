@@ -1,0 +1,29 @@
+<div class="citate-options-container">
+  <div class="title">
+    Add a reference
+  </div>
+  <div class="style-options">
+    <mat-form-field appearance="fill" #referenceType class="select-ref-form-field">
+      <mat-label class="">Styles:</mat-label>
+      <mat-select [formControl]="stylesControl" class="select-reference">
+        <mat-option *ngFor="let style of styles" [value]="style">
+          {{style}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="reference-options">
+    <mat-form-field appearance="fill" #referenceType class="select-ref-form-field">
+      <mat-label class="">References:</mat-label>
+      <mat-select [formControl]="referencesControl" class="select-reference">
+        <mat-option *ngFor="let ref of references" [value]="ref">
+          {{ref.referenceData.title}} | {{ref.referenceData.author[0].given}} | {{ref.referenceData.type}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="buttons">
+    <button mat-raised-button (click)="cancel()">Cancel</button>
+    <button mat-raised-button (click)="addReference()" [disabled]="referencesControl.hasError('required')||stylesControl.hasError('required')">Add</button>
+  </div>
+</div>
