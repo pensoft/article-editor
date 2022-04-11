@@ -23,8 +23,8 @@ import { ClientRequest } from 'http';
   </div>
   <textarea [ngStyle]="{'display':'none'}" #textarea></textarea>
   <mat-error  class="pm-errors" >
-    <div *ngIf="instance.error">
-      {{ instance.error.message  }}
+    <div *ngIf="validity.length>0">
+      {{ validity[0].message  }}
     </div>
   </mat-error>
   <!-- <mat-error class="pm-errors" [ngStyle]="{'display':instance.error?'none':'block'}"]>{{ instance.error.message }}</mat-error> -->
@@ -81,8 +81,9 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   onChange(keepInputRaw?: boolean) {
     return
   }
-
+  validity:any[] = []
   onChange1 = (keepInputRaw: boolean, value1?: string) => {
+    Validator
     let hasChanges = value1?.match(/<span class="(deletion|insertion|format-change)"/gm);
     if (hasChanges && Object.keys(this.instance.component.validate).length > 2) {
       this.instanceValidations = this.instance.component.validate
@@ -104,7 +105,12 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       value = this.getValue()!;
     }
     this.instance.updateValue(value, { modified: true });
+    let validity = Validator.checkComponent(this.instance,{[this.instance.component.key]:value},{[this.instance.component.key]:value});
+    console.log('val',validity,value);
+    this.validity = validity
+    this.instance.setCustomValidity(validity, false);
     this.instance.root.changeVisibility(this.instance);
+
   }
 
   beforeSubmit() {
@@ -150,8 +156,25 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     return this.editorContainer?.editorView.state.doc.textContent;
   }
 
-  setValue(value: any) {
+  setValue(value1: any) {
+    this.control.setValue(value1);
+    return
+    let hasChanges = value1?.match(/<span class="(deletion|insertion|format-change)"/gm);
+    if (hasChanges && Object.keys(this.instance.component.validate).length > 2) {
+      this.instanceValidations = this.instance.component.validate
+      this.instance.component.validate = {}
+    } else if (!hasChanges && Object.keys(this.instance.component.validate).length == 2) {
+      this.instance.component.validate = this.instanceValidations
+    }
+    let temp = document.createElement('div');
+    temp.innerHTML = value1!
+    let value = temp.textContent!
+
+    if (value === undefined || value === null) {
+      value = this.instance.emptyValue;
+    }
     this.control.setValue(value);
+    this.instance.updateValue(value, { modified: true });
   }
 
   setRealValue() {
@@ -182,7 +205,6 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       let temp = document.createElement('div');
       temp.innerHTML = this.value!;
       let node = this.value! ? this.DOMPMParser.parseSlice(temp) : undefined;
-      //this.onChange1(true, this.value!)
       this.editorContainer = this.prosemirrorService.renderEditorWithNoSync(this.ProsemirrorEditor?.nativeElement, this.instance, this.control, options, node);
       let containersCount = 0
       let edView = this.editorContainer.editorView;
@@ -208,6 +230,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
         del()
       }
       this.instance.component.validate = this.instanceValidations
+      this.onChange1(true,this.value)
 
       this.renderEditor = true;
 
@@ -223,26 +246,28 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
         if (this.value) {
           try {
             this.rerender = true
+            //this.onChange1(true, this.control.value)
             this.renderComponents()
           } catch (e) {
             console.error(e);
           }
-        } else if(!this.rerender) {
+        } else if (!this.rerender) {
           this.value = this.control.value
 
           awaitValue()
         }
       }, 20);
-      setTimeout(()=>{
-        if (!this.value&&!this.rerender) {
+      setTimeout(() => {
+        if (!this.value && !this.rerender) {
           try {
             this.rerender = true
+            //this.onChange1(true, this.control.value)
             this.renderComponents()
           } catch (e) {
             console.error(e);
           }
         }
-      },500)
+      }, 500)
     }
     this.value = this.control.value
     awaitValue()

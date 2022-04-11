@@ -1,4 +1,4 @@
-<div class="references-lib">
+<div *ngIf="shouldRender" class="references-lib">
 
   <mat-toolbar class="reference-menu-toolbar">
     <button mat-icon-button (click)="createReference()"><mat-icon>add</mat-icon></button>

@@ -1,3 +1,4 @@
+import { I } from "@angular/cdk/keycodes";
 import { MatDialog } from "@angular/material/dialog";
 import { InsertFigureComponent } from "@app/editor/dialogs/figures-dialog/insert-figure/insert-figure.component";
 import { ServiceShare } from "@app/editor/services/service-share.service";
@@ -26,6 +27,7 @@ let citateRef = (sharedService: ServiceShare) => {
     let start = state.selection.from;
     let end = state.selection.to;
     let nodeType = state.schema.nodes.reference_citation;
+
     let dialogRef = sharedDialog.open(CitateReferenceDialogComponent,{
       panelClass: 'editor-dialog-container'
     })
@@ -41,7 +43,19 @@ let citateRef = (sharedService: ServiceShare) => {
   }
 }
 let canCitate = (state: EditorState) => {
-
+  let sel = state.selection;
+  if(sel.from !== sel.to) return false;
+  //@ts-ignore
+  if(sel.$anchor.path){
+    //@ts-ignore
+    let p = sel.$anchor.path;
+    for(let i = p.length-1;i>-1;i--){
+      let el = p[i];
+      if(i%3==0&&el.type.name == 'reference_citation'){
+        return false;
+      }
+    }
+  }
   return true;
 }
 export const citateReference = (sharedService: ServiceShare) => {

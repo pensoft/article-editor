@@ -12,7 +12,7 @@ export const CUSTOM_FORM_DIRECTIVE: any = {
 };
 
 let DOMPMParser = DOMParser.fromSchema(schema);
-'blockquote hr h1 h2 h3 h4 h5 h6 pre br page-break spacer figure-descriptions-container figure-description figure-component-description figure-component inline-block-container form-field form-field-inline-view form-field-inline p ol ul li math-inline math-display td th span citation'.split(' ').join('[formControlName]')
+'blockquote hr h1 h2 h3 h4 h5 h6 pre br page-break spacer reference-citation figure-descriptions-container figure-description figure-component-description figure-component inline-block-container form-field form-field-inline-view form-field-inline p ol ul li math-inline math-display td th span citation'.split(' ').join('[formControlName]')
 let prosemirrorTags :string[]= []
 let marksAndNodes = {...schema.nodes,...schema.marks}
 Object.keys(marksAndNodes).forEach((key)=>{

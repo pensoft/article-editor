@@ -180,7 +180,9 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
           if (parentFrom == parentTo) {
             if (!parentRef) {
               parentRef = parentFrom
-            } else if (parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && (parentRef?.attrs.contenteditableNode != 'false'||parentRef?.attrs.contenteditableNode !== false)) {
+            } else if ((
+              !parentRef||!(parentRef.attrs.contenteditableNode=='false'||parentRef.attrs.contenteditableNode==false)
+            )&&parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && (parentRef?.attrs.contenteditableNode != 'false'||parentRef?.attrs.contenteditableNode !== false)) {
               parentRef = parentFrom
             }
 
@@ -236,7 +238,7 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
     } else if (noneditableMarkAfterTo && noneditableMarkBeforeTo) {
       canEdit = false
     }
-
+console.log(canEdit);
     if (!canEdit) {
       if (key == 'ArrowRight' ||
         key == 'ArrowLeft' ||

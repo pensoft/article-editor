@@ -4,7 +4,7 @@
       <mat-label class="">Types:</mat-label>
       <mat-select [formControl]="referenceFormControl" class="select-reference" (selectionChange)="generateFormIOJSON(referenceFormControl.value)">
         <mat-option *ngFor="let type of possibleReferenceTypes" [value]="type">
-          {{type.displayName}}
+          {{type.label}}
         </mat-option>
       </mat-select>
     </mat-form-field>

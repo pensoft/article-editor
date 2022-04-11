@@ -9,6 +9,8 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
 import { uuidv4 } from 'lib0/random';
 import { I } from '@angular/cdk/keycodes';
 import { CslService } from './lib-service/csl.service';
+import { Subscriber, Subscription } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-library',
@@ -16,10 +18,11 @@ import { CslService } from './lib-service/csl.service';
   styleUrls: ['./library.component.scss']
 })
 export class LibraryPage implements AfterViewInit {
-
+  shouldRender = false;
   userReferences: any[] = []
   displayedColumns: string[] = ['id','title','author','citate','edit','delete'];
   constructor(
+    private _http: HttpClient,
     public serviceShare: ServiceShare,
     public dialog: MatDialog,
     private cslService: CslService,
@@ -29,8 +32,28 @@ export class LibraryPage implements AfterViewInit {
   }
   possibleReferenceTypes: any[] = possibleReferenceTypes
 
-  editReference(ref:any){
-    console.log('edit ref',ref);
+  editReference(editref:any){
+    this._http.get('https://something/references/types').subscribe((redData:any)=>{
+      let referenceTypesFromBackend = redData.data;
+      const dialogRef = this.dialog.open(ReferenceEditComponent, {
+        data: { possibleReferenceTypes: this.possibleReferenceTypes,referenceTypesFromBackend,oldData:editref },
+        panelClass: 'edit-reference-panel',
+        width: 'auto',
+        height: '90%',
+        maxWidth: '100%'
+      });
+
+      dialogRef.afterClosed().subscribe((result: any) => {
+        if (result) {
+          let ref: reference = result.referenceData;
+          let newData = result.submissionData;
+          let oldRefId = editref.referenceData.id;
+          this.editRef(ref, newData.data,oldRefId)
+          this.userReferences = this.cslService.getRefsArray()
+          this.changeDetection.detectChanges();
+        }
+      });
+    })
   }
 
   deleteReference(ref:any){
@@ -39,6 +62,16 @@ export class LibraryPage implements AfterViewInit {
     this.changeDetection.detectChanges();
   }
 
+  addNewRef(refData1: reference, data1: any){
+    let {newRef,refData,data} = this.genereteNewReference(refData1,data1)
+    this.cslService.addReference(newRef,refData,data)
+  }
+
+  editRef(refData1: reference, data1: any,id:string){
+    let {newRef,refData,data} = this.genereteNewReference(refData1,data1)
+    newRef.id = id;
+    this.cslService.addReference(newRef,refData,data)
+  }
   genereteNewReference(refData: reference, data: any) {
     /* [ {
             "citationID": "SXDNEKR5AD",
@@ -88,20 +121,32 @@ export class LibraryPage implements AfterViewInit {
         }
       })
     }
-    refData.formFields.forEach((formField) => {
-      if (data[formField.cslKey]) {
-        if (formField.cslKey == 'authors') {
-          let val = data[formField.cslKey];
+    Object.keys(data.keys).forEach((key)=>{
+      if (data[key]) {
+        if (key == 'authors') {
+          let val = data[key];
           resolveCreators(val)
-        } else if (formField.cslKey == 'editor') {
-          let val = data[formField.cslKey];
+        } else if (key == 'editor') {
+          let val = data[key];
           resolveCreators(val, 'editor')
-        } else {
-          let val = data[formField.cslKey];
-          if (val && val !== '') newRef[formField.cslKey] = val;
+        } else if (key == 'issued'){
+          let val = data[key];
+          let dateParts = val.split('-')
+          newRef[key] = {
+            "date-parts": [
+              dateParts
+            ]
+          }
+        }else {
+          let val = data[key];
+          if (val && val !== '') newRef[key] = val;
         }
       }
+
     })
+    /* refData.formFields.forEach((formField) => {
+    }) */
+
     newRef.type = refData.type;
     newRef.id = newRefID;
     /* newRef = {
@@ -131,35 +176,53 @@ export class LibraryPage implements AfterViewInit {
       },
       "id" : "umk3nf9gqp"
     }*/
-    this.cslService.addReference(newRef)
-
+    return {newRef,refData,data}
   }
 
   createReference(): void {
-    const dialogRef = this.dialog.open(ReferenceEditComponent, {
-      data: { possibleReferenceTypes: this.possibleReferenceTypes },
-      panelClass: 'edit-reference-panel',
-      width: 'auto',
-      height: '90%',
-      maxWidth: '100%'
-    });
+    this._http.get('https://something/references/types').subscribe((redData:any)=>{
+      let referenceTypesFromBackend = redData.data;
+      const dialogRef = this.dialog.open(ReferenceEditComponent, {
+        data: { possibleReferenceTypes: this.possibleReferenceTypes,referenceTypesFromBackend },
+        panelClass: 'edit-reference-panel',
+        width: 'auto',
+        height: '90%',
+        maxWidth: '100%'
+      });
 
-    dialogRef.afterClosed().subscribe((result: any) => {
-      if (result) {
-        let ref: reference = result.referenceData;
-        let newData = result.submissionData;
-        this.genereteNewReference(ref, newData.data)
-        this.userReferences = this.cslService.getRefsArray()
-        this.changeDetection.detectChanges();
-      }
-    });
+      dialogRef.afterClosed().subscribe((result: any) => {
+        if (result) {
+          let ref: reference = result.referenceData;
+          let newData = result.submissionData;
+          this.addNewRef(ref, newData.data)
+          this.userReferences = this.cslService.getRefsArray()
+          this.changeDetection.detectChanges();
+        }
+      });
+    })
   }
 
 
 
   ngAfterViewInit(): void {
-    this.userReferences = this.cslService.getRefsArray()
-    this.changeDetection.detectChanges();
+    let sub : Subscription|undefined = undefined
+    let getData = () => {
+      this.shouldRender = true;
+      this.userReferences = this.cslService.getRefsArray()
+      this.changeDetection.detectChanges();
+      if(sub){
+        sub.unsubscribe();
+      }
+    }
+    if(!this.serviceShare.YdocService!.editorIsBuild){
+      sub = this.serviceShare.YdocService!.ydocStateObservable.subscribe((event) => {
+        if (event == 'docIsBuild') {
+          getData();
+        }
+      });
+    }else{
+      getData();
+    }
   }
 }
 

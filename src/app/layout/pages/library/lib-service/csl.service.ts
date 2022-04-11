@@ -15,8 +15,6 @@ export class CslService {
 
   getRefsArray(){
     this.references = this.serviceShare.YdocService!.referenceCitationsMap!.get('references');
-    console.log(this.references);
-    console.log(Object.values(this.references));
     return Object.values(this.references)
   }
   citeprocSys = {
@@ -71,7 +69,7 @@ export class CslService {
     this.serviceShare.YdocService!.referenceCitationsMap!.set('references',this.references)
   }
 
-  addReference(ref:any){
+  addReference(ref:any,refBuildData:reference,formioSubmission:any){
     let newRefObj:any = {};
     this.currentRef = ref;
     let newCitationId = uuidv4()
@@ -88,13 +86,13 @@ export class CslService {
       citatId:newCitationId,
       style:'basicStyle'
     }
-    console.log(bibliography[1][0]);
     newRefObj.basicCitation.bobliography = bibliography[1][0];
     newRefObj.referenceData = ref;
-
+    newRefObj.refBuildData = refBuildData;
+    newRefObj.formioSubmission = formioSubmission;
     this.references = this.serviceShare.YdocService!.referenceCitationsMap!.get('references');
     this.references[ref.id] = newRefObj;
-    this.serviceShare.YdocService!.referenceCitationsMap!.set('references',this.references)
+    this.serviceShare.YdocService!.referenceCitationsMap!.set('references',this.references);
   }
   /*
   [{

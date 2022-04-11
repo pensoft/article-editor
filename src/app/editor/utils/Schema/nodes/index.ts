@@ -58,8 +58,9 @@ export const form_field_inline = {
 }
 
 export const reference_citation = {
-  content: "inline*",
-  group: "block",
+  content: "inline",
+  group: "inline",
+  inline:true,
   isolating: true,
   attrs: {
     ...getGenericAttributes(),

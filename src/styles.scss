@@ -252,6 +252,10 @@ citation[nonexistingfigure="true"] {
   position: relative;
 }
 
+reference-citation {
+  display: inline;
+}
+
 ::ng-deep .edit-reference-panel {
   transform: none;
   margin-top: 20px;
