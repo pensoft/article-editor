@@ -1,8 +1,11 @@
 let loadImagAsBlob = (data) => {
   let imageURL = data.data.url
+  let prod = data.data.environment
   let proxyURL;
-  if (imageURL.includes('https://s3-pensoft.s3.eu-west-1.amazonaws.com')) {
+  if (!prod && imageURL.includes('https://s3-pensoft.s3.eu-west-1.amazonaws.com')) {
     proxyURL = imageURL.replace('https://s3-pensoft.s3.eu-west-1.amazonaws.com', '')
+  } else {
+    proxyURL = imageURL;
   }
   fetch(proxyURL).then((loadedImage) => {
     return loadedImage.blob()

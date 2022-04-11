@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { ServiceShare } from './service-share.service';
+import { environment } from '@env';
 
 @Injectable({
   providedIn: 'root'
@@ -52,8 +53,8 @@ export class WorkerService {
 
   convertImgInWorker(url: string) {
     let dataURLObj = this.serviceShare.YdocService!.figuresMap!.get('ArticleFiguresDataURLS');
-    if(!dataURLObj[url]){
-      this.worker.postMessage({ meta: { action: 'loadImgAsDataURL' }, data: { url } })
+    if(!dataURLObj[url]||dataURLObj[url]=='data:'||dataURLObj[url] == ''){
+      this.worker.postMessage({ meta: { action: 'loadImgAsDataURL' }, data: { url ,environment:environment.production} })
     }else{
     }
   }
