@@ -35,7 +35,7 @@ let citateRef = (sharedService: ServiceShare) => {
       console.log(result);
       if(result){
         let div = document.createElement('div');
-        div.innerHTML = result.citateData.bibliography[1][0];
+        div.innerHTML = result.citateData;
         let tr = state.tr.replaceWith(start, end, nodeType.create({ contenteditableNode: 'false' },state.schema.text(div.textContent)))
         dispatch(tr)
       }

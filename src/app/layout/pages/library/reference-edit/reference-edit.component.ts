@@ -1,7 +1,8 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { formioAuthorsDataGrid, formIOTextFieldTemplate, reference } from '../data/data';
+import { SaveComponent } from './save/save.component';
 
 @Component({
   selector: 'app-reference-edit',
@@ -12,10 +13,13 @@ export class ReferenceEditComponent implements AfterViewInit {
   referenceForms: FormGroup = new FormGroup({})
   formIOSchema: any = undefined;
   referenceFormControl = new FormControl(null, [Validators.required]);
+  stylesFormControl = new FormControl(null, [Validators.required]);
   possibleReferenceTypes: any[] = []
   dataSave:any
+  referenceStyles:any
   constructor(
     public dialogRef: MatDialogRef<ReferenceEditComponent>,
+    public dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private cahngeDetectorRef: ChangeDetectorRef
   ) {
@@ -25,10 +29,12 @@ export class ReferenceEditComponent implements AfterViewInit {
     this.formIOSchema = undefined;
     this.cahngeDetectorRef.detectChanges()
 
+
     let newFormIOJSON = type.formIOScheme;
-    let oldFormIOData = this.dataSave?this.dataSave:this.data.oldData?this.data.oldData.formioSubmission:undefined;
+    let oldFormIOData = this.dataSave?this.dataSave:this.data.oldData?this.data.oldData.refData.formioData:undefined;
+    //let oldFormIOData = this.dataSave?this.dataSave:this.data.oldData?this.data.oldData.formioSubmission:undefined;
     newFormIOJSON.components.forEach((component:any)=>{
-      let val = oldFormIOData[component.key];
+      let val = oldFormIOData?oldFormIOData[component.key]:undefined;
       if(val){
         component.defaultValue = val
       }
@@ -114,28 +120,60 @@ export class ReferenceEditComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.possibleReferenceTypes = this.data.referenceTypesFromBackend;
+    this.referenceStyles = this.data.referenceStyles
     //this.possibleReferenceTypes = this.data.possibleReferenceTypes;
     if (!this.data.oldData) {
       this.referenceFormControl.setValue(this.possibleReferenceTypes[0]);
+      this.stylesFormControl.setValue(this.referenceStyles[0])
     } else {
-      let oldBuildData = this.data.oldData.refBuildData;
+      let oldBuildData = this.data.oldData;
+
       if (this.possibleReferenceTypes.find((ref) => {
-        return ref.name == oldBuildData.name
+        return ref.name == oldBuildData.refType.name
       })) {
         let index = this.possibleReferenceTypes.findIndex((ref) => {
-          return ref.name == oldBuildData.name
+          return ref.name == oldBuildData.refType.name
         });
         this.referenceFormControl.setValue(this.possibleReferenceTypes[index]);
       }
+
+      if (this.referenceStyles.find((style:any) => {
+        return style.name == oldBuildData.refStyle.name
+      })) {
+        let index = this.referenceStyles.findIndex((style:any) => {
+          return style.name == oldBuildData.refStyle.name
+        });
+        this.stylesFormControl.setValue(this.referenceStyles[index]);
+      }
+
     }
     this.generateFormIOJSON(this.referenceFormControl.value)
   }
 
   onSubmit(submission: any) {
-    this.dialogRef.close({
-      submissionData: submission,
-      referenceData: this.referenceFormControl.value
-    })
+    if(!this.data.oldData){
+      this.dialogRef.close({
+        submissionData: submission,
+        referenceScheme: this.referenceFormControl.value,
+        referenceStyle: this.stylesFormControl.value,
+      })
+    }else{
+      const saveDialogRef = this.dialog.open(SaveComponent, {
+        panelClass: 'save-reference-panel',
+      });
+      saveDialogRef.afterClosed().subscribe((saveOption:any)=>{
+        if(saveOption){
+          this.dialogRef.close({
+            submissionData: submission,
+            referenceScheme: this.referenceFormControl.value,
+            referenceStyle: this.stylesFormControl.value,
+            globally:saveOption.globally
+          })
+        }else{
+          this.generateFormIOJSON(this.referenceFormControl.value);
+        }
+      })
+    }
   }
 
   onChange(change: any) {

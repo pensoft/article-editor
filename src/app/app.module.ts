@@ -99,6 +99,7 @@ import { LibraryPage } from './layout/pages/library/library.component';
 import { ReferenceEditComponent } from './layout/pages/library/reference-edit/reference-edit.component';
 import { CitateReferenceDialogComponent } from './layout/pages/library/citate-reference-dialog/citate-reference-dialog.component';
 import { FakeBackendInterceptor } from './core/services/fakeBackendProvide';
+import { SaveComponent } from './layout/pages/library/reference-edit/save/save.component';
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -184,6 +185,7 @@ const gravatarConfig: GravatarConfig = {
     LibraryPage,
     ReferenceEditComponent,
     CitateReferenceDialogComponent,
+    SaveComponent,
   ],
   imports: [
     PipesModule,

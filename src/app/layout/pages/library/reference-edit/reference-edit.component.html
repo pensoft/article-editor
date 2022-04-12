@@ -8,6 +8,14 @@
         </mat-option>
       </mat-select>
     </mat-form-field>
+    <mat-form-field appearance="fill" #referenceType class="select-ref-form-field">
+      <mat-label class="">Styles:</mat-label>
+      <mat-select [formControl]="stylesFormControl" class="select-reference">
+        <mat-option *ngFor="let style of referenceStyles" [value]="style">
+          {{style.label}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
   </div>
   <div class="formio-container">
     <div [formGroup]="referenceForms" *ngIf="formIOSchema" class="formio-inner-container">

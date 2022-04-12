@@ -6,6 +6,8 @@ import { basicJournalArticleData, jsonSchemaForCSL, possibleReferenceTypes, exam
 import { CSL } from '../data/citeproc.js'
 import { uuidv4 } from 'lib0/random';
 import { basicStyle, styles } from '../data/styles';
+import { HttpClient } from '@angular/common/http';
+import { RefsApiService } from './refs-api.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -36,7 +38,11 @@ export class CslService {
     }
   };
   citeproc: any
-  constructor(private serviceShare:ServiceShare) {
+  constructor(
+    private serviceShare:ServiceShare,
+    private _http: HttpClient,
+    private refsAPI:RefsApiService,
+    ) {
     this.serviceShare.shareSelf('CslService',CslService)
     this.citeproc = new CSL.Engine(this.citeprocSys, /* pensoftStyle */basicStyle);
     //var citationStrings = this.citeproc.processCitationCluster(exampleCitation[0], exampleCitation[1], [])[1];
@@ -69,11 +75,11 @@ export class CslService {
     this.serviceShare.YdocService!.referenceCitationsMap!.set('references',this.references)
   }
 
-  addReference(ref:any,refBuildData:reference,formioSubmission:any){
-    let newRefObj:any = {};
+  addReference(ref:any,refType:any,refStyle:any,formioSubmission:any,oldRef?:any,globally?:boolean){
+    let newRef:any = {};
     this.currentRef = ref;
     let newCitationId = uuidv4()
-    this.citeproc = new CSL.Engine(this.citeprocSys, /* pensoftStyle */basicStyle);
+    this.citeproc = new CSL.Engine(this.citeprocSys, /* pensoftStyle */refStyle.style);
     this.citeproc.updateItems([ref.id]);
     let citationData = this.generateCitation([ {
       "citationID": newCitationId,
@@ -81,18 +87,28 @@ export class CslService {
       "properties": { "noteIndex": 1 }
     },[],[]]);
     let bibliography = this.citeproc.makeBibliography();
-    newRefObj.basicCitation = {
+    newRef.basicCitation = {
       data:citationData,
       citatId:newCitationId,
       style:'basicStyle'
     }
-    newRefObj.basicCitation.bobliography = bibliography[1][0];
-    newRefObj.referenceData = ref;
-    newRefObj.refBuildData = refBuildData;
-    newRefObj.formioSubmission = formioSubmission;
-    this.references = this.serviceShare.YdocService!.referenceCitationsMap!.get('references');
+    newRef.basicCitation.bobliography = bibliography[1][0];
+    newRef.referenceData = ref;
+    newRef.formioData = formioSubmission;
+    newRef.last_modified = (new Date()).getTime();
+    let newRefObj = {
+      refData:newRef,
+      refType,
+      refStyle
+    }
+    if(oldRef){
+      return this.refsAPI.editReference(newRefObj,globally!);
+    }else{
+      return this.refsAPI.createReference(newRefObj);
+    }
+    /* this.references = this.serviceShare.YdocService!.referenceCitationsMap!.get('references');
     this.references[ref.id] = newRefObj;
-    this.serviceShare.YdocService!.referenceCitationsMap!.set('references',this.references);
+    this.serviceShare.YdocService!.referenceCitationsMap!.set('references',this.references); */
   }
   /*
   [{

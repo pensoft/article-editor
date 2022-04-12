@@ -1,6 +1,6 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { basicJournalArticleData, jsonSchemaForCSL, possibleReferenceTypes, exampleCitation,  lang as langData, reference, formioAuthorsDataGrid, formIOTextFieldTemplate } from './data/data';
+import { basicJournalArticleData, jsonSchemaForCSL, possibleReferenceTypes, exampleCitation, lang as langData, reference, formioAuthorsDataGrid, formIOTextFieldTemplate } from './data/data';
 import { ReferenceEditComponent } from './reference-edit/reference-edit.component';
 
 import { FormControl, FormGroup, Validators } from '@angular/forms';
@@ -11,6 +11,7 @@ import { I } from '@angular/cdk/keycodes';
 import { CslService } from './lib-service/csl.service';
 import { Subscriber, Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
+import { RefsApiService } from './lib-service/refs-api.service';
 
 @Component({
   selector: 'app-library',
@@ -19,59 +20,136 @@ import { HttpClient } from '@angular/common/http';
 })
 export class LibraryPage implements AfterViewInit {
   shouldRender = false;
-  userReferences: any[] = []
-  displayedColumns: string[] = ['id','title','author','citate','edit','delete'];
+  userReferences?: any[]
+  displayedColumns: string[] = ['id', 'title', 'author', 'citate', 'edit', 'delete','updateScheme','updateStyle'];
   constructor(
-    private _http: HttpClient,
     public serviceShare: ServiceShare,
     public dialog: MatDialog,
     private cslService: CslService,
-    private changeDetection:ChangeDetectorRef
+    private refsAPI:RefsApiService,
+    private changeDetection: ChangeDetectorRef
   ) {
 
   }
   possibleReferenceTypes: any[] = possibleReferenceTypes
 
-  editReference(editref:any){
-    this._http.get('https://something/references/types').subscribe((redData:any)=>{
-      let referenceTypesFromBackend = redData.data;
-      const dialogRef = this.dialog.open(ReferenceEditComponent, {
-        data: { possibleReferenceTypes: this.possibleReferenceTypes,referenceTypesFromBackend,oldData:editref },
-        panelClass: 'edit-reference-panel',
-        width: 'auto',
-        height: '90%',
-        maxWidth: '100%'
-      });
+  editReference(editref: any) {
+    this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
+      this.refsAPI.getStyles().subscribe((refStyles: any) => {
+        let referenceStyles = refStyles.data
+        let referenceTypesFromBackend = refTypes.data;
+        const dialogRef = this.dialog.open(ReferenceEditComponent, {
+          data: { possibleReferenceTypes: this.possibleReferenceTypes, referenceTypesFromBackend, oldData: editref,referenceStyles },
+          panelClass: 'edit-reference-panel',
+          width: 'auto',
+          height: '90%',
+          maxWidth: '100%'
+        });
 
-      dialogRef.afterClosed().subscribe((result: any) => {
-        if (result) {
-          let ref: reference = result.referenceData;
-          let newData = result.submissionData;
-          let oldRefId = editref.referenceData.id;
-          this.editRef(ref, newData.data,oldRefId)
-          this.userReferences = this.cslService.getRefsArray()
-          this.changeDetection.detectChanges();
-        }
-      });
+        dialogRef.afterClosed().subscribe((result: any) => {
+          if (result) {
+            let refType: reference = result.referenceScheme;
+            let refStyle = result.referenceStyle
+            let formioData = result.submissionData.data;
+            let globally = result.globally
+            this.editRef(refType, refStyle,formioData, editref,globally).subscribe((editRes)=>{
+              this.userReferences = undefined;
+              this.changeDetection.detectChanges();
+              this.refsAPI.getReferences().subscribe((refs:any)=>{
+                this.userReferences = refs.data;
+                this.changeDetection.detectChanges();
+              })
+            })
+          }
+        })
+      })
+    })
+  }
+  createReference(): void {
+    this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
+      this.refsAPI.getStyles().subscribe((refStyles: any) => {
+        let referenceStyles = refStyles.data
+        let referenceTypesFromBackend = refTypes.data;
+        const dialogRef = this.dialog.open(ReferenceEditComponent, {
+          data: { possibleReferenceTypes: this.possibleReferenceTypes, referenceTypesFromBackend, referenceStyles },
+          panelClass: 'edit-reference-panel',
+          width: 'auto',
+          height: '90%',
+          maxWidth: '100%'
+        });
+
+        dialogRef.afterClosed().subscribe((result: any) => {
+          if (result) {
+            let refType: reference = result.referenceScheme;
+            let refStyle = result.referenceStyle
+            let formioData = result.submissionData.data
+            this.addNewRef(refType, refStyle,formioData).subscribe((addres:any)=>{
+              this.userReferences = undefined;
+              this.changeDetection.detectChanges();
+              this.refsAPI.getReferences().subscribe((refs:any)=>{
+                this.userReferences = refs.data;
+                console.log(this.userReferences);
+                this.changeDetection.detectChanges();
+              })
+            })
+          }
+        })
+      })
     })
   }
 
-  deleteReference(ref:any){
-    this.cslService.deleteCitation(ref.referenceData.id);
-    this.userReferences = this.cslService.getRefsArray();
-    this.changeDetection.detectChanges();
+  deleteReference(ref: any) {
+    //this.cslService.deleteCitation(ref.referenceData.id);
+    this.refsAPI.deleteReference(ref).subscribe(()=>{
+      this.userReferences = undefined
+      this.changeDetection.detectChanges();
+      this.refsAPI.getReferences().subscribe((refs:any)=>{
+        this.userReferences = refs.data
+        this.changeDetection.detectChanges();
+      })
+    })
   }
 
-  addNewRef(refData1: reference, data1: any){
-    let {newRef,refData,data} = this.genereteNewReference(refData1,data1)
-    this.cslService.addReference(newRef,refData,data)
+  addNewRef(refType:any, refStyle:any,formioData:any) {
+    let  newRef = this.genereteNewReference(refType, formioData)
+    return this.cslService.addReference(newRef, refType, refStyle,formioData)
   }
 
-  editRef(refData1: reference, data1: any,id:string){
-    let {newRef,refData,data} = this.genereteNewReference(refData1,data1)
-    newRef.id = id;
-    this.cslService.addReference(newRef,refData,data)
+  editRef(refType:any, refStyle:any,formioData:any, oldRef:any,globally:boolean) {
+    let newRef = this.genereteNewReference(refType, formioData)
+    let refID = oldRef.refData.referenceData.id;
+    newRef.id = refID;
+    return this.cslService.addReference(newRef, refType, refStyle,formioData, oldRef,globally)
   }
+
+  updateScheme(ref:any){
+    console.log(ref);
+    let newRef = JSON.parse(JSON.stringify(ref));
+    newRef.refType.last_modified = (new Date()).getTime();
+    this.refsAPI.editReference(newRef,true).subscribe((res)=>{
+      this.userReferences = undefined;
+      this.changeDetection.detectChanges();
+      this.refsAPI.getReferences().subscribe((refs:any)=>{
+        this.userReferences = refs.data
+        this.changeDetection.detectChanges();
+      })
+    })
+  }
+
+  updateStyle(ref:any){
+    console.log(ref);
+    let newRef = JSON.parse(JSON.stringify(ref));
+    newRef.refStyle.last_modified = (new Date()).getTime();
+    this.refsAPI.editReference(newRef,true).subscribe((res)=>{
+      this.userReferences = undefined;
+      this.changeDetection.detectChanges();
+      this.refsAPI.getReferences().subscribe((refs:any)=>{
+        this.userReferences = refs.data
+        this.changeDetection.detectChanges();
+      })
+    })
+  }
+
   genereteNewReference(refData: reference, data: any) {
     /* [ {
             "citationID": "SXDNEKR5AD",
@@ -121,7 +199,7 @@ export class LibraryPage implements AfterViewInit {
         }
       })
     }
-    Object.keys(data.keys).forEach((key)=>{
+    Object.keys(data).forEach((key) => {
       if (data[key]) {
         if (key == 'authors') {
           let val = data[key];
@@ -129,7 +207,7 @@ export class LibraryPage implements AfterViewInit {
         } else if (key == 'editor') {
           let val = data[key];
           resolveCreators(val, 'editor')
-        } else if (key == 'issued'){
+        } else if (key == 'issued') {
           let val = data[key];
           let dateParts = val.split('-')
           newRef[key] = {
@@ -137,7 +215,7 @@ export class LibraryPage implements AfterViewInit {
               dateParts
             ]
           }
-        }else {
+        } else {
           let val = data[key];
           if (val && val !== '') newRef[key] = val;
         }
@@ -176,53 +254,20 @@ export class LibraryPage implements AfterViewInit {
       },
       "id" : "umk3nf9gqp"
     }*/
-    return {newRef,refData,data}
+    return newRef
   }
 
-  createReference(): void {
-    this._http.get('https://something/references/types').subscribe((redData:any)=>{
-      let referenceTypesFromBackend = redData.data;
-      const dialogRef = this.dialog.open(ReferenceEditComponent, {
-        data: { possibleReferenceTypes: this.possibleReferenceTypes,referenceTypesFromBackend },
-        panelClass: 'edit-reference-panel',
-        width: 'auto',
-        height: '90%',
-        maxWidth: '100%'
-      });
 
-      dialogRef.afterClosed().subscribe((result: any) => {
-        if (result) {
-          let ref: reference = result.referenceData;
-          let newData = result.submissionData;
-          this.addNewRef(ref, newData.data)
-          this.userReferences = this.cslService.getRefsArray()
-          this.changeDetection.detectChanges();
-        }
-      });
-    })
-  }
 
 
 
   ngAfterViewInit(): void {
-    let sub : Subscription|undefined = undefined
-    let getData = () => {
+    this.refsAPI.getReferences().subscribe((refs:any)=>{
       this.shouldRender = true;
-      this.userReferences = this.cslService.getRefsArray()
+      this.userReferences = refs.data;
+      console.log(this.userReferences);
       this.changeDetection.detectChanges();
-      if(sub){
-        sub.unsubscribe();
-      }
-    }
-    if(!this.serviceShare.YdocService!.editorIsBuild){
-      sub = this.serviceShare.YdocService!.ydocStateObservable.subscribe((event) => {
-        if (event == 'docIsBuild') {
-          getData();
-        }
-      });
-    }else{
-      getData();
-    }
+    })
   }
 }
 

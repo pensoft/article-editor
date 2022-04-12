@@ -64,6 +64,7 @@ export const reference_citation = {
   isolating: true,
   attrs: {
     ...getGenericAttributes(),
+
   },
   parseDOM: [{
     tag: "reference-citation", getAttrs(dom: any) {

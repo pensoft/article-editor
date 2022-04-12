@@ -8,17 +8,31 @@
 
     <ng-container matColumnDef="author">
       <th mat-header-cell *matHeaderCellDef> Author </th>
-      <td mat-cell *matCellDef="let element"> {{element.referenceData.author? element.referenceData.author[0]? element.referenceData.author[0].family? element.referenceData.author[0].family :element.referenceData.author[0].name :'' :''}} </td>
+      <td mat-cell *matCellDef="let element"> {{element.refData.formioData.authors[0].last||element.refData.formioData.authors[0].name||element.refData.formioData.authors[0].first||''}} </td>
     </ng-container>
 
     <ng-container matColumnDef="id">
       <th mat-header-cell *matHeaderCellDef> ID </th>
-      <td mat-cell *matCellDef="let element"> {{element.referenceData.id}} </td>
+      <td mat-cell *matCellDef="let element"> {{element.refData.referenceData.id}} </td>
     </ng-container>
 
     <ng-container matColumnDef="title">
       <th mat-header-cell *matHeaderCellDef> Title </th>
-      <td mat-cell *matCellDef="let element"> {{element.referenceData.title||''}} </td>
+      <td mat-cell *matCellDef="let element"> {{element.refData.referenceData.title||''}} </td>
+    </ng-container>
+
+    <ng-container matColumnDef="updateScheme">
+      <th mat-header-cell *matHeaderCellDef> </th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-raised-button (click)="updateScheme(element)">updateScheme</button>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="updateStyle">
+      <th mat-header-cell *matHeaderCellDef> </th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-raised-button (click)="updateStyle(element)">updateStyle</button>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="delete">
@@ -38,7 +52,7 @@
     <ng-container matColumnDef="citate">
       <th mat-header-cell *matHeaderCellDef>Citate</th>
       <td mat-cell *matCellDef="let element">
-        <div [outerHTML]="element.basicCitation.bobliography">
+        <div [outerHTML]="element.refData.basicCitation.bobliography">
 
         </div>
       </td>
