@@ -36,7 +36,16 @@ let citateRef = (sharedService: ServiceShare) => {
       if(result){
         let div = document.createElement('div');
         div.innerHTML = result.citateData;
-        let tr = state.tr.replaceWith(start, end, nodeType.create({ contenteditableNode: 'false' },state.schema.text(div.textContent)))
+        let referenceData = {refId:result.ref.refData.referenceData.id,last_modified:result.ref.refData.last_modified};
+        let referenceStyle = {name:result.ref.refStyle.name,last_modified:result.ref.refStyle.last_modified};
+        let referenceType = {name:result.ref.refType.name,last_modified:result.ref.refType.last_modified};
+        let recCitationAttrs =  {
+          contenteditableNode: 'false',
+          referenceData,
+          referenceStyle,
+          referenceType,
+        }
+        let tr = state.tr.replaceWith(start, end, nodeType.create(recCitationAttrs,state.schema.text(div.textContent)))
         dispatch(tr)
       }
     });

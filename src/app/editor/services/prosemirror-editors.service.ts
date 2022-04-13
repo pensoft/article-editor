@@ -380,6 +380,7 @@ export class ProsemirrorEditorsService {
         transactionControllerPlugin,
         selectWholeCitat,
         this.detectFocusService.getPlugin(),
+        this.serviceShare.ReferencePluginService?.referencePlugin,
         this.commentsService.getPlugin(),
         this.trackChangesService.getHideShowPlugin(),
         this.citatContextPluginService.citatContextPlugin,
@@ -559,6 +560,26 @@ export class ProsemirrorEditorsService {
       dispatchTransaction: dispatchTransaction
     };
     this.editorContainers[editorID] = editorCont;
+    let count = 0;
+    let countActiveSections = (item:articleSection)=>{
+      if(item.type == 'complex'&&item.children.length>0){
+        item.children.forEach((child)=>{
+          countActiveSections(child)
+        })
+      }
+      if(item.active == true){
+        count++;
+      }
+    }
+    this.treeService.articleSectionsStructure?.forEach(item=>{
+      countActiveSections(item)
+    })
+    let renderedSections = Object.keys(this.editorContainers).filter(key=>key!=='endEditor').length
+    let allActiveSections = count;
+    console.log(renderedSections,allActiveSections,renderedSections == allActiveSections);
+    if(renderedSections == allActiveSections){
+      this.runFuncAfterRender()
+    }
     return editorCont
   }
 
@@ -624,6 +645,7 @@ export class ProsemirrorEditorsService {
         this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         this.detectFocusService.getPlugin(),
+        this.serviceShare.ReferencePluginService?.referencePlugin,
         this.commentsService.getPlugin(),
         this.trackChangesService.getHideShowPlugin(),
         this.linkPopUpPluginService.linkPopUpPlugin,
@@ -1037,6 +1059,10 @@ export class ProsemirrorEditorsService {
       dispatchTransaction: dispatchTransaction
     };
     return editorCont
+  }
+
+  runFuncAfterRender(){
+    this.serviceShare.CslService?.checkReferencesInAllEditors(this.editorContainers);
   }
 
   buildMenus() {

@@ -36,7 +36,7 @@ export class WorkerService {
 
   constructor(private serviceShare: ServiceShare) {
     this.responseSubject = new Subject()
-    this.worker = new Worker('./task-processing-worker.js')
+    this.worker = new Worker('../../../task-processing-worker.js')
     this.serviceShare.shareSelf('WorkerService', this)
     this.worker.addEventListener('message',this.workerListener)
   }

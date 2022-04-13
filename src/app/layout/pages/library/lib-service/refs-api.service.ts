@@ -1,15 +1,20 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 
 @Injectable({
   providedIn: 'root'
 })
 export class RefsApiService {
 
-  constructor(private _http: HttpClient,) {}
+  constructor(private _http: HttpClient,private serviceShare:ServiceShare) {}
 
   getReferences(){
-    return this._http.get('https://something/references');
+    let obs = this._http.get('https://something/references')
+    obs.subscribe((refsRes:any)=>{
+      this.serviceShare.ReferencePluginService?.setRefs(refsRes.data);
+    })
+    return obs;
   }
   getReferenceTypes(){
     return this._http.get('https://something/references/types');

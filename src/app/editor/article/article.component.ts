@@ -9,6 +9,8 @@ import { FiguresControllerService } from '../services/figures-controller.service
 import { figure } from '../utils/interfaces/figureComponent';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 import { ServiceShare } from '../services/service-share.service';
+import { RefsApiService } from '@app/layout/pages/library/lib-service/refs-api.service';
+import { CslService } from '@app/layout/pages/library/lib-service/csl.service';
 
 @Component({
   selector: 'app-article',
@@ -29,8 +31,9 @@ export class ArticleComponent implements OnInit {
     public figuresControllerService: FiguresControllerService,
     public detectFocusService: DetectFocusService,
     public serviceShare:ServiceShare,
+    private refsAPI:RefsApiService,
+    private cslService:CslService,
   ) {
-
     this.articleStructureMap = this.ydocService.articleStructure!;
     this.ydocService.articleStructure!.observe((data) => {
       this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');

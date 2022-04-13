@@ -39,7 +39,8 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
   }
 
   addReference() {
-    let citateData = this.referencesControl.value.refData.basicCitation.bobliography
+    let newCitation = this.cslService.genereteCitationStr(this.referencesControl.value.refStyle.name,this.referencesControl.value.refData)
+    let citateData = newCitation.bibliography[1][0];
     this.dialogRef.close({
       ref:this.referencesControl.value,
       citateData

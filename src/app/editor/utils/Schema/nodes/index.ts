@@ -45,6 +45,7 @@ export const form_field_inline = {
     tag: "form-field-inline", getAttrs(dom: any) {
       return {
         ...parseGenericAttributes(dom),
+
       }
     },
   }],
@@ -64,18 +65,36 @@ export const reference_citation = {
   isolating: true,
   attrs: {
     ...getGenericAttributes(),
-
+    referenceData:{default:''},
+    referenceStyle:{default:''},
+    referenceType:{default:''},
   },
   parseDOM: [{
     tag: "reference-citation", getAttrs(dom: any) {
+      let refData = dom.getAttribute('referencedata').split('|!|');
+      let refStyle = dom.getAttribute('referencestyle').split('|!|');
+      let refType = dom.getAttribute('referencetype').split('|!|');
+
+      let referenceData = {refId:refData[0],last_modified:refData[1]}
+      let referenceStyle = {name:refStyle[0],last_modified:refStyle[1]}
+      let referenceType = {name:refType[0],last_modified:refType[1]}
       return {
         ...parseGenericAttributes(dom),
+        referenceData,
+        referenceStyle,
+        referenceType,
       }
     },
   }],
   toDOM(node: any) {
+    let referencedata = node.attrs.referenceData.refId+'|!|'+node.attrs.referenceData.last_modified
+    let referencestyle = node.attrs.referenceStyle.name+'|!|'+node.attrs.referenceStyle.last_modified
+    let referencetype = node.attrs.referenceType.name+'|!|'+node.attrs.referenceType.last_modified
     let attributesToDom: any = {
       ...genericAttributtesToDom(node),
+      referencedata,
+      referencestyle,
+      referencetype
     }
     return ["reference-citation", attributesToDom, 0];
   }

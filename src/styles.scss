@@ -248,12 +248,22 @@ citation[nonexistingfigure="true"] {
   overflow-y: hidden
 }
 
+.update-data-reference-button {
+  cursor: pointer;
+  transform: scale(1.2);
+  border: 1px dashed #00b1b2;
+  border-radius: 5px;
+  background: #20da0b30;
+  margin-right: 5px;
+  margin-left: 5px;
+}
+
 [ychange_type] {
   position: relative;
 }
 
 reference-citation {
-  display: inline;
+  display: inline-block;
 }
 
 ::ng-deep .edit-reference-panel {

@@ -14,6 +14,8 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { AuthService } from '@app/core/services/auth.service';
+import { ReferencePluginService } from '@app/layout/pages/library/lib-service/reference-plugin.service';
+import { RefsApiService } from '@app/layout/pages/library/lib-service/refs-api.service';
 import { FormioAppConfig } from '@formio/angular';
 import { uuidv4 } from 'lib0/random';
 import { Subject } from 'rxjs';
@@ -33,6 +35,7 @@ import { ExportOptionsComponent } from './dialogs/export-options/export-options.
 import { FiguresDialogComponent } from './dialogs/figures-dialog/figures-dialog.component';
 import { TreeService } from './meta-data-tree/tree-service/tree.service';
 import { ProsemirrorEditorsService } from './services/prosemirror-editors.service';
+import { ServiceShare } from './services/service-share.service';
 import { WorkerService } from './services/worker.service';
 import { YdocService } from './services/ydoc.service';
 import { CommentsService } from './utils/commentsService/comments.service';
@@ -79,11 +82,14 @@ export class EditorComponent implements OnInit, AfterViewInit {
     private prosemirrorEditorServie: ProsemirrorEditorsService,
     private trackChanges: TrackChangesService,
     private treeService: TreeService,
+    private serviceShare:ServiceShare,
     public config: FormioAppConfig,
     private authService: AuthService,
     private articleSectionsService: ArticleSectionsService,
     private articlesService: ArticlesService,
-    private workerService:WorkerService
+    private workerService:WorkerService,
+    private refsAPI:RefsApiService,
+    private referencePluginService:ReferencePluginService
   ) {
     this.titleControl.valueChanges
       .pipe(
@@ -180,6 +186,15 @@ export class EditorComponent implements OnInit, AfterViewInit {
 
   showTreeContainer() {
     this.metaDataTreeDrawer?.toggle();
+  }
+
+  clickEditorTab(){
+    if(this.active=='library'){
+      this.active='editor';
+      this.serviceShare.CslService?.checkReferencesInAllEditors(this.prosemirrorEditorServie.editorContainers);
+    }else{
+      this.active='editor';
+    }
   }
 
   ngOnInit(): void {

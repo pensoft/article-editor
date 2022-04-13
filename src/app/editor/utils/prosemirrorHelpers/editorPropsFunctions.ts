@@ -94,8 +94,12 @@ export function selectWholeCitatMarks(view: EditorView, anchor: ResolvedPos, hea
 
 export function handleClick(hideshowPluginKEey: PluginKey, citatContextPluginkey?: PluginKey) {
   return (view: EditorView, pos: number, event: Event) => {
-
-    if (((event.target as HTMLElement).className == 'changes-placeholder')) {
+    if((event.target as HTMLElement).className == 'update-data-reference-button'){
+      setTimeout(() => {
+        view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup',true))
+      }, 0)
+      return true
+    }else if (((event.target as HTMLElement).className == 'changes-placeholder')) {
       setTimeout(() => {
         view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup',true))
       }, 0)
