@@ -39,6 +39,7 @@ export class ReferencePluginService {
                 let actualRef = refsObj.refs.find((ref: any) => {
                   return ref.refData.referenceData.id == nodeRefData.refId
                 })
+                console.log(actualRef.refData.last_modified,nodeRefData.last_modified);
                 if (actualRef &&
                   actualRef.refData.last_modified > nodeRefData.last_modified) {
                     decs.push(Decoration.widget(pos, (view) => {
@@ -95,12 +96,17 @@ export class ReferencePluginService {
     })
     if(actualRef){
       let strObj = this.serviceShare.CslService?.genereteCitationStr(refStyle.name,actualRef.refData);
-      let newAttrs = {...refNode?.attrs};
+      let newAttrs =JSON.parse(JSON.stringify(refNode?.attrs))
       newAttrs.referenceData.last_modified = actualRef.refData.last_modified;
+      //newAttrs.referenceData = {refId:actualRef.refData.referenceData.id,last_modified:actualRef.refData.last_modified}
       let divContainer = document.createElement('div');
       divContainer.innerHTML = strObj.bibliography[1][0]
       let newNode = schema.nodes.reference_citation.create(newAttrs,schema.text(divContainer.textContent!))
-      view?.dispatch(view.state.tr.replaceWith(refPos,refPos+refSize,newNode))
+      console.log(newAttrs);
+      view?.dispatch(view.state.tr/* .setNodeMarkup(refPos,schema.nodes.reference_citation,newAttrs) */.replaceWith(refPos,refPos+refSize,newNode))
+      window.requestAnimationFrame(()=>{
+
+      });
     }
   }
 

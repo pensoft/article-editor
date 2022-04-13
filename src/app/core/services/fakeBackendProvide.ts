@@ -24,14 +24,15 @@ export class FakeBackendInterceptor implements HttpInterceptor {
   references: any[] = [];
   constructor(
     private _authservice: AuthService,
-  ) { }
+  ) {
+
+  }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
     const token = this._authservice.getToken();
 
     if (token && req.url.endsWith('/references/types') && req.method === 'GET') {
-      // check for fake auth token in header and return users if valid, this security is implemented server side in a real application
       return of(new HttpResponse({
         status: 200, body: {
           data: ReferenceTypesData1
@@ -39,7 +40,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       }));
     }
     if (token && req.url.endsWith('/references/styles') && req.method === 'GET') {
-      // check for fake auth token in header and return users if valid, this security is implemented server side in a real application
       return of(new HttpResponse({
         status: 200, body: {
           data: styles1
@@ -47,9 +47,16 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       }));
     }
     if (token && req.url.endsWith('/references') && req.method === 'GET') {
-      // check for fake auth token in header and return users if valid, this security is implemented server side in a real application
-      if (this.references.length == 0) {
+
+      // check local storage if there is saved references if no save the default refs and return
+
+      let references = localStorage.getItem('saved_references')
+      console.log(references?'there are saved refs':'there are no saved refs');
+      if(!references){
         this.references = defaultReferences;
+        localStorage.setItem('saved_references',JSON.stringify(this.references));
+      }else{
+        this.references = JSON.parse(references);
       }
       return of(new HttpResponse({
         status: 200, body: {
@@ -58,9 +65,10 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       }));
     }
     if (token && req.url.endsWith('/references') && req.method === 'POST') {
-      // check for fake auth token in header and return users if valid, this security is implemented server side in a real application
       let newRef = req.body.ref;
       this.references.push(newRef);
+      localStorage.setItem('saved_references',JSON.stringify(this.references));
+      console.log('saving refs');
       return of(new HttpResponse({
         status: 200, body: {
           data: this.references
@@ -68,7 +76,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       }));
     }
     if (token && req.url.endsWith('/references') && req.method === 'PATCH') {
-      // check for fake auth token in header and return users if valid, this security is implemented server side in a real application
       let newRef = req.body.ref;
       let global = req.body.global
       let i = this.references.findIndex((val) => {
@@ -77,6 +84,8 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       if (i > -1) {
         this.references[i] = newRef;
       }
+      localStorage.setItem('saved_references',JSON.stringify(this.references));
+      console.log('saving refs');
       return of(new HttpResponse({
         status: 200, body: {
           data: this.references
@@ -84,7 +93,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       }));
     }
     if (token && req.url.endsWith('/references') && req.method === 'DELETE') {
-      // check for fake auth token in header and return users if valid, this security is implemented server side in a real application
       let newRef = req.body.ref;
       let i = this.references.findIndex((val) => {
         return val.refData.referenceData.id == newRef.refData.referenceData.id;
@@ -92,6 +100,8 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       if (i > -1) {
         this.references.splice(i, 1)
       }
+      localStorage.setItem('saved_references',JSON.stringify(this.references));
+      console.log('saving refs');
       return of(new HttpResponse({
         status: 200, body: {
           data: this.references

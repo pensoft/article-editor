@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { ServiceShare } from './service-share.service';
 import { environment } from '@env';
+import { HttpClient } from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
@@ -9,19 +10,19 @@ import { environment } from '@env';
 export class WorkerService {
 
   worker: Worker
-
-  saveImageDataURL(data:any){
+  workerScript:any;
+  saveImageDataURL(data: any) {
     let reader = new FileReader()
     let saveFunc = this.saveDataURL
     reader.addEventListener("load", function () {
       //@ts-ignore
-      saveFunc(data.imageURL,this.result)
+      saveFunc(data.imageURL, this.result)
     }, false);
     reader.readAsDataURL(data.blob);
   }
 
-  processMessageResponse(data:any){
-    if(data.data&&data.data.meta.action == 'loadImgAsDataURL'){
+  processMessageResponse(data: any) {
+    if (data.data && data.data.meta.action == 'loadImgAsDataURL') {
       this.saveImageDataURL(data)
     }
   }
@@ -32,19 +33,54 @@ export class WorkerService {
 
   }
 
-  responseSubject:Subject<any>
+  responseSubject: Subject<any>
 
-  constructor(private serviceShare: ServiceShare) {
+  constructor(private serviceShare: ServiceShare, private _http: HttpClient) {
+
+/*     let workerStart = `var window = self;
+    window.Node = function(){};
+    Object.prototype.addEventListener = function(){};
+    window.Node.prototype.contains=function(){};
+    self.history = {};
+    var document = {
+      readyState: 'complete',
+      cookie: '',
+      querySelector: function () {},
+      createElement: function () {
+        return {
+          pathname: '',
+          setAttribute: function () {}
+        };
+      }
+    };`;
+    const workerRest = `self.addEventListener('message', function(e) {
+      if(e.data){
+        var allRequests = e.data.map(function(item) {
+          return axios(item);
+        });
+        axios.all(allRequests)
+        .then(axios.spread(function () {
+          postMessage(JSON.stringify(arguments));
+        }))
+        .catch(function (error) {
+          postMessage(JSON.stringify(error));
+        });
+      }
+  });
+  `;
+    this.workerScript = window.URL.createObjectURL(new Blob([workerStart,
+      document.querySelector('#workerPromiseAjax')!.textContent!, workerRest]));
+    this.worker = new Worker(this.workerScript); */
     this.responseSubject = new Subject()
     this.worker = new Worker('../../../task-processing-worker.js')
     this.serviceShare.shareSelf('WorkerService', this)
-    this.worker.addEventListener('message',this.workerListener)
+    this.worker.addEventListener('message', this.workerListener)
   }
 
-  saveDataURL = (url:string,dataurl:string)=>{
+  saveDataURL = (url: string, dataurl: string) => {
     let dataURLObj = this.serviceShare.YdocService!.figuresMap!.get('ArticleFiguresDataURLS');
     dataURLObj[url] = dataurl;
-    this.serviceShare.YdocService!.figuresMap!.set('ArticleFiguresDataURLS',dataURLObj);
+    this.serviceShare.YdocService!.figuresMap!.set('ArticleFiguresDataURLS', dataURLObj);
   }
 
   logToWorker(text: string) {
@@ -53,9 +89,9 @@ export class WorkerService {
 
   convertImgInWorker(url: string) {
     let dataURLObj = this.serviceShare.YdocService!.figuresMap!.get('ArticleFiguresDataURLS');
-    if(!dataURLObj[url]||dataURLObj[url]=='data:'||dataURLObj[url] == ''){
-      this.worker.postMessage({ meta: { action: 'loadImgAsDataURL' }, data: { url ,environment:environment.production} })
-    }else{
+    if (!dataURLObj[url] || dataURLObj[url] == 'data:' || dataURLObj[url] == '') {
+      this.worker.postMessage({ meta: { action: 'loadImgAsDataURL' }, data: { url, environment: environment.production } })
+    } else {
     }
   }
 }

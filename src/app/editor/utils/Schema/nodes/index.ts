@@ -87,14 +87,14 @@ export const reference_citation = {
     },
   }],
   toDOM(node: any) {
-    let referencedata = node.attrs.referenceData.refId+'|!|'+node.attrs.referenceData.last_modified
-    let referencestyle = node.attrs.referenceStyle.name+'|!|'+node.attrs.referenceStyle.last_modified
-    let referencetype = node.attrs.referenceType.name+'|!|'+node.attrs.referenceType.last_modified
+    let referenceData = node.attrs.referenceData.refId+'|!|'+node.attrs.referenceData.last_modified
+    let referenceStyle = node.attrs.referenceStyle.name+'|!|'+node.attrs.referenceStyle.last_modified
+    let referenceType = node.attrs.referenceType.name+'|!|'+node.attrs.referenceType.last_modified
     let attributesToDom: any = {
       ...genericAttributtesToDom(node),
-      referencedata,
-      referencestyle,
-      referencetype
+      referenceData,
+      referenceStyle,
+      referenceType
     }
     return ["reference-citation", attributesToDom, 0];
   }
