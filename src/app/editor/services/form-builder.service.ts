@@ -72,7 +72,6 @@ export class FormBuilderService {
       component.columns.forEach((col:any,i:number)=>{
         col.components.forEach((comp:any,j:number)=>{
           //@ts-ignore
-          console.log(comp,/*  formGroup?.get(component.key+'.'+i).value */submission, formGroup);
           //@ts-ignore
           this.updateValue(comp, /* formGroup?.get(component.key+'.'+i).value */submission, formGroup)
         })

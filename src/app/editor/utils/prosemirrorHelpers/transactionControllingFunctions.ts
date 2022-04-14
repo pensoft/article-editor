@@ -754,6 +754,9 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathM
 export const handleClickOn = (citatContextPluginKey: PluginKey) => {
 
   return (view: EditorView, pos: number, node: Node, nodePos: number, e: MouseEvent, direct: boolean) => {
+    if(e.target&&e.target instanceof HTMLElement&&e.target.className.includes('update-data-reference-button')){
+      return true;
+    }
     if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0 &&
       (("which" in e && e.which == 3) ||
         ("button" in e && e.button == 2)

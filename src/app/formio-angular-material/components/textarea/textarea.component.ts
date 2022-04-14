@@ -106,7 +106,6 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     }
     this.instance.updateValue(value, { modified: true });
     let validity = Validator.checkComponent(this.instance,{[this.instance.component.key]:value},{[this.instance.component.key]:value});
-    console.log('val',validity,value);
     this.validity = validity
     this.instance.setCustomValidity(validity, false);
     this.instance.root.changeVisibility(this.instance);

@@ -192,6 +192,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     if(this.active=='library'){
       this.active='editor';
       this.serviceShare.CslService?.checkReferencesInAllEditors(this.prosemirrorEditorServie.editorContainers);
+      this.serviceShare.ProsemirrorEditorsService!.dispatchEmptyTransaction();
     }else{
       this.active='editor';
     }

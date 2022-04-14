@@ -51,7 +51,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       // check local storage if there is saved references if no save the default refs and return
 
       let references = localStorage.getItem('saved_references')
-      console.log(references?'there are saved refs':'there are no saved refs');
       if(!references){
         this.references = defaultReferences;
         localStorage.setItem('saved_references',JSON.stringify(this.references));
@@ -68,7 +67,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       let newRef = req.body.ref;
       this.references.push(newRef);
       localStorage.setItem('saved_references',JSON.stringify(this.references));
-      console.log('saving refs');
       return of(new HttpResponse({
         status: 200, body: {
           data: this.references
@@ -77,7 +75,8 @@ export class FakeBackendInterceptor implements HttpInterceptor {
     }
     if (token && req.url.endsWith('/references') && req.method === 'PATCH') {
       let newRef = req.body.ref;
-      let global = req.body.global
+      let global = req.body.global;
+      newRef.refData.global = global;
       let i = this.references.findIndex((val) => {
         return val.refData.referenceData.id == newRef.refData.referenceData.id;
       })
@@ -85,7 +84,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         this.references[i] = newRef;
       }
       localStorage.setItem('saved_references',JSON.stringify(this.references));
-      console.log('saving refs');
       return of(new HttpResponse({
         status: 200, body: {
           data: this.references
@@ -101,7 +99,6 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         this.references.splice(i, 1)
       }
       localStorage.setItem('saved_references',JSON.stringify(this.references));
-      console.log('saving refs');
       return of(new HttpResponse({
         status: 200, body: {
           data: this.references

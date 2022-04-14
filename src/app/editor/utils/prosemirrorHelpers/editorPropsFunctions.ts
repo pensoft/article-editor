@@ -242,7 +242,6 @@ export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
     } else if (noneditableMarkAfterTo && noneditableMarkBeforeTo) {
       canEdit = false
     }
-console.log(canEdit);
     if (!canEdit) {
       if (key == 'ArrowRight' ||
         key == 'ArrowLeft' ||

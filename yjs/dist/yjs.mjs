@@ -3369,9 +3369,6 @@ class UndoManager extends Observable {
       if (!this.scope.some(type => transaction.changedParentTypes.has(type)) || (!this.trackedOrigins.has(transaction.origin) && (!transaction.origin || !this.trackedOrigins.has(transaction.origin.constructor)))) {
         return
       }
-
-
-
       let undoRedoMeta = {}
 
       const undoing = this.undoing || this.status == 'undoing';
@@ -3380,6 +3377,10 @@ class UndoManager extends Observable {
       undoRedoMeta.workingStack = undoing ? 'redoStack' : 'undoStack';
       undoRedoMeta.status = this.status;
       if ((stack.length == 0 && this.addToLastExistingGroup && this.status !== 'capturing' && this.addANewStackItem == false) && (!this.undoing && !this.redoing)) {
+        return;
+      }
+      if (this.skipChange) {
+        this.skipChange = false;
         return;
       }
       if (undoing) {
@@ -3525,6 +3526,10 @@ class UndoManager extends Observable {
    */
   stopCapturing() {
     this.lastChange = 0;
+  }
+
+  dontAddToHistory() {
+    this.skipChange = true;
   }
 
   preventCapture() {

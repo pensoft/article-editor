@@ -76,7 +76,6 @@ function canMoveOut(target:any,item:any,treeService:TreeService){
 }
 
 function canMoveIn(target:any,item:any,treeService:TreeService){
-  console.log(target.data.id);
   if(target.data.id!=="parentList"){
     // the initial parent of the node , from where we start dragging the node
     let moovingInNode = treeService.findNodeById(target.data.id)!

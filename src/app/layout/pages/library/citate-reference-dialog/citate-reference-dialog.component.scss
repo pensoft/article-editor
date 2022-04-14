@@ -8,3 +8,18 @@
 .citate-btn {
   margin-right: 20px;
 }
+
+::ng-deep .citate-options-container {
+  height: 100%;
+  position: relative;
+  .reference-options {
+    .mat-form-field.mat-focused {
+      background-color: transparent;
+      color: black !important;
+    }
+  }
+  .buttons {
+    position: absolute;
+    bottom: 0;
+  }
+}

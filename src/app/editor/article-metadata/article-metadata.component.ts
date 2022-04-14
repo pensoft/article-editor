@@ -93,7 +93,6 @@ export class ArticleMetadataComponent implements OnInit {
       data: { templates: this.sectionTemplates }
     });
     dialogRef.afterClosed().subscribe(result => {
-      console.log(result);
       this.sectionsService.getSectionById(result).subscribe((res:any)=>{
         let sectionTemplate = res.data
         this.treeService.addNodeAtPlaceChange('parentList',sectionTemplate,'end');

@@ -365,9 +365,9 @@ export class ProsemirrorEditorsService {
         mathPlugin,
 
         keymap({
-          'Mod-z': undo,
-          'Mod-y': redo,
-          'Mod-Shift-z': redo,
+          'Mod-z': this.yjsHistory.undo,
+          'Mod-y': this.yjsHistory.redo,
+          'Mod-Shift-z': this.yjsHistory.redo,
           'Mod-Space': insertMathCmd(schema.nodes.math_inline),
           'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
           'Tab': goToNextCell(1),
@@ -430,10 +430,12 @@ export class ProsemirrorEditorsService {
             isMath = true
           }
           //@ts-ignore
-          if (transaction.getMeta('y-sync$') || transaction.meta['y-sync$'] || transaction.getMeta('addToLastHistoryGroup')) {
+          if (transaction.getMeta('y-sync$') || transaction.meta['y-sync$'] || transaction.getMeta('addToLastHistoryGroup') ||transaction.getMeta('preventHistoryAdd')) {
             if (transaction.getMeta('addToLastHistoryGroup')) {
               this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager.preventCapture();
-            } else {
+            } else if (transaction.getMeta('preventHistoryAdd')) {
+              let undoManager = this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager;
+              undoManager.dontAddToHistory();
             }
           } else {
             let undoManager = this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager;
@@ -576,7 +578,6 @@ export class ProsemirrorEditorsService {
     })
     let renderedSections = Object.keys(this.editorContainers).filter(key=>key!=='endEditor').length
     let allActiveSections = count;
-    console.log(renderedSections,allActiveSections,renderedSections == allActiveSections);
     if(renderedSections == allActiveSections){
       this.runFuncAfterRender()
     }
@@ -631,9 +632,9 @@ export class ProsemirrorEditorsService {
         ...yjsPlugins,
         mathPlugin,
         keymap({
-          'Mod-z': undo,
-          'Mod-y': redo,
-          'Mod-Shift-z': redo,
+          'Mod-z': this.yjsHistory.undo,
+          'Mod-y': this.yjsHistory.redo,
+          'Mod-Shift-z': this.yjsHistory.undo,
           //'Mod-Space': insertMathCmd(endEditorSchema!.nodes.math_inline),
           'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
           'Tab': goToNextCell(1),
@@ -829,6 +830,9 @@ export class ProsemirrorEditorsService {
       plugins: [
         mathPlugin,
         keymap({
+          'Mod-z': undo,
+          'Mod-y': redo,
+          'Mod-Shift-z': undo,
           'Mod-Space': insertMathCmd(schema.nodes.math_inline),
           'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
           'Tab': goToNextCell(1),
@@ -990,6 +994,9 @@ export class ProsemirrorEditorsService {
       plugins: [
         mathPlugin,
         keymap({
+          'Mod-z': undo,
+          'Mod-y': redo,
+          'Mod-Shift-z': undo,
           'Mod-Space': insertMathCmd(schema.nodes.math_inline),
           'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
           'Tab': goToNextCell(1),
@@ -1112,7 +1119,6 @@ export class ProsemirrorEditorsService {
         Object.keys(nodeDomAttrs).forEach((key) => {
           ((mathview.dom as HTMLElement).hasAttribute(key) && nodeDomAttrs[key] !== '' && nodeDomAttrs[key]) ? undefined : (mathview.dom as HTMLElement).setAttribute(key, nodeDomAttrs[key]);
         });
-        //console.log(mathview);
         /* let setDataURL = (dataURL: string) => {
 
           let session = seviceShare.PmDialogSessionService ? seviceShare.PmDialogSessionService!.inSession() : 'nosession';

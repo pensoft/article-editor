@@ -12,6 +12,7 @@ import { CslService } from './lib-service/csl.service';
 import { Subscriber, Subscription } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { RefsApiService } from './lib-service/refs-api.service';
+import { styles, styles1 } from './data/styles';
 
 @Component({
   selector: 'app-library',
@@ -88,7 +89,6 @@ export class LibraryPage implements AfterViewInit {
               this.changeDetection.detectChanges();
               this.refsAPI.getReferences().subscribe((refs:any)=>{
                 this.userReferences = refs.data;
-                console.log(this.userReferences);
                 this.changeDetection.detectChanges();
               })
             })
@@ -123,7 +123,6 @@ export class LibraryPage implements AfterViewInit {
   }
 
   updateScheme(ref:any){
-    console.log(ref);
     let newRef = JSON.parse(JSON.stringify(ref));
     newRef.refType.last_modified = (new Date()).getTime();
     this.refsAPI.editReference(newRef,true).subscribe((res)=>{
@@ -137,9 +136,10 @@ export class LibraryPage implements AfterViewInit {
   }
 
   updateStyle(ref:any){
-    console.log(ref);
     let newRef = JSON.parse(JSON.stringify(ref));
     newRef.refStyle.last_modified = (new Date()).getTime();
+    let styleName = newRef.refStyle.name;
+    styles1[styleName] = styles[Object.keys(styles)[Math.floor((Math.random()*Object.keys(styles).length))]]
     this.refsAPI.editReference(newRef,true).subscribe((res)=>{
       this.userReferences = undefined;
       this.changeDetection.detectChanges();
@@ -257,15 +257,10 @@ export class LibraryPage implements AfterViewInit {
     return newRef
   }
 
-
-
-
-
   ngAfterViewInit(): void {
     this.refsAPI.getReferences().subscribe((refs:any)=>{
       this.shouldRender = true;
       this.userReferences = refs.data;
-      console.log(this.userReferences);
       this.changeDetection.detectChanges();
     })
   }

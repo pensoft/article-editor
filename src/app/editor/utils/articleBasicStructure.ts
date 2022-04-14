@@ -100,7 +100,6 @@ export const renderSectionFunc:
         sectionMeta: { main: false }
       }
     } else if (sectionFromBackend.type == 1) {
-      console.log(sectionFromBackend);
       newArticleSection = {
         title: { label: sectionLabel, name: sectionFromBackend.name, template: sectionLabel, editable: !/{{\s*\S*\s*}}/gm.test(sectionLabel) },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
         sectionID: newId,

@@ -10,6 +10,8 @@ https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image4.jpg
 https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image5.jpg
 
 https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image6.jpg */
+
+
 export const figureJson = {
   "components": [
     {
@@ -42,29 +44,29 @@ export const figureJson = {
               "defaultValue": [
                 {
                   "container": {
-                    "url": "https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image1.jpg",
-                    "description": `<p align="set-align-left" class="set-align-left">dream</p>`,
+                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBSxBFtvMzHp5meoU4Pe2LXU56WcJg3uU5O5bnpqsWbzMBJmnT",
+                    "description": `<p align="set-align-left" class="set-align-left">moon</p>`,
                     "componentType": "image",
                   }
                 },
                 {
                   "container": {
-                    "url": "https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image2.jpg",
-                    "description": `<p align="set-align-left" class="set-align-left">Brain</p>`,
+                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB94GXwEX5gtOMEXM0v-BhpwmGulU6lXJ9rQ&usqp=CAU",
+                    "description": `<p align="set-align-left" class="set-align-left">Sunrise</p>`,
                     "componentType": "image",
                   }
                 },
                 {
                   "container": {
-                    "url": "https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image3.jpg",
-                    "description": `<p align="set-align-left" class="set-align-left">metaverse</p>`,
+                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_BUqnSU-hcr1mMoxzri9l_3cKytZnBNew5g&usqp=CAU",
+                    "description": `<p align="set-align-left" class="set-align-left">Forest</p>`,
                     "componentType": "image",
                   }
                 },
                 {
                   "container": {
-                    "url": "https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image4.jpg",
-                    "description": `<p align="set-align-left" class="set-align-left">dog</p>`,
+                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMxAUDn_aEXvgLRsgAg_XcYJcd5DmEjnmtQA&usqp=CAU",
+                    "description": `<p align="set-align-left" class="set-align-left">Galaxy</p>`,
                     "componentType": "image",
                   }
                 }

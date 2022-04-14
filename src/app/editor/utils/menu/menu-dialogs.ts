@@ -29,13 +29,12 @@ let citateRef = (sharedService: ServiceShare) => {
     let nodeType = state.schema.nodes.reference_citation;
 
     let dialogRef = sharedDialog.open(CitateReferenceDialogComponent,{
-      panelClass: 'editor-dialog-container'
+      panelClass: 'editor-dialog-container',
+      width:'400px',
+      height:'500px',
     })
     dialogRef.afterClosed().subscribe(result => {
-      console.log(result);
       if(result){
-        let div = document.createElement('div');
-        div.innerHTML = result.citateData;
         let referenceData = {refId:result.ref.refData.referenceData.id,last_modified:result.ref.refData.last_modified};
         let referenceStyle = {name:result.ref.refStyle.name,last_modified:result.ref.refStyle.last_modified};
         let referenceType = {name:result.ref.refType.name,last_modified:result.ref.refType.last_modified};
@@ -45,7 +44,7 @@ let citateRef = (sharedService: ServiceShare) => {
           referenceStyle,
           referenceType,
         }
-        let tr = state.tr.replaceWith(start, end, nodeType.create(recCitationAttrs,state.schema.text(div.textContent)))
+        let tr = state.tr.replaceWith(start, end, nodeType.create(recCitationAttrs,state.schema.text(result.citateData)))
         dispatch(tr)
       }
     });

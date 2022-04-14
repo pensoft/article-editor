@@ -133,7 +133,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
   async onSubmit(submision?: any) {
     try {
-      console.log(submision);
       if(this.section.type=='complex'){
         this.submitComplexSectionEdit()
       }
@@ -145,7 +144,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
         this.sectionForm.removeControl(key);
       })
       this.formBuilderService.buildFormGroupFromSchema(this.sectionForm, this.section.formIOSchema, this.section);
-      console.log(this.sectionForm);
       this.treeService.setTitleListener(this.section)
       //this.treeService.sectionFormGroups[this.section.sectionID] = this.sectionForm;
       //this.sectionForm = nodeForm;
@@ -286,13 +284,10 @@ export class SectionComponent implements AfterViewInit, OnInit {
   ngAfterViewInit(): void {
     // const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
     this.sectionContent = this.section.formIOSchema;
-    console.log(this.sectionContent);
     this.renderSection = true
-    console.log(this.sectionForm);
     if (this.section.mode == 'documentMode' && this.section.active) {
       if (this.section.initialRender == this.ydocService.ydoc.guid) {
         this.section.initialRender = undefined;
-        console.log('initRender');
         this.initialRender()
         return
       } else {

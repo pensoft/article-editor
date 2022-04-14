@@ -112,7 +112,6 @@ export class ReferenceEditComponent implements AfterViewInit {
       "tableView": false
     })
     setTimeout(() => {
-      console.log('formIOSchema',newFormIOJSON);
       this.formIOSchema = newFormIOJSON;
       this.cahngeDetectorRef.detectChanges();
     }, 100)

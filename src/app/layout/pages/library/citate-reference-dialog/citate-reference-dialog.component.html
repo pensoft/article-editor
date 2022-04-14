@@ -12,6 +12,12 @@
       </mat-select>
     </mat-form-field>
   </div>
+  <div class="reference-options">
+    <mat-form-field appearance="fill" class="select-ref-form-field">
+      <mat-label class="">External search:</mat-label>
+      <input matInput type="text" [formControl]="searchReferencesControl" class="search-reference" #searchInput placeholder="Type here...">
+    </mat-form-field>
+  </div>
   <div class="buttons">
     <button mat-raised-button class="citate-btn" (click)="cancel()">Cancel</button>
     <button mat-raised-button class="citate-btn" (click)="addReference()" [disabled]="referencesControl.hasError('required')">Add</button>

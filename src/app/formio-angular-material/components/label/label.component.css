@@ -1,5 +1,5 @@
 :host {
-  pointer-events: all;
+  /* pointer-events: all; */
   display: block;
 }
 

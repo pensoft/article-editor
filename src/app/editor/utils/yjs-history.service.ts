@@ -284,6 +284,7 @@ export class YjsHistoryService {
 
       return true
     } */
+    return true
   }
 
   canUndo(){
@@ -302,6 +303,7 @@ export class YjsHistoryService {
       let result = undoManager.redo()
       return true
     } */
+    return true
   }
 
   canRedo(){

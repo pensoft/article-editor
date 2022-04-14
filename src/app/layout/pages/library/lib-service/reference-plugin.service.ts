@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { schema } from '@app/editor/utils/Schema';
 import { EditorView } from '@codemirror/basic-setup';
+import { timeStamp } from 'console';
 import { PluginKey, Plugin } from 'prosemirror-state';
 import { Decoration, DecorationSet } from 'prosemirror-view';
 
@@ -12,7 +13,7 @@ export class ReferencePluginService {
   referencePluginKey?: PluginKey;
   referencePlugin?: Plugin
   refsObj: any = {}
-  decorationsByEditors:any = {}
+  decorationsByEditors: any = {}
   constructor(
     private serviceShare: ServiceShare
   ) {
@@ -39,38 +40,38 @@ export class ReferencePluginService {
                 let actualRef = refsObj.refs.find((ref: any) => {
                   return ref.refData.referenceData.id == nodeRefData.refId
                 })
-                console.log(actualRef.refData.last_modified,nodeRefData.last_modified);
                 if (actualRef &&
                   actualRef.refData.last_modified > nodeRefData.last_modified) {
+                  if (actualRef.refData.global === false) {
+                    //updateRef(pos, node.nodeSize, prev.sectionName);
+                  } else {
                     decs.push(Decoration.widget(pos, (view) => {
-                    let button = document.createElement('button')
-                    button.className = 'update-data-reference-button';
-                    button.addEventListener('click', () => {
-                      console.log('resetReference', pos,prev.sectionName);
-                      updateRef(pos,node.nodeSize,prev.sectionName)
-                    })
-                    button.style.cursor = 'pointer'
-                    button.title = 'This reference citation is outdated. Click this button to refresh it.'
-                    button.innerHTML = '&#x21bb;'
-                    return button
-                  }))
-
+                      let button = document.createElement('button')
+                      button.className = 'update-data-reference-button';
+                      button.addEventListener('click', () => {
+                        updateRef(pos, node.nodeSize, prev.sectionName)
+                      })
+                      button.style.cursor = 'pointer'
+                      button.title = 'This reference citation is outdated. Click this button to refresh it.'
+                      button.innerHTML = '&#x21bb;'
+                      return button
+                    }))
+                  }
                 }
               }
             })
           }
-          if(decs.length>0){
+          if (decs.length > 0) {
             prev.decs = decs;
-            return {...prev}
+            return { ...prev }
           }
           return prev
         },
       },
       props: {
         decorations(state) {
-          console.log(referencePluginKey.getState(state).decs);
-          let docs = referencePluginKey.getState(state).decs?referencePluginKey.getState(state).decs.filter((dec:any)=>dec):undefined;
-          return docs&&docs.length>0? DecorationSet.create(state.doc, referencePluginKey.getState(state).decs) : DecorationSet.empty;
+          let docs = referencePluginKey.getState(state).decs ? referencePluginKey.getState(state).decs.filter((dec: any) => dec) : undefined;
+          return docs && docs.length > 0 ? DecorationSet.create(state.doc, referencePluginKey.getState(state).decs) : DecorationSet.empty;
         }
       },
       view: function () {
@@ -83,7 +84,7 @@ export class ReferencePluginService {
     });
   }
 
-  updateReference = (refPos:number,refSize:number,sectionID:string)=>{
+  updateReference = (refPos: number, refSize: number, sectionID: string) => {
     let view = this.serviceShare.ProsemirrorEditorsService?.editorContainers[sectionID].editorView;
     let refNode = view?.state.doc.nodeAt(refPos);
     let refData = refNode?.attrs.referenceData;
@@ -91,22 +92,19 @@ export class ReferencePluginService {
     let refType = refNode?.attrs.referenceType;
     let refs = this.refsObj.refs as any[];
 
-    let actualRef = refs.find((ref)=>{
+    let actualRef = refs.find((ref) => {
       return ref.refData.referenceData.id == refData.refId;
     })
-    if(actualRef){
-      let strObj = this.serviceShare.CslService?.genereteCitationStr(refStyle.name,actualRef.refData);
-      let newAttrs =JSON.parse(JSON.stringify(refNode?.attrs))
+    if (actualRef) {
+      let strObj = this.serviceShare.CslService?.genereteCitationStr(refStyle.name, actualRef.refData);
+      let newAttrs = JSON.parse(JSON.stringify(refNode?.attrs))
       newAttrs.referenceData.last_modified = actualRef.refData.last_modified;
       //newAttrs.referenceData = {refId:actualRef.refData.referenceData.id,last_modified:actualRef.refData.last_modified}
-      let divContainer = document.createElement('div');
-      divContainer.innerHTML = strObj.bibliography[1][0]
-      let newNode = schema.nodes.reference_citation.create(newAttrs,schema.text(divContainer.textContent!))
-      console.log(newAttrs);
-      view?.dispatch(view.state.tr/* .setNodeMarkup(refPos,schema.nodes.reference_citation,newAttrs) */.replaceWith(refPos,refPos+refSize,newNode))
-      window.requestAnimationFrame(()=>{
-
-      });
+      let newNode = schema.nodes.reference_citation.create(newAttrs, schema.text(strObj.bibliography))
+      view?.dispatch(view.state.tr/* .setNodeMarkup(refPos,schema.nodes.reference_citation,newAttrs) */.replaceWith(refPos, refPos + refSize, newNode))
+      setTimeout(()=>{
+        this.serviceShare.ProsemirrorEditorsService?.dispatchEmptyTransaction()
+      },10)
     }
   }
 

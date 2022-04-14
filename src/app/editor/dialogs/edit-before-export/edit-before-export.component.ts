@@ -698,7 +698,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
         for (let j = 0; j < nCol; j++) {
           if (figureRow[j]) {
             let cel = figureRow[j].container
-            let imageName = cel.url.replace('https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/').split('.')[0]
+            //let imageName = cel.url.replace('https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/','').split('.')[0]
+            let imgArray = cel.url.split('/')
+            let imageName = imgArray[imgArray.length-1]
             if (!ImagesByKeys[imageName]) {
               ImagesByKeys[imageName] = dataURLSObj[cel.url];
             }
@@ -808,7 +810,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     let mainNodes = this.elements;
     let headerCh = Array.from(this.headerPmContainer?.editorView.dom.childNodes!)
     let footerCh = Array.from(this.footerPmContainer?.editorView.dom.childNodes!)
-    let generateMath = async (el:HTMLElement) => {
+    let generateMath = async (el: HTMLElement) => {
       return loopNodeChildrenAndRunFunc(el, ['math-inline', 'math-display'], async (element: HTMLElement) => {
         return new Promise((resolve, reject) => {
           let mathEl = (element.getElementsByClassName('katex-display')[0] || element.getElementsByClassName('math-render')[0] /* || element */)
@@ -820,12 +822,10 @@ export class EditBeforeExportComponent implements AfterViewInit {
               if (canvasData.toDataURL() == 'data:,') {
                 html2canvas(mathEl as HTMLElement, { backgroundColor: null }).then((canvasData1) => {
                   math_data_url_obj[math_id] = canvasData1.toDataURL()
-                  console.log(canvasData1.toDataURL());
                   resolve(true)
                 })
               } else {
                 math_data_url_obj[math_id] = canvasData.toDataURL()
-                console.log(canvasData.toDataURL());
 
                 resolve(true)
               }
@@ -851,12 +851,13 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
     let generatePDFData = async (element: Element, parentPDFel: any, parentStyle: any, parentElement: Element | undefined) => {
       let defaultView = (element.ownerDocument || document).defaultView
+
       let tag = element.tagName.toLocaleLowerCase()
       if (
         tag == 'p' || tag == 'h1' || tag == 'h2' || tag == 'h3' || tag == 'h4' || tag == 'h5' ||
         tag == 'h6' || tag == 'span' || tag == 'strong' || tag == 'sub' || tag == 'sup' ||
         tag == 'code' || tag == 'citation' || tag == 'u' || tag == 'em' || tag == 'form-field' ||
-        tag == 'form-field-inline' || tag == 'form-field-inline-view'
+        tag == 'form-field-inline' || tag == 'form-field-inline-view'||tag == 'reference-citation'
       ) {
         if (tag == 'span' && element.classList.contains('ProseMirror__placeholder')) {
           return Promise.resolve({})
@@ -1464,7 +1465,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
                 text: '', width: "*"
               }
             ],
-            props:{
+            props: {
 
             }
           }
@@ -1513,6 +1514,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
         }
         return Promise.resolve(result);
 
+      } else if (tag == 'button') {
+        return Promise.resolve({text:''})
       } else {
         let stack: any = {
           stack: []
@@ -1634,6 +1637,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
           doneSubject.next('done');
         }
       }
+      console.log(
+        ImagesByKeys
+      );
       this.data.images = ImagesByKeys
       this.data.content = cont;
 
@@ -1644,23 +1650,23 @@ export class EditBeforeExportComponent implements AfterViewInit {
         node.pageBreak = 'before'
         return true;
       }
-      let checkNodesBeforeIfHeadingAndMove = (node:any,nodesBefore:any[])=>{
+      let checkNodesBeforeIfHeadingAndMove = (node: any, nodesBefore: any[]) => {
         let c = 0
         let nonHeading = false
-        while (nodesBefore[nodesBefore.length-1-c]&&c<1&&!nonHeading) {
-          let nodeBefore = nodesBefore[nodesBefore.length-1-c];
+        while (nodesBefore[nodesBefore.length - 1 - c] && c < 1 && !nonHeading) {
+          let nodeBefore = nodesBefore[nodesBefore.length - 1 - c];
           //should probably check inner nodes if its a nested header
-          if((nodeBefore.props.type == 'heading'||nodeBefore.props.type == 'paragraph'||nodeBefore.props.type == 'paragraphTable')&&
-          nodeBefore.positions.length == 1){
+          if ((nodeBefore.props.type == 'heading' || nodeBefore.props.type == 'paragraph' || nodeBefore.props.type == 'paragraphTable') &&
+            nodeBefore.positions.length == 1) {
             nodeBefore.pageBreak = 'before'
             node.pageBreak = undefined;
-            if(c==1){
-              nodesBefore[nodesBefore.length-1].pageBreak = undefined;
-            }else if(c == 2){
-              nodesBefore[nodesBefore.length-1].pageBreak = undefined;
-              nodesBefore[nodesBefore.length-2].pageBreak = undefined;
+            if (c == 1) {
+              nodesBefore[nodesBefore.length - 1].pageBreak = undefined;
+            } else if (c == 2) {
+              nodesBefore[nodesBefore.length - 1].pageBreak = undefined;
+              nodesBefore[nodesBefore.length - 2].pageBreak = undefined;
             }
-          }else{
+          } else {
             nonHeading = true;
           }
           c++;
@@ -1748,7 +1754,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
               let movingNode = structuredNodes.splice(moveNodeFrom, 1);
               movingNode[0].pageBreak = undefined;
-              if(movingNode[0].stack&&movingNode[0].stack[0]){
+              if (movingNode[0].stack && movingNode[0].stack[0]) {
                 movingNode[0].stack[0].pageBreak = undefined;
               }
 
@@ -1833,7 +1839,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
           let nodesBefore = nodeFunc.getAllNodesBefore();
 
           if (checkIfHeadingIsLastNodeOnNonLastPage(node, followingNodes)) {
-            checkNodesBeforeIfHeadingAndMove(node,nodesBefore)
+            checkNodesBeforeIfHeadingAndMove(node, nodesBefore)
             return true
           }
           let maxLinesOnLastPage = pdfSettings.pdf.minParagraphLinesAtEndOfPage ? pdfSettings.pdf.minParagraphLinesAtEndOfPage : 1
@@ -1849,7 +1855,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             })
             if (lines[0] <= maxLinesOnLastPage) {
               node.pageBreak = 'before'
-              checkNodesBeforeIfHeadingAndMove(node,nodesBefore)
+              checkNodesBeforeIfHeadingAndMove(node, nodesBefore)
               return true
             }
           }
@@ -1865,7 +1871,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
           let followingNodes = nodeFunc.getFollowingNodesOnPage();
 
           if (checkIfHeadingIsLastNodeOnNonLastPage(node, followingNodes)) {
-            checkNodesBeforeIfHeadingAndMove(node,nodesBefore)
+            checkNodesBeforeIfHeadingAndMove(node, nodesBefore)
             return true
           }
 
@@ -1900,19 +1906,19 @@ export class EditBeforeExportComponent implements AfterViewInit {
             let pageH = node.nodeInfo.startPosition.pageInnerHeight;
             let isBiggerThanLeftSpaceOnPage = pageH < nodeH + actualTop;
             let isBiggerThanLeftSpaceAfterLastNode = false;
-            if(nodeBefore&&nodeBefore.props.availableHeight){
+            if (nodeBefore && nodeBefore.props.availableHeight) {
               let leftSpace = nodeBefore.props.availableHeight;
-              if(leftSpace<nodeH){
+              if (leftSpace < nodeH) {
                 isBiggerThanLeftSpaceAfterLastNode = true
               }
             }
-            if(node.fixedParagraphTable){
+            if (node.fixedParagraphTable) {
               return false
             }
-            if (isOnMoreThanOnePage&&isBiggerThanLeftSpaceAfterLastNode) {
+            if (isOnMoreThanOnePage && isBiggerThanLeftSpaceAfterLastNode) {
               return true
             } else {
-              if (isBiggerThanLeftSpaceOnPage||isBiggerThanLeftSpaceAfterLastNode) {
+              if (isBiggerThanLeftSpaceOnPage || isBiggerThanLeftSpaceAfterLastNode) {
                 return true;
               }
             }
@@ -1921,7 +1927,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             for (let i = 0; i < node.stack.length; i++) {
               let hasMath = hasMathImages(node.stack[i])
               let isbreaking = isBreakingLine(node.stack[i], i, node.stack[i - 1] || nodesBefore[nodesBefore.length - 1], i - 1)
-              if (hasMath &&isbreaking) {
+              if (hasMath && isbreaking) {
                 lineOnNewPage = node.stack[i];
                 nodeOrLineOnLastPage = node.stack[i - 1] || nodesBefore[nodesBefore.length - 1];
                 return true;
@@ -1948,32 +1954,32 @@ export class EditBeforeExportComponent implements AfterViewInit {
             })
             return imagecells
           }
-          if(node.nodeInfo.pageNumbers.length == 1){
+          if (node.nodeInfo.pageNumbers.length == 1) {
             return false;
           }
-          let countLinesOnFirtPage = (node:any) => {
+          let countLinesOnFirtPage = (node: any) => {
             let linesOnFirstPage = 0;
             let firstPage = node.nodeInfo.pageNumbers[0];
-            for(let i = 0 ; i < node.stack.length;i++){
+            for (let i = 0; i < node.stack.length; i++) {
               let line = node.stack[i];
               let lineNumber = line.nodeInfo.pageNumbers[0];
-              if(lineNumber == firstPage&&line.nodeInfo.pageNumbers.length == 1){
+              if (lineNumber == firstPage && line.nodeInfo.pageNumbers.length == 1) {
                 linesOnFirstPage++;
               }
             }
             return linesOnFirstPage;
           }
-          if(node.nodeInfo.pageNumbers.length > 1&&!node.lineLeftOnFirstPageChecked){//move lines if there are more left on last page
+          if (node.nodeInfo.pageNumbers.length > 1 && !node.lineLeftOnFirstPageChecked) {//move lines if there are more left on last page
             node.lineLeftOnFirstPageChecked = true;
             let linesOnFirstPage = countLinesOnFirtPage(node);
-            if(linesOnFirstPage<=minLinesLeftOnLastPage){
-              if(node.stack[linesOnFirstPage-1]){
+            if (linesOnFirstPage <= minLinesLeftOnLastPage) {
+              if (node.stack[linesOnFirstPage - 1]) {
                 node.pageBreak = 'before'
                 //check 3 nodes before if they are headings and move the on the next page with the paragraph
-                checkNodesBeforeIfHeadingAndMove(node,nodesBefore)
+                checkNodesBeforeIfHeadingAndMove(node, nodesBefore)
               }
             }
-            if(linesOnFirstPage>0){
+            if (linesOnFirstPage > 0) {
               node.pageOrderCalculated = false;
               return true
             }
@@ -1987,14 +1993,11 @@ export class EditBeforeExportComponent implements AfterViewInit {
             node.pageOrderCalculated = false;
             return true
           } else if (node.calculatedTimes == 2) {
-            if (findImageLinesOnNewPages(node)&&!lineOnNewPage.fixedParagraphTable) {  // fix the breaking lines
+            if (findImageLinesOnNewPages(node) && !lineOnNewPage.fixedParagraphTable) {  // fix the breaking lines
               let sp = nodeOrLineOnLastPage.nodeInfo.startPosition
               //let freeSpaceOnLastPage = sp.pageInnerHeight -sp.top+  pxToPt(pdfSettings.pdf.pageMargins.marginTop)-nodeOrLineOnLastPage.props.height;
               let freeSpaceOnLastPage = nodeOrLineOnLastPage.props.availableHeight;
-              console.log(lineOnNewPage, nodeOrLineOnLastPage);
-              console.log('freeSpaceOnLastPage', freeSpaceOnLastPage);
               let imagesInLine = findImgCellNodes(lineOnNewPage);
-              console.log('imagenodes', imagesInLine);
               if (imagesInLine.length > 0) {
                 let biggestImage = imagesInLine.reduce((prev, curr, i, arr) => { return prev.props.canvasDims[1] < curr.props.canvasDims[1] ? curr : prev }, { props: { canvasDims: [0, 0] } })
                 let bigH = biggestImage._height;
@@ -2013,8 +2016,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
                     if (imageHeight > freeSpaceOnLastPage) {
                       let canvasHeight = img.props.canvasDims[1];
                       let addedSpace = imageHeight - canvasHeight;
-                      let requiredScale = (freeSpaceOnLastPage - addedSpace-10) / canvasHeight;
-                      console.log('requiredScale', requiredScale, 'scale', scale, 'oldHeight', canvasHeight, 'newHeight', canvasHeight * requiredScale);
+                      let requiredScale = (freeSpaceOnLastPage - addedSpace - 10) / canvasHeight;
                       img.props.canvasDims[0] = img.props.canvasDims[0] * requiredScale;
                       img.props.canvasDims[1] = img.props.canvasDims[1] * requiredScale;
                       img.props.offsetBot = img.props.offsetBot * requiredScale;

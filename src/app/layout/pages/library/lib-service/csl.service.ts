@@ -5,7 +5,7 @@ import { basicJournalArticleData, jsonSchemaForCSL, possibleReferenceTypes, exam
 //@ts-ignore
 import { CSL } from '../data/citeproc.js'
 import { uuidv4 } from 'lib0/random';
-import { basicStyle, styles } from '../data/styles';
+import { basicStyle, styles1 } from '../data/styles';
 import { HttpClient } from '@angular/common/http';
 import { RefsApiService } from './refs-api.service';
 import { EditorState } from 'prosemirror-state';
@@ -59,7 +59,7 @@ export class CslService {
 
   genereteCitationStr(style: string, ref: any) {
     this.currentRef = ref.referenceData;
-    this.citeproc = new CSL.Engine(this.citeprocSys, styles[style]/* basicStyle */);
+    this.citeproc = new CSL.Engine(this.citeprocSys, styles1[style]/* basicStyle */);
     this.citeproc.updateItems([ref.referenceData.id]);
     let newCitationId = uuidv4()
     let citationData: any = this.generateCitation([{
@@ -68,7 +68,10 @@ export class CslService {
       "properties": { "noteIndex": 1 }
     }, [], []]);
     let bibliography = this.citeproc.makeBibliography();
-    citationData.bibliography = bibliography;
+    citationData.bibliography = bibliography[1][0];
+    let contDiv = document.createElement('div');
+    contDiv.innerHTML = citationData.bibliography;
+    citationData.bibliography = contDiv.textContent!.endsWith('\n')?contDiv.textContent!.slice(0,contDiv.textContent!.length-2):contDiv.textContent!
     return citationData;
   }
 
@@ -146,17 +149,24 @@ export class CslService {
     })
   }
 
+  checkData(actualRef:any,nodeAttrs:any){
+    let nodeRefData = nodeAttrs.referenceData;
+    let nodeStyleData = nodeAttrs.referenceStyle;
+    return actualRef&&
+    ((actualRef.refStyle.last_modified>nodeStyleData.last_modified||actualRef.refStyle.name!==nodeStyleData.name)||
+    (actualRef.refData.last_modified>nodeRefData.last_modified&&actualRef.refData.global === false));
+  }
+
   thereAreOutOfDateReferences(state:EditorState,refs:any[]){
     let docSize = state.doc.content.size;
     let outOfDateRefs = 0;
     state.doc.nodesBetween(0,docSize-1,(node,pos,parent,index)=>{
       if(node.type.name == 'reference_citation'){
         let nodeRefData = node.attrs.referenceData;
-        let nodeStyleData = node.attrs.referenceStyle;
         let actualRef = refs.find((ref)=>{
           return ref.refData.referenceData.id == nodeRefData.refId
         })
-        if(actualRef&&(actualRef.refStyle.last_modified>nodeStyleData.last_modified||actualRef.refStyle.name!==nodeStyleData.name)){
+        if(this.checkData(actualRef, node.attrs)){
           outOfDateRefs++
         }
       }
@@ -200,11 +210,11 @@ export class CslService {
     state.doc.nodesBetween(0,docSize-1,(node,pos,parent,index)=>{
       if(!found&&node.type.name == 'reference_citation'){
         let nodeRefData = node.attrs.referenceData;
-        let nodeStyleData = node.attrs.referenceStyle;
         let actualRef = references.find((ref)=>{
           return ref.refData.referenceData.id == nodeRefData.refId
         })
-        if(actualRef&&(actualRef.refStyle.last_modified>nodeStyleData.last_modified||actualRef.refStyle.name!==nodeStyleData.name)){
+        console.log(actualRef,node.attrs);
+        if(this.checkData(actualRef, node.attrs)){
           found = true
           actRef = actualRef;
           refNode = node;
@@ -214,12 +224,13 @@ export class CslService {
       }
     })
     let newData = this.genereteCitationStr(actRef.refStyle.name,actRef.refData);
-    let contDiv = document.createElement('div');
-    contDiv.innerHTML = newData.bibliography[1][0];
     let newAttrs = refNode.attrs;
+    console.log('old text    :' + refNode.textContent);
+    console.log('new text    :' + newData.bibliography);
     newAttrs.referenceStyle = {name:actRef.refStyle.name,last_modified:actRef.refStyle.last_modified}
-    let newReferenceCitation = schema.nodes.reference_citation.create(newAttrs,schema.text(contDiv.textContent!||'d'))
-    container.editorView.dispatch(state.tr.replaceWith(start,end,newReferenceCitation));
+    newAttrs.referenceData = {refId:refNode.attrs.referenceData.refId,last_modified:actRef.refData.last_modified}
+    let newReferenceCitation = schema.nodes.reference_citation.create(newAttrs,schema.text(newData.bibliography||'d'))
+    container.editorView.dispatch(state.tr.replaceWith(start,end,newReferenceCitation).setMeta('preventHistoryAdd', true));
     console.log('updated style');
   }
 }

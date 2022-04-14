@@ -8,17 +8,48 @@ let loadImagAsBlob = (data) => {
     proxyURL = imageURL;
   }
 
-  fetch(imageURL /* , { method: 'GET', mode: 'no-cors', } */ ).then((loadedImage) => {
+  /* var createCORSRequest = function(method, url) {
+    var xhr = new XMLHttpRequest();
+    if ("withCredentials" in xhr) {
+      // Most browsers.
+      xhr.open(method, url, true);
+    } else if (typeof XDomainRequest != "undefined") {
+      // IE8 & IE9
+      xhr = new XDomainRequest();
+      xhr.open(method, url);
+    } else {
+      // CORS not supported.
+      xhr = null;
+    }
+    return xhr;
+  };
+
+  var url = 'https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image2.jpg';
+  var method = 'GET';
+  var xhr = createCORSRequest(method, url);
+
+  xhr.onload = function(data) {
+    // Success code goes here.
+    console.log(xhr.response);
+  };
+
+  xhr.onerror = function() {
+    // Error code goes here.
+    console.log(xhr.response);
+
+  };
+
+  xhr.send(); */
+
+  fetch(proxyURL, { method: 'GET' /* , mode: 'no-cors', */ }).then((loadedImage) => {
     return loadedImage.blob()
   }).then((blob) => {
-    console.log(URL.createObjectURL(blob));
     returnMessage({ blob, imageURL, data })
   })
 }
 
 var myCallback = function(data) {
   //the JSONP callback
-  console.log(data);
   self.postMessage(JSON.stringify(data));
 };
 
@@ -35,7 +66,7 @@ self.addEventListener('message', event => {
   //make the JSONP call
   let data = event.data
   if (data.meta && data.meta.action == 'loadImgAsDataURL' && typeof data.data.url == 'string') {
-    importScripts(data.data.url + '?callback=myCallback&amp;cacheBuster=' + cacheBuster + '&amp;sleep=' + randomNum);
-    //loadImagAsBlob(data);
+    //importScripts(data.data.url + '?callback=myCallback&amp;cacheBuster=' + cacheBuster + '&amp;sleep=' + randomNum);
+    loadImagAsBlob(data);
   }
 }, false)
