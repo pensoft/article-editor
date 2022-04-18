@@ -133,6 +133,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
   async onSubmit(submision?: any) {
     try {
+      console.log(submision);
       if(this.section.type=='complex'){
         this.submitComplexSectionEdit()
       }

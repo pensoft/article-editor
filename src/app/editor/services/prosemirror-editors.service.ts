@@ -74,6 +74,8 @@ import { toCanvas } from 'html-to-image';
 import html2canvas from 'html2canvas';
 import { uuidv4 } from 'lib0/random.js';
 import { filterSectionChildren } from '../utils/articleBasicStructure';
+import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
+import { changeNodesOnDragDrop } from '../utils/prosemirrorHelpers/drag-drop-append';
 @Injectable({
   providedIn: 'root'
 })
@@ -344,6 +346,12 @@ export class ProsemirrorEditorsService {
       historyPreserveItems: true,
     })
 
+    let changeNodesKey = new PluginKey('changeNodesKey');
+    let changeNodes = new Plugin({
+      key: changeNodesKey,
+      appendTransaction: changeNodesOnDragDrop,
+    })
+
     let selectWholeCitatPluginKey = new PluginKey('selectWholeCitat');
     let selectWholeCitat = new Plugin({
       key: selectWholeCitatPluginKey,
@@ -378,6 +386,7 @@ export class ProsemirrorEditorsService {
         //history({renderFiguresFunc:this.rerenderFigures}),
         this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
+        changeNodes,
         selectWholeCitat,
         this.detectFocusService.getPlugin(),
         this.serviceShare.ReferencePluginService?.referencePlugin,
@@ -543,7 +552,8 @@ export class ProsemirrorEditorsService {
               let dropPosition = view.posAtCoords({ left: event.clientX, top: event.clientY }).pos + pos - slice.openStart
               setTimeout(() => {
                 let newMark = view.state.doc.nodeAt(dropPosition)
-                view.dispatch(view.state.tr.addMark(dropPosition, dropPosition + newMark?.nodeSize!, schema.mark('citation', { ...citationMark.attrs, citateid: random.uuidv4() })).setMeta('addToLastHistoryGroup', true))
+                view.dispatch(view.state.tr.addMark(dropPosition, dropPosition + newMark?.nodeSize!, schema.mark('citation', { ...citationMark.attrs, citateid: uuidv4() })).setMeta('addToLastHistoryGroup', true))
+                console.log('change citat id ');
               }, 10)
             }
           }

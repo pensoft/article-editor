@@ -3,6 +3,7 @@ import { MatDialog } from "@angular/material/dialog";
 import { InsertFigureComponent } from "@app/editor/dialogs/figures-dialog/insert-figure/insert-figure.component";
 import { ServiceShare } from "@app/editor/services/service-share.service";
 import { CitateReferenceDialogComponent } from "@app/layout/pages/library/citate-reference-dialog/citate-reference-dialog.component";
+import { uuidv4 } from "lib0/random";
 import { toggleMark } from "prosemirror-commands";
 import { MenuItem } from "prosemirror-menu";
 import { Fragment, Node } from "prosemirror-model";
@@ -31,7 +32,7 @@ let citateRef = (sharedService: ServiceShare) => {
     let dialogRef = sharedDialog.open(CitateReferenceDialogComponent,{
       panelClass: 'editor-dialog-container',
       width:'400px',
-      height:'500px',
+      height:'511px',
     })
     dialogRef.afterClosed().subscribe(result => {
       if(result){
@@ -40,6 +41,7 @@ let citateRef = (sharedService: ServiceShare) => {
         let referenceType = {name:result.ref.refType.name,last_modified:result.ref.refType.last_modified};
         let recCitationAttrs =  {
           contenteditableNode: 'false',
+          refCitationID:uuidv4(),
           referenceData,
           referenceStyle,
           referenceType,

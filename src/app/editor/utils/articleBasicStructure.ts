@@ -6,6 +6,7 @@ import { complexSectionFormIoSchema } from '@app/editor/utils/section-templates/
 import { ViewPlugin } from "@codemirror/view";
 import { ArticlesService } from "@app/core/services/articles.service";
 import * as Y from 'yjs'
+import { testingFormIOJSON } from "../services/form-builder.service";
 export function editorFactory(data?: editorMeta): editorData {
   return { editorId: uuidv4(), menuType: 'fullMenu', editorMeta: data }
 }

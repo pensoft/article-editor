@@ -15,14 +15,14 @@ export function canInsert(state: EditorState, nodeType: NodeType) {
   return false
 }
 
-export function createCustomIcon(name: string, width?: number, height?: number,dx?:number,dy?:number) {
+export function createCustomIcon(name: string, width?: number, height?: number,dx?:number,dy?:number,scale?:number) {
   width = width || 15;
   height = height || 15;
   let icon = document.createElement('img');
   icon.setAttribute('src', `./assets/icons/${name}`);
   icon.setAttribute('width', width.toString());
   if(dx||dy){
-    icon.style.transform = `translate(${dx}px, ${dy?dy:dx}px)`;
+    icon.style.transform = scale?`translate(${dx}px, ${dy?dy:dx}px) scale(${scale})`:`translate(${dx}px, ${dy?dy:dx}px)`;
   }
   return {
     width: width, height: height,

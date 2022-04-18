@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ServiceShare } from '@app/editor/services/service-share.service';
+import { createCustomIcon } from '@app/editor/utils/menu/common-methods';
 import { schema } from '@app/editor/utils/Schema';
 import { EditorView } from '@codemirror/basic-setup';
 import { timeStamp } from 'console';
@@ -40,23 +41,49 @@ export class ReferencePluginService {
                 let actualRef = refsObj.refs.find((ref: any) => {
                   return ref.refData.referenceData.id == nodeRefData.refId
                 })
-                if (actualRef &&
+                let buttonContainer = document.createElement('div');
+                buttonContainer.className = 'reference-citation-pm-buttons';
+
+                if (
+                  actualRef &&
                   actualRef.refData.last_modified > nodeRefData.last_modified) {
-                  if (actualRef.refData.global === false) {
-                    //updateRef(pos, node.nodeSize, prev.sectionName);
-                  } else {
-                    decs.push(Decoration.widget(pos, (view) => {
-                      let button = document.createElement('button')
-                      button.className = 'update-data-reference-button';
-                      button.addEventListener('click', () => {
-                        updateRef(pos, node.nodeSize, prev.sectionName)
-                      })
-                      button.style.cursor = 'pointer'
-                      button.title = 'This reference citation is outdated. Click this button to refresh it.'
-                      button.innerHTML = '&#x21bb;'
-                      return button
-                    }))
-                  }
+
+
+                  let button = document.createElement('button')
+                  button.className = 'update-data-reference-button';
+                  button.addEventListener('click', () => {
+                    updateRef(pos, node.nodeSize, prev.sectionName)
+                  })
+                  button.style.cursor = 'pointer'
+                  button.title = 'This reference citation is outdated. Click this button to refresh it.'
+                  let img = createCustomIcon('refresh_google.svg', 12, 12, 0, 1.5, 1.3)
+                  img.dom.className = 'update-data-reference-img'
+                  button.append(img.dom)
+                  buttonContainer.append(button);
+                }
+                let nodeStart = pos;
+                let nodeEnd = node.nodeSize+ pos;
+                if ((
+                  editorState.selection.from>=nodeStart&&editorState.selection.from<=nodeEnd
+                )||(
+                  editorState.selection.to>=nodeStart&&editorState.selection.to<=nodeEnd
+                )) {
+                  let button1 = document.createElement('button')
+                  button1.className = 'update-data-reference-button';
+                  button1.addEventListener('click', () => {
+                    serviceShare.CslService!.editReferenceThroughPMEditor(node,prev.sectionName);
+                  })
+                  button1.style.cursor = 'pointer'
+                  button1.title = 'This reference citation is outdated. Click this button to refresh it.'
+                  let img1 = createCustomIcon('edit2.svg', 12, 12, 1)
+                  img1.dom.className = 'update-data-reference-img'
+                  button1.append(img1.dom)
+                  buttonContainer.append(button1);
+                }
+                if (buttonContainer.childNodes.length > 0) {
+                  decs.push(Decoration.widget(pos, (view) => {
+                    return buttonContainer
+                  }))
                 }
               }
             })
@@ -102,9 +129,9 @@ export class ReferencePluginService {
       //newAttrs.referenceData = {refId:actualRef.refData.referenceData.id,last_modified:actualRef.refData.last_modified}
       let newNode = schema.nodes.reference_citation.create(newAttrs, schema.text(strObj.bibliography))
       view?.dispatch(view.state.tr/* .setNodeMarkup(refPos,schema.nodes.reference_citation,newAttrs) */.replaceWith(refPos, refPos + refSize, newNode))
-      setTimeout(()=>{
+      setTimeout(() => {
         this.serviceShare.ProsemirrorEditorsService?.dispatchEmptyTransaction()
-      },10)
+      }, 10)
     }
   }
 

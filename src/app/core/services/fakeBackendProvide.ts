@@ -42,7 +42,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
     if (token && req.url.endsWith('/references/styles') && req.method === 'GET') {
       return of(new HttpResponse({
         status: 200, body: {
-          data: styles1
+          data: styles3
         }
       }));
     }
@@ -51,10 +51,10 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       // check local storage if there is saved references if no save the default refs and return
 
       let references = localStorage.getItem('saved_references')
-      if(!references){
+      if (!references) {
         this.references = defaultReferences;
-        localStorage.setItem('saved_references',JSON.stringify(this.references));
-      }else{
+        localStorage.setItem('saved_references', JSON.stringify(this.references));
+      } else {
         this.references = JSON.parse(references);
       }
       return of(new HttpResponse({
@@ -66,7 +66,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
     if (token && req.url.endsWith('/references') && req.method === 'POST') {
       let newRef = req.body.ref;
       this.references.push(newRef);
-      localStorage.setItem('saved_references',JSON.stringify(this.references));
+      localStorage.setItem('saved_references', JSON.stringify(this.references));
       return of(new HttpResponse({
         status: 200, body: {
           data: this.references
@@ -83,7 +83,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       if (i > -1) {
         this.references[i] = newRef;
       }
-      localStorage.setItem('saved_references',JSON.stringify(this.references));
+      localStorage.setItem('saved_references', JSON.stringify(this.references));
       return of(new HttpResponse({
         status: 200, body: {
           data: this.references
@@ -98,7 +98,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       if (i > -1) {
         this.references.splice(i, 1)
       }
-      localStorage.setItem('saved_references',JSON.stringify(this.references));
+      localStorage.setItem('saved_references', JSON.stringify(this.references));
       return of(new HttpResponse({
         status: 200, body: {
           data: this.references
@@ -110,7 +110,39 @@ export class FakeBackendInterceptor implements HttpInterceptor {
   }
 }
 
-
+let styles3 = [
+  {
+    name: 'harvard-cite-them-right',
+    label: 'Harvard Cite Them Right',
+  },{
+    name: 'demo-style',
+    label: 'CSL Demo Style',
+  },{
+    name: 'pensoft-style',
+    label: 'Pensoft Style',
+  },{
+    name: 'acta-amazonica',
+    label: 'Acta Amazonica',
+  },{
+    name: 'ios-press-books',
+    label: 'IOS Press Books',
+  },{
+    name: 'university-of-zabol',
+    label: 'University Of Zabol',
+  },{
+    name: 'university-of-york-apa',
+    label: 'University Of York Apa',
+  },{
+    name: 'university-of-lincoln-harvard',
+    label: 'University Of Lincoln Harvarf',
+  },{
+    name: 'university-of-york-harvard-environment',
+    label: 'University Of York Harvard Environment',
+  },{
+    name: 'pisa-university-press',
+    label: 'Pisa University Press',
+  }
+]
 
 let styles1 = [{
   name: 'harvard-cite-them-right',

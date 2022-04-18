@@ -6,6 +6,7 @@ import { listNodes } from './lists';
 import { parseGenericAttributes, getGenericAttributes, genericAttributtesToDom, htmlTags } from '../helpers';
 import { nodes as basicNodes } from './basic-nodes'
 import { figureNodes, video } from './figure-nodes';
+import { uuidv4 } from 'lib0/random';
 
 export const paragraph = {
   content: "inline*",
@@ -65,6 +66,7 @@ export const reference_citation = {
   isolating: true,
   attrs: {
     ...getGenericAttributes(),
+    refCitationID:{default:''},
     referenceData:{default:''},
     referenceStyle:{default:''},
     referenceType:{default:''},
@@ -80,6 +82,7 @@ export const reference_citation = {
       let referenceType = {name:refType[0],last_modified:refType[1]}
       return {
         ...parseGenericAttributes(dom),
+        refCitationID : dom.getAttribute('refCitationID'),
         referenceData,
         referenceStyle,
         referenceType,
@@ -92,6 +95,7 @@ export const reference_citation = {
     let referenceType = node.attrs.referenceType.name+'|!|'+node.attrs.referenceType.last_modified
     let attributesToDom: any = {
       ...genericAttributtesToDom(node),
+      refCitationID:node.attrs.refCitationID,
       referenceData,
       referenceStyle,
       referenceType

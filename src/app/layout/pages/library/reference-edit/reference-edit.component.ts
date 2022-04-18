@@ -14,7 +14,7 @@ export class ReferenceEditComponent implements AfterViewInit {
   formIOSchema: any = undefined;
   referenceFormControl = new FormControl(null, [Validators.required]);
   stylesFormControl = new FormControl(null, [Validators.required]);
-  possibleReferenceTypes: any[] = []
+  referenceTypesFromBackend: any[] = []
   dataSave:any
   referenceStyles:any
   constructor(
@@ -118,22 +118,21 @@ export class ReferenceEditComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.possibleReferenceTypes = this.data.referenceTypesFromBackend;
+    this.referenceTypesFromBackend = this.data.referenceTypesFromBackend;
     this.referenceStyles = this.data.referenceStyles
-    //this.possibleReferenceTypes = this.data.possibleReferenceTypes;
     if (!this.data.oldData) {
-      this.referenceFormControl.setValue(this.possibleReferenceTypes[0]);
+      this.referenceFormControl.setValue(this.referenceTypesFromBackend[0]);
       this.stylesFormControl.setValue(this.referenceStyles[0])
     } else {
       let oldBuildData = this.data.oldData;
 
-      if (this.possibleReferenceTypes.find((ref) => {
+      if (this.referenceTypesFromBackend.find((ref) => {
         return ref.name == oldBuildData.refType.name
       })) {
-        let index = this.possibleReferenceTypes.findIndex((ref) => {
+        let index = this.referenceTypesFromBackend.findIndex((ref) => {
           return ref.name == oldBuildData.refType.name
         });
-        this.referenceFormControl.setValue(this.possibleReferenceTypes[index]);
+        this.referenceFormControl.setValue(this.referenceTypesFromBackend[index]);
       }
 
       if (this.referenceStyles.find((style:any) => {
@@ -146,6 +145,7 @@ export class ReferenceEditComponent implements AfterViewInit {
       }
 
     }
+
     this.generateFormIOJSON(this.referenceFormControl.value)
   }
 

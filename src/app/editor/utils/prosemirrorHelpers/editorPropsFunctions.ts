@@ -19,6 +19,8 @@ export function handlePaste(mathMap:YMap<any>,sectionID:string){
       if (node.type.name == 'math_inline'||node.type.name == 'math_display') {
         let oldId = node.attrs.math_id;
         node.attrs.math_id = uuidv4()
+      }else if(node.type.name == 'reference_citation'){
+        node.attrs.refCitationID = uuidv4();
       }
     })
     let sel = view.state.selection
@@ -94,12 +96,14 @@ export function selectWholeCitatMarks(view: EditorView, anchor: ResolvedPos, hea
 
 export function handleClick(hideshowPluginKEey: PluginKey, citatContextPluginkey?: PluginKey) {
   return (view: EditorView, pos: number, event: Event) => {
-    if((event.target as HTMLElement).className == 'update-data-reference-button'){
+    /* if((event.target&&event.target instanceof HTMLElement&&(event.target.className.includes('update-data-reference-button')||
+    event.target.className.includes('reference-citation-pm-buttons')||
+    event.target.className.includes('update-data-reference-img')))){
       setTimeout(() => {
         view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup',true))
       }, 0)
       return true
-    }else if (((event.target as HTMLElement).className == 'changes-placeholder')) {
+    }else  */if (((event.target as HTMLElement).className == 'changes-placeholder')) {
       setTimeout(() => {
         view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup',true))
       }, 0)

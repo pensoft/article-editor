@@ -28,6 +28,7 @@ import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.serv
 import { threadId } from 'worker_threads';
 import { ServiceShare } from './service-share.service';
 import { ArticlesService } from '@app/core/services/articles.service';
+import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
 
 @Injectable({
   providedIn: 'root'
@@ -346,6 +347,13 @@ export class YdocService {
         WebSocketPolyfill: WebSocket,
         awareness: new awarenessProtocol.Awareness(this.ydoc),
       })
+      this.provider
+      this.provider.on('connection-close', function(WSClosedEvent:any){
+        console.log(WSClosedEvent,(new Date()).getTime());
+      });
+      this.provider.on('connection-error', function(WSErrorEvent:any){
+        console.log(WSErrorEvent,(new Date()).getTime());
+      });
       this.provider.on('sync', (isSynced: boolean) => {
         this.buildEditor();
       })

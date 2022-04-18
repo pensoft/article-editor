@@ -1,3 +1,10 @@
+::ng-deep .select-ref-form-field {
+  display: block;
+  .mat-form-field-label-wrapper {
+    transform: translate(-20px, -9px) !important;
+  }
+}
+
 ::ng-deep .right-side-nav {
   width: 1200px;
   .mat-drawer-inner-container {

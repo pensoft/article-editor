@@ -103,11 +103,9 @@ export class FormBuilderService {
 
   labelupdateLocalMeta: any = {}
 
-
-
-  buildFormGroupFromSchema(formGroup: FormGroup, jsonSchema: any, node: articleSection) {
+  buildFormGroupFromSchema(formGroup: FormGroup, jsonSchema: any, node?: articleSection) {
     formGroup = formGroup || new FormGroup({});
-    if (node.title.editable) {
+    if (node&&node.title.editable) {
       let titleFormControl = new FormControl(node.title.label, [Validators.maxLength(34)]);
       formGroup.addControl('sectionTreeTitle', titleFormControl);
       //@ts-ignore
@@ -287,4 +285,372 @@ export class FormBuilderService {
     return newControl;
   }
 
+}
+
+export let testingFormIOJSON = {
+  "components": [
+      {
+          "label": "Text Field",
+          "tableView": true,
+          "key": "textField",
+          "type": "textfield",
+          "input": true
+      },
+      {
+          "label": "Data Map",
+          "tableView": false,
+          "customDefaultValue": "value = {\n            \"key\": {\n                \"textField\": \"ееявеяве\",\n                \"dataGrid\": [\n                    {\n                        \"textField\": \"явеяве\"\n                    },\n                    {\n                        \"textField\": \"яве\"\n                    },\n                    {\n                        \"textField\": \"явеееявеяве\"\n                    }\n                ]\n            },\n            \"key1\": {\n                \"textField\": \"явеее12е12е13321123\",\n                \"dataGrid\": [\n                    {\n                        \"textField\": \"дсасдасд\"\n                    }\n                ]\n            }\n        }",
+          "key": "dataMap",
+          "type": "datamap",
+          "input": true,
+          "valueComponent": {
+              "label": "Container",
+              "tableView": false,
+              "key": "container1",
+              "type": "container",
+              "input": true,
+              "components": [
+                  {
+                      "label": "Text Field",
+                      "tableView": true,
+                      "key": "textField",
+                      "type": "textfield",
+                      "input": true
+                  },
+                  {
+                      "label": "Data Grid",
+                      "reorder": false,
+                      "addAnotherPosition": "bottom",
+                      "layoutFixed": false,
+                      "enableRowGroups": false,
+                      "initEmpty": false,
+                      "tableView": false,
+                      "defaultValue": [
+                          {}
+                      ],
+                      "key": "dataGrid",
+                      "type": "datagrid",
+                      "input": true,
+                      "components": [
+                          {
+                              "label": "Text Field",
+                              "tableView": true,
+                              "key": "textField",
+                              "type": "textfield",
+                              "input": true
+                          }
+                      ]
+                  }
+              ]
+          }
+      },
+      {
+          "label": "Container",
+          "tableView": false,
+          "key": "container",
+          "type": "container",
+          "input": true,
+          "components": [
+              {
+                  "label": "Text Field",
+                  "tableView": true,
+                  "key": "textField",
+                  "type": "textfield",
+                  "input": true
+              },
+              {
+                  "label": "Password",
+                  "tableView": false,
+                  "key": "password",
+                  "type": "password",
+                  "input": true,
+                  "protected": true
+              },
+              {
+                  "label": "Number",
+                  "mask": false,
+                  "tableView": false,
+                  "delimiter": false,
+                  "requireDecimal": false,
+                  "inputFormat": "plain",
+                  "truncateMultipleSpaces": false,
+                  "key": "number",
+                  "type": "number",
+                  "input": true
+              },
+              {
+                  "label": "Radio",
+                  "optionsLabelPosition": "right",
+                  "inline": false,
+                  "tableView": false,
+                  "values": [
+                      {
+                          "label": "w",
+                          "value": "w",
+                          "shortcut": ""
+                      },
+                      {
+                          "label": "e",
+                          "value": "e",
+                          "shortcut": ""
+                      },
+                      {
+                          "label": "a",
+                          "value": "a",
+                          "shortcut": ""
+                      },
+                      {
+                          "label": "q",
+                          "value": "q",
+                          "shortcut": "E"
+                      }
+                  ],
+                  "key": "radio",
+                  "type": "radio",
+                  "input": true
+              },
+              {
+                  "label": "Email",
+                  "tableView": true,
+                  "key": "email",
+                  "type": "email",
+                  "input": true
+              }
+          ]
+      },
+      {
+          "label": "Currency",
+          "mask": false,
+          "spellcheck": true,
+          "tableView": false,
+          "currency": "USD",
+          "inputFormat": "plain",
+          "truncateMultipleSpaces": false,
+          "key": "currency",
+          "type": "currency",
+          "input": true,
+          "delimiter": true
+      },
+      {
+          "label": "Survey",
+          "tableView": false,
+          "questions": [
+              {
+                  "label": "яве",
+                  "value": "явее",
+                  "tooltip": "еяве"
+              },
+              {
+                  "label": "еее",
+                  "value": "еее",
+                  "tooltip": ""
+              },
+              {
+                  "label": "вввв",
+                  "value": "вввв",
+                  "tooltip": ""
+              },
+              {
+                  "label": "яяяя",
+                  "value": "яяяя",
+                  "tooltip": ""
+              }
+          ],
+          "values": [
+              {
+                  "label": "яве",
+                  "value": "яве",
+                  "tooltip": "явеяве"
+              },
+              {
+                  "label": "в",
+                  "value": "в",
+                  "tooltip": "е"
+              },
+              {
+                  "label": "е",
+                  "value": "е",
+                  "tooltip": "е"
+              },
+              {
+                  "label": "р",
+                  "value": "р",
+                  "tooltip": "е"
+              },
+              {
+                  "label": "т",
+                  "value": "т",
+                  "tooltip": "е"
+              },
+              {
+                  "label": "ъ",
+                  "value": "ъ",
+                  "tooltip": "е"
+              }
+          ],
+          "key": "survey",
+          "type": "survey",
+          "input": true
+      },
+      {
+          "label": "Data Grid",
+          "reorder": false,
+          "addAnotherPosition": "bottom",
+          "layoutFixed": false,
+          "enableRowGroups": false,
+          "initEmpty": false,
+          "tableView": false,
+          "defaultValue": [
+              {}
+          ],
+          "key": "dataGrid",
+          "type": "datagrid",
+          "input": true,
+          "components": [
+              {
+                  "label": "Select Boxes",
+                  "optionsLabelPosition": "right",
+                  "tableView": false,
+                  "values": [
+                      {
+                          "label": "w",
+                          "value": "w",
+                          "shortcut": ""
+                      },
+                      {
+                          "label": "e",
+                          "value": "e",
+                          "shortcut": ""
+                      },
+                      {
+                          "label": "q",
+                          "value": "q",
+                          "shortcut": ""
+                      },
+                      {
+                          "label": "e",
+                          "value": "e",
+                          "shortcut": ""
+                      }
+                  ],
+                  "key": "selectBoxes",
+                  "type": "selectboxes",
+                  "input": true,
+                  "inputType": "checkbox"
+              },
+              {
+                  "label": "Tags",
+                  "tableView": false,
+                  "key": "tags",
+                  "type": "tags",
+                  "input": true,
+                  "defaultValue": "w,e,q,r,t,y,s,d,f,g,h,j"
+              }
+          ]
+      },
+      {
+          "label": "Tree",
+          "tableView": false,
+          "key": "tree",
+          "type": "tree",
+          "input": true,
+          "tree": true,
+          "components": [
+              {
+                  "label": "Data Grid",
+                  "reorder": false,
+                  "addAnotherPosition": "bottom",
+                  "layoutFixed": false,
+                  "enableRowGroups": false,
+                  "initEmpty": false,
+                  "tableView": false,
+                  "defaultValue": [
+                      {}
+                  ],
+                  "key": "dataGrid",
+                  "type": "datagrid",
+                  "input": true,
+                  "components": [
+                      {
+                          "label": "Text Area",
+                          "autoExpand": false,
+                          "tableView": true,
+                          "key": "textArea",
+                          "type": "textarea",
+                          "input": true
+                      }
+                  ]
+              }
+          ],
+          "defaultValue": {
+              "data": {
+                  "dataGrid": [
+                      {
+                          "textArea": "123"
+                      },
+                      {
+                          "textArea": "123"
+                      },
+                      {
+                          "textArea": "123"
+                      }
+                  ]
+              },
+              "children": [
+                  {
+                      "data": {
+                          "dataGrid": [
+                              {
+                                  "textArea": "123"
+                              },
+                              {
+                                  "textArea": "123"
+                              }
+                          ]
+                      },
+                      "children": [
+                          {
+                              "data": {
+                                  "dataGrid": [
+                                      {
+                                          "textArea": "123"
+                                      }
+                                  ]
+                              },
+                              "children": []
+                          },
+                          {
+                              "data": {
+                                  "dataGrid": [
+                                      {
+                                          "textArea": "123"
+                                      }
+                                  ]
+                              },
+                              "children": []
+                          }
+                      ]
+                  },
+                  {
+                      "data": {
+                          "dataGrid": [
+                              {
+                                  "textArea": "123"
+                              }
+                          ]
+                      },
+                      "children": []
+                  }
+              ]
+          }
+      },
+      {
+          "type": "button",
+          "label": "Submit",
+          "key": "submit",
+          "disableOnInvalid": true,
+          "input": true,
+          "tableView": false
+      }
+  ]
 }

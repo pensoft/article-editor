@@ -248,6 +248,10 @@ citation[nonexistingfigure="true"] {
   overflow-y: hidden
 }
 
+.reference-citation-pm-buttons {
+  display: inline-block;
+}
+
 .update-data-reference-button {
   cursor: pointer;
   transform: scale(1.2);
@@ -256,6 +260,9 @@ citation[nonexistingfigure="true"] {
   background: #20da0b30;
   margin-right: 5px;
   margin-left: 5px;
+  img {
+    cursor: pointer !important;
+  }
 }
 
 [ychange_type] {

@@ -15,6 +15,14 @@ const PROXY_CONFIG = {
     autoRewrite: true,
     "ws": true,
   },
+  "/find": {
+    "target": "https://refindit.org/",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true,
+    autoRewrite: true,
+    "ws": true,
+  },
 
   /* "/webrtc": {
     "target": "wss://ps-article-editor.dev.scalewest.com/",

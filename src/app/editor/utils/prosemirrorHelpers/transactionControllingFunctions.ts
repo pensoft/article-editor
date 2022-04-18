@@ -666,6 +666,7 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathM
       }
       //@ts-ignore
       let meta = transaction.meta
+
       if (meta.uiEvent || Object.keys(meta).includes('cut') || Object.keys(meta).includes('drop')) {
         let noneditableNodesOnDropPosition = false
         let dropIsInTable = false;
@@ -754,7 +755,11 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathM
 export const handleClickOn = (citatContextPluginKey: PluginKey) => {
 
   return (view: EditorView, pos: number, node: Node, nodePos: number, e: MouseEvent, direct: boolean) => {
-    if(e.target&&e.target instanceof HTMLElement&&e.target.className.includes('update-data-reference-button')){
+    if(e.target&&e.target instanceof HTMLElement&&(
+      e.target.className.includes('update-data-reference-button')||
+      e.target.className.includes('reference-citation-pm-buttons')||
+      e.target.className.includes('update-data-reference-img')
+      )){
       return true;
     }
     if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0 &&
