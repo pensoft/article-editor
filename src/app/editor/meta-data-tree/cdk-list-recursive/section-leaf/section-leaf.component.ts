@@ -46,7 +46,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
   //nodesForms:{[key:string]:FormGroup} = {}
   @Input() node!: articleSection;
-  @Output() nodeChange = new EventEmitter<any>();
+  @Output() nodeChange = new EventEmitter<articleSection>();
 
   @Input() nodeFormGroup!: FormGroup;
   @Output() nodeFormGroupChange = new EventEmitter<FormGroup>();

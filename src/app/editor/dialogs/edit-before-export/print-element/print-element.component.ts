@@ -30,10 +30,29 @@ export class PrintElementComponent implements AfterViewInit {
         await this.refreshContent()
       },1000)
     }
+    let html = this.elementHTML
+    let result = /<iframe[^>]+><\/iframe>/gm.exec(html)
+    if(result){
+      let iframe = result[0];
+      let srcresult = /src="([^"]+)"/gm.exec(iframe)
+      if(srcresult){
+        let scr = srcresult[1];
+        let videoId = /https:\/\/www\.youtube\.com\/embed\/([\S]+)/.exec(scr)![1];
+        if(videoId){
+          let imgId = 'https://img.youtube.com/vi/'+videoId+'/sddefault.jpg'
+          html = html.replace(iframe,'<img src="'+ imgId+ '" width="300"/>')
+        }
+      }
+      //html = html.replace()
+    }
+    let dom = new DOMParser().parseFromString(html, 'text/html');
+    (this.printElement?.nativeElement as HTMLElement).removeChild((this.printElement?.nativeElement as HTMLElement).firstChild!);
+    this.printElement?.nativeElement.append(dom.getElementsByTagName('body')[0].firstChild)
     //@ts-ignore
-    this.printElement?.nativeElement.innerHTML = this.elementHTML
-    let pbbefore = (this.printElement?.nativeElement.firstChild! as HTMLElement).getAttribute('page-break-before')
-    let pbbafter = (this.printElement?.nativeElement.firstChild! as HTMLElement).getAttribute('page-break-after')
+    //this.printElement?.nativeElement.innerHTML = this.elementHTML
+    let el = this.printElement?.nativeElement.firstChild! as HTMLElement
+    let pbbefore = el.getAttribute('page-break-before')
+    let pbbafter = el.getAttribute('page-break-after')
     this.hasPageBreakBefore = pbbefore?pbbefore == 'true'?true:false:false;
     this.hasPageBreakAfter = pbbafter?pbbafter == 'true'?true:false:false;
     this.changeDetectorRef.detectChanges();

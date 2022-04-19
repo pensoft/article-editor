@@ -10,6 +10,13 @@ import { AddCommentDialogComponent } from '../../add-comment-dialog/add-comment-
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
 import { YdocService } from '../../services/ydoc.service';
 
+export function getDate(date:number){
+  let d = new Date(+date /* * 1000 */)
+  d.setTime(d.getTime()+(2*60*60*1000));
+  let timeString = d.getUTCHours() + ":" + d.getUTCMinutes() + " " + ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][d.getUTCDay()-1] +" " +d.getUTCDate() +"/"+ d.getUTCMonth() + "/" + d.getUTCFullYear();
+  return timeString
+}
+
 @Component({
   selector: 'app-comment',
   templateUrl: './comment.component.html',
@@ -155,12 +162,7 @@ export class CommentComponent implements OnInit {
 
   }
 
-  getDate(date:number){
-    let d = new Date(+date /* * 1000 */)
-    d.setTime(d.getTime()+(2*60*60*1000));
-    let timeString = d.getUTCHours() + ":" + d.getUTCMinutes() + " " + ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][d.getUTCDay()-1] +" " +d.getUTCDate() +"/"+ d.getUTCMonth() + "/" + d.getUTCFullYear();
-    return timeString
-  }
+  getDate = getDate
 
   commentReplyBtnHandle(input: HTMLInputElement,replyDiv:HTMLDivElement) {
     if (!input.value) {
@@ -187,3 +189,4 @@ export class CommentComponent implements OnInit {
 
   }
 }
+

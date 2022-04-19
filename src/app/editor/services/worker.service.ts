@@ -11,6 +11,8 @@ export class WorkerService {
 
   worker: Worker
   workerScript:any;
+  notifySubject = new Subject()
+
   saveImageDataURL(data: any) {
     let reader = new FileReader()
     let saveFunc = this.saveDataURL
@@ -24,6 +26,8 @@ export class WorkerService {
   processMessageResponse(data: any) {
     if (data.data && data.data.meta.action == 'loadImgAsDataURL') {
       this.saveImageDataURL(data)
+    }else if (data.data && data.data.meta.action == 'loadAndReturnInSubject' ){
+
     }
   }
 
@@ -92,6 +96,10 @@ export class WorkerService {
     if (!dataURLObj[url] || dataURLObj[url] == 'data:' || dataURLObj[url] == '') {
       this.worker.postMessage({ meta: { action: 'loadImgAsDataURL' }, data: { url, environment: environment.production } })
     } else {
-    }
+   }
+  }
+
+  convertImgAngNotifySubject(url:string){
+
   }
 }

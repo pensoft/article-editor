@@ -26,6 +26,7 @@ import { javascript } from '@codemirror/lang-javascript';
 import { EditorView } from 'prosemirror-view';
 import { image } from '@app/editor/utils/Schema/nodes/figure-nodes';
 import { cellAround } from 'prosemirror-tables';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 pdfMake.vfs = vfs;
 
 pdfMake.fonts = {
@@ -201,6 +202,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     private changeDetectorRef: ChangeDetectorRef,
     public dialogRef: MatDialogRef<EditBeforeExportComponent>,
     private http: HttpClient,
+    private serviceShare: ServiceShare,
     private ydocService: YdocService,
     private prosemirrorEditorsService: ProsemirrorEditorsService
   ) {
@@ -290,14 +292,12 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
     let loopChildrenRecursivly = (element: Element, sectionContainer: string[], section?: articleSection) => {
       Array.from(element.children).forEach((elChild) => {
+
         if (this.importantLeafNodes.includes(elChild.tagName.toLocaleLowerCase())) {
-          let contaienrDiv = document.createElement('div');
-          contaienrDiv.innerHTML = elChild.outerHTML
-          if (section) {
-            (contaienrDiv.firstChild as HTMLElement).setAttribute('section-name', section.title.name!);
-          }
-          sectionContainer.push(contaienrDiv.innerHTML)
-          //this.elements.push(contaienrDiv.firstChild as HTMLElement);
+          let html = elChild.outerHTML;
+          let result = /^<\S+/gm.exec(html)
+          let newHtml = html.replace(result![0], result![0] + ' section-name="' + section!.title.name + '"')
+          sectionContainer.push(newHtml)
         } else {
           loopChildrenRecursivly(elChild, sectionContainer, section)
         }
@@ -322,7 +322,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
   async getDataUrl(img: HTMLImageElement) {
     //@ts-ignore
     //dataURLString = imageDataURI.encodeFromURL(src)
-    img.crossOrigin = "anonymous"
+    //img.crossOrigin = "anonymous"
     let canvas = document.createElement('canvas');
 
     if (!img.complete) {
@@ -700,7 +700,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
             let cel = figureRow[j].container
             //let imageName = cel.url.replace('https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/','').split('.')[0]
             let imgArray = cel.url.split('/')
-            let imageName = imgArray[imgArray.length-1]
+            let imageName = imgArray[imgArray.length - 1]
             if (!ImagesByKeys[imageName]) {
               ImagesByKeys[imageName] = dataURLSObj[cel.url];
             }
@@ -857,10 +857,14 @@ export class EditBeforeExportComponent implements AfterViewInit {
         tag == 'p' || tag == 'h1' || tag == 'h2' || tag == 'h3' || tag == 'h4' || tag == 'h5' ||
         tag == 'h6' || tag == 'span' || tag == 'strong' || tag == 'sub' || tag == 'sup' ||
         tag == 'code' || tag == 'citation' || tag == 'u' || tag == 'em' || tag == 'form-field' ||
-        tag == 'form-field-inline' || tag == 'form-field-inline-view'||tag == 'reference-citation'
+        tag == 'form-field-inline' || tag == 'form-field-inline-view' || tag == 'reference-citation'
       ) {
-        if (tag == 'span' && element.classList.contains('ProseMirror__placeholder')) {
-          return Promise.resolve({})
+        if (
+          (tag == 'span' && element.classList.contains('ProseMirror__placeholder')) ||
+          (tag == 'span' && element.className.includes('ProseMirror-yjs-cursor')) ||
+          (tag == 'span' && element.className.includes('ProseMirror-yjs-cursor-inner-div'))
+        ) {
+          return Promise.resolve({ text: '' })
         }
         let newEl: any = {}
         let textStyles = this.getTextStyles(defaultView!.getComputedStyle(element, null), element as HTMLElement);
@@ -1052,6 +1056,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
                     newElement = { text: child.textContent };
                   } else {
                     textStyles.calcMargin = false
+
                     newElement = await generatePDFData(child, table, { scaleDown, ...textStyles }, element);
                   }
                   lineWidth += childWidth;
@@ -1221,18 +1226,40 @@ export class EditBeforeExportComponent implements AfterViewInit {
         }
         return Promise.resolve(newEl)
       } else if (tag == 'img') {
-        if (element.className = "ProseMirror-separator") {
-          return Promise.resolve({});
+        if (element.className == "ProseMirror-separator") {
+          return Promise.resolve({ text: '' });
         }
         let img = element as HTMLImageElement
 
-
-        let dataURL = await this.getDataUrl(img)
-        let node: any = { image: dataURL, width: pxToPt(img.getBoundingClientRect().width) }
+        //let dataURL = await this.getDataUrl(img)
+        let url = img.src
+        let urlShort = url.replace('https://img.youtube.com', '')
+        let dataURL:string = await new Promise((resolve, reject) => {
+          //https://img.youtube.com/vi/GDae7zmUHlc/sddefault.jpg
+          ///vi/GDae7zmUHlc/sddefault.jpg
+          fetch(urlShort).then((loadedImage) => {
+            console.log(loadedImage);
+            return loadedImage.blob()
+          }).then((blob) => {
+            let reader = new FileReader()
+            let saveFunc = (url:string,result:string)=>{
+              resolve(result)
+            }
+            reader.addEventListener("load", function () {
+              //@ts-ignore
+              saveFunc(data.imageURL, this.result);
+            }, false);
+            reader.readAsDataURL(blob);
+          })
+        })
+        // get dataURL with fetch with proxy
+        console.log(dataURL);
+        ImagesByKeys[urlShort] = dataURL;
+        let node: any = { image: urlShort, width: pxToPt(img.getBoundingClientRect().width) };
         /* if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
           result.margin = margingsByTags[tag]
         } */
-        attachStylesToNode(node, {}, parentStyle, element, false, parentElement, '')
+        attachStylesToNode(node, {}, parentStyle, element, false, parentElement, '');
         return Promise.resolve(node);
       } else if (tag == 'block-figure') {
         let figureStyling: any = { parentHasMargin: true };
@@ -1515,7 +1542,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
         return Promise.resolve(result);
 
       } else if (tag == 'button') {
-        return Promise.resolve({text:''})
+        return Promise.resolve({ text: '' })
       } else {
         let stack: any = {
           stack: []
@@ -1637,16 +1664,14 @@ export class EditBeforeExportComponent implements AfterViewInit {
           doneSubject.next('done');
         }
       }
-      console.log(
-        ImagesByKeys
-      );
+
       this.data.images = ImagesByKeys
       this.data.content = cont;
 
       let checkIfHeadingIsLastNodeOnNonLastPage = (node: any, nodesAfterNodeOnSamePage: any) => {
         if (node.positions.length > 1) return false;// more than one line in paragraph / heading
         if (nodesAfterNodeOnSamePage.length > 0) return false;//node is not last node on the page
-        if (node.nodeInfo.pages == node.positions[0].pageNumber) return false//node is on the last page
+        if (!node.positions[0] || node.nodeInfo.pages == node.positions[0].pageNumber) return false//node is on the last page
         node.pageBreak = 'before'
         return true;
       }

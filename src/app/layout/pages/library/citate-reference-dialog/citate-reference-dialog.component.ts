@@ -85,7 +85,6 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
         data.push(...JSON.parse(str))
       })
       if(data){
-        console.log(data);
 
         this.searchData = data;
         this.loading = false;

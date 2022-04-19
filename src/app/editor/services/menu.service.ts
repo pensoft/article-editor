@@ -151,7 +151,9 @@ export class MenuService {
       } else if (itemName == 'textMenu') {
         let dropdown = new Dropdown2(menuItems[itemName], { class: " horizontal-dropdown", icon: createCustomIcon('text.svg', 16) })
         item = dropdown
-      } else if (itemName == 'insertMenu') {
+      } else if (itemName == 'insertVideoItem') {
+        item = menuItems[itemName](this.serviceShare)
+      }else if (itemName == 'insertMenu') {
         item = new Dropdown(menuItems[itemName], { label: 'Insert', class: 'horizontal-dropdown' })
       } else if (itemName == 'headings') {
         //@ts-ignore

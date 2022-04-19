@@ -184,33 +184,40 @@ export const insertSpecialSymbolItem = new MenuItem({
   icon: createCustomIcon('Icon feather-star.svg', 20)
 });
 
+export let insertVideoItem = (serviceShare:ServiceShare)=>{
+  return new MenuItem({
+    title: 'Add video element',
+    // @ts-ignore
+    run: (state: EditorState, dispatch?: (tr: Transaction) => boolean, view?: EditorView) => {
+      if (dispatch) {
+        let url
+        let nodetype = state.schema.nodes.video;
+        const dialogRef = sharedDialog.open(AddCommentDialogComponent, {
+          width: '500px',
+          data: { url: url, type: 'video' }
+        });
+        dialogRef.afterClosed().subscribe(result => {
+          if (!result) {
+            return;
+          }
 
-export const insertVideoItem = new MenuItem({
-  title: 'Add video element',
-  // @ts-ignore
-  run: (state: EditorState, dispatch?: (tr: Transaction) => boolean, view?: EditorView) => {
-    if (dispatch) {
-      let url
-      let nodetype = state.schema.nodes.video;
-      const dialogRef = sharedDialog.open(AddCommentDialogComponent, {
-        width: '500px',
-        data: { url: url, type: 'video' }
-      });
-      dialogRef.afterClosed().subscribe(result => {
-        if (!result) {
-          return;
-        }
-        url = result;
-        let node = nodetype.create({ 'src': url })
-        view?.dispatch(view.state.tr.replaceSelectionWith(node))
-        view?.focus()
-      });
-    }
-    return true
-  },
-  enable(state) { return canInsert(state, state.schema.nodes.video) },
-  icon: videoPlayerIcon
-});
+          //  get dataurl with fetch and file rider
+          //  let dataURLObj = this.serviceShare.YdocService!.figuresMap!.get('ArticleFiguresDataURLS');
+          //  dataURLObj[url] = dataurl;
+          //  this.serviceShare.YdocService!.figuresMap!.set('ArticleFiguresDataURLS', dataURLObj);
+
+          url = result;
+          let node = nodetype.create({ 'src': url })
+          view?.dispatch(view.state.tr.replaceSelectionWith(node))
+          view?.focus()
+        });
+      }
+      return true
+    },
+    enable(state) { return canInsert(state, state.schema.nodes.video) },
+    icon: videoPlayerIcon
+  });
+}
 
 export const addMathInlineMenuItem = new MenuItem({
   title: 'Add mathematic expresions to the document',

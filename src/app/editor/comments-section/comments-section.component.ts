@@ -10,6 +10,7 @@ import { YdocService } from '../services/ydoc.service';
 import { CommentsService } from '../utils/commentsService/comments.service';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 import { isCommentAllowed } from '../utils/menu/menuItems';
+import { getDate } from './comment/comment.component';
 
 @Component({
   selector: 'app-comments-section',
@@ -30,7 +31,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
   lastFocusedEditor?: string
   commentsMap?: YMap<any>
   editorView?: EditorView
-
+  userInfo:any
   constructor(
     private commentsService: CommentsService,
     private menuService: MenuService,
@@ -38,7 +39,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     private editorsService: ProsemirrorEditorsService,
     private ydocSrevice: YdocService,
     private detectFocus: DetectFocusService,
-    private prosemirrorEditorsService:ProsemirrorEditorsService) {
+    public prosemirrorEditorsService:ProsemirrorEditorsService) {
 
 
 
@@ -82,6 +83,8 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     this.comments = (Object.values(this.commentsObj) as Array<any>).flat()
   }
 
+  getDate = getDate
+
   cancelBtnHandle() {
     this.showAddCommentBox = false
     let sectionName = this.addCommentEditorId
@@ -116,8 +119,13 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     this.addCommentSubject!.next({ type: 'commentData',sectionName , showBox: false })
   }
 
+  getTime(){
+    let date = Date.now()
+    return date
+  }
   ngAfterViewInit(): void {
-
+    console.log(this.prosemirrorEditorsService.userInfo.data);
+    this.userInfo
     this.commentsService.commentsVisibilityChange.subscribe((commentsObj) => {
       this.commentsObj = commentsObj
       this.comments = (Object.values(commentsObj) as Array<any>).flat()
