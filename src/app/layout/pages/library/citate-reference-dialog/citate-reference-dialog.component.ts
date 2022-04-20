@@ -8,6 +8,8 @@ import { fromEvent } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, tap } from 'rxjs/operators';
 import { CslService } from '../lib-service/csl.service';
 import { RefsApiService } from '../lib-service/refs-api.service';
+import { environment } from '@env';
+import { uuidv4 } from 'lib0/random';
 
 @Component({
   selector: 'app-citate-reference-dialog',
@@ -63,8 +65,13 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
     this.searchData = undefined;
     this.loading = true;
     this.changeDetectorRef.detectChanges()
-    this.http.get('/find', {
+    let url = '/find'
+    /* if(environment.production||true){
+      url = 'https://refindit.org/find'
+    } */
+    this.http.get(url, {
       responseType:'text',
+
       params: {
         search: 'simple',
         text: searchText,
@@ -100,12 +107,32 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
   }
 
   addReference() {
-    let newCitation = this.cslService.genereteCitationStr(this.referencesControl.value.refStyle.name, this.referencesControl.value.refData)
-    let citateData = newCitation.bibliography;
-    this.dialogRef.close({
-      ref: this.referencesControl.value,
-      //externalSelect:this.selected,
-      citateData
-    })
+    this.lastSelect
+    this.externalSelection
+    let localSelection = this.referencesControl.value;
+    if(this.lastSelect == 'external'){
+      let styleName = 'demo-style'
+      let externalRef = this.externalSelection
+      if(!externalRef.id){
+        externalRef.id = uuidv4()
+      }
+      let citation = this.cslService.genereteCitationStr(styleName, externalRef)
+      this.dialogRef.close({
+        ref:externalRef,
+        refInstance:'external',
+        //externalSelect:this.selected,
+        citation,
+
+      })
+    }else if(this.lastSelect == 'localRef'){
+      let localRef = this.referencesControl.value
+      let citation = this.cslService.genereteCitationStr(localRef.refStyle.name, localRef.refData.referenceData)
+      this.dialogRef.close({
+        refInstance:'local',
+        ref: this.referencesControl.value,
+        //externalSelect:this.selected,
+        citation
+      })
+    }
   }
 }

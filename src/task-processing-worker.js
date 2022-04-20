@@ -1,6 +1,7 @@
 let loadImagAsBlob = (data) => {
   let imageURL = data.data.url
   let prod = data.data.environment
+  console.log(data.data.url);
   let proxyURL;
   if (!prod && imageURL.includes('https://s3-pensoft.s3.eu-west-1.amazonaws.com')) {
     proxyURL = imageURL.replace('https://s3-pensoft.s3.eu-west-1.amazonaws.com', '')

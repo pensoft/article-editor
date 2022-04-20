@@ -35,7 +35,7 @@ export class ReferencePluginService {
           if (refsObj.refs) {
             let docSize = editorState.doc.content.size
             editorState.doc.nodesBetween(0, docSize - 1, (node, pos, parent, index) => {
-              if (node.type.name == 'reference_citation') {
+              if (node.type.name == 'reference_citation_end'&&node.attrs.refInstance == 'local') {
                 let nodeRefData = node.attrs.referenceData;
                 let nodeStyleData = node.attrs.referenceStyle;
                 let actualRef = refsObj.refs.find((ref: any) => {
@@ -123,12 +123,12 @@ export class ReferencePluginService {
       return ref.refData.referenceData.id == refData.refId;
     })
     if (actualRef) {
-      let strObj = this.serviceShare.CslService?.genereteCitationStr(refStyle.name, actualRef.refData);
+      let strObj = this.serviceShare.CslService?.genereteCitationStr(refStyle.name, actualRef.refData.referenceData);
       let newAttrs = JSON.parse(JSON.stringify(refNode?.attrs))
       newAttrs.referenceData.last_modified = actualRef.refData.last_modified;
       //newAttrs.referenceData = {refId:actualRef.refData.referenceData.id,last_modified:actualRef.refData.last_modified}
-      let newNode = schema.nodes.reference_citation.create(newAttrs, schema.text(strObj.bibliography))
-      view?.dispatch(view.state.tr/* .setNodeMarkup(refPos,schema.nodes.reference_citation,newAttrs) */.replaceWith(refPos, refPos + refSize, newNode))
+      let newNode = schema.nodes.reference_citation_end.create(newAttrs, schema.text(strObj.bibliography))
+      view?.dispatch(view.state.tr.replaceWith(refPos, refPos + refSize, newNode))
       setTimeout(() => {
         this.serviceShare.ProsemirrorEditorsService?.dispatchEmptyTransaction()
       }, 10)

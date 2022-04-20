@@ -39,6 +39,6 @@
   </div>
   <div class="buttons">
     <button mat-raised-button class="citate-btn" (click)="cancel()">Cancel</button>
-    <button mat-raised-button class="citate-btn" (click)="addReference()" [disabled]="lastSelect !== 'localRef'">Add</button>
+    <button mat-raised-button class="citate-btn" (click)="addReference()" [disabled]="lastSelect == 'none'">Add</button>
   </div>
 </div>

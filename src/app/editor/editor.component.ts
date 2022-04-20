@@ -14,6 +14,7 @@ import { ActivatedRoute, ParamMap } from '@angular/router';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { AuthService } from '@app/core/services/auth.service';
+import { EditorsRefsManagerService } from '@app/layout/pages/library/lib-service/editors-refs-manager.service';
 import { ReferencePluginService } from '@app/layout/pages/library/lib-service/reference-plugin.service';
 import { RefsApiService } from '@app/layout/pages/library/lib-service/refs-api.service';
 import { FormioAppConfig } from '@formio/angular';
@@ -85,6 +86,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     private serviceShare:ServiceShare,
     public config: FormioAppConfig,
     private authService: AuthService,
+    private editorsRefsManager:EditorsRefsManagerService,
     private articleSectionsService: ArticleSectionsService,
     private articlesService: ArticlesService,
     private workerService:WorkerService,

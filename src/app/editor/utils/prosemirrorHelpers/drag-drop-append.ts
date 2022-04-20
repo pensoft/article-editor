@@ -33,7 +33,7 @@ export function changeNodesOnDragDrop(transactions: Transaction[], oldState: Edi
             })
           }
         }else if(transaction.steps.length == 2){
-          // its only drag so we does not have to do anything
+          // its only drag so we dont have to do anything
         }
       }
     }

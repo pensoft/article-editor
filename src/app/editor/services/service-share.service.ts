@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { CslService } from '@app/layout/pages/library/lib-service/csl.service';
+import { EditorsRefsManagerService } from '@app/layout/pages/library/lib-service/editors-refs-manager.service';
 import { ReferencePluginService } from '@app/layout/pages/library/lib-service/reference-plugin.service';
 import { uuidv4 } from 'lib0/random';
 import { ChooseManuscriptDialogComponent } from '../dialogs/choose-manuscript-dialog/choose-manuscript-dialog.component';
@@ -44,6 +45,7 @@ export class ServiceShare {
   PmDialogSessionService?:PmDialogSessionService
   WorkerService?:WorkerService
   MenuService?:MenuService
+  EditorsRefsManagerService?:EditorsRefsManagerService
 
   constructor(
     public dialog: MatDialog,

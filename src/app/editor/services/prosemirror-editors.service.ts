@@ -739,8 +739,9 @@ export class ProsemirrorEditorsService {
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,
+      handleClick: handleClick(hideshowPluginKEey, this.citatContextPluginService.citatContextPluginKey),
+      handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
       handlePaste: handlePaste(mathMap!, editorID),
-      handleClick: handleClick(hideshowPluginKEey),
       handleTripleClickOn,
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
       //handleKeyDown,

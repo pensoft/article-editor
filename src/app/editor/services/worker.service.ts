@@ -83,6 +83,7 @@ export class WorkerService {
 
   saveDataURL = (url: string, dataurl: string) => {
     let dataURLObj = this.serviceShare.YdocService!.figuresMap!.get('ArticleFiguresDataURLS');
+    console.log(dataurl);
     dataURLObj[url] = dataurl;
     this.serviceShare.YdocService!.figuresMap!.set('ArticleFiguresDataURLS', dataURLObj);
   }
@@ -93,8 +94,8 @@ export class WorkerService {
 
   convertImgInWorker(url: string) {
     let dataURLObj = this.serviceShare.YdocService!.figuresMap!.get('ArticleFiguresDataURLS');
+    this.worker.postMessage({ meta: { action: 'loadImgAsDataURL' }, data: { url, environment: environment.production } })
     if (!dataURLObj[url] || dataURLObj[url] == 'data:' || dataURLObj[url] == '') {
-      this.worker.postMessage({ meta: { action: 'loadImgAsDataURL' }, data: { url, environment: environment.production } })
     } else {
    }
   }

@@ -780,7 +780,7 @@ export const handleClickOn = (citatContextPluginKey: PluginKey) => {
         }).setMeta('addToLastHistoryGroup', true))
       }, 0)
       return true
-    } else if (citatContextPluginKey.getState(view.state).decorations !== undefined) {
+    } else if (citatContextPluginKey.getState(view.state)&&citatContextPluginKey.getState(view.state).decorations !== undefined) {
       return false
     } else {
       return false

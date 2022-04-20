@@ -1665,6 +1665,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
         }
       }
 
+      console.log(
+        ImagesByKeys
+      );
       this.data.images = ImagesByKeys
       this.data.content = cont;
 

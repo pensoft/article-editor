@@ -62,14 +62,14 @@ export class CslService {
 
   }
 
-  genereteCitationStr(style: string, ref: any) {
-    this.currentRef = ref.referenceData;
+  genereteCitationStr(style: string, referenceData: any) {
+    this.currentRef = referenceData;
     this.citeproc = new CSL.Engine(this.citeprocSys, styles1[style]/* basicStyle */);
-    this.citeproc.updateItems([ref.referenceData.id]);
+    this.citeproc.updateItems([referenceData.id]);
     let newCitationId = uuidv4()
     let citationData: any = this.generateCitation([{
       "citationID": newCitationId,
-      "citationItems": [{ "id": ref.referenceData.id }],
+      "citationItems": [{ "id": referenceData.id }],
       "properties": { "noteIndex": 1 }
     }, [], []]);
     let bibliography = this.citeproc.makeBibliography();
@@ -182,7 +182,7 @@ export class CslService {
     let docSize = state.doc.content.size;
     let outOfDateRefs = 0;
     state.doc.nodesBetween(0, docSize - 1, (node, pos, parent, index) => {
-      if (node.type.name == 'reference_citation') {
+      if (node.type.name == 'reference_citation_end'&&node.attrs.refInstance == 'local') {
         let nodeRefData = node.attrs.referenceData;
         let actualRef = refs.find((ref) => {
           return ref.refData.referenceData.id == nodeRefData.refId
@@ -211,7 +211,7 @@ export class CslService {
     let node:any
 
     st.doc.nodesBetween(0,size-1,(n,pos,parent,index)=>{
-      if(n.type.name == 'reference_citation'&&n.attrs.refCitationID == citatID){
+      if(n.type.name == 'reference_citation_end'&&n.attrs.refCitationID == citatID){
         // reference citation found
         node = n;
         from = pos;
@@ -220,13 +220,13 @@ export class CslService {
     })
 
     if(node){
-      let newData = this.genereteCitationStr(ref.refStyle.name, ref.refData);
+      let newData = this.genereteCitationStr(ref.refStyle.name, ref.refData.referenceData);
       let newAttrs = JSON.parse(JSON.stringify(node.attrs));
       console.log('old text    :' + node.textContent);
       console.log('new text    :' + newData.bibliography);
       newAttrs.referenceStyle = { name: ref.refStyle.name, last_modified: ref.refStyle.last_modified }
       newAttrs.referenceData = { refId: node.attrs.referenceData.refId, last_modified: ref.refData.last_modified }
-      let newReferenceCitation = schema.nodes.reference_citation.create(newAttrs, schema.text(newData.bibliography || 'd'))
+      let newReferenceCitation = schema.nodes.reference_citation_end.create(newAttrs, schema.text(newData.bibliography || 'd'))
       container.editorView.dispatch(st.tr.replaceWith(from, to, newReferenceCitation).setMeta('preventHistoryAdd', true));
     }
   }
@@ -248,7 +248,7 @@ export class CslService {
     let docSize = state.doc.content.size;
     let refCitatsIds:string[] = []
     state.doc.nodesBetween(0,docSize-1,(node,pos,parent,i)=>{
-      if(node.type.name == 'reference_citation'&&node.attrs.referenceData.refId == ref.refData.referenceData.id){
+      if(node.type.name == 'reference_citation_end'&&node.attrs.referenceData.refId == ref.refData.referenceData.id){
         refCitatsIds.push(node.attrs.refCitationID);
       }
     })
@@ -288,7 +288,7 @@ export class CslService {
     let actRef: any;
 
     state.doc.nodesBetween(0, docSize - 1, (node, pos, parent, index) => {
-      if (!found && node.type.name == 'reference_citation') {
+      if (!found && node.type.name == 'reference_citation_end'&&node.attrs.refInstance == 'local') {
         let nodeRefData = node.attrs.referenceData;
         let actualRef = references.find((ref) => {
           return ref.refData.referenceData.id == nodeRefData.refId
@@ -302,13 +302,13 @@ export class CslService {
         }
       }
     })
-    let newData = this.genereteCitationStr(actRef.refStyle.name, actRef.refData);
+    let newData = this.genereteCitationStr(actRef.refStyle.name, actRef.refData.referenceData);
     let newAttrs = refNode.attrs;
     console.log('old text    :' + refNode.textContent);
     console.log('new text    :' + newData.bibliography);
     newAttrs.referenceStyle = { name: actRef.refStyle.name, last_modified: actRef.refStyle.last_modified }
     newAttrs.referenceData = { refId: refNode.attrs.referenceData.refId, last_modified: actRef.refData.last_modified }
-    let newReferenceCitation = schema.nodes.reference_citation.create(newAttrs, schema.text(newData.bibliography || 'd'))
+    let newReferenceCitation = schema.nodes.reference_citation_end.create(newAttrs, schema.text(newData.bibliography || 'd'))
     container.editorView.dispatch(state.tr.replaceWith(start, end, newReferenceCitation).setMeta('preventHistoryAdd', true));
   }
 

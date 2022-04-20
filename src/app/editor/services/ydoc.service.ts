@@ -204,8 +204,12 @@ export class YdocService {
     let usersColors = this.usersDataMap.get('usersColors');
     this.referenceCitationsMap = this.ydoc.getMap('referenceCitationsMap');
     let references = this.referenceCitationsMap?.get('references')
+    let referencesInEditor = this.referenceCitationsMap?.get('referencesInEditor')
     if(!references){
       this.referenceCitationsMap?.set('references',{})
+    }
+    if(!referencesInEditor){
+      this.referenceCitationsMap?.set('referencesInEditor',{})
     }
     if (!usersColors) {
       this.usersDataMap.set('usersColors', { });

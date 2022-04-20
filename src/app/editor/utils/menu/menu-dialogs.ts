@@ -36,18 +36,45 @@ let citateRef = (sharedService: ServiceShare) => {
     })
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        let referenceData = {refId:result.ref.refData.referenceData.id,last_modified:result.ref.refData.last_modified};
-        let referenceStyle = {name:result.ref.refStyle.name,last_modified:result.ref.refStyle.last_modified};
-        let referenceType = {name:result.ref.refType.name,last_modified:result.ref.refType.last_modified};
-        let recCitationAttrs =  {
-          contenteditableNode: 'false',
-          refCitationID:uuidv4(),
-          referenceData,
-          referenceStyle,
-          referenceType,
+        if(result.refInstance=='local'){
+          let refInYdoc = sharedService.EditorsRefsManagerService!.addReferenceToEditor(result)
+          let referenceData = {refId:result.ref.refData.referenceData.id,last_modified:result.ref.refData.last_modified};
+          let referenceStyle = {name:result.ref.refStyle.name,last_modified:result.ref.refStyle.last_modified};
+          let referenceType = {name:result.ref.refType.name,last_modified:result.ref.refType.last_modified};
+          let recCitationAttrs:any =  {
+            contenteditableNode: 'false',
+            refCitationID:uuidv4(),
+            referenceData,
+            referenceStyle,
+            referenceType,
+            refInstance:result.refInstance
+          }
+          recCitationAttrs = {
+            contenteditableNode: 'false',
+            refCitationID:uuidv4(),
+            actualRefId:refInYdoc.ref.refData.referenceData.id,
+          }
+          let tr = state.tr.replaceWith(start, end, nodeType.create(recCitationAttrs,state.schema.text(refInYdoc.citationDisplayText)))
+          dispatch(tr)
+        }else if(result.refInstance=='external'){
+          let refInYdoc = sharedService.EditorsRefsManagerService!.addReferenceToEditor(result)
+          let referenceData = result.ref
+          let recCitationAttrs:any =  {
+            contenteditableNode: 'false',
+            refCitationID:uuidv4(),
+            referenceData:'',
+            referenceStyle:'',
+            referenceType:'',
+            refInstance:result.refInstance
+          }
+          recCitationAttrs = {
+            contenteditableNode: 'false',
+            refCitationID:uuidv4(),
+            actualRefId:refInYdoc.ref.id,
+          }
+          let tr = state.tr.replaceWith(start, end, nodeType.create(recCitationAttrs,state.schema.text(refInYdoc.citationDisplayText)))
+          dispatch(tr)
         }
-        let tr = state.tr.replaceWith(start, end, nodeType.create(recCitationAttrs,state.schema.text(result.citateData)))
-        dispatch(tr)
       }
     });
   }
@@ -201,7 +228,7 @@ export let insertVideoItem = (serviceShare:ServiceShare)=>{
             return;
           }
 
-          //  get dataurl with fetch and file rider
+          //  get dataurl with fetch and file riderFiguresDataURLSFiguresDataURLSFiguresDataURLS
           //  let dataURLObj = this.serviceShare.YdocService!.figuresMap!.get('ArticleFiguresDataURLS');
           //  dataURLObj[url] = dataurl;
           //  this.serviceShare.YdocService!.figuresMap!.set('ArticleFiguresDataURLS', dataURLObj);

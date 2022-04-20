@@ -67,12 +67,85 @@ export const reference_citation = {
   attrs: {
     ...getGenericAttributes(),
     refCitationID:{default:''},
+    actualRefId:{default:''},
+  },
+  parseDOM: [{
+    tag: "reference-citation", getAttrs(dom: any) {
+      return {
+        ...parseGenericAttributes(dom),
+        refCitationID : dom.getAttribute('refCitationID'),
+        actualRefId : dom.getAttribute('actualRefId'),
+      }
+    },
+  }],
+  toDOM(node: any) {
+    let attributesToDom: any = {
+      ...genericAttributtesToDom(node),
+      refCitationID:node.attrs.refCitationID,
+      actualRefId:node.attrs.actualRefId,
+    }
+    return ["reference-citation", attributesToDom, 0];
+  }
+}
+
+export const reference_container = {
+  content: "block*",
+  group: "block",
+  attrs: {
+    ...getGenericAttributes(),
+  },
+  parseDOM: [{
+    tag: "ul.reference-container", getAttrs(dom: any) {
+      return {
+        ...parseGenericAttributes(dom),
+      }
+    },
+  }],
+  toDOM(node: any) {
+    let attributesToDom: any = {
+      class:'reference-container',
+      ...genericAttributtesToDom(node),
+    }
+    return ["ul", attributesToDom, 0];
+  }
+}
+
+export const reference_block_container = {
+  content: "inline",
+  group: "block",
+  attrs: {
+    ...getGenericAttributes(),
+  },
+  parseDOM: [{
+    tag: "li.reference-block-container", getAttrs(dom: any) {
+      return {
+        ...parseGenericAttributes(dom),
+      }
+    },
+  }],
+  toDOM(node: any) {
+    let attributesToDom: any = {
+      class:'reference-block-container',
+      ...genericAttributtesToDom(node),
+    }
+    return ["li", attributesToDom, 0];
+  }
+}
+
+export const reference_citation_end = {
+  content: "inline",
+  group: "inline",
+  inline:true,
+  attrs: {
+    ...getGenericAttributes(),
+    refInstance:{default:'local'},
+    refCitationID:{default:''},
     referenceData:{default:''},
     referenceStyle:{default:''},
     referenceType:{default:''},
   },
   parseDOM: [{
-    tag: "reference-citation", getAttrs(dom: any) {
+    tag: "reference-citation-end", getAttrs(dom: any) {
       let refData = dom.getAttribute('referencedata').split('|!|');
       let refStyle = dom.getAttribute('referencestyle').split('|!|');
       let refType = dom.getAttribute('referencetype').split('|!|');
@@ -100,7 +173,7 @@ export const reference_citation = {
       referenceStyle,
       referenceType
     }
-    return ["reference-citation", attributesToDom, 0];
+    return ["reference-citation-end", attributesToDom, 0];
   }
 }
 
@@ -205,6 +278,9 @@ export const nodes: NodeSpec = {
   form_field_inline,
   form_field_inline_view,
   reference_citation,
+  reference_citation_end,
+  reference_container,
+  reference_block_container,
   //placeholder,
   ...tableNodes({
     tableGroup: "block",
