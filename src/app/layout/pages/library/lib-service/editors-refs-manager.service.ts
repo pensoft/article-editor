@@ -246,16 +246,19 @@ export class EditorsRefsManagerService {
     let to: any;
 
     let state = edView.state;
-
+    let found = false;
     let docSize = state.doc.content.size
+
+
     state.doc.nodesBetween(0,docSize-1,(n,p,par,i)=>{
-      if(n.type.name == 'reference_citation'&&n.attrs.actualRefId == refId){
+      if(n.type.name == 'reference_citation'&&n.attrs.actualRefId == refId&&n.textContent!=ydocRef.citationDisplayText){
+        found = true
         node = n;
         from =p;
         to = n.nodeSize+p;
       }
     })
-    if (node) {
+    if (found) {
       let attrs = JSON.parse(JSON.stringify(node.attrs));
       let newNode = state.schema.nodes.reference_citation.create(attrs, state.schema.text(ydocRef.citationDisplayText))
       edView.dispatch(state.tr.replaceWith(from, to, newNode));

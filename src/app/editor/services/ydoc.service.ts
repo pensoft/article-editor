@@ -56,6 +56,7 @@ export class YdocService {
   articleData: any;
   sectionFormGroupsStructures?: YMap<any>
   comments?: YMap<any>
+  creatingANewArticle = false
   figuresMap?: YMap<any>
   trackChangesMetadata?: YMap<any>
   usersDataMap?: YMap<any>
@@ -258,6 +259,7 @@ export class YdocService {
 
   setArticleData(articleData: any) {
     this.articleData = articleData;
+    this.creatingANewArticle = true;
     this.checkLastTimeUpdated();
   }
 
@@ -292,6 +294,7 @@ export class YdocService {
     this.figuresMap = undefined;
     this.trackChangesMetadata = undefined;
     this.userInfo = undefined;
+    this.creatingANewArticle = false;
     this.mathMap = undefined;
   }
 
@@ -369,7 +372,7 @@ export class YdocService {
       });
       this.provider.on('synced', (isSynced: boolean) => {
         let checkSyncStatus = setInterval(()=>{
-          if(this.ydoc.store.clients.size!==0||this.ydoc.getXmlFragment().length>0){
+          if(this.ydoc.store.clients.size!==0||this.ydoc.getXmlFragment().length>0||this.creatingANewArticle){
             setTimeout(()=>{
               this.buildEditor();
             },1000)
