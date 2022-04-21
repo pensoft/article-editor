@@ -47,8 +47,6 @@ export class ReferencePluginService {
                 if (
                   actualRef &&
                   actualRef.refData.last_modified > nodeRefData.last_modified) {
-
-
                   let button = document.createElement('button')
                   button.className = 'update-data-reference-button';
                   button.addEventListener('click', () => {
@@ -124,10 +122,15 @@ export class ReferencePluginService {
     })
     if (actualRef) {
       let strObj = this.serviceShare.CslService?.genereteCitationStr(refStyle.name, actualRef.refData.referenceData);
+      let refInYdoc = this.serviceShare.EditorsRefsManagerService!.addReferenceToEditor({
+        ref:actualRef,
+        citation:strObj,
+        refInstance: "local"
+      })
       let newAttrs = JSON.parse(JSON.stringify(refNode?.attrs))
       newAttrs.referenceData.last_modified = actualRef.refData.last_modified;
       //newAttrs.referenceData = {refId:actualRef.refData.referenceData.id,last_modified:actualRef.refData.last_modified}
-      let newNode = schema.nodes.reference_citation_end.create(newAttrs, schema.text(strObj.bibliography))
+      let newNode = schema.nodes.reference_citation_end.create(newAttrs, schema.text(refInYdoc.bibliography))
       view?.dispatch(view.state.tr.replaceWith(refPos, refPos + refSize, newNode))
       setTimeout(() => {
         this.serviceShare.ProsemirrorEditorsService?.dispatchEmptyTransaction()

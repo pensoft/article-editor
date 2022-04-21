@@ -1,4 +1,6 @@
+import { ServiceShare } from "@app/editor/services/service-share.service";
 import { uuidv4 } from "lib0/random";
+import { setMaxListeners } from "process";
 import { Fragment, Slice } from "prosemirror-model";
 import { EditorState, Transaction } from "prosemirror-state";
 import { ReplaceStep } from "prosemirror-transform";
@@ -61,4 +63,32 @@ export function changeNodesOnDragDrop(transactions: Transaction[], oldState: Edi
     })
   })
   return changed?tr:undefined
+}
+
+export function handleDeleteOfRefCitation(sharedService:ServiceShare){
+  return (transactions: Transaction[], oldState: EditorState, newState: EditorState)=> {
+    let deletedRefCitations:any[] = []
+    transactions.forEach((transaction) => {
+      if(transaction.steps.length>0){
+        transaction.steps.forEach((step)=>{
+          //@ts-ignore
+          if(step instanceof ReplaceStep&&step.slice.content.size == 0){
+            //@ts-ignore
+            let from = step.from;
+            //@ts-ignore
+            let to = step.to;
+            oldState.doc.nodesBetween(from,to,(n,p,par,i)=>{
+              if(n.type.name == 'reference_citation'){
+                deletedRefCitations.push(JSON.parse(JSON.stringify(n.attrs)))
+              }
+            })
+          }
+        })
+      }
+    })
+    if(deletedRefCitations.length>0){
+      sharedService.EditorsRefsManagerService!.handleRefCitationDelete(deletedRefCitations)
+    }
+    return undefined;
+  }
 }

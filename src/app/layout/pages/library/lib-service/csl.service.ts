@@ -77,6 +77,12 @@ export class CslService {
     let contDiv = document.createElement('div');
     contDiv.innerHTML = citationData.bibliography;
     citationData.bibliography = contDiv.textContent!.endsWith('\n') ? contDiv.textContent!.slice(0, contDiv.textContent!.length - 2) : contDiv.textContent!
+    if(!citationData.bibliography.startsWith(" ")){
+      citationData.bibliography = " "+citationData.bibliography
+    }
+    if(!citationData.bibliography.endsWith(" ")){
+      citationData.bibliography = citationData.bibliography+" "
+    }
     return citationData;
   }
 
@@ -129,9 +135,9 @@ export class CslService {
   },[],[]]
   */
   generateCitation(citationObj: any[]) {
-    let html = this.citeproc.previewCitationCluster(citationObj[0], citationObj[1], [], 'html');
-    let text = this.citeproc.previewCitationCluster(citationObj[0], citationObj[1], [], 'text');
-    let rtx = this.citeproc.previewCitationCluster(citationObj[0], citationObj[1], [], 'rtf');
+    let html = " "+this.citeproc.previewCitationCluster(citationObj[0], citationObj[1], [], 'html')+" ";
+    let text = " "+this.citeproc.previewCitationCluster(citationObj[0], citationObj[1], [], 'text')+" ";
+    let rtx = " "+this.citeproc.previewCitationCluster(citationObj[0], citationObj[1], [], 'rtf')+" ";
     return { html, text, rtx }
   }
 
@@ -222,11 +228,14 @@ export class CslService {
     if(node){
       let newData = this.genereteCitationStr(ref.refStyle.name, ref.refData.referenceData);
       let newAttrs = JSON.parse(JSON.stringify(node.attrs));
-      console.log('old text    :' + node.textContent);
-      console.log('new text    :' + newData.bibliography);
+      let refInYdoc = this.serviceShare.EditorsRefsManagerService!.addReferenceToEditor({
+        ref,
+        citation:newData,
+        refInstance: "local"
+      })
       newAttrs.referenceStyle = { name: ref.refStyle.name, last_modified: ref.refStyle.last_modified }
       newAttrs.referenceData = { refId: node.attrs.referenceData.refId, last_modified: ref.refData.last_modified }
-      let newReferenceCitation = schema.nodes.reference_citation_end.create(newAttrs, schema.text(newData.bibliography || 'd'))
+      let newReferenceCitation = schema.nodes.reference_citation_end.create(newAttrs, schema.text(refInYdoc.bibliography || 'd'))
       container.editorView.dispatch(st.tr.replaceWith(from, to, newReferenceCitation).setMeta('preventHistoryAdd', true));
     }
   }
@@ -304,11 +313,14 @@ export class CslService {
     })
     let newData = this.genereteCitationStr(actRef.refStyle.name, actRef.refData.referenceData);
     let newAttrs = refNode.attrs;
-    console.log('old text    :' + refNode.textContent);
-    console.log('new text    :' + newData.bibliography);
+    let refInYdoc = this.serviceShare.EditorsRefsManagerService!.addReferenceToEditor({
+      ref:actRef,
+      citation:newData,
+      refInstance: "local"
+    })
     newAttrs.referenceStyle = { name: actRef.refStyle.name, last_modified: actRef.refStyle.last_modified }
     newAttrs.referenceData = { refId: refNode.attrs.referenceData.refId, last_modified: actRef.refData.last_modified }
-    let newReferenceCitation = schema.nodes.reference_citation_end.create(newAttrs, schema.text(newData.bibliography || 'd'))
+    let newReferenceCitation = schema.nodes.reference_citation_end.create(newAttrs, schema.text(refInYdoc.bibliography || 'd'))
     container.editorView.dispatch(state.tr.replaceWith(start, end, newReferenceCitation).setMeta('preventHistoryAdd', true));
   }
 

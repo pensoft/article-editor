@@ -37,19 +37,9 @@ let citateRef = (sharedService: ServiceShare) => {
     dialogRef.afterClosed().subscribe(result => {
       if(result){
         if(result.refInstance=='local'){
+          console.log('result from add ccitate menu btn',result);
           let refInYdoc = sharedService.EditorsRefsManagerService!.addReferenceToEditor(result)
-          let referenceData = {refId:result.ref.refData.referenceData.id,last_modified:result.ref.refData.last_modified};
-          let referenceStyle = {name:result.ref.refStyle.name,last_modified:result.ref.refStyle.last_modified};
-          let referenceType = {name:result.ref.refType.name,last_modified:result.ref.refType.last_modified};
-          let recCitationAttrs:any =  {
-            contenteditableNode: 'false',
-            refCitationID:uuidv4(),
-            referenceData,
-            referenceStyle,
-            referenceType,
-            refInstance:result.refInstance
-          }
-          recCitationAttrs = {
+          let recCitationAttrs:any = {
             contenteditableNode: 'false',
             refCitationID:uuidv4(),
             actualRefId:refInYdoc.ref.refData.referenceData.id,
@@ -58,16 +48,7 @@ let citateRef = (sharedService: ServiceShare) => {
           dispatch(tr)
         }else if(result.refInstance=='external'){
           let refInYdoc = sharedService.EditorsRefsManagerService!.addReferenceToEditor(result)
-          let referenceData = result.ref
-          let recCitationAttrs:any =  {
-            contenteditableNode: 'false',
-            refCitationID:uuidv4(),
-            referenceData:'',
-            referenceStyle:'',
-            referenceType:'',
-            refInstance:result.refInstance
-          }
-          recCitationAttrs = {
+          let recCitationAttrs:any = {
             contenteditableNode: 'false',
             refCitationID:uuidv4(),
             actualRefId:refInYdoc.ref.id,

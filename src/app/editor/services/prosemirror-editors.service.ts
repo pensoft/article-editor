@@ -75,7 +75,7 @@ import html2canvas from 'html2canvas';
 import { uuidv4 } from 'lib0/random.js';
 import { filterSectionChildren } from '../utils/articleBasicStructure';
 import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
-import { changeNodesOnDragDrop } from '../utils/prosemirrorHelpers/drag-drop-append';
+import { changeNodesOnDragDrop, handleDeleteOfRefCitation } from '../utils/prosemirrorHelpers/drag-drop-append';
 @Injectable({
   providedIn: 'root'
 })
@@ -346,6 +346,12 @@ export class ProsemirrorEditorsService {
       historyPreserveItems: true,
     })
 
+    let handleRefDeletePluginKey = new PluginKey('handleRefDelete');
+    let handleRefDelete = new Plugin({
+      key: handleRefDeletePluginKey,
+      appendTransaction: handleDeleteOfRefCitation(this.serviceShare)
+    })
+
     let changeNodesKey = new PluginKey('changeNodesKey');
     let changeNodes = new Plugin({
       key: changeNodesKey,
@@ -386,6 +392,7 @@ export class ProsemirrorEditorsService {
         //history({renderFiguresFunc:this.rerenderFigures}),
         this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
+        handleRefDelete,
         changeNodes,
         selectWholeCitat,
         this.detectFocusService.getPlugin(),
@@ -614,6 +621,7 @@ export class ProsemirrorEditorsService {
       appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate, this.yjsHistory.YjsHistoryKey),
       filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, editorId, this.serviceShare),
     })
+
     let container = document.createElement('div');
     let editorView: EditorView;
     let colors = this.colors
@@ -653,7 +661,7 @@ export class ProsemirrorEditorsService {
         //columnResizing({}),
         //tableEditing(),
         history(),
-        this.placeholderPluginService.getPlugin(),
+        //this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         this.detectFocusService.getPlugin(),
         this.serviceShare.ReferencePluginService?.referencePlugin,
@@ -676,6 +684,7 @@ export class ProsemirrorEditorsService {
     let lastContainingInsertionMark: any
 
     const dispatchTransaction = (transaction: Transaction) => {
+      console.log('dispatch');
       this.transactionCount++
       try {
         /* if (lastStep == transaction.steps[0]) {

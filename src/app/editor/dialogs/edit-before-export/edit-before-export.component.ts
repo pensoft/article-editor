@@ -1410,7 +1410,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
         for (let i = 0; i < elChildren.length; i++) {
           let chnode = elChildren[i];
           let listEl: any = { stack: [] }
-
           let itemNodes = chnode.childNodes;
           for (let j = 0; j < itemNodes.length; j++) {
             let nodeInItem = itemNodes[j];
@@ -1652,7 +1651,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
           }
           pbs++;
         } else {
+          console.log(el);
           let pdfElement = await generatePDFData(el, {}, {}, undefined);
+          console.log(pdfElement);
           if (!pdfElement.props) {
             pdfElement.props = {}
           }

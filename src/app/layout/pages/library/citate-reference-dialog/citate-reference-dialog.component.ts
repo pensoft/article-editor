@@ -69,7 +69,8 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
     /* if(environment.production||true){
       url = 'https://refindit.org/find'
     } */
-    this.http.get(url, {
+    //let exREFApi = 'https://api.refindit.org/find'
+    this.http.get(environment.EXTERNAL_REFS_API, {
       responseType:'text',
 
       params: {
@@ -110,6 +111,7 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
     this.lastSelect
     this.externalSelection
     let localSelection = this.referencesControl.value;
+    console.log(localSelection);
     if(this.lastSelect == 'external'){
       let styleName = 'demo-style'
       let externalRef = this.externalSelection
