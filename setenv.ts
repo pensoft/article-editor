@@ -21,6 +21,7 @@ export const environment = {
    BUILD_NUMBER: '${process.env.BUILD_NUMBER}',
    VERSION: '${version}',
    WEBSOCKET_HOST: '${websocket.host}',
+   EXTERNAL_REFS_API: '${isProduction?"https://refindit.org/find":"/find"}',
    WEBSOCKET_PORT: '${websocket.port}'
 };
 `;

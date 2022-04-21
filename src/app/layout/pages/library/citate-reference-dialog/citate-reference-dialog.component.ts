@@ -70,7 +70,7 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
       url = 'https://refindit.org/find'
     } */
     //let exREFApi = 'https://api.refindit.org/find'
-    this.http.get(environment.EXTERNAL_REFS_API, {
+    this.http.get('/find', {
       responseType:'text',
 
       params: {

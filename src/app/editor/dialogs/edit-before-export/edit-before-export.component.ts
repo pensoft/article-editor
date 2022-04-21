@@ -288,7 +288,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     this.makeFlat()
     this.elementOuterHtml = []
     this.renderProsemirrorEditors()
-
+    console.log(prosemirrorEditors);
 
     let loopChildrenRecursivly = (element: Element, sectionContainer: string[], section?: articleSection) => {
       Array.from(element.children).forEach((elChild) => {
@@ -1238,7 +1238,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
           //https://img.youtube.com/vi/GDae7zmUHlc/sddefault.jpg
           ///vi/GDae7zmUHlc/sddefault.jpg
           fetch(urlShort).then((loadedImage) => {
-            console.log(loadedImage);
             return loadedImage.blob()
           }).then((blob) => {
             let reader = new FileReader()
@@ -1253,7 +1252,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
           })
         })
         // get dataURL with fetch with proxy
-        console.log(dataURL);
         ImagesByKeys[urlShort] = dataURL;
         let node: any = { image: urlShort, width: pxToPt(img.getBoundingClientRect().width) };
         /* if (parentStyle && !parentStyle.parentHasMargin && margingsByTags[tag]) {
@@ -1651,9 +1649,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
           }
           pbs++;
         } else {
-          console.log(el);
           let pdfElement = await generatePDFData(el, {}, {}, undefined);
-          console.log(pdfElement);
           if (!pdfElement.props) {
             pdfElement.props = {}
           }

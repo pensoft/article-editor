@@ -148,6 +148,9 @@ export class YdocService {
       if (articleSectionsStructure == undefined) {
         citatsObj = {}
         articleSectionsStructureFlat = []
+        if(!this.articleStructureFromBackend){
+          console.log('no section structure');
+        }
         articleSectionsStructure = this.articleStructureFromBackend || articleBasicStructure
 
         let makeFlat = (structure: articleSection[]) => {
@@ -271,8 +274,14 @@ export class YdocService {
 
     this.ydoc = new Y.Doc();
 
+    if(this.provider){
+      this.provider.destroy();
+    }
     this.provider = undefined;
     this.roomName = 'webrtc-test3';
+    if(this.providerIndexedDb){
+      this.providerIndexedDb.destroy();
+    }
     this.providerIndexedDb = undefined;
 
     //this.articleStructureFromBackend = undefined;
@@ -358,8 +367,15 @@ export class YdocService {
       this.provider.on('connection-error', function(WSErrorEvent:any){
         console.log(WSErrorEvent,(new Date()).getTime());
       });
-      this.provider.on('sync', (isSynced: boolean) => {
-        this.buildEditor();
+      this.provider.on('synced', (isSynced: boolean) => {
+        let checkSyncStatus = setInterval(()=>{
+          if(this.ydoc.store.clients.size!==0||this.ydoc.getXmlFragment().length>0){
+            setTimeout(()=>{
+              this.buildEditor();
+            },1000)
+            clearInterval(checkSyncStatus)
+          }
+        },500)
       })
       /* this.provider = new WebrtcProvider(this.roomName, this.ydoc, {
         signaling: ['ws://dev.scalewest.com:4444','ws://localhost:4444',  'wss://y-webrtc-signaling-eu.herokuapp.com' , 'wss://signaling.yjs.dev'  ,'wss://y-webrtc-signaling-us.herokuapp.com'],
