@@ -33,6 +33,7 @@ export class EditorsRefsManagerService {
       ref: refDataFromDialog.ref,
       refInstance: refDataFromDialog.refInstance
     }
+    console.log(refID);
     let notInEndEditorYet = !refs[refID]
     refs[refID] = newRef
     let refsUpdated = this.updateCitationsDisplayTextAndBibliography(refs)
@@ -130,6 +131,7 @@ export class EditorsRefsManagerService {
   }
 
   handleRefCitationDelete(deletedRefCitations:any[]){
+    console.log(deletedRefCitations);
     setTimeout(()=>{
       deletedRefCitations
       let refs = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
@@ -159,15 +161,31 @@ export class EditorsRefsManagerService {
     return nOfRefs
   }
 
+  checkIfRefIsInEndEditor(refId:string){
+    let endEditor = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'];
+    let view = endEditor.editorView;
+    let st = view.state;
+    let any = false
+    let docSize = st.doc.content.size
+    st.doc.nodesBetween(0,docSize-1,(n,p,par,i)=>{
+      if(n.type.name == 'reference_citation_end'&&n.attrs.referenceData.refId == refId){
+        any = true;
+      }
+    })
+    return any;
+  }
+
   removeFromEndEditor(refId:string){
     let endEditor = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'];
     let nOfRefs = this.nOfRefsInEndEditor();
+    let thereIsRefWithThisIDInLastEditor = this.checkIfRefIsInEndEditor(refId);
+    if (!thereIsRefWithThisIDInLastEditor) return
     let view = endEditor.editorView;
     let st = view.state;
 
     let from : any;
     let to : any;
-
+    console.log('removeFromEndEditor',refId,'nOfRefs',nOfRefs);
     let docSize = st.doc.content.size
     if(nOfRefs == 1){
       st.doc.nodesBetween(0,docSize-1,(n,p,par,i)=>{
@@ -346,10 +364,11 @@ export class EditorsRefsManagerService {
         view.dispatch(tr)
       }
     } else if (newRef.refInstance == 'external') {
+      let referenceData = { refId: newRef.ref.id, last_modified: undefined };
       let recCitationAttrs = {
         contenteditableNode: 'false',
         refCitationID: uuidv4(),
-        referenceData: '',
+        referenceData,
         referenceStyle: '',
         referenceType: '',
         refInstance: newRef.refInstance

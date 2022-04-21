@@ -560,7 +560,6 @@ export class ProsemirrorEditorsService {
               setTimeout(() => {
                 let newMark = view.state.doc.nodeAt(dropPosition)
                 view.dispatch(view.state.tr.addMark(dropPosition, dropPosition + newMark?.nodeSize!, schema.mark('citation', { ...citationMark.attrs, citateid: uuidv4() })).setMeta('addToLastHistoryGroup', true))
-                console.log('change citat id ');
               }, 10)
             }
           }
@@ -684,7 +683,6 @@ export class ProsemirrorEditorsService {
     let lastContainingInsertionMark: any
 
     const dispatchTransaction = (transaction: Transaction) => {
-      console.log('dispatch');
       this.transactionCount++
       try {
         /* if (lastStep == transaction.steps[0]) {
