@@ -445,6 +445,7 @@ export class ProsemirrorEditorsService {
             }
             isMath = true
           }
+
           //@ts-ignore
           if (transaction.getMeta('y-sync$') || transaction.meta['y-sync$'] || transaction.getMeta('addToLastHistoryGroup') ||transaction.getMeta('preventHistoryAdd')) {
             if (transaction.getMeta('addToLastHistoryGroup')) {
@@ -677,6 +678,8 @@ export class ProsemirrorEditorsService {
       // @ts-ignore
       sectionName: editorID,
       // @ts-ignore
+      sectionID:editorID,
+      // @ts-ignore
     });
 
     let lastStep: any
@@ -685,9 +688,9 @@ export class ProsemirrorEditorsService {
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
       try {
-        /* if (lastStep == transaction.steps[0]) {
+        if (lastStep == transaction.steps[0] && !transaction.getMeta('emptyTR')) {
           if (lastStep) { return }
-        } */
+        }
         let isMath = false
         if (transaction.selection instanceof NodeSelection && (transaction.selection.node.type.name == 'math_inline' || transaction.selection.node.type.name == 'math_display')) {
           let hasmarkAddRemoveStep = transaction.steps.filter((step) => {
@@ -698,9 +701,15 @@ export class ProsemirrorEditorsService {
           }
           isMath = true
         }
-        lastStep = transaction.steps[0]
-        this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager.preventCapture()
-
+        lastStep = transaction.steps[0];
+        if(transaction.steps.length>0){
+          let undoManager = this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager;
+          let undoManagerStatus = undoManager.status;
+          if (undoManagerStatus !== 'capturing') {
+            undoManager.status = 'capturing'
+          }
+          undoManager.preventCapture()
+        }
         if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false || isMath) {
 
           let state = editorView?.state.apply(transaction);

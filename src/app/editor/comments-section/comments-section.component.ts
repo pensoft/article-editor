@@ -124,7 +124,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     return date
   }
   ngAfterViewInit(): void {
-    console.log(this.prosemirrorEditorsService.userInfo.data);
     this.userInfo
     this.commentsService.commentsVisibilityChange.subscribe((commentsObj) => {
       this.commentsObj = commentsObj

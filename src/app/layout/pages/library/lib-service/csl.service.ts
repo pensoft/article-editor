@@ -231,7 +231,8 @@ export class CslService {
       let refInYdoc = this.serviceShare.EditorsRefsManagerService!.addReferenceToEditor({
         ref,
         citation:newData,
-        refInstance: "local"
+        refInstance: "local",
+        dothSaveToHistory:true
       })
       newAttrs.referenceStyle = { name: ref.refStyle.name, last_modified: ref.refStyle.last_modified }
       newAttrs.referenceData = { refId: node.attrs.referenceData.refId, last_modified: ref.refData.last_modified }
@@ -329,9 +330,15 @@ export class CslService {
     this.refsAPI.getReferences().subscribe((refsRes: any) => {
       let refs = refsRes.data as any[];
       let citationRefId = attrs.referenceData.refId;
-      let ref = refs.find((ref) => {
-        return ref.refData.referenceData.id == citationRefId;
-      })
+      let refsInEndEditor =  this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
+      let ref:any
+      if(attrs.refInstance == 'external'){
+        ref = refsInEndEditor[citationRefId]?refsInEndEditor[citationRefId].ref:undefined
+      }else{
+        ref = refs.find((ref) => {
+          return ref.refData.referenceData.id == citationRefId;
+        })
+      }
       if (ref) {
         this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
           this.refsAPI.getStyles().subscribe((refStyles: any) => {
@@ -354,13 +361,40 @@ export class CslService {
                 let newRef = genereteNewReference(refType, formioData)
                 let refID = ref.refData.referenceData.id;
                 newRef.id = refID;
-                this.addReference(newRef, refType, refStyle, formioData, ref, globally).subscribe((editRes:any) => {
-                  let reference = editRes.data.find((ref1:any)=>ref1.refData.referenceData.id == ref.refData.referenceData.id)
-                  let containers = this.serviceShare.ProsemirrorEditorsService?.editorContainers!
-                  // find ref in the returned obj
-                  // edit all cetitaions of this reference in the editors
-                  this.updateAllCitatsOfReferenceInAllEditors(containers,reference)
-                })
+                if(attrs.refInstance == 'external'){
+                  let editRefInEndEditor = (newRef:any, refType:any, refStyle:any, formioData:any)=>{
+                    let refsInEndEditor =  this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
+                    let newRefExternalRef = {
+                      refData:{
+                        formioData,
+                        basicCitation:refsInEndEditor[refID].ref.refData.basicCitation,
+                        last_modified:Date.now(),
+                        refType: "external",
+                        referenceData:newRef
+                      },
+                      refStyle:{
+                        last_modified:Date.now(),
+                        ...refStyle
+                      },
+                      refType:{
+                        ...refType
+                      },
+                    }
+                    let containers = this.serviceShare.ProsemirrorEditorsService?.editorContainers!
+                    // find ref in the returned obj
+                    // edit all cetitaions of this reference in the editors
+                    this.updateAllCitatsOfReferenceInAllEditors(containers,newRefExternalRef)
+                  }
+                  editRefInEndEditor(newRef, refType, refStyle, formioData);
+                }else{
+                  this.addReference(newRef, refType, refStyle, formioData, ref, globally).subscribe((editRes:any) => {
+                    let reference = editRes.data.find((ref1:any)=>ref1.refData.referenceData.id == ref.refData.referenceData.id)
+                    let containers = this.serviceShare.ProsemirrorEditorsService?.editorContainers!
+                    // find ref in the returned obj
+                    // edit all cetitaions of this reference in the editors
+                    this.updateAllCitatsOfReferenceInAllEditors(containers,reference)
+                  })
+                }
               }
             })
           })

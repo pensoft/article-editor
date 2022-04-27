@@ -1,7 +1,6 @@
 let loadImagAsBlob = (data) => {
   let imageURL = data.data.url
   let prod = data.data.environment
-  console.log(data.data.url);
   let proxyURL;
   if (!prod && imageURL.includes('https://s3-pensoft.s3.eu-west-1.amazonaws.com')) {
     proxyURL = imageURL.replace('https://s3-pensoft.s3.eu-west-1.amazonaws.com', '')
@@ -35,12 +34,10 @@ let loadImagAsBlob = (data) => {
 
   xhr.onload = function(data) {
     // Success code goes here.
-    console.log(xhr.response);
   };
 
   xhr.onerror = function() {
     // Error code goes here.
-    console.log(xhr.response);
 
   };
 

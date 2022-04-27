@@ -30,7 +30,7 @@
       <table mat-table [dataSource]="searchData" class="mat-elevation-z8 demo-table">
         <ng-container matColumnDef="title">
           <th mat-header-cell *matHeaderCellDef>Title</th>
-          <td mat-cell *matCellDef="let element">{{element.title}}</td>
+          <td mat-cell *matCellDef="let element">{{element.ref.title}}</td>
         </ng-container>
 
         <tr class="table-row" mat-row (click)="selected = row;select(row);referencesControl.setValue(null)" [class.demo-row-is-clicked]="row == selected" *matRowDef="let row; columns: displayedColumns;"></tr>

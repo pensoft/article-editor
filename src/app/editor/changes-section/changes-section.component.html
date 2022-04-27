@@ -1,15 +1,15 @@
 <div class="changes-wrapper">
 
-  <div class="changes-container" >
-    <app-change *ngFor="let change of changes" [change]="change"></app-change>
+  <div class="changes-container">
+    <app-change *ngFor="let change of changes;let i = index" [change]="change" [index]="i"></app-change>
   </div>
 
   <div class="changes-footer">
-    <div class="left">
+    <div class="left" (click)="focusPrevChange()">
       <mat-icon style="margin-right:8px">west</mat-icon>
       Previous change
     </div>
-    <div class="right">
+    <div class="right" (click)="focusNextChange()">
       Next change
       <mat-icon style="margin-left:8px">east</mat-icon>
     </div>

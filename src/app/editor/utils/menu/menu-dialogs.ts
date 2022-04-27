@@ -37,7 +37,6 @@ let citateRef = (sharedService: ServiceShare) => {
     dialogRef.afterClosed().subscribe(result => {
       if(result){
         if(result.refInstance=='local'){
-          console.log('result from add ccitate menu btn',result);
           let refInYdoc = sharedService.EditorsRefsManagerService!.addReferenceToEditor(result)
           let recCitationAttrs:any = {
             contenteditableNode: 'false',
@@ -45,16 +44,16 @@ let citateRef = (sharedService: ServiceShare) => {
             actualRefId:refInYdoc.ref.refData.referenceData.id,
           }
           let tr = state.tr.replaceWith(start, end, nodeType.create(recCitationAttrs,state.schema.text(refInYdoc.citationDisplayText)))
-          dispatch(tr)
+          dispatch(tr.setMeta('createNewHistoryGroup',true))
         }else if(result.refInstance=='external'){
           let refInYdoc = sharedService.EditorsRefsManagerService!.addReferenceToEditor(result)
           let recCitationAttrs:any = {
             contenteditableNode: 'false',
             refCitationID:uuidv4(),
-            actualRefId:refInYdoc.ref.id,
+            actualRefId:refInYdoc.ref.refData.referenceData.id,
           }
           let tr = state.tr.replaceWith(start, end, nodeType.create(recCitationAttrs,state.schema.text(refInYdoc.citationDisplayText)))
-          dispatch(tr)
+          dispatch(tr.setMeta('createNewHistoryGroup',true))
         }
       }
     });

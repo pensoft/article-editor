@@ -1,30 +1,18 @@
-<mat-card *ngIf="change.main" class="change" (click)="focusCitat()">
-    <mat-card-header>
-        <div mat-card-avatar class="avatar"></div>
-        <mat-card-title class="change-title">{{change.markattrs.username}}</mat-card-title>
-        <mat-card-subtitle class="change-subtitle">{{change.markattrs.data | date}}</mat-card-subtitle>
+<mat-card *ngIf="change.main" class="change {{index == changesService.focusedChangeIndex?'focusedChange':''}}" (click)="focusCitat()">
+  <mat-card-header>
+    <div mat-card-avatar class="avatar"></div>
+    <mat-card-title class="change-title">{{change.markattrs.username}}</mat-card-title>
+    <mat-card-subtitle class="change-subtitle">{{getDate(change.markattrs.date)}}</mat-card-subtitle>
+  </mat-card-header>
+  <mat-card-content>
+    <div class="edited-text">
+      <div class="edited-text-title">{{change.type == 'deletion'?'Deleted:':'Inserted:'}}</div>
+      <div class="edited-text-content {{change.type}} target" [ngStyle]="{background:change.markattrs.color}">{{change.text}}</div>
+    </div>
 
-        <div class="header-actions">
-            <button mat-icon-button [matMenuTriggerFor]="menu">
-        <mat-icon>more_horiz</mat-icon>
-      </button>
-
-            <mat-menu #menu="matMenu">
-                <button mat-menu-item>Edit</button>
-                <button mat-menu-item>Delete</button>
-            </mat-menu>
-        </div>
-
-    </mat-card-header>
-    <mat-card-content>
-        <div class="edited-text">
-            <div class="edited-text-title">Edited:</div>
-            <div class="edited-text-content {{change.type}} target" [ngStyle]="{background:change.markattrs.color}">{{change.text}}</div>
-        </div>
-
-        <arpha-button (clickEvent)="acceptChange(change.viewRef,change.type,change.markattrs)" class="small secondary change-action-button" label="Accept" icon="done" style="margin-right:20px;">
-        </arpha-button>
-        <arpha-button (clickEvent)="declineChange(change.viewRef,change.type,change.markattrs)" class="small secondary change-action-button" label="Decline" icon="close">
-        </arpha-button>
-    </mat-card-content>
+    <arpha-button (clickEvent)="acceptChange(change.viewRef,change.type,change.markattrs)" class="small secondary change-action-button" label="Accept" icon="done" style="margin-right:20px;">
+    </arpha-button>
+    <arpha-button (clickEvent)="declineChange(change.viewRef,change.type,change.markattrs)" class="small secondary change-action-button" label="Decline" icon="close">
+    </arpha-button>
+  </mat-card-content>
 </mat-card>

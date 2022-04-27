@@ -11,9 +11,10 @@ import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.se
 import { YdocService } from '../../services/ydoc.service';
 
 export function getDate(date:number){
-  let d = new Date(+date /* * 1000 */)
-  d.setTime(d.getTime()+(2*60*60*1000));
-  let timeString = d.getUTCHours() + ":" + d.getUTCMinutes() + " " + ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][d.getUTCDay()-1] +" " +d.getUTCDate() +"/"+ d.getUTCMonth() + "/" + d.getUTCFullYear();
+  let timeOffset = (new Date()).getTimezoneOffset()*60*1000;
+  let d = new Date(+date/*+timeOffset  * 1000 */)
+  //d.setTime(d.getTime()/*+ (2*60*60*1000) */);
+  let timeString = d.getHours() + ":" + (`${d.getMinutes()}`.length==1?`0${d.getMinutes()}`:d.getMinutes()) + " " + ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][d.getDay()-1] +" " +d.getDate() +"/"+ d.getMonth() + "/" + d.getFullYear();
   return timeString
 }
 

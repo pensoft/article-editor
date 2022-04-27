@@ -37,7 +37,6 @@ export class ArticleComponent implements OnInit {
     this.articleStructureMap = this.ydocService.articleStructure!;
     this.ydocService.articleStructure!.observe((data) => {
       this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
-      console.log(this.articleSectionsStructure);
       let change = this.serviceShare?.TreeService?.metadatachangeMap!.get('change');
       if(change &&(change.action == 'editNode'||change.action == 'saveNewTitle')&&this.serviceShare.TreeService!.findNodeById(change.nodeId||change.node.sectionID)?.active){
         return;

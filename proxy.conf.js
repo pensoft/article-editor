@@ -31,6 +31,23 @@ const PROXY_CONFIG = {
       autoRewrite: true,
       "ws": true,
     },
+    "/works": {
+      "target": "https://api.crossref.org",
+      "secure": false,
+      "logLevel": "debug",
+      "changeOrigin": true,
+      autoRewrite: true,
+      "ws": true,
+    },
+    "/api3": {
+      "target": "https://www.biodiversitylibrary.org/",
+      "secure": false,
+      "logLevel": "debug",
+      "changeOrigin": true,
+      autoRewrite: true,
+      "ws": true,
+    },
+
 
     /* "/webrtc": {
       "target": "wss://ps-article-editor.dev.scalewest.com/",

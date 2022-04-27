@@ -8,20 +8,20 @@ export interface reference {
 export interface formField {
   label: string,
   cslKey: string,
-  validations?:{
+  validations?: {
     required?: true,
-    pattern?:string,
-    min?:number,
-    max?:number,
+    pattern?: string,
+    min?: number,
+    max?: number,
   },
-  formIOComponentType?:string
+  formIOComponentType?: string
 }
 export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
   'JOURNAL ARTICLE': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued',validations:{pattern:'[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])'}, label: 'Year of publication' },
-    { cslKey: 'title', validations:{required: true}, label: 'Article title' },
-    { cslKey: 'container-title', validations:{required: true}, label: 'Journal name' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])' }, label: 'Year of publication' },
+    { cslKey: 'title', validations: { required: true }, label: 'Article title' },
+    { cslKey: 'container-title', validations: { required: true }, label: 'Journal name' },
     { cslKey: 'volume', label: 'Volume' },
     { cslKey: 'issue', label: 'Issue' },
     { cslKey: 'page', label: 'Start page - EndPage' },
@@ -31,13 +31,13 @@ export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
   ],
   'BOOK': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued', validations:{pattern:'[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])',required: true}, label: 'Year of publication' },
-    { cslKey: 'title', validations:{required: true}, label: 'Book title' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year of publication' },
+    { cslKey: 'title', validations: { required: true }, label: 'Book title' },
     { cslKey: 'translated-title', label: 'Translated title' },
     { cslKey: 'edition', label: 'Edition' },
     { cslKey: 'volume', label: 'Volume' },
     { cslKey: 'number-of-pages', label: 'Number of pages' },
-    { cslKey: 'publisher', validations:{required: true}, label: 'Publisher' },
+    { cslKey: 'publisher', validations: { required: true }, label: 'Publisher' },
     { cslKey: 'city', label: 'City' },
     { cslKey: 'language', label: 'ublication language' },
     { cslKey: 'URL', label: 'URL' },
@@ -45,27 +45,27 @@ export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
     { cslKey: 'DOI', label: 'DOI' },
   ],
   'BOOK CHAPTER': [
-    { cslKey: 'authors',  label: 'Authors' },
-    { cslKey: 'issued',  validations:{pattern:'[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])',required: true}, label: 'Year of publication' },
-    { cslKey: 'title',  validations:{required: true}, label: 'Chapter title' },
-    { cslKey: 'container-title',  validations:{required: true}, label: 'Book title' },
-    { cslKey: 'editor',  label: 'Editors' },
-    { cslKey: 'volume',  label: 'Volume' },
-    { cslKey: 'publisher',  label: 'Publisher' },
-    { cslKey: 'city',  label: 'City' },
-    { cslKey: 'number-of-pages',  label: 'Number of pages' },
-    { cslKey: 'language',  label: 'Publication language' },
-    { cslKey: 'URL',  label: 'URL' },
-    { cslKey: 'ISBN',  label: 'ISBN' },
-    { cslKey: 'DOI',  label: 'DOI' },
+    { cslKey: 'authors', label: 'Authors' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year of publication' },
+    { cslKey: 'title', validations: { required: true }, label: 'Chapter title' },
+    { cslKey: 'container-title', validations: { required: true }, label: 'Book title' },
+    { cslKey: 'editor', label: 'Editors' },
+    { cslKey: 'volume', label: 'Volume' },
+    { cslKey: 'publisher', label: 'Publisher' },
+    { cslKey: 'city', label: 'City' },
+    { cslKey: 'number-of-pages', label: 'Number of pages' },
+    { cslKey: 'language', label: 'Publication language' },
+    { cslKey: 'URL', label: 'URL' },
+    { cslKey: 'ISBN', label: 'ISBN' },
+    { cslKey: 'DOI', label: 'DOI' },
   ],
   'CONFERENCE PAPER': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued', validations:{pattern:'[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])',required: true}, label: 'Year of publication' },
-    { cslKey: 'title', validations:{required: true}, label: 'Title' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year of publication' },
+    { cslKey: 'title', validations: { required: true }, label: 'Title' },
     { cslKey: 'editor', label: 'Editors' },
     { cslKey: 'volume', label: 'Volume' },
-    { cslKey: 'container-title', validations:{required: true}, label: 'Book title' },
+    { cslKey: 'container-title', validations: { required: true }, label: 'Book title' },
     { cslKey: 'event-title', label: 'Conference name' },
     { cslKey: 'event-place', label: 'Conference location' },
     { cslKey: 'event-date', label: 'Conference date' },
@@ -81,8 +81,8 @@ export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
 
   'CONFERENCE PROCEEDINGS': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued', validations:{pattern:'[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])',required: true}, label: 'Year of publication' },
-    { cslKey: 'title', validations:{required: true}, label: 'Title' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year of publication' },
+    { cslKey: 'title', validations: { required: true }, label: 'Title' },
     { cslKey: 'volume', label: 'Volume' },
     { cslKey: 'event-title', label: 'Conference name' },
     { cslKey: 'event-place', label: 'Conference location' },
@@ -101,10 +101,10 @@ export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
     { cslKey: 'authors', label: 'Authors' },
     { cslKey: 'institution', label: 'Institution' },
     //{cslKey:'',key:'addAuthor',label:'Add Author'},
-    { cslKey: 'issued', validations:{pattern:'[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])',required: true}, label: 'Year of publication' },
-    { cslKey: 'title', validations:{required: true}, label: 'Book title' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year of publication' },
+    { cslKey: 'title', validations: { required: true }, label: 'Book title' },
     { cslKey: 'translated-title', label: 'Translated title' },
-    { cslKey: 'publisher', validations:{required: true}, label: 'Publisher' },
+    { cslKey: 'publisher', validations: { required: true }, label: 'Publisher' },
     { cslKey: 'city', label: 'City' },
     { cslKey: 'number-of-pages', label: 'Number of pages' },
     { cslKey: 'language', label: 'Publication language' },
@@ -114,8 +114,8 @@ export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
   ],
   'SOFTWARE/DATA': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued', validations:{pattern:'[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])',required: true}, label: 'Year of publication' },
-    { cslKey: 'title', validations:{required: true}, label: 'Title' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year of publication' },
+    { cslKey: 'title', validations: { required: true }, label: 'Title' },
     { cslKey: 'version', label: 'Version' },
     { cslKey: 'publisher', label: 'Publisher' },
     { cslKey: 'release-date', label: 'Release date' },
@@ -123,15 +123,15 @@ export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
   ],
   'WEBSITE': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued', validations:{pattern:'[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])',required: true}, label: 'Year' },
-    { cslKey: 'URL', validations:{required: true}, label: 'URL' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year' },
+    { cslKey: 'URL', validations: { required: true }, label: 'URL' },
     { cslKey: 'title', label: 'Title' },
     { cslKey: 'access-date', label: 'Date of access' },
   ],
   'OTHER': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued', validations:{pattern:'[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])',required: true}, label: 'Year of publication' },
-    { cslKey: 'title', validations:{required: true}, label: 'Title' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year of publication' },
+    { cslKey: 'title', validations: { required: true }, label: 'Title' },
     { cslKey: 'notes', label: 'Notes' },
     { cslKey: 'publisher', label: 'Publisher' },
     { cslKey: 'URL', label: 'URL' },
@@ -2022,3 +2022,366 @@ export let lang = `<?xml version="1.0" encoding="utf-8"?>
   </terms>
 </locale>
 `
+let externalRefs = [
+  {
+    "doi": "10.25675/10217/176331",
+    "href": "http://dx.doi.org/10.25675/10217/176331",
+    "title": "Routine activity theory and research ethics: a criminological approach",
+    "year": 2016,
+    "publicationDate": null,
+    "publishedIn": "Mountain Scholar",
+    "firstauthor": [
+      "Kenneth D.",
+      "Pimple"
+    ],
+    "isParsed": true,
+    "type": "Text",
+    "volume": "182",
+    "spage": "22",
+    "epage": "35",
+    "id": {
+      "pubmed": "35460932"
+    },
+    "infoUrl": "http://www.ncbi.nlm.nih.gov/pubmed/35460932",
+    "abstract": "Small ubiquitin-related modifier (SUMO)-mediated post-translational protein modification is widely conserved among eukaryotes. SUMOylation refers to the covalent attachment of SUMO to target proteins that alters their function, location, and protein-protein interactions when plants are under abiotic stress. We identified 37 genes in the apple genome that encoded members of the SUMOylation pathway. In addition, RNA-Seq data shows their expression levels between different tissues. We can find that there are mainly expressed genes between each component to ensure that the entire pathway works in the plant. We found that the expression levels of 12 genes were significantly changed under NaCl and ABA treatment through qRT-PCR. MdSIZ1a strongly expression responded to NaCl and ABA treatment. Subsequently, MdSIZ1a was cloned and transformed into apple callus, further verifying the important role of the SUMOylation pathway under stress conditions. The interaction between MdSIZ1a and MdSCEa was verified by yeast two-hybrid, confirming that MdSIZ1a acts as bridge enzyme on MdSCEa and target substrates. Finally, we predicted and analyzed the functional interaction network of E3 ligase to shed light on protein interactions and gene regulatory networks associated with DNA damage repair under abiotic stress in apples."
+    ,
+    "fullCitation": "Carter, Walter.  1933. The pineapple mealy bug, Pseudococcus brevipes and wilt of pineapples. Phytopathology 23(3): 207-242.",
+    "score": 17.28181,
+
+
+    "authors": [
+      [
+        "Hong-Qu",
+        "Tang"
+      ],
+      [
+        "Peter S.",
+        "Cranston"
+      ],
+      [
+        "Jian-Gang",
+        "Zhao"
+      ],
+      [
+        "Chan-Wa",
+        "Lok"
+      ],
+      [
+        "Kai-Chin",
+        "Wong"
+      ],
+      [
+        "Zhi-Qiang",
+        "Li"
+      ]
+    ],
+    "related": [
+      {
+        "value": "10.11646/zootaxa.3893.3.6",
+        "relation": "IsPartOf",
+        "idType": "DOI"
+      },
+      {
+        "value": "http://zenodo.org/record/227711",
+        "relation": "IsPartOf",
+        "idType": "URL"
+      },
+      {
+        "value": "http://publication.plazi.org/id/FB789D2D6D05FFE2FFC9FF83FFF2FFCA",
+        "relation": "IsPartOf",
+        "idType": "URL"
+      },
+      {
+        "value": "10.5281/zenodo.227712",
+        "relation": "Cites",
+        "idType": "DOI"
+      },
+      {
+        "value": "10.5281/zenodo.227713",
+        "relation": "Cites",
+        "idType": "DOI"
+      },
+      {
+        "value": "10.5281/zenodo.227714",
+        "relation": "Cites",
+        "idType": "DOI"
+      },
+      {
+        "value": "http://table.plazi.org/id/DB9704CB6D06FFE1FF5EFEA8FB83FE88",
+        "relation": "Cites",
+        "idType": "URL"
+      },
+      {
+        "value": "http://table.plazi.org/id/DB9704CB6D06FFE1FF5EF997FB9DF9E1",
+        "relation": "Cites",
+        "idType": "URL"
+      },
+      {
+        "value": "http://zoobank.org/34FE5DA3-C783-4EB6-A2A5-38FB2F5D8DD2",
+        "relation": "IsPartOf",
+        "idType": "URL"
+      },
+      {
+        "value": "10.5281/zenodo.6488232",
+        "relation": "HasVersion",
+        "idType": "DOI"
+      },
+      {
+        "value": "https://zenodo.org/communities/biosyslit",
+        "relation": "IsPartOf",
+        "idType": "URL"
+      }
+    ],
+  },
+]
+
+let crossRef =
+{
+  "source": "CrossRef",
+  "authors": [],
+  "doi": "10.5040/9781770916555.00000006",
+  "href": "http://dx.doi.org/10.5040/9781770916555.00000006",
+  "title": "Penny Plain",
+  "year": 2012,
+  "publicationDate": "2012-2-15",
+  "publishedIn": "Penny Plain",
+  "spage": null,
+  "epage": null,
+  "firstauthor": [
+    null,
+    null
+  ],
+  "isParsed": true,
+  "type": "other",
+  "id": "10.5040/9781770916555.00000006",
+  "score": 14.710785
+}
+
+let dataCite = {
+  "source": "DataCite",
+  "authors": [
+    [
+      "Hong-Qu",
+      "Tang"
+    ],
+    [
+      "Peter S.",
+      "Cranston"
+    ],
+    [
+      "Jian-Gang",
+      "Zhao"
+    ],
+    [
+      "Chan-Wa",
+      "Lok"
+    ],
+    [
+      "Kai-Chin",
+      "Wong"
+    ],
+    [
+      "Zhi-Qiang",
+      "Li"
+    ]
+  ],
+  "doi": "10.5281/zenodo.6488231",
+  "href": "http://dx.doi.org/10.5281/zenodo.6488231",
+  "title": "Polypedilum (Pentapedilum) nodosum Johannsen 1932",
+  "year": 2014,
+  "publicationDate": null,
+  "publishedIn": "Zenodo",
+  "firstauthor": [
+    "Hong-Qu",
+    "Tang"
+  ],
+  "isParsed": true,
+  "related": [
+    {
+      "value": "10.11646/zootaxa.3893.3.6",
+      "relation": "IsPartOf",
+      "idType": "DOI"
+    },
+    {
+      "value": "http://zenodo.org/record/227711",
+      "relation": "IsPartOf",
+      "idType": "URL"
+    },
+    {
+      "value": "http://publication.plazi.org/id/FB789D2D6D05FFE2FFC9FF83FFF2FFCA",
+      "relation": "IsPartOf",
+      "idType": "URL"
+    },
+    {
+      "value": "10.5281/zenodo.227712",
+      "relation": "Cites",
+      "idType": "DOI"
+    },
+    {
+      "value": "10.5281/zenodo.227713",
+      "relation": "Cites",
+      "idType": "DOI"
+    },
+    {
+      "value": "10.5281/zenodo.227714",
+      "relation": "Cites",
+      "idType": "DOI"
+    },
+    {
+      "value": "http://table.plazi.org/id/DB9704CB6D06FFE1FF5EFEA8FB83FE88",
+      "relation": "Cites",
+      "idType": "URL"
+    },
+    {
+      "value": "http://table.plazi.org/id/DB9704CB6D06FFE1FF5EF997FB9DF9E1",
+      "relation": "Cites",
+      "idType": "URL"
+    },
+    {
+      "value": "http://zoobank.org/34FE5DA3-C783-4EB6-A2A5-38FB2F5D8DD2",
+      "relation": "IsPartOf",
+      "idType": "URL"
+    },
+    {
+      "value": "10.5281/zenodo.6488232",
+      "relation": "HasVersion",
+      "idType": "DOI"
+    },
+    {
+      "value": "https://zenodo.org/communities/biosyslit",
+      "relation": "IsPartOf",
+      "idType": "URL"
+    }
+  ],
+  "type": "Taxonomic treatment"
+}
+
+let PubMed = {
+  "source": "PubMed",
+  "authors": [
+    [
+      "Kaushal",
+      "Shah"
+    ],
+    [
+      "Jacqueline",
+      "Tran"
+    ],
+    [
+      "Lee",
+      "Schmidt"
+    ]
+  ],
+  "title": "Traumatic pneumothorax: updates in diagnosis and management in the emergency department.",
+  "year": "2022",
+  "publishedIn": "Emergency medicine practice",
+  "volume": "25",
+  "issue": "5, Suppl 1",
+  "spage": "1",
+  "epage": "28",
+  "firstauthor": [
+    "Kaushal",
+    "Shah"
+  ],
+  "isParsed": true,
+  "type": "journal article",
+  "id": {
+    "pubmed": "35467819"
+  },
+  "infoUrl": "http://www.ncbi.nlm.nih.gov/pubmed/35467819",
+  "abstract": "Pneumothorax, or air in the pleural space, is common in trauma, and has been found in up to 50% of severe polytrauma patients with chest injury. Findings associated with pneumothorax include dyspnea, chest pain, tachypnea, and absent breath sounds on lung auscultation. Although pneumothorax is traditionally diagnosed on plain film and confirmed with CT, the advent of portable ultrasonography has provided a way to rapidly diagnose pneumothorax, with a higher sensitivity than plain film. Patients with traumatic pneumothorax are typically treated with needle decompression or tube thoracostomy. However, recent literature has found that many patients can be managed conservatively via observation, or with a smaller thoracostomy such as a percutaneous pigtail catheter rather than a larger chest tube."
+}
+
+let mendeley = {
+  "source": "Mendeley",
+  "authors": [
+    [
+      "T. Jarrod",
+      "Smith"
+    ],
+    [
+      "Caitlin H.",
+      "Kowalski"
+    ],
+    [
+      "Karen",
+      "Guillemin"
+    ]
+  ],
+  "doi": "10.1016/j.chom.2020.12.015",
+  "href": "https://www.mendeley.com/catalogue/e91f8d8b-3a1b-3567-afd0-89d9896e4312/",
+  "title": "Hiding in Plain Sight",
+  "year": 2021,
+  "publishedIn": "Cell Host and Microbe",
+  "volume": "29",
+  "issue": "1",
+  "spage": "5",
+  "epage": "7",
+  "firstauthor": [
+    "T. Jarrod",
+    "Smith"
+  ],
+  "isParsed": true,
+  "id": {
+    "issn": "19346069",
+    "pmid": "33444555",
+    "pii": "S1931312820306788",
+    "scopus": "2-s2.0-85099200075",
+    "doi": "10.1016/j.chom.2020.12.015",
+    "sgr": "85099200075",
+    "pui": "2010623737"
+  }
+}
+
+let GNUB = {
+  "source": "GNUB",
+  "authors": [
+      [
+          "Yaarit",
+          "Nachum-Biala"
+      ],
+      [
+          "Adam Joseph",
+          "Birkenheuer"
+      ],
+      [
+          "Megan Elizabeth",
+          "Schreeg"
+      ],
+      [
+          "Hagar",
+          "Prince"
+      ],
+      [
+          "Monica",
+          "Florin-Christensen"
+      ],
+      [
+          "Leonhard",
+          "Schnittger"
+      ],
+      [
+          "Itamar",
+          "Aroch"
+      ]
+  ],
+  "href": "http://zoobank.org/56da53b2-7c55-45d9-8320-2526c2e23e52",
+  "title": "Morphologic, molecular and pathogenic description of <em>Babesia negevi</em> sp. nov. a new <em>Babesia</em> species infecting dogs",
+  "year": "2020",
+  "publishedIn": "Parasites and vectors",
+  "volume": "13",
+  "issue": "130",
+  "spage": "1",
+  "epage": "12",
+  "firstauthor": [
+      "Yaarit",
+      "Nachum-Biala"
+  ],
+  "fullCitation": "Baneth, Gad, Yaarit Nachum-Biala, Adam J. Birkenheuer, Megan E. Schreeg, Hagar Prince, Monica Florin-Christensen, Leonhard Schnittger & Itamar Aroch.  2020. Morphologic, molecular and pathogenic description of Babesia negevi sp. nov. a new Babesia species infecting dogs. Parasites and vectors 13(130): 1-12.",
+  "isParsed": true,
+  "type": "journal article",
+  "id": {
+      "zoobank": "urn:lsid:zoobank.org:pub:56DA53B2-7C55-45D9-8320-2526C2E23E52",
+      "uuid": "56da53b2-7c55-45d9-8320-2526c2e23e52"
+  }
+}

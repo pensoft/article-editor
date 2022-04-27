@@ -30,7 +30,7 @@ export class ReferenceEditComponent implements AfterViewInit {
     this.cahngeDetectorRef.detectChanges()
 
 
-    let newFormIOJSON = type.formIOScheme;
+    let newFormIOJSON = JSON.parse(JSON.stringify(type.formIOScheme));
     let oldFormIOData = this.dataSave?this.dataSave:this.data.oldData?this.data.oldData.refData.formioData:undefined;
     //let oldFormIOData = this.dataSave?this.dataSave:this.data.oldData?this.data.oldData.formioSubmission:undefined;
     newFormIOJSON.components.forEach((component:any)=>{
@@ -127,12 +127,14 @@ export class ReferenceEditComponent implements AfterViewInit {
       let oldBuildData = this.data.oldData;
 
       if (this.referenceTypesFromBackend.find((ref) => {
-        return ref.name == oldBuildData.refType.name
+        return (ref.name == oldBuildData.refType.name||ref.type == oldBuildData.refType.type)
       })) {
         let index = this.referenceTypesFromBackend.findIndex((ref) => {
-          return ref.name == oldBuildData.refType.name
+          return (ref.name == oldBuildData.refType.name||ref.type == oldBuildData.refType.type)
         });
         this.referenceFormControl.setValue(this.referenceTypesFromBackend[index]);
+      }else{
+        this.referenceFormControl.setValue(this.referenceTypesFromBackend[0]);
       }
 
       if (this.referenceStyles.find((style:any) => {
@@ -142,6 +144,8 @@ export class ReferenceEditComponent implements AfterViewInit {
           return style.name == oldBuildData.refStyle.name
         });
         this.stylesFormControl.setValue(this.referenceStyles[index]);
+      }else{
+        this.stylesFormControl.setValue(this.referenceStyles[0])
       }
 
     }

@@ -47,7 +47,6 @@ export function changeNodesOnDragDrop(transactions: Transaction[], oldState: Edi
     let to = range.to;
     newState.doc.nodesBetween(fr,to,(node,pos,parent,i)=>{
       if (node.type.name == 'reference_citation') {
-        console.log(node,pos);
         let oldAttrs = JSON.parse(JSON.stringify(node.attrs))
         oldAttrs.refCitationID = uuidv4();
         tr = tr.setNodeMarkup(pos,node.type,oldAttrs)
@@ -55,7 +54,6 @@ export function changeNodesOnDragDrop(transactions: Transaction[], oldState: Edi
       }
       if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
         let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
-        console.log(node,pos);
         let newMark = newState.schema.mark('citation', { ...citationMark.attrs,citateid:uuidv4() })
         tr = tr.addMark(pos, pos + node.nodeSize, newMark).setMeta('addToLastHistoryGroup', true)
         changed = true

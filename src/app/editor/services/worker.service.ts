@@ -83,7 +83,6 @@ export class WorkerService {
 
   saveDataURL = (url: string, dataurl: string) => {
     let dataURLObj = this.serviceShare.YdocService!.figuresMap!.get('ArticleFiguresDataURLS');
-    console.log(dataurl);
     dataURLObj[url] = dataurl;
     this.serviceShare.YdocService!.figuresMap!.set('ArticleFiguresDataURLS', dataURLObj);
   }

@@ -16,14 +16,24 @@ export class ChangesSectionComponent implements OnInit {
   ngOnInit() {
     this.changesObj = this.changesService.getData()
     this.changes = (Object.values(this.changesObj) as Array<any>).flat()
-
   }
 
   ngAfterViewInit(): void {
-
     this.changesService.changesVisibilityChange.subscribe((changesObj) => {
       this.changesObj = changesObj
       this.changes = (Object.values(this.changesObj) as Array<any>).flat()
     })
+  }
+
+  focusPrevChange(){
+    if(typeof this.changesService.focusedChangeIndex == 'number'){
+      this.changesService.changesFocusFunctions.next(this.changesService.focusedChangeIndex-1)
+    }
+  }
+
+  focusNextChange(){
+    if(typeof this.changesService.focusedChangeIndex == 'number'){
+      this.changesService.changesFocusFunctions.next(this.changesService.focusedChangeIndex+1)
+    }
   }
 }

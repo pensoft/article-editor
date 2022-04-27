@@ -371,7 +371,6 @@ class Doc extends Observable {
    * @param {DocOpts} [opts] configuration
    */
   constructor({ guid = random.uuidv4(), gc = true, gcFilter = () => true, meta = null, autoLoad = false } = {}) {
-    console.log('ydoccccc');
     super();
     this.gc = gc;
     this.gcFilter = gcFilter;
@@ -3553,7 +3552,6 @@ class UndoManager extends Observable {
       res = popStackItem(this, this.undoStack, 'undo');
     } finally {
       this.undoing = false;
-
     }
     return res
   }

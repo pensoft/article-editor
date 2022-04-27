@@ -15,6 +15,8 @@ export class EditorsRefsManagerService {
     this.serviceShare.shareSelf('EditorsRefsManagerService', this)
   }
 
+  dothSaveToHistory = false;
+
   addReferenceToEditor(refDataFromDialog: any) {
     let refs = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
     let citationDisplayText = refDataFromDialog.citation.text;
@@ -23,7 +25,12 @@ export class EditorsRefsManagerService {
     if (refDataFromDialog.refInstance == 'local') {
       refID = refDataFromDialog.ref.refData.referenceData.id
     } else if (refDataFromDialog.refInstance == "external") {
-      refID = refDataFromDialog.ref.id
+      refID = refDataFromDialog.ref.refData.referenceData.id
+    }
+    if(refDataFromDialog.dothSaveToHistory){
+      this.dothSaveToHistory = refDataFromDialog.dothSaveToHistory
+    }else{
+      this.dothSaveToHistory = false
     }
     let newRef = {
       originalDisplayText: citationDisplayText,
@@ -33,12 +40,13 @@ export class EditorsRefsManagerService {
       ref: refDataFromDialog.ref,
       refInstance: refDataFromDialog.refInstance
     }
-    console.log(refID);
     let notInEndEditorYet = !refs[refID]
     refs[refID] = newRef
     let refsUpdated = this.updateCitationsDisplayTextAndBibliography(refs)
     if (notInEndEditorYet) {
-      this.addReferenceToEndEditor(newRef);
+      setTimeout(()=>{
+        this.addReferenceToEndEditor(newRef);
+      },10)
     }
     this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsUpdated);
     return refsUpdated[refID]
@@ -96,7 +104,7 @@ export class EditorsRefsManagerService {
     if (updatedAnyDisplayText) {
       setTimeout(() => {
         this.updateReferenceCitats(updatedReferences, refs);
-      }, 0)
+      }, 10)
     }
     return refs
   }
@@ -131,7 +139,6 @@ export class EditorsRefsManagerService {
   }
 
   handleRefCitationDelete(deletedRefCitations:any[]){
-    console.log(deletedRefCitations);
     setTimeout(()=>{
       deletedRefCitations
       let refs = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
@@ -185,7 +192,6 @@ export class EditorsRefsManagerService {
 
     let from : any;
     let to : any;
-    console.log('removeFromEndEditor',refId,'nOfRefs',nOfRefs);
     let docSize = st.doc.content.size
     if(nOfRefs == 1){
       st.doc.nodesBetween(0,docSize-1,(n,p,par,i)=>{
@@ -204,7 +210,10 @@ export class EditorsRefsManagerService {
     }
 
     if(from||to){
-      view.dispatch(st.tr.replaceWith(from,to,Fragment.empty));
+      view.dispatch(
+        st.tr.replaceWith(from,to,Fragment.empty)
+        .setMeta('preventHistoryAdd', this.dothSaveToHistory)
+        .setMeta('addToLastHistoryGroup', true));
     }
     let refs = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
     let newRefs:any = {}
@@ -279,7 +288,7 @@ export class EditorsRefsManagerService {
     if (found) {
       let attrs = JSON.parse(JSON.stringify(node.attrs));
       let newNode = state.schema.nodes.reference_citation.create(attrs, state.schema.text(ydocRef.citationDisplayText))
-      edView.dispatch(state.tr.replaceWith(from, to, newNode));
+      edView.dispatch(state.tr.replaceWith(from, to, newNode).setMeta('preventHistoryAdd', this.dothSaveToHistory).setMeta('addToLastHistoryGroup', true));
     }
   }
 
@@ -303,7 +312,7 @@ export class EditorsRefsManagerService {
     if (node) {
       let attrs = JSON.parse(JSON.stringify(node.attrs));
       let newNode = state.schema.nodes.reference_citation_end.create(attrs, state.schema.text(ydocRefs[refId].bibliography))
-      endEdView.dispatch(state.tr.replaceWith(from, to, newNode));
+      endEdView.dispatch(state.tr.replaceWith(from, to, newNode).setMeta('preventHistoryAdd', this.dothSaveToHistory).setMeta('addToLastHistoryGroup', true));
     }
   }
 
@@ -358,13 +367,13 @@ export class EditorsRefsManagerService {
         let h1 = schema.nodes.heading.create({ tagName: 'h1' }, refTitle)
         let allRefsContainer = schema.nodes.reference_container.create({ contenteditableNode: 'false' }, refContainerNode)
         let tr = state.tr.replaceWith(nodeStart, nodeEnd, [h1, allRefsContainer])
-        view.dispatch(tr)
+        view.dispatch(tr.setMeta('preventHistoryAdd', this.dothSaveToHistory).setMeta('addToLastHistoryGroup', true))
       } else {
         let tr = state.tr.replaceWith(nodeStart, nodeEnd, refContainerNode)
-        view.dispatch(tr)
+        view.dispatch(tr.setMeta('preventHistoryAdd', this.dothSaveToHistory).setMeta('addToLastHistoryGroup', true))
       }
     } else if (newRef.refInstance == 'external') {
-      let referenceData = { refId: newRef.ref.id, last_modified: undefined };
+      let referenceData = { refId: newRef.ref.refData.referenceData.id, last_modified: undefined };
       let recCitationAttrs = {
         contenteditableNode: 'false',
         refCitationID: uuidv4(),
@@ -380,10 +389,10 @@ export class EditorsRefsManagerService {
         let h1 = schema.nodes.heading.create({ tagName: 'h1' }, refTitle)
         let allRefsContainer = schema.nodes.reference_container.create({ contenteditableNode: 'false' }, refContainerNode)
         let tr = state.tr.replaceWith(nodeStart, nodeEnd, [h1, allRefsContainer])
-        view.dispatch(tr)
+        view.dispatch(tr.setMeta('preventHistoryAdd', this.dothSaveToHistory).setMeta('addToLastHistoryGroup', true))
       } else {
         let tr = state.tr.replaceWith(nodeStart, nodeEnd, refContainerNode)
-        view.dispatch(tr)
+        view.dispatch(tr.setMeta('preventHistoryAdd', this.dothSaveToHistory).setMeta('addToLastHistoryGroup', true))
       }
     }
   }

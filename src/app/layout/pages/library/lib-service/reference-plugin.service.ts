@@ -41,7 +41,9 @@ export class ReferencePluginService {
                 let actualRef = refsObj.refs.find((ref: any) => {
                   return ref.refData.referenceData.id == nodeRefData.refId
                 })
+
                 let buttonContainer = document.createElement('div');
+
                 buttonContainer.className = 'reference-citation-pm-buttons';
 
                 if (
@@ -72,7 +74,37 @@ export class ReferencePluginService {
                     serviceShare.CslService!.editReferenceThroughPMEditor(node,prev.sectionName);
                   })
                   button1.style.cursor = 'pointer'
-                  button1.title = 'This reference citation is outdated. Click this button to refresh it.'
+                  button1.title = 'Click this button to edit this reference.'
+                  let img1 = createCustomIcon('edit2.svg', 12, 12, 1)
+                  img1.dom.className = 'update-data-reference-img'
+                  button1.append(img1.dom)
+                  buttonContainer.append(button1);
+                }
+                if (buttonContainer.childNodes.length > 0) {
+                  decs.push(Decoration.widget(pos, (view) => {
+                    return buttonContainer
+                  }))
+                }
+              }else if(node.type.name == 'reference_citation_end'&&node.attrs.refInstance == 'external'){
+                let nodeRefData = node.attrs.referenceData;
+
+                let buttonContainer = document.createElement('div');
+                buttonContainer.className = 'reference-citation-pm-buttons';
+
+                let nodeStart = pos;
+                let nodeEnd = node.nodeSize+ pos;
+                if ((
+                  editorState.selection.from>=nodeStart&&editorState.selection.from<=nodeEnd
+                )||(
+                  editorState.selection.to>=nodeStart&&editorState.selection.to<=nodeEnd
+                )) {
+                  let button1 = document.createElement('button')
+                  button1.className = 'update-data-reference-button';
+                  button1.addEventListener('click', () => {
+                    serviceShare.CslService!.editReferenceThroughPMEditor(node,prev.sectionName);
+                  })
+                  button1.style.cursor = 'pointer'
+                  button1.title = 'Click this button to edit this reference.'
                   let img1 = createCustomIcon('edit2.svg', 12, 12, 1)
                   img1.dom.className = 'update-data-reference-img'
                   button1.append(img1.dom)
@@ -131,7 +163,7 @@ export class ReferencePluginService {
       newAttrs.referenceData.last_modified = actualRef.refData.last_modified;
       //newAttrs.referenceData = {refId:actualRef.refData.referenceData.id,last_modified:actualRef.refData.last_modified}
       let newNode = schema.nodes.reference_citation_end.create(newAttrs, schema.text(refInYdoc.bibliography))
-      view?.dispatch(view.state.tr.replaceWith(refPos, refPos + refSize, newNode))
+      view?.dispatch(view.state.tr.replaceWith(refPos, refPos + refSize, newNode).setMeta('createNewHistoryGroup',true))
       setTimeout(() => {
         this.serviceShare.ProsemirrorEditorsService?.dispatchEmptyTransaction()
       }, 10)

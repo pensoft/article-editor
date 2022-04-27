@@ -1,18 +1,33 @@
 import { acceptChange, rejectChange } from '../../utils/trackChanges/acceptReject';
-import { AfterViewInit, Component, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { EditorView } from 'prosemirror-view';
 import { TextSelection } from 'prosemirror-state';
+import { TrackChangesService } from '@app/editor/utils/trachChangesService/track-changes.service';
+import { getDate } from '@app/editor/comments-section/comment/comment.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-change',
   templateUrl: './change.component.html',
   styleUrls: ['./change.component.scss']
 })
-export class ChangeComponent implements OnInit ,AfterViewInit{
+export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
 
   @Input() change: any;
+  @Input() index!: number;
+  sub?:Subscription
 
-  constructor() { }
+  constructor(public changesService: TrackChangesService) {
+    this.sub = this.changesService.changesFocusFunctions.subscribe((index)=>{
+      if(index == this.index){
+        this.focusCitat()
+      }
+    })
+  }
+
+  ngOnDestroy(): void {
+    this.sub?this.sub.unsubscribe():undefined
+  }
 
   ngOnInit(): void {
   }
@@ -28,7 +43,10 @@ export class ChangeComponent implements OnInit ,AfterViewInit{
     rejectChange(view, type,attrs);
   }
 
-  focusCitat(){
+  getDate = getDate
+
+  focusCitat = ()=>{
+    this.changesService.focusedChangeIndex = this.index
     let changeMiddle = (this.change.from+this.change.to)/2
     let view:EditorView = this.change.viewRef
     let sel = view.state.selection

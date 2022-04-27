@@ -29,6 +29,11 @@
   }
 }
 
+.focusedChange {
+  background: var(--color-f5f5f5);
+  border-color: var(--color-559efe);
+}
+
 .change-title {
   font-family: var(--font-family-open-sans);
   font-style: var(--font-style-normal);

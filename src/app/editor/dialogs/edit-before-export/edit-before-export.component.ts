@@ -288,7 +288,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
     this.makeFlat()
     this.elementOuterHtml = []
     this.renderProsemirrorEditors()
-    console.log(prosemirrorEditors);
 
     let loopChildrenRecursivly = (element: Element, sectionContainer: string[], section?: articleSection) => {
       Array.from(element.children).forEach((elChild) => {
@@ -1662,9 +1661,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
         }
       }
 
-      console.log(
-        ImagesByKeys
-      );
       this.data.images = ImagesByKeys
       this.data.content = cont;
 

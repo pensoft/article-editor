@@ -18,9 +18,9 @@ import { uuidv4 } from 'lib0/random';
 })
 export class CitateReferenceDialogComponent implements AfterViewInit {
   loading = false;
-  selected:any
+  selected: any
   displayedColumns = ['title']
-  searchData:any
+  searchData: any
   references: any
   styles: any
   referencesControl = new FormControl(null);
@@ -36,9 +36,9 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
   }
-  lastSelect:'external'|'localRef'|'none' = 'none';
-  externalSelection:any
-  select(row:any){
+  lastSelect: 'external' | 'localRef' | 'none' = 'none';
+  externalSelection: any
+  select(row: any) {
     this.externalSelection = row;
     this.lastSelect = 'external';
   }
@@ -61,6 +61,131 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
       });
   }
 
+  mapRef(ref: any) {
+    let maped: any = {};
+    let formIOData: any = {}
+    if (ref.authors && ref.authors instanceof Array && ref.authors.length > 0) {
+      if (!maped['author']) {
+        maped['author'] = []
+        formIOData['authors'] = []
+      }
+      ref.authors.forEach((author: string[] | null | null[]) => {
+        if (author && (author[0] || author[1])) {
+          maped['author'].push({ "family": author[0] ? author[0] : '', "given": author[1] ? author[1] : '' })
+          formIOData['authors'].push({
+            "first": author[0] ? author[0] : '',
+            "last": author[1] ? author[1] : '',
+            "name": "",
+            "role": "author",
+            "type": "person"
+          })
+        }
+      })
+    }
+    if (ref.firstauthor && ref.firstauthor instanceof Array && ref.firstauthor.length > 0) {
+      if (!maped['author']) {
+        maped['author'] = []
+        formIOData['authors'] = []
+      }
+      ref.firstauthor.forEach((author: string[] | null | null[]) => {
+        if (author && (author[0] || author[1])) {
+          maped['author'].push({ "family": author[0] ? author[0] : '', "given": author[1] ? author[1] : '' })
+          formIOData['authors'].push({
+            "first": author[0] ? author[0] : '',
+            "last": author[1] ? author[1] : '',
+            "name": "",
+            "role": "author",
+            "type": "person"
+          })
+        }
+      })
+    }
+    if (ref.doi) {
+      maped['DOI'] = ref.doi
+      formIOData['DOI'] = ref.doi
+    }
+    if (ref.href) {
+      maped['URL'] = ref.href
+      formIOData['URL'] = ref.href
+    }
+    if (ref.title) {
+      maped['title'] = ref.title
+      formIOData['title'] = ref.title
+    }
+    if (ref.year) {
+      let val = `${ref.year}`;
+      let dateParts = val.split('-')
+      formIOData['issued'] = val
+      if (dateParts.length == 1) {
+        dateParts.push('1')
+        dateParts.push('1')
+      }
+      if (dateParts.length == 2) {
+        dateParts.push('1')
+      }
+      maped['issued'] = {
+        "date-parts": [
+          dateParts
+        ]
+      }
+    }
+    if (ref.publicationDate) {
+      let val = `${ref.publicationDate}`
+      let dateParts = val.split('-')
+      formIOData['issued'] = val
+      if (dateParts.length == 1) {
+        dateParts.push('1')
+        dateParts.push('1')
+      }
+      if (dateParts.length == 2) {
+        dateParts.push('1')
+      }
+      maped['issued'] = {
+        "date-parts": [
+          dateParts
+        ]
+      }
+    }
+    if (ref.issue) {
+      maped['issue'] = ref.issue
+      formIOData['issue'] = ref.issue
+    }
+    if (ref.volume) {
+      maped['volume'] = ref.volume
+      formIOData['volume'] = ref.volume
+    }
+    if (ref.publishedIn) {
+      maped['city'] = ref.publishedIn
+      formIOData['city'] = ref.publishedIn
+    }
+    if (ref.abstract) {
+      maped['abstract'] = ref.abstract
+      formIOData['abstract'] = ref.abstract
+    }
+    if (ref.spage && ref.epage) {
+      maped['page'] = ref.spage + '-' + ref.epage
+      formIOData['page'] = ref.spage + '-' + ref.epage
+    }
+    if (ref.type) {
+      maped['type'] = ref.type.replace(' ', '-').toLocaleLowerCase()
+    } else {
+      maped['type'] = 'article-journal'
+    }
+    if (ref.id) {
+      if (ref.id instanceof String) {
+        maped['id'] = ref.id
+      } else if (typeof ref.id == 'object') {
+        maped['id'] = Object.values(ref.id).join(':SePaRaToR:')
+      } else {
+        maped['id'] = ref.doi ? ref.doi : uuidv4()
+      }
+    } else {
+      maped['id'] = ref.doi ? ref.doi : uuidv4()
+    }
+
+    return { ref: maped, formIOData }
+  }
+
   searchExternalRefs(searchText: string) {
     this.searchData = undefined;
     this.loading = true;
@@ -71,34 +196,38 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
     } */
     //let exREFApi = 'https://api.refindit.org/find'
     this.http.get(environment.EXTERNAL_REFS_API, {
-      responseType:'text',
+      responseType: 'text',
 
       params: {
         search: 'simple',
         text: searchText,
       }
     }).subscribe((data1) => {
-      let stringArray = data1.split('][').map((val,i)=>{
+      let stringArray = data1.split('][').map((val, i) => {
         let newVal = val;
-        if(!newVal.startsWith('[')){
-          newVal = '['+newVal;
+        if (!newVal.startsWith('[')) {
+          newVal = '[' + newVal;
         }
-        if(!newVal.endsWith(']')){
-          newVal = newVal+']';
+        if (!newVal.endsWith(']')) {
+          newVal = newVal + ']';
         }
         return newVal
       })
-      let data:any[] = [];
-      stringArray.forEach((str:string)=>{
+      let data: any[] = [];
+      stringArray.forEach((str: string) => {
         data.push(...JSON.parse(str))
       })
-      if(data){
 
-        this.searchData = data;
+      //map data in csl lib format
+      let mapedReferences: any[] = []
+      data.forEach((ref) => {
+        let mapedRef = this.mapRef(ref)
+        mapedReferences.push(mapedRef)
+      })
+      if (mapedReferences.length > 0) {
+        this.searchData = mapedReferences;
         this.loading = false;
-
         this.changeDetectorRef.detectChanges()
-
       }
     })
   }
@@ -108,29 +237,43 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
   }
 
   addReference() {
-    this.lastSelect
-    this.externalSelection
-    let localSelection = this.referencesControl.value;
-    console.log(localSelection);
-    if(this.lastSelect == 'external'){
+    if (this.lastSelect == 'external') {
       let styleName = 'demo-style'
-      let externalRef = this.externalSelection
-      if(!externalRef.id){
+      let externalRef = this.externalSelection.ref
+      if (!externalRef.id) {
         externalRef.id = uuidv4()
       }
       let citation = this.cslService.genereteCitationStr(styleName, externalRef)
+      let ref: any = {
+        refData: {
+          basicCitation: citation,
+          formioData: this.externalSelection.formIOData,
+          last_modified: Date.now(),
+          refType:'external',
+          referenceData: this.externalSelection.ref
+        },
+        refStyle: {
+          label: "Default Style",
+          last_modified: Date.now(),
+          name: "demo-style"
+        },
+        refType:{
+          type: this.externalSelection.ref.type,
+          last_modified: Date.now(),
+        },
+      }
       this.dialogRef.close({
-        ref:externalRef,
-        refInstance:'external',
+        ref: ref,
+        refInstance: 'external',
         //externalSelect:this.selected,
         citation,
 
       })
-    }else if(this.lastSelect == 'localRef'){
+    } else if (this.lastSelect == 'localRef') {
       let localRef = this.referencesControl.value
       let citation = this.cslService.genereteCitationStr(localRef.refStyle.name, localRef.refData.referenceData)
       this.dialogRef.close({
-        refInstance:'local',
+        refInstance: 'local',
         ref: this.referencesControl.value,
         //externalSelect:this.selected,
         citation

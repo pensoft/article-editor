@@ -57,6 +57,9 @@ export class TrackChangesService {
   hideshowPluginKey: PluginKey;
   acceptReject: any = {}
 
+  focusedChangeIndex?:number
+  changesFocusFunctions = new Subject()
+
   editorCenter: { top: number | undefined, left: number | undefined } = { top: undefined, left: undefined }
 
   resetTrackChangesService() {

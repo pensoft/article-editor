@@ -149,9 +149,7 @@ export class YdocService {
       if (articleSectionsStructure == undefined) {
         citatsObj = {}
         articleSectionsStructureFlat = []
-        if(!this.articleStructureFromBackend){
-          console.log('no section structure');
-        }
+
         articleSectionsStructure = this.articleStructureFromBackend || articleBasicStructure
 
         let makeFlat = (structure: articleSection[]) => {
@@ -209,6 +207,10 @@ export class YdocService {
     this.referenceCitationsMap = this.ydoc.getMap('referenceCitationsMap');
     let references = this.referenceCitationsMap?.get('references')
     let referencesInEditor = this.referenceCitationsMap?.get('referencesInEditor')
+    let externalRefs = this.referenceCitationsMap?.get('externalRefs')
+    if(!externalRefs){
+      this.referenceCitationsMap?.set('externalRefs',{})
+    }
     if(!references){
       this.referenceCitationsMap?.set('references',{})
     }
