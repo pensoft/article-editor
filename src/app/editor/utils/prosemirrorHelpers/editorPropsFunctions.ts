@@ -137,6 +137,7 @@ export const handleDoubleClick = (hideshowPluginKEey: PluginKey) => {
         || mark!.type.name == 'deletion'
         || mark!.type.name == 'insFromPopup'
         || mark!.type.name == 'delFromPopup'
+        || mark!.type.name == 'format_change'
     })
     if (hasTrackChnagesMark) {
       let cursurCoord = view.coordsAtPos(pos);

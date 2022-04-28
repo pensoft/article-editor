@@ -100,6 +100,7 @@ import { ReferenceEditComponent } from './layout/pages/library/reference-edit/re
 import { CitateReferenceDialogComponent } from './layout/pages/library/citate-reference-dialog/citate-reference-dialog.component';
 import { FakeBackendInterceptor } from './core/services/fakeBackendProvide';
 import { SaveComponent } from './layout/pages/library/reference-edit/save/save.component';
+import { ExportJsonLdComponent } from './editor/dialogs/export-json-ld/export-json-ld.component';
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -186,6 +187,7 @@ const gravatarConfig: GravatarConfig = {
     ReferenceEditComponent,
     CitateReferenceDialogComponent,
     SaveComponent,
+    ExportJsonLdComponent,
   ],
   imports: [
     HttpClientJsonpModule,

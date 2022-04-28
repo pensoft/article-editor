@@ -149,7 +149,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
   sectionsContainers: string[][] = []
 
   articleSectionsStructure?: articleSection[]
-  articleSectionsStructureFlat?: articleSection[]
+  articleSectionsStructureFlat?: any[]
   importantLeafNodes: string[] = [
     'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
     'p',
@@ -245,6 +245,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     makeFlat(this.articleSectionsStructure!)
     this.articleSectionsStructureFlat = []
     this.articleSectionsStructureFlat = articleSectionsStructureFlat
+    this.articleSectionsStructureFlat?.push({title:{name:'EndEditor'}})
     return articleSectionsStructureFlat
   }
 
@@ -306,6 +307,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     Array.from(prosemirrorEditors).forEach((pmEdEl: Element, i) => {
       let sectionHtmlElementsContainer: string[] = []
       if (pmEdEl.children.length > 0) {
+        console.log(pmEdEl,this.articleSectionsStructureFlat![i],i);
         loopChildrenRecursivly(pmEdEl, sectionHtmlElementsContainer, this.articleSectionsStructureFlat![i])
         this.sectionsContainers!.push(sectionHtmlElementsContainer);
       }
@@ -530,7 +532,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
         table: {
           body: [],
           widths: '*',
-          props: { type: 'figure' }
+          props: { type: 'figure',main:true }
         },
         props: { type: 'figure-container' },
         alingment: 'center',
@@ -851,12 +853,16 @@ export class EditBeforeExportComponent implements AfterViewInit {
     let generatePDFData = async (element: Element, parentPDFel: any, parentStyle: any, parentElement: Element | undefined) => {
       let defaultView = (element.ownerDocument || document).defaultView
 
+      if(!element.tagName){
+        console.log(element);
+      }
       let tag = element.tagName.toLocaleLowerCase()
       if (
         tag == 'p' || tag == 'h1' || tag == 'h2' || tag == 'h3' || tag == 'h4' || tag == 'h5' ||
         tag == 'h6' || tag == 'span' || tag == 'strong' || tag == 'sub' || tag == 'sup' ||
         tag == 'code' || tag == 'citation' || tag == 'u' || tag == 'em' || tag == 'form-field' ||
-        tag == 'form-field-inline' || tag == 'form-field-inline-view' || tag == 'reference-citation'
+        tag == 'form-field-inline' || tag == 'form-field-inline-view' || tag == 'reference-citation'||
+        tag == 'reference-citation-end'
       ) {
         if (
           (tag == 'span' && element.classList.contains('ProseMirror__placeholder')) ||
@@ -1662,6 +1668,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
       }
 
       this.data.images = ImagesByKeys
+      console.log('ImagesByKeys',ImagesByKeys);
       this.data.content = cont;
 
       let checkIfHeadingIsLastNodeOnNonLastPage = (node: any, nodesAfterNodeOnSamePage: any) => {
@@ -1696,11 +1703,14 @@ export class EditBeforeExportComponent implements AfterViewInit {
       this.data.orderNodes = (node: any, nodeFunc: any) => {
         let nodeInfo = node.nodeInfo;
         if (nodeInfo.table && nodeInfo.table.props && nodeInfo.table.props.type == 'figure' && node.pageBreak == 'before') {
-          let scaling = false;
+          /* let scaling = false;
           if (2 !== node.scaleTry && node.nodeInfo.pageNumbers.length > 1) {
             scaling = true;
             node.pageOrderCalculated = false;
-          }
+          } */
+
+
+
           let structuredNodes = nodeFunc.getContent();
           let nodesBefore = nodeFunc.getAllNodesBefore();
           let nodesAfter = nodeFunc.getAllNodesAfter();
@@ -1713,78 +1723,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
               node.pageBreak = undefined;
               return true
             }
-            // try move text from uder the figure
-
-            let filledSpace = 0;
-            let counter = 0;
-            let movedIndexes: number[] = []
-            let cannotMove = false
-            while (counter < nodesAfter.length && !cannotMove) {
-              let nAfter = nodesAfter[counter]
-              if (nAfter.props.height < availableHeightAfterLastNode - filledSpace && !nAfter.table) {
-                filledSpace += nAfter.props.height
-                movedIndexes.push(1 + nodesBefore.length + counter);
-              } else {
-                cannotMove = true
-              }
-              counter++
-            }
-            movedIndexes.sort((a, b) => b - a);
-
-            let editData = { moveFrom: movedIndexes, moveTo: nodesBefore.length };
-
-            if (!scaling && movedIndexes.length > 0 && availableHeightAfterLastNode - filledSpace < 200 && lastNodeBefore.props.availableHeight > 200) {
-              let nodesToMove = editData.moveFrom;
-              let indexToMoveAt = editData.moveTo
-
-              let figureNode = structuredNodes.splice(nodesBefore.length, 1);
-              let biggestIndex = Math.max(...movedIndexes);
-
-
-              node.pageOrderCalculated = false;
-              structuredNodes.splice(biggestIndex, 0, figureNode);
-              //retrun true so we contonue to the next node
-              return true;
-            }
-            // try move figure above the text before it
-            let freeSpaceBefore = availableHeightAfterLastNode;
-
-            counter = nodesBefore.length - 1;
-            movedIndexes = []
-            cannotMove = false
-            let enoughFreeSpace = false
-            while (counter > -1 && !cannotMove && node.props.height < 650 && !enoughFreeSpace) {
-              let nBefore = nodesBefore[counter]
-              if (freeSpaceBefore < node.props.height && !nBefore.table && nBefore.nodeInfo.pageNumbers.length == 1 && nBefore.nodeInfo.pageNumbers[0] == node.nodeInfo.pageNumbers[0] - 1) {
-                if (freeSpaceBefore + nBefore.props.height > node.props.height) {
-                  enoughFreeSpace = true;
-                }
-                freeSpaceBefore += nBefore.props.height
-                movedIndexes.push(counter);
-              } else {
-                cannotMove = true
-              }
-              counter--
-            }
-            if (!scaling && movedIndexes.length > 0 && enoughFreeSpace) {
-              let moveNodeFrom = nodesBefore.length;
-              for (let i = 0; i < movedIndexes.length; i++) {
-                structuredNodes[movedIndexes[i]].pageOrderCalculated = false;
-              }
-              let moveTo = Math.min(...movedIndexes);
-
-              let movingNode = structuredNodes.splice(moveNodeFrom, 1);
-              movingNode[0].pageBreak = undefined;
-              if (movingNode[0].stack && movingNode[0].stack[0]) {
-                movingNode[0].stack[0].pageBreak = undefined;
-              }
-
-              structuredNodes.splice(moveTo, 0, ...movingNode);
-              return true
-            }
 
             // try scale the images and then the above operations again
-
 
             let loopTableAndChangeWidth = (nodeToChange: any) => {
               let availableHeightOnLastPage = nodesBefore[nodesBefore.length - 1].props.availableHeight;
@@ -1822,23 +1762,26 @@ export class EditBeforeExportComponent implements AfterViewInit {
                 }
                 //imagesTable.table.body
                 //nodeToChange.table.body[0][0].fit = [nodeToChange.table.body[0][0].props.initRect[0] * dawnScalePercent, imageNewHeight]
-              } else if (pageheightInPoints < figureHeight) {
-                nodeToChange.pageOrderCalculated = true;
-                nodeToChange.pageBreak = undefined;
+                return true
+              } else  {
+                //nodeToChange.pageOrderCalculated = true;
+                //nodeToChange.pageBreak = undefined;
+                return false
               }
             }
 
-            if (availableHeightAfterLastNode < 100) {
-              return true
-            }
+
 
             if (node.scaleTry == 2) {
               //loopTableAndChangeWidth(node, singleimgOnRowWidth)
-              return true
+              //return true
             } else {
               node.scaleTry = 2;
-              loopTableAndChangeWidth(node)
-              return true
+              if(loopTableAndChangeWidth(node)){
+                console.log('scaled');
+                return true
+              }
+
               /* if (!node.scaleTry) {
                 node.scaleTry = 1
               } else {
@@ -1854,6 +1797,88 @@ export class EditBeforeExportComponent implements AfterViewInit {
                 return true
               } */
             }
+
+            // try move text from uder the figure
+
+            if (availableHeightAfterLastNode < 100) {
+              return true
+            }
+
+            let filledSpace = 0;
+            let counter = 0;
+            let movedIndexes: number[] = []
+            let cannotMove = false
+            while (counter < nodesAfter.length && !cannotMove) {
+              let nAfter = nodesAfter[counter]
+              if (nAfter.props.height < availableHeightAfterLastNode - filledSpace && !nAfter.table) {
+                filledSpace += nAfter.props.height
+                movedIndexes.push(1 + nodesBefore.length + counter);
+              } else {
+                cannotMove = true
+              }
+              counter++
+            }
+            movedIndexes.sort((a, b) => b - a);
+
+            let editData = { moveFrom: movedIndexes, moveTo: nodesBefore.length };
+
+            if (/* !scaling && */ movedIndexes.length > 0 && availableHeightAfterLastNode - filledSpace < 200 && lastNodeBefore.props.availableHeight > 200) {
+              let nodesToMove = editData.moveFrom;
+              let indexToMoveAt = editData.moveTo
+
+              let figureNode = structuredNodes.splice(nodesBefore.length, 1);
+              let biggestIndex = Math.max(...movedIndexes);
+
+
+              node.pageOrderCalculated = false;
+              structuredNodes.splice(biggestIndex, 0, figureNode);
+              console.log('move text from uder');
+
+              //retrun true so we contonue to the next node
+              return true;
+            }
+            // try move figure above the text before it
+            let freeSpaceBefore = availableHeightAfterLastNode;
+
+            counter = nodesBefore.length - 1;
+            movedIndexes = []
+            cannotMove = false
+            let enoughFreeSpace = false
+            while (counter > -1 && !cannotMove && node.props.height < 650 && !enoughFreeSpace) {
+              let nBefore = nodesBefore[counter]
+              if (freeSpaceBefore < node.props.height && !nBefore.table && nBefore.nodeInfo.pageNumbers.length == 1 && nBefore.nodeInfo.pageNumbers[0] == node.nodeInfo.pageNumbers[0] - 1) {
+                if (freeSpaceBefore + nBefore.props.height > node.props.height) {
+                  enoughFreeSpace = true;
+                }
+                freeSpaceBefore += nBefore.props.height
+                movedIndexes.push(counter);
+              } else {
+                cannotMove = true
+              }
+              counter--
+            }
+            if (/* !scaling && */ movedIndexes.length > 0 && enoughFreeSpace) {
+              let moveNodeFrom = nodesBefore.length;
+              for (let i = 0; i < movedIndexes.length; i++) {
+                structuredNodes[movedIndexes[i]].pageOrderCalculated = false;
+              }
+              let moveTo = Math.min(...movedIndexes);
+
+              let movingNode = structuredNodes.splice(moveNodeFrom, 1);
+              movingNode[0].pageBreak = undefined;
+              if (movingNode[0].stack && movingNode[0].stack[0]) {
+                movingNode[0].stack[0].pageBreak = undefined;
+              }
+
+              structuredNodes.splice(moveTo, 0, ...movingNode);
+              console.log('move figure above the text before');
+
+              return true
+            }
+
+            return true
+
+
           }
         } else if (node.props.type == 'paragraph') {
           let followingNodes = nodeFunc.getFollowingNodesOnPage();
@@ -2084,11 +2109,12 @@ export class EditBeforeExportComponent implements AfterViewInit {
             return true
           }
         }
-        return false;
+        return true;
       }
       this.data.pageBreakBefore = (nodeInfo: any, nodeFunc: any) => {
         if (nodeInfo.table && nodeInfo.table.props && nodeInfo.table.props.type == 'figure') {
           if (nodeInfo.pageNumbers.length == 2) {
+            console.log(nodeInfo);
             return true
           }
         }

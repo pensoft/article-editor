@@ -48,22 +48,22 @@ const addMarkStep = (
         after = [step.mark.type.name];
       }
       if (after.length || before.length) {
-        // Math.max(step.from, pos),
-        // Math.min(step.to, pos + node.nodeSize),
-        /* newTr.addMark(
+        Math.max(step.from, pos),
+          Math.min(step.to, pos + node.nodeSize),
+          newTr.addMark(
             step.from,
             step.to,
             state.schema.marks.format_change.create({
-                id: uuidv4(),
-                user: user.userId,
-                username: user.username,
-                date,
-                before,
-                after,
-                group,
-                viewid: viewId,
+              id: uuidv4(),
+              user: user.userId,
+              username: user.username,
+              date,
+              before,
+              after,
+              group,
+              viewid: viewId,
             }),
-        ); */
+          );
       } else if (formatChangeMark) {
         newTr.removeMark(
           Math.max(step.from, pos),

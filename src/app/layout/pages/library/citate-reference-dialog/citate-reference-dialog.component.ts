@@ -203,6 +203,13 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
         text: searchText,
       }
     }).subscribe((data1) => {
+      let parsedJson = JSON.parse(data1);
+      if (parsedJson.length > 0) {
+        this.searchData = parsedJson;
+        this.loading = false;
+        this.changeDetectorRef.detectChanges()
+      }
+      return
       let stringArray = data1.split('][').map((val, i) => {
         let newVal = val;
         if (!newVal.startsWith('[')) {
@@ -224,6 +231,7 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
         let mapedRef = this.mapRef(ref)
         mapedReferences.push(mapedRef)
       })
+      console.log(mapedReferences);
       if (mapedReferences.length > 0) {
         this.searchData = mapedReferences;
         this.loading = false;
@@ -259,9 +267,11 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
         },
         refType:{
           type: this.externalSelection.ref.type,
+          name: this.externalSelection.ref.type.split("-").join(" ").toLocaleUpperCase(),
           last_modified: Date.now(),
         },
       }
+      console.log(ref);
       this.dialogRef.close({
         ref: ref,
         refInstance: 'external',

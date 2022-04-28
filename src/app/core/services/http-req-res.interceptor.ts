@@ -10,11 +10,12 @@ import {
 import { Inject, Injectable } from '@angular/core';
 import { IAuthToken } from '@core/interfaces/auth.interface';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { catchError, filter, finalize, switchMap, take, tap } from 'rxjs/operators';
+import { catchError, filter, finalize, map, switchMap, take, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { BroadcasterService } from './broadcaster.service';
 import { CONSTANTS } from './constants';
 import { environment } from '@env';
+import { mapExternalRefs } from '@app/editor/utils/references/refsFunctions';
 
 @Injectable()
 export class HTTPReqResInterceptor implements HttpInterceptor {
@@ -47,7 +48,17 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
       // finalize(() => {
       //   this._broadcaster.broadcast(CONSTANTS.SHOW_LOADER, false);
       // })
-    );
+    ).pipe(map((x)=>{
+      if(x instanceof HttpResponse){
+        if(
+          x.url?.includes('http://localhost:4200/find')||
+          x.url?.includes('https://refindit.org/find')
+          ){
+            return x.clone({body:mapExternalRefs(x.body)})
+          }
+      }
+      return  x
+    }));
   }
 
   handleError(newRequest: HttpRequest<any>, next: HttpHandler, err: any) {

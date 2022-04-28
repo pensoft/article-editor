@@ -154,37 +154,108 @@ function removeChangeMarkFromText(view: EditorView, markattrs: any, action: 'acc
   }
 }
 
+function acceptFormatChange(view:EditorView,markattrs:any){
+  let doc = view.state.doc;
+  let markid = markattrs.id;
+
+  let docSize = +doc.nodeSize
+
+  let textstart: any
+  let textend: any
+  let markfound = false;
+  let markType: any
+
+
+
+  doc.nodesBetween(0, docSize - 2, (node, pos, parent) => {
+    let mark = node.marks.filter(mark => mark.attrs.id == markid);
+    if (mark.length > 0) {
+      markType = mark[0].type
+      textstart = pos;
+      textend = pos + node.nodeSize;
+      markfound = true;
+    }
+  })
+  if (markfound) {
+    let tr = view.state.tr.removeMark(textstart, textend, markType)
+    view.dispatch(tr.setMeta('shouldTrack', false));
+  }
+}
+
+function rejectFormatChange(view:EditorView,markattrs:any){
+  let doc = view.state.doc;
+  let markid = markattrs.id;
+
+  let docSize = +doc.nodeSize
+
+  let textstart: any
+  let textend: any
+  let markfound = false;
+  let markType: any
+
+
+
+  doc.nodesBetween(0, docSize - 2, (node, pos, parent) => {
+    let mark = node.marks.filter(mark => mark.attrs.id == markid);
+    if (mark.length > 0) {
+      markType = mark[0].type
+      textstart = pos;
+      textend = pos + node.nodeSize;
+      markfound = true;
+    }
+  })
+  if (markfound) {
+    let marksBefore = markattrs.before as string[];
+    let marksAfter = markattrs.after as string[];
+    marksBefore.forEach(element => {
+      marksAfter.splice(marksBefore.indexOf(element),1);
+    });
+    let markThatShouldBeRemoved = marksAfter[0];
+    console.log(markThatShouldBeRemoved);
+    let rmType = view.state.schema.marks[markThatShouldBeRemoved]
+    let tr = view.state.tr.removeMark(textstart, textend, markType).removeMark(textstart,textend,rmType)
+    view.dispatch(tr.setMeta('shouldTrack', false));
+  }
+}
+
 export function acceptChange(view: EditorView, markType: any, markattrs: any, fromConnection?: boolean) {
 
-  if (!fromConnection) {
+  if (markType == 'insertion') {
+    removeChangeMarkFromText(view, markattrs, 'accept', fromConnection);
+  } else if (markType == 'deletion') {
+    removeTextWithChangeMark(view, markattrs, 'accept', fromConnection);
+  } else if (markType == 'format_change') {
+    acceptFormatChange(view,markattrs)
+  }
+  /* if (!fromConnection) {
     if (markType == 'insertion') {
       removeChangeMarkFromText(view, markattrs, 'accept');
     } else if (markType == 'deletion') {
       removeTextWithChangeMark(view, markattrs, 'accept');
     }
   } else {
-    if (markType == 'insertion') {
-      removeChangeMarkFromText(view, markattrs, 'accept', fromConnection);
-    } else if (markType == 'deletion') {
-      removeTextWithChangeMark(view, markattrs, 'accept', fromConnection);
-    }
-  }
+  } */
 }
 
 export function rejectChange(view: EditorView, markType: any, markattrs: any, fromConnection?: boolean) {
 
-  if (!fromConnection) {
-    if (markType == 'insertion') {
-      removeTextWithChangeMark(view, markattrs, 'decline');
-    } else if (markType == 'deletion') {
-      removeChangeMarkFromText(view, markattrs, 'decline');
-    }
+  if (markType == 'insertion') {
+    removeTextWithChangeMark(view, markattrs, 'decline');
+  } else if (markType == 'deletion') {
+    removeChangeMarkFromText(view, markattrs, 'decline');
+  } else if (markType == 'format_change') {
+    rejectFormatChange(view,markattrs);
+  }
+  /* if (!fromConnection) {
+
   } else {
     if (markType == 'insertion') {
       removeTextWithChangeMark(view, markattrs, 'decline', fromConnection);
     } else if (markType == 'deletion') {
       removeChangeMarkFromText(view, markattrs, 'decline', fromConnection);
+    }else if (markType == 'format_change') {
+      console.log('formatChange');
     }
-  }
+  } */
 
 }

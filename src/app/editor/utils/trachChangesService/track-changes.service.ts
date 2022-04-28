@@ -170,6 +170,7 @@ export class TrackChangesService {
                         || mark.attrs.class == 'deletion'
                         || mark!.type.name == 'insFromPopup'
                         || mark!.type.name == 'delFromPopup'
+                        || mark.attrs.class == 'format-change'
                     })[0].attrs!
                     if (attr.class == 'insertion') {
                       markData.textContent = `Insertion from ${attr.username} \nUserId = ${attr.user}`;
@@ -179,6 +180,8 @@ export class TrackChangesService {
                       markData.textContent = `Isertion Change from dialog save made by ${attr.username} \nUserId = ${attr.user}`;
                     } else if (attr.class == 'del-from-popup') {
                       markData.textContent = `Deletion Change from dialog save made by ${attr.username} \nUserId = ${attr.user}`;
+                    } else if (attr.class == 'format-change'){
+                      markData.textContent = `Text Format Change made by ${attr.username} \nUserId = ${attr.user}`;
                     }
                     markData.setAttribute('class', 'changes-placeholder')
 

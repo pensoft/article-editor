@@ -185,11 +185,6 @@ form-field[invalid="true"] {
 }
 
 
-/* .format-change {
-    border-bottom: 2px solid royalblue;
-} */
-
-
 /* app-edit-section-dialog {
   .insertion{
     .show-insertion{
@@ -800,10 +795,9 @@ page-break:after {
   vertical-align: middle;
 }
 
-
-/* .format-change {
-    border-bottom: 2px solid royalblue;
-} */
+.format-change {
+  border-bottom: 2px solid royalblue;
+}
 
 .insertion .show-insertion {
   color: black;

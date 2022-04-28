@@ -6,10 +6,9 @@
   </mat-card-header>
   <mat-card-content>
     <div class="edited-text">
-      <div class="edited-text-title">{{change.type == 'deletion'?'Deleted:':'Inserted:'}}</div>
+      <div class="edited-text-title">{{change.type == 'deletion'?'Deleted:':change.type=='format_change'?'Formated:':'Inserted:'}}</div>
       <div class="edited-text-content {{change.type}} target" [ngStyle]="{background:change.markattrs.color}">{{change.text}}</div>
     </div>
-
     <arpha-button (clickEvent)="acceptChange(change.viewRef,change.type,change.markattrs)" class="small secondary change-action-button" label="Accept" icon="done" style="margin-right:20px;">
     </arpha-button>
     <arpha-button (clickEvent)="declineChange(change.viewRef,change.type,change.markattrs)" class="small secondary change-action-button" label="Decline" icon="close">

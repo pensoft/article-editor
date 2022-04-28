@@ -43,7 +43,7 @@ let loadImagAsBlob = (data) => {
 
   xhr.send(); */
 
-  fetch(proxyURL, { method: 'GET' /* , mode: 'no-cors', */ }).then((loadedImage) => {
+  fetch(proxyURL ? proxyURL : imageURL, { method: 'GET' /* , mode: 'no-cors', */ }).then((loadedImage) => {
     return loadedImage.blob()
   }).then((blob) => {
     returnMessage({ blob, imageURL, data })

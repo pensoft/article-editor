@@ -1,0 +1,16 @@
+<div class="elements-container">
+  <!-- <div class="horizontal-lines" id="hr-lines">horizontal lines</div> -->
+  <div #elementsContainer id="pm-elements-container">
+    <div *ngIf="sectionsContainers.length>0">
+      <div *ngFor="let section of sectionsContainers;let i = index">
+        <div>
+          <div *ngFor="let element of sectionsContainers[i];let j = index">
+            <app-print-element *ngIf="i==sectionsContainers.length-1&&j==sectionsContainers[i].length-1" [(elementHTML)]="sectionsContainers[i][j]" [(refreshContent)]="refreshContent" [end]="true"></app-print-element>
+            <app-print-element *ngIf="!(i==sectionsContainers.length-1&&j==sectionsContainers[i].length-1)" [(elementHTML)]="sectionsContainers[i][j]" [(refreshContent)]="refreshContent" [end]="false"></app-print-element>
+            <!-- <app-print-element [(elementHTML)]="sectionsContainers[i][j]"></app-print-element> -->
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
