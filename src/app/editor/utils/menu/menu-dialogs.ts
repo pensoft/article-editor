@@ -5,7 +5,8 @@ import { ServiceShare } from "@app/editor/services/service-share.service";
 import { CitateReferenceDialogComponent } from "@app/layout/pages/library/citate-reference-dialog/citate-reference-dialog.component";
 import { uuidv4 } from "lib0/random";
 import { toggleMark } from "prosemirror-commands";
-import { MenuItem } from "prosemirror-menu";
+//@ts-ignore
+import {MenuItem} from '../prosemirror-menu-master/src/index.js';
 import { Fragment, Node } from "prosemirror-model";
 import { EditorState, NodeSelection, Transaction } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
@@ -109,7 +110,7 @@ export const insertImageItem = new MenuItem({
     }
     return true;
   },
-  enable(state) { return canInsert(state, state.schema.nodes.video) },
+  enable(state:EditorState) { return canInsert(state, state.schema.nodes.video) },
   icon: createCustomIcon('photo.svg', 17)
 });
 
@@ -161,7 +162,7 @@ export const insertDiagramItem = new MenuItem({
     }
     return true;
   },
-  enable(state) { return canInsert(state, state.schema.nodes.video) },
+  enable(state:EditorState) { return canInsert(state, state.schema.nodes.video) },
   icon: createCustomIcon('link.svg', 19)
 });
 
@@ -187,7 +188,7 @@ export const insertSpecialSymbolItem = new MenuItem({
     }
     return true;
   },
-  enable(state) { return true },
+  enable(state:EditorState) { return true },
   icon: createCustomIcon('Icon feather-star.svg', 20)
 });
 
@@ -221,7 +222,7 @@ export let insertVideoItem = (serviceShare:ServiceShare)=>{
       }
       return true
     },
-    enable(state) { return canInsert(state, state.schema.nodes.video) },
+    enable(state:EditorState) { return canInsert(state, state.schema.nodes.video) },
     icon: videoPlayerIcon
   });
 }
@@ -231,7 +232,7 @@ export const addMathInlineMenuItem = new MenuItem({
   label: 'Math',
   // @ts-ignore
   run: addMathInline('math_inline'),
-  enable(state) { return state.tr.selection.empty },
+  enable(state:EditorState) { return state.tr.selection.empty },
 });
 
 export const addMathBlockMenuItem = new MenuItem({
@@ -239,7 +240,7 @@ export const addMathBlockMenuItem = new MenuItem({
   label: 'BlockMath',
   // @ts-ignore
   run: addMathInline('math_display'),
-  enable(state) { return state.tr.selection.empty }
+  enable(state:EditorState) { return state.tr.selection.empty }
 });
 
 export const insertLinkItem = new MenuItem({
@@ -261,7 +262,7 @@ export const insertLinkItem = new MenuItem({
       }
     })
   },
-  enable(state) { return true },
+  enable(state:EditorState) { return true },
   icon: createCustomIcon('connect.svg', 18)
 })
 
@@ -307,7 +308,7 @@ export const addAnchorTagItem = new MenuItem({
       toggleMark(state.schema.marks.anchorTag, { id: anchorid })(state, dispatch)
     });
   },
-  enable(state) { return !state.tr.selection.empty },
+  enable(state:EditorState) { return !state.tr.selection.empty },
   icon: createCustomIcon('anchortag.svg', 19)
 })
 

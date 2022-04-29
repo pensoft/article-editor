@@ -1,4 +1,11 @@
 <div class="citate-options-container">
+  <div *ngIf="citating">
+    <div class="spinner-container-citating">
+      <div class="spinner-container-2">
+        <mat-spinner></mat-spinner>
+      </div>
+    </div>
+  </div>
   <div class="title">
     Add a reference
   </div>
@@ -7,7 +14,7 @@
       <mat-label class="">References:</mat-label>
       <mat-select [formControl]="referencesControl" class="select-reference" (valueChange)="lastSelect = 'localRef';selected=undefined">
         <mat-option *ngFor="let ref of references" [value]="ref">
-          {{ref.refData.referenceData.title}} | {{ref.refData.formioData.authors[0].first||ref.refData.formioData.authors[0].last||ref.refData.formioData.authors[0].given||'no name'}} | {{ref.refData.referenceData.type}}
+          {{ref.refData.referenceData.title}} | {{ ref.refData.formioData.authors[0]? (ref.refData.formioData.authors[0].first|| ref.refData.formioData.authors[0].last|| ref.refData.formioData.authors[0].given):'no name' }} | {{ref.refData.referenceData.type}}
         </mat-option>
       </mat-select>
     </mat-form-field>

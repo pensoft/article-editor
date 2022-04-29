@@ -40,6 +40,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
   canDropBool?: boolean[]
 
+  previewMode
   expandIcon?: string;
   focusIdHold?: string;
   taxonomyData: any;
@@ -71,6 +72,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     public prosemirrorEditorsService: ProsemirrorEditorsService,
     public PmDialogSessionService:PmDialogSessionService,
     public dialog: MatDialog) {
+    this.previewMode = prosemirrorEditorsService.previewArticleMode
     detectFocusService.getSubject().subscribe((focusedEditorId: any) => {
       if (focusedEditorId) {
         this.focusedId = focusedEditorId;

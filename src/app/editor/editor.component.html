@@ -58,8 +58,8 @@
 
 
     <div class="side-navbar-actions">
-      <button #trachChangesOnOffBtn [ngStyle]="{'color':this.shouldTrackChanges?'#19d928':'#f37b4a'}" mat-icon-button class="changes_state_btn" [matMenuTriggerFor]="beforeMenu">
-        <mat-icon>{{this.shouldTrackChanges?'mode_edit':'edit_off'}}</mat-icon>
+      <button #trachChangesOnOffBtn [ngStyle]="{'color':previewMode.mode?'gray':this.shouldTrackChanges?'#19d928':'#f37b4a'}" mat-icon-button class="changes_state_btn" [matMenuTriggerFor]="beforeMenu">
+        <mat-icon>{{previewMode.mode?'visibility':this.shouldTrackChanges?'mode_edit':'edit_off'}}</mat-icon>
       </button>
       <mat-menu #beforeMenu="matMenu" xPosition="before">
 
@@ -71,6 +71,11 @@
         <button (click)="turnOnOffTrachChanges(false)" mat-menu-item>
           <mat-icon class='changes_off_btn'>edit_off</mat-icon>
           <span>Changes off</span>
+        </button>
+
+        <button (click)="turnOnOffPreviewMode()" mat-menu-item>
+          <mat-icon >{{previewMode.mode?'visibility_off':'visibility'}}</mat-icon>
+          <span>{{previewMode.mode?'Preview off':'Preview on'}}</span>
         </button>
 
       </mat-menu>

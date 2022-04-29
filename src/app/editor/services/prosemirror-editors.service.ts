@@ -7,6 +7,8 @@ import { ColorDef } from 'y-prosemirror/dist/src/plugins/sync-plugin';
 import * as random from 'lib0/random.js';
 import * as userSpec from '../utils/userSpec';
 //@ts-ignore
+import { sherePreviewModeState } from '../utils/prosemirror-menu-master/src/menu.js';
+//@ts-ignore
 import { buildMenuItems, exampleSetup } from '../utils/prosemirror-example-setup-master/src/index.js';
 import { /* endEditorSchema, */schema } from '../utils/Schema';
 import {
@@ -85,6 +87,8 @@ export class ProsemirrorEditorsService {
   //provider?: WebrtcProvider;
   provider?: WebsocketProvider;
 
+  previewArticleMode = { mode: false }
+
   articleSectionsStructure?: articleSection[];
   initDocumentReplace: any = {};
   editorContainers: {
@@ -115,9 +119,9 @@ export class ProsemirrorEditorsService {
     return new InputRule(pattern, (state, match, start, end) => {
       let $start = state.doc.resolve(start)
       let attrs = getAttrs instanceof Function ? getAttrs(match) : getAttrs
-      let tr = state.tr.replaceWith(start,end,nodeType.create(attrs))
+      let tr = state.tr.replaceWith(start, end, nodeType.create(attrs))
       return tr.setSelection(NodeSelection.create(
-        tr.doc, start+1
+        tr.doc, start + 1
       ))
     })
   }
@@ -161,7 +165,7 @@ export class ProsemirrorEditorsService {
     private serviceShare: ServiceShare) {
 
     // change the mathBlock input rule
-
+    sherePreviewModeState(this.previewArticleMode)
 
     this.serviceShare.shareSelf('ProsemirrorEditorsService', this)
     this.mobileVersionSubject.subscribe((data) => {
@@ -366,6 +370,46 @@ export class ProsemirrorEditorsService {
       }
     })
 
+    let previewModePluginKey = new PluginKey('selectWholeCitat');
+    let previewModePlugin = new Plugin({
+      key: previewModePluginKey,
+      filterTransaction: (transaction, state) => {
+        //@ts-ignore
+        let meta = transaction.meta
+        if (Object.keys(meta).includes("uiEvent")) {
+          if (meta["uiEvent"] == 'drop') {
+            if (this.previewArticleMode.mode) {
+              return false
+            }
+          }
+        }
+        return true
+      },
+      props: {
+        handleDOMEvents:{
+          "cut":(view,event)=>{
+            if (this.previewArticleMode.mode) {
+              event.preventDefault()
+              return true;
+            }
+            return false;
+          }
+        },
+        handlePaste: (plugin, view, slice) => {
+          if (this.previewArticleMode.mode) {
+            return true
+          }
+          return false;
+        },
+        handleDrop:(plugin,view,event,slice)=>{
+          if (this.previewArticleMode.mode) {
+            return true
+          }
+          return false;
+        }
+      }
+    })
+
     setTimeout(() => {
       this.initDocumentReplace[editorID] = false;
     }, 600);
@@ -395,6 +439,7 @@ export class ProsemirrorEditorsService {
         handleRefDelete,
         changeNodes,
         selectWholeCitat,
+        previewModePlugin,
         this.detectFocusService.getPlugin(),
         this.serviceShare.ReferencePluginService?.referencePlugin,
         this.commentsService.getPlugin(),
@@ -411,7 +456,7 @@ export class ProsemirrorEditorsService {
       // @ts-ignore
       sectionName: editorID,
       // @ts-ignore
-      sectionID:editorID,
+      sectionID: editorID,
       // @ts-ignore
     });
 
@@ -447,7 +492,7 @@ export class ProsemirrorEditorsService {
           }
 
           //@ts-ignore
-          if (transaction.getMeta('y-sync$') || transaction.meta['y-sync$'] || transaction.getMeta('addToLastHistoryGroup') ||transaction.getMeta('preventHistoryAdd')) {
+          if (transaction.getMeta('y-sync$') || transaction.meta['y-sync$'] || transaction.getMeta('addToLastHistoryGroup') || transaction.getMeta('preventHistoryAdd')) {
             if (transaction.getMeta('addToLastHistoryGroup')) {
               this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager.preventCapture();
             } else if (transaction.getMeta('preventHistoryAdd')) {
@@ -514,7 +559,7 @@ export class ProsemirrorEditorsService {
           let state = view.state;
           let sel = state.selection
           state.doc.nodesBetween(sel.from, sel.to, (node, pos, parent, index) => {
-            if (node.marks.length > 0 && node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
+            if (!this.previewArticleMode.mode&&node.marks.length > 0 && node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
               setTimeout(() => {
                 let cursurCoord = view.coordsAtPos(sel.from);
                 event.preventDefault();
@@ -545,8 +590,8 @@ export class ProsemirrorEditorsService {
       handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
       handleTripleClickOn,
       handleScrollToSelection: handleScrollToSelection(this.editorContainers, section),
-      handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
-      handleKeyDown,
+      handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey,this.serviceShare),
+      handleKeyDown: handleKeyDown(this.serviceShare),
       scrollMargin: { top: 300, right: 5, bottom: 300, left: 5 },
       handleDrop: (view: EditorView, event: Event, slice: Slice, moved: boolean) => {
         slice.content.nodesBetween(0, slice.content.size - 2, (node, pos, parent) => {
@@ -580,22 +625,22 @@ export class ProsemirrorEditorsService {
     };
     this.editorContainers[editorID] = editorCont;
     let count = 0;
-    let countActiveSections = (item:articleSection)=>{
-      if(item.type == 'complex'&&item.children.length>0){
-        item.children.forEach((child)=>{
+    let countActiveSections = (item: articleSection) => {
+      if (item.type == 'complex' && item.children.length > 0) {
+        item.children.forEach((child) => {
           countActiveSections(child)
         })
       }
-      if(item.active == true){
+      if (item.active == true) {
         count++;
       }
     }
-    this.treeService.articleSectionsStructure?.forEach(item=>{
+    this.treeService.articleSectionsStructure?.forEach(item => {
       countActiveSections(item)
     })
-    let renderedSections = Object.keys(this.editorContainers).filter(key=>key!=='endEditor').length
+    let renderedSections = Object.keys(this.editorContainers).filter(key => key !== 'endEditor').length
     let allActiveSections = count;
-    if(renderedSections == allActiveSections){
+    if (renderedSections == allActiveSections) {
       this.runFuncAfterRender()
     }
     return editorCont
@@ -678,7 +723,7 @@ export class ProsemirrorEditorsService {
       // @ts-ignore
       sectionName: editorID,
       // @ts-ignore
-      sectionID:editorID,
+      sectionID: editorID,
       // @ts-ignore
     });
 
@@ -702,7 +747,7 @@ export class ProsemirrorEditorsService {
           isMath = true
         }
         lastStep = transaction.steps[0];
-        if(transaction.steps.length>0){
+        if (transaction.steps.length > 0) {
           let undoManager = this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager;
           let undoManagerStatus = undoManager.status;
           if (undoManagerStatus !== 'capturing') {
@@ -759,7 +804,7 @@ export class ProsemirrorEditorsService {
       handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
       handlePaste: handlePaste(mathMap!, editorID),
       handleTripleClickOn,
-      handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey),
+      handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey,this.serviceShare),
       //handleKeyDown,
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
     });
@@ -784,7 +829,7 @@ export class ProsemirrorEditorsService {
     dispatchTransaction: any
   } {
 
-    let placeholder = (formIOComponentInstance.component.placeholder&&formIOComponentInstance.component.placeholder!=='')?formIOComponentInstance.component.placeholder:undefined
+    let placeholder = (formIOComponentInstance.component.placeholder && formIOComponentInstance.component.placeholder !== '') ? formIOComponentInstance.component.placeholder : undefined
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
     EditorContainer.innerHTML = ''
     let editorID = random.uuidv4()
@@ -799,7 +844,7 @@ export class ProsemirrorEditorsService {
       EditorContainer.appendChild(labelTag);
     }
     let sectionID = options.sectionID
-    if (!nodesArray||nodesArray.size == 0) {
+    if (!nodesArray || nodesArray.size == 0) {
       doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, schema.nodes.paragraph.create({})))
     } else {
       doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, nodesArray.content))
@@ -878,7 +923,7 @@ export class ProsemirrorEditorsService {
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
       ,
       // @ts-ignore
-      data:{placeHolder:placeholder},
+      data: { placeHolder: placeholder },
       // @ts-ignore
       sectionName: editorID,
       sectionID: sectionID,
@@ -952,8 +997,8 @@ export class ProsemirrorEditorsService {
       handleClick: handleClick(hideshowPluginKEey),
       handleTripleClickOn,
       handleDoubleClick:
-        handleDoubleClickFN(hideshowPluginKEey),
-      handleKeyDown,
+        handleDoubleClickFN(hideshowPluginKEey,this.serviceShare),
+      handleKeyDown: handleKeyDown(this.serviceShare),
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
 
     });
@@ -975,7 +1020,7 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
-  renderSeparatedEditorWithNoSync(EditorContainer: HTMLDivElement,menuContainerClass:string,startingText?:string): {
+  renderSeparatedEditorWithNoSync(EditorContainer: HTMLDivElement, menuContainerClass: string, startingText?: string): {
     editorID: string,
     containerDiv: HTMLDivElement,
     editorState: EditorState,
@@ -1010,9 +1055,9 @@ export class ProsemirrorEditorsService {
 
     let menu: any = undefined
     menu = { main: this.menuTypes['onlyPmMenu'] }
-    if(startingText){
-      doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, schema.nodes.paragraph.create({},schema.text(startingText))))
-    }else{
+    if (startingText) {
+      doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, schema.nodes.paragraph.create({}, schema.text(startingText))))
+    } else {
       doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, schema.nodes.paragraph.create({})))
     }
     let edState = EditorState.create({
@@ -1095,7 +1140,7 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
-  runFuncAfterRender(){
+  runFuncAfterRender() {
     this.serviceShare.CslService?.checkReferencesInAllEditors(this.editorContainers);
   }
 
@@ -1139,9 +1184,9 @@ export class ProsemirrorEditorsService {
       MathView.prototype.renderMathOld = oldMathFunc;
       //@ts-ignore
       MathView.prototype.afterRender = (ret: any, mathview: any) => {
-       /*  mathObj = ydocservice.mathMap?.get('dataURLObj');
-        let matDom = (mathview.dom as HTMLElement).getElementsByClassName('katex-display')[0]||(mathview.dom as HTMLElement).getElementsByClassName('math-render')[0]||mathview.dom;
-*/
+        /*  mathObj = ydocservice.mathMap?.get('dataURLObj');
+         let matDom = (mathview.dom as HTMLElement).getElementsByClassName('katex-display')[0]||(mathview.dom as HTMLElement).getElementsByClassName('math-render')[0]||mathview.dom;
+ */
         let nodeDomAttrs = mathview._node.type.spec.toDOM(mathview._node)[1];
         Object.keys(nodeDomAttrs).forEach((key) => {
           ((mathview.dom as HTMLElement).hasAttribute(key) && nodeDomAttrs[key] !== '' && nodeDomAttrs[key]) ? undefined : (mathview.dom as HTMLElement).setAttribute(key, nodeDomAttrs[key]);

@@ -8,7 +8,7 @@
 
     <ng-container matColumnDef="author">
       <th mat-header-cell *matHeaderCellDef> Author </th>
-      <td mat-cell *matCellDef="let element"> {{element.refData.formioData.authors[0].last||element.refData.formioData.authors[0].name||element.refData.formioData.authors[0].first||''}} </td>
+      <td mat-cell *matCellDef="let element"> {{ element.refData.formioData.authors[0]?(element.refData.formioData.authors[0].last|| element.refData.formioData.authors[0].name|| element.refData.formioData.authors[0].first):'no author'}} </td>
     </ng-container>
 
     <ng-container matColumnDef="id">

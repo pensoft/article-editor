@@ -71,7 +71,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   sidebar = '';
 
   @ViewChild('metaDataTreeDrawer') metaDataTreeDrawer?: MatDrawer;
-
+  previewMode
   innerWidth: any;
   trackChangesData?: any;
   constructor(
@@ -93,6 +93,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     private refsAPI:RefsApiService,
     private referencePluginService:ReferencePluginService
   ) {
+    this.previewMode = this.prosemirrorEditorServie.previewArticleMode
     this.titleControl.valueChanges
       .pipe(
         debounceTime(300),
@@ -184,6 +185,15 @@ export class EditorComponent implements OnInit, AfterViewInit {
         }
       }
     });
+  }
+
+  turnOnOffPreviewMode(){
+    this.prosemirrorEditorServie.previewArticleMode.mode = !this.prosemirrorEditorServie.previewArticleMode.mode
+    if(this.prosemirrorEditorServie.previewArticleMode.mode){
+      this.titleControl.disable()
+    }else(
+      this.titleControl.enable()
+    )
   }
 
   showTreeContainer() {

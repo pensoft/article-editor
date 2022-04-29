@@ -12,11 +12,16 @@ const mappingObj: any = {
         let val = year.toString();
         let dateParts = val.split('-')
         if (dateParts.length == 1) {
-          dateParts.push('1')
-          dateParts.push('1')
+          dateParts.push('01')
+          dateParts.push('01')
         }
         if (dateParts.length == 2) {
-          dateParts.push('1')
+          dateParts.push('01')
+        }
+        for(let i =0 ; i < dateParts.length;i++){
+          if(dateParts[i].length == 1) {
+            dateParts[i] = "0"+dateParts[i]
+          }
         }
         refobj['issued'] = {
           "date-parts": [
@@ -28,7 +33,20 @@ const mappingObj: any = {
       prop: 'issued', func: `(function a(year,refobj,formioobj,extRef){
         if(!year) return
         let val = year.toString();
-      formioobj['issued'] = val
+        let dateParts = val.split('-')
+        if (dateParts.length == 1) {
+          dateParts.push('01')
+          dateParts.push('01')
+        }
+        if (dateParts.length == 2) {
+          dateParts.push('01')
+        }
+        for(let i =0 ; i < dateParts.length;i++){
+          if(dateParts[i].length == 1) {
+            dateParts[i] = "0"+dateParts[i]
+          }
+        }
+        formioobj['issued'] = dateParts.join("-")
     })` },
   },
   "publicationDate": {
@@ -39,11 +57,16 @@ const mappingObj: any = {
         let val = year.toString();
         let dateParts = val.split('-')
         if (dateParts.length == 1) {
-          dateParts.push('1')
-          dateParts.push('1')
+          dateParts.push('01')
+          dateParts.push('01')
         }
         if (dateParts.length == 2) {
-          dateParts.push('1')
+          dateParts.push('01')
+        }
+        for(let i =0 ; i < dateParts.length;i++){
+          if(dateParts[i].length == 1) {
+            dateParts[i] = "0"+dateParts[i]
+          }
         }
         refobj['issued'] = {
           "date-parts": [
@@ -55,7 +78,20 @@ const mappingObj: any = {
       prop: 'issued', func: `(function a(year,refobj,formioobj,extRef){
         if(!year) return
         let val = year.toString();
-        formioobj['issued'] = val
+        let dateParts = val.split('-')
+        if (dateParts.length == 1) {
+          dateParts.push('01')
+          dateParts.push('01')
+        }
+        if (dateParts.length == 2) {
+          dateParts.push('01')
+        }
+        for(let i =0 ; i < dateParts.length;i++){
+          if(dateParts[i].length == 1) {
+            dateParts[i] = "0"+dateParts[i]
+          }
+        }
+        formioobj['issued'] = dateParts.join("-")
     })` },
   },
   "publishedIn": { type: 'string', cslProp: 'city', formIOprop: "city" },
@@ -374,9 +410,12 @@ export let mapExternalRefs = (data1: string) => {
   let mapedReferences: any[] = []
   data.forEach((ref) => {
     let mapedRef = mapRef(ref)
+
     let mapedRef1 = mapRef1(ref)
     //console.log('mapedRef', mapedRef, 'mapedRef1', mapedRef1);
     mapedReferences.push(mapedRef1)
   })
+  console.log('external refs',data);
+  console.log('mapped refs',mapedReferences);
   return JSON.stringify(mapedReferences)
 }

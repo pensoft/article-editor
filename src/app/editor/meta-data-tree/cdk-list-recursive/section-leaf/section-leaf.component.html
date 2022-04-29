@@ -1,9 +1,9 @@
 <div *ngIf="!nestedNode" [ngClass]="{
     'node-box':!isComplex,
     'node-box-dropdownbox':isComplex}" cdkDrag [cdkDragData]="{node,canDropBool}">
-  <div [style.position]='"relative"' (mouseover)="showButtons(cdkDragSection,true,
-    !isComplex?'sectionBorder':'sectionBorderListItem','selectedEditor',node)" (mouseout)="showButtons(cdkDragSection,false,
-    !isComplex?'sectionBorder':'sectionBorderListItem','selectedEditor',node)" #cdkDragSection>
+  <div [style.position]='"relative"' (mouseover)="!previewMode.mode?showButtons(cdkDragSection,true,
+    !isComplex?'sectionBorder':'sectionBorderListItem','selectedEditor',node):undefined" (mouseout)="!previewMode.mode?showButtons(cdkDragSection,false,
+    !isComplex?'sectionBorder':'sectionBorderListItem','selectedEditor',node):undefined" #cdkDragSection>
     <div class="border-placeholder" *cdkDragPlaceholder>
       <div [ngClass]="{'border-view':true,'cant-drop':!canDropBool![0]}"></div>
     </div>
@@ -16,7 +16,7 @@
                 'drag_btn_leaf_node':!isComplex,
                 'drag_btn_list_node':isComplex}"><mat-icon >drag_indicator</mat-icon></button>
       <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTN" (click)="changeDisplay(childrenDiv);listDiv.style.display == 'none'?expandIcon='chevron_right':expandIcon='expand_more'"><mat-icon class="{{expandIcon}}"  #icon>{{expandIcon}}</mat-icon></button>
-      <div *ngIf="node.title.editable" class="text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="scrollToProsemirror()" (click)="makeEditable(nodeTitle,$event,cdkDragSection,node)" (blur)="makeEditable(nodeTitle,$event,cdkDragSection,node)"
+      <div *ngIf="node.title.editable" class="text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="scrollToProsemirror()" (click)="!previewMode.mode?makeEditable(nodeTitle,$event,cdkDragSection,node):undefined" (blur)="makeEditable(nodeTitle,$event,cdkDragSection,node)"
         #nodeTitle>
         {{node.title.label | slice:0:180 }}
       </div>
@@ -38,11 +38,11 @@
 <div *ngIf="nestedNode" [ngClass]="{
     'node-box-nested':!isComplex,
     'node-box-dropdownbox-nested':isComplex}" cdkDrag [cdkDragData]="{node,canDropBool}">
-  <div [style.position]='"relative"' (mouseover)="showButtons(cdkDragSection,true,
+  <div [style.position]='"relative"' (mouseover)="!previewMode.mode?showButtons(cdkDragSection,true,
     !isComplex?'sectionBorderNested':'sectionBorderListNested',
-    !isComplex?'selectedEditorNestedLeaf':'selectedEditorNestedList',node)" (mouseout)="showButtons(cdkDragSection,false,
+    !isComplex?'selectedEditorNestedLeaf':'selectedEditorNestedList',node):undefined" (mouseout)="!previewMode.mode?showButtons(cdkDragSection,false,
     !isComplex?'sectionBorderNested':'sectionBorderListNested',
-    !isComplex?'selectedEditorNestedLeaf':'selectedEditorNestedList',node)" #cdkDragSection>
+    !isComplex?'selectedEditorNestedLeaf':'selectedEditorNestedList',node):undefined" #cdkDragSection>
     <div class="text-placeholder"></div>
     <div class="border-placeholder-nested" *cdkDragPlaceholder>
       <div [ngClass]="{'border-view':true,'cant-drop':!canDropBool![0]}"></div>
@@ -56,7 +56,7 @@
                 'drag_btn_leaf_node_nested':!isComplex,
                 'drag_btn_list_node_nested':isComplex}"><mat-icon >drag_indicator</mat-icon></button>
       <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTNNested" (click)="changeDisplay(childrenDiv);listDiv.style.display == 'none'?expandIcon='chevron_right':expandIcon='expand_more'"><mat-icon class="{{expandIcon}}" #icon>{{expandIcon}}</mat-icon></button>
-      <div *ngIf="node.title.editable" class="text-section-div-nested" (input)="checkTextInput(nodeTitle,35,$event)" (click)="scrollToProsemirror()" (click)="makeEditable(nodeTitle,$event,parentOfText,node)" (blur)="makeEditable(nodeTitle,$event,parentOfText,node)"
+      <div *ngIf="node.title.editable" class="text-section-div-nested" (input)="checkTextInput(nodeTitle,35,$event)" (click)="scrollToProsemirror()" (click)="!previewMode.mode?makeEditable(nodeTitle,$event,parentOfText,node):undefined" (blur)="makeEditable(nodeTitle,$event,parentOfText,node)"
         #nodeTitle>
         {{node.title.label}}
       </div>

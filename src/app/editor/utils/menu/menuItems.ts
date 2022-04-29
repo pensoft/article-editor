@@ -1,7 +1,9 @@
 //@ts-ignore
 import { DocumentHelpers } from 'wax-prosemirror-utilities';
 import { toggleMark } from "prosemirror-commands";
-import { Dropdown, MenuItem} from "prosemirror-menu"
+import { Dropdown} from "prosemirror-menu"
+//@ts-ignore
+import { MenuItem } from '../prosemirror-menu-master/src/index.js'
 import { EditorState, NodeSelection, Selection, TextSelection, Transaction } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
 import { schema } from "../Schema";
@@ -22,6 +24,7 @@ import { undo as undoLocalHistory,redo as redoLocalHistory} from '../prosemirror
 import * as Y from 'yjs'
 import { D } from '@angular/cdk/keycodes';
 import { ServiceShare } from '@app/editor/services/service-share.service';
+import { EditSectionService } from '@app/editor/dialogs/edit-section-dialog/edit-section.service.js';
 
 export const undoIcon = {
     width: 1024, height: 1024,
@@ -252,14 +255,14 @@ const headings = Object.values(headingsObj);
 const insertHorizontalRule = new MenuItem({
     title: "Insert horizontal rule",
     label: "Horizontal rule",
-    enable(state) { return canInsert(state, schema.nodes.horizontal_rule) },
-    run(state, dispatch) { dispatch(state.tr.replaceSelectionWith(schema.nodes.horizontal_rule.create())) }
+    enable(state:EditorState) { return canInsert(state, schema.nodes.horizontal_rule) },
+    run(state:EditorState, dispatch:any) { dispatch(state.tr.replaceSelectionWith(schema.nodes.horizontal_rule.create())) }
 })
 
 const undoYJS = new MenuItem({
     icon: undoIcon,
     label: "undo",
-    enable(state) { return true },
+    enable(state:EditorState) { return true },
     //@ts-ignore
     run: undo
 })
@@ -267,7 +270,7 @@ const undoYJS = new MenuItem({
 const redoYJS = new MenuItem({
     icon: redoIcon,
     label: "redo",
-    enable(state) { return true },
+    enable(state:EditorState) { return true },
     //@ts-ignore
     run: redo
 })
@@ -280,8 +283,8 @@ const setAlignLeft = new MenuItem({
     title: 'Align element to left',
     // @ts-ignore
     run: setAlignment('set-align-left'),
-    enable(state) { return true },
-    select: (state) => { return setAlignment('set-align-left')(state) },
+    enable(state:EditorState) { return true },
+    select: (state:EditorState) => { return setAlignment('set-align-left')(state) },
     icon: createCustomIcon('align2.svg', 20)
 })
 
@@ -289,16 +292,16 @@ const setAlignCenter = new MenuItem({
     title: 'Align element to center',
     // @ts-ignore
     run: setAlignment('set-align-center'),
-    enable(state) { return true },
-    select: (state) => { return setAlignment('set-align-left')(state) },
+    enable(state:EditorState) { return true },
+    select: (state:EditorState) => { return setAlignment('set-align-left')(state) },
     icon: createCustomIcon('align.svg', 18)
 })
 const setAlignRight = new MenuItem({
     title: 'Align element to right',
     // @ts-ignore
     run: setAlignment('set-align-right'),
-    enable(state) { return true },
-    select: (state) => { return setAlignment('set-align-right')(state) },
+    enable(state:EditorState) { return true },
+    select: (state:EditorState) => { return setAlignment('set-align-right')(state) },
     icon: createCustomIcon('align1.svg', 20)
 })
 
@@ -326,7 +329,7 @@ const getLinkMenuItem = new MenuItem({
     title: 'Get link',
     // @ts-ignore
     run: getLinkMenuItemRun,
-    enable(state) { return true },
+    enable(state:EditorState) { return true },
     icon: createCustomIcon('link.svg', 19)
 })
 
@@ -336,7 +339,7 @@ const functionItem = new MenuItem({
     title: 'Function',
     // @ts-ignore
     run: getLinkMenuItemRun,
-    enable(state) { return true },
+    enable(state:EditorState) { return true },
     icon: createCustomIcon('symbols.svg', 20)
 })
 
@@ -344,7 +347,7 @@ const highLightMenuItem = new MenuItem({
     title: 'HighLight text',
     // @ts-ignore
     run: getLinkMenuItemRun,
-    enable(state) { return true },
+    enable(state:EditorState) { return true },
     icon: createCustomIcon('highlight.svg')
 })
 
@@ -384,7 +387,7 @@ const footnoteMenuItem = new MenuItem({
     title: 'Add Footnote',
     // @ts-ignore
     run: getLinkMenuItemRun,
-    enable(state) { return true },
+    enable(state:EditorState) { return true },
     icon: createCustomIcon('insert.svg', 20)
 })
 
@@ -392,7 +395,7 @@ const spellCheckMenuItem = new MenuItem({
     title: 'Turn off/on spellcheck',
     // @ts-ignore
     run: getLinkMenuItemRun,
-    enable(state) { return true },
+    enable(state:EditorState) { return true },
     icon: createCustomIcon('spellcheck.svg', 29)
 })
 function logNodesItemRun(state: EditorState, dispatch: any, view: EditorView) {
@@ -421,7 +424,7 @@ function logNodesItemRun(state: EditorState, dispatch: any, view: EditorView) {
 export let undoItemPM = new MenuItem({
   title: "Undo last change",
   run: undoLocalHistory,
-  enable: state => undoLocalHistory(state),
+  enable:( state:EditorState) => undoLocalHistory(state),
   icon: undoIcon
 })
 
@@ -430,7 +433,7 @@ export let undoItemPM = new MenuItem({
 export let redoItemPM = new MenuItem({
   title: "Redo last undone change",
   run: redoLocalHistory,
-  enable: state => redoLocalHistory(state),
+  enable: (state:EditorState) => redoLocalHistory(state),
   icon: redoIcon
 })
 
@@ -438,7 +441,7 @@ const logNodesMenuItem = new MenuItem({
     title: 'Log Nodes', label: 'LogDocNode',
     // @ts-ignore
     run: logNodesItemRun,
-    enable(state) { return true },
+    enable(state:EditorState) { return true },
 })
 
 

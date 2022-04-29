@@ -9,6 +9,17 @@
   cursor: pointer;
 }
 
+.spinner-container-citating {
+  position: absolute;
+  display: grid;
+  height: 100%;
+  width: 100%;
+  .spinner-container-2 {
+    margin: auto;
+    width: fit-content;
+  }
+}
+
 .demo-row-is-clicked {
   font-weight: 900;
   background-color: #c0e4e46e;

@@ -1,7 +1,7 @@
-<button mat-raised-button class="figures-button" (click)="openFiguresDialog()">Figures</button>
-<button mat-raised-button class="figures-button" (click)="addNewSectionToArticle()">Add Section</button>
+<button mat-raised-button [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="figures-button" (click)="!previewMode.mode?openFiguresDialog():undefined">Figures</button>
+<button mat-raised-button [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="figures-button" (click)="!previewMode.mode?addNewSectionToArticle():undefined">Add Section</button>
 <button [ngStyle]="{display:'none'}" mat-raised-button class="figures-button" (click)="logData()">Log Data</button>
 <button [ngStyle]="{display:'none'}" mat-raised-button class="figures-button" (click)="resetCitatsObj()">Reset citats Obj</button>
-<button mat-raised-button class="figures-button" (click)="refreshToken()">Refresh Token</button>
-<button mat-raised-button class="figures-button" (click)="logToWorker()">Log to Worker</button>
+<button [ngStyle]="{display:'none'}" mat-raised-button class="figures-button" (click)="refreshToken()">Refresh Token</button>
+<button [ngStyle]="{display:'none'}" mat-raised-button class="figures-button" (click)="logToWorker()">Log to Worker</button>
 <button mat-raised-button class="figures-button" (click)="showArticleData()">Show article data</button>

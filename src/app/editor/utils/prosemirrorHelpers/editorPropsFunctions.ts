@@ -1,4 +1,5 @@
 import { CompileShallowModuleMetadata } from "@angular/compiler";
+import { ServiceShare } from "@app/editor/services/service-share.service";
 import { mathBackspaceCmd } from "@benrbray/prosemirror-math";
 import { debug } from "console";
 import { uuidv4 } from "lib0/random";
@@ -128,7 +129,8 @@ export function handleTripleClickOn(view: EditorView, pos: number, node: Node, n
   }
   return false
 }
-export const handleDoubleClick = (hideshowPluginKEey: PluginKey) => {
+export const handleDoubleClick = (hideshowPluginKEey: PluginKey,serviceShare:ServiceShare) => {
+  let previewMode = serviceShare.ProsemirrorEditorsService!.previewArticleMode!
   return (view: EditorView, pos: number, event: Event) => {
     let node = view.state.doc.nodeAt(pos)
     let marks = node?.marks
@@ -139,7 +141,7 @@ export const handleDoubleClick = (hideshowPluginKEey: PluginKey) => {
         || mark!.type.name == 'delFromPopup'
         || mark!.type.name == 'format_change'
     })
-    if (hasTrackChnagesMark) {
+    if (hasTrackChnagesMark&&!previewMode.mode) {
       let cursurCoord = view.coordsAtPos(pos);
       let tr1 = view.state.tr.setMeta(hideshowPluginKEey, { marks, focus: view.hasFocus(), coords: cursurCoord })
       view.dispatch(tr1.setMeta('addToLastHistoryGroup',true))
@@ -148,117 +150,120 @@ export const handleDoubleClick = (hideshowPluginKEey: PluginKey) => {
     return false
   }
 }
-export function handleKeyDown(view: EditorView, event: KeyboardEvent) {
-  try {
+export let handleKeyDown=(serviceShare:ServiceShare)=>{
+  let previewMode = serviceShare.ProsemirrorEditorsService!.previewArticleMode!
+  return (view: EditorView, event: KeyboardEvent) => {
+    try {
 
-    let sel = view.state.selection
-    let { $from, $to } = sel
-    let key = event.key
-    let canEdit = false;
+      let sel = view.state.selection
+      let { $from, $to } = sel
+      let key = event.key
+      let canEdit = false;
 
 
-    /* if (sel instanceof CellSelection) {
-        from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
-        to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);
-    } */
-    /* check the both siddes of the selection and check if there are in the same depth -> means that the selection sides are on the same level
-      true
-        loop the parents of the sides and search for form_field if there is a parent form field check if its the same for both sides and use it as parent ref
-            if there is no form_field parent find the first parent thats the same for both selection sides and use it as parent ref
-        check if the parent ref alows editing
-    */
-    if ($from.depth == $to.depth) {
-      //@ts-ignore
-      let pathAtFrom: Array<Node | number> = $from.path
-      //@ts-ignore
-      let pathAtTo: Array<Node | number> = $to.path
-
-      if (sel instanceof CellSelection) {
+      /* if (sel instanceof CellSelection) {
+          from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
+          to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);
+      } */
+      /* check the both siddes of the selection and check if there are in the same depth -> means that the selection sides are on the same level
+        true
+          loop the parents of the sides and search for form_field if there is a parent form field check if its the same for both sides and use it as parent ref
+              if there is no form_field parent find the first parent thats the same for both selection sides and use it as parent ref
+          check if the parent ref alows editing
+      */
+      if ($from.depth == $to.depth) {
         //@ts-ignore
-        pathAtFrom = sel.$anchorCell.path
+        let pathAtFrom: Array<Node | number> = $from.path
         //@ts-ignore
-        pathAtTo = sel.$headCell.path
-      }
+        let pathAtTo: Array<Node | number> = $to.path
 
-      let parentRef: Node | undefined
-      //search parents
-      for (let i = pathAtTo.length; i > -1; i--) {
-        if (i % 3 == 0) {
-          let parentFrom = pathAtFrom[i] as Node
-          let parentTo = pathAtTo[i] as Node
-          if (parentFrom == parentTo) {
-            if (!parentRef) {
-              parentRef = parentFrom
-            } else if ((
-              !parentRef||!(parentRef.attrs.contenteditableNode=='false'||parentRef.attrs.contenteditableNode==false)
-            )&&parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && (parentRef?.attrs.contenteditableNode != 'false'||parentRef?.attrs.contenteditableNode !== false)) {
-              parentRef = parentFrom
+        if (sel instanceof CellSelection) {
+          //@ts-ignore
+          pathAtFrom = sel.$anchorCell.path
+          //@ts-ignore
+          pathAtTo = sel.$headCell.path
+        }
+
+        let parentRef: Node | undefined
+        //search parents
+        for (let i = pathAtTo.length; i > -1; i--) {
+          if (i % 3 == 0) {
+            let parentFrom = pathAtFrom[i] as Node
+            let parentTo = pathAtTo[i] as Node
+            if (parentFrom == parentTo) {
+              if (!parentRef) {
+                parentRef = parentFrom
+              } else if ((
+                !parentRef||!(parentRef.attrs.contenteditableNode=='false'||parentRef.attrs.contenteditableNode==false)
+              )&&parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && (parentRef?.attrs.contenteditableNode != 'false'||parentRef?.attrs.contenteditableNode !== false)) {
+                parentRef = parentFrom
+              }
+
             }
+          }
+        }
+        if (parentRef?.attrs.contenteditableNode != 'false'&&parentRef?.attrs.contenteditableNode !== false) {
+          canEdit = true
+        }
+      }
+      let NodeBeforeHasNoneditableMark = sel.$anchor.nodeBefore?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode === false }).length! > 0
+      let NodeAfterHasNoneditableMark = sel.$anchor.nodeAfter?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode === false  }).length! > 0
 
+      let onNoneditableMarkBorder: undefined | 'left' | 'right' = undefined
+      if (NodeBeforeHasNoneditableMark && !NodeAfterHasNoneditableMark && sel.empty) {
+        onNoneditableMarkBorder = 'right'
+      } else if (!NodeBeforeHasNoneditableMark && NodeAfterHasNoneditableMark && sel.empty) {
+        onNoneditableMarkBorder = 'left'
+      } else if (NodeBeforeHasNoneditableMark && NodeAfterHasNoneditableMark) {
+        canEdit = false
+      }
+      if (onNoneditableMarkBorder) {
+        if (onNoneditableMarkBorder == 'left') {
+          if (key == 'Delete') {
+            canEdit = false
+          }
+        } else {
+          if (key == 'Backspace') {
+            canEdit = false
           }
         }
       }
-      if (parentRef?.attrs.contenteditableNode != 'false'&&parentRef?.attrs.contenteditableNode !== false) {
-        canEdit = true
-      }
-    }
-    let NodeBeforeHasNoneditableMark = sel.$anchor.nodeBefore?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode === false }).length! > 0
-    let NodeAfterHasNoneditableMark = sel.$anchor.nodeAfter?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode === false  }).length! > 0
+      // check both sides for noneditable marks
 
-    let onNoneditableMarkBorder: undefined | 'left' | 'right' = undefined
-    if (NodeBeforeHasNoneditableMark && !NodeAfterHasNoneditableMark && sel.empty) {
-      onNoneditableMarkBorder = 'right'
-    } else if (!NodeBeforeHasNoneditableMark && NodeAfterHasNoneditableMark && sel.empty) {
-      onNoneditableMarkBorder = 'left'
-    } else if (NodeBeforeHasNoneditableMark && NodeAfterHasNoneditableMark) {
-      canEdit = false
-    }
-    if (onNoneditableMarkBorder) {
-      if (onNoneditableMarkBorder == 'left') {
-        if (key == 'Delete') {
-          canEdit = false
+      let check = (node: Node) => {
+        let returnValue = false
+        if (node) {
+          returnValue = node.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode === false  }).length > 0
         }
-      } else {
-        if (key == 'Backspace') {
-          canEdit = false
+        return returnValue
+      }
+
+      let noneditableMarkAfterFrom = check($from.nodeAfter!)
+      let noneditableMarkBeforeFrom = check($from.nodeBefore!)
+
+      let noneditableMarkAfterTo = check($to.nodeAfter!)
+      let noneditableMarkBeforeTo = check($to.nodeBefore!)
+
+      if (noneditableMarkAfterFrom && noneditableMarkBeforeFrom && noneditableMarkAfterTo && noneditableMarkBeforeTo) {
+        canEdit = false
+      } else if (noneditableMarkAfterFrom && noneditableMarkBeforeFrom) {
+        canEdit = false
+      } else if (noneditableMarkAfterTo && noneditableMarkBeforeTo) {
+        canEdit = false
+      }
+      if (!canEdit||previewMode.mode) {
+        if (key == 'ArrowRight' ||
+          key == 'ArrowLeft' ||
+          key == 'ArrowDown' ||
+          key == 'ArrowUp') {
+          return false
+        } else {
+          return true
         }
       }
-    }
-    // check both sides for noneditable marks
-
-    let check = (node: Node) => {
-      let returnValue = false
-      if (node) {
-        returnValue = node.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode === false  }).length > 0
-      }
-      return returnValue
-    }
-
-    let noneditableMarkAfterFrom = check($from.nodeAfter!)
-    let noneditableMarkBeforeFrom = check($from.nodeBefore!)
-
-    let noneditableMarkAfterTo = check($to.nodeAfter!)
-    let noneditableMarkBeforeTo = check($to.nodeBefore!)
-
-    if (noneditableMarkAfterFrom && noneditableMarkBeforeFrom && noneditableMarkAfterTo && noneditableMarkBeforeTo) {
-      canEdit = false
-    } else if (noneditableMarkAfterFrom && noneditableMarkBeforeFrom) {
-      canEdit = false
-    } else if (noneditableMarkAfterTo && noneditableMarkBeforeTo) {
-      canEdit = false
-    }
-    if (!canEdit) {
-      if (key == 'ArrowRight' ||
-        key == 'ArrowLeft' ||
-        key == 'ArrowDown' ||
-        key == 'ArrowUp') {
-        return false
-      } else {
-        return true
-      }
-    }
-  } catch (e) { console.error(e); }
-  return false
+    } catch (e) { console.error(e); }
+    return false
+  }
 }
 export const createSelectionBetween = (editorsEditableObj: any, editorId: string) => {
   return (view: EditorView, anchor: ResolvedPos, head: ResolvedPos) => {

@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core';
 import { PluginKey, Plugin, EditorState } from 'prosemirror-state';
 import { ContentType, Item,  UndoManager,XmlElement, XmlFragment, XmlText } from 'yjs';
 import { ServiceShare } from '../services/service-share.service';
-import { Dropdown, MenuItem, undoItem as undoItemPM, redoItem as redoItemPM, undoItem } from "prosemirror-menu"
-
+import { Dropdown,  undoItem as undoItemPM, redoItem as redoItemPM, undoItem } from "prosemirror-menu"
+//@ts-ignore
+import {MenuItem} from '../utils/prosemirror-menu-master/src/index.js'
 //@ts-ignore
 import { getRelativeSelection } from '../../y-prosemirror-src/plugins/sync-plugin.js'
 //@ts-ignore
@@ -314,7 +315,7 @@ export class YjsHistoryService {
     return new MenuItem({
       icon: undoIcon,
       label: "undo",
-      enable:(state)=> { return this.canUndo() },
+      enable:(state:EditorState)=> { return this.canUndo() },
       //@ts-ignore
       run: this.undo
     })
@@ -324,7 +325,7 @@ export class YjsHistoryService {
     return new MenuItem({
       icon: redoIcon,
       label: "redo",
-      enable:(state)=> { return this.canRedo() },
+      enable:(state:EditorState)=> { return this.canRedo() },
       //@ts-ignore
       run: this.redo
     })

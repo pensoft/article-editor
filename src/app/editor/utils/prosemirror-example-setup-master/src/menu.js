@@ -1,9 +1,21 @@
-import {wrapItem, blockTypeItem, Dropdown, DropdownSubmenu, joinUpItem, liftItem,
-       selectParentNodeItem, undoItem, redoItem, icons, MenuItem} from "prosemirror-menu"
-import {NodeSelection} from "prosemirror-state"
-import {toggleMark} from "prosemirror-commands"
-import {wrapInList} from "prosemirror-schema-list"
-import {TextField, openPrompt} from "./prompt"
+import {
+  wrapItem,
+  blockTypeItem,
+  Dropdown,
+  DropdownSubmenu,
+  joinUpItem,
+  liftItem,
+  selectParentNodeItem,
+  undoItem,
+  redoItem,
+  icons
+} from "prosemirror-menu"
+
+import { MenuItem } from '../../prosemirror-menu-master/src/index'
+import { NodeSelection } from "prosemirror-state"
+import { toggleMark } from "prosemirror-commands"
+import { wrapInList } from "prosemirror-schema-list"
+import { TextField, openPrompt } from "./prompt"
 
 // Helpers to create specific types of items
 
@@ -22,16 +34,18 @@ function insertImageItem(nodeType) {
     label: "Image",
     enable(state) { return canInsert(state, nodeType) },
     run(state, _, view) {
-      let {from, to} = state.selection, attrs = null
+      let { from, to } = state.selection, attrs = null
       if (state.selection instanceof NodeSelection && state.selection.node.type == nodeType)
         attrs = state.selection.node.attrs
       openPrompt({
         title: "Insert image",
         fields: {
-          src: new TextField({label: "Location", required: true, value: attrs && attrs.src}),
-          title: new TextField({label: "Title", value: attrs && attrs.title}),
-          alt: new TextField({label: "Description",
-                              value: attrs ? attrs.alt : state.doc.textBetween(from, to, " ")})
+          src: new TextField({ label: "Location", required: true, value: attrs && attrs.src }),
+          title: new TextField({ label: "Title", value: attrs && attrs.title }),
+          alt: new TextField({
+            label: "Description",
+            value: attrs ? attrs.alt : state.doc.textBetween(from, to, " ")
+          })
         },
         callback(attrs) {
           view.dispatch(view.state.tr.replaceSelectionWith(nodeType.createAndFill(attrs)))
@@ -55,7 +69,7 @@ function cmdItem(cmd, options) {
 }
 
 function markActive(state, type) {
-  let {from, $from, to, empty} = state.selection
+  let { from, $from, to, empty } = state.selection
   if (empty) return type.isInSet(state.storedMarks || $from.marks())
   else return state.doc.rangeHasMark(from, to, type)
 }
@@ -87,7 +101,7 @@ function linkItem(markType) {
             label: "Link target",
             required: true
           }),
-          title: new TextField({label: "Title"})
+          title: new TextField({ label: "Title" })
         },
         callback(attrs) {
           toggleMark(markType, attrs)(view.state, view.dispatch)
@@ -161,13 +175,14 @@ function wrapListItem(nodeType, options) {
 //   : An array of arrays of menu elements for use as the full menu
 //     for, for example the [menu bar](https://github.com/prosemirror/prosemirror-menu#user-content-menubar).
 export function buildMenuItems(schema) {
-  let r = {}, type
+  let r = {},
+    type
   if (type = schema.marks.strong)
-    r.toggleStrong = markItem(type, {title: "Toggle strong style", icon: icons.strong})
+    r.toggleStrong = markItem(type, { title: "Toggle strong style", icon: icons.strong })
   if (type = schema.marks.em)
-    r.toggleEm = markItem(type, {title: "Toggle emphasis", icon: icons.em})
+    r.toggleEm = markItem(type, { title: "Toggle emphasis", icon: icons.em })
   if (type = schema.marks.code)
-    r.toggleCode = markItem(type, {title: "Toggle code font", icon: icons.code})
+    r.toggleCode = markItem(type, { title: "Toggle code font", icon: icons.code })
   if (type = schema.marks.link)
     r.toggleLink = linkItem(type)
 
@@ -203,7 +218,7 @@ export function buildMenuItems(schema) {
       r["makeHead" + i] = blockTypeItem(type, {
         title: "Change to heading " + i,
         label: "Level " + i,
-        attrs: {level: i}
+        attrs: { level: i }
       })
   if (type = schema.nodes.horizontal_rule) {
     let hr = type
@@ -216,15 +231,20 @@ export function buildMenuItems(schema) {
   }
 
   let cut = arr => arr.filter(x => x)
-  r.insertMenu = new Dropdown(cut([r.insertImage, r.insertHorizontalRule]), {label: "Insert"})
+  r.insertMenu = new Dropdown(cut([r.insertImage, r.insertHorizontalRule]), { label: "Insert" })
   r.typeMenu = new Dropdown(cut([r.makeParagraph, r.makeCodeBlock, r.makeHead1 && new DropdownSubmenu(cut([
     r.makeHead1, r.makeHead2, r.makeHead3, r.makeHead4, r.makeHead5, r.makeHead6
-  ]), {label: "Heading"})]), {label: "Type..."})
+  ]), { label: "Heading" })]), { label: "Type..." })
 
   r.inlineMenu = [cut([r.toggleStrong, r.toggleEm, r.toggleCode, r.toggleLink])]
   r.blockMenu = [cut([r.wrapBulletList, r.wrapOrderedList, r.wrapBlockQuote, joinUpItem,
-                      liftItem, selectParentNodeItem])]
-  r.fullMenu = r.inlineMenu.concat([[r.insertMenu, r.typeMenu]], [[undoItem, redoItem]], r.blockMenu)
+    liftItem, selectParentNodeItem
+  ])]
+  r.fullMenu = r.inlineMenu.concat([
+    [r.insertMenu, r.typeMenu]
+  ], [
+    [undoItem, redoItem]
+  ], r.blockMenu)
 
   return r
 }

@@ -19,6 +19,7 @@ import { uuidv4 } from 'lib0/random';
 export class CitateReferenceDialogComponent implements AfterViewInit {
   loading = false;
   selected: any
+  citating = false;
   displayedColumns = ['title']
   searchData: any
   references: any
@@ -246,38 +247,67 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
 
   addReference() {
     if (this.lastSelect == 'external') {
+      this.citating  = true;
+      this.changeDetectorRef.detectChanges()
       let styleName = 'demo-style'
       let externalRef = this.externalSelection.ref
       if (!externalRef.id) {
         externalRef.id = uuidv4()
       }
       let citation = this.cslService.genereteCitationStr(styleName, externalRef)
-      let ref: any = {
-        refData: {
-          basicCitation: citation,
-          formioData: this.externalSelection.formIOData,
-          last_modified: Date.now(),
-          refType:'external',
-          referenceData: this.externalSelection.ref
-        },
-        refStyle: {
-          label: "Default Style",
-          last_modified: Date.now(),
-          name: "demo-style"
-        },
-        refType:{
-          type: this.externalSelection.ref.type,
-          name: this.externalSelection.ref.type.split("-").join(" ").toLocaleUpperCase(),
-          last_modified: Date.now(),
-        },
-      }
-      console.log(ref);
-      this.dialogRef.close({
-        ref: ref,
-        refInstance: 'external',
-        //externalSelect:this.selected,
-        citation,
+      this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
+        this.refsAPI.getStyles().subscribe((refStyles: any) => {
+          let typeName = this.externalSelection.ref.type?this.externalSelection.ref.type.split("-").join(" ").toLocaleUpperCase():''
+          let type = this.externalSelection.ref.type
+          let styleName = "demo-style";
+          let typeIndex :any
+          let styleIndex :any
+          if (refTypes.data.find((ref:any) => {
+            return (ref.name == typeName||ref.type == type)
+          })) {
+            typeIndex = refTypes.data.findIndex((ref:any) => {
+              return (ref.name == typeName||ref.type == type)
+            });
+          }
+          if (refStyles.data.find((style:any) => {
+            return style.name == styleName
+          })) {
+            styleIndex = refStyles.data.findIndex((style:any) => {
+              return style.name == styleName
+            });
+          }
+          let ref: any = {
+            refData: {
+              basicCitation: citation,
+              formioData: this.externalSelection.formIOData,
+              last_modified: Date.now(),
+              refType:'external',
+              referenceData: this.externalSelection.ref
+            },
+            refStyle: {
+              label: "Default Style",
+              last_modified: Date.now(),
+              name: "demo-style"
+            },
+            refType:{
+              type: type?type:'',
+              name: typeName,
+              last_modified: (typeof typeIndex == 'number')?refTypes.data[typeIndex].last_modified:refTypes.data[0]?refTypes.data[0].last_modified:Date.now(),
+            },
+          }
+          this.refsAPI.createReference(ref).subscribe((refs)=>{
+            console.log(ref,refs);
+            this.citating  = false;
+            this.changeDetectorRef.detectChanges()
+            this.dialogRef.close({
+              ref: ref,
+              refInstance: 'local',
+              //externalSelect:this.selected,
+              citation,
 
+            })
+          })
+        })
       })
     } else if (this.lastSelect == 'localRef') {
       let localRef = this.referencesControl.value
