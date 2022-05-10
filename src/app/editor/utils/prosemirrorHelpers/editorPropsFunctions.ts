@@ -1,26 +1,27 @@
 import { CompileShallowModuleMetadata } from "@angular/compiler";
 import { ServiceShare } from "@app/editor/services/service-share.service";
 import { mathBackspaceCmd } from "@benrbray/prosemirror-math";
+import { SelectionRange } from "@codemirror/state";
 import { debug } from "console";
 import { uuidv4 } from "lib0/random";
 import { Fragment, ResolvedPos, Slice, Node } from "prosemirror-model";
-import { PluginKey, PluginSpec, TextSelection, Selection, EditorState } from "prosemirror-state";
+import { PluginKey, PluginSpec, TextSelection, Selection, EditorState, AllSelection } from "prosemirror-state";
 import { CellSelection } from "prosemirror-tables";
 import { EditorView } from "prosemirror-view";
 import { YMap } from "yjs/dist/src/internals";
 import { articleSection } from "../interfaces/articleSection";
 
-export function handlePaste(mathMap:YMap<any>,sectionID:string){
+export function handlePaste(mathMap: YMap<any>, sectionID: string) {
   return function handlePaste(view: EditorView, event: Event, slice: Slice) {
     slice.content.nodesBetween(0, slice.size - 2, (node, pos, parent) => {
       if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
         let mark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
         mark.attrs.citateid = uuidv4()
       }
-      if (node.type.name == 'math_inline'||node.type.name == 'math_display') {
+      if (node.type.name == 'math_inline' || node.type.name == 'math_display') {
         let oldId = node.attrs.math_id;
         node.attrs.math_id = uuidv4()
-      }else if(node.type.name == 'reference_citation'){
+      } else if (node.type.name == 'reference_citation') {
         node.attrs.refCitationID = uuidv4();
       }
     })
@@ -49,13 +50,13 @@ export function handlePaste(mathMap:YMap<any>,sectionID:string){
           if (parentFrom == parentTo) {
             if (!parentRef) {
               parentRef = parentFrom
-            } else if (parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && (parentRef?.attrs.contenteditableNode !== 'false'&&parentRef?.attrs.contenteditableNode !== false)) {
+            } else if (parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && (parentRef?.attrs.contenteditableNode !== 'false' && parentRef?.attrs.contenteditableNode !== false)) {
               parentRef = parentFrom
             }
           }
         }
       }
-      if (parentRef?.attrs.contenteditableNode === 'false'||parentRef?.attrs.contenteditableNode === false) {
+      if (parentRef?.attrs.contenteditableNode === 'false' || parentRef?.attrs.contenteditableNode === false) {
         noneditableNodes = true;
       }
     }
@@ -106,18 +107,18 @@ export function handleClick(hideshowPluginKEey: PluginKey, citatContextPluginkey
       return true
     }else  */if (((event.target as HTMLElement).className == 'changes-placeholder')) {
       setTimeout(() => {
-        view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup',true))
+        view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup', true))
       }, 0)
       return true
     } else if (((event.target as HTMLElement).className == 'citat-menu-context') || (event.target as HTMLElement).tagName == 'CITATION') {
       return true
     } else if ((event.target as HTMLElement).className == 'citat-menu-context-delete-citat-btn') {
-      setTimeout(() => { view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup',true)) }, 0)
+      setTimeout(() => { view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup', true)) }, 0)
       return true
     }
     let tr1 = view.state.tr.setMeta(hideshowPluginKEey, {})
     if (citatContextPluginkey) {
-      tr1 = tr1.setMeta('citatContextPlugin', { clickOutside: true }).setMeta('addToLastHistoryGroup',true)
+      tr1 = tr1.setMeta('citatContextPlugin', { clickOutside: true }).setMeta('addToLastHistoryGroup', true)
     }
     view.dispatch(tr1)
     return false
@@ -129,7 +130,7 @@ export function handleTripleClickOn(view: EditorView, pos: number, node: Node, n
   }
   return false
 }
-export const handleDoubleClick = (hideshowPluginKEey: PluginKey,serviceShare:ServiceShare) => {
+export const handleDoubleClick = (hideshowPluginKEey: PluginKey, serviceShare: ServiceShare) => {
   let previewMode = serviceShare.ProsemirrorEditorsService!.previewArticleMode!
   return (view: EditorView, pos: number, event: Event) => {
     let node = view.state.doc.nodeAt(pos)
@@ -141,26 +142,26 @@ export const handleDoubleClick = (hideshowPluginKEey: PluginKey,serviceShare:Ser
         || mark!.type.name == 'delFromPopup'
         || mark!.type.name == 'format_change'
     })
-    if (hasTrackChnagesMark&&!previewMode.mode) {
+    if (hasTrackChnagesMark && !previewMode.mode) {
       let cursurCoord = view.coordsAtPos(pos);
       let tr1 = view.state.tr.setMeta(hideshowPluginKEey, { marks, focus: view.hasFocus(), coords: cursurCoord })
-      view.dispatch(tr1.setMeta('addToLastHistoryGroup',true))
+      view.dispatch(tr1.setMeta('addToLastHistoryGroup', true))
       return true
     }
     return false
   }
 }
-export let handleKeyDown=(serviceShare:ServiceShare)=>{
+export let handleKeyDown = (serviceShare: ServiceShare) => {
   let previewMode = serviceShare.ProsemirrorEditorsService!.previewArticleMode!
   return (view: EditorView, event: KeyboardEvent) => {
     try {
 
       let sel = view.state.selection
-      let { $from, $to } = sel
+      let { $from, $to, from, to } = sel
       let key = event.key
       let canEdit = false;
 
-
+      console.log($to, to);
       /* if (sel instanceof CellSelection) {
           from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
           to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);
@@ -194,20 +195,20 @@ export let handleKeyDown=(serviceShare:ServiceShare)=>{
               if (!parentRef) {
                 parentRef = parentFrom
               } else if ((
-                !parentRef||!(parentRef.attrs.contenteditableNode=='false'||parentRef.attrs.contenteditableNode==false)
-              )&&parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && (parentRef?.attrs.contenteditableNode != 'false'||parentRef?.attrs.contenteditableNode !== false)) {
+                !parentRef || !(parentRef.attrs.contenteditableNode == 'false' || parentRef.attrs.contenteditableNode == false)
+              ) && parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && (parentRef?.attrs.contenteditableNode != 'false' || parentRef?.attrs.contenteditableNode !== false)) {
                 parentRef = parentFrom
               }
 
             }
           }
         }
-        if (parentRef?.attrs.contenteditableNode != 'false'&&parentRef?.attrs.contenteditableNode !== false) {
+        if (parentRef?.attrs.contenteditableNode != 'false' && parentRef?.attrs.contenteditableNode !== false) {
           canEdit = true
         }
       }
-      let NodeBeforeHasNoneditableMark = sel.$anchor.nodeBefore?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode === false }).length! > 0
-      let NodeAfterHasNoneditableMark = sel.$anchor.nodeAfter?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode === false  }).length! > 0
+      let NodeBeforeHasNoneditableMark = sel.$anchor.nodeBefore?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false' || mark.attrs.contenteditableNode === false }).length! > 0
+      let NodeAfterHasNoneditableMark = sel.$anchor.nodeAfter?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false' || mark.attrs.contenteditableNode === false }).length! > 0
 
       let onNoneditableMarkBorder: undefined | 'left' | 'right' = undefined
       if (NodeBeforeHasNoneditableMark && !NodeAfterHasNoneditableMark && sel.empty) {
@@ -233,7 +234,7 @@ export let handleKeyDown=(serviceShare:ServiceShare)=>{
       let check = (node: Node) => {
         let returnValue = false
         if (node) {
-          returnValue = node.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false'||mark.attrs.contenteditableNode === false  }).length > 0
+          returnValue = node.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false' || mark.attrs.contenteditableNode === false }).length > 0
         }
         return returnValue
       }
@@ -244,6 +245,8 @@ export let handleKeyDown=(serviceShare:ServiceShare)=>{
       let noneditableMarkAfterTo = check($to.nodeAfter!)
       let noneditableMarkBeforeTo = check($to.nodeBefore!)
 
+
+
       if (noneditableMarkAfterFrom && noneditableMarkBeforeFrom && noneditableMarkAfterTo && noneditableMarkBeforeTo) {
         canEdit = false
       } else if (noneditableMarkAfterFrom && noneditableMarkBeforeFrom) {
@@ -251,7 +254,74 @@ export let handleKeyDown=(serviceShare:ServiceShare)=>{
       } else if (noneditableMarkAfterTo && noneditableMarkBeforeTo) {
         canEdit = false
       }
-      if (!canEdit||previewMode.mode) {
+
+
+      if (to == from && $from.nodeAfter == null && canEdit == false) {
+        let nodeAfterPlusOne = view.state.doc.nodeAt(from + 1);
+        if (nodeAfterPlusOne) {
+          let resolvedPos = view.state.doc.resolve(from + 1);
+          let editableFirstParent = false;
+          //@ts-ignore
+          let path = resolvedPos.path
+          for (let i = path.length - 3; i > -1; i -= 3) {
+            let parentNode = path[i];
+            if (!editableFirstParent && !(parentNode.attrs.contenteditableNode == false || parentNode.attrs.contenteditableNode == 'false')) {
+              editableFirstParent = true;
+            }
+          }
+          if (nodeAfterPlusOne.isText && editableFirstParent && !(key == 'ArrowRight' ||
+            key == 'ArrowLeft' ||
+            key == 'ArrowDown' || key == 'Backspace' ||
+            key == 'ArrowUp')) {
+            //@ts-ignore
+            view.dispatch(view.state.tr.setSelection(new Selection(view.state.doc.resolve(from + 1), view.state.doc.resolve(from + 1))))
+            canEdit = true;
+          }
+        }
+      }
+      let contentEditableNodeAroundPos = (pos: ResolvedPos) => {
+        let contenteditable = false;
+        if ($from.nodeBefore && $from.nodeAfter) {
+          //@ts-ignore
+          let path = $from.path
+          for (let i = path.length - 3; i > -1; i -= 3) {
+            let parentNode = path[i];
+            if (!contenteditable && !(parentNode.attrs.contenteditableNode == false || parentNode.attrs.contenteditableNode == 'false')) {
+              contenteditable = true;
+            }
+          }
+        } else if (!$from.nodeBefore && $from.nodeAfter && pos.pos - 1 > 0) {
+          let posMinusOne = view.state.doc.resolve(pos.pos - 1);
+
+          //@ts-ignore
+          let path = posMinusOne.path
+          for (let i = path.length - 3; i > -1; i -= 3) {
+            let parentNode = path[i];
+            if (!contenteditable && !(parentNode.attrs.contenteditableNode == false || parentNode.attrs.contenteditableNode == 'false')) {
+              contenteditable = true;
+            }
+          }
+        } else if ($from.nodeBefore && !$from.nodeAfter && pos.pos + 1 < view.state.doc.content.size) {
+          let posPlusOne = view.state.doc.resolve(pos.pos + 1);
+
+          //@ts-ignore
+          let path = posPlusOne.path
+          for (let i = path.length - 3; i > -1; i -= 3) {
+            let parentNode = path[i];
+            if (!contenteditable && !(parentNode.attrs.contenteditableNode == false || parentNode.attrs.contenteditableNode == 'false')) {
+              contenteditable = true;
+            }
+          }
+        }
+        return contenteditable
+      }
+      if (!canEdit && to !== from && contentEditableNodeAroundPos($from) && contentEditableNodeAroundPos($to)) {
+
+
+        view.dispatch(view.state.tr.setSelection(new Selection(view.state.doc.resolve(from - 1), view.state.doc.resolve(to + 1))))
+        canEdit = true;
+      }
+      if (!canEdit || previewMode.mode) {
         if (key == 'ArrowRight' ||
           key == 'ArrowLeft' ||
           key == 'ArrowDown' ||
@@ -262,6 +332,7 @@ export let handleKeyDown=(serviceShare:ServiceShare)=>{
         }
       }
     } catch (e) { console.error(e); }
+    console.log('false');
     return false
   }
 }
@@ -311,7 +382,7 @@ export const createSelectionBetween = (editorsEditableObj: any, editorId: string
       let from = Math.min(view.state.selection.$anchor.pos, newHeadResolvedPosition.pos)
       let to = Math.max(view.state.selection.$anchor.pos, newHeadResolvedPosition.pos)
       view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-        if (node.attrs.contenteditableNode === 'false'||node.attrs.contenteditableNode === false ) {
+        if (node.attrs.contenteditableNode === 'false' || node.attrs.contenteditableNode === false) {
           editorsEditableObj[editorId] = false;
 
         }
@@ -322,7 +393,7 @@ export const createSelectionBetween = (editorsEditableObj: any, editorId: string
     let from = Math.min(anchor.pos, head.pos)
     let to = Math.max(anchor.pos, head.pos)
     view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-      if (node.attrs.contenteditableNode === 'false'||node.attrs.contenteditableNode === false ) {
+      if (node.attrs.contenteditableNode === 'false' || node.attrs.contenteditableNode === false) {
         editorsEditableObj[editorId] = false;
       }
     })

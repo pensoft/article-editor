@@ -69,8 +69,15 @@ export function handleDeleteOfRefCitation(sharedService:ServiceShare){
     transactions.forEach((transaction) => {
       if(transaction.steps.length>0){
         transaction.steps.forEach((step)=>{
+          let replacingCitationWithNewOne = false;
           //@ts-ignore
-          if(step instanceof ReplaceStep&&step.slice.content.size == 0){
+          (step.slice.content as Fragment).nodesBetween(0,step.slice.content.size,(n,p,par,i)=>{
+            if(n.type.name == 'reference_citation'){
+              replacingCitationWithNewOne = true
+            }
+          })
+          //@ts-ignore
+          if(step instanceof ReplaceStep&&!replacingCitationWithNewOne){
             //@ts-ignore
             let from = step.from;
             //@ts-ignore

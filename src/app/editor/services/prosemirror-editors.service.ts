@@ -467,7 +467,6 @@ export class ProsemirrorEditorsService {
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
       try {
-
         let nodeAtSel = transaction.selection.$head.parent || transaction.selection.$anchor.parent
         //@ts-ignore
         if (nodeAtSel && !transaction.getMeta('titleupdateFromControl') && nodeAtSel.attrs.controlPath && nodeAtSel.attrs.controlPath == "sectionTreeTitle" && transaction.steps.filter(step => { return step instanceof ReplaceStep || step instanceof ReplaceAroundStep }).length > 0) {
