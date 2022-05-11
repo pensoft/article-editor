@@ -412,10 +412,7 @@ export let mapExternalRefs = (data1: string) => {
     let mapedRef = mapRef(ref)
 
     let mapedRef1 = mapRef1(ref)
-    //console.log('mapedRef', mapedRef, 'mapedRef1', mapedRef1);
     mapedReferences.push(mapedRef1)
   })
-  console.log('external refs',data);
-  console.log('mapped refs',mapedReferences);
   return JSON.stringify(mapedReferences)
 }

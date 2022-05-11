@@ -307,7 +307,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
     Array.from(prosemirrorEditors).forEach((pmEdEl: Element, i) => {
       let sectionHtmlElementsContainer: string[] = []
       if (pmEdEl.children.length > 0) {
-        console.log(pmEdEl,this.articleSectionsStructureFlat![i],i);
         loopChildrenRecursivly(pmEdEl, sectionHtmlElementsContainer, this.articleSectionsStructureFlat![i])
         this.sectionsContainers!.push(sectionHtmlElementsContainer);
       }
@@ -853,9 +852,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     let generatePDFData = async (element: Element, parentPDFel: any, parentStyle: any, parentElement: Element | undefined) => {
       let defaultView = (element.ownerDocument || document).defaultView
 
-      if(!element.tagName){
-        console.log(element);
-      }
+
       let tag = element.tagName.toLocaleLowerCase()
       if (
         tag == 'p' || tag == 'h1' || tag == 'h2' || tag == 'h3' || tag == 'h4' || tag == 'h5' ||
@@ -1668,7 +1665,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
       }
 
       this.data.images = ImagesByKeys
-      console.log('ImagesByKeys',ImagesByKeys);
+      console.log('---ImagesByKeys',ImagesByKeys);
       this.data.content = cont;
 
       let checkIfHeadingIsLastNodeOnNonLastPage = (node: any, nodesAfterNodeOnSamePage: any) => {
@@ -1778,7 +1775,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
             } else {
               node.scaleTry = 2;
               if(loopTableAndChangeWidth(node)){
-                console.log('scaled');
                 return true
               }
 
@@ -1832,7 +1828,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
               node.pageOrderCalculated = false;
               structuredNodes.splice(biggestIndex, 0, figureNode);
-              console.log('move text from uder');
 
               //retrun true so we contonue to the next node
               return true;
@@ -1871,7 +1866,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
               }
 
               structuredNodes.splice(moveTo, 0, ...movingNode);
-              console.log('move figure above the text before');
 
               return true
             }
@@ -2114,7 +2108,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
       this.data.pageBreakBefore = (nodeInfo: any, nodeFunc: any) => {
         if (nodeInfo.table && nodeInfo.table.props && nodeInfo.table.props.type == 'figure') {
           if (nodeInfo.pageNumbers.length == 2) {
-            console.log(nodeInfo);
             return true
           }
         }

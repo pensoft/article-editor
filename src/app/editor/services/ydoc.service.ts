@@ -367,10 +367,10 @@ export class YdocService {
       })
       this.provider
       this.provider.on('connection-close', function(WSClosedEvent:any){
-        console.log(WSClosedEvent,(new Date()).getTime());
+        console.log("---",WSClosedEvent,(new Date()).getTime());
       });
       this.provider.on('connection-error', function(WSErrorEvent:any){
-        console.log(WSErrorEvent,(new Date()).getTime());
+        console.log("---",WSErrorEvent,(new Date()).getTime());
       });
       this.provider.on('synced', (isSynced: boolean) => {
         let checkSyncStatus = setInterval(()=>{

@@ -211,7 +211,6 @@ function rejectFormatChange(view:EditorView,markattrs:any){
       marksAfter.splice(marksBefore.indexOf(element),1);
     });
     let markThatShouldBeRemoved = marksAfter[0];
-    console.log(markThatShouldBeRemoved);
     let rmType = view.state.schema.marks[markThatShouldBeRemoved]
     let tr = view.state.tr.removeMark(textstart, textend, markType).removeMark(textstart,textend,rmType)
     view.dispatch(tr.setMeta('shouldTrack', false));
@@ -254,7 +253,6 @@ export function rejectChange(view: EditorView, markType: any, markattrs: any, fr
     } else if (markType == 'deletion') {
       removeChangeMarkFromText(view, markattrs, 'decline', fromConnection);
     }else if (markType == 'format_change') {
-      console.log('formatChange');
     }
   } */
 

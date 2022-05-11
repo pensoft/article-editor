@@ -19,7 +19,6 @@ export class ExportOptionsComponent implements OnInit {
   }
 
   openEditBeforeExport(selected:any){
-    console.log(selected);
     if(selected == 'pdf'){
       let dialogRef = this.dialog.open(EditBeforeExportComponent, {
         maxWidth: '100vw',

@@ -20,7 +20,6 @@ export class WorkerService {
       //@ts-ignore
       saveFunc(data.imageURL, this.result)
     }, false);
-    console.log(URL.createObjectURL(data.blob));
     reader.readAsDataURL(data.blob);
   }
 
@@ -85,7 +84,6 @@ export class WorkerService {
   saveDataURL = (url: string, dataurl: string) => {
     let dataURLObj = this.serviceShare.YdocService!.figuresMap!.get('ArticleFiguresDataURLS');
     dataURLObj[url] = dataurl;
-    console.log(url,dataurl);
     this.serviceShare.YdocService!.figuresMap!.set('ArticleFiguresDataURLS', dataURLObj);
   }
 

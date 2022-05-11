@@ -72,7 +72,7 @@ export var CSL = {
     if ("undefined" === typeof console) {
       dump("CSL: " + str + "\n");
     } else {
-      console.log("citeproc-js warning: " + str);
+      console.log("---citeproc-js warning: " + str);
     }
   },
 
@@ -4564,8 +4564,7 @@ CSL.Engine.prototype.remapSectionVariable = function(inputList) {
 
 
 CSL.Engine.prototype.setNumberLabels = function(Item) {
-  if (Item.number &&
-    ["bill", "gazette", "legislation", "regulation", "treaty"].indexOf(Item.type) > -1 &&
+  if (Item.number && ["bill", "gazette", "legislation", "regulation", "treaty"].indexOf(Item.type) > -1 &&
     this.opt.development_extensions.consolidate_legal_items &&
     !this.tmp.shadow_numbers["number"]) {
 
@@ -9940,9 +9939,11 @@ CSL.Node.date = {
 
             date_obj = Item[this.variables[0]];
             if ("undefined" === typeof date_obj) {
-              date_obj = { "date-parts": [
+              date_obj = {
+                "date-parts": [
                   [0]
-                ] };
+                ]
+              };
               if (state.opt.development_extensions.locator_date_and_revision) {
                 if (item && this.variables[0] === "locator-date" && item["locator-date"]) {
                   date_obj = item["locator-date"];
@@ -11458,8 +11459,7 @@ CSL.Node.layout = {
           state.tmp.done_vars.push("locator");
         }
         if (state.opt.suppressedJurisdictions[Item["country"]] &&
-          Item["country"] &&
-          ["treaty", "patent"].indexOf(Item.type) === -1) {
+          Item["country"] && ["treaty", "patent"].indexOf(Item.type) === -1) {
 
           state.tmp.done_vars.push("country");
         }
@@ -15605,8 +15605,7 @@ CSL.Node.text = {
           // Deal with multi-fields and ordinary fields separately.
           if (CSL.MULTI_FIELDS.indexOf(this.variables_real[0]) > -1 ||
             this.variables_real[0].indexOf("-main") > -1 ||
-            this.variables_real[0].indexOf("-sub") > -1 ||
-            ["language-name", "language-name-original"].indexOf(this.variables_real[0]) > -1
+            this.variables_real[0].indexOf("-sub") > -1 || ["language-name", "language-name-original"].indexOf(this.variables_real[0]) > -1
           ) {
 
             // multi-fields
@@ -18951,9 +18950,11 @@ CSL.dateAsSortKey = function(state, Item, isMacro) {
   }
   dp = Item[variable];
   if ("undefined" === typeof dp) {
-    dp = { "date-parts": [
+    dp = {
+      "date-parts": [
         [0]
-      ] };
+      ]
+    };
   }
   if ("undefined" === typeof this.dateparts) {
     this.dateparts = ["year", "month", "day"];

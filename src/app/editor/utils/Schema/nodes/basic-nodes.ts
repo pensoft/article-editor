@@ -29,12 +29,12 @@ export const nodes = {
         toDOM: function toDOM(node:Node) { return ["hr",{...genericAttributtesToDom(node)}] }
     },
     heading: {
-        attrs: { tagName: { default: 'h1' },...getGenericAttributes() },
+        attrs: { tagName: { default: 'H1' },...getGenericAttributes() },
         content: "block+",
         group: "block",
         defining: true,
         parseDOM: (function () {
-            return ['h1','h2','h3','h4','h5','h6'].map((tagName: string) => {
+            return ['H1','H2','H3','H4','H5','H6'].map((tagName: string) => {
                 return {
                     tag: tagName,
                     getAttrs: (dom: any) => {

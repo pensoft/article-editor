@@ -55,10 +55,10 @@ export class ServiceShare {
   }
 
   logData(){
-    console.log(this.ProsemirrorEditorsService?.editorContainers);
-    console.log(this.YdocService?.ydoc);
-    console.log(this.ProsemirrorEditorsService?.transactionCount!+1-1);
-    console.log(this.TreeService?.sectionFormGroups);
+    console.log('---',this.ProsemirrorEditorsService?.editorContainers);
+    console.log('---',this.YdocService?.ydoc);
+    console.log('---',this.ProsemirrorEditorsService?.transactionCount!+1-1);
+    console.log('---',this.TreeService?.sectionFormGroups);
     this.ProsemirrorEditorsService!.transactionCount = 0;
   }
 

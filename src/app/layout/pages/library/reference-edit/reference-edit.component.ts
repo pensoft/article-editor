@@ -120,7 +120,6 @@ export class ReferenceEditComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.referenceTypesFromBackend = this.data.referenceTypesFromBackend;
     this.referenceStyles = this.data.referenceStyles
-    console.log(this.data);
     if (!this.data.oldData) {
       this.referenceFormControl.setValue(this.referenceTypesFromBackend[0]);
       this.stylesFormControl.setValue(this.referenceStyles[0])

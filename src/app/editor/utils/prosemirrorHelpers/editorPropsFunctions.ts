@@ -161,7 +161,6 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
       let key = event.key
       let canEdit = false;
 
-      console.log($to, to);
       /* if (sel instanceof CellSelection) {
           from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
           to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);
@@ -332,7 +331,6 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
         }
       }
     } catch (e) { console.error(e); }
-    console.log('false');
     return false
   }
 }

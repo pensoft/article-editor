@@ -41,7 +41,7 @@ export class PermissionComponent implements OnInit {
       .getOnlyOtherEmails(this.email)
       // .pipe(untilDestroyed(this))
       .subscribe((response) => {
-        console.log('response', response);
+        console.log('---response', response);
       });
   }
 
@@ -54,14 +54,14 @@ export class PermissionComponent implements OnInit {
       email: '',
       searchableProfile: '',
     });
-    console.log(this.permissionForm.value);
+    console.log('---',this.permissionForm.value);
   }
 
   submitPermissionForm() {
     if (this.permissionForm.valid) {
       this.profileService.submitPermissionForm(this.model);
-      console.log('model', this.model);
-      console.log('this.permissionForm.value', this.permissionForm.value);
+      console.log('---model', this.model);
+      console.log('---this.permissionForm.value', this.permissionForm.value);
       this.permissionForm.reset();
     }
   }

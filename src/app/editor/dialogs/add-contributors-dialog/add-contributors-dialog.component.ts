@@ -59,29 +59,25 @@ export class AddContributorsDialogComponent implements OnInit {
       this.contributersData = response.data;
 
       // this.role = [...this.role];
-      //const role = response.data.role.name;console.log(this.contributersData.role);
-      console.log('contributer.role.name', this.contributersData[1].role?.name);
-      console.log('allUsers', this.contributersData);
+      console.log('---contributer.role.name', this.contributersData[1].role?.name);
+      console.log('---allUsers', this.contributersData);
     });
   }
-  // search(input: HTMLInputElement) {
-  //   console.log('search');
-  // }
   closeDialog() {
     //this.dialogRef.close();
   }
   submitOwnerSettingsForm() {
-    console.log('submitOwnerSettingsForm');
+    console.log('---submitOwnerSettingsForm');
   }
   addUser(contributersData: any) {
-    console.log('addUser');
+    console.log('---addUser');
     contributersData.userIsAdded = true;
   }
   removeUser(contributersData: any) {
-    console.log('removeUser');
+    console.log('---removeUser');
     contributersData.userIsAdded = false;
   }
   sendAllSelectContributers() {
-    
+
   }
 }

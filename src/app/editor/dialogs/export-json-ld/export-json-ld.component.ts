@@ -81,7 +81,6 @@ export class ExportJsonLdComponent implements AfterViewInit {
     Array.from(prosemirrorEditors).forEach((pmEdEl: Element, i) => {
       let sectionHtmlElementsContainer: string[] = []
       if (pmEdEl.children.length > 0) {
-        console.log(pmEdEl, this.articleSectionsStructureFlat![i], i);
         loopChildrenRecursivly(pmEdEl, sectionHtmlElementsContainer, this.articleSectionsStructureFlat![i])
         this.sectionsContainers!.push(sectionHtmlElementsContainer);
       }
@@ -128,7 +127,6 @@ export class ExportJsonLdComponent implements AfterViewInit {
         pbs++;
       } else {
         let htmlElement = el;
-        console.log(htmlElement);
       }
       if (i == mainNodes.length - 1) {
        //done

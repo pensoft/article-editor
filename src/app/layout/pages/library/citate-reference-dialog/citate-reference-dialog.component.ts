@@ -232,7 +232,6 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
         let mapedRef = this.mapRef(ref)
         mapedReferences.push(mapedRef)
       })
-      console.log(mapedReferences);
       if (mapedReferences.length > 0) {
         this.searchData = mapedReferences;
         this.loading = false;
@@ -296,7 +295,6 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
             },
           }
           this.refsAPI.createReference(ref).subscribe((refs)=>{
-            console.log(ref,refs);
             this.citating  = false;
             this.changeDetectorRef.detectChanges()
             this.dialogRef.close({
