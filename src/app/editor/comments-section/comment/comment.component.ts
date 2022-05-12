@@ -79,6 +79,7 @@ export class CommentComponent implements OnInit {
   }
 
   deleteComment() {
+    console.log('deleting');
     let from = this.comment?.from;
     let to = this.comment?.to;
     let state = this.comment?.viewRef.state

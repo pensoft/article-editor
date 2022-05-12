@@ -8,7 +8,7 @@ import { toggleMark } from "prosemirror-commands";
 //@ts-ignore
 import {MenuItem} from '../prosemirror-menu-master/src/index.js';
 import { Fragment, Node } from "prosemirror-model";
-import { EditorState, NodeSelection, Transaction } from "prosemirror-state";
+import { EditorState, NodeSelection, Selection, Transaction } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { AddCommentDialogComponent } from "../../add-comment-dialog/add-comment-dialog.component";
 import { AddLinkDialogComponent } from "../../add-link-dialog/add-link-dialog.component";
@@ -45,6 +45,7 @@ let citateRef = (sharedService: ServiceShare) => {
             actualRefId:refInYdoc.ref.refData.referenceData.id,
           }
           let tr = state.tr.replaceWith(start, end, nodeType.create(recCitationAttrs,state.schema.text(refInYdoc.citationDisplayText)))
+          tr = tr.setSelection(new Selection(tr.doc.resolve(end+2+refInYdoc.citationDisplayText.length),tr.doc.resolve(end+2+refInYdoc.citationDisplayText.length)))
           dispatch(tr.setMeta('createNewHistoryGroup',true))
         }else if(result.refInstance=='external'){
           let refInYdoc = sharedService.EditorsRefsManagerService!.addReferenceToEditor(result)
@@ -54,6 +55,7 @@ let citateRef = (sharedService: ServiceShare) => {
             actualRefId:refInYdoc.ref.refData.referenceData.id,
           }
           let tr = state.tr.replaceWith(start, end, nodeType.create(recCitationAttrs,state.schema.text(refInYdoc.citationDisplayText)))
+          tr = tr.setSelection(new Selection(tr.doc.resolve(end+2+refInYdoc.citationDisplayText.length),tr.doc.resolve(end+2+refInYdoc.citationDisplayText.length)))
           dispatch(tr.setMeta('createNewHistoryGroup',true))
         }
       }

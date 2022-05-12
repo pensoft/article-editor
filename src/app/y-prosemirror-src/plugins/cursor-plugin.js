@@ -44,7 +44,7 @@ export const CursorBuilder = userInfo => {
  * @param {Awareness} awareness
  * @return {any} DecorationSet
  */
-export const createDecorations = (state, awareness, createCursor) => {
+export const createDecorations = (state, awareness, createCursor, sharedService) => {
   const ystate = ySyncPluginKey.getState(state)
   const y = ystate.doc
   const decorations = []
@@ -52,7 +52,9 @@ export const createDecorations = (state, awareness, createCursor) => {
     // do not render cursors while snapshot is active
     return DecorationSet.create(state.doc, [])
   }
-  awareness.getStates().forEach((aw, clientId) => {
+  let states = awareness.getStates();
+  sharedService.ProsemirrorEditorsService.usersInArticleStatusSubject.next(states)
+  states.forEach((aw, clientId) => {
     if (clientId === y.clientID) {
       return
     }
@@ -92,17 +94,17 @@ export const createDecorations = (state, awareness, createCursor) => {
  * @param {string} [opts.cursorStateField] By default all editor bindings use the awareness 'cursor' field to propagate cursor information.
  * @return {any}
  */
-export const yCursorPlugin = (awareness, { cursorBuilder = /* defaultCursorBuilder */ CursorBuilder, getSelection = state => state.selection } = {}, cursorStateField = 'cursor') => new Plugin({
+export const yCursorPlugin = (awareness, sharedService, { cursorBuilder = /* defaultCursorBuilder */ CursorBuilder, getSelection = state => state.selection } = {}, cursorStateField = 'cursor') => new Plugin({
   key: yCursorPluginKey,
   state: {
     init(_, state) {
-      return createDecorations(state, awareness, CursorBuilder)
+      return createDecorations(state, awareness, CursorBuilder, sharedService)
     },
     apply(tr, prevState, oldState, newState) {
       const ystate = ySyncPluginKey.getState(newState)
       const yCursorState = tr.getMeta(yCursorPluginKey)
       if ((ystate && ystate.isChangeOrigin) || (yCursorState && yCursorState.awarenessUpdated)) {
-        return createDecorations(newState, awareness, CursorBuilder)
+        return createDecorations(newState, awareness, CursorBuilder, sharedService)
       }
       return prevState.map(tr.mapping, tr.doc)
     }

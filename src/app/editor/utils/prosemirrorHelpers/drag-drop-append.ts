@@ -71,11 +71,14 @@ export function handleDeleteOfRefCitation(sharedService:ServiceShare){
         transaction.steps.forEach((step)=>{
           let replacingCitationWithNewOne = false;
           //@ts-ignore
-          (step.slice.content as Fragment).nodesBetween(0,step.slice.content.size,(n,p,par,i)=>{
-            if(n.type.name == 'reference_citation'){
-              replacingCitationWithNewOne = true
-            }
-          })
+          if(step instanceof ReplaceStep&&step.slice){
+            //@ts-ignore
+            (step.slice.content as Fragment).nodesBetween(0,step.slice.content.size,(n,p,par,i)=>{
+              if(n.type.name == 'reference_citation'){
+                replacingCitationWithNewOne = true
+              }
+            })
+          }
           //@ts-ignore
           if(step instanceof ReplaceStep&&!replacingCitationWithNewOne){
             //@ts-ignore

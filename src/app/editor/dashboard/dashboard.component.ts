@@ -60,7 +60,7 @@ export class DashboardComponent implements AfterViewInit {
     this.sort!.sortChange.subscribe(() => {
       this.paginator!.pageIndex = 0;
     });
-
+    this.serviceShare.resetServicesData();
     this.typeChange.subscribe(() => {
       this.paginator!.pageIndex = 0;
     })

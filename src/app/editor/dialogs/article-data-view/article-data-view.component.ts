@@ -4,7 +4,8 @@ import { MatButton } from '@angular/material/button';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CopiedToClipBoardComponent } from '@app/editor/snack-bars/copied-to-clip-board/copied-to-clip-board.component';
-import { articleSection } from '@app/editor/utils/interfaces/articleSection';
+import { articleSection, flatArticleSection } from '@app/editor/utils/interfaces/articleSection';
+import { isArray } from 'lodash';
 
 @Component({
   selector: 'app-article-data-view',
@@ -14,6 +15,7 @@ import { articleSection } from '@app/editor/utils/interfaces/articleSection';
 export class ArticleDataViewComponent implements AfterViewInit {
 
   articleSectionsStructure?:articleSection[]
+  flatArticleSectionsStructure?: any
   sectionFormGroups: any
   articleCitatsObj: any
   ArticleFigures: any
@@ -34,6 +36,7 @@ export class ArticleDataViewComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.articleSectionsStructure = this.data.articleSectionsStructure as articleSection[]
+    this.flatArticleSectionsStructure = this.getFlatArticleStructure(this.data.articleSectionsStructure) as flatArticleSection[]
     this.sectionFormGroups = this.data.sectionFormGroups
     this.articleCitatsObj = this.data.articleCitatsObj
     this.ArticleFigures = this.data.ArticleFigures
@@ -72,6 +75,13 @@ export class ArticleDataViewComponent implements AfterViewInit {
       duration: 3 * 1000,
     });
   }
+  copyFlatJSONToClipboard(){
+    var myjson = JSON.stringify(this.flatArticleSectionsStructure, null, 2);
+    navigator.clipboard.writeText(myjson);
+    this._snackBar.openFromComponent(CopiedToClipBoardComponent, {
+      duration: 3 * 1000,
+    });
+  }
 
   openRawJSON(){
     var myjson = JSON.stringify(this.articleSectionsStructure, null, 2);
@@ -79,5 +89,30 @@ export class ArticleDataViewComponent implements AfterViewInit {
     x!.document.open();
     x!.document.write('<html><body><pre>' + myjson.replace(/&/g, '&amp;').replace(/</g, '&lt;') + '</pre></body></html>');
     x!.document.close();
+  }
+
+  getFlatArticleStructure(articleSectionsStructure: articleSection[]){
+    const flatten = (node: articleSection | articleSection[], parentSectionID: string = 'root', flatArray: flatArticleSection[] = []): flatArticleSection[] => {
+      if (isArray(node)) {
+        node.forEach(section => {
+          flatten(section, parentSectionID, flatArray);
+        })
+      } else if (node.sectionID) {
+        flatArray.push({
+          title: node.title.name || '',
+          sectionID: node.sectionID,
+          parentSectionID,
+          prosemirrorHTMLNodesTempl: node.prosemirrorHTMLNodesTempl || ''
+        });
+
+        if (node.children && node.children.length) {
+          node.children.forEach((child: articleSection) => {
+            flatten(child, node.sectionID, flatArray);
+          });
+        }
+      }
+      return flatArray;
+    }
+    return flatten(articleSectionsStructure);
   }
 }

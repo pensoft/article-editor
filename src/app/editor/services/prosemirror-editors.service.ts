@@ -102,6 +102,8 @@ export class ProsemirrorEditorsService {
   } = {}
   xmlFragments: { [key: string]: Y.XmlFragment } = {}
 
+  usersInArticleStatusSubject = new Subject<Map<any,any>>()
+
   interpolateTemplate: any
   userInfo: any;
 
@@ -333,7 +335,7 @@ export class ProsemirrorEditorsService {
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment(section.mode, editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
-    yCursorPlugin(this.provider!.awareness, this.userData),
+    yCursorPlugin(this.provider!.awareness,this.serviceShare, this.userData),
     this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures })]
 
 
@@ -676,7 +678,7 @@ export class ProsemirrorEditorsService {
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment('documentMode', editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
-    yCursorPlugin(this.provider!.awareness, this.userData),
+    yCursorPlugin(this.provider!.awareness,this.serviceShare, this.userData),
     this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures })]
 
     container.setAttribute('class', 'editor-container');

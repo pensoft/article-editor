@@ -236,7 +236,9 @@ export class TreeService implements OnDestroy{
 
   saveNewTitle(node:articleSection,title:string){
     let nodeRef = this.findNodeById(node.sectionID);
-    nodeRef!.title.label = title;
+    if(nodeRef){
+      nodeRef.title.label = title;
+    }
   }
 
   buildNewFormGroupsChange(nodes:articleSection[]){

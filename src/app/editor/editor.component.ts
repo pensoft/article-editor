@@ -74,6 +74,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   previewMode
   innerWidth: any;
   trackChangesData?: any;
+  usersInArticle :any[] = []
   constructor(
     private ydocService: YdocService,
     private route: ActivatedRoute,
@@ -117,6 +118,14 @@ export class EditorComponent implements OnInit, AfterViewInit {
         this.metaDataTreeDrawer?.toggle();
       }
     });
+
+    this.prosemirrorEditorServie.usersInArticleStatusSubject.subscribe((status:Map<any,any>)=>{
+      let userInfo:any[] = []
+      status.forEach((aw, clientId)=>{
+        userInfo.push({ususerInfoer:aw.userInfo,clientId})
+      })
+      this.usersInArticle = userInfo
+    })
 
     this.OnOffTrackingChangesShowTrackingSubject =
       prosemirrorEditorServie.OnOffTrackingChangesShowTrackingSubject;

@@ -3,10 +3,15 @@
     <button mat-raised-button (click)="copyJSONToClipboard()" #srticleStrBtn>Copy Article Structure JSON</button>
     <button mat-raised-button (click)="openRawJSON()" #srticleStrBtn>Open raw JSON</button>
     <button mat-raised-button (click)="showHideElement(sectionsDataCont,sectionsDatabtn)" #sectionsDatabtn>Show section data</button>
+    <button mat-raised-button (click)="showHideElement(flatArticleStructure,flatSectionsDatabtn)" #flatSectionsDatabtn>Show flat section data</button>
+    <button mat-raised-button (click)="copyFlatJSONToClipboard()" #srticleStrBtn>Copy flat section data JSON</button>
 </div>
 <div class="editor-data-container">
     <div style="display: none;" #articleStructure>
         <ngx-json-viewer [json]="articleSectionsStructure"></ngx-json-viewer>
+    </div>
+    <div style="display: none;" #flatArticleStructure>
+        <ngx-json-viewer [json]="flatArticleSectionsStructure"></ngx-json-viewer>
     </div>
     <div style="display: none;" #sectionsDataCont>
         <div *ngIf="sectionsDataCont.style.display !== 'none'">

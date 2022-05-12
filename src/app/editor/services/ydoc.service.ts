@@ -279,6 +279,7 @@ export class YdocService {
     this.ydoc = new Y.Doc();
 
     if(this.provider){
+      this.provider.awareness.destroy();
       this.provider.destroy();
     }
     this.provider = undefined;

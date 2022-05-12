@@ -55,3 +55,10 @@ export interface articleSection {
     subsectionValidations?:{[version_id:number]:{min:number,max:number}},
     compatibility?:{allow:{all:boolean,values:number[]},deny:{all:boolean,values:number[]}}
 }
+
+export interface flatArticleSection {
+    title: string;
+    sectionID: string;
+    parentSectionID: string;
+    prosemirrorHTMLNodesTempl: string;
+}
