@@ -1,6 +1,8 @@
 <mat-card *ngIf="change.main" class="change {{index == changesService.focusedChangeIndex?'focusedChange':''}}" (click)="focusCitat()">
   <mat-card-header>
-    <div mat-card-avatar class="avatar"></div>
+<!--    <div mat-card-avatar class="avatar"></div>-->
+<!--    {{change.markattrs | json}}-->
+    <ngx-avatar mat-card-avatar size="36" [bgColor]="change.markattrs.color" [name]="change.markattrs.username"></ngx-avatar>
     <mat-card-title class="change-title">{{change.markattrs.username}}</mat-card-title>
     <mat-card-subtitle class="change-subtitle">{{getDate(change.markattrs.date)}}</mat-card-subtitle>
   </mat-card-header>

@@ -205,6 +205,7 @@ const gravatarConfig: GravatarConfig = {
     BrowserAnimationsModule,
     NgxDropzoneModule,
     GravatarModule.forRoot(gravatarConfig),
+    AvatarModule,
     ServiceWorkerModule.register('editor-service-worker.js', {
       enabled: environment.production,
       // Register the ServiceWorker as soon as the app is stables
@@ -212,7 +213,6 @@ const gravatarConfig: GravatarConfig = {
       registrationStrategy: 'registerWhenStable:30000',
     }),
     NgxSpinnerModule,
-    AvatarModule,
   ],
 
   providers: [

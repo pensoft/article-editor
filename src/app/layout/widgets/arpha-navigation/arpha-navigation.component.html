@@ -23,7 +23,13 @@
       </div>
       <app-theme-toggle class="theme-toggle"></app-theme-toggle>
       <!-- <span class="avatar"></span> -->
-      <app-avatar></app-avatar>
+      <ng-container *ngIf="authService.currentUserSubject | async as user">
+<!--        {{user | json}}-->
+        <ngx-avatar size="36" [gravatarId]="user.email" [name]="user.name"></ngx-avatar>
+      </ng-container>
+
+<!--      <ngx-avatar [name]="authService.getUserInfo()"></ngx-avatar>-->
+<!--      <app-avatar></app-avatar>-->
       <button mat-button [matMenuTriggerFor]="menu">
         <mat-icon color="primary" (click)="changeIcon('expand_less')">{{icon}}</mat-icon>
       </button>
