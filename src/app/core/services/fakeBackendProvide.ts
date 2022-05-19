@@ -53,7 +53,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         status: 200, body: {
           data: {
             "id": 9999,
-            "name": "[TV] Taxon",
+            "name": "[MM] Taxon",
             "label": "Taxon",
             "schema": {
               "components": [],
@@ -853,7 +853,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
               "schema": {"components": []},
               "sections": [{
                 "id": 69,
-                "name": "[TV] Taxon name",
+                "name": "[MM] Taxon name",
                 "label": "Taxon name",
                 "schema": {
                   "components": [],

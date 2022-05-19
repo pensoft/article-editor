@@ -28,7 +28,7 @@ export class ChooseSectionComponent implements OnInit {
   ngAfterViewInit(): void {
     this.data.templates.push({
       "id": 9999,
-      "name": "[TV] Taxon",
+      "name": "[MM] Taxon",
       "label": "Taxon",
       "schema": {
         "components": [{
@@ -815,12 +815,12 @@ export class ChooseSectionComponent implements OnInit {
       },
       "sections": [{
         "id": 58,
-        "name": "[TV] Taxon Name",
+        "name": "[MM] Taxon Name",
         "label": "Taxon Name",
         "schema": {"components": []},
         "sections": [{
           "id": 69,
-          "name": "[TV] Taxon name",
+          "name": "[MM] Taxon name",
           "label": "Taxon name",
           "schema": {
             "components": [{
