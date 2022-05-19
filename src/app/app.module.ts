@@ -101,6 +101,7 @@ import { CitateReferenceDialogComponent } from './layout/pages/library/citate-re
 import { FakeBackendInterceptor } from './core/services/fakeBackendProvide';
 import { SaveComponent } from './layout/pages/library/reference-edit/save/save.component';
 import { ExportJsonLdComponent } from './editor/dialogs/export-json-ld/export-json-ld.component';
+import { TreeChecklistComponent } from './editor/section/tree-checklist/tree-checklist.component';
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -188,6 +189,7 @@ const gravatarConfig: GravatarConfig = {
     CitateReferenceDialogComponent,
     SaveComponent,
     ExportJsonLdComponent,
+    TreeChecklistComponent,
   ],
   imports: [
     HttpClientJsonpModule,
