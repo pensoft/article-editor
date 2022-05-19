@@ -25,7 +25,7 @@
       <!-- <span class="avatar"></span> -->
       <ng-container *ngIf="authService.currentUserSubject | async as user">
 <!--        {{user | json}}-->
-        <ngx-avatar size="36" [gravatarId]="user.email" [name]="user.name"></ngx-avatar>
+        <ngx-avatar size="36" [gravatarId]="user.email" [name]="user.name" bgColor="#00B3B4"></ngx-avatar>
       </ng-container>
 
 <!--      <ngx-avatar [name]="authService.getUserInfo()"></ngx-avatar>-->

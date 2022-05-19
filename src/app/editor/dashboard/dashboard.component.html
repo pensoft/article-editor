@@ -76,7 +76,7 @@
           <th mat-header-cell *matHeaderCellDef>Autor</th>
           <td mat-cell *matCellDef="let row">
             <div class="more-avatar">
-              <app-avatar></app-avatar>
+              <ngx-avatar size="36" [name]="row.name"></ngx-avatar>
             </div>
           </td>
         </ng-container>

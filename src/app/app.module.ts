@@ -102,6 +102,7 @@ import { FakeBackendInterceptor } from './core/services/fakeBackendProvide';
 import { SaveComponent } from './layout/pages/library/reference-edit/save/save.component';
 import { ExportJsonLdComponent } from './editor/dialogs/export-json-ld/export-json-ld.component';
 import { TreeChecklistComponent } from './editor/section/tree-checklist/tree-checklist.component';
+import { SkipCurrentPipe } from './skip-current.pipe';
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -190,6 +191,7 @@ const gravatarConfig: GravatarConfig = {
     SaveComponent,
     ExportJsonLdComponent,
     TreeChecklistComponent,
+    SkipCurrentPipe,
   ],
   imports: [
     HttpClientJsonpModule,
