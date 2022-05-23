@@ -1,0 +1,16 @@
+<p>taxon-section works!</p>
+<form class="example-form" *ngIf="render">
+  <mat-form-field class="example-full-width" appearance="fill">
+    <mat-label>Email</mat-label>
+    <input type="email" matInput [formControl]="text1Control!" placeholder="Ex. pat@example.com">
+  </mat-form-field>
+  <mat-form-field class="example-full-width" appearance="fill">
+    <mat-label>Email</mat-label>
+    <input type="email" matInput [formControl]="text2Control!" placeholder="Ex. pat@example.com">
+  </mat-form-field>
+  <mat-form-field class="example-full-width" appearance="fill">
+    <mat-label>Email</mat-label>
+    <input type="email" matInput [formControl]="text3Control!" placeholder="Ex. pat@example.com">
+  </mat-form-field>
+  <button mat-raised-button (click)="triggerSubmit()">Submit</button>
+</form>

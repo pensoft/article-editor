@@ -18,8 +18,9 @@
           <button mat-raised-button class="bottom-complex-action-btn" (click)="cancelComplexSectionEdit()">Cancel</button>
           <button mat-raised-button class="bottom-complex-action-btn" (click)="submitComplexSectionEdit()">Submit</button>
         </div> -->
+        <app-taxon-section *ngIf="section.title.name == '[MM] Taxon'" [(onSubmit)]="onSubmit" [(section)]="section"></app-taxon-section>
       </div>
-      <div [ngClass]="{'formio-edit-section':true,'formio-taxonomicComponent':section.title.name == 'Taxonomic coverage','complex-section-formio':complexSection}">
+      <div *ngIf="section.title.name != '[MM] Taxon'" [ngClass]="{'formio-edit-section':true,'formio-taxonomicComponent':section.title.name == 'Taxonomic coverage','complex-section-formio':complexSection}">
         <mat-formio #formio [form]="sectionContent" (ready)="ready($event)" (change)="onChange($event)" (submit)="onSubmit($event)"></mat-formio>
       </div>
     </ng-container>

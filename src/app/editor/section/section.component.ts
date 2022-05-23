@@ -131,11 +131,12 @@ export class SectionComponent implements AfterViewInit, OnInit {
     //this.editSectionService.editChangeSubject.next();
   }
 
-  async onSubmit(submision?: any) {
+  onSubmit = async (submision?: any) => {
     try {
       if(this.section.type=='complex'){
         this.submitComplexSectionEdit()
       }
+
       //this.prosemirrorEditorsService.updateFormIoDefaultValues(this.section.sectionID, submision.data)
       this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, { data: submision.data, updatedFrom: this.ydocService.ydoc?.guid })
       this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema, this.section.sectionID, this.sectionForm);
@@ -236,6 +237,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   async initialRender() {
     //this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, { data: submision.data, updatedFrom: this.ydocService.ydoc?.guid })
     //this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema, this.section.sectionID,this.sectionForm);
+
     if (this.treeService.sectionFormGroups[this.section.sectionID]) {
       this.sectionForm = this.treeService.sectionFormGroups[this.section.sectionID]
       Object.keys(this.sectionForm.controls).forEach((key) => {

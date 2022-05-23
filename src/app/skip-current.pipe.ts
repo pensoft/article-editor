@@ -12,9 +12,10 @@ export class SkipCurrentPipe implements PipeTransform {
 
   transform(value: any, ...args: any[]): any {
     // console.log(value, this.authService.currentUserValue.id);
-    const {id}: any = this.authService.currentUserValue
-    return value.filter((el: any) => {
-      return el.ususerInfoer.data.id !== id;
+    const {id}: any = this.authService.currentUserValue;
+    const currentIndex = value.findIndex((el: any) => el.ususerInfoer.data.id === id);
+    return value.filter((el: any, index: number) => {
+      return index !== currentIndex;
     });
   }
 

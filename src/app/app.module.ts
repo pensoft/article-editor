@@ -103,6 +103,8 @@ import { SaveComponent } from './layout/pages/library/reference-edit/save/save.c
 import { ExportJsonLdComponent } from './editor/dialogs/export-json-ld/export-json-ld.component';
 import { TreeChecklistComponent } from './editor/section/tree-checklist/tree-checklist.component';
 import { SkipCurrentPipe } from './skip-current.pipe';
+import { CurrentColorPipe } from './current-color.pipe';
+import { TaxonSectionComponent } from './editor/section/taxon-section/taxon-section.component';
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -192,6 +194,8 @@ const gravatarConfig: GravatarConfig = {
     ExportJsonLdComponent,
     TreeChecklistComponent,
     SkipCurrentPipe,
+    CurrentColorPipe,
+    TaxonSectionComponent,
   ],
   imports: [
     HttpClientJsonpModule,
