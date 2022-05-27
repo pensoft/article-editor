@@ -172,7 +172,11 @@ form-field[invalid="true"] {
   display: block;
 }
 
-.ProseMirror__placeholder {}
+.ProseMirror__placeholder {
+  & + p {
+    min-width: 100px;
+  }
+}
 
 
 /* .selected-format-change,
@@ -180,6 +184,11 @@ form-field[invalid="true"] {
     background-color: #eefbfb;
 } */
 
+.ProseMirror .borderless{
+  table {
+    border: none !important;
+  }
+}
 .ProseMirror {
   word-break: break-all !important;
 }

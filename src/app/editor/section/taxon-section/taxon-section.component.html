@@ -1,6 +1,301 @@
-<p>taxon-section works!</p>
 <form class="example-form" *ngIf="render">
-  <mat-form-field class="example-full-width" appearance="fill">
+  <app-tree-checklist [formControl]="classification!"></app-tree-checklist>
+  <article>
+    <div fxLayout="row">
+      <div fxLayout="column" fxFlex="50%">
+        <label>Rank <sup class="text-red">*</sup></label>
+        <mat-form-field appearance="outline">
+          <mat-select [formControl]="rank!">
+            <mat-option value="kingdom">kingdom</mat-option>
+            <mat-option value="subkingdom">subkingdom</mat-option>
+            <mat-option value="phylum">phylum</mat-option>
+            <mat-option value="subphylum">subphylum</mat-option>
+
+
+            <mat-option value="superclass">superclass</mat-option>
+            <mat-option value="class">class</mat-option>
+            <mat-option value="subclass">subclass</mat-option>
+            <mat-option value="superorder">superorder</mat-option>
+            <mat-option value="order">order</mat-option>
+            <mat-option value="suborder">suborder</mat-option>
+            <mat-option value="infraorder">infraorder</mat-option>
+            <mat-option value="family">family</mat-option>
+            <mat-option value="subfamily">subfamily</mat-option>
+            <mat-option value="tribe">tribe</mat-option>
+            <mat-option value="subtribe">subtribe</mat-option>
+            <mat-option value="subgenus">subgenus</mat-option>
+            <mat-option value="infraspecific">infraspecific</mat-option>
+            <mat-option value="species">species</mat-option>
+            <mat-option value="subspecies">subspecies</mat-option>
+            <mat-option value="variety">variety</mat-option>
+            <mat-option value="form">form</mat-option>
+            <mat-option value="species">species</mat-option>
+            <!--            <mat-option value="subdivisionOfGenus">subdivision of genus</mat-option>-->
+            <!-- Изчезват всички при genus-->
+            <mat-option value="genus">genus</mat-option>
+            <!-- от втория вариант -->
+            <mat-option value="variety">variety</mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'kingdom'">
+    <label>Kingdom</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="kingdom!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'subkingdom'">
+    <label>Subkingdom</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="subkingdom!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'phylum'">
+    <label>Phylum</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="phylum!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'subphylum'">
+    <label>Subphylum</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="subphylum!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'superclass'">
+    <label>Superclass</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="superclass!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'class'">
+    <label>Class</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="class!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'subclass'">
+    <label>Subclass</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="subclass!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'superorder'">
+    <label>Superorder</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="superorder!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'order'">
+    <label>Order</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="order!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'suborder'">
+    <label>Suborder</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="suborder!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'infraorder'">
+    <label>Infraorder</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="infraorder!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'superfamily'">
+    <label>Superfamily</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="superfamily!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'family'">
+    <label>Family</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="family!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'subfamily'">
+    <label>Subfamily</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="subfamily!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'tribe'">
+    <label>Tribe</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="tribe!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'subtribe'">
+    <label>Subtribe</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="subtribe!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'genus'">
+    <label>Genus</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="genus!">
+    </mat-form-field>
+  </article>
+
+  <article fxLayout="column" *ngIf="rank!.value === 'subgenus'">
+    <label>Subgenus</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="subgenus!">
+    </mat-form-field>
+  </article>
+
+  <article
+    *ngIf="rank!.value === 'species' || rank!.value === 'subspecies' || rank!.value === 'variety' || rank!.value === 'form'">
+    <div fxLayout="row wrap" fxLayoutAlign="space-between start">
+      <div fxLayout="column" fxFlex="49%">
+        <label>Genus</label>
+        <mat-form-field appearance="outline">
+          <input type="text" matInput [formControl]="genus!">
+        </mat-form-field>
+      </div>
+      <div fxLayout="column" fxFlex="49%">
+        <label> Subgenus</label>
+        <mat-form-field appearance="outline">
+          <input type="text" matInput [formControl]="subgenus!">
+        </mat-form-field>
+      </div>
+      <div fxLayout="column" fxFlex="49%">
+        <label>Species</label>
+        <mat-form-field appearance="outline">
+          <input type="text" matInput [formControl]="species!">
+        </mat-form-field>
+      </div>
+      <div *ngIf="rank!.value === 'subspecies'" fxLayout="column" fxFlex="49%">
+        <label>Subspecies</label>
+        <mat-form-field appearance="outline">
+          <input type="text" matInput [formControl]="subspecies!">
+        </mat-form-field>
+      </div>
+      <div *ngIf="rank!.value === 'variety'" fxLayout="column" fxFlex="49%">
+        <label>Variety</label>
+        <mat-form-field appearance="outline">
+          <input type="text" matInput [formControl]="variety!">
+        </mat-form-field>
+      </div>
+      <div *ngIf="rank!.value === 'form'" fxLayout="column" fxFlex="49%">
+        <label>Form</label>
+        <mat-form-field appearance="outline">
+          <input type="text" matInput [formControl]="form!">
+        </mat-form-field>
+      </div>
+    </div>
+  </article>
+
+  <article fxLayout="column">
+    <label>Taxon author(s) and year</label>
+    <mat-form-field appearance="outline">
+      <input type="text" matInput [formControl]="authorandyear!">
+    </mat-form-field>
+  </article>
+
+  <article>
+    <div fxLayout="row">
+      <div fxLayout="column" fxFlex="50%">
+        <label>Type of treatment</label>
+        <mat-form-field appearance="outline">
+          <mat-select [formControl]="typeoftreatment!">
+            <mat-option value="New taxon">New taxon</mat-option>
+            <mat-option value="Redescription or species observation">Redescription or species observation</mat-option>
+            <mat-option value="New combination (comb. nov) with a legitimate basionym">New combination (comb. nov) with
+              a legitimate basionym
+            </mat-option>
+            <mat-option value="New rank (stat. nov.) with a legitimate basionym">New rank (stat. nov.) with a legitimate
+              basionym
+            </mat-option>
+            <mat-option value="Replacement name (nom. nov.) for a legitimate or illegitimate synonym">Replacement name
+              (nom. nov.) for a legitimate or illegitimate synonym
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+  </article>
+
+  <article>
+    <div fxLayout="row">
+      <div fxLayout="column" fxFlex="100%">
+        <label>&nbsp;</label>
+        <mat-radio-group [formControl]="groupone!" aria-label="option group one">
+          <mat-radio-button value="extant">extant</mat-radio-button>
+          <mat-radio-button value="fossil">fossil</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </div>
+  </article>
+
+  <article *ngIf="rank!.value !== 'genus'">
+    <div fxLayout="row">
+      <div fxLayout="column" fxFlex="100%">
+        <label>&nbsp;</label>
+        <mat-radio-group [formControl]="grouptwo!" aria-label="option group one">
+          <mat-radio-button value="terrestrial">terrestrial</mat-radio-button>
+          <mat-radio-button value="marine">marine</mat-radio-button>
+          <mat-radio-button value="freshwater">freshwater</mat-radio-button>
+          <mat-radio-button value="N/A">N/A</mat-radio-button>
+        </mat-radio-group>
+      </div>
+    </div>
+  </article>
+
+
+  <article *ngIf="rank!.value !== 'genus'">
+    <div fxLayout="row wrap" fxLayoutAlign="space-between start">
+      <div fxLayout="column" fxFlex="49%">
+        <label>Symbiotic with</label>
+        <mat-form-field appearance="outline">
+          <input type="text" matInput [formControl]="symbioticwith!">
+        </mat-form-field>
+      </div>
+      <div fxLayout="column" fxFlex="49%">
+        <label>Feeds on</label>
+        <mat-form-field appearance="outline">
+          <input type="text" matInput [formControl]="feedson!">
+        </mat-form-field>
+      </div>
+      <div fxLayout="column" fxFlex="49%">
+        <label>Parasite of</label>
+        <mat-form-field appearance="outline">
+          <input type="text" matInput [formControl]="parasiteof!">
+        </mat-form-field>
+      </div>
+      <div fxLayout="column" fxFlex="49%">
+        <label>Host of</label>
+        <mat-form-field appearance="outline">
+          <input type="text" matInput [formControl]="hostof!">
+        </mat-form-field>
+      </div>
+    </div>
+  </article>
+
+  <!--<mat-form-field class="example-full-width" appearance="fill">
     <mat-label>Email</mat-label>
     <input type="email" matInput [formControl]="text1Control!" placeholder="Ex. pat@example.com">
   </mat-form-field>
@@ -11,6 +306,6 @@
   <mat-form-field class="example-full-width" appearance="fill">
     <mat-label>Email</mat-label>
     <input type="email" matInput [formControl]="text3Control!" placeholder="Ex. pat@example.com">
-  </mat-form-field>
+  </mat-form-field>-->
   <button mat-raised-button (click)="triggerSubmit()">Submit</button>
 </form>

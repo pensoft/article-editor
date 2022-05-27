@@ -1,8 +1,12 @@
 import {SelectionModel} from '@angular/cdk/collections';
 import {FlatTreeControl} from '@angular/cdk/tree';
-import {Component, Injectable} from '@angular/core';
+import {Component, Injectable, OnInit} from '@angular/core';
 import {MatTreeFlatDataSource, MatTreeFlattener} from '@angular/material/tree';
-import {BehaviorSubject} from 'rxjs';
+import {BehaviorSubject, Observable} from 'rxjs';
+import {HttpClient} from "@angular/common/http";
+import {FormControl, NG_VALUE_ACCESSOR} from "@angular/forms";
+import {journalTree} from "@core/services/journalTreeConstants";
+import {map, startWith} from "rxjs/operators";
 
 /**
  * Node for to-do item
@@ -22,7 +26,8 @@ export class TodoItemFlatNode {
 /**
  * The Json object for to-do list data.
  */
-const TREE_DATA = {
+
+/*const TREE_DATA = {
   Groceries: {
     'Almond Meal flour': null,
     'Organic eggs': null,
@@ -38,7 +43,7 @@ const TREE_DATA = {
     'Read the Material Design spec',
     'Upgrade Application to Angular'
   ]
-};
+};*/
 
 /**
  * Checklist database, it can build a tree structured Json object.
@@ -47,28 +52,35 @@ const TREE_DATA = {
  */
 @Injectable()
 export class ChecklistDatabase {
+
   dataChange = new BehaviorSubject<TodoItemNode[]>([]);
 
-  get data(): TodoItemNode[] { return this.dataChange.value; }
+  get data(): TodoItemNode[] {
+    return this.dataChange.value;
+  }
 
-  constructor() {
+  constructor(public http: HttpClient) {
     this.initialize();
   }
 
   initialize() {
     // Build the tree nodes from Json object. The result is a list of `TodoItemNode` with nested
     //     file node as children.
-    const data = this.buildFileTree(TREE_DATA, 0);
+    this.http.get(`https://something/journaltree`).subscribe(res => {
+      this.buildNestedJson(res);
+    })
+    // const data = this.buildFileTree(TREE_DATA, 0);
 
     // Notify the change.
-    this.dataChange.next(data);
+    // this.dataChange.next(data);
   }
 
   /**
    * Build the file structure tree. The `value` is the Json object, or a sub-tree of a Json object.
    * The return value is the list of `TodoItemNode`.
    */
-  buildFileTree(obj: {[key: string]: any}, level: number): TodoItemNode[] {
+
+  /*buildFileTree(obj: {[key: string]: any}, level: number): TodoItemNode[] {
     return Object.keys(obj).reduce<TodoItemNode[]>((accumulator, key) => {
       const value = obj[key];
       const node = new TodoItemNode();
@@ -76,6 +88,67 @@ export class ChecklistDatabase {
 
       if (value != null) {
         if (typeof value === 'object') {
+          node.children = this.buildFileTree(value, level + 1);
+        } else {
+          node.item = value;
+        }
+      }
+
+      return accumulator.concat(node);
+    }, []);
+  }*/
+  buildNestedJson(res: any) {
+    console.log(res);
+    const TREE_DATA = {};
+    res.forEach((node: any) => {
+      const positions = node.pos.split(/(?<=^(?:.{2})+)(?!$)/);
+      positions.reduce((next: any, current: any, index: any) => {
+        if (!next[current]) {
+          if (positions.length - 1 === index) {
+            next[current] = node;
+          } else {
+            next[current] = {};
+          }
+        }
+        if (positions.length - 1 === index) {
+          next[current] = {...next[current], ...node};
+        }
+        return next[current];
+      }, TREE_DATA)
+    });
+    const data = this.buildFileTree(TREE_DATA, 0);
+    console.log(data);
+    this.dataChange.next(data);
+
+    // console.log(data);
+  }
+
+  buildFileTree(obj: { [key: string]: any }, level: number): any[] {
+    // @ts-ignore
+    return Object.keys(obj).filter(s => {
+      return !['id', 'name', 'journal_ids', 'rootnode', 'pos', 'nomenclaturalCode', 'parents'].includes(s)
+    }).sort(
+      // @ts-ignore
+      (a: any, b: any) => {
+        if (obj[a].name < obj[b].name) {
+          return -1;
+        }
+        if (obj[a].name > obj[b].name) {
+          return 1;
+        }
+        return 0;
+      }).reduce<any[]>((accumulator, key) => {
+      const value = obj[key];
+      const node: any = {};
+      // const node = new TodoItemNode();
+      const {id, name, journal_ids, rootnode, pos, nomenclaturalCode, parents} = value;
+      node.item = {id, name, journal_ids, rootnode, pos, nomenclaturalCode, parents};
+      // node.item = key;
+
+      if (value != null) {
+        if (typeof value === 'object' && Object.keys(obj).filter(s => {
+          return !['id', 'name', 'journal_ids', 'rootnode', 'pos', 'nomenclaturalCode', 'parents'].includes(s)
+        }).length) {
           node.children = this.buildFileTree(value, level + 1);
         } else {
           node.item = value;
@@ -107,9 +180,37 @@ export class ChecklistDatabase {
   selector: 'app-tree-checklist',
   templateUrl: './tree-checklist.component.html',
   styleUrls: ['./tree-checklist.component.scss'],
-  providers: [ChecklistDatabase]
+  providers: [ChecklistDatabase,
+    {
+      provide: NG_VALUE_ACCESSOR,
+      multi: true,
+      useExisting: TreeChecklistComponent
+    }]
 })
-export class TreeChecklistComponent {
+export class TreeChecklistComponent implements OnInit{
+
+  myControl = new FormControl();
+  options: any = journalTree.map((el: any) => el.name);
+  filteredOptions: Observable<string[]> | undefined;
+
+  updateMySelection(event: any) {
+    this.writeValue(event.option.value);
+  }
+
+  ngOnInit() {
+    this.filteredOptions = this.myControl.valueChanges.pipe(
+      startWith(''),
+      map(value => this._filter(value)),
+    );
+  }
+
+  private _filter(value: string): string[] {
+    const filterValue = value.toLowerCase();
+
+    return this.options.filter((option: string) => option.toLowerCase().includes(filterValue)).filter((i: any, index: any) => {
+      return index < 11;
+    });
+  }
   /** Map from flat node to nested node. This helps us finding the nested node to be modified */
   flatNodeMap = new Map<TodoItemFlatNode, TodoItemNode>();
 
@@ -129,7 +230,19 @@ export class TreeChecklistComponent {
   dataSource: MatTreeFlatDataSource<TodoItemNode, TodoItemFlatNode>;
 
   /** The selection for checklist */
-  checklistSelection = new SelectionModel<TodoItemFlatNode>(true /* multiple */);
+  checklistSelection = new SelectionModel<TodoItemFlatNode>(false /* multiple */);
+
+  onChange = (selection: any) => {
+  };
+
+  onTouched = () => {
+  };
+
+  touched = false;
+
+  disabled = false;
+
+  selectedNode: any = null;
 
   constructor(private _database: ChecklistDatabase) {
     // @ts-ignore
@@ -142,6 +255,49 @@ export class TreeChecklistComponent {
     _database.dataChange.subscribe(data => {
       this.dataSource.data = data;
     });
+    // setTimeout(() => {
+    //   this.treeControl.expandAll();
+    // })
+    // .getDescendants(node)
+    // .filter(descendant => descendant.selected)
+    // .map(descendant => descendant.name))
+  }
+
+  writeValue(value: any) {
+    this.selectedNode = value;
+    // console.log('flatNodeMap', this.flatNodeMap);
+    let result = null;
+    for (const [key, value] of this.flatNodeMap) {
+      // @ts-ignore
+      if (value.item.name == this.selectedNode) {
+        result = key;
+      }
+    }
+    if (result) {
+      this.todoItemSelectionToggle(result);
+    }
+    // console.log(result);
+
+    // [0].value.item
+  }
+
+  registerOnChange(onChange: any) {
+    this.onChange = onChange;
+  }
+
+  registerOnTouched(onTouched: any) {
+    this.onTouched = onTouched;
+  }
+
+  markAsTouched() {
+    if (!this.touched) {
+      this.onTouched();
+      this.touched = true;
+    }
+  }
+
+  setDisabledState(disabled: boolean) {
+    this.disabled = disabled;
   }
 
   getLevel = (node: TodoItemFlatNode) => node.level;
@@ -189,20 +345,25 @@ export class TreeChecklistComponent {
   /** Toggle the to-do item selection. Select/deselect all the descendants node */
   todoItemSelectionToggle(node: TodoItemFlatNode): void {
     this.checklistSelection.toggle(node);
-    const descendants = this.treeControl.getDescendants(node);
-    this.checklistSelection.isSelected(node)
-      ? this.checklistSelection.select(...descendants)
-      : this.checklistSelection.deselect(...descendants);
-
-    // Force update for the parent
-    descendants.forEach(child => this.checklistSelection.isSelected(child));
-    this.checkAllParentsSelection(node);
+    // @ts-ignore
+    this.selectedNode = node.item.name;
+    this.onChange(this.selectedNode);
+    this.myControl.setValue(this.selectedNode);
+    // console.log(node);
+    // const descendants = this.treeControl.getDescendants(node);
+    // this.checklistSelection.isSelected(node)
+    //   ? this.checklistSelection.select(...descendants)
+    //   : this.checklistSelection.deselect(...descendants);
+    //
+    // // Force update for the parent
+    // descendants.forEach(child => this.checklistSelection.isSelected(child));
+    // this.checkAllParentsSelection(node);
   }
 
   /** Toggle a leaf to-do item selection. Check all the parents to see if they changed */
   todoLeafItemSelectionToggle(node: TodoItemFlatNode): void {
     this.checklistSelection.toggle(node);
-    this.checkAllParentsSelection(node);
+    // this.checkAllParentsSelection(node);
   }
 
   /* Checks all the parents when a leaf node is selected/unselected */

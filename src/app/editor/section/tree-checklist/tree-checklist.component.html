@@ -1,9 +1,24 @@
+<mat-form-field class="example-full-width" appearance="fill">
+  <mat-label>Classification</mat-label>
+  <input type="text"
+         placeholder="Pick one"
+         aria-label="Number"
+         matInput
+         [formControl]="myControl!"
+         [matAutocomplete]="auto">
+  <mat-autocomplete autoActiveFirstOption #auto="matAutocomplete" (optionSelected)="updateMySelection($event)">
+    <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+      {{option}}
+    </mat-option>
+  </mat-autocomplete>
+</mat-form-field>
+
 <mat-tree [dataSource]="dataSource" [treeControl]="treeControl">
   <mat-tree-node *matTreeNodeDef="let node" matTreeNodeToggle matTreeNodePadding>
     <button mat-icon-button disabled></button>
     <mat-checkbox class="checklist-leaf-node"
                   [checked]="checklistSelection.isSelected(node)"
-                  (change)="todoLeafItemSelectionToggle(node)">{{node.item}}</mat-checkbox>
+                  (change)="todoLeafItemSelectionToggle(node)">{{node.item.name}}</mat-checkbox>
   </mat-tree-node>
 
   <mat-tree-node *matTreeNodeDef="let node; when: hasNoContent" matTreeNodePadding>
@@ -17,15 +32,17 @@
 
   <mat-tree-node *matTreeNodeDef="let node; when: hasChild" matTreeNodePadding>
     <button mat-icon-button matTreeNodeToggle
-            [attr.aria-label]="'Toggle ' + node.item">
+            [attr.aria-label]="'Toggle ' + node.item.name">
       <mat-icon class="mat-icon-rtl-mirror">
         {{treeControl.isExpanded(node) ? 'expand_more' : 'chevron_right'}}
       </mat-icon>
     </button>
-    <mat-checkbox [checked]="descendantsAllSelected(node)"
-                  [indeterminate]="descendantsPartiallySelected(node)"
-                  (change)="todoItemSelectionToggle(node)">{{node.item}}</mat-checkbox>
-    <button mat-icon-button (click)="addNewItem(node)"><mat-icon>add</mat-icon></button>
+    <!--    <mat-checkbox [checked]="descendantsAllSelected(node)"-->
+    <!--                  [indeterminate]="descendantsPartiallySelected(node)"-->
+    <!--                  (change)="todoItemSelectionToggle(node)">{{node.item.name}}</mat-checkbox>-->
+    <mat-checkbox [checked]="checklistSelection.isSelected(node)"
+                  (change)="todoItemSelectionToggle(node)">{{node.item.name}}</mat-checkbox>
+    <!--    <button mat-icon-button (click)="addNewItem(node)"><mat-icon>add</mat-icon></button>-->
   </mat-tree-node>
 </mat-tree>
 
