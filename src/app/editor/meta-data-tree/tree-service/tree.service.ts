@@ -1,29 +1,34 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import { Subject, Subscriber, Subscription } from 'rxjs';
-import { YdocService } from '../../services/ydoc.service';
-import { treeNode } from '../../utils/interfaces/treeNode';
+import {Injectable, OnDestroy} from '@angular/core';
+import {Subject, Subscriber, Subscription} from 'rxjs';
+import {YdocService} from '../../services/ydoc.service';
+import {treeNode} from '../../utils/interfaces/treeNode';
 //@ts-ignore
 import * as Y from 'yjs'
-import { uuidv4 } from 'lib0/random';
-import { articleSection, editorData } from '../../utils/interfaces/articleSection';
-import { FormGroup } from '@angular/forms';
-import {  checkIfSectionsAreAboveOrAtMax, checkIfSectionsAreUnderOrAtMin, editorFactory,  renderSectionFunc } from '@app/editor/utils/articleBasicStructure';
-import { formIODefaultValues, formIOTemplates, htmlNodeTemplates } from '@app/editor/utils/section-templates';
-import { FormBuilderService } from '@app/editor/services/form-builder.service';
-import { ServiceShare } from '@app/editor/services/service-share.service';
-import { ArticlesService } from '@app/core/services/articles.service';
-import { ArticleSectionsService } from '@app/core/services/article-sections.service';
-import { reject } from 'lodash';
-import { complexSectionFormIoSchema } from '@app/editor/utils/section-templates/form-io-json/complexSection';
-import { ReturnStatement } from '@angular/compiler';
-import { installPatch } from '../cdk-list-recursive/patchCdk';
-import { transferArrayItem } from '@angular/cdk/drag-drop';
+import {uuidv4} from 'lib0/random';
+import {articleSection, editorData} from '../../utils/interfaces/articleSection';
+import {FormGroup} from '@angular/forms';
+import {
+  checkIfSectionsAreAboveOrAtMax,
+  checkIfSectionsAreUnderOrAtMin,
+  editorFactory,
+  renderSectionFunc
+} from '@app/editor/utils/articleBasicStructure';
+import {formIODefaultValues, formIOTemplates, htmlNodeTemplates} from '@app/editor/utils/section-templates';
+import {FormBuilderService} from '@app/editor/services/form-builder.service';
+import {ServiceShare} from '@app/editor/services/service-share.service';
+import {ArticlesService} from '@app/core/services/articles.service';
+import {ArticleSectionsService} from '@app/core/services/article-sections.service';
+import {reject} from 'lodash';
+import {complexSectionFormIoSchema} from '@app/editor/utils/section-templates/form-io-json/complexSection';
+import {ReturnStatement} from '@angular/compiler';
+import {installPatch} from '../cdk-list-recursive/patchCdk';
+import {transferArrayItem} from '@angular/cdk/drag-drop';
 
 @Injectable({
   providedIn: 'root'
 })
 
-export class TreeService implements OnDestroy{
+export class TreeService implements OnDestroy {
 
   articleSectionsStructure?: articleSection[]
   treeVisibilityChange: Subject<any> = new Subject<any>();
@@ -32,67 +37,67 @@ export class TreeService implements OnDestroy{
   guid?: string
   toggleTreeDrawer: Subject<any> = new Subject<any>();
 
-  connectedLists :string[] = []
+  connectedLists: string[] = []
   sectionFormGroups: { [key: string]: FormGroup } = {}
   sectionProsemirrorNodes: { [key: string]: string } = {} // prosemirror nodes as html
 
-  canDropBool:any[] = [true];
+  canDropBool: any[] = [true];
 
-  errorSnackbarSubject : Subject<any> = new Subject()
+  errorSnackbarSubject: Subject<any> = new Subject()
 
-  labelupdateLocalMeta:any = {}
+  labelupdateLocalMeta: any = {}
 
-  treeSubsctiption?:Subscription
-  obsFunc= (event: any, transaction: any) => {
+  treeSubsctiption?: Subscription
+  obsFunc = (event: any, transaction: any) => {
     let metadatachange = this.metadatachangeMap?.get('change')
     if (this.guid != metadatachange.guid) {
       if (!this.ydocService.editorIsBuild) {
         return
       }
       if (metadatachange.action == 'listNodeDrag') {
-        this.applyNodeDrag(metadatachange.from,metadatachange.to, metadatachange.prevContainerId, metadatachange.newContainerId)
+        this.applyNodeDrag(metadatachange.from, metadatachange.to, metadatachange.prevContainerId, metadatachange.newContainerId)
       } else if (metadatachange.action == 'editNode') {
         this.applyEditChange(metadatachange.nodeId)
       } else if (metadatachange.action == "addNode") {
         this.attachChildToNode(metadatachange.parentId, metadatachange.newChild);
       } else if (metadatachange.action == "deleteNode") {
-        let { nodeRef, i } = this.deleteNodeById(metadatachange.childId);
-      } else if (metadatachange.action == 'addNodeAtPlace'){
-        this.addNodeAtPlace(metadatachange.parentContainerID,metadatachange.newSection,metadatachange.place,metadatachange.newNode);
-      } else if(metadatachange.action == 'replaceChildren'){
-        this.replaceChildren(metadatachange.newChildren,metadatachange.parent,true);
-      }else if (metadatachange.action == 'buildNewFromGroups'){
+        let {nodeRef, i} = this.deleteNodeById(metadatachange.childId);
+      } else if (metadatachange.action == 'addNodeAtPlace') {
+        this.addNodeAtPlace(metadatachange.parentContainerID, metadatachange.newSection, metadatachange.place, metadatachange.newNode);
+      } else if (metadatachange.action == 'replaceChildren') {
+        this.replaceChildren(metadatachange.newChildren, metadatachange.parent, true);
+      } else if (metadatachange.action == 'buildNewFromGroups') {
         this.buildNewFormGroups(metadatachange.nodes);
-      }else if(metadatachange.action == 'saveNewTitle'){
-        this.saveNewTitle(metadatachange.node,metadatachange.title);
+      } else if (metadatachange.action == 'saveNewTitle') {
+        this.saveNewTitle(metadatachange.node, metadatachange.title);
       }
     }
     //this.articleStructureMap?.set('articleSectionsStructure', this.articleSectionsStructure)
 
   }
 
-  setTitleListener(node:articleSection){
-    if(!node.title.editable){
+  setTitleListener(node: articleSection) {
+    if (!node.title.editable) {
       let formGroup = this.sectionFormGroups[node.sectionID]!;
-      node.title.label = /{{\s*\S*\s*}}/gm.test(node.title.label)?node.title.name!:node.title.label;
-      formGroup.valueChanges.subscribe((data)=>{
-        this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle:string)=>{
+      node.title.label = /{{\s*\S*\s*}}/gm.test(node.title.label) ? node.title.name! : node.title.label;
+      formGroup.valueChanges.subscribe((data) => {
+        this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle: string) => {
           let container = document.createElement('div')
           container.innerHTML = newTitle;
           container.innerHTML = container.textContent!;
           node.title.label = container.textContent!;
         })
       })
-    }else{
+    } else {
       let formGroup = this.sectionFormGroups[node.sectionID]!;
-      if(!this.labelupdateLocalMeta[node.sectionID]){
-        this.labelupdateLocalMeta[node.sectionID] = {time:0,updatedFrom:'treelist'}
+      if (!this.labelupdateLocalMeta[node.sectionID]) {
+        this.labelupdateLocalMeta[node.sectionID] = {time: 0, updatedFrom: 'treelist'}
       }
-      formGroup.get('sectionTreeTitle')?.valueChanges.subscribe((change)=>{
+      formGroup.get('sectionTreeTitle')?.valueChanges.subscribe((change) => {
         //@ts-ignore
-        let updatemeta = this.sectionFormGroups[node.sectionID]!.titleUpdateMeta as {time:number,updatedFrom:string};
+        let updatemeta = this.sectionFormGroups[node.sectionID]!.titleUpdateMeta as { time: number, updatedFrom: string };
         let value = formGroup.get('sectionTreeTitle')?.value.trim()
-        if(value!== node.title.label&&updatemeta.time>this.labelupdateLocalMeta[node.sectionID].time){
+        if (value !== node.title.label && updatemeta.time > this.labelupdateLocalMeta[node.sectionID].time) {
           let nodeRef = this.findNodeById(node.sectionID)
           nodeRef!.title.label = change
           this.labelupdateLocalMeta.time = updatemeta.time
@@ -103,10 +108,10 @@ export class TreeService implements OnDestroy{
 
   resetTreeData() {
     this.articleSectionsStructure = undefined;
-    if(this.obsFunc){
+    if (this.obsFunc) {
       this.metadatachangeMap?.unobserve(this.obsFunc)
     }
-    if(this.treeSubsctiption){
+    if (this.treeSubsctiption) {
       this.treeSubsctiption.unsubscribe();
     }
     this.metadatachangeMap = undefined
@@ -116,15 +121,15 @@ export class TreeService implements OnDestroy{
     this.sectionProsemirrorNodes = {}
   }
 
-  registerConnection(id:string){
-    if(!this.connectedLists.includes(id)){
+  registerConnection(id: string) {
+    if (!this.connectedLists.includes(id)) {
       this.connectedLists.push(id)
     }
   }
 
-  unregisterConnection(id:string){
-    if(this.connectedLists.includes(id)){
-      this.connectedLists.splice(this.connectedLists.findIndex((connId)=>connId == id),1);
+  unregisterConnection(id: string) {
+    if (this.connectedLists.includes(id)) {
+      this.connectedLists.splice(this.connectedLists.findIndex((connId) => connId == id), 1);
     }
   }
 
@@ -145,7 +150,7 @@ export class TreeService implements OnDestroy{
       this.treeSubsctiption = this.treeVisibilityChange.subscribe((data) => {
         let guid = this.metadatachangeMap?.doc?.guid
         this.setArticleSectionStructureFlat()
-        this.metadatachangeMap?.set('change', { ...data, guid })
+        this.metadatachangeMap?.set('change', {...data, guid})
       })
     }
     if (this.ydocService.editorIsBuild) {
@@ -161,8 +166,9 @@ export class TreeService implements OnDestroy{
   }
 
   ngOnDestroy(): void {
-      this.setArticleSectionStructureFlat()
+    this.setArticleSectionStructureFlat()
   }
+
   setArticleSectionStructureFlat() {
     //this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure')
 
@@ -184,35 +190,34 @@ export class TreeService implements OnDestroy{
   }
 
 
-
   initTreeList(articleSectionsStructure: articleSection[]) {
     this.articleSectionsStructure = articleSectionsStructure
   }
 
-  getNodeLevel(node:articleSection){
-    let nodeLevel:number
-    let findLevel = (children:articleSection[],level:number)=>{
-      children.forEach((child)=>{
-        if(child.sectionID == node.sectionID){
+  getNodeLevel(node: articleSection) {
+    let nodeLevel: number
+    let findLevel = (children: articleSection[], level: number) => {
+      children.forEach((child) => {
+        if (child.sectionID == node.sectionID) {
           nodeLevel = level;
         }
-        if(nodeLevel==undefined&&child.type == 'complex'&&child.children.length>0){
-          findLevel(child.children,level+1);
+        if (nodeLevel == undefined && child.type == 'complex' && child.children.length > 0) {
+          findLevel(child.children, level + 1);
         }
       })
     }
-    findLevel(this.articleSectionsStructure!,0);
+    findLevel(this.articleSectionsStructure!, 0);
     //@ts-ignore
     return nodeLevel;
   }
 
-  buildNewFormGroups(nodes:articleSection[]){
+  buildNewFormGroups(nodes: articleSection[]) {
     let buildForms = (node: any) => {
       let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID);
       let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
       let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID) : node.formIOSchema;
       let nodeForm: FormGroup = new FormGroup({});
-      this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent,node);
+      this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent, node);
 
       nodeForm.patchValue(defaultValues);
       nodeForm.updateValueAndValidity()
@@ -229,55 +234,55 @@ export class TreeService implements OnDestroy{
     })
   }
 
-  saveNewTitleChange(node:articleSection,title:string){
-    this.saveNewTitle(node,title)
-    this.treeVisibilityChange.next({action:"saveNewTitle",node,title})
+  saveNewTitleChange(node: articleSection, title: string) {
+    this.saveNewTitle(node, title)
+    this.treeVisibilityChange.next({action: "saveNewTitle", node, title})
   }
 
-  saveNewTitle(node:articleSection,title:string){
+  saveNewTitle(node: articleSection, title: string) {
     let nodeRef = this.findNodeById(node.sectionID);
-    if(nodeRef){
+    if (nodeRef) {
       nodeRef.title.label = title;
     }
   }
 
-  buildNewFormGroupsChange(nodes:articleSection[]){
+  buildNewFormGroupsChange(nodes: articleSection[]) {
     this.buildNewFormGroups(nodes)
-    this.treeVisibilityChange.next({action:"buildNewFromGroups",nodes})
+    this.treeVisibilityChange.next({action: "buildNewFromGroups", nodes})
   }
 
-  replaceChildren(newChildren:articleSection[],parent:articleSection,replaceFromOtherRoot:boolean){
+  replaceChildren(newChildren: articleSection[], parent: articleSection, replaceFromOtherRoot: boolean) {
     let nodeRef = this.findNodeById(parent.sectionID);
     nodeRef!.children = newChildren;
   }
 
-  replaceChildrenChange(newChildren:articleSection[],parent:articleSection){
-    this.replaceChildren(newChildren,parent,false)
-    this.treeVisibilityChange.next({action:'replaceChildren',newChildren,parent});
+  replaceChildrenChange(newChildren: articleSection[], parent: articleSection) {
+    this.replaceChildren(newChildren, parent, false)
+    this.treeVisibilityChange.next({action: 'replaceChildren', newChildren, parent});
   }
 
-  dragNodeChange(from: number, to: number, prevContainerId: string,newContainerId:string) {
-    this.treeVisibilityChange.next({ action: 'listNodeDrag', from, to, prevContainerId ,newContainerId})
+  dragNodeChange(from: number, to: number, prevContainerId: string, newContainerId: string) {
+    this.treeVisibilityChange.next({action: 'listNodeDrag', from, to, prevContainerId, newContainerId})
   }
 
   editNodeChange(nodeId: string) {
     let node = this.findNodeById(nodeId)
-    if(!node?.active){
+    if (!node?.active) {
       try {
         this.applyEditChange(nodeId)
       } catch (e) {
         console.error(e);
       }
-      this.treeVisibilityChange.next({ action: 'editNode', nodeId });
+      this.treeVisibilityChange.next({action: 'editNode', nodeId});
     }
   }
 
   async addNodeChange(nodeId: string) {
     let newChild = await this.attachChildToNode(nodeId, undefined);
-    this.treeVisibilityChange.next({ action: 'addNode', parentId: nodeId, newChild });
+    this.treeVisibilityChange.next({action: 'addNode', parentId: nodeId, newChild});
   }
 
-  renderForms = (sectionToRender:articleSection) => {
+  renderForms = (sectionToRender: articleSection) => {
     let children: any[] = []
     if (sectionToRender.type == "complex") {
       sectionToRender.children.forEach((childSection: any) => {
@@ -290,7 +295,7 @@ export class TreeService implements OnDestroy{
     let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, sectionToRender!.formIOSchema, sectionToRender!.sectionID) : sectionToRender!.formIOSchema;
 
     let nodeForm: FormGroup = new FormGroup({});
-    this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent,sectionToRender!);
+    this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent, sectionToRender!);
 
     nodeForm.patchValue(defaultValues);
     nodeForm.updateValueAndValidity()
@@ -298,68 +303,68 @@ export class TreeService implements OnDestroy{
     this.setTitleListener(sectionToRender)
   }
 
-  addNodeAtPlaceChange(parentContainerID:string,newSection:any,place:any){
-    let newNode = this.addNodeAtPlace(parentContainerID,newSection,place);
-    this.treeVisibilityChange.next({ action: 'addNodeAtPlace', parentContainerID, newSection,place ,newNode});
+  addNodeAtPlaceChange(parentContainerID: string, newSection: any, place: any) {
+    let newNode = this.addNodeAtPlace(parentContainerID, newSection, place);
+    this.treeVisibilityChange.next({action: 'addNodeAtPlace', parentContainerID, newSection, place, newNode});
   }
 
-  addNodeAtPlace(parentContainerID:string,newSection:any,place:any,newNode?:any){
-    if(newNode){
-      if(typeof place == 'string' && place == 'end'){
-        if(parentContainerID == 'parentList'){
+  addNodeAtPlace(parentContainerID: string, newSection: any, place: any, newNode?: any) {
+    if (newNode) {
+      if (typeof place == 'string' && place == 'end') {
+        if (parentContainerID == 'parentList') {
           this.articleSectionsStructure?.push(newNode);
-        }else{
+        } else {
           let containerToPlaceIn = this.findNodeById(parentContainerID)?.children;
           containerToPlaceIn?.push(newNode);
         }
-      }else if(typeof place == 'number'){
-        if(parentContainerID == 'parentList'){
-          this.articleSectionsStructure?.splice(place,0,newNode);
-        }else{
+      } else if (typeof place == 'number') {
+        if (parentContainerID == 'parentList') {
+          this.articleSectionsStructure?.splice(place, 0, newNode);
+        } else {
           let containerToPlaceIn = this.findNodeById(parentContainerID)?.children;
-          containerToPlaceIn?.splice(place,0,newNode);
+          containerToPlaceIn?.splice(place, 0, newNode);
         }
       }
-        let buildForms = (node: any) => {
-          let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID);
-          let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
-          let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID) : node.formIOSchema;
-          let nodeForm: FormGroup = new FormGroup({});
-          this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent,node);
+      let buildForms = (node: any) => {
+        let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID);
+        let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
+        let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID) : node.formIOSchema;
+        let nodeForm: FormGroup = new FormGroup({});
+        this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent, node);
 
-          nodeForm.patchValue(defaultValues);
-          nodeForm.updateValueAndValidity()
-          this.sectionFormGroups[node.sectionID] = nodeForm;
-          this.setTitleListener(node)
+        nodeForm.patchValue(defaultValues);
+        nodeForm.updateValueAndValidity()
+        this.sectionFormGroups[node.sectionID] = nodeForm;
+        this.setTitleListener(node)
 
-          if (node.children.length > 0) {
-            node.children.forEach((child: any) => {
-              buildForms(child)
-            })
-          }
+        if (node.children.length > 0) {
+          node.children.forEach((child: any) => {
+            buildForms(child)
+          })
         }
-        buildForms(newNode)
+      }
+      buildForms(newNode)
       return;
     }
     let container: any[] = []
 
-    let sec = renderSectionFunc(newSection, container,this.ydocService.ydoc);
+    let sec = renderSectionFunc(newSection, container, this.ydocService.ydoc);
 
     this.renderForms(sec)
 
-    if(typeof place == 'string' && place == 'end'){
-      if(parentContainerID == 'parentList'){
+    if (typeof place == 'string' && place == 'end') {
+      if (parentContainerID == 'parentList') {
         this.articleSectionsStructure?.push(container[0]);
-      }else{
+      } else {
         let containerToPlaceIn = this.findNodeById(parentContainerID)?.children;
         containerToPlaceIn?.push(container[0]);
       }
-    }else if(typeof place == 'number'){
-      if(parentContainerID == 'parentList'){
-        this.articleSectionsStructure?.splice(place,0,container[0]);
-      }else{
+    } else if (typeof place == 'number') {
+      if (parentContainerID == 'parentList') {
+        this.articleSectionsStructure?.splice(place, 0, container[0]);
+      } else {
         let containerToPlaceIn = this.findNodeById(parentContainerID)?.children;
-        containerToPlaceIn?.splice(place,0,container[0]);
+        containerToPlaceIn?.splice(place, 0, container[0]);
       }
     }
     return container[0];
@@ -372,8 +377,8 @@ export class TreeService implements OnDestroy{
   }
 
   deleteNodeChange(nodeId: string, parentId: string) {
-    let { nodeRef, i } = this.deleteNodeById(nodeId);
-    this.treeVisibilityChange.next({ action: 'deleteNode', parentId, childId: nodeId, indexInList: i });
+    let {nodeRef, i} = this.deleteNodeById(nodeId);
+    this.treeVisibilityChange.next({action: 'deleteNode', parentId, childId: nodeId, indexInList: i});
   }
 
   findListArray(id: string) {
@@ -411,7 +416,7 @@ export class TreeService implements OnDestroy{
     arrayRef?.splice(i!, 1);
     this.serviceShare.ProsemirrorEditorsService?.deleteEditor(nodeRef?.sectionID!);
     this.serviceShare.YjsHistoryService?.deleteUndoManager(nodeRef?.sectionID!);
-    return { nodeRef, i }
+    return {nodeRef, i}
   }
 
   findNodeById(id: string) {
@@ -429,36 +434,36 @@ export class TreeService implements OnDestroy{
     return nodeRef
   }
 
-  applyNodeDrag(from: number, to: number, prevContainerId:string,newContainerId:string) {
-      let articleDataCopy = this.articleSectionsStructure!
-      let prevContNewRef:any[]
-      let newContNewRef:any[]
+  applyNodeDrag(from: number, to: number, prevContainerId: string, newContainerId: string) {
+    let articleDataCopy = this.articleSectionsStructure!
+    let prevContNewRef: any[]
+    let newContNewRef: any[]
 
-      if(newContainerId == 'parentList'){
-        newContNewRef = articleDataCopy;
-      }
+    if (newContainerId == 'parentList') {
+      newContNewRef = articleDataCopy;
+    }
 
-      if(prevContainerId == 'parentList'){
-        prevContNewRef= articleDataCopy;
-      }
+    if (prevContainerId == 'parentList') {
+      prevContNewRef = articleDataCopy;
+    }
 
-      let findReferences = (container:any) =>{
-        container.forEach((el:any)=>{
-          if(el.sectionID == prevContainerId){
-            prevContNewRef = el.children
-          }
-          if(el.sectionID == newContainerId){
-            newContNewRef = el.children
-          }
-          if(el.children&&el.children.length>0){
-            findReferences(el.children)
-          }
-        })
-      }
+    let findReferences = (container: any) => {
+      container.forEach((el: any) => {
+        if (el.sectionID == prevContainerId) {
+          prevContNewRef = el.children
+        }
+        if (el.sectionID == newContainerId) {
+          newContNewRef = el.children
+        }
+        if (el.children && el.children.length > 0) {
+          findReferences(el.children)
+        }
+      })
+    }
 
-      findReferences(articleDataCopy);
-      //@ts-ignore
-      transferArrayItem(prevContNewRef,newContNewRef,from,to);
+    findReferences(articleDataCopy);
+    //@ts-ignore
+    transferArrayItem(prevContNewRef, newContNewRef, from, to);
 
   }
 
@@ -477,36 +482,36 @@ export class TreeService implements OnDestroy{
     return containerofNode!
   }
 
-  showDeleteButton(node:articleSection){
+  showDeleteButton(node: articleSection) {
     let r = true
     let parentNode = this.findParentNodeWithChildID(node.sectionID)!;
-    if(parentNode&&parentNode!=='parentNode'){
-      r = checkIfSectionsAreUnderOrAtMin(node,parentNode)
+    if (parentNode && parentNode !== 'parentNode') {
+      r = checkIfSectionsAreUnderOrAtMin(node, parentNode)
     }
     return r
   }
 
-  showAddBtn(node:articleSection){
+  showAddBtn(node: articleSection) {
     let r = true
     let parentNode = this.findParentNodeWithChildID(node.sectionID)!;
-    if(parentNode&&parentNode!=='parentNode'){
-      r = checkIfSectionsAreAboveOrAtMax(node,parentNode)
+    if (parentNode && parentNode !== 'parentNode') {
+      r = checkIfSectionsAreAboveOrAtMax(node, parentNode)
     }
     return r
   }
 
   findParentNodeWithChildID(nodeid: string) {
-    let parent: undefined | articleSection | 'parentNode'= undefined
-    let find = (container: articleSection[],parentNode:articleSection|'parentNode') => {
+    let parent: undefined | articleSection | 'parentNode' = undefined
+    let find = (container: articleSection[], parentNode: articleSection | 'parentNode') => {
       container.forEach((section) => {
         if (section.sectionID == nodeid) {
           parent = parentNode
         } else if (section.children.length > 0 && parent == undefined) {
-          find(section.children,section);
+          find(section.children, section);
         }
       })
     }
-    find(this.articleSectionsStructure!,'parentNode')
+    find(this.articleSectionsStructure!, 'parentNode')
     return parent!
   }
 
@@ -520,7 +525,7 @@ export class TreeService implements OnDestroy{
         let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
         let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID) : node.formIOSchema;
         let nodeForm: FormGroup = new FormGroup({});
-        this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent,node);
+        this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent, node);
 
         nodeForm.patchValue(defaultValues);
         nodeForm.updateValueAndValidity()
@@ -541,10 +546,10 @@ export class TreeService implements OnDestroy{
 
         let sectionFromBackendOrigin = sectionData.data
         let container: any[] = []
-        let newSec = renderSectionFunc(sectionFromBackendOrigin, container,this.ydocService.ydoc);
+        let newSec = renderSectionFunc(sectionFromBackendOrigin, container, this.ydocService.ydoc);
 
         this.renderForms(newSec);
-        newChild =  container[0]
+        newChild = container[0]
         newNodeContainer.splice(newNodeContainer.findIndex((s) => s.sectionID == nodeRef.sectionID)! + 1, 0, container[0]);
         resolve(undefined)
       })

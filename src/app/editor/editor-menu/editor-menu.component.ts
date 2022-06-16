@@ -21,7 +21,7 @@ export class EditorMenuComponent implements OnInit {
   }
 
   interpolateTemplate = (htmlToCompile: string, data: any, formGroup: FormGroup=new FormGroup({})) => {
-    
+
     let compiler = this.compiler
     let container = this.container
     function getRenderedHtml(templateString: string) {
@@ -41,7 +41,7 @@ export class EditorMenuComponent implements OnInit {
           styles: [':host {table: {border: red}}'],
 
         })(class implements AfterViewInit {
-          data = JSON.parse(JSON.stringify(data));
+          data = data ? JSON.parse(JSON.stringify(data)) : data;
           formGroup = formGroup;
 
           getCharValue(i:number){
@@ -98,16 +98,16 @@ export class EditorMenuComponent implements OnInit {
           const component = Component({
             ...html,
             styles: [':host {table: {border: red}}'],
-  
+
           })(class implements AfterViewInit {
             data = data;
             formGroup = formGroup;
-  
+
             ngAfterViewInit() {
               afterViewInitSubject.next('build')
             }
           });
-  
+
           const module = NgModule({
             imports: [
               BrowserModule,
@@ -121,7 +121,7 @@ export class EditorMenuComponent implements OnInit {
             schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
           })(class newModule {
           });
-  
+
           compiler.compileModuleAndAllComponentsAsync(module)
             .then(factories => {
               const componentFactory = factories.componentFactories[0];
@@ -134,7 +134,7 @@ export class EditorMenuComponent implements OnInit {
             });
         })
       }
-  
+
       return getRenderedHtml(`<ng-container [formGroup]="formGroup">
       <div contenteditableNode="true" translate="no" class="ProseMirror ProseMirror-example-setup-style ProseMirror-focused">${htmlToCompile}
       </div></ng-container>`)

@@ -1,0 +1,82 @@
+<mat-spinner *ngIf="isLoading"></mat-spinner>
+<form class="example-form" *ngIf="render && !isLoading">
+  <ng-container>
+    <article fxLayout="row" fxLayoutAlign="start center" class="bg-green mb20">
+      <div class="text-white title-row">
+        Edit: Materials
+      </div>
+    </article>
+    <form>
+      <article fxLayout="column" fxLayoutGap="20px">
+        <div fxLayout="row">
+          <a routerLink="/" class="link-material"> Download materials </a>
+        </div>
+        <div fxLayout="row"><label> Import material data from file</label></div>
+        <div fxLayout="row" fxLayoutGap="10px" fxFlex="100%" fxLayoutAlign="start center">
+          <mat-form-field appearance="outline" fxFlex="40%" class="mt10">
+            <input type="text" matInput [formControl]="importMaterialData">
+          </mat-form-field>
+
+          <button mat-raised-button (click)="fileInput.click()">Browse</button>
+          <input hidden (change)="onFileSelected($event)" #fileInput type="file" id="file">
+
+          <span class="text-red"> OR</span>
+          <button (click)="addManually()" mat-raised-button>Add Manually</button>
+        </div>
+        <div fxLayout="row">
+          <a routerLink="/" class="link-material"> Download a template </a> <span class="text-grey pl10"> XLS file
+            (DarwinCore Compliant)</span>
+        </div>
+        <div>
+          <ul class="info">
+            <li>The first row contains column labels that match exactly the <a href="" target="_blank"
+                                                                               title="Quick reference guide"
+                                                                               class="link-material">Darwin Core
+              terms</a> (see template )
+            </li>
+            <li>The content of the column corresponds to its label</li>
+            <li>Each occurrence record is in a separate row</li>
+            <li>The column typeStatus contains one of the following (without the quotes): "Other material", "Holotype",
+              "Paratype", "Hapantotype", "Syntype", "Isotype", "Neotype", "Lectotype", "Paralectotype", "Isoparatype",
+              "Isolectotype", "Isoneotype", "Isosyntype".
+            </li>
+          </ul>
+
+        </div>
+        <div fxLayout="row">
+          <div fxLayout="column" fxFlex="100%" fxLayoutAlign="center center">
+            <span class="text-red"> OR</span>
+            <mat-divider class="w100"></mat-divider>
+          </div>
+        </div>
+      </article>
+      <article fxLayout="column" class="mt20">
+        <div>
+          <label>You may place multiple ID's separeted by "|" here</label>
+        </div>
+        <div fxLayout="row" fxLayoutGap="10px" fxFlex="100%" fxLayoutAlign="start center">
+          <mat-form-field appearance="outline" fxFlex="40%" class="mt10">
+            <textarea matInput [formControl]="placeMultiple"></textarea>
+          </mat-form-field>
+          <button mat-raised-button (click)="addJson()">Add</button>
+        </div>
+        <div>
+          <div fxLayout="column">
+            <mat-radio-group [formControl]="placeMultipleRadio" fxLayout="column" fxLayoutGap="10px">
+              <mat-radio-button value="boldId" fxLayout="row">BOLD record ID <span class="text-grey pl10">(example: ACRJP618-11|ACRJP619-11)</span>
+              </mat-radio-button>
+              <mat-radio-button value="boldBin" fxLayout="row">BOLD BIN<span class="text-grey pl10">(example: BOLD:AAA5125|BOLD:AAA5126)</span>
+              </mat-radio-button>
+              <mat-radio-button value="gbifViaId" fxLayout="row">GBIF via Occurrence ID<span class="text-grey pl10">(example: ACRJP618-11|ACRJP619-11)</span>
+              </mat-radio-button>
+              <mat-radio-button value="gbifId" fxLayout="row">GBIF ID <span class="text-grey pl10">(example: 1061574007|240843113)</span>
+              </mat-radio-button>
+              <mat-radio-button value="iDigBioUUID" fxLayout="row">iDigBio UUID<span
+                class="text-grey pl10">iDigBio UUID</span></mat-radio-button>
+            </mat-radio-group>
+          </div>
+        </div>
+      </article>
+    </form>
+  </ng-container>
+</form>

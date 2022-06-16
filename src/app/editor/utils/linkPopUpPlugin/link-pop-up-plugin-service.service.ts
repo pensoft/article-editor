@@ -1,9 +1,10 @@
-import { Injectable } from '@angular/core';
-import { EditorState, Plugin, PluginKey } from 'prosemirror-state'
-import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
-import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
-import { DetectFocusService } from '../detectFocusPlugin/detect-focus.service';
-import { schema } from '../Schema';
+import {Injectable} from '@angular/core';
+import {EditorState, Plugin, PluginKey} from 'prosemirror-state'
+import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
+import {ProsemirrorEditorsService} from '../../services/prosemirror-editors.service';
+import {DetectFocusService} from '../detectFocusPlugin/detect-focus.service';
+import {schema} from '../Schema';
+import {CsvServiceService} from "@app/editor/csv-service/csv-service.service";
 
 
 @Injectable({
@@ -11,11 +12,12 @@ import { schema } from '../Schema';
 })
 export class LinkPopUpPluginServiceService {
   linkPopUpPluginKey
-  linkPopUpPlugin : Plugin
-  constructor(private detectFocusService :DetectFocusService) {
-    let lastFocusedEditor : any
+  linkPopUpPlugin: Plugin
+
+  constructor(private detectFocusService: DetectFocusService, public csvServiceService: CsvServiceService) {
+    let lastFocusedEditor: any
     lastFocusedEditor = detectFocusService.sectionName
-    this.detectFocusService.focusedEditor.subscribe((data:any) => {
+    this.detectFocusService.focusedEditor.subscribe((data: any) => {
       if (data) {
         lastFocusedEditor = data
       }
@@ -28,33 +30,41 @@ export class LinkPopUpPluginServiceService {
       key: this.linkPopUpPluginKey,
       state: {
         init: (_, state) => {
-          return { sectionName: _.sectionName };
+          return {sectionName: _.sectionName};
         },
         apply(tr, prev, _, newState) {
           return prev
         },
       },
       props: {
-        decorations(state:EditorState) {
+        decorations(state: EditorState) {
           const doc = state.doc;
-          let {from,to,empty} = state.selection;
+          let {from, to, empty} = state.selection;
           let pluginState = linkPopUpPluginKey.getState(state);
           let focusRN = detectFocusPluginKey.getState(state);
           //if(empty)  return
-          if(!(focusRN.hasFocus||(lastFocusedEditor==focusRN.sectionName))) return DecorationSet.empty
-          let position = from == to ? from:Math.floor((from+to)/2)
+          if (!(focusRN.hasFocus || (lastFocusedEditor == focusRN.sectionName))) return DecorationSet.empty
+          let position = from == to ? from : Math.floor((from + to) / 2)
           let node = doc.nodeAt(position)
-          let mark = node?.marks.find((mark)=>mark.type == state.schema.marks.link)
-          if(!mark) return DecorationSet.empty
+          let mark = node?.marks.find((mark) => mark.type == state.schema.marks.link)
+          if (!mark) return DecorationSet.empty
           let linkPopUp = document.createElement('div')
           linkPopUp.classList.add('link_popup_div');
           let link = document.createElement('a') as HTMLAnchorElement
-          link.addEventListener('click',(event)=>{
-            event.preventDefault();
-            window.open(mark?.attrs.href)
+          link.addEventListener('click', (event) => {
+            if (!mark?.attrs.download) {
+              event.preventDefault();
+              window.open(mark?.attrs.href)
+            }
           })
-          link.href = mark?.attrs.href
+          link.href = mark?.attrs.href;
           link.textContent = mark?.attrs.href
+          if (mark?.attrs.download) {
+
+            link.href = 'data:text/plain;charset=utf-8,' + csvServiceService.arrayToCSV(lastFocusedEditor);
+            link.download = mark?.attrs.download;
+            link.textContent = mark?.attrs.download
+          }
           linkPopUp.appendChild(link)
 
 

@@ -4,6 +4,7 @@ const link = {
     rel: { default: '' },
     target: { default: 'blank' },
     title: { default: null },
+    download: { default: null },
   },
   inclusive: false,
   parseDOM: [
@@ -15,6 +16,7 @@ const link = {
         Object.assign(hook, {
           href: hook.dom.getAttribute('href'),
           title: hook.dom.getAttribute('title'),
+          download: hook.dom.getAttribute('download'),
           target,
         });
         next();

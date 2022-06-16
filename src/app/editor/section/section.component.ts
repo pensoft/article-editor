@@ -62,6 +62,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   complexSectionDeletedChildren: articleSection[] = []
   complexSectionAddedChildren: articleSection[] = []
 
+  @Input() component!: any;
   @Input() section!: articleSection;
   @Output() sectionChange = new EventEmitter<articleSection>();
 
@@ -237,7 +238,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
   async initialRender() {
     //this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, { data: submision.data, updatedFrom: this.ydocService.ydoc?.guid })
     //this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema, this.section.sectionID,this.sectionForm);
-
     if (this.treeService.sectionFormGroups[this.section.sectionID]) {
       this.sectionForm = this.treeService.sectionFormGroups[this.section.sectionID]
       Object.keys(this.sectionForm.controls).forEach((key) => {
@@ -259,7 +259,11 @@ export class SectionComponent implements AfterViewInit, OnInit {
     let tr = this.codemirrorHTMLEditor?.state.update()
     this.codemirrorHTMLEditor?.dispatch(tr!);
     prosemirrorNewNodeContent = this.section.prosemirrorHTMLNodesTempl;
-    interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm);
+    if(this.section.title.name === 'Material') {
+      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, this.section.defaultFormIOValues, this.sectionForm);
+    } else {
+      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm);
+    }
     submision.compiledHtml = interpolated
     this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
     //this.editSectionService.editChangeSubject.next(submision);

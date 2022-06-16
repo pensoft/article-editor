@@ -69,14 +69,86 @@ export class ArticleComponent implements OnInit {
 
   makeFlat() {
     let articleSectionsStructureFlat: any = []
+     let makeFlatMaterials = (structure: articleSection[]) => {
+      let orderedMat : {[key:string]:articleSection[]}= {}
+      let order:string[] = [];
+      let unorderedMat : articleSection[]= []
+      structure.forEach((mat)=>{
+        let matType = mat.defaultFormIOValues?.typeStatus||(this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]&&this.serviceShare.TreeService.sectionFormGroups[mat.sectionID].value.typeStatus);
+        if(matType){
+          if(!order.includes(matType)){
+            order.push(matType);
+            orderedMat[matType] = []
+          }
+          orderedMat[matType].push(mat)
+        }else{
+          unorderedMat.push(mat)
+        }
+      })
+      order.forEach((type,i)=>{
+        orderedMat[type].forEach((mat,j,arr)=>{
+          if(this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]){
+            // if(i==0&&j==0){
+            //   this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]!.get('materialsHeading')!.setValue('true');
+            //   mat.defaultFormIOValues.materialsHeading = true;
+            // }else{
+            //   this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]!.get('materialsHeading')!.setValue(null);
+            //   mat.defaultFormIOValues.materialsHeading = null;
+            // }
+            mat.defaultFormIOValues = mat.defaultFormIOValues || {};
+            if(j == 0){
+              if(arr.length>1){
+                this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]!.get('typeHeading')!.setValue(type+"s");
+                mat.defaultFormIOValues.typeHeading = type+"s";
+              }else{
+                this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]!.get('typeHeading')!.setValue(type)
+                mat.defaultFormIOValues.typeHeading = type;
+              }
+            }else{
+              this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]!.get('typeHeading')!.setValue(null)
+              mat.defaultFormIOValues.typeHeading = null;
+            }
+            let listOrder = String.fromCharCode(97+j);
+            this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]!.get('listChar')!.setValue(listOrder)
+            mat.defaultFormIOValues.listChar = listOrder;
+          }
+          // console.log(this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]);
+          articleSectionsStructureFlat.push(mat);
+        })
+      })
+      unorderedMat.forEach((mat)=>{
+        articleSectionsStructureFlat.push(mat);
+      })
+    }
     let makeFlat = (structure: articleSection[]) => {
       if (structure) {
         structure.forEach((section) => {
           if (section.active) {
-            articleSectionsStructureFlat.push(section)
+            if(section.title.name == "[MM] Materials") {
+              const hasValues = section.children.some(el => {
+                return el.defaultFormIOValues
+              });
+              if(hasValues) {
+                articleSectionsStructureFlat.push(section);
+              }
+            } else if(section.title.name == "[MM] Treatment sections") {
+              const hasValues = section.children.some(el => {
+                return el.defaultFormIOValues
+              });
+              if(hasValues) {
+                articleSectionsStructureFlat.push(section);
+              }
+            } else {
+              articleSectionsStructureFlat.push(section)
+            }
           }
           if (section.children.length > 0) {
-            makeFlat(section.children)
+            if(section.title.name == "[MM] Materials"){
+              makeFlatMaterials(section.children)
+            } else {
+
+               makeFlat(section.children)
+             }
           }
         })
       }

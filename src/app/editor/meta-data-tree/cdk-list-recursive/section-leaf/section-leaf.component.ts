@@ -1,30 +1,54 @@
-import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { AfterContentInit, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
-import { MatDialog } from '@angular/material/dialog';
-import { EditSectionDialogComponent } from '../../../dialogs/edit-section-dialog/edit-section-dialog.component';
-import { ProsemirrorEditorsService } from '../../../services/prosemirror-editors.service';
-import { YdocService } from '../../../services/ydoc.service';
-import { DetectFocusService } from '../../../utils/detectFocusPlugin/detect-focus.service';
-import { articleSection } from '../../../utils/interfaces/articleSection';
-import { TreeService } from '../../tree-service/tree.service';
-import { DOMParser } from 'prosemirror-model';
+import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
+import {
+  AfterContentInit,
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
+import {MatDialog} from '@angular/material/dialog';
+import {EditSectionDialogComponent} from '../../../dialogs/edit-section-dialog/edit-section-dialog.component';
+import {ProsemirrorEditorsService} from '../../../services/prosemirror-editors.service';
+import {YdocService} from '../../../services/ydoc.service';
+import {DetectFocusService} from '../../../utils/detectFocusPlugin/detect-focus.service';
+import {articleSection} from '../../../utils/interfaces/articleSection';
+import {TreeService} from '../../tree-service/tree.service';
+import {DOMParser} from 'prosemirror-model';
 //@ts-ignore
-import { updateYFragment } from '../../../../y-prosemirror-src/plugins/sync-plugin.js'
-import { schema } from '../../../utils/Schema/index';
-import { FormBuilderService } from '../../../services/form-builder.service';
-import { FormGroup } from '@angular/forms';
-import { YMap } from 'yjs/dist/src/internals';
+import {updateYFragment} from '../../../../y-prosemirror-src/plugins/sync-plugin.js'
+import {schema} from '../../../utils/Schema/index';
+import {FormBuilderService} from '../../../services/form-builder.service';
+import {FormGroup} from '@angular/forms';
+import {YMap} from 'yjs/dist/src/internals';
+import { map } from 'rxjs/operators';
+
 //@ts-ignore
 import * as Y from 'yjs'
 //@ts-ignore
-import { ySyncPluginKey } from '../../../../y-prosemirror-src/plugins/keys.js';
-import { E, I } from '@angular/cdk/keycodes';
-import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
-import { ArticlesService } from '@app/core/services/articles.service';
-import { ServiceShare } from '@app/editor/services/service-share.service';
-import { checkIfSectionsAreAboveOrAtMax, checkIfSectionsAreUnderOrAtMin, countSectionFromBackendLevel, filterChooseSectionsFromBackend, filterSectionsFromBackendWithComplexMinMaxValidations, renderSectionFunc } from '@app/editor/utils/articleBasicStructure';
-import { PmDialogSessionService } from '@app/editor/services/pm-dialog-session.service';
-import { ChooseSectionComponent } from '@app/editor/dialogs/choose-section/choose-section.component';
+import {ySyncPluginKey} from '../../../../y-prosemirror-src/plugins/keys.js';
+import {E, I} from '@angular/cdk/keycodes';
+import {AskBeforeDeleteComponent} from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
+import {ArticlesService} from '@app/core/services/articles.service';
+import {ServiceShare} from '@app/editor/services/service-share.service';
+import {
+  checkIfSectionsAreAboveOrAtMax,
+  checkIfSectionsAreUnderOrAtMin,
+  countSectionFromBackendLevel,
+  filterChooseSectionsFromBackend,
+  filterSectionsFromBackendWithComplexMinMaxValidations,
+  renderSectionFunc
+} from '@app/editor/utils/articleBasicStructure';
+import {PmDialogSessionService} from '@app/editor/services/pm-dialog-session.service';
+import {ChooseSectionComponent} from '@app/editor/dialogs/choose-section/choose-section.component';
+import {material} from "@core/services/custom_sections/material";
+import {treatmentSectionsSubsection} from "@core/services/custom_sections/tratment_sections_subsection";
+import {treatmentSectionsCustom} from "@core/services/custom_sections/treatment_sections_description";
+import {taxonSection} from "@core/services/custom_sections/taxon";
 
 @Component({
   selector: 'app-section-leaf',
@@ -61,7 +85,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   @Output() sectionsFormGroupsRefChange = new EventEmitter<FormGroup>();
 
 
-  @ViewChild('cdkDragSection', { read: ElementRef }) dragSection?: ElementRef;
+  @ViewChild('cdkDragSection', {read: ElementRef}) dragSection?: ElementRef;
 
   constructor(
     private formBuilderService: FormBuilderService,
@@ -70,7 +94,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     private serviceShare: ServiceShare,
     public detectFocusService: DetectFocusService,
     public prosemirrorEditorsService: ProsemirrorEditorsService,
-    public PmDialogSessionService:PmDialogSessionService,
+    public PmDialogSessionService: PmDialogSessionService,
     public dialog: MatDialog) {
     this.previewMode = prosemirrorEditorsService.previewArticleMode
     detectFocusService.getSubject().subscribe((focusedEditorId: any) => {
@@ -79,7 +103,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       }
 
       if (this.parentId !== 'parentList' && this.node.sectionID == this.focusedId) {
-        (this.dragSection!.nativeElement as HTMLDivElement).scrollIntoView({ behavior: 'smooth', block: 'center' })
+        (this.dragSection!.nativeElement as HTMLDivElement).scrollIntoView({behavior: 'smooth', block: 'center'})
         this.expandParentFunc();
       }
     });
@@ -88,7 +112,6 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   ngAfterViewInit(): void {
 
   }
-
 
 
   ngOnInit() {
@@ -143,12 +166,12 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   editNodeHandle(node: articleSection, formGroup: FormGroup) {
     try {
       let defaultValues = formGroup.value;
-      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID,formGroup);
+      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID, formGroup);
 
       let updateYdoc = new Y.Doc();
       let maindocstate = Y.encodeStateAsUpdate(this.ydocService.ydoc)
-      Y.applyUpdate(updateYdoc,maindocstate)
-       let updateXmlFragment = updateYdoc.getXmlFragment(node.sectionID);
+      Y.applyUpdate(updateYdoc, maindocstate)
+      let updateXmlFragment = updateYdoc.getXmlFragment(node.sectionID);
 
       let xmlToCopyFrom = this.ydocService.ydoc.getXmlFragment(node.sectionID);
       /*updateXmlFragment.insert(0, xmlToCopyFrom.toArray().map((item: any) => item instanceof Y.AbstractType ? item.clone() : item)); */
@@ -158,14 +181,14 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
         originUpdates.push(update)
       }
 
-      this.ydocService.ydoc.on('update',registerUpdateFunc )
+      this.ydocService.ydoc.on('update', registerUpdateFunc)
       //this.PmDialogSessionService.createSession();
 
       node.formIOSchema = sectionContent
       this.dialog.open(EditSectionDialogComponent, {
         width: '95%',
         height: '90%',
-        data: { node: node, form: formGroup, sectionContent },
+        data: {node: node, form: formGroup, sectionContent},
         disableClose: false
       }).afterClosed().subscribe(result => {
 
@@ -190,12 +213,12 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
             let editorView = this.prosemirrorEditorsService
               .editorContainers[node.sectionID].editorView
             copyOriginUpdatesBeforeReplace.forEach((update) => {
-              Y.applyUpdate(updateYdoc,update);
+              Y.applyUpdate(updateYdoc, update);
             })
             let xmlElements = xmlToCopyFrom.toArray().length
 
             let maindocstate = Y.encodeStateAsUpdate(updateYdoc)
-            Y.applyUpdate(this.ydocService.ydoc,maindocstate)
+            Y.applyUpdate(this.ydocService.ydoc, maindocstate)
             //xmlToCopyFrom.delete(0,xmlElements)
             //xmlToCopyFrom.insert(0, updateXmlFragment.toArray().map((item: any) => item instanceof Y.AbstractType ? item.clone() : item));
 
@@ -215,15 +238,15 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
             this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
               this.prosemirrorEditorsService.trackChangesMeta
             )
-            this.prosemirrorEditorsService.citatEditingSubject.next({ action: 'deleteCitatsFromDocument' })
+            this.prosemirrorEditorsService.citatEditingSubject.next({action: 'deleteCitatsFromDocument'})
           }, 30)
         } else {
           setTimeout(() => {
             //this.serviceShare.PmDialogSessionService!.endSession(false);
-            this.prosemirrorEditorsService.citatEditingSubject.next({ action: 'clearDeletedCitatsFromPopup' })
+            this.prosemirrorEditorsService.citatEditingSubject.next({action: 'clearDeletedCitatsFromPopup'})
           }, 30)
         }
-      this.ydocService.ydoc.off('update',registerUpdateFunc)
+        this.ydocService.ydoc.off('update', registerUpdateFunc)
 
       });
     } catch (e) {
@@ -237,7 +260,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
   deleteNodeHandle(nodeId: string) {
     let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
-      data: { sectionName: this.treeService.findNodeById(nodeId)?.title.label },
+      data: {sectionName: this.treeService.findNodeById(nodeId)?.title.label},
       panelClass: 'ask-before-delete-dialog',
     })
     dialogRef.afterClosed().subscribe((data: any) => {
@@ -249,6 +272,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
   oldZIndex?: string
   scrolledToView?: boolean
+
   makeEditable(element: HTMLDivElement, event: Event, parentNode: any, node: articleSection) {
     if (element.textContent?.trim().length == 0) {
       element.innerHTML = "<br>"
@@ -257,7 +281,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     if (event.type == 'blur') {
       element.setAttribute('contenteditable', 'false');
       (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;
-      this.treeService.saveNewTitleChange(node,element.textContent!);
+      this.treeService.saveNewTitleChange(node, element.textContent!);
       this.scrolledToView = false;
     } else if (event.type == 'click') {
       this.oldZIndex = (parentNode as HTMLDivElement).style.zIndex!
@@ -302,27 +326,59 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     }
   };
 
-  addSectionToNode(node:articleSection){
-    this.serviceShare.ArticleSectionsService!.getAllSections({ page: 1, pageSize: 999 }).subscribe((response: any) => {
-      let sectionTemplates1 = filterChooseSectionsFromBackend(node.compatibility, response.data)
-      let sectionlevel = this.treeService.getNodeLevel(node)
-      let sectionTemplates = (sectionTemplates1 as any[]).filter((el: any) => {
-        let elementLevel = countSectionFromBackendLevel(el)
-        return (elementLevel + sectionlevel < 3);
-      });
+  addSectionToNode(node: articleSection, formGroup: FormGroup) {
+    console.log(node, material);
+    if (node.title.name === '[MM] Materials') {
+      const materialData = JSON.parse(JSON.stringify(material));
+      materialData.initialRender = this.serviceShare.YdocService.ydoc.guid
+      materialData.active = true;
+      materialData.defaultFormIOValues = {};
 
-      sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates,node,node.children)
-      const dialogRef = this.dialog.open(ChooseSectionComponent, {
-        width: '563px',
-        panelClass: 'choose-namuscript-dialog',
-        data: { templates: sectionTemplates, sectionlevel }
+      let sectionContent = this.formBuilderService.populateDefaultValues({}, node.formIOSchema, node.sectionID, formGroup);
+      this.dialog.open(EditSectionDialogComponent, {
+        width: '95%',
+        height: '90%',
+        data: {node: node, form: formGroup, sectionContent, component: '[MM] Material'},
+        disableClose: false
+      }).afterClosed().subscribe(result => {
+        if(result && result.data) {
+          materialData.defaultFormIOValues = result.data;
+          this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, materialData, 'end');
+        }
       });
-      dialogRef.afterClosed().subscribe(result => {
-        this.serviceShare.ArticleSectionsService!.getSectionById(result).subscribe((res: any) => {
-          this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID,res.data,0)
-        })
-      });
-    })
+    } else if (['[MM] Description', '[MM] Diagnosis', '[MM] Distribution', '[MM] Ecology', '[MM] Conservation', '[MM] Biology', '[MM] Taxon discussion', '[MM] Notes', '[MM] Custom'].indexOf(node.title.name) > -1) {
+      this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, treatmentSectionsSubsection, 'end');
+    } else if ('[MM] Treatment sections' === node.title.name) {
+      this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, treatmentSectionsCustom, 'end');
+    } else {
+      this.serviceShare.ArticleSectionsService!.getAllSections({page: 1, pageSize: 999}).pipe(map((res: any) => {
+        res.data.push(taxonSection);
+        return res
+      })).subscribe((response: any) => {
+        let sectionTemplates1 = filterChooseSectionsFromBackend(node.compatibility, response.data)
+        let sectionlevel = this.treeService.getNodeLevel(node)
+        let sectionTemplates = (sectionTemplates1 as any[]).filter((el: any) => {
+          let elementLevel = countSectionFromBackendLevel(el)
+          return (elementLevel + sectionlevel < 3);
+        });
+
+        sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates, node, node.children)
+        if(sectionTemplates && sectionTemplates.length === 1) {
+          this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, sectionTemplates[0], 0)
+        } else {
+          const dialogRef = this.dialog.open(ChooseSectionComponent, {
+            width: '563px',
+            panelClass: 'choose-namuscript-dialog',
+            data: {templates: sectionTemplates, sectionlevel}
+          });
+          dialogRef.afterClosed().subscribe(result => {
+            this.serviceShare.ArticleSectionsService!.getSectionById(result).subscribe((res: any) => {
+              this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, res.data, 0)
+            })
+          });
+        }
+      })
+    }
   }
 
   showButtons(div: HTMLDivElement, mouseOn: boolean, borderClass: string, focusClass: string, node: articleSection) {
@@ -333,16 +389,16 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     }
     Array.from(div.children).forEach((el: any) => {
       if (el.classList.contains('section_btn_container')) {
-        Array.from(el.children).forEach((el: any,index) => {
+        Array.from(el.children).forEach((el: any, index) => {
           if (el.classList.contains('hidden')) {
             if (mouseOn) {
-              if(index==1&&this.treeService.showAddBtn(node)){ // add btn
+              if (index == 1 && this.treeService.showAddBtn(node)) { // add btn
                 el.style.display = 'inline';
-              }else if(index == 2&&this.treeService.showDeleteButton(node)){ // delete btn
+              } else if (index == 2 && this.treeService.showDeleteButton(node)) { // delete btn
                 el.style.display = 'inline';
-              }else if(index == 3&&node.type=='complex'){
+              } else if (index == 3 && node.type == 'complex') {
                 el.style.display = 'inline';
-              }else if(index == 0){
+              } else if (index == 0) {
                 el.style.display = 'inline';
               }
             } else {

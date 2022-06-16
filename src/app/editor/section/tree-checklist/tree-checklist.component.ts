@@ -266,16 +266,32 @@ export class TreeChecklistComponent implements OnInit{
   writeValue(value: any) {
     this.selectedNode = value;
     // console.log('flatNodeMap', this.flatNodeMap);
-    let result = null;
+    let result: any = null;
     for (const [key, value] of this.flatNodeMap) {
       // @ts-ignore
       if (value.item.name == this.selectedNode) {
         result = key;
       }
+      // value?.children?.forEach((child: any) => {
+      //     // @ts-ignore
+      //     if (child.item.name == this.selectedNode) {
+      //       result = key;
+      //     }
+      // })
     }
     if (result) {
       this.todoItemSelectionToggle(result);
+      result.item.parents.forEach((id: any) => {
+        for (const [k, val] of this.flatNodeMap) {
+          // @ts-ignore
+          if (val.item.id == id) {
+            this.treeControl.expand(k);
+          }
+        }
+      })
     }
+    console.log(this.treeControl, result);
+    this.treeControl.expand(result);
     // console.log(result);
 
     // [0].value.item
@@ -361,8 +377,12 @@ export class TreeChecklistComponent implements OnInit{
   }
 
   /** Toggle a leaf to-do item selection. Check all the parents to see if they changed */
-  todoLeafItemSelectionToggle(node: TodoItemFlatNode): void {
+  todoLeafItemSelectionToggle(node: any): void {
+    this.selectedNode = node.item.name;
     this.checklistSelection.toggle(node);
+    this.onChange(this.selectedNode);
+    this.myControl.setValue(this.selectedNode);
+
     // this.checkAllParentsSelection(node);
   }
 

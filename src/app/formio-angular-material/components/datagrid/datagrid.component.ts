@@ -133,7 +133,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
       if (this.instance.component.disabled) {
         component.component.disabled = true;
       }
-      this.viewContainers.forEach((container: any) => {
+      this.viewContainers?.forEach((container: any) => {
         const td = container.element.nativeElement.parentNode;
         if (
           component.rowIndex === parseInt(td.getAttribute('rowIndex'), 10) &&
@@ -200,7 +200,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
       /* this.dataSource.data = this.instance.root._submission.data[this.instance.component.key]; */
       /* if(this.instance.root._submission.data[this.instance.component.key]){
         this.dataSource.data = []
-        this.instance.root._submission.data[this.instance.component.key].forEach((el:any)=>{
+        this.instance.root._submission.data[this.instance.component.key]?.forEach((el:any)=>{
           this.dataSource.data.push(el);
           this.instance
         })
@@ -222,7 +222,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
         },200)
     }
     if (this.instance.components && this.instance.components.length > 0) {
-      this.instance.components.forEach((component: any) => {
+      this.instance.components?.forEach((component: any) => {
         if (component.materialComponent) {
           component.materialComponent.updateVisibility(instance);
         }
@@ -244,7 +244,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
       }, 200)
     }
     if (this.instance.components && this.instance.components.length > 0) {
-      this.instance.components.forEach((component: any) => {
+      this.instance.components?.forEach((component: any) => {
         if (component.materialComponent) {
           component.materialComponent.updateVisibility(instance);
         }
@@ -257,7 +257,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
     try {
       /* this.setVisible(this.instance.visible); */
       let recursiveSetRealValue = (instance: any) => {
-        instance.components.forEach((el: any) => {
+        instance.components && instance.components.length && instance.components?.forEach((el: any) => {
           if (el.component.type == 'textarea') {
             if (el.materialComponent) {
               el.materialComponent.setRealValue();
@@ -289,8 +289,8 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
         this.setVisible(isvisible);
       },200)
     }
-    this.instance.rows.forEach((row:any)=>{
-      Object.keys(row).forEach(key=>{
+    this.instance.rows?.forEach((row:any)=>{
+      Object.keys(row)?.forEach(key=>{
         if(row[key]){
           let rowEL = row[key];
           if(rowEL.materialComponent){
@@ -304,7 +304,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
       })
     })
     /* if (this.instance.components && this.instance.components.length > 0) {
-      this.instance.components.forEach((component: any) => {
+      this.instance.components?.forEach((component: any) => {
         if (component.materialComponent) {
           component.materialComponent.updateVisibility(instance);
         }

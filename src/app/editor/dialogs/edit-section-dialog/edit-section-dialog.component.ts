@@ -28,6 +28,7 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
   sectionForm: FormGroup;
   formIOJson: any;
   prityJson:string;
+  component: any;
 
   EditSubmitsubscription?:Subscription;
   constructor(
@@ -38,6 +39,7 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
     public changeDector : ChangeDetectorRef,
     public editSectionService: EditSectionService,
     @Inject(MAT_DIALOG_DATA) public sectionData: any) {
+      this.component = sectionData.component;
       this.data1 = sectionData.node;
       this.sectionForm = sectionData.form;
       this.formIOJson = sectionData.formIOJson;

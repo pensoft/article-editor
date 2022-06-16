@@ -14,18 +14,20 @@ export const marks = {
   link: {
     attrs: {
       href: {},
+      download: {default: null},
       title: { default: null }
     },
     inclusive: false,
     parseDOM: [{
       tag: "a[href]", getAttrs: function getAttrs(dom: any) {
-        return { href: dom.getAttribute("href"), title: dom.getAttribute("title") }
+        return { href: dom.getAttribute("href"), title: dom.getAttribute("title"), download: dom.getAttribute("download") }
       }
     }],
     toDOM: function toDOM(node: Mark) {
       var ref = node.attrs;
       var href = ref.href;
-      var title = ref.title; return ["a", { href: href, title: title }, 0]
+      var download = ref.download;
+      var title = ref.title; return ["a", { href: href, title: title, download: download }, 0]
     }
   },
 

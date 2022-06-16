@@ -6,6 +6,7 @@ import {HttpClient} from "@angular/common/http";
 import {map, startWith, tap} from "rxjs/operators";
 import {Observable} from "rxjs";
 import {journalTree} from "@core/services/journalTreeConstants";
+import {ServiceShare} from '@app/editor/services/service-share.service';
 
 @Component({
   selector: 'app-taxon-section',
@@ -63,7 +64,8 @@ export class TaxonSectionComponent implements AfterViewInit {
 
   constructor(
     private treeService: TreeService,
-    public http: HttpClient
+    public http: HttpClient,
+    private serviceShare: ServiceShare
   ) {
   }
 
@@ -147,9 +149,39 @@ export class TaxonSectionComponent implements AfterViewInit {
 
       textField: this.text1Control!.value,
       textField1: this.text2Control!.value,
-      taxonauthorsandyear: this.taxonauthorsandyear!.value
+      taxonauthorsandyear: this.taxonauthorsandyear!.value,
+      taxonTitle: 'TaxonTitle'
     }
-    await this.onSubmit({data});
+    let title = [];
+    if (data.rank) {
+      title.push(data.genus);
+      if(data.subgenus) {
+        title.push(`(${data.subgenus})`);
+      }
+      if(data.species) {
+        title.push(data.species);
+      }
+      if(data.rank === 'variety') {
+        title.push('var.')
+      }
+      if(data.rank === 'variety') {
+        title.push(`var. ${data.variety}`);
+      }
+      if(data.rank === 'form') {
+        title.push(`f. ${data.form}`);
+      }
+      title.push(data.authorandyear);
+      if(data.rank === 'genus') {
+        title.push('gen.')
+      }
+      if(data.rank === 'species') {
+        title.push('sp.')
+      }
+      if(data.typeoftreatment === 'New taxon') {
+        title.push('n.')
+      }
+    }
+    data.taxonTitle = title.join('&nbsp;');
+    this.onSubmit({data});
   }
-
 }

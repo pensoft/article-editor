@@ -105,6 +105,8 @@ import { TreeChecklistComponent } from './editor/section/tree-checklist/tree-che
 import { SkipCurrentPipe } from './skip-current.pipe';
 import { CurrentColorPipe } from './current-color.pipe';
 import { TaxonSectionComponent } from './editor/section/taxon-section/taxon-section.component';
+import {MaterialsSectionComponent} from "@app/editor/section/materials-section/materials-section.component";
+import {MaterialSectionComponent} from "@app/editor/section/material-section/material-section.component";
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -196,6 +198,8 @@ const gravatarConfig: GravatarConfig = {
     SkipCurrentPipe,
     CurrentColorPipe,
     TaxonSectionComponent,
+    MaterialsSectionComponent,
+    MaterialSectionComponent
   ],
   imports: [
     HttpClientJsonpModule,

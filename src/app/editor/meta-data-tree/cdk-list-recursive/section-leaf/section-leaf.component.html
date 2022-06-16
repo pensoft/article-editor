@@ -28,7 +28,7 @@
       <button [style.display]="'none'" [ngStyle]="node.edit.main?{'order':'1','margin': '2px'}:{}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node.edit.bool" (click)="editNodeHandle(node, nodeFormGroup);node.active = true"><mat-icon class="matIcon" >edit</mat-icon></button>
       <button [style.display]="'none'" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon ></button>
       <button [style.display]="'none'" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
-      <button [style.display]="'none'" [ngStyle]="{'order':'3','margin-top': '3px'}" mat-mini-fab class="addSectionBtn section_btn_nestedList hidden" *ngIf="node?.delete?.bool" (click)="addSectionToNode(node)"><mat-icon class="matIcon">post_add</mat-icon></button>
+      <button [style.display]="'none'" [ngStyle]="{'order':'3','margin-top': '3px'}" mat-mini-fab class="addSectionBtn section_btn_nestedList hidden" *ngIf="node?.delete?.bool" (click)="addSectionToNode(node, nodeFormGroup)"><mat-icon class="matIcon">post_add</mat-icon></button>
     </div>
   </div>
   <div #listDiv class="example-list-dropdownbox" [style.display]="'none'" #childrenDiv>
@@ -68,7 +68,7 @@
       <button [style.display]="'none'" [ngStyle]="node.edit.main?{'order':'1','margin': '2px'}:{}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node.edit.bool" (click)="editNodeHandle(node, nodeFormGroup)"><mat-icon class="matIcon">edit</mat-icon></button>
       <button [style.display]="'none'" [ngStyle]="!node.add.main?{'order':'-2'}:{'order':'1','margin': '2px'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node?.add?.bool" (click)="addNodeHandle(node.sectionID)"><mat-icon class="matIcon">add</mat-icon></button>
       <button [style.display]="'none'" [ngStyle]="!node.delete.main?{'order':'2'}:{'order':'-1','margin': '2px'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node?.delete?.bool" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
-      <button [style.display]="'none'" [ngStyle]="{'order':'3','margin-top': '3px'}" mat-mini-fab class="addSectionBtn section_btn_nestedList hidden" *ngIf="node?.delete?.bool" (click)="addSectionToNode(node)"><mat-icon class="matIcon">post_add</mat-icon></button>
+      <button [style.display]="'none'" [ngStyle]="{'order':'3','margin-top': '3px'}" mat-mini-fab class="addSectionBtn section_btn_nestedList hidden" *ngIf="node?.delete?.bool" (click)="addSectionToNode(node, nodeFormGroup)"><mat-icon class="matIcon">post_add</mat-icon></button>
     </div>
   </div>
   <div #listDiv class="example-list-dropdownbox-nested" [style.display]="'none'" #childrenDiv>
