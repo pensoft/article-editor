@@ -8,6 +8,8 @@ import {ArticlesService} from "@app/core/services/articles.service";
 import * as Y from 'yjs'
 import {testingFormIOJSON} from "../services/form-builder.service";
 import {taxonTreatmentSection} from "@core/services/custom_sections/taxon_treatment_section";
+import {taxonSection} from "@core/services/custom_sections/taxon";
+import {material} from "@core/services/custom_sections/material";
 
 export function editorFactory(data?: editorMeta): editorData {
   return {editorId: uuidv4(), menuType: 'fullMenu', editorMeta: data}
@@ -69,13 +71,55 @@ export const articleBasicStructure: articleSection[] = [
     sectionMeta: {main: false}
   }];
 
+export const customSectionEnums = {
+  Taxon: taxonSection
+}
+
 export const renderSectionFunc:
   /*  */(sectionFromBackend: any, parentContainer: articleSection[], ydoc: Y.Doc, index?: number | string) => articleSection
   = /**/(sectionFromBackend: any, parentContainer: articleSection[], ydoc: Y.Doc, index?: number | string) => {
+
+   let deepIterator = (target, override) => {
+    if (typeof target === 'object') {
+      if(target.sections) {
+        target.sections.forEach(child => {
+          child.override = override;
+          deepIterator(child, JSON.parse(JSON.stringify(override)));
+        })
+      }
+      // for (const key in target) {
+      //   deepIterator(target[key]);
+      // }
+    }
+  }
   let children: any[] = []
   if (sectionFromBackend.type == 1) {
     sectionFromBackend.sections.forEach((childSection: any, indexOfChild: number) => {
       childSection.settings = sectionFromBackend.complex_section_settings[indexOfChild]
+      renderSectionFunc(childSection, children, ydoc)
+    })
+  }
+  if (sectionFromBackend.type == 2) {
+    sectionFromBackend.schema.sections.forEach((child: any, indexOfChild: number) => {
+      const childSection = customSectionEnums[child];
+      childSection.override = sectionFromBackend.schema.override;
+      const props = Object.keys(sectionFromBackend.schema.override.categories).map(key => {
+        return sectionFromBackend.schema.override.categories[key].entries.map(entry => {
+          return entry.localName
+        })
+      }).flat();
+      props.map(el => {
+        material.schema.components.push({
+          "label": el,
+          "autoExpand": false,
+          "tableView": true,
+          "key": el,
+          "type": "textarea",
+          "input": true
+        } as any)
+      })
+      deepIterator(childSection, JSON.parse(JSON.stringify(sectionFromBackend.schema.override)));
+      // childSection.settings = sectionFromBackend.complex_section_settings[indexOfChild]
       renderSectionFunc(childSection, children, ydoc)
     })
   }
@@ -166,13 +210,13 @@ export const renderSectionFunc:
       add: {bool: true, main: false},
       delete: {bool: true, main: false},
       mode: 'documentMode',
-      formIOSchema: taxonTreatmentSection.schema,
-      initialRender: sectionFromBackend.initialRender ? sectionFromBackend.initialRender : undefined,
+      formIOSchema: sectionFromBackend.schema?.schema ? sectionFromBackend.schema?.schema : taxonTreatmentSection.schema,
+      initialRender: sectionFromBackend.initialRender ? sectionFromBackend.initialRender : (taxonTreatmentSection['initialRender'] ? taxonTreatmentSection['initialRender'] : (undefined)),
       active: sectionFromBackend.active ? sectionFromBackend.active : false,
       defaultFormIOValues: sectionFromBackend.defaultFormIOValues ? sectionFromBackend.defaultFormIOValues : undefined,
-      prosemirrorHTMLNodesTempl: taxonTreatmentSection.template,
+      prosemirrorHTMLNodesTempl: sectionFromBackend.template || taxonTreatmentSection.template,
       children: children,
-      materialStructure: sectionFromBackend.materialStructure,
+      override: sectionFromBackend.schema.override,
       type: sectionFromBackend.type == 2 ? 'complex' : 'simple',
       sectionVersionId: sectionFromBackend.version_id,
       sectionTypeID: sectionFromBackend.id,

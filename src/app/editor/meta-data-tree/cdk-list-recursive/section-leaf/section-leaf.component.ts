@@ -329,11 +329,11 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   addSectionToNode(node: articleSection, formGroup: FormGroup) {
     console.log(node, material);
     if (node.title.name === '[MM] Materials') {
+      material.parent = node;
       const materialData = JSON.parse(JSON.stringify(material));
       materialData.initialRender = this.serviceShare.YdocService.ydoc.guid
       materialData.active = true;
       materialData.defaultFormIOValues = {};
-
       let sectionContent = this.formBuilderService.populateDefaultValues({}, node.formIOSchema, node.sectionID, formGroup);
       this.dialog.open(EditSectionDialogComponent, {
         width: '95%',
@@ -347,12 +347,18 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
         }
       });
     } else if (['[MM] Description', '[MM] Diagnosis', '[MM] Distribution', '[MM] Ecology', '[MM] Conservation', '[MM] Biology', '[MM] Taxon discussion', '[MM] Notes', '[MM] Custom'].indexOf(node.title.name) > -1) {
-      this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, treatmentSectionsSubsection, 'end');
+      const treatmentSectionsSubsectionData = JSON.parse(JSON.stringify(treatmentSectionsSubsection));
+      treatmentSectionsSubsectionData.parent = node;
+      this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, treatmentSectionsSubsectionData, 'end');
     } else if ('[MM] Treatment sections' === node.title.name) {
+      const treatmentSectionsCustomData = JSON.parse(JSON.stringify(treatmentSectionsCustom));
+      treatmentSectionsCustomData.parent = node;
       this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, treatmentSectionsCustom, 'end');
     } else {
+      const taxonSectionData = JSON.parse(JSON.stringify(taxonSection));
+      taxonSection.parent = node;
       this.serviceShare.ArticleSectionsService!.getAllSections({page: 1, pageSize: 999}).pipe(map((res: any) => {
-        res.data.push(taxonSection);
+        res.data.push(taxonSectionData);
         return res
       })).subscribe((response: any) => {
         let sectionTemplates1 = filterChooseSectionsFromBackend(node.compatibility, response.data)
@@ -364,6 +370,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
         sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates, node, node.children)
         if(sectionTemplates && sectionTemplates.length === 1) {
+          sectionTemplates[0].parent = node;
           this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, sectionTemplates[0], 0)
         } else {
           const dialogRef = this.dialog.open(ChooseSectionComponent, {
@@ -373,6 +380,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
           });
           dialogRef.afterClosed().subscribe(result => {
             this.serviceShare.ArticleSectionsService!.getSectionById(result).subscribe((res: any) => {
+              res.data.parent = node;
               this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, res.data, 0)
             })
           });

@@ -54,7 +54,7 @@ export interface articleSection {
   delete: { bool: boolean, main: boolean },
   mode: 'documentMode' | 'editMode',
   title: titleContent,
-  materialStructure?: any,
+  override?: any,
   prosemirrorHTMLNodesTempl?: string,
   formIOSchema?: any,
   sectionVersionId: number,

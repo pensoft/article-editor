@@ -171,14 +171,11 @@ export class TaxonSectionComponent implements AfterViewInit {
         title.push(`f. ${data.form}`);
       }
       title.push(data.authorandyear);
-      if(data.rank === 'genus') {
-        title.push('gen.')
-      }
       if(data.rank === 'species') {
         title.push('sp.')
       }
-      if(data.typeoftreatment === 'New taxon') {
-        title.push('n.')
+      if(data.rank === 'genus' && data.typeoftreatment === 'New taxon') {
+        title.push('gen., n.')
       }
     }
     data.taxonTitle = title.join('&nbsp;');

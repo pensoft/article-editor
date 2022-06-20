@@ -4,6 +4,7 @@ import {treatmentSections} from "@core/services/custom_sections/treatment_sectio
 export const taxonSection = {
   "id": 9999,
   "name": "Taxon",
+  parent: null,
   "label": "{{(data.taxonTitle!=''&&data.taxonTitle)?data.taxonTitle:'Taxon'}}",
   "schema": {
     "components": [
@@ -752,7 +753,7 @@ export const taxonSection = {
     {...treatmentSections}
   ],
   "template": `<ng-container *ngIf="data.rank">
-<inline-block-container style="display: inline-block; font-style: italic; font-weight: bold;">
+<inline-block-container *ngIf="data.genus" style="display: inline-block; font-style: italic; font-weight: bold;">
 \t<form-field  formControlName="genus" style="word-break: keep-all;display: block">
 \t</form-field>
 </inline-block-container>
@@ -785,9 +786,8 @@ export const taxonSection = {
 \t<form-field style="word-break: keep-all;display: block;" formControlName="authorandyear">
 \t</form-field>
 </inline-block-container>
-<inline-block-container *ngIf="data.rank === 'genus'" style="display: inline-block;font-weight: bold;" contenteditableNode="false">,&nbsp;gen.</inline-block-container>
 <inline-block-container *ngIf="data.rank === 'species'" style="display: inline-block;font-weight: bold;" contenteditableNode="false">,&nbsp;sp.</inline-block-container>
-<inline-block-container *ngIf="data.typeoftreatment === 'New taxon'" style="display: inline-block;font-weight: bold;" contenteditableNode="false">,&nbsp;n.</inline-block-container>
+<inline-block-container *ngIf="data.rank === 'genus' && data.typeoftreatment === 'New taxon'" style="display: inline-block;font-weight: bold;" contenteditableNode="false">&nbsp;,gen.&nbsp;n.</inline-block-container>
 </ng-container>`,
   "type": 1,
   "version_id": 471,

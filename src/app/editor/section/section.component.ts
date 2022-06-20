@@ -13,28 +13,29 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import { BrowserModule } from '@angular/platform-browser';
-import { basicSetup, EditorState, EditorView } from '@codemirror/basic-setup';
-import { html } from '@codemirror/lang-html';
-import { javascript } from '@codemirror/lang-javascript';
-import { Subject } from 'rxjs';
-import { EditSectionService } from '../dialogs/edit-section-dialog/edit-section.service';
-import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
-import { articleSection, editorData } from '../utils/interfaces/articleSection';
-import { FormGroup, FormsModule, ReactiveFormsModule } from "@angular/forms";
-import { MaterialModule } from "../../shared/material.module";
-import { FormControlNameDirective } from "../directives/form-control-name.directive";
-import { TreeService } from '../meta-data-tree/tree-service/tree.service';
-import { FormArrayNameDirective } from "../directives/form-array-name.directive";
-import { FormBuilderService } from '../services/form-builder.service';
-import { YdocService } from '../services/ydoc.service';
-import { YMap } from 'yjs/dist/src/internals';
-import { FiguresControllerService } from '../services/figures-controller.service';
-import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
+import {BrowserModule} from '@angular/platform-browser';
+import {basicSetup, EditorState, EditorView} from '@codemirror/basic-setup';
+import {html} from '@codemirror/lang-html';
+import {javascript} from '@codemirror/lang-javascript';
+import {Subject} from 'rxjs';
+import {EditSectionService} from '../dialogs/edit-section-dialog/edit-section.service';
+import {ProsemirrorEditorsService} from '../services/prosemirror-editors.service';
+import {articleSection, editorData} from '../utils/interfaces/articleSection';
+import {FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
+import {MaterialModule} from "../../shared/material.module";
+import {FormControlNameDirective} from "../directives/form-control-name.directive";
+import {TreeService} from '../meta-data-tree/tree-service/tree.service';
+import {FormArrayNameDirective} from "../directives/form-array-name.directive";
+import {FormBuilderService} from '../services/form-builder.service';
+import {YdocService} from '../services/ydoc.service';
+import {YMap} from 'yjs/dist/src/internals';
+import {FiguresControllerService} from '../services/figures-controller.service';
+import {DetectFocusService} from '../utils/detectFocusPlugin/detect-focus.service';
 //@ts-ignore
-import { updateYFragment } from '../../y-prosemirror-src/plugins/sync-plugin.js';
-import { DOMParser as DOMParserPM } from 'prosemirror-model';
-import { schema } from '../utils/Schema';
+import {updateYFragment} from '../../y-prosemirror-src/plugins/sync-plugin.js';
+import {DOMParser as DOMParserPM} from 'prosemirror-model';
+import {schema} from '../utils/Schema';
+import {HelperService} from "@app/editor/section/helpers/helper.service";
 
 @Component({
   selector: 'app-section',
@@ -68,19 +69,24 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
   _sectionForm!: FormGroup;
   sectionFormClone!: FormGroup;
+
   @Input() set sectionForm(val) {
     this._sectionForm = val;
     this.sectionFormClone = this.formBuilderService.cloneAbstractControl(this._sectionForm);
   }
-  get sectionForm() { return this._sectionForm; }
+
+  get sectionForm() {
+    return this._sectionForm;
+  }
+
   @Input() sectionContent: any;
 
 
-  @ViewChild('codemirrorHtmlTemplate', { read: ElementRef }) codemirrorHtmlTemplate?: ElementRef;
-  @ViewChild('codemirrorJsonTemplate', { read: ElementRef }) codemirrorJsonTemplate?: ElementRef;
-  @ViewChild('ProsemirrorEditor', { read: ElementRef }) ProsemirrorEditor?: ElementRef;
-  @ViewChild('container', { read: ViewContainerRef }) container?: ViewContainerRef;
-  @ViewChild('formio', { read: ViewContainerRef }) formio?: ViewContainerRef;
+  @ViewChild('codemirrorHtmlTemplate', {read: ElementRef}) codemirrorHtmlTemplate?: ElementRef;
+  @ViewChild('codemirrorJsonTemplate', {read: ElementRef}) codemirrorJsonTemplate?: ElementRef;
+  @ViewChild('ProsemirrorEditor', {read: ElementRef}) ProsemirrorEditor?: ElementRef;
+  @ViewChild('container', {read: ViewContainerRef}) container?: ViewContainerRef;
+  @ViewChild('formio', {read: ViewContainerRef}) formio?: ViewContainerRef;
 
   constructor(
     private compiler: Compiler,
@@ -90,6 +96,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     private ydocService: YdocService,
     private formBuilderService: FormBuilderService,
     public detectFocusService: DetectFocusService,
+    public helperService: HelperService,
     private figuresControllerService: FiguresControllerService) {
 
     /* if(this.formControlService.popUpSectionConteiners[this.section.sectionID]){
@@ -134,12 +141,15 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
   onSubmit = async (submision?: any) => {
     try {
-      if(this.section.type=='complex'){
+      if (this.section.type == 'complex') {
         this.submitComplexSectionEdit()
       }
 
       //this.prosemirrorEditorsService.updateFormIoDefaultValues(this.section.sectionID, submision.data)
-      this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, { data: submision.data, updatedFrom: this.ydocService.ydoc?.guid })
+      this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, {
+        data: submision.data,
+        updatedFrom: this.ydocService.ydoc?.guid
+      })
       this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema, this.section.sectionID, this.sectionForm);
       //this.sectionForm = new FormGroup({});
       Object.keys(this.sectionForm.controls).forEach((key) => {
@@ -259,15 +269,21 @@ export class SectionComponent implements AfterViewInit, OnInit {
     let tr = this.codemirrorHTMLEditor?.state.update()
     this.codemirrorHTMLEditor?.dispatch(tr!);
     prosemirrorNewNodeContent = this.section.prosemirrorHTMLNodesTempl;
-    if(this.section.title.name === 'Material') {
-      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, this.section.defaultFormIOValues, this.sectionForm);
+    const root = this.helperService.filter(this.treeService.articleSectionsStructure, this.section.sectionID);
+    if (root.prosemirrorHTMLNodesTempl.indexOf(`<ng-template #${this.section.title.name.replace(/[\W_]+/g,'')}`) > -1) {
+      prosemirrorNewNodeContent = root.prosemirrorHTMLNodesTempl;
+      if (this.section.title.name === 'Material') {
+        interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, this.section.defaultFormIOValues, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
+      } else {
+        debugger
+        interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
+      }
     } else {
       interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm);
     }
     submision.compiledHtml = interpolated
     this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
     //this.editSectionService.editChangeSubject.next(submision);
-
     //this.treeService.editNodeChange(this.section.sectionID)
 
     //let copyOriginUpdatesBeforeReplace = [...originUpdates]
@@ -327,7 +343,9 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
     //chanking if the JSON has a submit btn and if it does not add one
 
-    if (!(this.sectionContent.components as Array<any>).find((val) => { return (val.key == 'submit' && val.type == 'button') })) {
+    if (!(this.sectionContent.components as Array<any>).find((val) => {
+      return (val.key == 'submit' && val.type == 'button')
+    })) {
       this.sectionContent.components.push({
         "type": "button",
         "label": "Submit",
@@ -349,5 +367,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
     this.childrenTreeCopy = JSON.parse(JSON.stringify(this.section.children))
   }
 
-  log() { }
+  log() {
+  }
 }

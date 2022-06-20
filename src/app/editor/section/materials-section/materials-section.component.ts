@@ -3,15 +3,13 @@ import {FormControl, FormGroup} from '@angular/forms';
 import {TreeService} from '@app/editor/meta-data-tree/tree-service/tree.service';
 import {articleSection} from '@app/editor/utils/interfaces/articleSection';
 import {HttpClient} from "@angular/common/http";
-import {map, startWith, tap} from "rxjs/operators";
-import {Observable} from "rxjs";
-import {journalTree} from "@core/services/journalTreeConstants";
-import CSVToArray from 'csv-to-array-browser';
 import {material} from "@core/services/custom_sections/material";
 import {ServiceShare} from "@app/editor/services/service-share.service";
 import {MatDialog, MatDialogRef} from "@angular/material/dialog";
 import {EditSectionDialogComponent} from "@app/editor/dialogs/edit-section-dialog/edit-section-dialog.component";
 import {FormBuilderService} from "@app/editor/services/form-builder.service";
+import Papa from 'papaparse';
+import {HelperService} from "@app/editor/section/helpers/helper.service";
 
 @Component({
   selector: 'app-materials-section',
@@ -40,11 +38,13 @@ export class MaterialsSectionComponent implements AfterViewInit {
     public serviceShare: ServiceShare,
     public dialogRef: MatDialogRef<MaterialsSectionComponent>,
     public dialog: MatDialog,
-    public formBuilderService: FormBuilderService
+    public formBuilderService: FormBuilderService,
+    public helperService: HelperService,
   ) {
   }
 
   ngAfterViewInit(): void {
+    console.log(this.helperService.filter(this.treeService.articleSectionsStructure, this.section.sectionID));
     this.importMaterialData = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get('importMaterialData')?.value);
     // this.placeMultiple = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get('placeMultiple')?.value);
     this.placeMultiple = new FormControl(JSON.stringify([
@@ -99,23 +99,23 @@ export class MaterialsSectionComponent implements AfterViewInit {
   }
 
   addManually() {
-      const materialData = JSON.parse(JSON.stringify(material));
-      materialData.initialRender = this.serviceShare.YdocService.ydoc.guid
-      materialData.active = true;
-      materialData.defaultFormIOValues = {};
-
+    const materialData = JSON.parse(JSON.stringify(material));
+    materialData.initialRender = this.serviceShare.YdocService.ydoc.guid
+    materialData.active = true;
+    materialData.defaultFormIOValues = {};
+    materialData.parent = this.section;
     let sectionContent = this.formBuilderService.populateDefaultValues({}, this.section.formIOSchema, this.section.sectionID);
-      this.dialog.open(EditSectionDialogComponent, {
-        width: '95%',
-        height: '90%',
-        data: {node: this.section, form: this.fGroup, sectionContent, component: '[MM] Material'},
-        disableClose: false
-      }).afterClosed().subscribe(result => {
-        if(result && result.data) {
-          materialData.defaultFormIOValues = result.data;
-          this.serviceShare.TreeService!.addNodeAtPlaceChange(this.section.sectionID, materialData, 'end');
-        }
-      });
+    this.dialog.open(EditSectionDialogComponent, {
+      width: '95%',
+      height: '90%',
+      data: {node: this.section, form: this.fGroup, sectionContent, component: '[MM] Material'},
+      disableClose: false
+    }).afterClosed().subscribe(result => {
+      if (result && result.data) {
+        materialData.defaultFormIOValues = result.data;
+        this.serviceShare.TreeService!.addNodeAtPlaceChange(this.section.sectionID, materialData, 'end');
+      }
+    });
     // this.serviceShare.TreeService!.addNodeAtPlaceChange(this.section.sectionID, material, 'end');
     this.dialogRef.close();
   }
@@ -126,10 +126,11 @@ export class MaterialsSectionComponent implements AfterViewInit {
     convertedData.forEach((row: any) => {
       const materialData = JSON.parse(JSON.stringify(material));
       materialData.initialRender = this.serviceShare.YdocService.ydoc.guid
+      materialData.parent = this.section;
       materialData.active = true;
       materialData.defaultFormIOValues = row;
       materialData.schema.components.map(item => {
-        if(row.hasOwnProperty(item.key))
+        if (row.hasOwnProperty(item.key))
           item.defaultValue = row[item.key];
       })
       this.serviceShare.TreeService!.addNodeAtPlaceChange(this.section.sectionID, materialData, 'end');
@@ -139,7 +140,7 @@ export class MaterialsSectionComponent implements AfterViewInit {
   }
 
   async onFileSelected(event: any) {
-   this.isLoading = true;
+    this.isLoading = true;
     // var fr=new FileReader();
     // fr.onload=function(){
     //   console.log(CSVToArray(fr.result, ';'));
@@ -148,20 +149,37 @@ export class MaterialsSectionComponent implements AfterViewInit {
     // }
     //
     // fr.readAsText(event.target.files[0]);
-    const convertedData = await CSVToArray(event.target.files[0], ';');
-    convertedData.forEach((row: any) => {
-      const materialData = JSON.parse(JSON.stringify(material));
-      materialData.initialRender = this.serviceShare.YdocService.ydoc.guid
-      materialData.active = true;
-      materialData.defaultFormIOValues = row;
-      materialData.schema.components.map(item => {
-        if(row.hasOwnProperty(item.key))
-        item.defaultValue = row[item.key];
-      })
-      this.serviceShare.TreeService!.addNodeAtPlaceChange(this.section.sectionID, materialData, 'end');
-      // this.sec
-    })
-    this.dialogRef.close();
+    Papa.parse(event.target.files[0], {
+      worker: true,
+      complete: (results) => {
+        const convertedData = []
+        for (let i = 1; i < results.data.length; i++) {
+          const data = {};
+          results.data[0].map((item, index) => {
+            data[item] = results.data[i][index];
+          })
+          convertedData.push(data);
+        }
+        // const convertedData = results.data;
+        console.log("json:", results.data);
+        debugger;
+        convertedData.forEach((row: any) => {
+          const materialData = JSON.parse(JSON.stringify(material));
+          materialData.parent = this.section;
+          materialData.initialRender = this.serviceShare.YdocService.ydoc.guid
+          materialData.active = true;
+          materialData.defaultFormIOValues = row;
+          materialData.schema.components.map(item => {
+            if (row.hasOwnProperty(item.key))
+              item.defaultValue = row[item.key];
+          })
+          this.serviceShare.TreeService!.addNodeAtPlaceChange(this.section.sectionID, materialData, 'end');
+          // this.sec
+        })
+        this.dialogRef.close();
+      }
+    });
+    // const convertedData = await CSVToArray(event.target.files[0], ';');
     // console.log(convertedData, this.section);
   }
 

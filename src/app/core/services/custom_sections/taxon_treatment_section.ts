@@ -8,23 +8,6 @@ export const taxonTreatmentSection = {
   "schema": {
     "display": "form",
     "components": [
-      {
-        "type": "button",
-        "label": "Submit",
-        "key": "submit",
-        "disableOnInvalid": true,
-        "input": true,
-        "tableView": false
-      },
-      {
-        "label": "Text Area",
-        "placeholder": "Test placeholder",
-        "autoExpand": false,
-        "tableView": true,
-        "key": "paragraph",
-        "type": "textarea",
-        "input": true
-      }
     ]
   },
   "sections": [

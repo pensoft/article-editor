@@ -20,8 +20,7 @@ export class EditorMenuComponent implements OnInit {
     this.rposemirrorEditorsService.setIntFunction(this.interpolateTemplate)
   }
 
-  interpolateTemplate = (htmlToCompile: string, data: any, formGroup: FormGroup=new FormGroup({})) => {
-
+  interpolateTemplate = (htmlToCompile: string, data: any, formGroup: FormGroup=new FormGroup({}), template?) => {
     let compiler = this.compiler
     let container = this.container
     function getRenderedHtml(templateString: string) {
@@ -140,9 +139,17 @@ export class EditorMenuComponent implements OnInit {
       </div></ng-container>`)
     } */
 
-    return getRenderedHtml(`<ng-container [formGroup]="formGroup">
+    if(template) {
+      return getRenderedHtml(`<ng-container [formGroup]="formGroup">
+    <div contenteditableNode="true" translate="no" class="ProseMirror ProseMirror-example-setup-style ProseMirror-focused">
+            <ng-container  *ngTemplateOutlet="${template}"></ng-container>
+            ${htmlToCompile}
+    </div></ng-container>`);
+    } else {
+      return getRenderedHtml(`<ng-container [formGroup]="formGroup">
     <div contenteditableNode="true" translate="no" class="ProseMirror ProseMirror-example-setup-style ProseMirror-focused">${htmlToCompile}
     </div></ng-container>`)
+    }
   }
 
 }

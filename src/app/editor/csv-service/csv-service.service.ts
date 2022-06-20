@@ -4,12 +4,9 @@ import {materialStructure} from "@core/services/custom_sections/materials_struct
 import {result} from "lodash";
 import {ServiceShare} from "@app/editor/services/service-share.service";
 import {YdocService} from "@app/editor/services/ydoc.service";
+import {HelperService} from "@app/editor/section/helpers/helper.service";
+import {TreeService} from "@app/editor/meta-data-tree/tree-service/tree.service";
 
-const props = Object.keys(materialStructure.categories).map(key => {
-  return materialStructure.categories[key].entries.map(entry => {
-    return entry.localName
-  })
-}).flat().sort(function(x,y){ return x == 'typeStatus' ? -1 : y == 'typeStatus' ? 1 : 0; });
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +14,7 @@ const props = Object.keys(materialStructure.categories).map(key => {
 export class CsvServiceService {
   articleSectionsStructure;
 
-  constructor(private ydocService: YdocService) {
+  constructor(private ydocService: YdocService, public helperService: HelperService, public treeService: TreeService) {
   }
 
   findNestedObj(entireObj, keyToFind, valToFind) {
@@ -36,6 +33,12 @@ export class CsvServiceService {
     // const parent = this.articleSectionsStructure.find(item => item.)
     const parent = this.findNestedObj(this.articleSectionsStructure, 'sectionID', sectionId);
     const dataArrays = [];
+    const root = this.helperService.filter(this.treeService.articleSectionsStructure, sectionId);
+    const props = Object.keys(root.override.categories).map(key => {
+      return root.override.categories[key].entries.map(entry => {
+        return entry.localName
+      })
+    }).flat();
     parent.children.forEach(item => {
       const cloned = JSON.parse(JSON.stringify(item.defaultFormIOValues));
       const row = new Array(props.length).fill('');

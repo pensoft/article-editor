@@ -5,16 +5,31 @@ import {ProsemirrorEditorsService} from '../../services/prosemirror-editors.serv
 import {DetectFocusService} from '../detectFocusPlugin/detect-focus.service';
 import {schema} from '../Schema';
 import {CsvServiceService} from "@app/editor/csv-service/csv-service.service";
-
+import Papa from 'papaparse';
 
 @Injectable({
   providedIn: 'root'
 })
 export class LinkPopUpPluginServiceService {
   linkPopUpPluginKey
-  linkPopUpPlugin: Plugin
+  linkPopUpPlugin: Plugin;
+  download(filename, text) {
+    var pom = document.createElement('a');
+    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+    pom.setAttribute('download', filename);
+
+    if (document.createEvent) {
+      var event = document.createEvent('MouseEvents');
+      event.initEvent('click', true, true);
+      pom.dispatchEvent(event);
+    }
+    else {
+      pom.click();
+    }
+  }
 
   constructor(private detectFocusService: DetectFocusService, public csvServiceService: CsvServiceService) {
+    const self = this;
     let lastFocusedEditor: any
     lastFocusedEditor = detectFocusService.sectionName
     this.detectFocusService.focusedEditor.subscribe((data: any) => {
@@ -46,29 +61,37 @@ export class LinkPopUpPluginServiceService {
           if (!(focusRN.hasFocus || (lastFocusedEditor == focusRN.sectionName))) return DecorationSet.empty
           let position = from == to ? from : Math.floor((from + to) / 2)
           let node = doc.nodeAt(position)
-          let mark = node?.marks.find((mark) => mark.type == state.schema.marks.link)
+          let mark = node?.marks.find((mark) => mark.type == state.schema.marks.link);
           if (!mark) return DecorationSet.empty
-          let linkPopUp = document.createElement('div')
-          linkPopUp.classList.add('link_popup_div');
-          let link = document.createElement('a') as HTMLAnchorElement
-          link.addEventListener('click', (event) => {
-            if (!mark?.attrs.download) {
-              event.preventDefault();
-              window.open(mark?.attrs.href)
+          if (mark?.attrs?.download) {
+            debugger;
+            const text  = csvServiceService.arrayToCSV(lastFocusedEditor);
+            const fileName = mark?.attrs.download;
+            self.download(fileName, text);
+            lastFocusedEditor = null;
+          } else {
+            let linkPopUp = document.createElement('div')
+            linkPopUp.classList.add('link_popup_div');
+            let link = document.createElement('a') as HTMLAnchorElement;
+            link.addEventListener('click', (event) => {
+              if (!mark?.attrs.download) {
+                event.preventDefault();
+                window.open(mark?.attrs.href)
+              }
+            })
+            link.href = mark?.attrs.href;
+            link.textContent = mark?.attrs.href
+            if (mark?.attrs.download) {
+
+              link.href = 'data:text/plain;charset=utf-8,' + csvServiceService.arrayToCSV(lastFocusedEditor);
+              link.download = mark?.attrs.download;
+              link.textContent = mark?.attrs.download
             }
-          })
-          link.href = mark?.attrs.href;
-          link.textContent = mark?.attrs.href
-          if (mark?.attrs.download) {
+            linkPopUp.appendChild(link)
 
-            link.href = 'data:text/plain;charset=utf-8,' + csvServiceService.arrayToCSV(lastFocusedEditor);
-            link.download = mark?.attrs.download;
-            link.textContent = mark?.attrs.download
+
+            return DecorationSet.create(doc, [Decoration.widget(position, linkPopUp)]);
           }
-          linkPopUp.appendChild(link)
-
-
-          return DecorationSet.create(doc, [Decoration.widget(position, linkPopUp)]);
 
         }
       }

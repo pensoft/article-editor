@@ -12,16 +12,30 @@
         </div>
         <div fxLayout="column" fxFlex="45%">
           <label> Search DarwinCore term<sup class="text-red">&nbsp;</sup></label>
+          <ng-container *ngIf="materialStructure.categories | keyvalue as tabs">
           <mat-form-field appearance="outline">
-            <input type="text" matInput [formControl]="searchdarwincore">
+<!--            <input type="text" matInput [formControl]="searchdarwincore">-->
+            <input type="text"
+                   placeholder="Pick one"
+                   aria-label="Number"
+                   matInput
+                   [formControl]="searchdarwincore"
+                   [matAutocomplete]="auto">
+            <mat-autocomplete #auto="matAutocomplete" (optionSelected)="optionSelected($event, tabs)"
+            >
+              <mat-option *ngFor="let option of filteredOptions | async" [value]="option">
+                {{option}}
+              </mat-option>
+            </mat-autocomplete>
           </mat-form-field>
+          </ng-container>
         </div>
       </div>
     </article>
     <ng-container *ngIf="materialStructure.categories | keyvalue as tabs">
-      <mat-tab-group>
+      <mat-tab-group [selectedIndex]="selected.value">
         <ng-container *ngFor="let tab of tabs">
-          <mat-tab [label]="tab.key">
+          <mat-tab [label]="$any(tab)['key']">
             <ng-template matTabContent>
 <!--              "localName": "occurrenceID",-->
 <!--              "label": "Occurrence ID",-->
@@ -30,11 +44,11 @@
 <!--              "organizedIn": "http://rs.tdwg.org/dwc/terms/Occurrence",-->
 <!--              "status": "recommended",-->
 <!--              "iri": "http://rs.tdwg.org/dwc/terms/occurrenceID"-->
-                  <div *ngFor="let entry of tab.value.entries" fxLayout="row" fxLayoutAlign="space-between start" class="pb20">
+                  <div *ngFor="let entry of tab['value']['entries']" fxLayout="row" fxLayoutAlign="space-between start" class="pb20">
                     <div fxLayout="column" fxFlex="60%">
                       <label>{{entry.label}}</label>
                       <mat-form-field appearance="outline" fxFlex="40%">
-                        <input type="text" matInput [formControl]="this[entry.localName]">
+                        <input type="text" matInput [formControl]="this[entry.localName]" [id]="entry.localName | lowercase">
                       </mat-form-field>
                       <div class="text-grey" *ngIf="entry.examples">
                         <span class="bold"> Example: </span>
