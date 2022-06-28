@@ -332,7 +332,8 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
       let citation = this.cslService.genereteCitationStr(localRef.refStyle.name, localRef.refData.referenceData)
       this.dialogRef.close({
         refInstance: 'local',
-        ref: this.referencesControl.value,
+        ref: this.externalSelection,
+        // ref: this.referencesControl.value,
         //externalSelect:this.selected,
         citation
       })
@@ -354,10 +355,10 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
   }
 
   private _filter(value: string): string[] {
-    const filterValue = value.toLowerCase();
-    if (!this.references || !value) {
+    if (!this.references || !value || typeof value === 'object') {
       return [];
     }
+    const filterValue = value.toLowerCase();
     return this.references.filter(option => {
       return option.refData.referenceData.title?.toLowerCase().includes(filterValue) ||
         (option.refData.formioData.authors[0] ? (option.refData.formioData.authors[0]?.first?.toLowerCase()?.includes(filterValue) || option.refData.formioData.authors[0]?.last?.toLowerCase()?.includes(filterValue) || option.refData.formioData.authors[0]?.given?.toLowerCase()?.includes(filterValue) || false) : false) ||

@@ -143,9 +143,9 @@ export class RefsApiService {
     }
   }
   deleteReference(ref: any) {
-    return this._http.delete('https://something/references', { body: { ref } }).pipe(map((data) => {
+    return this._http.delete(API_URL + '/references/items/' + ref.refData.referenceData.id).pipe(map((data) => {
       console.log('fake-backend', data);
       return data
-    }));;
+    }));
   }
 }
