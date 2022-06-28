@@ -22,7 +22,7 @@ export function genereteNewReference(refData: reference, data: any) {
     "author": [{ "family": "Mandel", "given": "Robert", "multi": { "_key": {} } }],
     "id": "2kntpabvm2"
   } */
-  let newRefID = uuidv4();
+  let newRefID = data.id||uuidv4();
   let newRef: any = {};
   let addCreator = (creator: any, type: string) => {
     if (!newRef[type]) {

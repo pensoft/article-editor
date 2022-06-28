@@ -4556,7 +4556,7 @@ export let pisaUniversityPress = `<?xml version="1.0" encoding="utf-8"?>
 </style>`
 
 export const styles:{[key:string]:string} = {
-  'harvard-cite-them-right':harvardstyle,
+  /*'harvard-cite-them-right':harvardstyle,
   'demo-style':basicStyle,
   'pensoft-style':pensoftStyle,
   'acta-amazonica':octaAmazonica,
@@ -4565,11 +4565,11 @@ export const styles:{[key:string]:string} = {
   'university-of-york-apa':universityOfYorkApa,
   'university-of-lincoln-harvard':universityOfLincolnHarvard,
   'university-of-york-harvard-environment':universityOfYorkHarvardEnvironment,
-  'pisa-university-press':pisaUniversityPress,
+  'pisa-university-press':pisaUniversityPress,*/
 }
 
 export const styles1:{[key:string]:string} = {
-  'harvard-cite-them-right':harvardstyle,
+  /*'harvard-cite-them-right':harvardstyle,
   'demo-style':basicStyle,
   'pensoft-style':pensoftStyle,
   'acta-amazonica':octaAmazonica,
@@ -4578,5 +4578,5 @@ export const styles1:{[key:string]:string} = {
   'university-of-york-apa':universityOfYorkApa,
   'university-of-lincoln-harvard':universityOfLincolnHarvard,
   'university-of-york-harvard-environment':universityOfYorkHarvardEnvironment,
-  'pisa-university-press':pisaUniversityPress,
+  'pisa-university-press':pisaUniversityPress,*/
 }

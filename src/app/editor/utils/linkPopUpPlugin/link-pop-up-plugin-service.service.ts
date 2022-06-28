@@ -64,7 +64,6 @@ export class LinkPopUpPluginServiceService {
           let mark = node?.marks.find((mark) => mark.type == state.schema.marks.link);
           if (!mark) return DecorationSet.empty
           if (mark?.attrs?.download) {
-            debugger;
             const text  = csvServiceService.arrayToCSV(lastFocusedEditor);
             const fileName = mark?.attrs.download;
             self.download(fileName, text);

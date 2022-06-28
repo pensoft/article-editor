@@ -29,7 +29,7 @@ export class ReferenceEditComponent implements AfterViewInit {
     this.formIOSchema = undefined;
     this.cahngeDetectorRef.detectChanges()
 
-
+    console.log(type);
     let newFormIOJSON = JSON.parse(JSON.stringify(type.formIOScheme));
     let oldFormIOData = this.dataSave?this.dataSave:this.data.oldData?this.data.oldData.refData.formioData:undefined;
     //let oldFormIOData = this.dataSave?this.dataSave:this.data.oldData?this.data.oldData.formioSubmission:undefined;

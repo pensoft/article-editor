@@ -31,7 +31,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
   references: any[] = [];
 
   constructor(
-    private _authservice: AuthService,
+    private _authservice: AuthService
   ) {
 
   }
@@ -51,14 +51,22 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         }
       }));
     }
-    if (token && req.url.endsWith('/references/styles') && req.method === 'GET') {
+    if (token && req.url.endsWith('/references/styles1') && req.method === 'GET') {
       return of(new HttpResponse({
         status: 200, body: {
           data: styles3
         }
       }));
     }
+    // и останалите секции да се дублират!!!
+    if (token && req.url.endsWith('/9902') && req.method === 'GET') {
+      return of(new HttpResponse({
+        status: 200, body: {
+          data: taxonTreatmentSection
 
+        }
+      }));
+    }
     if (token && req.url.endsWith('/9909') && req.method === 'GET') {
       return of(new HttpResponse({
         status: 200, body: {
@@ -165,7 +173,8 @@ let styles3 = [
   }
 ]
 
-let styles1 = [{
+let styles1 = [
+  {
   name: 'harvard-cite-them-right',
   label: 'Harvard Cite Them Right',
   style: harvardstyle,

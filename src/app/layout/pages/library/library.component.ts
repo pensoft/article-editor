@@ -23,7 +23,7 @@ import { genereteNewReference } from './lib-service/refs-funcs';
 export class LibraryPage implements AfterViewInit {
   shouldRender = false;
   userReferences?: any[]
-  displayedColumns: string[] = ['id', 'title', 'author', 'citate', 'edit', 'delete','updateScheme','updateStyle'];
+  displayedColumns: string[] = ['id', 'title', 'author', 'citate', 'edit', 'delete'/* ,'updateScheme','updateStyle' */];
   constructor(
     public serviceShare: ServiceShare,
     public dialog: MatDialog,
@@ -123,7 +123,7 @@ export class LibraryPage implements AfterViewInit {
     return this.cslService.addReference(newRef, refType, refStyle,formioData, oldRef,globally)
   }
 
-  updateScheme(ref:any){
+  /* updateScheme(ref:any){
     let newRef = JSON.parse(JSON.stringify(ref));
     newRef.refType.last_modified = (new Date()).getTime();
     this.refsAPI.editReference(newRef,true).subscribe((res)=>{
@@ -134,9 +134,9 @@ export class LibraryPage implements AfterViewInit {
         this.changeDetection.detectChanges();
       })
     })
-  }
+  } */
 
-  updateStyle(ref:any){
+  /* updateStyle(ref:any){
     let newRef = JSON.parse(JSON.stringify(ref));
     newRef.refStyle.last_modified = (new Date()).getTime();
     let styleName = newRef.refStyle.name;
@@ -149,7 +149,7 @@ export class LibraryPage implements AfterViewInit {
         this.changeDetection.detectChanges();
       })
     })
-  }
+  } */
 
 
 

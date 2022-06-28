@@ -7,6 +7,22 @@ const PROXY_CONFIG = {
       autoRewrite: true,
       "ws": true,
     },
+    "/citation-style": {
+      "target": "https://ps-article.dev.scalewest.com/",
+      "secure": false,
+      "logLevel": "debug",
+      "changeOrigin": true,
+      autoRewrite: true,
+      "ws": true,
+    },
+    "/api": {
+      "target": "https://ps-article.dev.scalewest.com/",
+      "secure": false,
+      "logLevel": "debug",
+      "changeOrigin": true,
+      autoRewrite: true,
+      "ws": true,
+    },
     "/public": {
       "target": "https://s3-pensoft.s3.eu-west-1.amazonaws.com/",
       "secure": false,
@@ -47,6 +63,7 @@ const PROXY_CONFIG = {
       autoRewrite: true,
       "ws": true,
     },
+
 
 
     /* "/webrtc": {

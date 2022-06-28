@@ -162,7 +162,6 @@ export class MaterialsSectionComponent implements AfterViewInit {
         }
         // const convertedData = results.data;
         console.log("json:", results.data);
-        debugger;
         convertedData.forEach((row: any) => {
           const materialData = JSON.parse(JSON.stringify(material));
           materialData.parent = this.section;

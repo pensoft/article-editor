@@ -9,40 +9,91 @@
   <div class="title">
     Add a reference
   </div>
-  <div class="reference-options">
+  <!--<div class="reference-options">
     <mat-form-field appearance="fill" #referenceType class="select-ref-form-field">
       <mat-label class="">References:</mat-label>
-      <mat-select [formControl]="referencesControl" class="select-reference" (valueChange)="lastSelect = 'localRef';selected=undefined">
+      <mat-select [formControl]="referencesControl" class="select-reference"
+                  (valueChange)="lastSelect = 'localRef';selected=undefined">
         <mat-option *ngFor="let ref of references" [value]="ref">
-          {{ref.refData.referenceData.title}} | {{ ref.refData.formioData.authors[0]? (ref.refData.formioData.authors[0].first|| ref.refData.formioData.authors[0].last|| ref.refData.formioData.authors[0].given):'no name' }} | {{ref.refData.referenceData.type}}
+          {{ref.refData.referenceData.title}}
+          | {{ ref.refData.formioData.authors[0] ? (ref.refData.formioData.authors[0].first || ref.refData.formioData.authors[0].last || ref.refData.formioData.authors[0].given) : 'no name' }}
+          | {{ref.refData.referenceData.type}}
         </mat-option>
       </mat-select>
     </mat-form-field>
-  </div>
+  </div>-->
   <div class="reference-options">
-    <mat-form-field appearance="fill" class="select-ref-form-field">
-      <mat-label class="">External search:</mat-label>
-      <input matInput type="text" [formControl]="searchReferencesControl" class="search-reference" #searchInput placeholder="Type here...">
+    <mat-form-field class="select-ref-form-field" appearance="fill">
+      <mat-label>References:</mat-label>
+      <input type="text"
+             placeholder="Type here..."
+             aria-label="References"
+             matInput
+             matAutocompletePosition="below"
+             [formControl]="searchReferencesControl"
+             [matAutocompleteConnectedTo]="origin"
+             [matAutocomplete]="auto">
+      <mat-autocomplete #auto="matAutocomplete" (optionSelected)='getReference($event)' [displayWith]="displayFn">
+        <ng-container>
+          <mat-option *ngIf="loading" class="is-loading">
+            <mat-spinner diameter="25"></mat-spinner>
+          </mat-option>
+        </ng-container>
+        <mat-option (click)="select(option, 'localRef')"
+          *ngFor="let option of filteredOptions | async" [value]="option">
+          {{option.refData.referenceData.title}}
+          | {{ option.refData.formioData.authors[0] ? (option.refData.formioData.authors[0].first || option.refData.formioData.authors[0].last || option.refData.formioData.authors[0].given) : 'no name' }}
+          | {{option.refData.referenceData.type}}
+        </mat-option>
+        <ng-container *ngIf="searchData">
+          <mat-option *ngFor="let option of searchData" [value]="option" (click)="select(option, 'external')">
+            {{option.ref.title}}
+          </mat-option>
+        </ng-container>
+        <!--<div *ngIf="searchData">
+          <table mat-table [dataSource]="searchData" class="mat-elevation-z8 demo-table">
+            <ng-container matColumnDef="title">
+              <th mat-header-cell *matHeaderCellDef>Title</th>
+              <td mat-cell *matCellDef="let element">{{element.ref.title}}</td>
+            </ng-container>
+
+            <tr class="table-row" mat-row (click)="selected = row;select(row);referencesControl.setValue(null)"
+                [class.demo-row-is-clicked]="row == selected" *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </div>-->
+      </mat-autocomplete>
     </mat-form-field>
   </div>
+  <!--<div class="reference-options">
+    <mat-form-field appearance="fill" class="select-ref-form-field">
+      <mat-label class="">External search:</mat-label>
+      <input matInput type="text"
+             [formControl]="searchReferencesControl"
+             class="search-reference"
+             #searchInput
+             placeholder="Type here...">
+    </mat-form-field>
+  </div>-->
   <div class="search-result">
-    <div *ngIf="loading">
+    <div matAutocompleteOrigin #origin="matAutocompleteOrigin"></div>
+    <!--<div *ngIf="loading">
       <div class="spinner-container">
         <div class="spinner-container-1">
           <mat-spinner></mat-spinner>
         </div>
       </div>
-    </div>
-    <div *ngIf="searchData">
+    </div>-->
+    <!--<div *ngIf="searchData">
       <table mat-table [dataSource]="searchData" class="mat-elevation-z8 demo-table">
         <ng-container matColumnDef="title">
           <th mat-header-cell *matHeaderCellDef>Title</th>
           <td mat-cell *matCellDef="let element">{{element.ref.title}}</td>
         </ng-container>
 
-        <tr class="table-row" mat-row (click)="selected = row;select(row);referencesControl.setValue(null)" [class.demo-row-is-clicked]="row == selected" *matRowDef="let row; columns: displayedColumns;"></tr>
+        <tr class="table-row" mat-row (click)="selected = row;select(row);referencesControl.setValue(null)"
+            [class.demo-row-is-clicked]="row == selected" *matRowDef="let row; columns: displayedColumns;"></tr>
       </table>
-    </div>
+    </div>-->
   </div>
   <div class="buttons">
     <button mat-raised-button class="citate-btn" (click)="cancel()">Cancel</button>

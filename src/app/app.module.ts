@@ -1,5 +1,5 @@
-import { HTTP_INTERCEPTORS, HttpClientModule, HttpClientJsonpModule } from '@angular/common/http';
-import { Compiler, CompilerFactory, COMPILER_OPTIONS, Injector, NgModule } from '@angular/core';
+import {HTTP_INTERCEPTORS, HttpClientModule, HttpClientJsonpModule, HttpClient} from '@angular/common/http';
+import {Compiler, CompilerFactory, COMPILER_OPTIONS, Injector, NgModule, APP_INITIALIZER} from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { ServiceWorkerModule } from '@angular/service-worker';
@@ -107,6 +107,7 @@ import { CurrentColorPipe } from './current-color.pipe';
 import { TaxonSectionComponent } from './editor/section/taxon-section/taxon-section.component';
 import {MaterialsSectionComponent} from "@app/editor/section/materials-section/materials-section.component";
 import {MaterialSectionComponent} from "@app/editor/section/material-section/material-section.component";
+import {Observable} from "rxjs";
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -247,7 +248,7 @@ const gravatarConfig: GravatarConfig = {
       useClass: JitCompilerFactory,
       deps: [COMPILER_OPTIONS],
     },
-    { provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory] },
+    { provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory] }
   ],
   bootstrap: [AppComponent],
 })

@@ -48,7 +48,6 @@ export class MaterialSectionComponent implements AfterViewInit {
     const root = this.helperService.filter(this.treeService.articleSectionsStructure, this.section.sectionID);
     this.materialStructure = root.override;
     this.tabs = Object.keys(root.override.categories);
-    // debugger
     this.props = Object.keys(root.override.categories).map(key => {
       return root.override.categories[key].entries.map(entry => {
         return entry.localName

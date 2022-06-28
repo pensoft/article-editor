@@ -197,7 +197,6 @@ export const renderSectionFunc:
     //   template: sectionLabel,
     //   editable: !/{{\s*\S*\s*}}/gm.test(sectionLabel)
     // };
-    // debugger;
     newArticleSection = {
       title: {
         label: sectionLabel,

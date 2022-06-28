@@ -275,7 +275,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
       if (this.section.title.name === 'Material') {
         interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, this.section.defaultFormIOValues, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
       } else {
-        debugger
         interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
       }
     } else {
