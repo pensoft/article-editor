@@ -60,7 +60,7 @@ export function genereteNewReference(refData: reference, data: any) {
         resolveCreators(val, 'editor')
       } else if (key == 'issued') {
         let val = data[key];
-        let dateParts = val.split('-')
+        let dateParts = val.hasOwnProperty('date-parts') ? val['date-parts'] : val.split('-');
         newRef[key] = {
           "date-parts": [
             dateParts
