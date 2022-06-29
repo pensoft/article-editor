@@ -3,7 +3,7 @@ import {AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit,
 import {FormControl, Validators} from '@angular/forms';
 import {MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {ServiceShare} from '@app/editor/services/service-share.service';
-import { Observable} from 'rxjs';
+import {Observable} from 'rxjs';
 import {debounceTime, distinctUntilChanged, filter, startWith, tap, map} from 'rxjs/operators';
 import {CslService} from '../lib-service/csl.service';
 import {RefsApiService} from '../lib-service/refs-api.service';
@@ -273,7 +273,7 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
             typeIndex = refTypes.data.findIndex((ref: any) => {
               return (ref.name == typeName || ref.type == type)
             });
-          }else{
+          } else {
             typeIndex = 0
           }
           if (refStyles.data.find((style: any) => {
@@ -292,13 +292,13 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
               referenceData: this.externalSelection.ref
             },
             refStyle: {},
-            refType:{
-              type: type?type:'',
+            refType: {
+              type: type ? type : '',
               name: typeName,
               last_modified: (typeof typeIndex == 'number') ? refTypes.data[typeIndex].last_modified : refTypes.data[0] ? refTypes.data[0].last_modified : Date.now(),
             },
           }
-          if(this.serviceShare.YdocService.articleData.layout.citation_style){
+          if (this.serviceShare.YdocService.articleData.layout.citation_style) {
             let style = this.serviceShare.YdocService.articleData.layout.citation_style
             ref.refStyle = {
               "name": style.name,
@@ -306,7 +306,7 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
               "style": style.style_content,
               "last_modified": (new Date(style.style_updated).getTime())
             }
-          }else{
+          } else {
             ref.refStyle = {
               "name": "harvard-cite-them-right",
               "label": "Harvard Cite Them Right",
@@ -314,8 +314,8 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
               "last_modified": 1649665699315
             }
           }
-          /* this.refsAPI.createReference(ref,this.externalSelection.ref,refTypes.data[typeIndex]).subscribe((refs)=>{
-            this.citating  = false;
+          this.refsAPI.createReference(ref, this.externalSelection.ref, refTypes.data[typeIndex]).subscribe((refs) => {
+            this.citating = false;
             this.changeDetectorRef.detectChanges()
             this.dialogRef.close({
               ref: ref,
@@ -324,7 +324,7 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
               citation,
 
             })
-          }) */
+          })
         })
       })
     } else if (this.lastSelect == 'localRef') {

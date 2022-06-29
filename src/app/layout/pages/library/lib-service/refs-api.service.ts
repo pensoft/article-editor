@@ -77,10 +77,10 @@ export class RefsApiService {
       console.log(refs);
       return { data: refs }
     }))
-    this._http.get('https://something/references').pipe(map((data) => {
-      console.log('fake-backend-ref-items', data);
-      return data
-    }));
+    // this._http.get('https://something/references').pipe(map((data) => {
+    //   console.log('fake-backend-ref-items', data);
+    //   return data
+    // }));
     obs.subscribe((refsRes: any) => {
       this.serviceShare.ReferencePluginService?.setRefs(refsRes.data);
       console.log(refsRes);
@@ -92,10 +92,10 @@ export class RefsApiService {
       console.log('backend-ref-types', { data: this.mapRefTypes(data) }, data);
       return { data: this.mapRefTypes(data) }
     }))
-    return this._http.get('https://something/references/types').pipe(map((data) => {
-      console.log('fake-backend-ref-types', data);
-      return data
-    }));
+    // return this._http.get('https://something/references/types').pipe(map((data) => {
+    //   console.log('fake-backend-ref-types', data);
+    //   return data
+    // }));
   }
   getStyles() {
     console.log(this.serviceShare.YdocService.articleData.layout.citation_style);
