@@ -3,9 +3,11 @@ import { Injectable } from '@angular/core';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { uuidv4 } from 'lib0/random';
+import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { genereteNewReference } from './refs-funcs';
 const API_URL = `https://ps-article.dev.scalewest.com/api`;
+
 @Injectable({
   providedIn: 'root'
 })
@@ -16,15 +18,17 @@ export class RefsApiService {
 
   mapRefItems(refItemsFromBackend: any) {
     let refs: any[] = [];
-
-    refItemsFromBackend.data.forEach((ref: any) => {
+    let ydocRefs = this.serviceShare.YdocService.referenceCitationsMap?.get('localRefs');
+    refItemsFromBackend.data.forEach((refFromBackend: any) => {
+      let ref = ydocRefs[refFromBackend.id]||refFromBackend
       let newRef: any = {};
       newRef.refType = {
         formIOSchema: ref.reference_definition.schema,
         label: ref.reference_definition.title,
         name: ref.reference_definition.type,
         type: ref.reference_definition.type,
-        last_modified: ref.reference_definition.updated_at ? ref.reference_definition.updated_at : (new Date("Thu Jan 01 1970 02:00:01 GMT+0200 (Eastern European Standard Time)")).getTime()
+        last_modified:Date.now(),
+        //last_modified: ref.reference_definition.updated_at ? ref.reference_definition.updated_at : (new Date("Thu Jan 01 1970 02:00:01 GMT+0200 (Eastern European Standard Time)")).getTime()
       }
       if (this.serviceShare.YdocService.articleData.layout.citation_style) {
         let style = this.serviceShare.YdocService.articleData.layout.citation_style
@@ -42,7 +46,7 @@ export class RefsApiService {
           "last_modified": 1649665699315
         }
       }
-      let refFormated = genereteNewReference(newRef.refType, { id: ref.id, ...ref.data })
+      let refFormated = genereteNewReference(newRef.refType, {id: ref.id, ...ref.data})
       let basicCitation = this.serviceShare.CslService.getBasicCitation(refFormated, newRef.refStyle.style)
       newRef.refData = {
         last_modified: (new Date(ref.updated_at).getTime()),
@@ -64,7 +68,8 @@ export class RefsApiService {
         label: type.title,
         name: type.type,
         type: type.type,
-        last_modified: type.updated_at ? type.updated_at : (new Date("Thu Jan 01 1970 02:00:01 GMT+0200 (Eastern European Standard Time)")).getTime()
+        last_modified:Date.now()
+        //last_modified: type.updated_at ? type.updated_at : (new Date("Thu Jan 01 1970 02:00:01 GMT+0200 (Eastern European Standard Time)")).getTime()
       }
       mapedTypes.push(refType)
     })
@@ -72,10 +77,15 @@ export class RefsApiService {
   }
 
   getReferences() {
-    let obs = this._http.get(API_URL + '/references/items').pipe(map((data) => {
+    let obs = this._http.get(API_URL + '/references/items').pipe(map((data: any) => {
+      data.data.forEach(item => {
+        if (item.issued && item.issued.hasOwnProperty('date-parts')) {
+          item.issued = item.issued['date-parts'].join('-');
+        }
+      })
       let refs = this.mapRefItems(data)
       console.log(refs);
-      return { data: refs }
+      return {data: refs}
     }))
     // this._http.get('https://something/references').pipe(map((data) => {
     //   console.log('fake-backend-ref-items', data);
@@ -87,16 +97,18 @@ export class RefsApiService {
     })
     return obs;
   }
+
   getReferenceTypes() {
     return this._http.get(API_URL + '/references/definitions').pipe(map((data) => {
-      console.log('backend-ref-types', { data: this.mapRefTypes(data) }, data);
-      return { data: this.mapRefTypes(data) }
+      console.log('backend-ref-types', {data: this.mapRefTypes(data)}, data);
+      return {data: this.mapRefTypes(data)}
     }))
     // return this._http.get('https://something/references/types').pipe(map((data) => {
     //   console.log('fake-backend-ref-types', data);
     //   return data
     // }));
   }
+
   getStyles() {
     console.log(this.serviceShare.YdocService.articleData.layout.citation_style);
     /* this._http.get(API_URL+'/references/styles').subscribe((data)=>{
@@ -105,8 +117,10 @@ export class RefsApiService {
     return this._http.get('https://something/references/styles1').pipe(map((data) => {
       console.log('fake-backend-ref-styles', data);
       return data
-    }));;
+    }));
+    ;
   }
+
   createReference(ref: any, formIOData?: any, refType?: any) {
     /* {
   "title": "string",
@@ -119,33 +133,64 @@ export class RefsApiService {
         data: formIOData,
         reference_definition_id: refType.refTypeId
       }).pipe(map((data: any) => {
-        console.log('backend-ref-types', { data: this.mapRefItems({ data: [data.data] }) }, data);
-        return { data: this.mapRefItems({ data: [data.data] }) }
+        console.log('backend-ref-types', {data: this.mapRefItems({data: [data.data]})}, data);
+        return {data: this.mapRefItems({data: [data.data]})}
       }))
     }
-    return this._http.post('https://something/references', { ref }).pipe(map((data) => {
+    return this._http.post('https://something/references', {ref}).pipe(map((data) => {
       console.log('fake-backend', data);
       return data
-    }));;
+    }));
+    ;
   }
+
   editReference(ref: any, global: boolean, formIOData: any, refType: any) {
+    let ydocRefs = this.serviceShare.YdocService.referenceCitationsMap?.get('localRefs');
     if (global) {
+      if(ydocRefs[ref.refData.referenceData.id]){
+        ydocRefs[ref.refData.referenceData.id] = undefined
+        this.serviceShare.YdocService.referenceCitationsMap?.set('localRefs',ydocRefs);
+      }
       return this._http.put(API_URL + '/references/items/' + ref.refData.referenceData.id, {
         "title": formIOData.title,
         data: formIOData,
         reference_definition_id: refType.refTypeId
       }).pipe(map((data: any) => {
-        console.log('fake-backend', { data: this.mapRefItems({ data: [data.data] }) });
-        return { data: this.mapRefItems({ data: [data.data] }) }
+        console.log('fake-backend', {data: this.mapRefItems({data: [data.data]})});
+        return {data: this.mapRefItems({data: [data.data]})}
       }));
     } else {
-      return this._http.patch('https://something/references', { ref, global });
+      console.log(ydocRefs,ref,{
+        "title": formIOData.title,
+        data: formIOData,
+        reference_definition_id: refType.refTypeId
+      });
+      let observable = new Observable(subscriber => {
+        this._http.get(API_URL + '/references/definitions/' + refType.refTypeId).subscribe((refDefData:any)=>{
+          let def = refDefData.data
+          let localRef = {
+            "updated_at": Date.now(),
+            "id": ref.refData.referenceData.id,
+            "title": formIOData.title,
+            "data": formIOData,
+            "reference_definition_id": refType.refTypeId,
+            "reference_definition": def,
+          }
+          ydocRefs[ref.refData.referenceData.id] = localRef;
+          this.serviceShare.YdocService.referenceCitationsMap?.set('localRefs',ydocRefs);
+          subscriber.next({message:'localRefAdded'});
+        })
+      });
+      return observable
     }
   }
+
   deleteReference(ref: any) {
-    return this._http.delete(API_URL + '/references/items/' + ref.refData.referenceData.id).pipe(map((data) => {
-      console.log('fake-backend', data);
-      return data
-    }));
+    let ydocRefs = this.serviceShare.YdocService.referenceCitationsMap?.get('localRefs');
+    if(ydocRefs[ref.refData.referenceData.id]){
+      ydocRefs[ref.refData.referenceData.id] = undefined
+      this.serviceShare.YdocService.referenceCitationsMap?.set('localRefs',ydocRefs);
+    }
+    return this._http.delete(API_URL + '/references/items/' + ref.refData.referenceData.id)
   }
-}
+};

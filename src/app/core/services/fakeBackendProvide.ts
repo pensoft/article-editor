@@ -22,8 +22,9 @@ import {journalTree} from "@core/services/journalTreeConstants";
 import {FormControl} from "@angular/forms";
 import {materials} from "@core/services/custom_sections/materials";
 import {treatmentSections} from "@core/services/custom_sections/treatment_sections";
-import {taxonSection} from "@core/services/custom_sections/taxon";
+import {externalLinks, taxonSection} from "@core/services/custom_sections/taxon";
 import {taxonTreatmentSection} from "@core/services/custom_sections/taxon_treatment_section";
+import {treatmentSectionsSubsection} from "@core/services/custom_sections/tratment_sections_subsection";
 
 @Injectable()
 export class FakeBackendInterceptor implements HttpInterceptor {
@@ -58,23 +59,24 @@ export class FakeBackendInterceptor implements HttpInterceptor {
         }
       }));
     }
+
     // и останалите секции да се дублират!!!
-    if (token && req.url.endsWith('/9902') && req.method === 'GET') {
+    // if (token && req.url.endsWith('/9902') && req.method === 'GET') {
+    let customSections = [treatmentSections, taxonTreatmentSection, taxonSection, externalLinks, materials, treatmentSectionsSubsection];
+    if (token && customSections.some((section: any) => {
+      return req.url.endsWith(`/${section.id}`)
+    }) && req.method === 'GET') {
+      const customSection = customSections.find(section => {
+        return req.url.endsWith(`/${section.id}`)
+      })
       return of(new HttpResponse({
         status: 200, body: {
-          data: taxonTreatmentSection
+          data: JSON.parse(JSON.stringify(customSection))
 
         }
       }));
     }
-    if (token && req.url.endsWith('/9909') && req.method === 'GET') {
-      return of(new HttpResponse({
-        status: 200, body: {
-          data: taxonTreatmentSection
 
-        }
-      }));
-    }
     if (token && req.url.endsWith('/references') && req.method === 'GET') {
 
       // check local storage if there is saved references if no save the default refs and return
@@ -175,21 +177,21 @@ let styles3 = [
 
 let styles1 = [
   {
-  name: 'harvard-cite-them-right',
-  label: 'Harvard Cite Them Right',
-  style: harvardstyle,
-  last_modified: 1649665699315,
-}, {
-  name: 'demo-style',
-  label: 'CSL Demo',
-  style: basicStyle,
-  last_modified: 1649665699315,
-}, {
-  name: 'pensoft-style',
-  label: 'Pensoft',
-  style: pensoftStyle,
-  last_modified: 1649665699315,
-}
+    name: 'harvard-cite-them-right',
+    label: 'Harvard Cite Them Right',
+    style: harvardstyle,
+    last_modified: 1649665699315,
+  }, {
+    name: 'demo-style',
+    label: 'CSL Demo',
+    style: basicStyle,
+    last_modified: 1649665699315,
+  }, {
+    name: 'pensoft-style',
+    label: 'Pensoft',
+    style: pensoftStyle,
+    last_modified: 1649665699315,
+  }
 ]
 let styles2 = [{
   name: 'harvard-cite-them-right',

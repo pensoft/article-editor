@@ -123,7 +123,7 @@ export class CslService {
       return this.refsAPI.editReference(oldRef, globally!,formioSubmission,refType).pipe(map((data)=>{
         console.log(data);
         return data
-      }));;
+      }));
     } else {
       return this.refsAPI.createReference({},formioSubmission,refType).pipe(map((data)=>{
         console.log(data);
@@ -210,6 +210,7 @@ export class CslService {
   }) {
     this.refsAPI.getReferences().subscribe((refsData: any) => {
       let refs = refsData.data;
+      console.log(refs);
       Object.keys(editorContainers).forEach((key) => {
         setTimeout(() => {
           this.checkReferencesInEditor(editorContainers[key], refs);
@@ -237,6 +238,9 @@ export class CslService {
   checkData(actualRef: any, nodeAttrs: any) {
     let nodeRefData = nodeAttrs.referenceData;
     let nodeStyleData = nodeAttrs.referenceStyle;
+    if(actualRef.refStyle.last_modified > nodeStyleData.last_modified || actualRef.refStyle.name !== nodeStyleData.name){
+      console.log('updating becouse of style');
+    }
     return actualRef &&
       ((actualRef.refStyle.last_modified > nodeStyleData.last_modified || actualRef.refStyle.name !== nodeStyleData.name) ||
         (actualRef.refData.last_modified > nodeRefData.last_modified && actualRef.refData.global === false));
@@ -381,6 +385,7 @@ export class CslService {
     newAttrs.referenceData = { refId: refNode.attrs.referenceData.refId, last_modified: actRef.refData.last_modified }
     let newReferenceCitation = schema.nodes.reference_citation_end.create(newAttrs, schema.text(refInYdoc.bibliography || 'd'))
     container.editorView.dispatch(state.tr.replaceWith(start, end, newReferenceCitation).setMeta('preventHistoryAdd', true));
+    console.log('updating',refInYdoc.bibliography);
   }
 
   editReferenceThroughPMEditor(node: Node, sectionId: string) {

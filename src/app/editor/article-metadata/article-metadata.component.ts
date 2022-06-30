@@ -81,6 +81,7 @@ export class ArticleMetadataComponent implements OnInit {
 
 
 
+
   addNewSectionToArticle() {
     let articleSections = this.ydocService.articleData.layout.template.sections.filter((data: any) => {
       return true

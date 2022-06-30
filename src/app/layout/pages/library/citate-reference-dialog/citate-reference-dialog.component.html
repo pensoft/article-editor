@@ -29,6 +29,7 @@
              placeholder="Type here..."
              aria-label="References"
              matInput
+             #trigger="matAutocompleteTrigger"
              matAutocompletePosition="below"
              [formControl]="searchReferencesControl"
              [matAutocompleteConnectedTo]="origin"
@@ -39,14 +40,14 @@
             <mat-spinner diameter="25"></mat-spinner>
           </mat-option>
         </ng-container>
-        <mat-option (click)="select(option, 'localRef')"
+        <mat-option [class.demo-row-is-clicked]="option == externalSelection" (click)="select(option, 'localRef');$event.stopPropagation(); trigger.openPanel()"
           *ngFor="let option of filteredOptions | async" [value]="option">
           {{option.refData.referenceData.title}}
           | {{ option.refData.formioData.authors[0] ? (option.refData.formioData.authors[0].first || option.refData.formioData.authors[0].last || option.refData.formioData.authors[0].given) : 'no name' }}
           | {{option.refData.referenceData.type}}
         </mat-option>
         <ng-container *ngIf="searchData">
-          <mat-option *ngFor="let option of searchData" [value]="option" (click)="select(option, 'external')">
+          <mat-option [class.demo-row-is-clicked]="option == externalSelection" *ngFor="let option of searchData" [value]="option" (click)="select(option, 'external');$event.stopPropagation(); trigger.openPanel()">
             {{option.ref.title}}
           </mat-option>
         </ng-container>

@@ -1,27 +1,32 @@
-
-import { coerceElement } from "@angular/cdk/coercion";
-import { DragRef, DropListRef } from "@angular/cdk/drag-drop";
-import { MatCardXlImage } from "@angular/material/card";
-import { checkCompatibilitySection, checkMaxWhenMoovingASectionIn, checkMinWhenMoovingASectionOut } from "@app/editor/utils/articleBasicStructure";
-import { articleSection } from "@app/editor/utils/interfaces/articleSection";
-import { TreeService } from "../tree-service/tree.service";
+import {coerceElement} from "@angular/cdk/coercion";
+import {DragRef, DropListRef} from "@angular/cdk/drag-drop";
+import {MatCardXlImage} from "@angular/material/card";
+import {
+  checkCompatibilitySection,
+  checkMaxWhenMoovingASectionIn,
+  checkMinWhenMoovingASectionOut
+} from "@app/editor/utils/articleBasicStructure";
+import {articleSection} from "@app/editor/utils/interfaces/articleSection";
+import {TreeService} from "../tree-service/tree.service";
 
 // A few lines of code used for debugging (saved to avoid having to re-write them)
 // let reflistToString = (list: DropListRef[]) => JSON.stringify(list.map(ref => coerceElement(ref.element).id));
 
-export function installPatch(treeService:TreeService) {
+export function installPatch(treeService: TreeService) {
   DropListRef.prototype._getSiblingContainerFromPosition = function (
     item: DragRef,
     x: number,
     y: number
   ): DropListRef | undefined {
     // Possible targets include siblings and 'this'
-    item.data.data.canDropBool[0] = true;
-    item.data.data.canDropBool[1] = '';
+    if (item?.data?.data?.canDropBool) {
+      item.data.data.canDropBool[0] = true;
+      item.data.data.canDropBool[1] = '';
+    }
 
     //@ts-ignore
     let targets = [this, ...this._siblings];
-    if(!item.data.data){
+    if (!item.data.data) {
       return undefined
     }
     // Only consider targets where the drag postition is within the client rect
@@ -45,9 +50,9 @@ export function installPatch(treeService:TreeService) {
       return undefined;
     }
 
-    canReceive(matchingTarget,item,treeService)
-    canMoveOut(matchingTarget,item,treeService)
-    canMoveIn(matchingTarget,item,treeService)
+    canReceive(matchingTarget, item, treeService)
+    canMoveOut(matchingTarget, item, treeService)
+    canMoveIn(matchingTarget, item, treeService)
     // Can the matching target receive the item?
     /* if (!matchingTarget._canReceive(item, x, y)) {
       return undefined;q
@@ -58,77 +63,88 @@ export function installPatch(treeService:TreeService) {
   };
 }
 
-function canMoveOut(target:any,item:any,treeService:TreeService){
-  if(item._initialContainer.data.id){
-    if(item._initialContainer.data.id!=="parentList"){
+function canMoveOut(target: any, item: any, treeService: TreeService) {
+  if (item._initialContainer.data.id) {
+    if (item._initialContainer.data.id !== "parentList") {
       // the initial parent of the node , from where we start dragging the node
       let parentNode = treeService.findNodeById(item._initialContainer.data.id)!
-      if(parentNode.subsectionValidations){
+      if (parentNode.subsectionValidations) {
         let moovingNode = item.data.data.node
-        let canMove = checkMinWhenMoovingASectionOut(moovingNode,parentNode);
-        if(!canMove){
-          item.data.data.canDropBool[0] = false;
-          item.data.data.canDropBool[1] = 'Cannot move more of these type of sections out of this list.'
+        let canMove = checkMinWhenMoovingASectionOut(moovingNode, parentNode);
+        if (!canMove) {
+          if (item?.data?.data?.canDropBool) {
+            item.data.data.canDropBool[0] = false;
+            item.data.data.canDropBool[1] = 'Cannot move more of these type of sections out of this list.'
+          }
         }
       }
     }
   }
 }
 
-function canMoveIn(target:any,item:any,treeService:TreeService){
-  if(target.data.id!=="parentList"){
+function canMoveIn(target: any, item: any, treeService: TreeService) {
+  if (target.data.id !== "parentList") {
     // the initial parent of the node , from where we start dragging the node
     let moovingInNode = treeService.findNodeById(target.data.id)!
-    if(moovingInNode.subsectionValidations){
+    if (moovingInNode.subsectionValidations) {
       let moovingNode = item.data.data.node
-      let canMove = checkMaxWhenMoovingASectionIn(moovingNode,moovingInNode);
-      if(!canMove){
-        item.data.data.canDropBool[0] = false;
-        item.data.data.canDropBool[1] = 'Cannot move in more of these type of section in this list.'
+      let canMove = checkMaxWhenMoovingASectionIn(moovingNode, moovingInNode);
+      if (!canMove) {
+        if (item?.data?.data?.canDropBool) {
+          item.data.data.canDropBool[0] = false;
+          item.data.data.canDropBool[1] = 'Cannot move in more of these type of section in this list.'
+        }
       }
     }
   }
 }
 
-function canReceive(target:any,item:any,treeService:TreeService){
+function canReceive(target: any, item: any, treeService: TreeService) {
   let dropTargetLevel
-  let parentCompatibility:any
-  if(target.data.id == 'parentList'){
-     dropTargetLevel = 0 ;
-  }else{
+  let parentCompatibility: any
+  if (target.data.id == 'parentList') {
+    dropTargetLevel = 0;
+  } else {
     let node = treeService.findNodeById(target.data.id)
     parentCompatibility = node?.compatibility
-    dropTargetLevel = treeService.getNodeLevel(node!) + 1 ;
+    dropTargetLevel = treeService.getNodeLevel(node!) + 1;
 
   }
   let levelsInItem = 0;
-  if(item.data.data.node.type=='complex'){
+  if (item.data.data.node.type == 'complex') {
     levelsInItem = 1;
-    let countInnerLevels = (node:articleSection,level:number) =>{
-      if(node.type == 'complex'){
-        if(levelsInItem<level){levelsInItem = level};
-        node.children.forEach((child)=>{
-          countInnerLevels(child,level+1);
+    let countInnerLevels = (node: articleSection, level: number) => {
+      if (node.type == 'complex') {
+        if (levelsInItem < level) {
+          levelsInItem = level
+        }
+        ;
+        node.children.forEach((child) => {
+          countInnerLevels(child, level + 1);
         })
       }
     }
-    countInnerLevels(item.data.data.node,1);
+    countInnerLevels(item.data.data.node, 1);
   }
-  if(parentCompatibility&&!checkCompatibilitySection(parentCompatibility,item.data.data.node)){
-    item.data.data.canDropBool[0] = false;
-    item.data.data.canDropBool[1] = 'This section is not allowed in that branch.'
+  if (parentCompatibility && !checkCompatibilitySection(parentCompatibility, item.data.data.node)) {
+    if (item?.data?.data?.canDropBool) {
+      item.data.data.canDropBool[0] = false;
+      item.data.data.canDropBool[1] = 'This section is not allowed in that branch.'
+    }
 
   }
-  if(levelsInItem+dropTargetLevel>=4){
-    item.data.data.canDropBool[0] = false;
-    item.data.data.canDropBool[1] = 'The Article tree cannot have more than 4 levels.'
+  if (levelsInItem + dropTargetLevel >= 4) {
+    if (item?.data?.data?.canDropBool) {
+      item.data.data.canDropBool[0] = false;
+      item.data.data.canDropBool[1] = 'The Article tree cannot have more than 4 levels.'
+    }
   }
   return true
 }
 
 // Not possible to improt isInsideClientRect from @angular/cdk/drag-drop/client-rect
 function isInsideClientRect(clientRect: any, x: number, y: number) {
-  const { top, bottom, left, right } = clientRect;
+  const {top, bottom, left, right} = clientRect;
   return y >= top - 5 && y <= bottom + 5 && x >= left - 5 && x <= right + 5;
 }
 
@@ -136,18 +152,18 @@ function isInsideClientRect(clientRect: any, x: number, y: number) {
 // is preceding the inner DropListRef. Should probably be ammended to also
 // sort by Z-level.
 function orderByHierarchy2(refs: DropListRef[]) {
-  let smallestArea :number;
-  let smallestAreaIndex :number;
-  refs.forEach((ref,index) => {
+  let smallestArea: number;
+  let smallestAreaIndex: number;
+  refs.forEach((ref, index) => {
     //@ts-ignore
     let elementRect = ref.element.getBoundingClientRect()
-    let {width,height} = elementRect;
-    let newArea = width*height
-    if(index == 0){
+    let {width, height} = elementRect;
+    let newArea = width * height
+    if (index == 0) {
       smallestArea = newArea
       smallestAreaIndex = index;
-    }else{
-      if(newArea<smallestArea){
+    } else {
+      if (newArea < smallestArea) {
         smallestArea = newArea
         smallestAreaIndex = index;
       }
@@ -156,6 +172,7 @@ function orderByHierarchy2(refs: DropListRef[]) {
   //@ts-ignore
   return smallestAreaIndex
 }
+
 function orderByHierarchy(refs: DropListRef[]) {
   // Build a map from HTMLElement to DropListRef
   let refsByElement: Map<HTMLElement, DropListRef> = new Map();
@@ -184,7 +201,7 @@ function orderByHierarchy(refs: DropListRef[]) {
   // Add all refs as nodes to the tree
   let tree: Map<DropListRef, NodeType> = new Map();
   refs.forEach(ref => {
-    tree.set(ref, { ref: ref, children: [] });
+    tree.set(ref, {ref: ref, children: []});
   });
 
   // Build parent-child links in tree
@@ -206,7 +223,9 @@ function orderByHierarchy(refs: DropListRef[]) {
   // Function to recursively build ordered list from roots and down
   let buildOrderedList = (nodes: NodeType[], list: DropListRef[]) => {
     list.push(...nodes.map(node => node.ref));
-    nodes.forEach(node => { buildOrderedList(node.children, list); });
+    nodes.forEach(node => {
+      buildOrderedList(node.children, list);
+    });
   };
 
   // Build and return the ordered list

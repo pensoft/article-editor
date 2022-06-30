@@ -137,9 +137,10 @@ export const renderSectionFunc:
       },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
       sectionID: newId,
       active: sectionFromBackend.active ? sectionFromBackend.active : false,
-      edit: {bool: true, main: true},
-      add: {bool: true, main: false},
-      delete: {bool: true, main: false},
+      edit: sectionFromBackend.edit || {bool: true, main: true},
+      add: sectionFromBackend.add || {bool: true, main: false},
+      delete: sectionFromBackend.delete || {bool: true, main: false},
+      select: sectionFromBackend.select ||  {bool: false, main: false},
       mode: 'documentMode',
       initialRender: sectionFromBackend.initialRender ? sectionFromBackend.initialRender : undefined,
       formIOSchema: sectionFromBackend.schema,
@@ -161,9 +162,10 @@ export const renderSectionFunc:
         editable: !sectionFromBackend.label_read_only &&  !/{{\s*\S*\s*}}/gm.test(sectionLabel)
       },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
       sectionID: newId,
-      edit: {bool: true, main: true},
-      add: {bool: true, main: false},
-      delete: {bool: true, main: false},
+      edit: sectionFromBackend.edit || {bool: true, main: true},
+      add: sectionFromBackend.add || {bool: true, main: false},
+      delete: sectionFromBackend.delete ||{bool: true, main: false},
+      select: sectionFromBackend.select ||{bool: true, main: true},
       mode: 'documentMode',
       formIOSchema: sectionFromBackend.schema,
       initialRender: sectionFromBackend.initialRender ? sectionFromBackend.initialRender : undefined,
@@ -205,9 +207,10 @@ export const renderSectionFunc:
         editable: !taxonTreatmentSection.label_read_only && !/{{\s*\S*\s*}}/gm.test(sectionLabel)
       },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
       sectionID: newId,
-      edit: {bool: true, main: true},
-      add: {bool: true, main: false},
+      edit: {bool: false, main: true},
+      add: {bool: false, main: false},
       delete: {bool: true, main: false},
+      select: {bool: true, main: true},
       mode: 'documentMode',
       formIOSchema: sectionFromBackend.schema?.schema ? sectionFromBackend.schema?.schema : taxonTreatmentSection.schema,
       initialRender: sectionFromBackend.initialRender ? sectionFromBackend.initialRender : (taxonTreatmentSection['initialRender'] ? taxonTreatmentSection['initialRender'] : (undefined)),

@@ -350,20 +350,29 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
       debounceTime(700),
       distinctUntilChanged(),
     ).subscribe((value: any) => {
-      this.searchExternalRefs(value)
+      if (this.externalSelection !== value) {
+        this.searchExternalRefs(value);
+      }
     });
   }
 
+  lastFilter = null;
+
   private _filter(value: string): string[] {
+    if (value !== null && typeof value === 'object') {
+      return this.lastFilter;
+    }
     if (!this.references || !value || typeof value === 'object') {
+      this.lastFilter = null;
       return [];
     }
     const filterValue = value.toLowerCase();
-    return this.references.filter(option => {
+    this.lastFilter = this.references.filter(option => {
       return option.refData.referenceData.title?.toLowerCase().includes(filterValue) ||
         (option.refData.formioData.authors[0] ? (option.refData.formioData.authors[0]?.first?.toLowerCase()?.includes(filterValue) || option.refData.formioData.authors[0]?.last?.toLowerCase()?.includes(filterValue) || option.refData.formioData.authors[0]?.given?.toLowerCase()?.includes(filterValue) || false) : false) ||
         option.refData.referenceData?.type.toLowerCase().includes(filterValue);
     });
+    return this.lastFilter;
   }
 
   getReference(option) {

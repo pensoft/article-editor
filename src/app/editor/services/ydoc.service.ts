@@ -207,7 +207,11 @@ export class YdocService {
     this.referenceCitationsMap = this.ydoc.getMap('referenceCitationsMap');
     let references = this.referenceCitationsMap?.get('references')
     let referencesInEditor = this.referenceCitationsMap?.get('referencesInEditor')
-    let externalRefs = this.referenceCitationsMap?.get('externalRefs')
+    let externalRefs = this.referenceCitationsMap?.get('externalRefs');
+    let localRefs = this.referenceCitationsMap?.get('localRefs');
+    if(!localRefs){
+      this.referenceCitationsMap?.set('localRefs',{})
+    }
     if(!externalRefs){
       this.referenceCitationsMap?.set('externalRefs',{})
     }
@@ -261,6 +265,7 @@ export class YdocService {
 
   setArticleData(articleData: any) {
     this.articleData = articleData;
+    this.articleData.layout.citation_style.style_updated = Date.now()
     this.creatingANewArticle = true;
     this.checkLastTimeUpdated();
   }
@@ -345,6 +350,7 @@ export class YdocService {
     if (!this.articleData) {
       this.serviceShare.ArticlesService?.getArticleByUuid(roomName).subscribe((res: any) => {
         this.articleData = res.data;
+        this.articleData.layout.citation_style.style_updated = Date.now()
       })
     }
     this.roomName = roomName

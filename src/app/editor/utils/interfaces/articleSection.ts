@@ -52,6 +52,7 @@ export interface articleSection {
   add: { bool: boolean, main: boolean },
   edit: { bool: boolean, main: boolean },
   delete: { bool: boolean, main: boolean },
+  select?: { bool: boolean, main: boolean },
   mode: 'documentMode' | 'editMode',
   title: titleContent,
   override?: any,
