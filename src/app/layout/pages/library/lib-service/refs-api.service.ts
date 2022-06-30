@@ -68,8 +68,8 @@ export class RefsApiService {
         label: type.title,
         name: type.type,
         type: type.type,
-        last_modified:Date.now()
-        //last_modified: type.updated_at ? type.updated_at : (new Date("Thu Jan 01 1970 02:00:01 GMT+0200 (Eastern European Standard Time)")).getTime()
+        // last_modified:Date.now()
+        last_modified: type.updated_at ? type.updated_at : (new Date("Thu Jan 01 1970 02:00:01 GMT+0200 (Eastern European Standard Time)")).getTime()
       }
       mapedTypes.push(refType)
     })
