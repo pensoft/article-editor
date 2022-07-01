@@ -101,7 +101,7 @@ export const renderSectionFunc:
   }
   if (sectionFromBackend.type == 2) {
     sectionFromBackend.schema.sections.forEach((child: any, indexOfChild: number) => {
-      const childSection = customSectionEnums[child];
+      const childSection = JSON.parse(JSON.stringify(customSectionEnums[child]));
       childSection.override = sectionFromBackend.schema.override;
       const props = Object.keys(sectionFromBackend.schema.override.categories).map(key => {
         return sectionFromBackend.schema.override.categories[key].entries.map(entry => {
@@ -207,7 +207,7 @@ export const renderSectionFunc:
         editable: !taxonTreatmentSection.label_read_only && !/{{\s*\S*\s*}}/gm.test(sectionLabel)
       },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
       sectionID: newId,
-      edit: {bool: false, main: true},
+      edit: {bool: true, main: true},
       add: {bool: false, main: false},
       delete: {bool: true, main: false},
       select: {bool: true, main: true},

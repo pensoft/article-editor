@@ -54,6 +54,8 @@ export class LibraryPage implements AfterViewInit {
             let refStyle = result.referenceStyle
             let formioData = result.submissionData.data;
             let globally = result.globally
+            let newRef = genereteNewReference(refType, formioData)
+            let refID = editref.refData.referenceData.id;
             this.editRef(refType, refStyle,formioData, editref,globally).subscribe((editRes)=>{
               this.userReferences = undefined;
               this.changeDetection.detectChanges();
@@ -61,6 +63,13 @@ export class LibraryPage implements AfterViewInit {
                 this.userReferences = refs.data;
                 this.changeDetection.detectChanges();
               })
+            })
+            this.cslService.addReference(newRef, refType, refStyle, formioData, editref, globally).subscribe((editRes:any) => {
+              let reference = editRes.data.find((ref1:any)=>ref1.refData.referenceData.id == editref.refData.referenceData.id)
+              let containers = this.serviceShare.ProsemirrorEditorsService?.editorContainers!
+              // find ref in the returned obj
+              // edit all cetitaions of this reference in the editors
+              this.cslService.updateAllCitatsOfReferenceInAllEditors(containers,reference)
             })
           }
         })

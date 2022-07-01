@@ -1,5 +1,5 @@
 import {
-  AfterViewInit,
+  AfterViewInit, ChangeDetectorRef,
   Component,
   ElementRef,
   HostListener,
@@ -92,6 +92,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     private articlesService: ArticlesService,
     private workerService:WorkerService,
     private refsAPI:RefsApiService,
+    private changeDetection: ChangeDetectorRef,
     private referencePluginService:ReferencePluginService
   ) {
     this.previewMode = this.prosemirrorEditorServie.previewArticleMode
@@ -176,6 +177,11 @@ export class EditorComponent implements OnInit, AfterViewInit {
         this.shouldTrackChanges = hideshowData.trackTransactions;
         this.trackChangesData = hideshowData;
       });
+      this.refsAPI.getReferences().subscribe((refs:any)=>{
+        // this.shouldRender = true;
+        // this.userReferences = refs.data;
+        this.changeDetection.detectChanges();
+      })
     };
     if (this.ydocService.editorIsBuild) {
       initArtcleStructureMap();
@@ -216,6 +222,11 @@ export class EditorComponent implements OnInit, AfterViewInit {
       //this.serviceShare.ProsemirrorEditorsService!.dispatchEmptyTransaction();
     }else{
       this.active='editor';
+      this.refsAPI.getReferences().subscribe((refs:any)=>{
+        // this.shouldRender = true;
+        // this.userReferences = refs.data;
+        this.changeDetection.detectChanges();
+      })
     }
   }
 
@@ -270,7 +281,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     ); // set prosemirror editors to not be editable while in movile mod
   }
 
-  ngAfterViewInit() {}
+  ngAfterViewInit(): void {}
 
   turnOnOffTrachChanges(bool?: boolean) {
     if (bool) {

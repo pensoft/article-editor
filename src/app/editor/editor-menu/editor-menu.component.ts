@@ -141,7 +141,7 @@ export class EditorMenuComponent implements OnInit {
 
     if(template) {
       return getRenderedHtml(`<ng-container [formGroup]="formGroup">
-    <div contenteditableNode="true" translate="no" class="ProseMirror ProseMirror-example-setup-style ProseMirror-focused">
+    <div contenteditableNode="false" translate="no" class="ProseMirror ProseMirror-example-setup-style ProseMirror-focused">
             <ng-container  *ngTemplateOutlet="${template}"></ng-container>
             ${htmlToCompile}
     </div></ng-container>`);
