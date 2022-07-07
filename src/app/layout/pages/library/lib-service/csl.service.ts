@@ -238,12 +238,14 @@ export class CslService {
   checkData(actualRef: any, nodeAttrs: any) {
     let nodeRefData = nodeAttrs.referenceData;
     let nodeStyleData = nodeAttrs.referenceStyle;
-    if(actualRef.refStyle.last_modified > nodeStyleData.last_modified || actualRef.refStyle.name !== nodeStyleData.name){
-      console.log('updating becouse of style');
-    }
+    /* if((actualRef.refStyle.last_modified > nodeStyleData.last_modified || actualRef.refStyle.name !== nodeStyleData.name)||
+    (nodeAttrs.referenceType.last_modified<actualRef.refType.last_modified||nodeAttrs.referenceType.name!=actualRef.refType.name)){
+      console.log('should update reference definition',actualRef,nodeAttrs);
+    } */
     return actualRef &&
       ((actualRef.refStyle.last_modified > nodeStyleData.last_modified || actualRef.refStyle.name !== nodeStyleData.name) ||
-        (actualRef.refData.last_modified > nodeRefData.last_modified && actualRef.refData.global === false));
+        (actualRef.refData.last_modified > nodeRefData.last_modified && actualRef.refData.global === false)||
+        (nodeAttrs.referenceType.last_modified<actualRef.refType.last_modified||nodeAttrs.referenceType.name!=actualRef.refType.name));
   }
 
   thereAreOutOfDateReferences(state: EditorState, refs: any[]) {
@@ -298,6 +300,7 @@ export class CslService {
       })
       newAttrs.referenceStyle = { name: ref.refStyle.name, last_modified: ref.refStyle.last_modified }
       newAttrs.referenceData = { refId: node.attrs.referenceData.refId, last_modified: ref.refData.last_modified }
+      newAttrs.referenceType = { name: ref.refType.name, last_modified: ref.refType.last_modified }
       let newReferenceCitation = schema.nodes.reference_citation_end.create(newAttrs, schema.text(refInYdoc.bibliography || 'd'))
       container.editorView.dispatch(st.tr.replaceWith(from, to, newReferenceCitation).setMeta('preventHistoryAdd', true));
     }
@@ -381,10 +384,20 @@ export class CslService {
       citation:newData,
       refInstance: "local"
     })
+    console.log('actRef.refType.last_modified',actRef.refType.last_modified,'actRef.refData.last_modified',actRef.refData.last_modified,
+    'actRef.refStyle.last_modified',actRef.refStyle.last_modified);
     newAttrs.referenceStyle = { name: actRef.refStyle.name, last_modified: actRef.refStyle.last_modified }
     newAttrs.referenceData = { refId: refNode.attrs.referenceData.refId, last_modified: actRef.refData.last_modified }
+    newAttrs.referenceType = { name: actRef.refType.name, last_modified: actRef.refType.last_modified }
     let newReferenceCitation = schema.nodes.reference_citation_end.create(newAttrs, schema.text(refInYdoc.bibliography || 'd'))
-    container.editorView.dispatch(state.tr.replaceWith(start, end, newReferenceCitation).setMeta('preventHistoryAdd', true));
+    container.editorView.dispatch(state.tr.replaceWith(start, end, newReferenceCitation)/* .setNodeMarkup(start,undefined,newAttrs) */.setMeta('preventHistoryAdd', true));
+    /* setTimeout(()=>{
+      let node = container.editorView.state.doc.nodeAt(start)
+      console.log(node);
+      window.requestAnimationFrame((time)=>{
+        console.log(time);
+      })
+    },3000) */
     console.log('updating',refInYdoc.bibliography);
   }
 

@@ -12,7 +12,7 @@ import { ServiceShare } from './service-share.service';
 export class FormBuilderService {
 
   constructor(private serviceShare: ServiceShare) {
-
+    this.serviceShare.shareSelf('FormBuilderService',this)
   }
 
   populateDefaultValues(savedForm: any, schema: any, sectionID: string, formGroup?: FormGroup) {
@@ -110,6 +110,7 @@ export class FormBuilderService {
       formGroup.addControl('sectionTreeTitle', titleFormControl);
       //@ts-ignore
       formGroup.titleUpdateMeta = { time: Date.now() };
+
     }
 
     if (!jsonSchema.components) {

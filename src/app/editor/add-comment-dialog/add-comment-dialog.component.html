@@ -1,6 +1,6 @@
 
 <div class="dialog-container" mat-dialog-content>
-    <p *ngIf="type == 'mathinline'">Enter katex mathematical expresion.See 
+    <p *ngIf="type == 'mathinline'">Enter katex mathematical expresion.See
       <a href="https://katex.org/docs/supported.html "  target="_blank">https://katex.org/docs/supported.html</a>
     </p>
     <p *ngIf="type == 'comment'">White your comment here : </p>
@@ -11,7 +11,7 @@
       <mat-label *ngIf="type == 'video'">Video embed link</mat-label>
       <mat-label *ngIf="type == 'comment'">Comment...</mat-label>
       <mat-label *ngIf="type == 'anchorTag'">Anchor id...</mat-label>
-      <input matInput  [(ngModel)]="data.url" [formControl]="text" required>
+      <input matInput  [(ngModel)]="data.url" [formControl]="text" required style="color: black !important;">
       <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
     </mat-form-field>
   </div>
@@ -19,4 +19,3 @@
     <button color="warn" mat-stroked-button (click)="onNoClick()">Cancel</button>
     <button color="primary" mat-stroked-button class="button-stroked-primary" [mat-dialog-close]="data.url" cdkFocusInitial>Confirm</button>
   </div>
-  

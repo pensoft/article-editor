@@ -9,7 +9,9 @@
     <mat-card-subtitle class="comment-subtitle">{{getDate(userComment!.initialComment.date)}}</mat-card-subtitle>
 
     <div class="header-actions">
-      <arpha-button *ngIf="!mobileVersion" (clickEvent)="deleteComment()" label="Resolve" style="background-color: transparent;" class="small secondary resolve-button"></arpha-button>
+      <ng-container *ngIf="authService.currentUserSubject | async as user">
+        <arpha-button *ngIf="!mobileVersion && userComment!.initialComment.userData.email == user.email" (clickEvent)="deleteComment()" label="Resolve" style="background-color: transparent;" class="small secondary resolve-button"></arpha-button>
+      </ng-container>
       <button *ngIf="!mobileVersion" mat-icon-button [matMenuTriggerFor]="menu">
         <mat-icon>more_horiz</mat-icon>
       </button>

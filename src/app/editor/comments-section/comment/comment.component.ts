@@ -9,6 +9,7 @@ import { YMap } from 'yjs/dist/src/internals';
 import { AddCommentDialogComponent } from '../../add-comment-dialog/add-comment-dialog.component';
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
 import { YdocService } from '../../services/ydoc.service';
+import {AuthService} from "@core/services/auth.service";
 
 export function getDate(date:number){
   let timeOffset = (new Date()).getTimezoneOffset()*60*1000;
@@ -45,6 +46,7 @@ export class CommentComponent implements OnInit {
   userComment?: {initialComment:any,commentReplies:any[]};
   mobileVersion:boolean
   constructor(
+    public authService: AuthService,
     private ydocService: YdocService,
     public sharedDialog: MatDialog,
     private prosemirrorEditorService:ProsemirrorEditorsService,

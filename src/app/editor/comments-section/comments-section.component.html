@@ -1,14 +1,14 @@
 <mat-form-field class="search-box" style="width:100%;background:white;" appearance="fill">
   <mat-label class="character-style-9 label">Search comments...</mat-label>
   <mat-icon class="search-icon" matPrefix>search</mat-icon>
-  <input matInput>
+  <input matInput style="color: black !important;">
 </mat-form-field>
 
 <div class="comments-wrapper">
   <div style="height:100%;">
     <mat-card *ngIf='showAddCommentBox' class="commentBox">
       <mat-card-header>
-        <div mat-card-avatar class="commentBox-avatar"></div>
+        <ngx-avatar mat-card-avatar size="36" [bgColor]="prosemirrorEditorsService.userInfo.color" [name]="prosemirrorEditorsService.userInfo.data.name"></ngx-avatar>
         <mat-card-title class="commentBox-title">{{prosemirrorEditorsService.userInfo.data.name}}</mat-card-title>
         <mat-card-subtitle class="commentBox-subtitle">{{getDate(getTime())}}</mat-card-subtitle>
       </mat-card-header>

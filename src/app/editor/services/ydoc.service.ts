@@ -265,7 +265,7 @@ export class YdocService {
 
   setArticleData(articleData: any) {
     this.articleData = articleData;
-    this.articleData.layout.citation_style.style_updated = Date.now()
+    //this.articleData.layout.citation_style.style_updated = Date.now()
     this.creatingANewArticle = true;
     this.checkLastTimeUpdated();
   }
@@ -350,7 +350,7 @@ export class YdocService {
     if (!this.articleData) {
       this.serviceShare.ArticlesService?.getArticleByUuid(roomName).subscribe((res: any) => {
         this.articleData = res.data;
-        this.articleData.layout.citation_style.style_updated = Date.now()
+        //this.articleData.layout.citation_style.style_updated = Date.now()
       })
     }
     this.roomName = roomName
