@@ -121,16 +121,13 @@ export class CslService {
   addReference(ref: any, refType: any, refStyle: any, formioSubmission: any, oldRef?: any, globally?: boolean) {
     if (oldRef) {
       return this.refsAPI.editReference(oldRef, globally!,formioSubmission,refType).pipe(map((data)=>{
-        console.log(data);
         return data
       }));
     } else {
       return this.refsAPI.createReference({},formioSubmission,refType).pipe(map((data)=>{
-        console.log(data);
         return data
       }));
     }
-    console.log(refType);
     if(this.serviceShare.YdocService.articleData.layout.citation_style){
       let style = this.serviceShare.YdocService.articleData.layout.citation_style
       refStyle = {
@@ -177,7 +174,6 @@ export class CslService {
       //return this.refsAPI.editReference(newRefObj, globally!);
     } else {
       return this.refsAPI.createReference(newRefObj,formioSubmission,refType).pipe(map((data)=>{
-        console.log(data);
         return data
       }));
     }
@@ -210,7 +206,6 @@ export class CslService {
   }) {
     this.refsAPI.getReferences().subscribe((refsData: any) => {
       let refs = refsData.data;
-      console.log(refs);
       Object.keys(editorContainers).forEach((key) => {
         setTimeout(() => {
           this.checkReferencesInEditor(editorContainers[key], refs);
@@ -240,7 +235,6 @@ export class CslService {
     let nodeStyleData = nodeAttrs.referenceStyle;
     /* if((actualRef.refStyle.last_modified > nodeStyleData.last_modified || actualRef.refStyle.name !== nodeStyleData.name)||
     (nodeAttrs.referenceType.last_modified<actualRef.refType.last_modified||nodeAttrs.referenceType.name!=actualRef.refType.name)){
-      console.log('should update reference definition',actualRef,nodeAttrs);
     } */
     return actualRef &&
       ((actualRef.refStyle.last_modified > nodeStyleData.last_modified || actualRef.refStyle.name !== nodeStyleData.name) ||
@@ -297,12 +291,12 @@ export class CslService {
         citation:newData,
         refInstance: "local",
         dothSaveToHistory:true
-      })
+      },true)
       newAttrs.referenceStyle = { name: ref.refStyle.name, last_modified: ref.refStyle.last_modified }
       newAttrs.referenceData = { refId: node.attrs.referenceData.refId, last_modified: ref.refData.last_modified }
       newAttrs.referenceType = { name: ref.refType.name, last_modified: ref.refType.last_modified }
       let newReferenceCitation = schema.nodes.reference_citation_end.create(newAttrs, schema.text(refInYdoc.bibliography || 'd'))
-      container.editorView.dispatch(st.tr.replaceWith(from, to, newReferenceCitation).setMeta('preventHistoryAdd', true));
+      container.editorView.dispatch(st.tr.replaceWith(from, to, newReferenceCitation));
     }
   }
 
@@ -383,22 +377,17 @@ export class CslService {
       ref:actRef,
       citation:newData,
       refInstance: "local"
-    })
-    console.log('actRef.refType.last_modified',actRef.refType.last_modified,'actRef.refData.last_modified',actRef.refData.last_modified,
-    'actRef.refStyle.last_modified',actRef.refStyle.last_modified);
+    },true)
     newAttrs.referenceStyle = { name: actRef.refStyle.name, last_modified: actRef.refStyle.last_modified }
     newAttrs.referenceData = { refId: refNode.attrs.referenceData.refId, last_modified: actRef.refData.last_modified }
     newAttrs.referenceType = { name: actRef.refType.name, last_modified: actRef.refType.last_modified }
     let newReferenceCitation = schema.nodes.reference_citation_end.create(newAttrs, schema.text(refInYdoc.bibliography || 'd'))
-    container.editorView.dispatch(state.tr.replaceWith(start, end, newReferenceCitation)/* .setNodeMarkup(start,undefined,newAttrs) */.setMeta('preventHistoryAdd', true));
+    container.editorView.dispatch(state.tr.replaceWith(start, end, newReferenceCitation)/* .setNodeMarkup(start,undefined,newAttrs) */);
     /* setTimeout(()=>{
       let node = container.editorView.state.doc.nodeAt(start)
-      console.log(node);
       window.requestAnimationFrame((time)=>{
-        console.log(time);
       })
     },3000) */
-    console.log('updating',refInYdoc.bibliography);
   }
 
   editReferenceThroughPMEditor(node: Node, sectionId: string) {
@@ -437,6 +426,8 @@ export class CslService {
                 let newRef = genereteNewReference(refType, formioData)
                 let refID = ref.refData.referenceData.id;
                 newRef.id = refID;
+                this.serviceShare.YjsHistoryService.startCapturingNewUndoItem();
+                this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems();
                 if(attrs.refInstance == 'external'){
                   let editRefInEndEditor = (newRef:any, refType:any, refStyle:any, formioData:any)=>{
                     let refsInEndEditor =  this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')

@@ -30,7 +30,7 @@ import { keymap } from 'prosemirror-keymap';
 import { chainCommands, deleteSelection, joinBackward, selectNodeBackward } from 'prosemirror-commands';
 import { undo, redo } from 'prosemirror-history';
 //@ts-ignore
-import { yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin, yUndoPluginKey } from '../../y-prosemirror-src/y-prosemirror.js';
+import { yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin, yUndoPluginKey ,ySyncPluginKey,ySyncPluginKeyObj} from '../../y-prosemirror-src/y-prosemirror.js';
 import { CellSelection, columnResizing, goToNextCell, tableEditing } from 'prosemirror-tables';
 //@ts-ignore
 import * as trackedTransaction from '../utils/trackChanges/track-changes/index.js';
@@ -86,7 +86,7 @@ export class ProsemirrorEditorsService {
   ydoc?: Y.Doc;
   //provider?: WebrtcProvider;
   provider?: WebsocketProvider;
-
+  preventAddToHistory= false;
   previewArticleMode = { mode: false }
 
   articleSectionsStructure?: articleSection[];
@@ -152,7 +152,8 @@ export class ProsemirrorEditorsService {
   setFigureRerenderFunc = (fn: any) => {
     this.rerenderFigures = fn;
   }
-
+  ySyncKey = ySyncPluginKey
+  ySyncPluginKeyObj = ySyncPluginKeyObj
   constructor(
     private menuService: MenuService,
     private detectFocusService: DetectFocusService,
@@ -338,7 +339,6 @@ export class ProsemirrorEditorsService {
     yCursorPlugin(this.provider!.awareness,this.serviceShare, this.userData),
     this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures })]
 
-
     container.setAttribute('class', 'editor-container');
     //let fullMenu1 = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenu1', editorID);
     this.initDocumentReplace[editorID] = true;
@@ -346,7 +346,7 @@ export class ProsemirrorEditorsService {
     let GroupControl = this.treeService.sectionFormGroups;
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.yjsHistory.YjsHistoryKey, this.interpolateTemplate, GroupControl, section),
+      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.yjsHistory.YjsHistoryKey, this.interpolateTemplate,this.serviceShare, GroupControl, section),
       filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, editorID, this.serviceShare),
       //@ts-ignore
       historyPreserveItems: true,
@@ -493,19 +493,11 @@ export class ProsemirrorEditorsService {
           }
 
           //@ts-ignore
-          if (transaction.getMeta('y-sync$') || transaction.meta['y-sync$'] || transaction.getMeta('addToLastHistoryGroup') || transaction.getMeta('preventHistoryAdd')) {
-            if (transaction.getMeta('addToLastHistoryGroup')) {
-              this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager.preventCapture();
-            } else if (transaction.getMeta('preventHistoryAdd')) {
-              let undoManager = this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager;
-              undoManager.dontAddToHistory();
-            }
+          if (this.preventAddToHistory||transaction.getMeta('y-sync$') || transaction.meta['y-sync$'] ) {
+
           } else {
             let undoManager = this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager;
             let undoManagerStatus = undoManager.status;
-            if (transaction.getMeta('createNewHistoryGroup')) {
-              undoManager.captureNewStackItem();
-            }
             if (undoManagerStatus !== 'capturing') {
               this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager.status = 'capturing'
             }
@@ -642,6 +634,7 @@ export class ProsemirrorEditorsService {
     let renderedSections = Object.keys(this.editorContainers).filter(key => key !== 'endEditor').length
     let allActiveSections = count;
     if (renderedSections == allActiveSections) {
+      console.log('chack all references');
       this.runFuncAfterRender()
     }
     return editorCont
@@ -664,7 +657,7 @@ export class ProsemirrorEditorsService {
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate, this.yjsHistory.YjsHistoryKey),
+      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate, this.yjsHistory.YjsHistoryKey,this.serviceShare),
       filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, editorId, this.serviceShare),
     })
 
@@ -677,7 +670,7 @@ export class ProsemirrorEditorsService {
 
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment('documentMode', editorID)
-    let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
+    let yjsPlugins = [ySyncPlugin(xmlFragment,{ colors, colorMapping, permanentUserData }),
     yCursorPlugin(this.provider!.awareness,this.serviceShare, this.userData),
     this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures })]
 
@@ -751,10 +744,15 @@ export class ProsemirrorEditorsService {
         if (transaction.steps.length > 0) {
           let undoManager = this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager;
           let undoManagerStatus = undoManager.status;
-          if (undoManagerStatus !== 'capturing') {
-            undoManager.status = 'capturing'
+
+          //@ts-ignore
+          if (this.preventAddToHistory||transaction.getMeta('y-sync$') || transaction.meta['y-sync$']) {
+          } else {
+            console.log(transaction);
+            if (undoManagerStatus !== 'capturing') {
+              this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager.status = 'capturing'
+            }
           }
-          undoManager.preventCapture()
         }
         if (this.initDocumentReplace[editorID] || !this.shouldTrackChanges || transaction.getMeta('shouldTrack') == false || isMath) {
 
@@ -1142,7 +1140,17 @@ export class ProsemirrorEditorsService {
   }
 
   runFuncAfterRender() {
+    this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems();
     this.serviceShare.CslService?.checkReferencesInAllEditors(this.editorContainers);
+    setTimeout(()=>{
+      this.serviceShare.YjsHistoryService.stopBigNumberItemsCapturePrevention();
+      window.requestAnimationFrame((time)=>{
+        console.log(time);
+      })
+      window.requestAnimationFrame((time)=>{
+        console.log(time);
+      })
+    },20)
   }
 
   buildMenus() {

@@ -1,18 +1,18 @@
-import { IAuthToken, IUserDetail } from '@core/interfaces/auth.interface';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import {IAuthToken, IUserDetail} from '@core/interfaces/auth.interface';
+import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 
-import { CONSTANTS } from './constants';
-import { Injectable, OnDestroy } from '@angular/core';
-import { BehaviorSubject, Observable, of, Subject } from 'rxjs';
-import { NavigationEnd, Router } from '@angular/router';
-import { UserModel } from '@core/models/user.model';
-import { catchError, filter, map, switchMap, takeUntil } from 'rxjs/operators';
+import {CONSTANTS} from './constants';
+import {Injectable, OnDestroy} from '@angular/core';
+import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
+import {NavigationEnd, Router} from '@angular/router';
+import {UserModel} from '@core/models/user.model';
+import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 
-const API_AUTH_URL = `https://ps-article.dev.scalewest.com/api/auth`;
-const API_URL = `https://ps-article.dev.scalewest.com/api`;
+const API_AUTH_URL = `https://ps-accounts.dev.scalewest.com/api`;
+const API_URL = `https://ps-api.dev.scalewest.com/api`;
 export type UserType = UserModel | undefined;
 
-@Injectable({ providedIn: 'root' })
+@Injectable({providedIn: 'root'})
 export class AuthService implements OnDestroy {
   private headers = new HttpHeaders()
     .set('Content-Type', 'application/x-www-form-urlencoded')
@@ -28,22 +28,27 @@ export class AuthService implements OnDestroy {
   set currentUserValue(user: UserType) {
     this.currentUserSubject.next(user);
   }
+
   constructor(private _http: HttpClient,
-    private router: Router) {
+              private router: Router) {
     this.currentUserSubject = new BehaviorSubject<UserType>(undefined);
     this.currentUser$ = this.currentUserSubject.asObservable();
   }
 
   login(userdetails: IUserDetail) {
     const body = new HttpParams()
-      .set(CONSTANTS.EMAIL, userdetails.email)
+      .set(CONSTANTS.USERNAME, userdetails.email)
       .set(CONSTANTS.PASSWORD, userdetails.password);
 
-    return this._http.post<IAuthToken>(`${API_AUTH_URL}/login`, body.toString(), {
+    return this._http.post<IAuthToken>(`${API_AUTH_URL}/token`, body.toString(), {
       headers: this.headers,
+      /* observe:'response',
+      responseType:'json' */
     }).pipe(
-      map(token => {
-        this.storeToken(token.accessToken);
+      map((token) => {
+        console.log('res', token);
+        this.storeToken('token', token['access_token']);
+        this.storeToken('refresh_token', token['refresh_token']);
         return token;
       }),
       switchMap(() => this.getUserInfo()),
@@ -55,12 +60,13 @@ export class AuthService implements OnDestroy {
 
   register(userdetails: IUserDetail) {
     const body = new HttpParams()
-      .set(CONSTANTS.EMAIL, userdetails.email)
+      .set(CONSTANTS.USERNAME, userdetails.email)
       .set(CONSTANTS.NAME, userdetails.name || '')
       .set(CONSTANTS.PASSWORD, userdetails.password);
 
     return this._http.post<IAuthToken>(`${API_AUTH_URL}/signup`, body.toString(), {
       headers: this.headers,
+
     }).pipe(
       switchMap(() => this.login(userdetails)),
       catchError((err) => {
@@ -77,7 +83,7 @@ export class AuthService implements OnDestroy {
   }
 
   invalidateToken() {
-    this._http.post(`${API_AUTH_URL}/logout`, {}, { headers: this.headers })
+    this._http.post(`${API_AUTH_URL}/logout`, {}, {headers: this.headers})
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe({
         complete: () => {
@@ -93,25 +99,28 @@ export class AuthService implements OnDestroy {
     return this.getToken() ? true : false; // add your strong logic
   }
 
-  storeToken(token: string) {
-    localStorage.setItem('token', token);
+  storeToken(tokenType, token: string) {
+    localStorage.setItem(tokenType, token);
   }
 
   getToken() {
     return localStorage.getItem('token');
   }
 
+  getRefreshToken() {
+    return localStorage.getItem('refreshToken');
+  }
+
   refreshToken() {
-    return this._http.get(`${API_URL}/refresh`,{observe: 'response'})
+    const refreshToken = this.getRefreshToken();
+    return this._http.post<any>(`${API_AUTH_URL}/refresh-token`, {'refresh-token': refreshToken})
       .pipe(
-        map((resp:any) => {
-          if (resp && resp.headers.get('Authorization') && (resp.headers.get('Authorization') || '').includes('Bearer')) {
-            let token = (resp.headers.get('Authorization') || '').replace('Bearer ', '');
-            this.storeToken(token)
-            return token
-          }
-        })
-      )
+        map(({access_token: token, refresh_token: refreshToken}) =>
+          ({
+            token,
+            refreshToken
+          })
+        ))
   }
 
   forgotPassword(email: string): Observable<boolean> {
@@ -136,7 +145,6 @@ export class AuthService implements OnDestroy {
           }
           return user;
         }),
-
       )
   }
 

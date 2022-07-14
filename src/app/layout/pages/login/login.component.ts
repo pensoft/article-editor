@@ -70,8 +70,8 @@ export class LoginComponent implements OnInit {
 
   submit() {
     this.hasError = false;
-    this.authService.login({[CONSTANTS.EMAIL]: this.f.email.value, [CONSTANTS.PASSWORD]: this.f.password.value })
-      .pipe(first())
+    let loginSub = this.authService.login({[CONSTANTS.EMAIL]: this.f.email.value, [CONSTANTS.PASSWORD]: this.f.password.value })
+    loginSub.pipe(first())
       .subscribe((user: UserModel) => {
         if (user) {
 
@@ -81,5 +81,8 @@ export class LoginComponent implements OnInit {
           this.hasError = true;
         }
       });
+      loginSub.subscribe((data:any)=>{
+        console.log(data);
+      })
   }
 }

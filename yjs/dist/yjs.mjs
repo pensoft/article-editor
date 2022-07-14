@@ -3366,6 +3366,7 @@ class UndoManager extends Observable {
     this.doc.on('afterTransaction', /** @param {Transaction} transaction */ transaction => {
       // Only track certain transactions
       if (!this.scope.some(type => transaction.changedParentTypes.has(type)) || (!this.trackedOrigins.has(transaction.origin) && (!transaction.origin || !this.trackedOrigins.has(transaction.origin.constructor)))) {
+        //console.log('skipping a change', transaction.origin);
         return
       }
       let undoRedoMeta = {}
@@ -3375,13 +3376,11 @@ class UndoManager extends Observable {
       const stack = undoing ? this.redoStack : this.undoStack;
       undoRedoMeta.workingStack = undoing ? 'redoStack' : 'undoStack';
       undoRedoMeta.status = this.status;
-      if ((stack.length == 0 && this.addToLastExistingGroup && this.status !== 'capturing' && this.addANewStackItem == false) && (!this.undoing && !this.redoing)) {
-        return;
-      }
-      if (this.skipChange) {
+      if (this.skipChange || (stack.length == 0 && this.addToLastExistingGroup && this.status !== 'capturing' && this.addANewStackItem == false) && (!this.undoing && !this.redoing)) {
         this.skipChange = false;
         return;
       }
+
       if (undoing) {
         this.status = 'undoing';
       } else if (redoing) {
@@ -3404,12 +3403,22 @@ class UndoManager extends Observable {
         }
       });
 
+      /* if (this.skipChange && this.status == 'capturing' && !undoing && !redoing) {
+        console.log('skipping a change');
+        const lastOp = stack[stack.length - 1];
+        if (lastOp) {
+          lastOp.deletions = mergeDeleteSets([lastOp.deletions, transaction.deleteSet]);
+          lastOp.insertions = mergeDeleteSets([lastOp.insertions, insertions]);
+        }
+        this.skipChange = false;
+        return;
+      } */
 
       const now = time.getUnixTime();
 
 
 
-      if (this.status !== 'capturing') {
+      if (this.status !== 'capturing' && !this.skipChange) {
         //onsole.log(transaction.changed.keys().next().value.toDelta())
         if (this.addToLastExistingGroup) {
           if (stack.length > 0) {
@@ -3418,11 +3427,15 @@ class UndoManager extends Observable {
             lastOp.insertions = mergeDeleteSets([lastOp.insertions, insertions]);
             undoRedoMeta.addingToLastItem = true;
           } else {
-            stack.push(new StackItem(transaction.deleteSet, insertions));
+            let newStackItem = new StackItem(transaction.deleteSet, insertions)
+            newStackItem.createdAt = Date.now();
+            stack.push(newStackItem);
             undoRedoMeta.addingNewItem = true;
           }
         } else {
-          stack.push(new StackItem(transaction.deleteSet, insertions));
+          let newStackItem = new StackItem(transaction.deleteSet, insertions)
+          newStackItem.createdAt = Date.now();
+          stack.push(newStackItem);
           undoRedoMeta.addingNewItem = true;
         }
         /*  if (transaction.origin !== this) {
@@ -3432,15 +3445,17 @@ class UndoManager extends Observable {
              }
          } else {
          } */
-      } else if (!undoing && !redoing && this.status == 'capturing') {
+      } else if (!undoing && !redoing && this.status == 'capturing' && !this.skipChange) {
         // append change to last stack op
-        if ((now - this.lastChange < captureTimeout && stack.length > 0) || (this.addToLastExistingGroup && stack.length > 0) && !this.addANewStackItem) {
+        if ((now - this.lastChange < captureTimeout || this.addToLastExistingGroup) && stack.length > 0 && !this.addANewStackItem) {
           const lastOp = stack[stack.length - 1];
           lastOp.deletions = mergeDeleteSets([lastOp.deletions, transaction.deleteSet]);
           lastOp.insertions = mergeDeleteSets([lastOp.insertions, insertions]);
           undoRedoMeta.addingToLastItem = true;
         } else {
-          stack.push(new StackItem(transaction.deleteSet, insertions));
+          let newStackItem = new StackItem(transaction.deleteSet, insertions)
+          newStackItem.createdAt = Date.now();
+          stack.push(newStackItem);
           undoRedoMeta.addingNewItem = true;
         }
       } else {

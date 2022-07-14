@@ -1,4 +1,3 @@
-
 import { PluginKey } from 'prosemirror-state' // eslint-disable-line
 
 /**
@@ -8,11 +7,15 @@ import { PluginKey } from 'prosemirror-state' // eslint-disable-line
  */
 export const ySyncPluginKey = new PluginKey('y-sync')
 
-/**
- * The unique prosemirror plugin key for undoPlugin
- *
- * @public
- */
+export let ySyncPluginKeyObj = {
+    ySyncPluginKey: ySyncPluginKey,
+    origin: ySyncPluginKey,
+  }
+  /**
+   * The unique prosemirror plugin key for undoPlugin
+   *
+   * @public
+   */
 export const yUndoPluginKey = new PluginKey('y-undo')
 
 /**

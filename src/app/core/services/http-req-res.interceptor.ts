@@ -7,15 +7,15 @@ import {
   HttpResponse,
 } from '@angular/common/http';
 
-import { Inject, Injectable } from '@angular/core';
-import { IAuthToken } from '@core/interfaces/auth.interface';
-import { BehaviorSubject, Observable, throwError } from 'rxjs';
-import { catchError, filter, finalize, map, switchMap, take, tap } from 'rxjs/operators';
-import { AuthService } from './auth.service';
-import { BroadcasterService } from './broadcaster.service';
-import { CONSTANTS } from './constants';
-import { environment } from '@env';
-import { mapExternalRefs } from '@app/editor/utils/references/refsFunctions';
+import {Inject, Injectable} from '@angular/core';
+import {IAuthToken} from '@core/interfaces/auth.interface';
+import {BehaviorSubject, Observable, throwError} from 'rxjs';
+import {catchError, filter, finalize, map, switchMap, take, tap} from 'rxjs/operators';
+import {AuthService} from './auth.service';
+import {BroadcasterService} from './broadcaster.service';
+import {CONSTANTS} from './constants';
+import {environment} from '@env';
+import {mapExternalRefs} from '@app/editor/utils/references/refsFunctions';
 
 @Injectable()
 export class HTTPReqResInterceptor implements HttpInterceptor {
@@ -24,7 +24,8 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
 
   constructor(
     private _authservice: AuthService
-  ) {}
+  ) {
+  }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     // this._broadcaster.broadcast(CONSTANTS.SHOW_LOADER, true);
@@ -34,7 +35,7 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
 
     const token = this._authservice.getToken();
 
-    if(token) {
+    if (token) {
       newReq = this.addToken(newReq, token)
     }
 
@@ -48,23 +49,23 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
       // finalize(() => {
       //   this._broadcaster.broadcast(CONSTANTS.SHOW_LOADER, false);
       // })
-    ).pipe(map((x)=>{
-      if(x instanceof HttpResponse){
-        if(
-          x.url?.includes('http://localhost:4200/find')||
+    ).pipe(map((x) => {
+      if (x instanceof HttpResponse) {
+        if (
+          x.url?.includes('http://localhost:4200/find') ||
           x.url?.includes('https://refindit.org/find')
-          ){
+        ) {
 
-            return x.clone({body:mapExternalRefs(x.body)})
-          }
+          return x.clone({body: mapExternalRefs(x.body)})
+        }
       }
-      return  x
+      return x
     }));
   }
 
   handleError(newRequest: HttpRequest<any>, next: HttpHandler, err: any) {
     if (err instanceof HttpErrorResponse && err.status === 401) {
-      return this.handle401(newRequest, next,err);
+      return this.handle401(newRequest, next, err);
     } else {
       // this._broadcaster.broadcast(CONSTANTS.ERROR, {
       //   error: 'Something went wrong',
@@ -85,20 +86,21 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
   }
 
   /* Refresh handler referred from https://www.intertech.com/angular-4-tutorial-handling-refresh-token-with-new-httpinterceptor/ */
-  handle401(request: HttpRequest<any>, next: HttpHandler,resErr:HttpErrorResponse) {
+  handle401(request: HttpRequest<any>, next: HttpHandler, resErr: HttpErrorResponse) {
     if (!this.isalreadyRefreshing) {
       //  don't want to have multiple refresh request when multiple unauthorized requests
       this.isalreadyRefreshing = true;
       // so that new subscribers don't trigger switchmap part and stay in queue till new token received
       this.tokenSubject.next(null);
       return this._authservice.refreshToken().pipe(
-        switchMap((newToken: any) => {
-          if (newToken) {
+        switchMap(({access_token: token, refresh_token: refreshToken}: any) => {
+          if (token) {
             // update token store & publish new token, yay!!
             this.isalreadyRefreshing = false
-            this._authservice.storeToken(newToken);
-            this.tokenSubject.next(newToken);
-            return next.handle(this.addToken(request, newToken));
+            this._authservice.storeToken('token', token);
+            this._authservice.storeToken('refresh_token', refreshToken);
+            this.tokenSubject.next(token);
+            return next.handle(this.addToken(request, token));
           }
           // no new token received | something messed up
           this._authservice.logout();

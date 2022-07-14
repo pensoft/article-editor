@@ -1,38 +1,51 @@
 import { Injectable } from '@angular/core';
 import { PluginKey, Plugin, EditorState } from 'prosemirror-state';
-import { ContentType, Item,  UndoManager,XmlElement, XmlFragment, XmlText } from 'yjs';
+import { ContentType, Item, UndoManager, XmlElement, XmlFragment, XmlText } from 'yjs';
 import { ServiceShare } from '../services/service-share.service';
-import { Dropdown,  undoItem as undoItemPM, redoItem as redoItemPM, undoItem } from "prosemirror-menu"
+import { Dropdown, undoItem as undoItemPM, redoItem as redoItemPM, undoItem } from "prosemirror-menu"
 //@ts-ignore
-import {MenuItem} from '../utils/prosemirror-menu-master/src/index.js'
+import { MenuItem } from '../utils/prosemirror-menu-master/src/index.js'
 //@ts-ignore
 import { getRelativeSelection } from '../../y-prosemirror-src/plugins/sync-plugin.js'
 //@ts-ignore
-import {ySyncPluginKey} from '../../y-prosemirror-src/plugins/keys.js'
+import { ySyncPluginKey } from '../../y-prosemirror-src/plugins/keys.js'
 import { redoIcon, undoIcon } from './menu/menuItems';
 import { YdocService } from '../services/ydoc.service';
 import { YArray } from 'yjs/dist/src/internals';
+import { iif } from 'rxjs';
+
+interface undoServiceItem {
+  editors: string[],
+  undoItemMeta?: any,
+  finished?: true
+}
+
 @Injectable({
   providedIn: 'root'
 })
 export class YjsHistoryService {
   YjsHistoryKey: PluginKey
+  preventingCaptureOfBigNumberOfTransactions = false;
+  preventingCaptureOfBigSmallOfTransactions = false;
+  mainProsemirrorUndoManagers: { [key: string]: UndoManager } = {}
 
-  mainProsemirrorUndoManagers : {[key:string]:UndoManager} = {}
+  undoStack: undoServiceItem[] = [];
+  redoStack: undoServiceItem[] = [];
 
-  undoStack:string[] = [];
-  redoStack:string[] = [];
+  capturingNewItem = false;
+  stopCapturing = false;
+  timer: number = 0;
 
   constructor(
     private serviceShare: ServiceShare,
-    private ydocService:YdocService,
-    ) {
+    private ydocService: YdocService,
+  ) {
     serviceShare.shareSelf('YjsHistoryService', this)
     let YjsHistoryKey = new PluginKey('yjsHistory');
     this.YjsHistoryKey = YjsHistoryKey;
 
 
-    let initData = () =>{
+    let initData = () => {
 
 
     }
@@ -46,36 +59,78 @@ export class YjsHistoryService {
     });
   }
 
-  deleteUndoManager(id:string){
+  resetHistoryData(){
+    this.undoStack = []
+    this.redoStack = []
+    this.preventingCaptureOfBigNumberOfTransactions = false;
+    this.preventingCaptureOfBigSmallOfTransactions = false;
+    this.mainProsemirrorUndoManagers = {}
+    this.capturingNewItem = false;
+    this.stopCapturing = false;
+    this.timer = 0;
+  }
+
+  deleteUndoManager(id: string) {
     let undoManager = this.mainProsemirrorUndoManagers[id];
-    if(undoManager){
+    if (undoManager) {
       undoManager.destroy();
       delete this.mainProsemirrorUndoManagers[id]
-      this.undoStack = this.undoStack.filter(val => val!==id)
-      this.redoStack = this.redoStack.filter(val => val!==id)
+      this.undoStack.forEach((undoItem) => {
+        undoItem.editors = undoItem.editors.filter(val => val !== id);
+      })
+      this.redoStack.forEach((undoItem) => {
+        undoItem.editors = undoItem.editors.filter(val => val !== id);
+      })
+      this.undoStack = this.undoStack.filter(val => val.editors.length > 0)
+      this.redoStack = this.redoStack.filter(val => val.editors.length > 0)
     }
   }
 
-  computeHistoryChange(changeMeta:any){
-    if(changeMeta.addingNewItem){
-      if(changeMeta.status == 'capturing'){
-        this.undoStack.unshift(changeMeta.sectionId)
+  createNewUndoStackItem() {
+    console.log('new service stack item');
+    this.undoStack.unshift({ editors: [] })
+    this.timer = Date.now();
+  }
+
+  computeHistoryChange(changeMeta: any) {
+    if (changeMeta.addingNewItem || changeMeta.addingToLastItem) {
+      if ((changeMeta.status == 'capturing' && changeMeta.workingStack !== "redoStack") || (changeMeta.status == undefined && changeMeta.addingToLastItem && changeMeta.workingStack == 'undoStack')) {
+
+        if (this.undoStack.length == 0 || (this.undoStack.length > 0 && this.undoStack[0].finished)) {
+          this.createNewUndoStackItem()
+
+        } else if (Date.now() - this.timer > 2500) {
+          this.timer = Date.now();
+
+          console.log('creating new item becouse of timer ');
+          this.undoStack[0].finished = true
+          Object.values(this.mainProsemirrorUndoManagers).forEach((undoManager) => {
+            //@ts-ignore
+            undoManager.captureNewStackItem()
+          })
+        }
+        console.log('adding');
+        if(!this.undoStack[0].editors.includes(changeMeta.sectionId)){
+          this.undoStack[0].editors.unshift(changeMeta.sectionId)
+        }
         this.redoStack = []
         this.clearRedoStacks()
       }
-    }else if(changeMeta.addingToLastItem){
-
+    } else if (changeMeta.addingToLastItem) {
     }
   }
 
-  clearRedoStacks(){
-    Object.keys(this.mainProsemirrorUndoManagers).forEach((key)=>{
+  clearRedoStacks() {
+    Object.keys(this.mainProsemirrorUndoManagers).forEach((key) => {
       //@ts-ignore
       this.mainProsemirrorUndoManagers[key].clearRedoStack()
     })
   }
 
-  getYjsHistoryPlugin(metadata: any, { protectedNodes = new Set(['figures_nodes_container', 'block_figure', 'figure_components_container', 'figure_component', 'figure_descriptions_container', 'figure_description', 'figure_component_description']), trackedOrigins = [] } = {}){
+  getYjsHistoryPlugin(metadata: any, {
+    protectedNodes = new Set(['figures_nodes_container', 'block_figure', 'figure_components_container', 'figure_component', 'figure_descriptions_container', 'figure_description', 'figure_component_description']),
+    trackedOrigins = []
+  } = {}) {
     let sectionId = metadata.editorID;
     let figuresMap = metadata.figuresMap;
     let renderFigures = metadata.renderFigures;
@@ -161,23 +216,23 @@ export class YjsHistoryService {
           const ystate = ySyncPluginKey.getState(state)
           const undoManager = new UndoManager(ystate.type, {
             captureTimeout: 3000,
-            deleteFilter: (item:any) => !(item instanceof Item) ||
-            !(item.content instanceof ContentType) ||
-            !(item.content.type instanceof Text ||
-              (item.content.type instanceof XmlElement && protectedNodes.has(item.content.type.nodeName))) ||
+            deleteFilter: (item: any) => !(item instanceof Item) ||
+              !(item.content instanceof ContentType) ||
+              !(item.content.type instanceof Text ||
+                (item.content.type instanceof XmlElement && protectedNodes.has(item.content.type.nodeName))) ||
               item.content.type._length === 0,
-              trackedOrigins: new Set([ySyncPluginKey].concat(trackedOrigins)),
-            })
-            this.mainProsemirrorUndoManagers[initargs.sectionName] = undoManager;
+            trackedOrigins: new Set([ySyncPluginKey].concat(trackedOrigins)),
+          })
+          this.mainProsemirrorUndoManagers[initargs.sectionName] = undoManager;
           undoManager.on('stack-item-popped', (item: any) => {
-            addremoveCitatsFunc(item);
+            //addremoveCitatsFunc(item);
           })
           return {
             undoManager,
             prevSel: null,
             hasUndoOps: undoManager.undoStack.length > 0,
             hasRedoOps: undoManager.redoStack.length > 0,
-            sectionName:initargs.sectionName
+            sectionName: initargs.sectionName
           }
         },
         apply: (tr, val, oldState, state) => {
@@ -185,9 +240,9 @@ export class YjsHistoryService {
           const undoManager = val.undoManager as UndoManager
           const hasUndoOps = undoManager.undoStack.length > 0
           const hasRedoOps = undoManager.redoStack.length > 0
-          if(tr.steps.length>0){
-            if(tr.getMeta('addToLastHistoryGroup')){
-            }else{
+          if (tr.steps.length > 0) {
+            if (tr.getMeta('addToLastHistoryGroup')) {
+            } else {
             }
           }
           if (binding) {
@@ -196,7 +251,7 @@ export class YjsHistoryService {
               prevSel: getRelativeSelection(binding, oldState),
               hasUndoOps,
               hasRedoOps,
-              sectionName:val.sectionName
+              sectionName: val.sectionName
             }
           } else {
             if (hasUndoOps !== val.hasUndoOps || hasRedoOps !== val.hasRedoOps) {
@@ -226,13 +281,16 @@ export class YjsHistoryService {
           }
         })
         undoManager.on('stack-item-added', (item: any) => {
-          item.undoRedoMeta.sectionId = sectionId
+          item.undoRedoMeta.sectionId = sectionId;
+          //if(item.type!=='undo'&&item.type!=='redo'){
+          console.log('incoming item', item);
           this.computeHistoryChange(item.undoRedoMeta);
-          let changedItems = item.changedParentTypes
+          //}
+          /*let changedItems = item.changedParentTypes
           let iterator = changedItems.entries()
           let element = iterator.next();
           let elValue = element.value
-          let xmlEl;
+           let xmlEl;
           if (elValue && elValue[0] instanceof XmlText) {
             xmlEl = elValue[0];
           }
@@ -262,7 +320,7 @@ export class YjsHistoryService {
                 })
               }
             })
-          }
+          } */
         })
         return {
           destroy: () => {
@@ -273,11 +331,61 @@ export class YjsHistoryService {
     })
   }
 
+  undoComplexItem(meta: any, action: 'undo' | 'redo') {
+    if (meta.type == 'figure') {
+      if (action == 'undo') {
+        this.serviceShare.FiguresControllerService.writeFiguresDataGlobalV2(meta.data.oldData.articleCitatsObj, meta.data.oldData.ArticleFiguresNumbers, meta.data.oldData.ArticleFigures)
+      } else {
+        this.serviceShare.FiguresControllerService.writeFiguresDataGlobalV2(meta.data.newData.articleCitatsObj, meta.data.newData.ArticleFiguresNumbers, meta.data.newData.ArticleFigures)
+      }
+    } else if (meta.type == 'figure-citation') {
+      let citatsToDisplay = action == 'undo' ? meta.data.oldCitationsObj : meta.data.newCitationsObj
+      this.preventCaptureOfBigNumberOfUpcomingItems()
+      this.serviceShare.FiguresControllerService.markCitatsViews(citatsToDisplay)
+    } else if (meta.type == 'refs-yjs') {
+      let refsToReturn = action == 'undo' ? meta.data.oldRefs : meta.data.newRefs;
+      this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsToReturn)
+      let refs = Object.values(refsToReturn);
+      let backEndEditedCount = 0;
+      let checkDone = () => {
+        if (backEndEditedCount == refs.length) {
+          this.serviceShare.RefsApiService.getReferences().subscribe((refs) => {
+            this.serviceShare.ProsemirrorEditorsService.dispatchEmptyTransaction();
+          })
+        }
+      }
+      refs.forEach((yjsRefInstance: any) => {
+        let ref = yjsRefInstance.ref;
+        let global = yjsRefInstance.refInstance !== 'local'
+        let refType = ref.refType
+        let formIOData = ref.refData.formioData;
+        this.serviceShare.RefsApiService.editReference(ref, global, formIOData, refType, true).subscribe((editRes) => {
+          backEndEditedCount++;
+          checkDone();
+        }, (err) => {
+
+        })
+      })
+    }
+  }
+
   undo = (state: EditorState) => {
-    let undoManagaerID = this.undoStack.shift();
-    let result = this.mainProsemirrorUndoManagers[undoManagaerID!].undo();
-    this.redoStack.unshift(undoManagaerID!);
-    this.serviceShare.ProsemirrorEditorsService!.scrollMainEditorIntoView(undoManagaerID!)
+    console.log(this.undoStack, this.redoStack);
+    this.stopCapturingUndoItem()
+    let undoitem = this.undoStack.shift();
+    let redoItem: undoServiceItem = { editors: [], finished: true }
+    if (undoitem.undoItemMeta) {
+      redoItem.undoItemMeta = undoitem.undoItemMeta
+      this.undoComplexItem(undoitem.undoItemMeta, 'undo');
+    }
+    undoitem.editors.forEach((editor) => {
+      this.mainProsemirrorUndoManagers[editor!].undo();
+      redoItem.editors.unshift(editor)
+    })
+    this.redoStack.unshift(redoItem);
+    if (redoItem.editors[0] !== 'endEditor') {
+      this.serviceShare.ProsemirrorEditorsService!.scrollMainEditorIntoView(redoItem.editors[0])
+    }
     this.serviceShare.ProsemirrorEditorsService!.dispatchEmptyTransaction()
     /* const undoManager = this.YjsHistoryKey.getState(state).undoManager
     if (undoManager != null) {
@@ -288,15 +396,26 @@ export class YjsHistoryService {
     return true
   }
 
-  canUndo(){
-    return this.undoStack.length>0
+  canUndo() {
+    return this.undoStack.length > 0
   }
 
   redo = (state: EditorState) => {
-    let undoManagaerID = this.redoStack.shift();
-    let redult = this.mainProsemirrorUndoManagers[undoManagaerID!].redo();
-    this.undoStack.unshift(undoManagaerID!);
-    this.serviceShare.ProsemirrorEditorsService!.scrollMainEditorIntoView(undoManagaerID!)
+    console.log(this.undoStack, this.redoStack);
+    let redoItem = this.redoStack.shift();
+    let undoItem: undoServiceItem = { editors: [], finished: true }
+    if (redoItem.undoItemMeta) {
+      undoItem.undoItemMeta = redoItem.undoItemMeta
+      this.undoComplexItem(redoItem.undoItemMeta, 'redo');
+    }
+    redoItem.editors.forEach((editor) => {
+      this.mainProsemirrorUndoManagers[editor].redo();
+      undoItem.editors.unshift(editor)
+    })
+    this.undoStack.unshift(undoItem);
+    if (undoItem.editors[0] !== 'endEditor') {
+      this.serviceShare.ProsemirrorEditorsService!.scrollMainEditorIntoView(undoItem.editors[0])
+    }
     this.serviceShare.ProsemirrorEditorsService!.dispatchEmptyTransaction()
 
     /* const undoManager = this.YjsHistoryKey.getState(state).undoManager
@@ -307,15 +426,16 @@ export class YjsHistoryService {
     return true
   }
 
-  canRedo(){
-    return this.redoStack.length>0
+
+  canRedo() {
+    return this.redoStack.length > 0
   }
 
   undoYjs() {
     return new MenuItem({
       icon: undoIcon,
       label: "undo",
-      enable:(state:EditorState)=> { return this.canUndo() },
+      enable: (state: EditorState) => { return this.canUndo() },
       //@ts-ignore
       run: this.undo
     })
@@ -325,9 +445,84 @@ export class YjsHistoryService {
     return new MenuItem({
       icon: redoIcon,
       label: "redo",
-      enable:(state:EditorState)=> { return this.canRedo() },
+      enable: (state: EditorState) => { return this.canRedo() },
       //@ts-ignore
       run: this.redo
     })
+  }
+
+  startCapturingNewUndoItem() {
+    console.log('start new yjs service item', this.undoStack, this.redoStack);
+    if (this.undoStack.length > 0) {
+      this.undoStack[0].finished = true;
+    }
+    this.capturingNewItem = true;
+    Object.values(this.mainProsemirrorUndoManagers).forEach((undoManager) => {
+      //@ts-ignore
+      undoManager.captureNewStackItem()
+    })
+
+  }
+
+  addUndoItemInformation(info: { type: 'figure' | 'refs-yjs' | 'figure-citation', data: any }) {
+
+    if (this.undoStack.length == 0 || (this.undoStack.length > 0 && this.undoStack[0].finished)) {
+      this.createNewUndoStackItem()
+    }
+
+    if (info.type == 'figure') {
+      this.undoStack[0].undoItemMeta = info
+      // add undoitem data to last undo item
+    } else if (info.type == 'refs-yjs') {
+      console.log('adding refs information to undo item', info);
+      this.undoStack[0].undoItemMeta = info
+    } else if (info.type == 'figure-citation') {
+      this.undoStack[0].undoItemMeta = info
+    }
+  }
+
+  stopCapturingUndoItem() {
+    if(this.capturingNewItem){
+      console.log('stop capturing yjs service item', this.undoStack, this.redoStack);
+      this.capturingNewItem = false;
+      if (this.undoStack.length > 0) {
+        this.undoStack[0].finished = true;
+      }
+      Object.values(this.mainProsemirrorUndoManagers).forEach((undoManager) => {
+        //@ts-ignore
+        undoManager.captureNewStackItem()
+      })
+
+    }
+  }
+
+  preventCaptureOfBigNumberOfUpcomingItems() {
+    console.log('Prevent capture of big number of upcoming items');
+    this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = null
+    this.preventingCaptureOfBigNumberOfTransactions = true
+  }
+
+  stopBigNumberItemsCapturePrevention() {
+    if (this.preventingCaptureOfBigNumberOfTransactions) {
+      console.log('Stop items capture of big number prevention');
+      this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = this.serviceShare.ProsemirrorEditorsService.ySyncKey
+      this.preventingCaptureOfBigNumberOfTransactions = false
+    }
+  }
+
+  preventCaptureOfLessUpcommingItems() {
+    if (!this.preventingCaptureOfBigNumberOfTransactions) {
+      console.log('Prevent capture of small number of upcoming items');
+      this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = null
+      this.preventingCaptureOfBigSmallOfTransactions = true;
+    }
+  }
+
+  stopLessItemsCapturePrevention() {
+    if (!this.preventingCaptureOfBigNumberOfTransactions && this.preventingCaptureOfBigSmallOfTransactions) {
+      console.log('Prevent capture of small number of upcoming items');
+      this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = this.serviceShare.ProsemirrorEditorsService.ySyncKey
+      this.preventingCaptureOfBigSmallOfTransactions = false;
+    }
   }
 }

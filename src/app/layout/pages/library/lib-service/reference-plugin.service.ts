@@ -52,7 +52,11 @@ export class ReferencePluginService {
                   let button = document.createElement('button')
                   button.className = 'update-data-reference-button';
                   button.addEventListener('click', () => {
+                    serviceShare.YjsHistoryService.startCapturingNewUndoItem();
                     updateRef(pos, node.nodeSize, prev.sectionName)
+                    setTimeout(()=>{
+                      serviceShare.YjsHistoryService.stopCapturingUndoItem()
+                    },2000)
                   })
                   button.style.cursor = 'pointer'
                   button.title = 'This reference citation is outdated. Click this button to refresh it.'
@@ -142,6 +146,7 @@ export class ReferencePluginService {
   }
 
   updateReference = (refPos: number, refSize: number, sectionID: string) => {
+    this.serviceShare.YjsHistoryService.startCapturingNewUndoItem();
     let view = this.serviceShare.ProsemirrorEditorsService?.editorContainers[sectionID].editorView;
     let refNode = view?.state.doc.nodeAt(refPos);
     let refData = refNode?.attrs.referenceData;
@@ -163,7 +168,7 @@ export class ReferencePluginService {
       newAttrs.referenceData.last_modified = actualRef.refData.last_modified;
       //newAttrs.referenceData = {refId:actualRef.refData.referenceData.id,last_modified:actualRef.refData.last_modified}
       let newNode = schema.nodes.reference_citation_end.create(newAttrs, schema.text(refInYdoc.bibliography))
-      view?.dispatch(view.state.tr.replaceWith(refPos, refPos + refSize, newNode).setMeta('createNewHistoryGroup',true))
+      view?.dispatch(view.state.tr.replaceWith(refPos, refPos + refSize, newNode))
       setTimeout(() => {
         this.serviceShare.ProsemirrorEditorsService?.dispatchEmptyTransaction()
       }, 10)

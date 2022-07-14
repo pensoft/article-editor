@@ -376,7 +376,6 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
   }
 
   getReference(option) {
-    console.log(option)
   }
 
   displayFn(option: any): string {

@@ -36,7 +36,6 @@ export class MaterialSectionComponent implements AfterViewInit {
     public http: HttpClient,
     public helperService: HelperService
   ) {
-    // console.log(materialStructure.categories);
   }
 
   private _filter(value: string): string[] {
@@ -77,7 +76,6 @@ export class MaterialSectionComponent implements AfterViewInit {
     setTimeout(() => {
       document.getElementById(event.option.value.toLowerCase()).focus();
     }, 300)
-    console.log(event.option.value, tabs);
   }
 
   async triggerSubmit() {

@@ -327,7 +327,6 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   };
 
   addSectionToNode(node: articleSection, formGroup: FormGroup) {
-    console.log(node, material);
     if (node.title.name === '[MM] Materials') {
       material.parent = node;
       const materialData = JSON.parse(JSON.stringify(material));

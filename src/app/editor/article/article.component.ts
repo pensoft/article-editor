@@ -112,7 +112,6 @@ export class ArticleComponent implements OnInit {
             this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]!.get('listChar')!.setValue(listOrder)
             mat.defaultFormIOValues.listChar = listOrder;
           }
-          // console.log(this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]);
           articleSectionsStructureFlat.push(mat);
         })
       })

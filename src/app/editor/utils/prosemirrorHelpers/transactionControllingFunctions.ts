@@ -28,6 +28,7 @@ export const updateControlsAndFigures = (
   rerenderFigures: (citats: any) => any,
   YjsHistoryKey: PluginKey,
   interpolateTemplate: any,
+  sharedService:ServiceShare,
   GroupControl?: any,
   section?: articleSection) => {
   let DOMPMSerializer = DOMSerializer.fromSchema(schema);
@@ -105,7 +106,7 @@ export const updateControlsAndFigures = (
               let newMark = schema.mark('citation', { ...citationMark.attrs, last_time_updated: citateData.lastTimeUpdated })
               /*newNode = newNode.mark([newMark])
               tr1 = tr1.replaceWith(pos, node.nodeSize, newNode) */
-              tr1 = tr1.addMark(pos, pos + node.nodeSize, newMark).setMeta('addToLastHistoryGroup', true)
+              tr1 = tr1.addMark(pos, pos + node.nodeSize, newMark)
               let edView = editorContainers[section?.sectionID!].editorView
 
               let resolvedPositionOfCitat: ResolvedPos
@@ -354,6 +355,7 @@ export const updateControlsAndFigures = (
                 }
                 editFigureContainer(citatID, doneEditing, figureViewsToRemove, figureViewsToAdd, edView)
                 doneEditing.subscribe((data: any) => {
+                  sharedService.YjsHistoryService.preventCaptureOfLessUpcommingItems()
                   try {
                     let citatNewPosition: any
                     let wrappingNodes = ['paragraph', 'heading', 'table', 'code_block', 'ordered_list', 'bullet_list', 'math_inline', 'math_display']
@@ -512,8 +514,9 @@ export const updateControlsAndFigures = (
                         return
                       }
                       let container = schema.nodes.figures_nodes_container.create({}, data.renderedData);
-                      edView.dispatch(edView.state.tr.insert(resolvedPositionATparentNodeBorder.pos, container).setMeta('shouldTrack', false).setMeta('addToLastHistoryGroup', true))
+                      edView.dispatch(edView.state.tr.insert(resolvedPositionATparentNodeBorder.pos, container))
                     }
+                    sharedService.FiguresControllerService.countRenderedFigures(data);
                   } catch (e) {
                     console.error(e);
                   }
@@ -580,10 +583,10 @@ export const updateControlsAndFigures = (
                     const mark = schema.mark('invalid')
                     if (control.invalid && node.attrs.invalid !== "true") {
                       // newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
-                      tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "true" }).setMeta('addToLastHistoryGroup', true)
+                      tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "true" })
                     } else if (control.valid && node.attrs.invalid !== "false") {
                       if (node.attrs.invalid !== "false") {
-                        tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "false" }).setMeta('addToLastHistoryGroup', true)
+                        tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "false" })
                       }
                     }
                   }
@@ -596,12 +599,8 @@ export const updateControlsAndFigures = (
           })
         }
       })
-      if (tr1.steps.length > 0) {
-        //@ts-ignore
-        if (tr1.getMeta('addToLastHistoryGroup')) {
-          YjsHistoryKey.getState(newState).undoManager.preventCapture();
-        }
-      }
+      sharedService.YjsHistoryService.stopLessItemsCapturePrevention();
+      tr1.steps.length > 0?console.log(tr1.steps):console.log();
       return tr1
     } catch (e) {
       console.error(e);

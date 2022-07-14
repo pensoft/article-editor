@@ -200,7 +200,6 @@ function wrapParagraphIn(nodeType: NodeType, options: any) {
       let paragraphStartPos: number | undefined = undefined
       let paragraphParent: Node | undefined = undefined;
       let paragraphParentStartPos: number | undefined = undefined
-      console.log(state.selection);
       //@ts-ignore
       let path = state.selection.$from.path;
       for (let i = 0; i < path.length; i += 3) {

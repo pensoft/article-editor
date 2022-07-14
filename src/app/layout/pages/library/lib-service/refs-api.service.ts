@@ -7,7 +7,7 @@ import { uuidv4 } from 'lib0/random';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { genereteNewReference } from './refs-funcs';
-const API_URL = `https://ps-article.dev.scalewest.com/api`;
+const API_URL = `https://ps-api.dev.scalewest.com/api`;
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +15,7 @@ const API_URL = `https://ps-article.dev.scalewest.com/api`;
 export class RefsApiService {
 
   constructor(private _http: HttpClient, private serviceShare: ServiceShare, private ydocService: YdocService) {
+    serviceShare.shareSelf('RefsApiService',this)
   }
 
   mapRefItems(refItemsFromBackend: any) {
@@ -25,17 +26,13 @@ export class RefsApiService {
       let newRef: any = {};
       let formGroup = this.serviceShare.FormBuilderService.buildFormGroupFromSchema(new FormGroup({}),refFromBackend.reference_definition.schema)
       formGroup.patchValue(ref.data)
-      let oldRefData = ref.data
-      let newRefData = formGroup.value
-      /* if(oldRefData.title == 'alabala'){
-        console.log(oldRefData,newRefData);
-      } */
       ref.data = formGroup.value
       newRef.refType = {
         formIOSchema: ref.reference_definition.schema,
         label: ref.reference_definition.title,
         name: ref.reference_definition.type,
         type: ref.reference_definition.type,
+        refTypeId: ref.reference_definition.id,
         /* last_modified:Date.now(), */
         last_modified: ref.reference_definition.updated_at ? new Date(ref.reference_definition.updated_at).getTime() : (new Date("Thu Jan 01 1970 02:00:01 GMT+0200 (Eastern European Standard Time)")).getTime()
       }
@@ -143,7 +140,7 @@ export class RefsApiService {
     ;
   }
 
-  editReference(ref: any, global: boolean, formIOData: any, refType: any) {
+  editReference(ref: any, global: boolean, formIOData: any, refType: any,useOldTime?:true) {
     let ydocRefs = this.serviceShare.YdocService.referenceCitationsMap?.get('localRefs');
     if (global) {
       if(ydocRefs[ref.refData.referenceData.id]){
@@ -162,7 +159,7 @@ export class RefsApiService {
         this._http.get(API_URL + '/references/definitions/' + refType.refTypeId).subscribe((refDefData:any)=>{
           let def = refDefData.data
           let localRef = {
-            "updated_at": Date.now(),
+            "updated_at": useOldTime?ref.refData.last_modified:Date.now(),
             "id": ref.refData.referenceData.id,
             "title": formIOData.title,
             "data": formIOData,
@@ -171,7 +168,7 @@ export class RefsApiService {
           }
           ydocRefs[ref.refData.referenceData.id] = localRef;
           this.serviceShare.YdocService.referenceCitationsMap?.set('localRefs',ydocRefs);
-          subscriber.next({message:'localRefAdded'});
+          subscriber.next({message:'localRefAdded',data:this.mapRefItems({data: [localRef]})});
         })
       });
       return observable

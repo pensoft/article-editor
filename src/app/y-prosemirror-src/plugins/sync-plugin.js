@@ -10,7 +10,7 @@ import * as object from 'lib0/object.js'
 import * as set from 'lib0/set.js'
 import { simpleDiff } from 'lib0/diff.js'
 import * as error from 'lib0/error.js'
-import { ySyncPluginKey } from './keys.js'
+import { ySyncPluginKeyObj } from './keys.js'
 //@ts-ignore
 import * as Y from 'yjs'
 import { absolutePositionToRelativePosition, relativePositionToAbsolutePosition } from '../lib.js'
@@ -68,15 +68,14 @@ const getUserColor = (colorMapping, colors, user) => {
 
 let trackStatus = undefined
 let userInfo = undefined
-
-/**
- * This plugin listens to changes in prosemirror view and keeps yXmlState and view in sync.
- *
- * This plugin also keeps references to the type and the shared document so other plugins can access it.
- * @param {Y.XmlFragment} yXmlFragment
- * @param {YSyncOpts} opts
- * @return {any} Returns a prosemirror plugin that binds to this type
- */
+  /**
+   * This plugin listens to changes in prosemirror view and keeps yXmlState and view in sync.
+   *
+   * This plugin also keeps references to the type and the shared document so other plugins can access it.
+   * @param {Y.XmlFragment} yXmlFragment
+   * @param {YSyncOpts} opts
+   * @return {any} Returns a prosemirror plugin that binds to this type
+   */
 export const ySyncPlugin = (yXmlFragment, { colors = defaultColors, colorMapping = new Map(), permanentUserData = null } = {}) => {
   let changedInitialContent = false
   const plugin = new Plugin({
@@ -86,7 +85,7 @@ export const ySyncPlugin = (yXmlFragment, { colors = defaultColors, colorMapping
         return syncState.snapshot == null && syncState.prevSnapshot == null
       } */
     },
-    key: ySyncPluginKey,
+    key: ySyncPluginKeyObj.ySyncPluginKey,
     state: {
       init: (initargs, state) => {
         return {
@@ -102,7 +101,7 @@ export const ySyncPlugin = (yXmlFragment, { colors = defaultColors, colorMapping
         }
       },
       apply: (tr, pluginState) => {
-        const change = tr.getMeta(ySyncPluginKey)
+        const change = tr.getMeta(ySyncPluginKeyObj.ySyncPluginKey)
         if (change !== undefined) {
           pluginState = Object.assign({}, pluginState)
           for (const key in change) {
@@ -136,7 +135,7 @@ export const ySyncPlugin = (yXmlFragment, { colors = defaultColors, colorMapping
         // Make sure this is called in a separate context
       setTimeout(() => {
         binding._forceRerender()
-        view.dispatch(view.state.tr.setMeta(ySyncPluginKey, { binding }))
+        view.dispatch(view.state.tr.setMeta(ySyncPluginKeyObj.ySyncPluginKey, { binding }))
       }, 0)
       return {
         update: () => {
@@ -263,7 +262,7 @@ export class ProsemirrorBinding {
     if (!prevSnapshot) {
       prevSnapshot = Y.createSnapshot(Y.createDeleteSet(), new Map())
     }
-    this.prosemirrorView.dispatch(this.prosemirrorView.state.tr.setMeta(ySyncPluginKey, { snapshot, prevSnapshot }))
+    this.prosemirrorView.dispatch(this.prosemirrorView.state.tr.setMeta(ySyncPluginKeyObj.ySyncPluginKey, { snapshot, prevSnapshot }))
   }
 
   unrenderSnapshot() {
@@ -272,7 +271,7 @@ export class ProsemirrorBinding {
       const fragmentContent = this.type.toArray().map(t => createNodeFromYElement( /** @type {Y.XmlElement} */ (t), this.prosemirrorView.state.schema, this.mapping)).filter(n => n !== null)
         // @ts-ignore
       const tr = this.prosemirrorView.state.tr.replace(0, this.prosemirrorView.state.doc.content.size, new PModel.Slice(new PModel.Fragment(fragmentContent), 0, 0))
-      tr.setMeta(ySyncPluginKey, { snapshot: null, prevSnapshot: null })
+      tr.setMeta(ySyncPluginKeyObj.ySyncPluginKey, { snapshot: null, prevSnapshot: null })
       this.prosemirrorView.dispatch(tr)
     })
   }
@@ -329,7 +328,7 @@ export class ProsemirrorBinding {
           // @ts-ignore
         const tr = this.prosemirrorView.state.tr.replace(0, this.prosemirrorView.state.doc.content.size, new PModel.Slice(new PModel.Fragment(fragmentContent), 0, 0))
         this.prosemirrorView.dispatch(tr)
-      }, ySyncPluginKey)
+      }, ySyncPluginKeyObj.origin)
     })
   }
 
@@ -338,7 +337,7 @@ export class ProsemirrorBinding {
    * @param {Y.Transaction} transaction
    */
   _typeChanged(events, transaction) {
-    const syncState = ySyncPluginKey.getState(this.prosemirrorView.state)
+    const syncState = ySyncPluginKeyObj.ySyncPluginKey.getState(this.prosemirrorView.state)
     if (events.length === 0 || syncState.snapshot != null || syncState.prevSnapshot != null) {
       // drop out if snapshot is active
       this.renderSnapshot(syncState.snapshot, syncState.prevSnapshot)
@@ -357,7 +356,7 @@ export class ProsemirrorBinding {
         // @ts-ignore
       let tr = this.prosemirrorView.state.tr.replace(0, this.prosemirrorView.state.doc.content.size, new PModel.Slice(new PModel.Fragment(fragmentContent), 0, 0))
       restoreRelativeSelection(tr, this.beforeTransactionSelection, this)
-      tr = tr.setMeta(ySyncPluginKey, { isChangeOrigin: true })
+      tr = tr.setMeta(ySyncPluginKeyObj.ySyncPluginKey, { isChangeOrigin: true })
       if (this.beforeTransactionSelection !== null && this._isLocalCursorInView()) {
         tr.scrollIntoView()
       }
@@ -370,7 +369,7 @@ export class ProsemirrorBinding {
       this.doc.transact(() => {
         updateYFragment(this.doc, this.type, doc, this.mapping)
         this.beforeTransactionSelection = getRelativeSelection(this, this.prosemirrorView.state)
-      }, ySyncPluginKey)
+      }, ySyncPluginKeyObj.origin)
     })
   }
 
@@ -455,7 +454,7 @@ const createNodeFromYElement = (el, schema, mapping, snapshot, prevSnapshot, com
     (el.doc).transact(transaction => {
       /** @type {Y.Item} */
       (el._item).delete(transaction)
-    }, ySyncPluginKey)
+    }, ySyncPluginKeyObj.origin)
     mapping.delete(el)
     return null
   }
@@ -507,7 +506,7 @@ const createTextNodesFromYText = (text, schema, mapping, snapshot, prevSnapshot,
     (text.doc).transact(transaction => {
       /** @type {Y.Item} */
       (text._item).delete(transaction)
-    }, ySyncPluginKey)
+    }, ySyncPluginKeyObj.origin)
     console.error(e)
     return null
   }
@@ -834,7 +833,7 @@ export const updateYFragment = (y, yDomFragment, pNode, mapping) => {
       }
       yDomFragment.insert(left, ins)
     }
-  }, ySyncPluginKey)
+  }, ySyncPluginKeyObj.origin)
 }
 
 /**

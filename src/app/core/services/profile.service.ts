@@ -6,7 +6,7 @@ import { IPermission } from '../interfaces/permission.interface';
 import { ISingInEmails } from '../interfaces/sing-in-emails.interface';
 import { UserModel } from '../models/user.model';
 
-const API_URL = `https://ps-article.dev.scalewest.com/api`;
+const API_URL = `https://ps-api.dev.scalewest.com/api`;
 
 @Injectable({
   providedIn: 'root',

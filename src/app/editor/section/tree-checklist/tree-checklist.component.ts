@@ -98,7 +98,6 @@ export class ChecklistDatabase {
     }, []);
   }*/
   buildNestedJson(res: any) {
-    console.log(res);
     const TREE_DATA = {};
     res.forEach((node: any) => {
       const positions = node.pos.split(/(?<=^(?:.{2})+)(?!$)/);
@@ -117,7 +116,6 @@ export class ChecklistDatabase {
       }, TREE_DATA)
     });
     const data = this.buildFileTree(TREE_DATA, 0);
-    console.log(data);
     this.dataChange.next(data);
 
     // console.log(data);
@@ -290,7 +288,6 @@ export class TreeChecklistComponent implements OnInit{
         }
       })
     }
-    console.log(this.treeControl, result);
     this.treeControl.expand(result);
     // console.log(result);
 

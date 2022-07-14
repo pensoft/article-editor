@@ -44,7 +44,6 @@ export class MaterialsSectionComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    console.log(this.helperService.filter(this.treeService.articleSectionsStructure, this.section.sectionID));
     this.importMaterialData = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get('importMaterialData')?.value);
     // this.placeMultiple = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get('placeMultiple')?.value);
     this.placeMultiple = new FormControl(JSON.stringify([
@@ -161,7 +160,6 @@ export class MaterialsSectionComponent implements AfterViewInit {
           convertedData.push(data);
         }
         // const convertedData = results.data;
-        console.log("json:", results.data);
         convertedData.forEach((row: any) => {
           const materialData = JSON.parse(JSON.stringify(material));
           materialData.parent = this.section;

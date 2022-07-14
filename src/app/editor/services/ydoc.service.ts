@@ -261,6 +261,7 @@ export class YdocService {
     this.ydocStateObservable.next('docIsBuild');
     this.getData()
     this.editorIsBuild = true;
+    console.log(this.ydoc);
   }
 
   setArticleData(articleData: any) {

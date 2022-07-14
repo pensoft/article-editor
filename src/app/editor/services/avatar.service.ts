@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { IUserAvatar } from '@app/core/interfaces/avatar.interface';
 import { Observable } from 'rxjs';
 
-const API_AUTH_USERS = `https://ps-article.dev.scalewest.com/api/users`;
+const API_AUTH_USERS = `https://ps-api.dev.scalewest.com/api/users`;
 @Injectable({
   providedIn: 'root'
 })

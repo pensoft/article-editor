@@ -6,6 +6,7 @@ import { ArticlesService } from '@app/core/services/articles.service';
 import { CslService } from '@app/layout/pages/library/lib-service/csl.service';
 import { EditorsRefsManagerService } from '@app/layout/pages/library/lib-service/editors-refs-manager.service';
 import { ReferencePluginService } from '@app/layout/pages/library/lib-service/reference-plugin.service';
+import { RefsApiService } from '@app/layout/pages/library/lib-service/refs-api.service';
 import { uuidv4 } from 'lib0/random';
 import { ChooseManuscriptDialogComponent } from '../dialogs/choose-manuscript-dialog/choose-manuscript-dialog.component';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
@@ -48,6 +49,7 @@ export class ServiceShare {
   MenuService?:MenuService
   EditorsRefsManagerService?:EditorsRefsManagerService
   FormBuilderService?:FormBuilderService
+  RefsApiService?:RefsApiService
 
   constructor(
     public dialog: MatDialog,
@@ -72,6 +74,7 @@ export class ServiceShare {
     this.CommentsService?.resetCommentsService();
     this.DetectFocusService?.resetDetectFocusService();
     this.TrackChangesService?.resetTrackChangesService();
+    this.YjsHistoryService?.resetHistoryData();
   }
 
   createNewArticle(){
