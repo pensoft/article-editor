@@ -23,6 +23,7 @@ import { ySyncPluginKey } from '../../y-prosemirror-src/plugins/keys.js';
 //@ts-ignore
 import { updateYFragment } from '../../y-prosemirror-src/plugins/sync-plugin.js'
 import { buildFigureForm } from '../utils/prosemirrorHelpers';
+import { Subject, Subscriber, Subscription } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
@@ -47,6 +48,7 @@ export class FiguresControllerService {
     this.figuresNumbers = []
     this.figures = {}
     this.renderEditorFn = undefined
+    this.sub = undefined
   }
 
   constructor(
@@ -86,16 +88,27 @@ export class FiguresControllerService {
   rendered = 0;
 
   allFigsAreRendered() {
-    this.serviceShare.YjsHistoryService.stopCapturingUndoItem()
-    this.serviceShare.YjsHistoryService.stopBigNumberItemsCapturePrevention()
+    setTimeout(() => {
+      console.log('All figures are rendered ');
+      if (this.updatingFiguresAndFiguresCitations) {
+        this.serviceShare.YjsHistoryService.stopCapturingUndoItem()
+        this.updatingFiguresAndFiguresCitations = false;
+      }
+      if (this.updatingOnlyFiguresView) {
+        this.serviceShare.YjsHistoryService.stopCapturingUndoItem()
+        this.updatingOnlyFiguresView = false;
+      }
+      this.serviceShare.YjsHistoryService.stopBigNumberItemsCapturePrevention()
+    }, 20)
   }
 
   resetCountedRenderedViews() {
     this.rendered = 0;
   }
 
-  countRenderedFigures(data: any) {
+  countRenderedFigures() {
     this.rendered++;
+    console.log('rendereing', this.rendered);
     let allFigs = this.ydocService.figuresMap!.get('ArticleFigures')
     if (Object.keys(allFigs).length == this.rendered) {
       this.allFigsAreRendered()
@@ -177,7 +190,7 @@ export class FiguresControllerService {
                     citatString += figsArr.join(', ')
                     citatString += ' '
                     let newNode = (edView.state.schema as Schema).text(citatString) as Node
-                    newNode = newNode.mark([schema.mark('citation', { ...citationMark.attrs, citated_figures: citatedFigures })])
+                    newNode = newNode.mark([schema.mark('citation', { ...citationMark.attrs, citated_figures: citatedFigures, nonexistingFigure: 'false' })])
                     edView.dispatch(edView.state.tr.replaceWith(pos,
                       pos + node.nodeSize
                       , newNode).setMeta('citatsTextChange', true)
@@ -200,153 +213,10 @@ export class FiguresControllerService {
     let s = newFigures
   }
 
-  async mergeFigureViews(newFigureNodes: { [key: string]: Node }, editedFigures: { [key: string]: boolean }) {
-    let trackStatus = this.prosemirrorEditorsService.trackChangesMeta.trackTransactions
-    if (!trackStatus) {
-      return
-    }
-    this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = false
-    this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
-      this.prosemirrorEditorsService.trackChangesMeta
-    )
-
-
-    const mainDocumentSnapshot = Y.snapshot(this.ydocService.ydoc)
-    Object.keys(editedFigures).forEach((key) => {
-      if (this.figures[key]) {
-        let figureData = this.figures[key];
-        let xmlFragment = this.ydocService.ydoc.getXmlFragment(figureData.figurePlace);
-        let view = this.prosemirrorEditorsService.editorContainers[figureData.figurePlace].editorView
-        let state = view.state
-        let doc = state.doc
-        let startOfFigureview: number | undefined = undefined
-        let endOfFigureview: number | undefined = undefined
-        doc.nodesBetween(0, doc.nodeSize - 2, (container, pos, parent) => {
-          if (container.type.name == 'figures_nodes_container') {
-            container.descendants((figure, containeroffset, parent) => {
-              if (figure.type.name == 'block_figure' && figure.attrs.figure_number == figureData.figureNumber && figure.attrs.figure_id == figureData.figureID) {
-                startOfFigureview = pos + containeroffset + 1
-                endOfFigureview = pos + containeroffset + figure.nodeSize + 1
-              }
-            })
-          }
-        })
-        if (startOfFigureview && endOfFigureview) {
-          view.dispatch(state.tr.replaceWith(startOfFigureview, endOfFigureview, newFigureNodes[key]))
-        }
-      }
-    })
-    const updatedSnapshot = Y.snapshot(this.ydocService.ydoc)
-    Object.keys(editedFigures).forEach((key) => {
-      if (this.figures[key]) {
-        let figureData = this.figures[key];
-        let view = this.prosemirrorEditorsService.editorContainers[figureData.figurePlace].editorView
-        view.dispatch(view.state.tr.setMeta(ySyncPluginKey, {
-          snapshot: Y.decodeSnapshot(Y.encodeSnapshot(updatedSnapshot)),
-          prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(mainDocumentSnapshot)),
-          renderingFromPopUp: true,
-          trackStatus: true,
-          userInfo: this.prosemirrorEditorsService.userInfo,
-        }))
-      }
-    })
-    setTimeout(() => {
-      this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = trackStatus
-      this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
-        this.prosemirrorEditorsService.trackChangesMeta
-      )
-      this.prosemirrorEditorsService.citatEditingSubject.next({ action: 'deleteCitatsFromDocument' })
-    }, 30)
-  }
-
   getFigureRowsOrderData(data: any/* ,figuresObj:{[key:string]:figure},key:string */) {
     let figs = data.figRows;
     let rows = data.nOfRows;
     let columns = data.nOfColumns;
-
-    let pixDimensions = data.a4Pixels//[width,height]
-
-    /*let loadPromises:Promise<any>[] = [];
-
-    let rowsH:number[] = []
-    let cellWidth = pixDimensions[0]/data.nOfColumns;
-
-    for(let i = 0 ; i < rows ; i++){
-      let rowH = 0;
-      for(let j = 0 ; j < columns ; j++){
-        if(figs[i][j]){
-          let cel = figs[i][j].container;
-          if(rowH<cel.h){
-            rowH = cel.h;
-          }
-        }
-      }
-      rowsH.push(rowH)
-    }
-    let canvasHeight = rowsH.reduce((prev,curr,i,arr)=>{return prev+=curr},0);
-    let canvasWidth = pixDimensions[0];
-
-     let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext("2d")!;
-    ctx.imageSmoothingEnabled = false;
-
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-    ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = '30px serif';
-    ctx.fillStyle = 'black'
-
-    for(let i = 0 ; i < rows ; i++){
-      for(let j = 0 ; j < columns ; j++){
-        if(figs[i][j]){
-          let figure = figs[i][j].container;
-          let img = new Image();
-          loadPromises.push(new Promise((resolve,reject)=>{
-            img.addEventListener('load',((img,i,j,figure,ctx)=>{
-              return ()=>{
-
-                let startX = cellWidth*j;
-                let endX = cellWidth*(j+1);
-                let startY = rowsH.reduce((prev,curr,idx,arr)=>{if(idx<i){return prev+=curr}else{return prev}},0);
-                let endY = startY + rowsH[i];
-
-                let imgW = figure.w;
-                let imgH = figure.h;
-
-                let whiteSpaceX = (endX-startX-imgW)/2;
-                let whiteSpaceY = (endY-startY-imgH)/2;
-
-                let imgN = data.nOfColumns*i + j;
-                let imageText = String.fromCharCode(65+imgN)
-
-                let dx = startX+whiteSpaceX;
-                let dy = startY+whiteSpaceY;
-                let dx1 = endX-whiteSpaceX;
-                let dy1 = endY-whiteSpaceY;
-
-                ctx.drawImage(img,dx,dy,imgW,imgH);
-                if(!(rows==1&&columns==1)){
-                  ctx.fillText(imageText, 8+dx, 28+dy);
-                }
-                resolve(true)
-              }
-            })(img,i,j,figure,ctx!))
-          }))
-          img.crossOrigin = "anonymous"
-          img.src = figure.url
-        }
-      }
-    }
-
-
-    Promise.all(loadPromises).then(()=>{
-      let figureDataURL = canvas.toDataURL('image/jpeg',0.9);
-      figuresObj[key].canvasData.dataURL = figureDataURL;
-      this.ydocService.figuresMap!.set('ArticleFigures', figuresObj);
-    }) */
-    //figuresObj[key].canvasData.data = data;
-    //this.ydocService.figuresMap!.set('ArticleFigures', figuresObj);
 
     for (let i = 0; i < rows; i++) {
       let rowH = 0;
@@ -363,8 +233,6 @@ export class FiguresControllerService {
   }
 
   writeFiguresDataGlobalV2(articleCitatsObj, ArticleFiguresNumbers, ArticleFigures) {
-    console.log(articleCitatsObj, ArticleFiguresNumbers, ArticleFigures);
-    this.serviceShare.YjsHistoryService!.preventCaptureOfBigNumberOfUpcomingItems();
     Object.keys(ArticleFigures).forEach((key) => {
       this.getFigureRowsOrderData(ArticleFigures[key].canvasData);
     })
@@ -374,8 +242,7 @@ export class FiguresControllerService {
     this.ydocService.figuresMap!.set('ArticleFigures', ArticleFigures)
     this.figuresNumbers = ArticleFiguresNumbers
     this.figures = ArticleFigures
-    this.markCitatsViews(articleCitatsObj)
-    this.updateCitatsText(articleCitatsObj)
+    this.updateFiguresAndFiguresCitations()
     this.ydocService.figuresMap?.set('articleCitatsObj', articleCitatsObj);
     this.prosemirrorEditorsService.applyLastScrollPosition();
   }
@@ -385,7 +252,6 @@ export class FiguresControllerService {
     let oldFigsNums = JSON.parse(JSON.stringify(this.ydocService.figuresMap!.get('ArticleFiguresNumbers')))
     let oldFigs = JSON.parse(JSON.stringify(this.ydocService.figuresMap!.get('ArticleFigures')))
     this.serviceShare.YjsHistoryService!.startCapturingNewUndoItem();
-    this.serviceShare.YjsHistoryService!.preventCaptureOfBigNumberOfUpcomingItems();
     Object.keys(newFigures).forEach((key) => {
       this.getFigureRowsOrderData(newFigures[key].canvasData/* ,newFigures,key */);
     })
@@ -399,11 +265,7 @@ export class FiguresControllerService {
 
 
     let citats = this.ydocService.figuresMap?.get('articleCitatsObj');
-    /* Object.keys(newFigureNodes).forEach((figureID) => {
-      this.updateSingleFigure(figureID, newFigureNodes[figureID], this.figures[figureID])
-    }) */
-    this.markCitatsViews(citats)
-    this.updateCitatsText(citats)
+    this.updateFiguresAndFiguresCitations()
     this.ydocService.figuresMap?.set('articleCitatsObj', citats);
 
     /* try {
@@ -432,18 +294,30 @@ export class FiguresControllerService {
 
   citateFigures(selectedFigures: boolean[], figuresComponentsChecked: { [key: string]: boolean[] }, sectionID: string, citatAttrs: any) {
     try {
+      this.serviceShare.YjsHistoryService.startCapturingNewUndoItem();
       if (!this.figuresNumbers || !this.figures) {
         this.figuresNumbers = this.ydocService.figuresMap!.get('ArticleFiguresNumbers')
         this.figures = this.ydocService.figuresMap!.get('ArticleFigures')
       }
       //check selections
-      this.serviceShare.YjsHistoryService.startCapturingNewUndoItem();
-      this.serviceShare.YjsHistoryService.stopLessItemsCapturePrevention()
       let insertionView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
-      let citats = this.ydocService.figuresMap?.get('articleCitatsObj');
-      let oldCitationsObj = JSON.parse(JSON.stringify(citats))
-      let citatStartPos = insertionView.state.selection.$anchor.nodeBefore ? insertionView.state.selection.from - insertionView.state.selection.$anchor.nodeBefore!.nodeSize : insertionView.state.selection.from
-      let citatEndPos = insertionView.state.selection.$anchor.nodeAfter ? insertionView.state.selection.from + insertionView.state.selection.$anchor.nodeAfter!.nodeSize : insertionView.state.selection.from
+      console.log(insertionView.state.selection, citatAttrs);
+      let citatStartPos: number
+      let citatEndPos: number
+
+      if (citatAttrs) {
+        let citatId = citatAttrs.citateid
+        insertionView.state.doc.nodesBetween(0, insertionView.state.doc.nodeSize - 2, (node, pos, parent) => {
+          if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
+            let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0];
+            if (citationMark.attrs.citateid == citatId) {
+              citatStartPos = pos
+              citatEndPos = pos + node.nodeSize
+            }
+          }
+        })
+      }
+
       let citateId
       if (citatAttrs) {
         citateId = citatAttrs.citateid
@@ -453,20 +327,16 @@ export class FiguresControllerService {
       if (selectedFigures.filter(e => e).length == 0 && !citatAttrs) {
         return
       } else if (selectedFigures.filter(e => e).length == 0 && citatAttrs) {
-        citats[sectionID][citateId] = undefined
         insertionView.dispatch(insertionView.state.tr.replaceWith(
           citatStartPos,
           citatEndPos,
           Fragment.empty)
         )
-        let newCitationsObj = JSON.parse(JSON.stringify(citats))
-
-        let citationInfo = {
-          oldCitationsObj,
-          newCitationsObj
-        }
-        this.serviceShare.YjsHistoryService.addUndoItemInformation({ type: 'figure-citation', data: citationInfo })
-        this.markCitatsViews(citats)
+        this.serviceShare.YjsHistoryService.addUndoItemInformation({
+          type: 'figure-citation',
+          data: {}
+        })
+        this.updateOnlyFiguresView()
         return
       }
 
@@ -525,15 +395,7 @@ export class FiguresControllerService {
           return prev;
         }
       }, [])
-      if (!citats[sectionID]) {
-        citats[sectionID] = {}
-      }
 
-      citats[sectionID][citateId] = {
-        figureIDs: citatedFigureIds,
-        position: citatAttrs ? citatStartPos : insertionView.state.selection.from,
-        lastTimeUpdated: new Date().getTime()
-      }
 
       let citateNodeText = citatString
       let node = (insertionView.state.schema as Schema).text(citateNodeText) as Node
@@ -553,78 +415,20 @@ export class FiguresControllerService {
           , node)
         )
       }
-      //this.changeFiguresPlaces(citatedFigureIds,sectionID)
-      let newCitationsObj = JSON.parse(JSON.stringify(citats))
-      let citationInfo = {
-        oldCitationsObj,
-        newCitationsObj
-      }
-      this.serviceShare.YjsHistoryService.addUndoItemInformation({ type: 'figure-citation', data: citationInfo })
-      this.markCitatsViews(citats)
-      //this.updateCitatsText(citats)
-
-      /*  if (citatAttrs) {
-         insertionView.dispatch(insertionView.state.tr.addMark(citatPos,
-           citatPos + insertionView.state.doc.nodeAt(citatPos)!.nodeSize
-           , insertionView.state.schema.marks.citation.create({
-             citated_figures: citatedFigureIds,
-             citateid: citateId
-           }, insertionView.state.schema.text(citateNodeText)))
-         )
-       } else {
-         insertionView.dispatch(
-           insertionView.state.tr.replaceSelectionWith(insertionView.state.schema.text('citateNodeText')
-             insertionView.state.schema.marks.citation.create({
-               citated_figures: citatedFigureIds,
-               citateid: citateId
-             }, insertionView.state.schema.text(citateNodeText))
-           )
-         )
-       } */
-      /*
-           this.figuresData = this.ydocService.figuresMap?.get('ArticleFigures');
-          let insertionView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
-          let {from,to} = insertionView.state.selection
-       */
-      /* selectedFigures.forEach(figNumber => {
-
-        let figure = this.figuresData[figNumber]
-        let view = this.prosemirrorEditorsService.editorContainers[figure.path].editorView
-        let nodeStart: number = view.state.doc.nodeSize - 2
-        let nodeEnd: number = view.state.doc.nodeSize - 2
-        let foundExistingFigure = false
-        view.state.doc.nodesBetween(0, view.state.doc.nodeSize - 2, (node, pos, parent) => {
-          if (node.type.name == "block_figure" && node.attrs.figure_number == figNumber) {
-            foundExistingFigure = true
-            nodeStart = pos;
-            nodeEnd = pos + node.nodeSize
-          }
-        })
-        let figureNode = view.state.doc.slice(nodeStart,nodeEnd);
-        let removeTr = view.state.tr.replaceWith(nodeStart,nodeEnd,Fragment.empty)
-        view.dispatch(removeTr);
-        insertionView.dispatch(insertionView.state.tr.replaceWith(from,to,figureNode.content))
-        this.figuresData[figNumber].path = sectionID
-        this.ydocService.figuresMap?.set('ArticleFigures',this.figuresData);
-      }) */
+      this.serviceShare.YjsHistoryService.addUndoItemInformation({
+        type: 'figure-citation',
+        data: {}
+      })
+      this.updateOnlyFiguresView()
     } catch (e) {
       console.error(e);
     }
   }
 
-  changeFiguresPlaces(citatedFigureIds: string[], sectionID: string) {
-    this.figures = this.ydocService.figuresMap!.get('ArticleFigures')
-    citatedFigureIds.forEach((id) => {
-      this.figures[id].figurePlace = sectionID
-    })
-    this.figures = this.ydocService.figuresMap!.set('ArticleFigures', this.figures)
-  }
-
   markCitatsViews = (citatsBySection: any) => {
-    this.resetCountedRenderedViews()
+    this.resetCountedRenderedViews();
     let numbersCopy: string[] = JSON.parse(JSON.stringify(this.figuresNumbers));
     this.figures = this.ydocService.figuresMap!.get('ArticleFigures')
-    this.serviceShare.YjsHistoryService.preventCaptureOfLessUpcommingItems()
     Object.keys(this.prosemirrorEditorsService.editorContainers).forEach((key) => {
       let containersCount = 0
       let view = this.prosemirrorEditorsService.editorContainers[key].editorView;
@@ -754,6 +558,7 @@ export class FiguresControllerService {
     this.ydocService.figuresMap!.set('ArticleFigures', this.figures)
     this.ydocService.figuresMap?.set('articleCitatsObj', citatsBySection);
     this.prosemirrorEditorsService.dispatchEmptyTransaction()
+    return citatsBySection
   }
 
   removeFromEndEditor(figureID: string) {
@@ -774,16 +579,7 @@ export class FiguresControllerService {
     view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, Fragment.empty))
   }
 
-  getNodeFromHTML(html: string) {
-    let temp = document.createElement('div');
-    temp.innerHTML = html!;
-    let node = this.DOMPMParser.parseSlice(temp)
-    //@ts-ignore
-    return node.content.content
-  }
-
   updateSingleFigure(figureID: string, figureNodes: Node, figure: figure) {
-    this.serviceShare.YjsHistoryService.preventCaptureOfLessUpcommingItems()
     let view = this.prosemirrorEditorsService.editorContainers[figure.figurePlace].editorView
     let nodeStart: number = view.state.doc.nodeSize - 2
     let nodeEnd: number = view.state.doc.nodeSize - 2
@@ -820,10 +616,238 @@ export class FiguresControllerService {
       } else {
         view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, figureNodes))
       }
-      this.countRenderedFigures({ figureID, figureNodes, figure })
+      this.countRenderedFigures()
     }
 
 
   }
 
+  getFigureCitations() {
+    let citations: {
+      [key: string]: {
+        [key: string]: {
+          displaydFiguresViewhere: string[],
+          figureIDs: string[],
+          position: number
+        }
+      }
+    } = {}
+    let edCont = this.serviceShare.ProsemirrorEditorsService.editorContainers
+    Object.keys(edCont).forEach((sectionid) => {
+      let view = edCont[sectionid].editorView;
+      if (!citations[sectionid]) {
+        citations[sectionid] = {}
+      }
+      view.state.doc.nodesBetween(0, view.state.doc.nodeSize - 2, (node, pos, parent) => {
+        if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
+          let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0];
+          let citatedFigures = [...citationMark.attrs.citated_figures]
+          let citateid = citationMark.attrs.citateid
+
+          citations[sectionid][citateid] = {
+            displaydFiguresViewhere: [],
+            figureIDs: citatedFigures,
+            position: pos
+          }
+        }
+      })
+    })
+    this.serviceShare.ProsemirrorEditorsService.editorContainers
+    return citations
+  }
+
+  sub?: Subscription
+
+  displayFigures(citats: {
+    [key: string]: {
+      [key: string]: {
+        displaydFiguresViewhere: string[],
+        figureIDs: string[],
+        position: number
+      }
+    }
+  }) {
+    if (this.sub) {
+      return
+    }
+    let figures = this.ydocService.figuresMap.get('ArticleFigures');
+    let figuresTemplates = this.ydocService.figuresMap!.get('figuresTemplates');
+    let DOMPMParser = DOMParser.fromSchema(schema)
+    let numberOfFigures = Object.values(figures).filter((fig: any) => {
+      return fig.figurePlace !== 'endEditor'
+    }).length
+    if (numberOfFigures == 0) {
+      return
+    }
+    let doneEditing = new Subject();
+    Object.keys(citats).forEach((sectionId) => {
+      let view = this.prosemirrorEditorsService.editorContainers[sectionId].editorView;
+      let citatsInEditor = citats[sectionId];
+      Object.keys(citatsInEditor).forEach((citatId) => {
+        let citat = citatsInEditor[citatId];
+        let citatID = citatId
+
+        let editFigureContainer = (
+          citatID: string,
+          dispatchSubject: Subject<any>,
+          figureViewsToAdd: string[],
+          edView: EditorView) => {
+          figureViewsToAdd.forEach((figureID) => {
+            let figureData = figures[figureID];
+            let figureTemplate = figuresTemplates[figureID];
+
+            let serializedFigureToFormIOsubmission: any = {}
+            serializedFigureToFormIOsubmission.figureComponents = figureData.components.reduce((prev: any[], curr: any, i: number) => {
+              return prev.concat([{ container: curr }])
+            }, [])
+            serializedFigureToFormIOsubmission.figureDescription = figureData.description
+            serializedFigureToFormIOsubmission.figureID = figureData.figureID
+            serializedFigureToFormIOsubmission.figureNumber = figureData.figureNumber
+            serializedFigureToFormIOsubmission.viewed_by_citat = citatID
+            let figureFormGroup = buildFigureForm(serializedFigureToFormIOsubmission)
+            this.prosemirrorEditorsService.interpolateTemplate(figureTemplate!.html, serializedFigureToFormIOsubmission, figureFormGroup).then((data: any) => {
+              let templ = document.createElement('div')
+              templ.innerHTML = data
+              let Slice = DOMPMParser.parse(templ.firstChild!)
+              dispatchSubject.next(
+                {
+                  citatID,
+                  renderedData: Slice.content.firstChild,
+                  edView,
+                  figureData: figureData,
+                })
+            });
+          })
+
+        }
+        if (citat.displaydFiguresViewhere.length > 0) {
+          editFigureContainer(citatID, doneEditing, citat.displaydFiguresViewhere, view)
+        }
+      })
+
+    })
+    let rendered = 0;
+    let checkRendered = () => {
+      rendered++;
+
+      this.countRenderedFigures()
+      if (rendered == numberOfFigures) {
+        this.sub?.unsubscribe()
+        this.sub = undefined
+      }
+    }
+    this.sub = doneEditing.subscribe((data: any) => {
+      try {
+        let citatNewPosition: any
+        let wrappingNodes = ['paragraph', 'heading', 'table', 'code_block', 'ordered_list', 'bullet_list', 'math_inline', 'math_display']
+        let resolvedPositionOfCitat: any
+        let posAtParentBorder: any
+        let resolvedPositionATparentNodeBorder: any
+        let updateMetaInfo = () => {
+          let docSize = data.edView.state.doc.nodeSize
+          data.edView.state.doc.nodesBetween(0, docSize - 2, (node: any, pos: any, i: any) => {
+            let marks = node.marks.filter((mark: Mark) => { return mark.type.name == 'citation' })
+            if (marks.length > 0 && marks[0].attrs.citateid == data.citatID) {
+              citatNewPosition = pos
+            }
+          })
+          if (!citatNewPosition) {
+            return
+          }
+          resolvedPositionOfCitat = data.edView.state.doc.resolve(citatNewPosition)
+          //@ts-ignore
+          let resolvedCitationPath: Array<Node | number> = resolvedPositionOfCitat.path
+
+          let offsetOfwrappingParent: number
+          let wrappingParent
+          let nodeAfterWrappingParent
+
+
+          for (let i = resolvedCitationPath.length - 1; i > -1; i--) {
+            let el = resolvedCitationPath[i];
+            if (el instanceof Node) {
+              if (wrappingNodes.includes(el.type.name)) {
+                offsetOfwrappingParent = resolvedCitationPath[i - 1] as number
+                wrappingParent = el
+              }
+            }
+          }
+
+          posAtParentBorder = offsetOfwrappingParent! + wrappingParent?.nodeSize!
+          resolvedPositionATparentNodeBorder = data.edView.state.doc.resolve(posAtParentBorder)
+          contAfter = data.edView.state.doc.nodeAt(posAtParentBorder)!;
+          //@ts-ignore
+          //parentIndexAndOffset = data.edView.state.doc.content.findIndex(citatNewPosition)
+          /* parentNode = data.edView.state.doc.content.child(parentIndexAndOffset.index)
+          posAtParentBorder = parentIndexAndOffset.offset + parentNode.nodeSize
+          resolvedPositionATparentNodeBorder = data.edView.state.doc.resolve(posAtParentBorder) */
+
+          contAfter = resolvedPositionATparentNodeBorder.nodeAfter!
+        }
+
+        let contAfter: Node | null
+        updateMetaInfo()
+        //@ts-ignore
+        if (contAfter && contAfter.type.name == 'figures_nodes_container') {
+
+          let insertFrom: number = posAtParentBorder + 1
+          let figureIsRendered = false;
+          contAfter.content.forEach((node, offset, index) => {
+            if (node.attrs.figure_number == data.figureData.figureNumber) {
+              figureIsRendered = true
+            }
+            if (node.attrs.figure_number < data.figureData.figureNumber) {
+              insertFrom = posAtParentBorder + 1 + offset + node.nodeSize
+            }
+          })
+          if (!figureIsRendered) {
+            data.edView.dispatch(data.edView.state.tr.insert(insertFrom, data.renderedData))
+          } else {
+            let replaceStart: number = -1
+            let replaceEnd: number = -1
+            contAfter.forEach((node, offset, index) => {
+              if (node.attrs.figure_number == data.figureData.figureNumber) {
+                replaceStart = posAtParentBorder + 1 + offset
+                replaceEnd = posAtParentBorder + 1 + offset + node.nodeSize
+              }
+            })
+            if (replaceStart !== -1) {
+              data.edView.dispatch(data.edView.state.tr.replaceWith(replaceStart, replaceEnd, data.renderedData))
+            }
+          }
+        } else {
+          if (!resolvedPositionATparentNodeBorder) {
+            return
+          }
+          let container = schema.nodes.figures_nodes_container.create({}, data.renderedData);
+          data.edView.dispatch(data.edView.state.tr.insert(resolvedPositionATparentNodeBorder.pos, container))
+        }
+        checkRendered()
+      } catch (e) {
+        console.error(e);
+      }
+    })
+  }
+  updatingFiguresAndFiguresCitations = false
+  updateFiguresAndFiguresCitations() {
+    this.updatingFiguresAndFiguresCitations = true
+    this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
+    let citations = this.getFigureCitations()
+    this.updateCitatsText(citations);
+    let newCitatsObj = this.markCitatsViews(citations)
+    this.ydocService.figuresMap?.set('articleCitatsObj', newCitatsObj)
+    this.displayFigures(newCitatsObj)
+  }
+
+  updatingOnlyFiguresView = false;
+  updateOnlyFiguresView() {
+    this.updatingOnlyFiguresView = true
+    this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
+
+    let citations = this.getFigureCitations()
+    let newCitatsObj = this.markCitatsViews(citations)
+    this.ydocService.figuresMap?.set('articleCitatsObj', newCitatsObj)
+    this.displayFigures(newCitatsObj)
+
+  }
 }

@@ -82,13 +82,14 @@ export class InsertFigureComponent implements AfterViewInit {
     try {
       if(this.data.citatData){
         //@ts-ignore
-        let sectionID 
+        let sectionID
         if(this.data.view){
           sectionID = this.commentsPlugin.commentPluginKey.getState(this.data.view.state).sectionName
         }else if(this.data.sectionID){
           sectionID = this.data.sectionID
         }
         //let sectionID = pluginData.sectionName
+        console.log(this.citats,this.data);
         let citat = this.citats[sectionID][this.data.citatData.citateid];
         (citat.figureIDs as string[]).forEach((figure)=>{
           if(figure.includes('|')){
@@ -122,7 +123,7 @@ export class InsertFigureComponent implements AfterViewInit {
           this.error = false
         }, 3000)
       } else {
-        let sectionID 
+        let sectionID
         if(this.data.view){
           sectionID = this.commentsPlugin.commentPluginKey.getState(this.data.view.state).sectionName
         }else if(this.data.sectionID){

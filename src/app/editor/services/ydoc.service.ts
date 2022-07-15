@@ -154,7 +154,6 @@ export class YdocService {
 
         let makeFlat = (structure: articleSection[]) => {
           structure.forEach((section) => {
-            // citats obj [key:string](citateID):{citatedFigures:[](citated figures-Ids),posiition:number(citatePosition)}
             if (section.active) {
               articleSectionsStructureFlat.push(section)
             }
@@ -261,7 +260,6 @@ export class YdocService {
     this.ydocStateObservable.next('docIsBuild');
     this.getData()
     this.editorIsBuild = true;
-    console.log(this.ydoc);
   }
 
   setArticleData(articleData: any) {

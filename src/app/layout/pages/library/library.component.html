@@ -4,7 +4,7 @@
     <button mat-icon-button (click)="createReference()"><mat-icon>add</mat-icon></button>
     <!-- <button mat-icon-button><mat-icon>delete_forever</mat-icon></button> -->
   </mat-toolbar>
-  <table *ngIf="userReferences" mat-table [dataSource]="userReferences" class="mat-elevation-z8 references-table">
+  <table *ngIf="userReferences" mat-table [dataSource]="userReferences | async" class="mat-elevation-z8 references-table">
 
     <ng-container matColumnDef="author">
       <th mat-header-cell *matHeaderCellDef> Author </th>

@@ -238,12 +238,18 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
             this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
               this.prosemirrorEditorsService.trackChangesMeta
             )
-            this.prosemirrorEditorsService.citatEditingSubject.next({action: 'deleteCitatsFromDocument'})
+            this.serviceShare.YjsHistoryService.addUndoItemInformation({
+              type: 'figure-citation',
+              data: {}
+            })
+            setTimeout(()=>{
+              this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
+            },10)
           }, 30)
+
         } else {
           setTimeout(() => {
             //this.serviceShare.PmDialogSessionService!.endSession(false);
-            this.prosemirrorEditorsService.citatEditingSubject.next({action: 'clearDeletedCitatsFromPopup'})
           }, 30)
         }
         this.ydocService.ydoc.off('update', registerUpdateFunc)

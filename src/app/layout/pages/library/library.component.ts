@@ -9,7 +9,7 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
 import { uuidv4 } from 'lib0/random';
 import { I } from '@angular/cdk/keycodes';
 import { CslService } from './lib-service/csl.service';
-import { Subscriber, Subscription } from 'rxjs';
+import {BehaviorSubject, Subscriber, Subscription} from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { RefsApiService } from './lib-service/refs-api.service';
 import { styles, styles1 } from './data/styles';
@@ -22,7 +22,8 @@ import { genereteNewReference } from './lib-service/refs-funcs';
 })
 export class LibraryPage implements AfterViewInit {
   shouldRender = false;
-  userReferences?: any[]
+  private messageSource = new BehaviorSubject([]);
+  userReferences? = this.messageSource.asObservable();
   displayedColumns: string[] = ['id', 'title', 'author', 'citate', 'edit', 'delete'/* ,'updateScheme','updateStyle' */];
   constructor(
     public serviceShare: ServiceShare,
@@ -57,10 +58,11 @@ export class LibraryPage implements AfterViewInit {
             let newRef = genereteNewReference(refType, formioData)
             let refID = editref.refData.referenceData.id;
             this.editRef(refType, refStyle,formioData, editref,globally).subscribe((editRes)=>{
-              this.userReferences = undefined;
+              // this.userReferences = undefined;
               this.changeDetection.detectChanges();
               this.refsAPI.getReferences().subscribe((refs:any)=>{
-                this.userReferences = refs.data;
+                this.messageSource.next(refs.data);
+                // this.userReferences = refs.data;
                 this.changeDetection.detectChanges();
               })
             })
@@ -95,10 +97,11 @@ export class LibraryPage implements AfterViewInit {
             let refStyle = result.referenceStyle
             let formioData = result.submissionData.data
             this.addNewRef(refType, refStyle,formioData).subscribe((addres:any)=>{
-              this.userReferences = undefined;
+              // this.userReferences = undefined;
               this.changeDetection.detectChanges();
               this.refsAPI.getReferences().subscribe((refs:any)=>{
-                this.userReferences = refs.data;
+                // this.userReferences = refs.data;
+                this.messageSource.next(refs.data);
                 this.changeDetection.detectChanges();
               })
             })
@@ -111,10 +114,11 @@ export class LibraryPage implements AfterViewInit {
   deleteReference(ref: any) {
     //this.cslService.deleteCitation(ref.referenceData.id);
     this.refsAPI.deleteReference(ref).subscribe(()=>{
-      this.userReferences = undefined
+      // this.userReferences = undefined
       this.changeDetection.detectChanges();
       this.refsAPI.getReferences().subscribe((refs:any)=>{
-        this.userReferences = refs.data
+        // this.userReferences = refs.data
+        this.messageSource.next(refs.data);
         this.changeDetection.detectChanges();
       })
     })
@@ -165,7 +169,8 @@ export class LibraryPage implements AfterViewInit {
   ngAfterViewInit(): void {
     this.refsAPI.getReferences().subscribe((refs:any)=>{
       this.shouldRender = true;
-      this.userReferences = refs.data;
+      // this.userReferences = refs.data;
+      this.messageSource.next(refs.data);
       this.changeDetection.detectChanges();
     })
   }

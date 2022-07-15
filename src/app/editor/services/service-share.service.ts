@@ -109,6 +109,8 @@ export class ServiceShare {
     })
   }
 
+
+
   shareSelf(serviceName:string,serviceInstance:any){
     //@ts-ignore
     this[serviceName] = serviceInstance

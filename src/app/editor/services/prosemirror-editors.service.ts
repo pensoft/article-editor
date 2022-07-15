@@ -30,7 +30,7 @@ import { keymap } from 'prosemirror-keymap';
 import { chainCommands, deleteSelection, joinBackward, selectNodeBackward } from 'prosemirror-commands';
 import { undo, redo } from 'prosemirror-history';
 //@ts-ignore
-import { yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin, yUndoPluginKey ,ySyncPluginKey,ySyncPluginKeyObj} from '../../y-prosemirror-src/y-prosemirror.js';
+import { yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin, yUndoPluginKey, ySyncPluginKey, ySyncPluginKeyObj } from '../../y-prosemirror-src/y-prosemirror.js';
 import { CellSelection, columnResizing, goToNextCell, tableEditing } from 'prosemirror-tables';
 //@ts-ignore
 import * as trackedTransaction from '../utils/trackChanges/track-changes/index.js';
@@ -77,7 +77,7 @@ import html2canvas from 'html2canvas';
 import { uuidv4 } from 'lib0/random.js';
 import { filterSectionChildren } from '../utils/articleBasicStructure';
 import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
-import { changeNodesOnDragDrop, handleDeleteOfRefCitation } from '../utils/prosemirrorHelpers/drag-drop-append';
+import { changeNodesOnDragDrop, handleDeleteOfRefAndFigCitation } from '../utils/prosemirrorHelpers/drag-drop-append';
 @Injectable({
   providedIn: 'root'
 })
@@ -86,7 +86,7 @@ export class ProsemirrorEditorsService {
   ydoc?: Y.Doc;
   //provider?: WebrtcProvider;
   provider?: WebsocketProvider;
-  preventAddToHistory= false;
+  preventAddToHistory = false;
   previewArticleMode = { mode: false }
 
   articleSectionsStructure?: articleSection[];
@@ -102,7 +102,7 @@ export class ProsemirrorEditorsService {
   } = {}
   xmlFragments: { [key: string]: Y.XmlFragment } = {}
 
-  usersInArticleStatusSubject = new Subject<Map<any,any>>()
+  usersInArticleStatusSubject = new Subject<Map<any, any>>()
 
   interpolateTemplate: any
   userInfo: any;
@@ -146,7 +146,6 @@ export class ProsemirrorEditorsService {
   editorsDeleteArray: string[] = []
   userData: any
 
-  citatEditingSubject: Subject<any> = new Subject<any>()
   deletedCitatsInPopUp: { [key: string]: string[] } = {}
   rerenderFigures: any
   setFigureRerenderFunc = (fn: any) => {
@@ -184,29 +183,6 @@ export class ProsemirrorEditorsService {
       this.ydocService.trackChangesMetadata?.set('trackChangesMetadata', trackCHangesMetadata);
     })
 
-    this.citatEditingSubject.subscribe((data) => {
-      if (data.action == 'delete') {
-        if (!this.deletedCitatsInPopUp[data.sectionID]) {
-          this.deletedCitatsInPopUp[data.sectionID] = [data.citatID]
-        } else {
-          this.deletedCitatsInPopUp[data.sectionID].push(data.citatID)
-        }
-      } else if (data.action == "clearDeletedCitatsFromPopup") {
-        Object.keys(this.deletedCitatsInPopUp).forEach((sectionID) => {
-          delete this.deletedCitatsInPopUp[sectionID];
-        })
-      } else if (data.action == "deleteCitatsFromDocument") {
-        let citatsObj = this.ydocService.figuresMap?.get('articleCitatsObj');
-        Object.keys(this.deletedCitatsInPopUp).forEach((sectionID) => {
-          this.deletedCitatsInPopUp[sectionID].forEach((citatid) => {
-            citatsObj[sectionID][citatid] = undefined
-          })
-          delete this.deletedCitatsInPopUp[sectionID];
-        })
-        this.ydocService.figuresMap?.set('articleCitatsObj', citatsObj);
-        this.rerenderFigures(citatsObj)
-      }
-    })
   }
 
   preservedScrollPosition: number = 0;
@@ -300,12 +276,28 @@ export class ProsemirrorEditorsService {
     })
   }
 
+  getEditorSelection(editorId:string){
+    let from = this.editorContainers[editorId].editorView.state.selection.from;
+    let to = this.editorContainers[editorId].editorView.state.selection.to;
+    return {from,to}
+  }
+
+  changeSelectionOfEditorAndFocus(id:string,sel:{from:number,to:number}){
+    let view = this.editorContainers[id].editorView;
+    if(sel.from == sel.to){
+      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(sel.from))))
+    }else{
+      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(sel.from),view.state.doc.resolve(sel.to))))
+    }
+    view.focus()
+  }
+
   scrollMainEditorIntoView(id: string) {
     try {
       let container = this.editorContainers[id];
       if (container) {
         let editorState = container.editorView.state as EditorState
-        container.editorView.dispatch(editorState.tr.scrollIntoView().setMeta('addToLastHistoryGroup', true))
+        container.editorView.dispatch(editorState.tr.scrollIntoView())
       }
     } catch (e) {
       console.error(e);
@@ -336,7 +328,7 @@ export class ProsemirrorEditorsService {
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment(section.mode, editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
-    yCursorPlugin(this.provider!.awareness,this.serviceShare, this.userData),
+    yCursorPlugin(this.provider!.awareness, this.serviceShare, this.userData),
     this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures })]
 
     container.setAttribute('class', 'editor-container');
@@ -346,7 +338,7 @@ export class ProsemirrorEditorsService {
     let GroupControl = this.treeService.sectionFormGroups;
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.yjsHistory.YjsHistoryKey, this.interpolateTemplate,this.serviceShare, GroupControl, section),
+      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.yjsHistory.YjsHistoryKey, this.interpolateTemplate, this.serviceShare, GroupControl, section),
       filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, editorID, this.serviceShare),
       //@ts-ignore
       historyPreserveItems: true,
@@ -355,13 +347,13 @@ export class ProsemirrorEditorsService {
     let handleRefDeletePluginKey = new PluginKey('handleRefDelete');
     let handleRefDelete = new Plugin({
       key: handleRefDeletePluginKey,
-      appendTransaction: handleDeleteOfRefCitation(this.serviceShare)
+      appendTransaction: handleDeleteOfRefAndFigCitation(this.serviceShare)
     })
 
     let changeNodesKey = new PluginKey('changeNodesKey');
     let changeNodes = new Plugin({
       key: changeNodesKey,
-      appendTransaction: changeNodesOnDragDrop,
+      appendTransaction: changeNodesOnDragDrop(this.serviceShare),
     })
 
     let selectWholeCitatPluginKey = new PluginKey('selectWholeCitat');
@@ -388,8 +380,8 @@ export class ProsemirrorEditorsService {
         return true
       },
       props: {
-        handleDOMEvents:{
-          "cut":(view,event)=>{
+        handleDOMEvents: {
+          "cut": (view, event) => {
             if (this.previewArticleMode.mode) {
               event.preventDefault()
               return true;
@@ -403,7 +395,7 @@ export class ProsemirrorEditorsService {
           }
           return false;
         },
-        handleDrop:(plugin,view,event,slice)=>{
+        handleDrop: (plugin, view, event, slice) => {
           if (this.previewArticleMode.mode) {
             return true
           }
@@ -493,7 +485,7 @@ export class ProsemirrorEditorsService {
           }
 
           //@ts-ignore
-          if (this.preventAddToHistory||transaction.getMeta('y-sync$') || transaction.meta['y-sync$'] ) {
+          if (this.preventAddToHistory || transaction.getMeta('y-sync$') || transaction.meta['y-sync$']) {
 
           } else {
             let undoManager = this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager;
@@ -552,7 +544,7 @@ export class ProsemirrorEditorsService {
           let state = view.state;
           let sel = state.selection
           state.doc.nodesBetween(sel.from, sel.to, (node, pos, parent, index) => {
-            if (!this.previewArticleMode.mode&&node.marks.length > 0 && node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
+            if (!this.previewArticleMode.mode && node.marks.length > 0 && node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
               setTimeout(() => {
                 let cursurCoord = view.coordsAtPos(sel.from);
                 event.preventDefault();
@@ -578,33 +570,43 @@ export class ProsemirrorEditorsService {
         }
       },
       dispatchTransaction,
-      handlePaste: handlePaste(mathMap!, editorID),
+      handlePaste: handlePaste(mathMap!, editorID,this.serviceShare),
       handleClick: handleClick(hideshowPluginKEey, this.citatContextPluginService.citatContextPluginKey),
       handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
       handleTripleClickOn,
       handleScrollToSelection: handleScrollToSelection(this.editorContainers, section),
-      handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey,this.serviceShare),
+      handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
       handleKeyDown: handleKeyDown(this.serviceShare),
       scrollMargin: { top: 300, right: 5, bottom: 300, left: 5 },
-      handleDrop: (view: EditorView, event: Event, slice: Slice, moved: boolean) => {
+      /* handleDrop: (view: EditorView, event: Event, slice: Slice, moved: boolean) => {
         slice.content.nodesBetween(0, slice.content.size - 2, (node, pos, parent) => {
           if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
             let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0];
+            this.serviceShare.YjsHistoryService.addUndoItemInformation({
+              type: 'figure-citation',
+              data: {}
+            })
             //@ts-ignore
             if (!event.ctrlKey) {  // means that the drag is only moving the selected not a copy of the selection -> without Ctrl
-
+              console.log('drag wihtout copy ');
+              this.dispatchEmptyTransaction()
             } else {      // the drag is moving a copy of the selection
               //@ts-ignore
               let dropPosition = view.posAtCoords({ left: event.clientX, top: event.clientY }).pos + pos - slice.openStart
+              console.log('drag wiht copy ');
+
               setTimeout(() => {
                 let newMark = view.state.doc.nodeAt(dropPosition)
-                view.dispatch(view.state.tr.addMark(dropPosition, dropPosition + newMark?.nodeSize!, schema.mark('citation', { ...citationMark.attrs, citateid: uuidv4() })).setMeta('addToLastHistoryGroup', true))
+                view.dispatch(view.state.tr.addMark(dropPosition, dropPosition + newMark?.nodeSize!, schema.mark('citation', { ...citationMark.attrs, citateid: uuidv4() })))
               }, 10)
             }
+            setTimeout(() => {
+              this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
+            }, 20)
           }
         })
         return false
-      }
+      } */
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
     });
     EditorContainer.appendChild(container);
@@ -634,7 +636,6 @@ export class ProsemirrorEditorsService {
     let renderedSections = Object.keys(this.editorContainers).filter(key => key !== 'endEditor').length
     let allActiveSections = count;
     if (renderedSections == allActiveSections) {
-      console.log('chack all references');
       this.runFuncAfterRender()
     }
     return editorCont
@@ -657,7 +658,7 @@ export class ProsemirrorEditorsService {
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate, this.yjsHistory.YjsHistoryKey,this.serviceShare),
+      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate, this.yjsHistory.YjsHistoryKey, this.serviceShare),
       filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, editorId, this.serviceShare),
     })
 
@@ -670,8 +671,8 @@ export class ProsemirrorEditorsService {
 
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment('documentMode', editorID)
-    let yjsPlugins = [ySyncPlugin(xmlFragment,{ colors, colorMapping, permanentUserData }),
-    yCursorPlugin(this.provider!.awareness,this.serviceShare, this.userData),
+    let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
+    yCursorPlugin(this.provider!.awareness, this.serviceShare, this.userData),
     this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures })]
 
     container.setAttribute('class', 'editor-container');
@@ -746,9 +747,8 @@ export class ProsemirrorEditorsService {
           let undoManagerStatus = undoManager.status;
 
           //@ts-ignore
-          if (this.preventAddToHistory||transaction.getMeta('y-sync$') || transaction.meta['y-sync$']) {
+          if (this.preventAddToHistory || transaction.getMeta('y-sync$') || transaction.meta['y-sync$']) {
           } else {
-            console.log(transaction);
             if (undoManagerStatus !== 'capturing') {
               this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager.status = 'capturing'
             }
@@ -801,9 +801,9 @@ export class ProsemirrorEditorsService {
       dispatchTransaction,
       handleClick: handleClick(hideshowPluginKEey, this.citatContextPluginService.citatContextPluginKey),
       handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
-      handlePaste: handlePaste(mathMap!, editorID),
+      handlePaste: handlePaste(mathMap!, editorID,this.serviceShare),
       handleTripleClickOn,
-      handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey,this.serviceShare),
+      handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
       //handleKeyDown,
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
     });
@@ -874,7 +874,7 @@ export class ProsemirrorEditorsService {
         containerElement.appendChild(htmlNOdeRepresentation);
         options.onChange(true, containerElement.innerHTML)
       },
-      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, sectionID, this.serviceShare, this.citatEditingSubject)
+      filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, sectionID, this.serviceShare)
 
     })
 
@@ -996,7 +996,7 @@ export class ProsemirrorEditorsService {
       handleClick: handleClick(hideshowPluginKEey),
       handleTripleClickOn,
       handleDoubleClick:
-        handleDoubleClickFN(hideshowPluginKEey,this.serviceShare),
+        handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
       handleKeyDown: handleKeyDown(this.serviceShare),
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
 
@@ -1142,15 +1142,9 @@ export class ProsemirrorEditorsService {
   runFuncAfterRender() {
     this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems();
     this.serviceShare.CslService?.checkReferencesInAllEditors(this.editorContainers);
-    setTimeout(()=>{
+    setTimeout(() => {
       this.serviceShare.YjsHistoryService.stopBigNumberItemsCapturePrevention();
-      window.requestAnimationFrame((time)=>{
-        console.log(time);
-      })
-      window.requestAnimationFrame((time)=>{
-        console.log(time);
-      })
-    },20)
+    }, 20)
   }
 
   buildMenus() {

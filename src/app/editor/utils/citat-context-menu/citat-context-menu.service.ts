@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { InsertFigureComponent } from '@app/editor/dialogs/figures-dialog/insert-figure/insert-figure.component';
 import { FiguresControllerService } from '@app/editor/services/figures-controller.service';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { Fragment } from 'prosemirror-model';
 import { EditorState, Plugin, PluginKey } from 'prosemirror-state';
@@ -24,6 +25,7 @@ export class CitatContextMenuService {
     private trackChangePluginService: TrackChangesService,
     public dialog: MatDialog,
     private ydocServide:YdocService,
+    private serviceShare:ServiceShare
   ) {
     let key = new PluginKey('citatContextPlugin')
     this.citatContextPluginKey = key;
@@ -121,7 +123,6 @@ export class CitatContextMenuService {
                 deleteCitationButton.addEventListener('click', () => {
                   if (citationMark) {
                     deleteData = {mark:citationMark,sectionID:prev.sectionName}
-
                     shouldCloseContextMenu = true
                   }
                 })
@@ -285,7 +286,15 @@ export class CitatContextMenuService {
                   let end = +markActualData.position+view.state.doc.nodeAt(markActualData.position)?.nodeSize!
                   //citatsData[sectionID][mark.attrs.citateid] = undefined
                   //ydocServide.figuresMap?.set('articleCitatsObj',citatsData)
+                  serviceShare.YjsHistoryService.startCapturingNewUndoItem();
+                  serviceShare.YjsHistoryService.addUndoItemInformation({
+                    type: 'figure-citation',
+                    data: {}
+                  })
                   view.dispatch(view.state.tr.replaceWith(start,end,Fragment.empty))
+                  setTimeout(()=>{
+                    serviceShare.FiguresControllerService.updateOnlyFiguresView()
+                  },10)
                 }
               }
             }

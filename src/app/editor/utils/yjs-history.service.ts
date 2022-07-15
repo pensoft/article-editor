@@ -13,11 +13,14 @@ import { redoIcon, undoIcon } from './menu/menuItems';
 import { YdocService } from '../services/ydoc.service';
 import { YArray } from 'yjs/dist/src/internals';
 import { iif } from 'rxjs';
+import { AnyTxtRecord } from 'dns';
 
 interface undoServiceItem {
   editors: string[],
   undoItemMeta?: any,
-  finished?: true
+  finished?: true,
+  startSel?:{from:number,to:number},
+  endSel?:{from:number,to:number}
 }
 
 @Injectable({
@@ -35,6 +38,41 @@ export class YjsHistoryService {
   capturingNewItem = false;
   stopCapturing = false;
   timer: number = 0;
+
+  calcSel(stackItem:any,pmSel:any){
+    let delCl = stackItem.deletions.clients
+    let insCl = stackItem.insertions.clients
+    let from = pmSel.to;
+    let to = pmSel.to;
+    if(delCl.size > 0&&insCl.size > 0){ // we have ins and del so the transaction is replace of a selection with different start and end
+      insCl.forEach(cl=>{
+        cl.forEach(tr=>{
+        from-=tr.len
+          to-=tr.len
+        })
+      })
+      delCl.forEach(cl=>{
+        cl.forEach(tr=>{
+          to+=tr.len
+        })
+      })
+    }else if(delCl.size > 0&&insCl.size == 0){
+      delCl.forEach((cl:any)=>{
+        cl.forEach(tr=>{
+          to+=tr.len
+          from+=tr.len
+        })
+      })
+    }else if(delCl.size == 0&&insCl.size > 0){
+      insCl.forEach((cl:any)=>{
+        cl.forEach(tr=>{
+          to-=tr.len
+          from-=tr.len
+        })
+      })
+    }
+    return {from,to}
+  }
 
   constructor(
     private serviceShare: ServiceShare,
@@ -87,8 +125,9 @@ export class YjsHistoryService {
   }
 
   createNewUndoStackItem() {
-    console.log('new service stack item');
+    //console.log('new service stack item');
     this.undoStack.unshift({ editors: [] })
+    console.log('adding undo item ');
     this.timer = Date.now();
   }
 
@@ -98,19 +137,29 @@ export class YjsHistoryService {
 
         if (this.undoStack.length == 0 || (this.undoStack.length > 0 && this.undoStack[0].finished)) {
           this.createNewUndoStackItem()
-
         } else if (Date.now() - this.timer > 2500) {
           this.timer = Date.now();
 
-          console.log('creating new item becouse of timer ');
+          //console.log('creating new item becouse of timer ');
           this.undoStack[0].finished = true
           Object.values(this.mainProsemirrorUndoManagers).forEach((undoManager) => {
             //@ts-ignore
             undoManager.captureNewStackItem()
           })
         }
-        console.log('adding');
-        if(!this.undoStack[0].editors.includes(changeMeta.sectionId)){
+        //console.log('adding');
+        let editorSel = this.serviceShare.ProsemirrorEditorsService.getEditorSelection(changeMeta.sectionId)
+        if(this.undoStack[0].editors.length == 0){
+
+          let sel = this.calcSel(this.mainProsemirrorUndoManagers[changeMeta.sectionId].undoStack[this.mainProsemirrorUndoManagers[changeMeta.sectionId].undoStack.length-1],editorSel)
+          console.log('seting both start and end',sel,editorSel);
+          this.undoStack[0].startSel = sel
+          this.undoStack[0].endSel = editorSel
+        }else{
+          console.log('seting end',editorSel);
+          this.undoStack[0].endSel = editorSel
+        }
+        if(this.undoStack[0].editors.filter((editor)=>editor == changeMeta.sectionId).length == 0){
           this.undoStack[0].editors.unshift(changeMeta.sectionId)
         }
         this.redoStack = []
@@ -282,8 +331,9 @@ export class YjsHistoryService {
         })
         undoManager.on('stack-item-added', (item: any) => {
           item.undoRedoMeta.sectionId = sectionId;
+
           //if(item.type!=='undo'&&item.type!=='redo'){
-          console.log('incoming item', item);
+          //console.log('incoming item', item);
           this.computeHistoryChange(item.undoRedoMeta);
           //}
           /*let changedItems = item.changedParentTypes
@@ -339,10 +389,14 @@ export class YjsHistoryService {
         this.serviceShare.FiguresControllerService.writeFiguresDataGlobalV2(meta.data.newData.articleCitatsObj, meta.data.newData.ArticleFiguresNumbers, meta.data.newData.ArticleFigures)
       }
     } else if (meta.type == 'figure-citation') {
-      let citatsToDisplay = action == 'undo' ? meta.data.oldCitationsObj : meta.data.newCitationsObj
-      this.preventCaptureOfBigNumberOfUpcomingItems()
-      this.serviceShare.FiguresControllerService.markCitatsViews(citatsToDisplay)
-    } else if (meta.type == 'refs-yjs') {
+      setTimeout(()=>{
+        this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
+      },10)
+    } else if(meta.type == 'figure-citation-and-text'){
+      setTimeout(()=>{
+        this.serviceShare.FiguresControllerService.updateFiguresAndFiguresCitations()
+      },10)
+    }else if (meta.type == 'refs-yjs') {
       let refsToReturn = action == 'undo' ? meta.data.oldRefs : meta.data.newRefs;
       this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsToReturn)
       let refs = Object.values(refsToReturn);
@@ -366,25 +420,44 @@ export class YjsHistoryService {
 
         })
       })
-    }
+    } /* else if (meta.type == 'section-drag-drop'){
+      let from : number
+      let to : number
+      let prevContainerId : string
+      let newContainerId : string
+      if(action == 'undo'){
+        from = meta.data.to
+        to = meta.data.from
+        prevContainerId = meta.data.newContainerId
+        newContainerId = meta.data.prevContainerId
+      }else if(action == 'redo'){
+        from = meta.data.from
+        to = meta.data.to
+        prevContainerId = meta.data.prevContainerId
+        newContainerId = meta.data.newContainerId
+      }
+      this.serviceShare.TreeService.applyNodeDrag(from,to,prevContainerId,newContainerId);
+      this.serviceShare.TreeService.treeVisibilityChange.next({action: 'listNodeDrag', from, to, prevContainerId, newContainerId})
+    } */
   }
 
   undo = (state: EditorState) => {
-    console.log(this.undoStack, this.redoStack);
     this.stopCapturingUndoItem()
     let undoitem = this.undoStack.shift();
-    let redoItem: undoServiceItem = { editors: [], finished: true }
+    let redoItem: undoServiceItem = { editors: [], finished: true,startSel:undoitem.startSel,endSel:undoitem.endSel }
     if (undoitem.undoItemMeta) {
       redoItem.undoItemMeta = undoitem.undoItemMeta
       this.undoComplexItem(undoitem.undoItemMeta, 'undo');
     }
     undoitem.editors.forEach((editor) => {
-      this.mainProsemirrorUndoManagers[editor!].undo();
+
+      this.mainProsemirrorUndoManagers[editor].undo();
       redoItem.editors.unshift(editor)
     })
     this.redoStack.unshift(redoItem);
-    if (redoItem.editors[0] !== 'endEditor') {
+    if (redoItem.editors[0] != 'endEditor') {
       this.serviceShare.ProsemirrorEditorsService!.scrollMainEditorIntoView(redoItem.editors[0])
+      this.serviceShare.ProsemirrorEditorsService.changeSelectionOfEditorAndFocus(redoItem.editors[0],redoItem.startSel)
     }
     this.serviceShare.ProsemirrorEditorsService!.dispatchEmptyTransaction()
     /* const undoManager = this.YjsHistoryKey.getState(state).undoManager
@@ -393,6 +466,7 @@ export class YjsHistoryService {
 
       return true
     } */
+    console.log(this.undoStack, this.redoStack);
     return true
   }
 
@@ -401,9 +475,8 @@ export class YjsHistoryService {
   }
 
   redo = (state: EditorState) => {
-    console.log(this.undoStack, this.redoStack);
     let redoItem = this.redoStack.shift();
-    let undoItem: undoServiceItem = { editors: [], finished: true }
+    let undoItem: undoServiceItem = { editors: [], finished: true,startSel:redoItem.startSel,endSel:redoItem.endSel }
     if (redoItem.undoItemMeta) {
       undoItem.undoItemMeta = redoItem.undoItemMeta
       this.undoComplexItem(redoItem.undoItemMeta, 'redo');
@@ -413,8 +486,9 @@ export class YjsHistoryService {
       undoItem.editors.unshift(editor)
     })
     this.undoStack.unshift(undoItem);
-    if (undoItem.editors[0] !== 'endEditor') {
+    if (undoItem.editors[0] != 'endEditor') {
       this.serviceShare.ProsemirrorEditorsService!.scrollMainEditorIntoView(undoItem.editors[0])
+      this.serviceShare.ProsemirrorEditorsService.changeSelectionOfEditorAndFocus(undoItem.editors[0],redoItem.endSel)
     }
     this.serviceShare.ProsemirrorEditorsService!.dispatchEmptyTransaction()
 
@@ -423,6 +497,7 @@ export class YjsHistoryService {
       let result = undoManager.redo()
       return true
     } */
+    console.log(this.undoStack, this.redoStack);
     return true
   }
 
@@ -452,7 +527,7 @@ export class YjsHistoryService {
   }
 
   startCapturingNewUndoItem() {
-    console.log('start new yjs service item', this.undoStack, this.redoStack);
+    //console.log('start new yjs service item', this.undoStack, this.redoStack);
     if (this.undoStack.length > 0) {
       this.undoStack[0].finished = true;
     }
@@ -464,26 +539,25 @@ export class YjsHistoryService {
 
   }
 
-  addUndoItemInformation(info: { type: 'figure' | 'refs-yjs' | 'figure-citation', data: any }) {
+  addUndoItemInformation(info: { type: 'figure' | 'refs-yjs' | 'figure-citation' | 'section-drag-drop'|'figure-citation-and-text', data: any ,addnewItem?:true}) {
 
-    if (this.undoStack.length == 0 || (this.undoStack.length > 0 && this.undoStack[0].finished)) {
+    if (!info.addnewItem&&(this.undoStack.length == 0 || (this.undoStack.length > 0 && this.undoStack[0].finished))) {
       this.createNewUndoStackItem()
     }
 
-    if (info.type == 'figure') {
-      this.undoStack[0].undoItemMeta = info
+    this.undoStack[0].undoItemMeta = info
+    /* if (info.type == 'figure') {
       // add undoitem data to last undo item
     } else if (info.type == 'refs-yjs') {
-      console.log('adding refs information to undo item', info);
       this.undoStack[0].undoItemMeta = info
     } else if (info.type == 'figure-citation') {
       this.undoStack[0].undoItemMeta = info
-    }
+    } */
   }
 
   stopCapturingUndoItem() {
     if(this.capturingNewItem){
-      console.log('stop capturing yjs service item', this.undoStack, this.redoStack);
+      //console.log('stop capturing yjs service item', this.undoStack, this.redoStack);
       this.capturingNewItem = false;
       if (this.undoStack.length > 0) {
         this.undoStack[0].finished = true;
@@ -497,14 +571,14 @@ export class YjsHistoryService {
   }
 
   preventCaptureOfBigNumberOfUpcomingItems() {
-    console.log('Prevent capture of big number of upcoming items');
+    //console.log('Prevent capture of big number of upcoming items');
     this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = null
     this.preventingCaptureOfBigNumberOfTransactions = true
   }
 
   stopBigNumberItemsCapturePrevention() {
     if (this.preventingCaptureOfBigNumberOfTransactions) {
-      console.log('Stop items capture of big number prevention');
+      //console.log('Stop items capture of big number prevention');
       this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = this.serviceShare.ProsemirrorEditorsService.ySyncKey
       this.preventingCaptureOfBigNumberOfTransactions = false
     }
@@ -512,7 +586,7 @@ export class YjsHistoryService {
 
   preventCaptureOfLessUpcommingItems() {
     if (!this.preventingCaptureOfBigNumberOfTransactions) {
-      console.log('Prevent capture of small number of upcoming items');
+      //console.log('Prevent capture of small number of upcoming items');
       this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = null
       this.preventingCaptureOfBigSmallOfTransactions = true;
     }
@@ -520,7 +594,7 @@ export class YjsHistoryService {
 
   stopLessItemsCapturePrevention() {
     if (!this.preventingCaptureOfBigNumberOfTransactions && this.preventingCaptureOfBigSmallOfTransactions) {
-      console.log('Prevent capture of small number of upcoming items');
+      //console.log('Prevent capture of small number of upcoming items');
       this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = this.serviceShare.ProsemirrorEditorsService.ySyncKey
       this.preventingCaptureOfBigSmallOfTransactions = false;
     }

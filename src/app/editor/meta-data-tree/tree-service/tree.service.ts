@@ -262,6 +262,19 @@ export class TreeService implements OnDestroy {
   }
 
   dragNodeChange(from: number, to: number, prevContainerId: string, newContainerId: string) {
+    /* console.log('node drag',from,to,prevContainerId,newContainerId);
+    this.serviceShare.YjsHistoryService.startCapturingNewUndoItem();
+    this.serviceShare.YjsHistoryService.addUndoItemInformation({type:'section-drag-drop',data:{
+      from,
+      to,
+      prevContainerId,
+      newContainerId
+    }})
+    this.serviceShare.YjsHistoryService.stopCapturingUndoItem(); */
+
+    setTimeout(()=>{
+      this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
+    },10)
     this.treeVisibilityChange.next({action: 'listNodeDrag', from, to, prevContainerId, newContainerId})
   }
 

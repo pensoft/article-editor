@@ -11,12 +11,15 @@ import { EditorView } from "prosemirror-view";
 import { YMap } from "yjs/dist/src/internals";
 import { articleSection } from "../interfaces/articleSection";
 
-export function handlePaste(mathMap: YMap<any>, sectionID: string) {
+export function handlePaste(mathMap: YMap<any>, sectionID: string,sharedService:ServiceShare) {
   return function handlePaste(view: EditorView, event: Event, slice: Slice) {
+    let newPastedCitation = false;
     slice.content.nodesBetween(0, slice.size - 2, (node, pos, parent) => {
       if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
         let mark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
+
         mark.attrs.citateid = uuidv4()
+        newPastedCitation = true;
       }
       if (node.type.name == 'math_inline' || node.type.name == 'math_display') {
         let oldId = node.attrs.math_id;
@@ -62,6 +65,16 @@ export function handlePaste(mathMap: YMap<any>, sectionID: string) {
     }
     if (noneditableNodes) {
       return true
+    }
+    if(newPastedCitation){
+      console.log('paste add meta info');
+      sharedService.YjsHistoryService.addUndoItemInformation({
+        type: 'figure-citation',
+        data: {}
+      })
+      setTimeout(()=>{
+        sharedService.FiguresControllerService.updateOnlyFiguresView()
+      },10)
     }
     return false
   }
