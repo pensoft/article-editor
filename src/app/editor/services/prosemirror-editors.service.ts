@@ -284,11 +284,11 @@ export class ProsemirrorEditorsService {
 
   changeSelectionOfEditorAndFocus(id:string,sel:{from:number,to:number}){
     let view = this.editorContainers[id].editorView;
-    if(sel.from == sel.to){
+    /* if(sel.from == sel.to){
       view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(sel.from))))
     }else{
       view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(sel.from),view.state.doc.resolve(sel.to))))
-    }
+    } */
     view.focus()
   }
 

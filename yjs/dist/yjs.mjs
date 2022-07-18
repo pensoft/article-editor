@@ -3371,30 +3371,17 @@ class UndoManager extends Observable {
       }
       let undoRedoMeta = {}
 
-      const undoing = this.undoing || this.status == 'undoing';
-      const redoing = this.redoing || this.status == 'redoing';
+      const undoing = this.undoing;
+      const redoing = this.redoing;
       const stack = undoing ? this.redoStack : this.undoStack;
       undoRedoMeta.workingStack = undoing ? 'redoStack' : 'undoStack';
-      undoRedoMeta.status = this.status;
-      if (this.skipChange || (stack.length == 0 && this.addToLastExistingGroup && this.status !== 'capturing' && this.addANewStackItem == false) && (!this.undoing && !this.redoing)) {
-        this.skipChange = false;
-        return;
-      }
-
-      if (undoing) {
-        this.status = 'undoing';
-      } else if (redoing) {
-        this.status = 'redoing';
-      }
       if (undoing) {
         this.stopCapturing(); // next undo should not be appended to last stack item
       } else if (!redoing) {
         // neither undoing nor redoing: delete redoStack
         this.redoStack = [];
       }
-
       const insertions = new DeleteSet();
-      //this.lastTransaction = transaction
       transaction.afterState.forEach((endClock, client) => {
         const startClock = transaction.beforeState.get(client) || 0;
         const len = endClock - startClock;
@@ -3402,82 +3389,32 @@ class UndoManager extends Observable {
           addToDeleteSet(insertions, client, startClock, len);
         }
       });
-
-      /* if (this.skipChange && this.status == 'capturing' && !undoing && !redoing) {
-        console.log('skipping a change');
-        const lastOp = stack[stack.length - 1];
-        if (lastOp) {
-          lastOp.deletions = mergeDeleteSets([lastOp.deletions, transaction.deleteSet]);
-          lastOp.insertions = mergeDeleteSets([lastOp.insertions, insertions]);
-        }
-        this.skipChange = false;
-        return;
-      } */
-
       const now = time.getUnixTime();
-
-
-
-      if (this.status !== 'capturing' && !this.skipChange) {
-        //onsole.log(transaction.changed.keys().next().value.toDelta())
-        if (this.addToLastExistingGroup) {
-          if (stack.length > 0) {
-            const lastOp = stack[stack.length - 1];
-            lastOp.deletions = mergeDeleteSets([lastOp.deletions, transaction.deleteSet]);
-            lastOp.insertions = mergeDeleteSets([lastOp.insertions, insertions]);
-            undoRedoMeta.addingToLastItem = true;
-          } else {
-            let newStackItem = new StackItem(transaction.deleteSet, insertions)
-            newStackItem.createdAt = Date.now();
-            stack.push(newStackItem);
-            undoRedoMeta.addingNewItem = true;
-          }
-        } else {
-          let newStackItem = new StackItem(transaction.deleteSet, insertions)
-          newStackItem.createdAt = Date.now();
-          stack.push(newStackItem);
-          undoRedoMeta.addingNewItem = true;
-        }
-        /*  if (transaction.origin !== this) {
-             if (stack.length > 0) {
-             } else {
-                 stack.push(new StackItem(transaction.deleteSet, insertions));
-             }
-         } else {
-         } */
-      } else if (!undoing && !redoing && this.status == 'capturing' && !this.skipChange) {
+      if (now - this.lastChange < captureTimeout && stack.length > 0 && !undoing && !redoing) {
         // append change to last stack op
-        if ((now - this.lastChange < captureTimeout || this.addToLastExistingGroup) && stack.length > 0 && !this.addANewStackItem) {
-          const lastOp = stack[stack.length - 1];
-          lastOp.deletions = mergeDeleteSets([lastOp.deletions, transaction.deleteSet]);
-          lastOp.insertions = mergeDeleteSets([lastOp.insertions, insertions]);
-          undoRedoMeta.addingToLastItem = true;
-        } else {
-          let newStackItem = new StackItem(transaction.deleteSet, insertions)
-          newStackItem.createdAt = Date.now();
-          stack.push(newStackItem);
-          undoRedoMeta.addingNewItem = true;
-        }
+        const lastOp = stack[stack.length - 1];
+        lastOp.deletions = mergeDeleteSets([lastOp.deletions, transaction.deleteSet]);
+        lastOp.insertions = mergeDeleteSets([lastOp.insertions, insertions]);
+        undoRedoMeta.addToLastUndoItem = true
       } else {
-
+        // create a new stack op
+        stack.push(new StackItem(transaction.deleteSet, insertions));
+        if (!undoing && !redoing) {
+          undoRedoMeta.addNewUndoItem = true;
+        }
+        if (now - this.lastChange > captureTimeout) {
+          undoRedoMeta.addingBecouseOfTimeout = true;
+        }
       }
-      if (!undoing && !redoing && this.status == 'capturing') {
+      if (!undoing && !redoing) {
         this.lastChange = now;
       }
       // make sure that deleted structs are not gc'd
-      if ((transaction.origin == this && this.status !== 'capturing') || (!undoing && !redoing && this.status == 'capturing')) {
-        iterateDeletedStructs(transaction, transaction.deleteSet, /** @param {Item|GC} item */ item => {
-          if (item instanceof Item && this.scope.some(type => isParentOf(type, item))) {
-            keepItem(item, true);
-          }
-        });
-      }
-      if (this.addToLastExistingGroup) {
-        this.addToLastExistingGroup = false;
-      }
-      if (this.addANewStackItem) {
-        this.addANewStackItem = false;
-      }
+      iterateDeletedStructs(transaction, transaction.deleteSet, /** @param {Item|GC} item */ item => {
+        if (item instanceof Item && this.scope.some(type => isParentOf(type, item))) {
+          keepItem(item, true);
+        }
+      });
       this.emit('stack-item-added', [{ stackItem: stack[stack.length - 1], origin: transaction.origin, type: undoing ? 'redo' : 'undo', changedParentTypes: transaction.changedParentTypes, undoRedoMeta }, this]);
     });
   }
@@ -3551,7 +3488,7 @@ class UndoManager extends Observable {
   }
 
   captureNewStackItem() {
-    this.addANewStackItem = true;
+    this.lastChange = 0;
   }
 
   /**

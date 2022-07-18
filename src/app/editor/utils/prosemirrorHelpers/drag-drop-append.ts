@@ -1,4 +1,5 @@
 import { ServiceShare } from "@app/editor/services/service-share.service";
+import { ServerResponse } from "http";
 import { uuidv4 } from "lib0/random";
 import { setMaxListeners } from "process";
 import { Fragment, Slice } from "prosemirror-model";
@@ -105,7 +106,7 @@ export function handleDeleteOfRefAndFigCitation(sharedService: ServiceShare) {
           if (step instanceof ReplaceStep && step.slice.content.size == 0) {
             let invertedStep = step.invert(oldState.doc)
             //@ts-ignore
-            let fr = (step.slice as Slice).content as Fragment
+            let fr = (invertedStep.slice as Slice).content as Fragment
             fr.nodesBetween(0, fr.size, (node, start, parent, i) => {
               if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
                 deletingFigCitation = true
@@ -119,14 +120,17 @@ export function handleDeleteOfRefAndFigCitation(sharedService: ServiceShare) {
       }
     })
     if (deletingFigCitation) {
-      console.log('delete set meta ');
-      sharedService.YjsHistoryService.addUndoItemInformation({
-        type: 'figure-citation',
-        data: {}
-      })
-      setTimeout(() => {
-        sharedService.FiguresControllerService.updateOnlyFiguresView()
-      }, 20)
+      setTimeout(()=>{
+        console.log('delete set meta ');
+        sharedService.YjsHistoryService.addUndoItemInformation({
+          type: 'figure-citation',
+          data: {}
+        })
+        setTimeout(() => {
+          sharedService.FiguresControllerService.updateOnlyFiguresView()
+        }, 20)
+        console.log('deletion of figure cite');
+      },10)
     }
     if (deletedRefCitations.length > 0) {
       sharedService.EditorsRefsManagerService!.handleRefCitationDelete(deletedRefCitations)

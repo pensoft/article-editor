@@ -22,7 +22,9 @@ export const environment = {
    VERSION: '${version}',
    WEBSOCKET_HOST: '${websocket.host}',
    EXTERNAL_REFS_API: '${isProduction?"https://refindit.org/find":"/find"}',
-   WEBSOCKET_PORT: '${websocket.port}'
+   WEBSOCKET_PORT: '${websocket.port}',
+   authServer: 'http://article-account.com',
+   passport_client_id: '96a91e5f-740c-42a7-95db-1b7cbd84b1fc'
 };
 `;
 // write the content to the respective file

@@ -39,9 +39,12 @@ export class YjsHistoryService {
   stopCapturing = false;
   timer: number = 0;
 
+  captureTimeout = 1500;
+
   calcSel(stackItem:any,pmSel:any){
     let delCl = stackItem.deletions.clients
     let insCl = stackItem.insertions.clients
+    console.log(delCl,insCl);
     let from = pmSel.to;
     let to = pmSel.to;
     if(delCl.size > 0&&insCl.size > 0){ // we have ins and del so the transaction is replace of a selection with different start and end
@@ -128,44 +131,38 @@ export class YjsHistoryService {
     //console.log('new service stack item');
     this.undoStack.unshift({ editors: [] })
     console.log('adding undo item ');
-    this.timer = Date.now();
   }
 
-  computeHistoryChange(changeMeta: any) {
-    if (changeMeta.addingNewItem || changeMeta.addingToLastItem) {
-      if ((changeMeta.status == 'capturing' && changeMeta.workingStack !== "redoStack") || (changeMeta.status == undefined && changeMeta.addingToLastItem && changeMeta.workingStack == 'undoStack')) {
+  computeHistoryChange(changeMeta: any,item:any,itemWithMeta:any) {
+    if (changeMeta.addNewUndoItem /*&&  !(this.undoStack.length>0&&this.undoStack[0].undoItemMeta&&this.undoStack[0].editors.length == 0&&!this.undoStack[0].finished)  */) {
 
-        if (this.undoStack.length == 0 || (this.undoStack.length > 0 && this.undoStack[0].finished)) {
-          this.createNewUndoStackItem()
-        } else if (Date.now() - this.timer > 2500) {
-          this.timer = Date.now();
+        this.createNewUndoStackItem()
+        console.log(changeMeta);
 
-          //console.log('creating new item becouse of timer ');
-          this.undoStack[0].finished = true
-          Object.values(this.mainProsemirrorUndoManagers).forEach((undoManager) => {
-            //@ts-ignore
-            undoManager.captureNewStackItem()
+        this.undoStack[0].editors.unshift(changeMeta.sectionId);
+        if(this.undoStack.length>1&&this.undoStack[0].editors[0]&&this.undoStack[1].editors[0]&&this.undoStack[0].editors[0]==this.undoStack[1].editors[0]){
+          Object.keys(this.mainProsemirrorUndoManagers).forEach((sectionId)=>{
+            if(sectionId!==changeMeta.sectionId){
+              this.mainProsemirrorUndoManagers[sectionId].stopCapturing()
+            }
           })
         }
-        //console.log('adding');
-        let editorSel = this.serviceShare.ProsemirrorEditorsService.getEditorSelection(changeMeta.sectionId)
-        if(this.undoStack[0].editors.length == 0){
 
-          let sel = this.calcSel(this.mainProsemirrorUndoManagers[changeMeta.sectionId].undoStack[this.mainProsemirrorUndoManagers[changeMeta.sectionId].undoStack.length-1],editorSel)
+        this.redoStack = []
+        this.clearRedoStacks()
+    } else if (changeMeta.addToLastUndoItem) {
+    }
+    if(changeMeta.addNewUndoItem||changeMeta.addToLastUndoItem){
+      let editorSel = this.serviceShare.ProsemirrorEditorsService.getEditorSelection(changeMeta.sectionId)
+        if(changeMeta.addNewUndoItem){
+          let sel = this.calcSel(item,editorSel)
           console.log('seting both start and end',sel,editorSel);
           this.undoStack[0].startSel = sel
           this.undoStack[0].endSel = editorSel
-        }else{
+        }else if (changeMeta.addToLastUndoItem){
           console.log('seting end',editorSel);
           this.undoStack[0].endSel = editorSel
         }
-        if(this.undoStack[0].editors.filter((editor)=>editor == changeMeta.sectionId).length == 0){
-          this.undoStack[0].editors.unshift(changeMeta.sectionId)
-        }
-        this.redoStack = []
-        this.clearRedoStacks()
-      }
-    } else if (changeMeta.addingToLastItem) {
     }
   }
 
@@ -264,7 +261,7 @@ export class YjsHistoryService {
           // TODO: check if plugin order matches and fix
           const ystate = ySyncPluginKey.getState(state)
           const undoManager = new UndoManager(ystate.type, {
-            captureTimeout: 3000,
+            captureTimeout: this.captureTimeout,
             deleteFilter: (item: any) => !(item instanceof Item) ||
               !(item.content instanceof ContentType) ||
               !(item.content.type instanceof Text ||
@@ -334,7 +331,7 @@ export class YjsHistoryService {
 
           //if(item.type!=='undo'&&item.type!=='redo'){
           //console.log('incoming item', item);
-          this.computeHistoryChange(item.undoRedoMeta);
+          this.computeHistoryChange(item.undoRedoMeta,item.stackItem,item);
           //}
           /*let changedItems = item.changedParentTypes
           let iterator = changedItems.entries()
@@ -455,7 +452,7 @@ export class YjsHistoryService {
       redoItem.editors.unshift(editor)
     })
     this.redoStack.unshift(redoItem);
-    if (redoItem.editors[0] != 'endEditor') {
+    if (redoItem.editors[0] != 'endEditor'&&redoItem.editors[0]) {
       this.serviceShare.ProsemirrorEditorsService!.scrollMainEditorIntoView(redoItem.editors[0])
       this.serviceShare.ProsemirrorEditorsService.changeSelectionOfEditorAndFocus(redoItem.editors[0],redoItem.startSel)
     }
@@ -486,7 +483,7 @@ export class YjsHistoryService {
       undoItem.editors.unshift(editor)
     })
     this.undoStack.unshift(undoItem);
-    if (undoItem.editors[0] != 'endEditor') {
+    if (undoItem.editors[0] != 'endEditor'&&undoItem.editors[0]) {
       this.serviceShare.ProsemirrorEditorsService!.scrollMainEditorIntoView(undoItem.editors[0])
       this.serviceShare.ProsemirrorEditorsService.changeSelectionOfEditorAndFocus(undoItem.editors[0],redoItem.endSel)
     }

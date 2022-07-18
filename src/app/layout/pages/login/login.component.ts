@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserModel } from '@core/models/user.model';
@@ -6,16 +6,17 @@ import { AuthService } from '@core/services/auth.service';
 import { BroadcasterService } from '@core/services/broadcaster.service';
 import { CONSTANTS } from '@core/services/constants';
 import { FormioBaseService } from '@core/services/formio-base.service';
-import { Observable } from 'rxjs';
-import { first } from 'rxjs/operators';
+import {Observable, Subscription} from 'rxjs';
+import {first, take} from 'rxjs/operators';
 import {uuidv4} from "lib0/random";
+import {lpClient} from "@core/services/oauth-client";
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
   styleUrls: [ './login.component.scss' ]
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent implements OnInit, OnDestroy {
   // KeenThemes mock, change it to:
   defaultAuth: any = {
     email: 'admin@demo.com',
@@ -25,6 +26,7 @@ export class LoginComponent implements OnInit {
   hasError!: boolean;
   returnUrl!: string;
   isLoading$: Observable<boolean> = this._broadcaster.listen(CONSTANTS.SHOW_LOADER);
+  private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
 
   constructor(
     private fb: FormBuilder,
@@ -84,5 +86,29 @@ export class LoginComponent implements OnInit {
       loginSub.subscribe((data:any)=>{
         console.log(data);
       })
+  }
+
+  signIn() {
+    lpClient.signIn().then(async signInResult => {
+      console.log(signInResult);
+      if(signInResult){
+        const token: string = await lpClient.getToken();
+        this.authService.storeToken('token', token);
+        const loginSubscr = this.authService.getUserInfo().pipe(take(1))
+          .subscribe((user: UserModel | undefined) => {
+            if (user) {
+              this.router.navigate(['/dashboard']);
+              this.formioBaseService.login();
+            } else {
+              this.hasError = true;
+            }
+          });
+        this.unsubscribe.push(loginSubscr);
+      }
+    }).catch(err => console.log(err));
+  }
+
+  ngOnDestroy() {
+    this.unsubscribe.forEach((sb) => sb.unsubscribe());
   }
 }

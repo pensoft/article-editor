@@ -15,7 +15,7 @@
     <form class="form-container" [formGroup]="loginForm" (ngSubmit)="submit()">
       <div class="form-a">
         <label class="arpha-label character-style-11">{{'Email*'}}</label>
-        <div class="arpha-input-container" >
+        <div class="arpha-input-container">
           <input
             class="arpha-input"
             type="email"
@@ -38,7 +38,7 @@
       </div>
       <div class="form-b">
         <label class="arpha-label character-style-11">{{'Password*'}}</label>
-        <div class="arpha-input-container" >
+        <div class="arpha-input-container">
           <input
             class="arpha-input"
             formControlName="password"
@@ -49,14 +49,14 @@
 
           >
         </div>
-<!--        <input
-          formControlName="password"
-          type="password"
-          label="Password*"
-          placeholder="Password"
-          id="password"
+        <!--        <input
+                  formControlName="password"
+                  type="password"
+                  label="Password*"
+                  placeholder="Password"
+                  id="password"
 
-        >-->
+                >-->
       </div>
       <div class="password-link"><a>Forgot your password?</a></div>
       <arpha-button label="Login" type="submit" class="primary large login-button"></arpha-button>
@@ -68,21 +68,27 @@
     </form>
 
     <div class="link-container">
-      <arpha-button label="ORCID" class="secondary small icon-text" icon="dashboard"></arpha-button>
-      <arpha-button label="Google" class="secondary small icon-text" icon="dashboard"></arpha-button>
-      <arpha-button label="Linkedin" class="secondary small icon-text" icon="dashboard"></arpha-button>
-      <arpha-button label="Facebook" class="secondary small icon-text" icon="dashboard"></arpha-button>
+      <!--      <arpha-button label="ORCID" class="secondary small icon-text" icon="dashboard"></arpha-button>-->
+      <!--      <arpha-button label="Google" class="secondary small icon-text" icon="dashboard"></arpha-button>-->
+      <!--      <arpha-button label="Linkedin" class="secondary small icon-text" icon="dashboard"></arpha-button>-->
+      <!--      <arpha-button label="Facebook" class="secondary small icon-text" icon="dashboard"></arpha-button>-->
+      <arpha-button label="Facebook" class="secondary large icon-text" icon="dashboard" (click)="signIn()">Login with
+        Pensoft
+      </arpha-button>
     </div>
 
     <div class="link-container-mobile">
-      <div>
+      <!--<div>
         <arpha-button label="ORCID" class="secondary small icon-text" icon="dashboard"></arpha-button>
         <arpha-button label="Google" class="secondary small icon-text" icon="dashboard"></arpha-button>
       </div>
       <div>
         <arpha-button label="Linkedin" class="secondary small icon-text" icon="dashboard"></arpha-button>
         <arpha-button label="Facebook" class="secondary small icon-text" icon="dashboard"></arpha-button>
-      </div>
+      </div>-->
+      <arpha-button label="Facebook" class="secondary large icon-text" icon="dashboard" (click)="signIn()">Login with
+        Pensoft
+      </arpha-button>
     </div>
 
   </div>
