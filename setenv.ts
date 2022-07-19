@@ -23,8 +23,10 @@ export const environment = {
    WEBSOCKET_HOST: '${websocket.host}',
    EXTERNAL_REFS_API: '${isProduction?"https://refindit.org/find":"/find"}',
    WEBSOCKET_PORT: '${websocket.port}',
-   authServer: 'http://article-account.com',
-   passport_client_id: '96a91e5f-740c-42a7-95db-1b7cbd84b1fc'
+   authServer: 'https://ps-accounts.dev.scalewest.com',
+   authUrl: 'https://ps-accounts.dev.scalewest.com/api',
+   apiUrl: 'https://ps-api.dev.scalewest.com/api',
+   passport_client_id: '96c50ae2-91d6-4df2-b9b0-1b1f5ef40def'
 };
 `;
 // write the content to the respective file

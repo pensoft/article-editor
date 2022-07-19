@@ -24,6 +24,7 @@ import { RecentPermissionComponent } from './layout/pages/recent-permission/rece
 
 import { AddContributorsDialogComponent } from './editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
 import { LibraryPage } from './layout/pages/library/library.component';
+import {OauthCallbackComponent} from "@app/layout/pages/oauth-callback/oauth-callback.component";
 
 const routes: Routes = [
   { path: 'profile-info', component: ProfileInfoComponent },
@@ -35,6 +36,11 @@ const routes: Routes = [
     children: [
       { path: '', canActivate: [LoginGuard], component: LandingComponent },
       { path: 'login', canActivate: [LoginGuard], component: LoginComponent },
+      {
+        path: 'callback',
+        component: OauthCallbackComponent,
+        data: { returnUrl: window.location.pathname },
+      },
       { path: 'register', canActivate: [LoginGuard], component: SignupComponent },
       //{ path: 'choose',canActivate: [AuthGuard], component: ChooseManuscriptDialogComponent },
       { path: 'create', canActivate: [AuthGuard], component: CreateNewProjectComponent },

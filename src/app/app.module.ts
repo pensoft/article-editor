@@ -123,6 +123,7 @@ import {MaterialsSectionComponent} from "@app/editor/section/materials-section/m
 import {MaterialSectionComponent} from "@app/editor/section/material-section/material-section.component";
 import {Observable} from "rxjs";
 import {RefsApiService} from "@app/layout/pages/library/lib-service/refs-api.service";
+import {OauthCallbackComponent} from "@app/layout/pages/oauth-callback/oauth-callback.component";
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -146,6 +147,7 @@ const gravatarConfig: GravatarConfig = {
     MetaDataTreeComponent,
     CommentsSectionComponent,
     ChangesSectionComponent,
+    OauthCallbackComponent,
     CommentComponent,
     AddCommentDialogComponent,
     MainComponent,

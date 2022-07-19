@@ -89,7 +89,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   signIn() {
-    console.log(lpClient);
     lpClient.signIn().then(async signInResult => {
       console.log(signInResult);
       if(signInResult){
