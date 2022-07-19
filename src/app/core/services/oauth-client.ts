@@ -1,3 +1,4 @@
+//@ts-ignore
 import createLaravelPassportClient from 'laravel-passport-spa-js';
 import { environment } from '@env';
 

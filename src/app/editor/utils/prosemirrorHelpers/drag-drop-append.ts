@@ -38,7 +38,6 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
                 }
               })
             }
-            console.log('drag with copy v1');
 
           } else if (transaction.steps.length == 2) {
             // its only drag so we dont have to do anything
@@ -52,7 +51,6 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
                 }
               })
             }
-            console.log('drag without copy v1');
           }
         }
       }
@@ -80,7 +78,6 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
       })
     })
     if (dragDropCitation) {
-      console.log('drag drop set meta');
       sharedService.YjsHistoryService.addUndoItemInformation({
         type: 'figure-citation',
         data: {}
@@ -121,7 +118,6 @@ export function handleDeleteOfRefAndFigCitation(sharedService: ServiceShare) {
     })
     if (deletingFigCitation) {
       setTimeout(()=>{
-        console.log('delete set meta ');
         sharedService.YjsHistoryService.addUndoItemInformation({
           type: 'figure-citation',
           data: {}
@@ -129,11 +125,16 @@ export function handleDeleteOfRefAndFigCitation(sharedService: ServiceShare) {
         setTimeout(() => {
           sharedService.FiguresControllerService.updateOnlyFiguresView()
         }, 20)
-        console.log('deletion of figure cite');
       },10)
     }
     if (deletedRefCitations.length > 0) {
-      sharedService.EditorsRefsManagerService!.handleRefCitationDelete(deletedRefCitations)
+      setTimeout(()=>{
+        sharedService.YjsHistoryService.capturingNewItem = true
+        sharedService.EditorsRefsManagerService!.handleRefCitationDelete(deletedRefCitations)
+        setTimeout(()=>{
+          sharedService.YjsHistoryService.stopCapturingUndoItem()
+        },20)
+      },10)
     }
     return undefined;
   }

@@ -17,8 +17,28 @@ export class EditorsRefsManagerService {
 
   dothSaveToHistory = false;
 
+  removeRefsThatAreNotInEndEditor(refs:any){
+    console.log('refs in yjs',refs);
+    let filteredRefs:any = {}
+    let editorContainers = this.serviceShare.ProsemirrorEditorsService.editorContainers;
+    Object.keys(editorContainers).forEach((sectionId)=>{
+      let doc = editorContainers[sectionId].editorView.state.doc
+      let docSize = doc.content.size
+      doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
+        if (n.type.name == 'reference_citation_end') {
+          let id = n.attrs.referenceData.refId
+          if(refs[id]){
+            filteredRefs[id] = refs[id]
+          }
+        }
+      })
+    })
+    return filteredRefs
+  }
+
   addReferenceToEditor(refDataFromDialog: any, fromEditDialog?: true) {
     let refs = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
+    refs = this.removeRefsThatAreNotInEndEditor(refs)
     let oldRefs = JSON.parse(JSON.stringify(refs))
     let citationDisplayText = refDataFromDialog.citation.text;
     let countOfRefsWithTheSameDisplayText = 0;
@@ -42,7 +62,6 @@ export class EditorsRefsManagerService {
       refInstance: refDataFromDialog.refInstance
     }
     let notInEndEditorYet = !refs[refID]
-    console.log(refs);
     refs[refID] = newRef
     let refsUpdated = this.updateCitationsDisplayTextAndBibliography(refs)
     if (notInEndEditorYet) {
@@ -168,14 +187,10 @@ export class EditorsRefsManagerService {
   }
 
   handleRefCitationDelete(deletedRefCitations: any[]) {
-    setTimeout(() => {
-      deletedRefCitations
-      let refs = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
       deletedRefCitations.forEach((delCit) => {
         let deletedCitRefId = delCit.actualRefId
         this.checkIfShouldRemoveEditorFromEndEditor(deletedCitRefId)
       })
-    }, 10)
   }
 
   checkIfShouldRemoveEditorFromEndEditor(refId: string,) {
@@ -225,7 +240,7 @@ export class EditorsRefsManagerService {
     if (nOfRefs == 1) {
       st.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
         if (n.type.name == 'reference_container') {
-          from = p - 15;
+          from = p - 16;
           to = p + n.nodeSize
         }
       })
@@ -251,6 +266,13 @@ export class EditorsRefsManagerService {
       }
     })
     this.updateCitationsDisplayTextAndBibliography(newRefs)
+    this.serviceShare.YjsHistoryService.addUndoItemInformation({
+      type:'refs-yjs-delete',
+      data:{
+        oldRefs:JSON.parse(JSON.stringify(refs)),
+        newRefs:JSON.parse(JSON.stringify(newRefs))
+      }
+    })
     this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', newRefs)
 
   }

@@ -71,6 +71,7 @@ export class LibraryPage implements AfterViewInit {
               let containers = this.serviceShare.ProsemirrorEditorsService?.editorContainers!
               // find ref in the returned obj
               // edit all cetitaions of this reference in the editors
+              this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
               this.cslService.updateAllCitatsOfReferenceInAllEditors(containers,reference)
             })
           }
