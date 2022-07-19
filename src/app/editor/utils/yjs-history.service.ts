@@ -147,7 +147,9 @@ export class YjsHistoryService {
         this.redoStack = []
         this.clearRedoStacks()
     } else if (changeMeta.addToLastUndoItem || (this.capturingNewItem && this.undoStack.length > 0 && !this.undoStack[0].finished)) {
-      this.undoStack[0].editors.unshift(changeMeta.sectionId);
+      if(!this.undoStack[0].editors.find((val)=>changeMeta.sectionId == val)){
+        this.undoStack[0].editors.unshift(changeMeta.sectionId);
+      }
       this.clearRedoStacks()
     }
     if(changeMeta.addNewUndoItem||changeMeta.addToLastUndoItem){

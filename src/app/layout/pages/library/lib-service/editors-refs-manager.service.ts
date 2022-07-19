@@ -1,14 +1,26 @@
 import { Injectable } from '@angular/core';
 import { ServiceShare } from '@app/editor/services/service-share.service';
+import { PMDomParser } from '@app/editor/utils/Schema';
 import { uuidv4 } from 'lib0/random';
 import { endsWith, keys } from 'lodash';
-import { Fragment } from 'prosemirror-model';
+import { DOMParser, DOMSerializer, Fragment, Schema } from 'prosemirror-model';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
+
+export function getHtmlInlineNodes(htmlSteing:string){
+  let container = document.createElement('p');
+  let html = htmlSteing.replace(/<p[^>]+>|<div[^>]+>|<\/p>|<\/div>/gm,'');
+  container.innerHTML = html;
+  let nodes = PMDomParser.parseSlice(container)
+  console.log(nodes.content,html);
+  //@ts-ignore
+  return nodes.content.content
+}
 
 @Injectable({
   providedIn: 'root'
 })
+
 export class EditorsRefsManagerService {
 
   constructor(private serviceShare: ServiceShare) {
@@ -41,6 +53,7 @@ export class EditorsRefsManagerService {
     refs = this.removeRefsThatAreNotInEndEditor(refs)
     let oldRefs = JSON.parse(JSON.stringify(refs))
     let citationDisplayText = refDataFromDialog.citation.text;
+    console.log('refDataFromDialog',refDataFromDialog);
     let countOfRefsWithTheSameDisplayText = 0;
     let refID
     if (refDataFromDialog.refInstance == 'local') {
@@ -58,6 +71,8 @@ export class EditorsRefsManagerService {
       citationDisplayText: citationDisplayText,
       originalBibliography: refDataFromDialog.citation.bibliography,
       bibliography: refDataFromDialog.citation.bibliography,
+      displayHTMLOriginal: refDataFromDialog.citation.htmlBibliography,
+      displayHTML: refDataFromDialog.citation.htmlBibliography,
       ref: refDataFromDialog.ref,
       refInstance: refDataFromDialog.refInstance
     }
@@ -131,7 +146,9 @@ export class EditorsRefsManagerService {
             let citationDisText = this.checkTextAndReplace(ref.originalDisplayText, char)
             ref.citationDisplayText = citationDisText
             let bibliography = this.checkTextAndReplace(ref.originalBibliography, char)
+            let html = this.checkTextAndReplace(ref.displayHTMLOriginal, char)
             ref.bibliography = bibliography
+            ref.displayHTML=html
             count++;
           }
         })
@@ -143,6 +160,7 @@ export class EditorsRefsManagerService {
             updatedReferences.push(refId)
             ref.citationDisplayText = ref.originalDisplayText
             ref.bibliography = ref.originalBibliography
+            ref.displayHTML = ref.displayHTMLOriginal
           }
         })
       }
@@ -362,7 +380,8 @@ export class EditorsRefsManagerService {
     })
     if (node) {
       let attrs = JSON.parse(JSON.stringify(node.attrs));
-      let newNode = state.schema.nodes.reference_citation_end.create(attrs, state.schema.text(ydocRefs[refId].bibliography))
+
+      let newNode = state.schema.nodes.reference_citation_end.create(attrs, getHtmlInlineNodes(ydocRefs[refId].displayHTML))
       endEdView.dispatch(state.tr.replaceWith(from, to, newNode).setMeta('skipChange', true));
     }
   }
@@ -397,7 +416,7 @@ export class EditorsRefsManagerService {
         referenceContainerIsRendered = true
       }
     })
-    let schema = view.state.schema
+    let schema:Schema = view.state.schema
     if (newRef.refInstance == 'local') {
       let referenceData = { refId: newRef.ref.refData.referenceData.id, last_modified: newRef.ref.refData.last_modified };
       let referenceStyle = { name: newRef.ref.refStyle.name, last_modified: newRef.ref.refStyle.last_modified };
@@ -411,7 +430,7 @@ export class EditorsRefsManagerService {
         refInstance: newRef.refInstance
       }
 
-      let refNode = schema.nodes.reference_citation_end.create(recCitationAttrs, schema.text(newRef.bibliography))
+      let refNode = schema.nodes.reference_citation_end.create(recCitationAttrs, getHtmlInlineNodes(newRef.displayHTML))
       let refContainerNode = schema.nodes.reference_block_container.create({ contenteditableNode: 'false' }, refNode)
       if (!referenceContainerIsRendered) {
         let refTitle = schema.nodes.paragraph.create({ contenteditableNode: 'false' }, schema.text('References :'))

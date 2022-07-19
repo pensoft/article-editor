@@ -37,44 +37,47 @@ export class LibraryPage implements AfterViewInit {
   possibleReferenceTypes: any[] = possibleReferenceTypes
 
   editReference(editref: any) {
-    this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
-      this.refsAPI.getStyles().subscribe((refStyles: any) => {
-        let referenceStyles = refStyles.data
-        let referenceTypesFromBackend = refTypes.data;
-        const dialogRef = this.dialog.open(ReferenceEditComponent, {
-          data: { referenceTypesFromBackend, oldData: editref,referenceStyles },
-          panelClass: 'edit-reference-panel',
-          width: 'auto',
-          height: '90%',
-          maxWidth: '100%'
-        });
+    this.refsAPI.getReferences().subscribe()
+    this.refsAPI.getReferenceById(editref.refData.referenceData.id).subscribe((ref)=>{
+      this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
+        this.refsAPI.getStyles().subscribe((refStyles: any) => {
+          let referenceStyles = refStyles.data
+          let referenceTypesFromBackend = refTypes.data;
+          const dialogRef = this.dialog.open(ReferenceEditComponent, {
+            data: { referenceTypesFromBackend, oldData: ref,referenceStyles },
+            panelClass: 'edit-reference-panel',
+            width: 'auto',
+            height: '90%',
+            maxWidth: '100%'
+          });
 
-        dialogRef.afterClosed().subscribe((result: any) => {
-          if (result) {
-            let refType: reference = result.referenceScheme;
-            let refStyle = result.referenceStyle
-            let formioData = result.submissionData.data;
-            let globally = result.globally
-            let newRef = genereteNewReference(refType, formioData)
-            let refID = editref.refData.referenceData.id;
-            this.editRef(refType, refStyle,formioData, editref,globally).subscribe((editRes)=>{
-              // this.userReferences = undefined;
-              this.changeDetection.detectChanges();
-              this.refsAPI.getReferences().subscribe((refs:any)=>{
-                this.messageSource.next(refs.data);
-                // this.userReferences = refs.data;
+          dialogRef.afterClosed().subscribe((result: any) => {
+            if (result) {
+              let refType: reference = result.referenceScheme;
+              let refStyle = result.referenceStyle
+              let formioData = result.submissionData.data;
+              let globally = result.globally
+              let newRef = genereteNewReference(refType, formioData)
+              let refID = ref.refData.referenceData.id;
+              this.editRef(refType, refStyle,formioData, ref,globally).subscribe((editRes)=>{
+                // this.userReferences = undefined;
                 this.changeDetection.detectChanges();
+                this.refsAPI.getReferences().subscribe((refs:any)=>{
+                  this.messageSource.next(refs.data);
+                  // this.userReferences = refs.data;
+                  this.changeDetection.detectChanges();
+                })
               })
-            })
-            this.cslService.addReference(newRef, refType, refStyle, formioData, editref, globally).subscribe((editRes:any) => {
-              let reference = editRes.data.find((ref1:any)=>ref1.refData.referenceData.id == editref.refData.referenceData.id)
-              let containers = this.serviceShare.ProsemirrorEditorsService?.editorContainers!
-              // find ref in the returned obj
-              // edit all cetitaions of this reference in the editors
-              this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
-              this.cslService.updateAllCitatsOfReferenceInAllEditors(containers,reference)
-            })
-          }
+              this.cslService.addReference(newRef, refType, refStyle, formioData, ref, globally).subscribe((editRes:any) => {
+                let reference = editRes.data.find((ref1:any)=>ref1.refData.referenceData.id == ref.refData.referenceData.id)
+                let containers = this.serviceShare.ProsemirrorEditorsService?.editorContainers!
+                // find ref in the returned obj
+                // edit all cetitaions of this reference in the editors
+                this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
+                this.cslService.updateAllCitatsOfReferenceInAllEditors(containers,reference)
+              })
+            }
+          })
         })
       })
     })

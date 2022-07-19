@@ -82,6 +82,19 @@ export class RefsApiService {
     return mapedTypes
   }
 
+  getReferenceById(id:number){
+    let obs = this._http.get(API_URL + '/references/items/'+id).pipe(map((data: any) => {
+      [data.data].forEach(item => {
+        if (item.issued && item.issued.hasOwnProperty('date-parts')) {
+          item.issued = item.issued['date-parts'].join('-');
+        }
+      })
+      let refs = this.mapRefItems({data:[data.data]})
+      return refs[0]
+    }))
+    return obs;
+  }
+
   getReferences() {
     let obs = this._http.get(API_URL + '/references/items').pipe(map((data: any) => {
       data.data.forEach(item => {

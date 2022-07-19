@@ -111,7 +111,7 @@ export const reference_container = {
 }
 
 export const reference_block_container = {
-  content: "inline",
+  content: "block*",
   group: "block",
   attrs: {
     ...getGenericAttributes(),
@@ -133,9 +133,8 @@ export const reference_block_container = {
 }
 
 export const reference_citation_end = {
-  content: "inline",
-  group: "inline",
-  inline:true,
+  content: "inline*",
+  group: "block",
   attrs: {
     ...getGenericAttributes(),
     refInstance:{default:'local'},

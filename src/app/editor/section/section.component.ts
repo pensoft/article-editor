@@ -170,6 +170,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
       let tr = this.codemirrorHTMLEditor?.state.update()
       this.codemirrorHTMLEditor?.dispatch(tr!);
       prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
+      console.log(prosemirrorNewNodeContent!, submision.data, this.sectionForm);
       interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm);
       submision.compiledHtml = interpolated
       this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)

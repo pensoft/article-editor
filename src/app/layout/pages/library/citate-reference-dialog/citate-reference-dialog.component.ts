@@ -314,11 +314,11 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
               "last_modified": 1649665699315
             }
           }
-          this.refsAPI.createReference(ref, this.externalSelection.ref, refTypes.data[typeIndex]).subscribe((refs) => {
+          this.refsAPI.createReference(ref, this.externalSelection.ref, refTypes.data[typeIndex]).subscribe((refs:any) => {
             this.citating = false;
             this.changeDetectorRef.detectChanges()
             this.dialogRef.close({
-              ref: ref,
+              ref: refs.data[0],
               refInstance: 'local',
               //externalSelect:this.selected,
               citation,

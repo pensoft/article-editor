@@ -9,6 +9,13 @@ citation {
   white-space: pre;
 }
 
+app-figures-prosemirror-view {
+  figures-nodes-container {
+    border-top: 2px dashed rgb(0 0 0 / 87%);
+    display: block;
+  }
+}
+
 .show-article-data {
   width: 90% !important;
   height: 90% !important;
@@ -173,7 +180,7 @@ form-field[invalid="true"] {
 }
 
 .ProseMirror__placeholder {
-  & + p {
+  &+p {
     min-width: 100px;
   }
 }
@@ -184,11 +191,12 @@ form-field[invalid="true"] {
     background-color: #eefbfb;
 } */
 
-.ProseMirror .borderless{
+.ProseMirror .borderless {
   table {
     border: none !important;
   }
 }
+
 .ProseMirror {
   word-break: break-all !important;
 }

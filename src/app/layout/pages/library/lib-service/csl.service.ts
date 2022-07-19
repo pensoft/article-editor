@@ -80,6 +80,7 @@ export class CslService {
       "properties": { "noteIndex": 1 }
     }, [], []]);
     let bibliography = this.citeproc.makeBibliography();
+    citationData.htmlBibliography = bibliography[1][0]
     citationData.bibliography = bibliography[1][0];
     let contDiv = document.createElement('div');
     contDiv.innerHTML = citationData.bibliography;
@@ -404,6 +405,7 @@ export class CslService {
           return ref.refData.referenceData.id == citationRefId;
         })
       }
+      console.log(refs,refsInEndEditor);
       if (ref) {
         this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
           this.refsAPI.getStyles().subscribe((refStyles: any) => {

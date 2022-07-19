@@ -159,6 +159,7 @@ export class ReferencePluginService {
     })
     if (actualRef) {
       let strObj = this.serviceShare.CslService?.genereteCitationStr(refStyle.name, actualRef.refData.referenceData);
+      console.log(strObj);
       let refInYdoc = this.serviceShare.EditorsRefsManagerService!.addReferenceToEditor({
         ref:actualRef,
         citation:strObj,

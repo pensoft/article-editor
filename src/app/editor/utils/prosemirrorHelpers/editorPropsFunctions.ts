@@ -230,6 +230,18 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
       } else if (NodeBeforeHasNoneditableMark && NodeAfterHasNoneditableMark) {
         canEdit = false
       }
+      let firstnodeToTheRight:any
+      firstnodeToTheRight = sel.$to.nodeAfter;
+      let posToTheRight = sel.to;
+      while(!firstnodeToTheRight&&posToTheRight+1<view.state.doc.content.size){
+        posToTheRight = posToTheRight+1
+        let reslovedNext = view.state.doc.resolve(posToTheRight);
+        firstnodeToTheRight = reslovedNext.nodeAfter
+      }
+      let figNodeContToTheRight = false
+      if(firstnodeToTheRight&&firstnodeToTheRight.type.name == "figures_nodes_container"){
+        figNodeContToTheRight = true
+      }
       if (onNoneditableMarkBorder) {
         if (onNoneditableMarkBorder == 'left') {
           if (key == 'Delete') {
@@ -240,6 +252,9 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
             canEdit = false
           }
         }
+      }
+      if(key == 'Delete'&&figNodeContToTheRight){
+        canEdit = false
       }
       // check both sides for noneditable marks
 

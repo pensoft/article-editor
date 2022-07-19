@@ -242,7 +242,8 @@ export class FiguresControllerService {
     this.ydocService.figuresMap!.set('ArticleFigures', ArticleFigures)
     this.figuresNumbers = ArticleFiguresNumbers
     this.figures = ArticleFigures
-    this.updateFiguresAndFiguresCitations()
+    console.log(ArticleFigures);
+    this.updateFiguresAndFiguresCitations(ArticleFigures)
     this.ydocService.figuresMap?.set('articleCitatsObj', articleCitatsObj);
     this.prosemirrorEditorsService.applyLastScrollPosition();
   }
@@ -257,6 +258,7 @@ export class FiguresControllerService {
     })
     this.prosemirrorEditorsService.saveScrollPosition()
     this.updateFiguresNumbers(newFigures, figureNumbers)
+    console.log('1',JSON.parse(JSON.stringify(newFigures)));
     this.ydocService.figuresMap!.set('ArticleFiguresNumbers', figureNumbers)
     this.ydocService.figuresMap!.set('ArticleFigures', newFigures)
 
@@ -265,7 +267,7 @@ export class FiguresControllerService {
 
 
     let citats = this.ydocService.figuresMap?.get('articleCitatsObj');
-    this.updateFiguresAndFiguresCitations()
+    this.updateFiguresAndFiguresCitations(JSON.parse(JSON.stringify(newFigures)))
     this.ydocService.figuresMap?.set('articleCitatsObj', citats);
 
     /* try {
@@ -428,6 +430,8 @@ export class FiguresControllerService {
   markCitatsViews = (citatsBySection: any) => {
     this.resetCountedRenderedViews();
     let numbersCopy: string[] = JSON.parse(JSON.stringify(this.figuresNumbers));
+    console.log('9',JSON.parse(JSON.stringify(this.figures)));
+
     this.figures = this.ydocService.figuresMap!.get('ArticleFigures')
     Object.keys(this.prosemirrorEditorsService.editorContainers).forEach((key) => {
       let containersCount = 0
@@ -666,11 +670,11 @@ export class FiguresControllerService {
         position: number
       }
     }
-  }) {
+  },newFigures?:any) {
     if (this.sub) {
       return
     }
-    let figures = this.ydocService.figuresMap.get('ArticleFigures');
+    let figures = newFigures?newFigures:this.ydocService.figuresMap.get('ArticleFigures');
     let figuresTemplates = this.ydocService.figuresMap!.get('figuresTemplates');
     let DOMPMParser = DOMParser.fromSchema(schema)
     let numberOfFigures = Object.values(figures).filter((fig: any) => {
@@ -704,6 +708,7 @@ export class FiguresControllerService {
             serializedFigureToFormIOsubmission.figureID = figureData.figureID
             serializedFigureToFormIOsubmission.figureNumber = figureData.figureNumber
             serializedFigureToFormIOsubmission.viewed_by_citat = citatID
+            console.log(serializedFigureToFormIOsubmission);
             let figureFormGroup = buildFigureForm(serializedFigureToFormIOsubmission)
             this.prosemirrorEditorsService.interpolateTemplate(figureTemplate!.html, serializedFigureToFormIOsubmission, figureFormGroup).then((data: any) => {
               let templ = document.createElement('div')
@@ -829,14 +834,14 @@ export class FiguresControllerService {
     })
   }
   updatingFiguresAndFiguresCitations = false
-  updateFiguresAndFiguresCitations() {
+  updateFiguresAndFiguresCitations(newFigures?:any) {
     this.updatingFiguresAndFiguresCitations = true
     this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
     let citations = this.getFigureCitations()
     this.updateCitatsText(citations);
     let newCitatsObj = this.markCitatsViews(citations)
     this.ydocService.figuresMap?.set('articleCitatsObj', newCitatsObj)
-    this.displayFigures(newCitatsObj)
+    this.displayFigures(newCitatsObj,newFigures)
   }
 
   updatingOnlyFiguresView = false;
