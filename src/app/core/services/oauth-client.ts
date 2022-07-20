@@ -1,6 +1,6 @@
 //@ts-ignore
 import createLaravelPassportClient from 'laravel-passport-spa-js';
-import { environment } from '@env';
+import {environment} from '@env';
 
 export const lpClient = createLaravelPassportClient({
   // the domain of your authentication server
@@ -12,6 +12,6 @@ export const lpClient = createLaravelPassportClient({
 
   // the uri the authentication server will send the authorization codes to
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  redirect_uri: `${window.location.origin}/callback`,
+  redirect_uri: `${window.location.origin}${environment.production ? '/demo' : ''}/callback`,
   isAutoRefresh: false
 });
