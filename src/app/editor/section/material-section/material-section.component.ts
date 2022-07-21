@@ -6,6 +6,7 @@ import {HttpClient} from "@angular/common/http";
 import {HelperService} from "@app/editor/section/helpers/helper.service";
 import {Observable} from "rxjs";
 import {startWith, map} from "rxjs/operators";
+import { ServiceShare } from '@app/editor/services/service-share.service';
 
 @Component({
   selector: 'app-material-section',
@@ -34,7 +35,8 @@ export class MaterialSectionComponent implements AfterViewInit {
   constructor(
     private treeService: TreeService,
     public http: HttpClient,
-    public helperService: HelperService
+    public helperService: HelperService,
+    public serviceShare:ServiceShare
   ) {
   }
 
@@ -52,14 +54,18 @@ export class MaterialSectionComponent implements AfterViewInit {
         return entry.localName
       })
     }).flat();
+    console.log(this.treeService.sectionFormGroups[this.section.sectionID]);
 
     this.typeStatus = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get('typeStatus')?.value);
     this.typeHeading = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get('typeHeading')?.value);
     this.listChar = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get('listChar')?.value);
     this.render = true;
-
+    let customPropsObj = this.serviceShare.YdocService.customSectionProps.get('customPropsObj')
     this.props.forEach(control => {
       this[control] = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get(control)?.value);
+      if(customPropsObj[this.section.sectionID]){
+        this[control] = customPropsObj[this.section.sectionID][control]
+      }
     });
 
     this.filteredOptions = this.searchdarwincore.valueChanges.pipe(
@@ -87,6 +93,7 @@ export class MaterialSectionComponent implements AfterViewInit {
     this.props.forEach(prop => {
       data[prop] = this[prop] && this[prop]!.value
     });
+    console.log('data',data);
     Object.keys(data).forEach(key => {
       if (data[key] === undefined || data[key] === null) {
         if (key !== 'listChar' && key !== 'typeHeading') {

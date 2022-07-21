@@ -2,10 +2,10 @@ export const treatmentSectionsDescription = {
   "id": 9980,
   "name": "[MM] Description",
   "label": "Description",
-  edit: {bool: true, main: true},
-  add: {bool: false, main: false},
-  delete: {bool: false, main: false},
-  select: {bool: true, main: true},
+  edit: {active: true, main: true},
+  add: {active: false, main: false},
+  delete: {active: false, main: false},
+  select: {active: true, main: true},
   "schema": {
     "components": [
       {
@@ -111,10 +111,10 @@ export const treatmentSectionsDiagnosis = {
   "id": 9979,
   "name": "[MM] Diagnosis",
   "label": "Diagnosis",
-  edit: {bool: true, main: true},
-  add: {bool: false, main: false},
-  delete: {bool: false, main: false},
-  select: {bool: true, main: true},
+  edit: {active: true, main: true},
+  add: {active: false, main: false},
+  delete: {active: false, main: false},
+  select: {active: true, main: true},
   "schema": {
     "components": [
       {
@@ -220,10 +220,10 @@ export const treatmentSectionsDistribution = {
   "id": 9977,
   "name": "[MM] Distribution",
   "label": "Distribution",
-  edit: {bool: true, main: true},
-  add: {bool: false, main: false},
-  delete: {bool: false, main: false},
-  select: {bool: true, main: true},
+  edit: {active: true, main: true},
+  add: {active: false, main: false},
+  delete: {active: false, main: false},
+  select: {active: true, main: true},
   "schema": {
     "components": [
       {
@@ -330,10 +330,10 @@ export const treatmentSectionsEcology = {
   "id": 9976,
   "name": "[MM] Ecology",
   "label": "Ecology",
-  edit: {bool: true, main: true},
-  add: {bool: false, main: false},
-  delete: {bool: false, main: false},
-  select: {bool: true, main: true},
+  edit: {active: true, main: true},
+  add: {active: false, main: false},
+  delete: {active: false, main: false},
+  select: {active: true, main: true},
   "schema": {
     "components": [
       {
@@ -439,10 +439,10 @@ export const treatmentSectionsConservation = {
   "id": 9975,
   "name": "[MM] Conservation",
   "label": "Conservation",
-  edit: {bool: true, main: true},
-  add: {bool: false, main: false},
-  delete: {bool: false, main: false},
-  select: {bool: true, main: true},
+  edit: {active: true, main: true},
+  add: {active: false, main: false},
+  delete: {active: false, main: false},
+  select: {active: true, main: true},
   "schema": {
     "components": [
       {
@@ -548,10 +548,10 @@ export const treatmentSectionsBiology = {
   "id": 9974,
   "name": "[MM] Biology",
   "label": "Biology",
-  edit: {bool: true, main: true},
-  add: {bool: false, main: false},
-  delete: {bool: false, main: false},
-  select: {bool: true, main: true},
+  edit: {active: true, main: true},
+  add: {active: false, main: false},
+  delete: {active: false, main: false},
+  select: {active: true, main: true},
   "schema": {
     "components": [
       {
@@ -657,10 +657,10 @@ export const treatmentSectionsTaxonDiscussion = {
   "id": 9973,
   "name": "[MM] Taxon discussion",
   "label": "Taxon discussion",
-  edit: {bool: true, main: true},
-  add: {bool: false, main: false},
-  delete: {bool: false, main: false},
-  select: {bool: true, main: true},
+  edit: {active: true, main: true},
+  add: {active: false, main: false},
+  delete: {active: false, main: false},
+  select: {active: true, main: true},
   "schema": {
     "components": [
       {
@@ -766,10 +766,10 @@ export const treatmentSectionsNotes = {
   "id": 9972,
   "name": "[MM] Notes",
   "label": "Notes",
-  edit: {bool: true, main: true},
-  add: {bool: false, main: false},
-  delete: {bool: false, main: false},
-  select: {bool: true, main: true},
+  edit: {active: true, main: true},
+  add: {active: false, main: false},
+  delete: {active: false, main: false},
+  select: {active: true, main: true},
   "schema": {
     "components": [
       {
@@ -874,10 +874,10 @@ export const treatmentSectionsNotes = {
 export const treatmentSectionsCustom = {
   "id": 9971,
   "name": "[MM] Custom",
-  edit: {bool: true, main: true},
-  add: {bool: false, main: false},
-  delete: {bool: false, main: false},
-  select: {bool: true, main: true},
+  edit: {active: true, main: true},
+  add: {active: false, main: false},
+  delete: {active: false, main: false},
+  select: {active: true, main: true},
   "label": "{{data.title}}",
   "schema": {
       "components": [

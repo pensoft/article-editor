@@ -5,10 +5,10 @@ export const externalLinks = {
   "id": 9901,
   "name": "[MM] External Links",
   "label": "External Links",
-  edit: {bool: true, main: true},
-  add: {bool: false, main: false},
-  delete: {bool: false, main: false},
-  select: {bool: false, main: false},
+  edit: {active: true, main: true},
+  add: {active: false, main: false},
+  delete: {active: false, main: false},
+  select: {active: false, main: false},
   "schema": {
     "isTrusted": true,
     "components": [
@@ -425,7 +425,7 @@ export const taxonSection = {
   "id": 9999,
   "name": "Taxon",
   parent: null,
-  select: {bool: false, main: false},
+  select: {active: false, main: false},
   "label": "{{(data.taxonTitle!=''&&data.taxonTitle)?data.taxonTitle:'Taxon'}}",
   "schema": {
     "components": [
@@ -653,10 +653,10 @@ export const taxonSection = {
       "id": 9945,
       "name": "[MM] Nomenclature",
       "label": "Nomenclature",
-      edit: {bool: true, main: true},
-      add: {bool: false, main: false},
-      delete: {bool: false, main: false},
-      select: {bool: false, main: false},
+      edit: {active: true, main: true},
+      add: {active: false, main: false},
+      delete: {active: false, main: false},
+      select: {active: false, main: false},
       "schema": {
         "components": [
           {

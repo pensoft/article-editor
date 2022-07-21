@@ -47,6 +47,7 @@ export const updateControlsAndFigures = (
       let figures = figuresMap.get('ArticleFigures');
       let figuresCitats = figuresMap.get('articleCitatsObj');
       let figuresTemplates = figuresMap!.get('figuresTemplates');
+      let customPropsObj = sharedService.YdocService!.customSectionProps?.get('customPropsObj')
 
       let tr1 = newState.tr
       // return value whe r = false the transaction is canseled
@@ -79,6 +80,14 @@ export const updateControlsAndFigures = (
                 component.description = getHtmlFromFragment(descriptions?.child(index + 2).content!.lastChild?.content!)
               }) */
               figuresMap.set('ArticleFigures', JSON.parse(JSON.stringify(figures)))
+            }
+            if(node.attrs.customPropPath&&node.attrs.customPropPath!=''){
+              if(!customPropsObj[section!.sectionID]){
+                customPropsObj[section!.sectionID] = {}
+              }
+              if(node.textContent.trim() != customPropsObj[section!.sectionID][node.attrs.customPropPath]){
+                customPropsObj[section!.sectionID][node.attrs.customPropPath] = node.textContent.trim()
+              }
             }
             if (GroupControl && node.attrs.formControlName && GroupControl[section!.sectionID]) {      // validation for the formCOntrol
               try {

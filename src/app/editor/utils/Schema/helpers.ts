@@ -7,6 +7,7 @@ import { Node } from "prosemirror-model"
 export const getGenericAttributes = () => {
     return {
         controlPath: { default: '' },
+        customPropPath: { default: '' },
         formControlName: { default: '' },
         contenteditableNode: { default: '' },
         menuType: { default: '' },
@@ -21,6 +22,7 @@ export const parseGenericAttributes = (dom: any) => {
 
     return {
         controlPath: dom.getAttribute('controlPath'),
+        customPropPath: dom.getAttribute('customPropPath'),
         formControlName: dom.getAttribute('formControlName'),
         contenteditableNode: dom.getAttribute('contenteditableNode'),
         menuType: dom.getAttribute('menuType'),
@@ -33,6 +35,7 @@ export const parseGenericAttributes = (dom: any) => {
 export const genericAttributtesToDom = (node: Node) => {
     let toDomAttrs:any = {
         controlPath: node.attrs.controlPath,
+        customPropPath: node.attrs.customPropPath,
         formControlName: node.attrs.formControlName,
         contenteditableNode: node.attrs.contenteditableNode,
         menuType: node.attrs.menuType,

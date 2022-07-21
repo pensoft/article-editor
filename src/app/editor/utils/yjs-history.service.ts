@@ -391,7 +391,7 @@ export class YjsHistoryService {
         this.serviceShare.FiguresControllerService.updateFiguresAndFiguresCitations()
       },10)
     }else if (meta.type == 'refs-yjs') {
-      let refsToReturn = action == 'undo' ? meta.data.oldRefs : meta.data.newRefs;
+      /* let refsToReturn = action == 'undo' ? meta.data.oldRefs : meta.data.newRefs;
       this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsToReturn)
       let refs = Object.values(refsToReturn);
       let backEndEditedCount = 0;
@@ -413,7 +413,7 @@ export class YjsHistoryService {
         }, (err) => {
 
         })
-      })
+      }) */
     }else if(meta.type == 'refs-yjs-delete'){
       let refsToSet = action == 'undo' ? meta.data.oldRefs : meta.data.newRefs;
       this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsToSet)
@@ -540,7 +540,7 @@ export class YjsHistoryService {
     if (!info.addnewItem&&(this.undoStack.length == 0 || (this.undoStack.length > 0 && this.undoStack[0].finished))) {
       this.createNewUndoStackItem()
     }
-
+    console.log(info.data);
     this.undoStack[0].undoItemMeta = info
     /* if (info.type == 'figure') {
       // add undoitem data to last undo item

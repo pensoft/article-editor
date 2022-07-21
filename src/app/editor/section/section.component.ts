@@ -135,14 +135,24 @@ export class SectionComponent implements AfterViewInit, OnInit {
     this.treeService.buildNewFormGroupsChange(this.complexSectionAddedChildren);
     this.treeService.replaceChildrenChange(this.childrenTreeCopy!, this.section);
     this.complexSectionDeletedChildren.forEach((section) => {
+
     })
     //this.editSectionService.editChangeSubject.next();
+  }
+
+  addCustomSectionData(section:articleSection,data:any){
+    let customPropsObj = this.ydocService.customSectionProps?.get('customPropsObj');
+    customPropsObj[section.sectionID] = data;
   }
 
   onSubmit = async (submision?: any) => {
     try {
       if (this.section.type == 'complex') {
         this.submitComplexSectionEdit()
+      }
+      if(this.section.title.name == 'Taxon'||this.section.title.name == '[MM] Materials'||this.section.title.name == 'Material'){
+        // custum section
+        this.addCustomSectionData(this.section,submision)
       }
 
       //this.prosemirrorEditorsService.updateFormIoDefaultValues(this.section.sectionID, submision.data)
@@ -170,8 +180,21 @@ export class SectionComponent implements AfterViewInit, OnInit {
       let tr = this.codemirrorHTMLEditor?.state.update()
       this.codemirrorHTMLEditor?.dispatch(tr!);
       prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
-      console.log(prosemirrorNewNodeContent!, submision.data, this.sectionForm);
+      console.log(prosemirrorNewNodeContent,submision.data);
+
+      if (prosemirrorNewNodeContent.indexOf(`<ng-template #${this.section.title.name.replace(/[\W_]+/g,'')}`) > -1) {
+        prosemirrorNewNodeContent = prosemirrorNewNodeContent;
+        if (this.section.title.name === 'Material') {
+          console.log(prosemirrorNewNodeContent,this.section.defaultFormIOValues,this.sectionForm,this.section.title.name.replace(/[\W_]+/g,''));
+          interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
+        } else {
+          interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
+        }
+      } else {
+        interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!,submision.data, this.sectionForm);
+      }
       interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm);
+      console.log(interpolated);
       submision.compiledHtml = interpolated
       this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
       let figuresMap = this.ydocService.figuresMap!;
@@ -274,6 +297,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     if (root.prosemirrorHTMLNodesTempl.indexOf(`<ng-template #${this.section.title.name.replace(/[\W_]+/g,'')}`) > -1) {
       prosemirrorNewNodeContent = root.prosemirrorHTMLNodesTempl;
       if (this.section.title.name === 'Material') {
+        console.log(prosemirrorNewNodeContent,this.section.defaultFormIOValues,this.sectionForm,this.section.title.name.replace(/[\W_]+/g,''));
         interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, this.section.defaultFormIOValues, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
       } else {
         interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));

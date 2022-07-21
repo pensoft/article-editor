@@ -232,18 +232,21 @@ export class FiguresControllerService {
     }
   }
 
-  writeFiguresDataGlobalV2(articleCitatsObj, ArticleFiguresNumbers, ArticleFigures) {
+  writeFiguresDataGlobalV2(citats, figNums, figs) {
+    let articleCitatsObj = JSON.parse(JSON.stringify(citats))
+    let ArticleFiguresNumbers = JSON.parse(JSON.stringify(figNums))
+    let ArticleFigures = JSON.parse(JSON.stringify(figs))
     Object.keys(ArticleFigures).forEach((key) => {
       this.getFigureRowsOrderData(ArticleFigures[key].canvasData);
     })
+    let fgsToSet = JSON.parse(JSON.stringify(ArticleFigures))
     this.prosemirrorEditorsService.saveScrollPosition()
     this.updateFiguresNumbers(ArticleFigures, ArticleFiguresNumbers)
     this.ydocService.figuresMap!.set('ArticleFiguresNumbers', ArticleFiguresNumbers)
     this.ydocService.figuresMap!.set('ArticleFigures', ArticleFigures)
     this.figuresNumbers = ArticleFiguresNumbers
     this.figures = ArticleFigures
-    console.log(ArticleFigures);
-    this.updateFiguresAndFiguresCitations(ArticleFigures)
+    this.updateFiguresAndFiguresCitations(fgsToSet)
     this.ydocService.figuresMap?.set('articleCitatsObj', articleCitatsObj);
     this.prosemirrorEditorsService.applyLastScrollPosition();
   }
@@ -267,16 +270,6 @@ export class FiguresControllerService {
 
 
     let citats = this.ydocService.figuresMap?.get('articleCitatsObj');
-    this.updateFiguresAndFiguresCitations(JSON.parse(JSON.stringify(newFigures)))
-    this.ydocService.figuresMap?.set('articleCitatsObj', citats);
-
-    /* try {
-      //this.ydocService.figuresMap?.set('ArticleFigures', data);
-      this.figuresData = data
-      this.updateAllFigures()
-    } catch (e) {
-      console.error(e);
-    } */
     this.serviceShare.YjsHistoryService!.addUndoItemInformation({
       type: 'figure', data: {
         oldData: {
@@ -291,6 +284,16 @@ export class FiguresControllerService {
         }
       }
     })
+    this.updateFiguresAndFiguresCitations(JSON.parse(JSON.stringify(newFigures)))
+    this.ydocService.figuresMap?.set('articleCitatsObj', citats);
+
+    /* try {
+      //this.ydocService.figuresMap?.set('ArticleFigures', data);
+      this.figuresData = data
+      this.updateAllFigures()
+    } catch (e) {
+      console.error(e);
+    } */
     this.prosemirrorEditorsService.applyLastScrollPosition();
   }
 

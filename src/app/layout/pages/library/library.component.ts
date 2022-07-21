@@ -57,18 +57,13 @@ export class LibraryPage implements AfterViewInit {
               let refStyle = result.referenceStyle
               let formioData = result.submissionData.data;
               let globally = result.globally
-              let newRef = genereteNewReference(refType, formioData)
-              let refID = ref.refData.referenceData.id;
-              this.editRef(refType, refStyle,formioData, ref,globally).subscribe((editRes)=>{
+              this.editRef(refType, refStyle,formioData, ref,globally).subscribe((editRes:any)=>{
                 // this.userReferences = undefined;
-                this.changeDetection.detectChanges();
+                console.log('editRes',editRes);
                 this.refsAPI.getReferences().subscribe((refs:any)=>{
                   this.messageSource.next(refs.data);
                   // this.userReferences = refs.data;
-                  this.changeDetection.detectChanges();
                 })
-              })
-              this.cslService.addReference(newRef, refType, refStyle, formioData, ref, globally).subscribe((editRes:any) => {
                 let reference = editRes.data.find((ref1:any)=>ref1.refData.referenceData.id == ref.refData.referenceData.id)
                 let containers = this.serviceShare.ProsemirrorEditorsService?.editorContainers!
                 // find ref in the returned obj
@@ -175,6 +170,7 @@ export class LibraryPage implements AfterViewInit {
       this.shouldRender = true;
       // this.userReferences = refs.data;
       this.messageSource.next(refs.data);
+      console.log(refs.data);
       this.changeDetection.detectChanges();
     })
   }

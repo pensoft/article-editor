@@ -60,12 +60,13 @@ export interface articleSection {
   formIOSchema?: any,
   sectionVersionId: number,
   defaultFormIOValues?: any,
-  type: 'complex' | 'simple',
+  type: 'complex' | 'simple' ,
   sectionTypeID: number,
   sectionTypeVersion: number,
   sectionMeta: { main: boolean },
   subsectionValidations?: { [version_id: number]: { min: number, max: number } },
   compatibility?: { allow: { all: boolean, values: number[] }, deny: { all: boolean, values: number[] } }
+  custom?:true
 }
 
 export interface flatArticleSection {

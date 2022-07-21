@@ -124,6 +124,7 @@ import {MaterialSectionComponent} from "@app/editor/section/material-section/mat
 import {Observable} from "rxjs";
 import {RefsApiService} from "@app/layout/pages/library/lib-service/refs-api.service";
 import {OauthCallbackComponent} from "@app/layout/pages/oauth-callback/oauth-callback.component";
+import {CookieService} from "ngx-cookie-service";
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -250,6 +251,7 @@ const gravatarConfig: GravatarConfig = {
   ],
 
   providers: [
+    CookieService,
     {
       provide: HTTP_INTERCEPTORS,
       useClass: HTTPReqResInterceptor,

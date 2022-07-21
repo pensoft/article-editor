@@ -21,6 +21,7 @@ export class RefsApiService {
   mapRefItems(refItemsFromBackend: any) {
     let refs: any[] = [];
     let ydocRefs = this.serviceShare.YdocService.referenceCitationsMap?.get('localRefs');
+    console.log(ydocRefs);
     refItemsFromBackend.data.forEach((refFromBackend: any) => {
       let ref = ydocRefs[refFromBackend.id]||refFromBackend
       let newRef: any = {};
@@ -102,6 +103,7 @@ export class RefsApiService {
           item.issued = item.issued['date-parts'].join('-');
         }
       })
+      console.log('all refs data from backend ',data);
       let refs = this.mapRefItems(data)
       return {data: refs}
     }))
@@ -154,6 +156,7 @@ export class RefsApiService {
   }
 
   editReference(ref: any, global: boolean, formIOData: any, refType: any,useOldTime?:true) {
+    console.log('editing ref',ref, global, formIOData, refType,useOldTime);
     let ydocRefs = this.serviceShare.YdocService.referenceCitationsMap?.get('localRefs');
     if (global) {
       if(ydocRefs[ref.refData.referenceData.id]){

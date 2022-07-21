@@ -363,7 +363,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       const taxonSectionData = JSON.parse(JSON.stringify(taxonSection));
       taxonSection.parent = node;
       this.serviceShare.ArticleSectionsService!.getAllSections({page: 1, pageSize: 999}).pipe(map((res: any) => {
-        res.data.push(taxonSectionData);
+        //res.data.push(taxonSectionData);
         return res
       })).subscribe((response: any) => {
         let sectionTemplates1 = filterChooseSectionsFromBackend(node.compatibility, response.data)

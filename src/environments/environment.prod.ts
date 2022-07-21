@@ -8,5 +8,6 @@ export const environment = {
   authServer: 'https://ps-accounts.dev.scalewest.com',
   authUrl: 'https://ps-accounts.dev.scalewest.com/api',
   apiUrl: 'https://ps-api.dev.scalewest.com/api',
-  passport_client_id: '96c50ae2-91d6-4df2-b9b0-1b1f5ef40def'
+  passport_client_id: '96c50ae2-91d6-4df2-b9b0-1b1f5ef40def',
+  mainDomain: 'dev.scalewest.com'
 };

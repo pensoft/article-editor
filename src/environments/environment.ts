@@ -6,8 +6,8 @@ export const environment = {
    WEBSOCKET_HOST: 'ps-article-storage.dev.scalewest.com',
    EXTERNAL_REFS_API: '/find',
    WEBSOCKET_PORT: '443',
-  authServer: 'https://ps-accounts.dev.scalewest.com',
-  authUrl: 'https://ps-accounts.dev.scalewest.com/api',
-  apiUrl: 'https://ps-api.dev.scalewest.com/api',
-  passport_client_id: '96c50ae2-91d6-4df2-b9b0-1b1f5ef40def'
+   authServer: 'https://ps-accounts.dev.scalewest.com',
+   authUrl: 'https://ps-accounts.dev.scalewest.com/api',
+   apiUrl: 'https://ps-api.dev.scalewest.com/api',
+   passport_client_id: '96c50ae2-91d6-4df2-b9b0-1b1f5ef40def'
 };

@@ -3,10 +3,10 @@ export const materials =  {
   "sectionID": "db5d1a7a-202c-4a11-9d58-692ad2f29944",
   "name": "[MM] Materials",
   "label": "Materials",
-  edit: {bool: true, main: true},
-  add: {bool: false, main: false},
-  delete: {bool: false, main: false},
-  select: {bool: true, main: true},
+  edit: {active: true, main: true},
+  add: {active: false, main: false},
+  delete: {active: false, main: false},
+  select: {active: true, main: true},
   "schema": {
     "components":
       []

@@ -63,6 +63,7 @@ export class YdocService {
   mathMap?: YMap<any>
   referenceCitationsMap?:YMap<any>;
   printMap?: YMap<any>
+  customSectionProps?: YMap<any>
   userInfo: any
   getCommentsMap(): YMap<any> {
     return this.comments!
@@ -200,6 +201,7 @@ export class YdocService {
     this.usersDataMap = this.ydoc.getMap('userDataMap')
     this.mathMap = this.ydoc.getMap('mathDataURLMap');
     this.printMap = this.ydoc.getMap('print');
+    this.customSectionProps = this.ydoc.getMap('customSectionProps');
     let pdfSettings = this.printMap.get('pdfPrintSettings')
     let mathObj = this.mathMap.get('dataURLObj')
     let usersColors = this.usersDataMap.get('usersColors');
@@ -208,6 +210,10 @@ export class YdocService {
     let referencesInEditor = this.referenceCitationsMap?.get('referencesInEditor')
     let externalRefs = this.referenceCitationsMap?.get('externalRefs');
     let localRefs = this.referenceCitationsMap?.get('localRefs');
+    let customPropsObj = this.customSectionProps?.get('customPropsObj');
+    if(!customPropsObj){
+      this.customSectionProps?.set('customPropsObj',{})
+    }
     if(!localRefs){
       this.referenceCitationsMap?.set('localRefs',{})
     }

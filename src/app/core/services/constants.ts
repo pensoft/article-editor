@@ -8,4 +8,5 @@ export abstract class CONSTANTS {
   static readonly PASSWORD = 'password';
   static readonly EMAIL = 'email';
   static readonly NAME = 'name';
+  static readonly TOKEN_PREFIX = 'ps-'
 }

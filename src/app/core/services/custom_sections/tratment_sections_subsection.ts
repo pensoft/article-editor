@@ -2,10 +2,10 @@ export const treatmentSectionsSubsection = {
   "id": 9981,
   "name": "Enter subsection title",
   "label": "{{data.sectionTreeTitle}}",
-  edit: {bool: true, main: true},
-  add: {bool: true, main: true},
-  delete: {bool: false, main: false},
-  select: {bool: false, main: false},
+  edit: {active: true, main: true},
+  add: {active: true, main: true},
+  delete: {active: false, main: false},
+  select: {active: false, main: false},
   "schema": {
     "components": [
       {

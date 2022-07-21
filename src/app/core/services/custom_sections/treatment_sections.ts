@@ -13,10 +13,10 @@ export const treatmentSections = {
   "id": 9902,
   "name": "[MM] Treatment sections",
   "label": "Treatment sections",
-  edit: {bool: false, main: false},
-  add: {bool: false, main: false},
-  delete: {bool: false, main: false},
-  select: {bool: true, main: true},
+  edit: {active: false, main: false},
+  add: {active: false, main: false},
+  delete: {active: false, main: false},
+  select: {active: true, main: true},
   "schema": {
     "components": []
   },
