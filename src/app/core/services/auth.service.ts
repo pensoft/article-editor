@@ -7,7 +7,6 @@ import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
 import {NavigationEnd, Router} from '@angular/router';
 import {UserModel} from '@core/models/user.model';
 import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
-import {CookieService} from "ngx-cookie-service";
 
 const API_AUTH_URL = `https://ps-accounts.dev.scalewest.com/api`;
 const API_URL = `https://ps-api.dev.scalewest.com/api`;
@@ -31,8 +30,7 @@ export class AuthService implements OnDestroy {
   }
 
   constructor(private _http: HttpClient,
-              private router: Router,
-              private cookieService: CookieService) {
+              private router: Router) {
     this.currentUserSubject = new BehaviorSubject<UserType>(undefined);
     this.currentUser$ = this.currentUserSubject.asObservable();
   }
@@ -78,8 +76,7 @@ export class AuthService implements OnDestroy {
   }
 
   logout() {
-    this.cookieService.deleteAll();
-    // localStorage.clear();
+    localStorage.clear();
     this.router.navigate(['/login'], {
       queryParams: {},
     })
@@ -99,29 +96,19 @@ export class AuthService implements OnDestroy {
   }
 
   isLoggedIn() {
-    return !!this.getToken(); // add your strong logic
-    // return this.getToken() ? true : false; // add your strong logic
+    return this.getToken() ? true : false; // add your strong logic
   }
 
   storeToken(tokenType, token: string) {
-    const hostname = window.location.hostname;
-    const domainArr = hostname.match(/^(?:.*?\.)?([a-zA-Z0-9\-_]{3,}\.(?:\w{2,8}|\w{2,4}\.\w{2,4}))$/);
-    const domain = domainArr? `.${domainArr[1]}`:hostname;
-    this.cookieService.set(`${CONSTANTS.TOKEN_PREFIX}${tokenType}`, token, 365, '/', domain)
-
-    // localStorage.setItem(tokenType, token);
+    localStorage.setItem(tokenType, token);
   }
 
   getToken() {
-    const key = 'token';
-    return this.cookieService.get(`${CONSTANTS.TOKEN_PREFIX}${key}`);
-    // return localStorage.getItem('token');
+    return localStorage.getItem('token');
   }
 
   getRefreshToken() {
-    const key = 'refreshToken';
-    return this.cookieService.get(`${CONSTANTS.TOKEN_PREFIX}${key}`);
-    // return localStorage.getItem('refreshToken');
+    return localStorage.getItem('refreshToken');
   }
 
   refreshToken() {
