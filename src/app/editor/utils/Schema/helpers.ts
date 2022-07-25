@@ -2,7 +2,7 @@
 //parseGenerictributes
 //genericArtibutesToDom
 
-import { Node } from "prosemirror-model"
+import { Mark, Node } from "prosemirror-model"
 
 export const getGenericAttributes = () => {
     return {
@@ -32,7 +32,7 @@ export const parseGenericAttributes = (dom: any) => {
     }
 }
 
-export const genericAttributtesToDom = (node: Node) => {
+export const genericAttributtesToDom = (node: Node|Mark) => {
     let toDomAttrs:any = {
         controlPath: node.attrs.controlPath,
         customPropPath: node.attrs.customPropPath,

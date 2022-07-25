@@ -66,6 +66,8 @@ export class ServiceShare {
     this.ProsemirrorEditorsService!.transactionCount = 0;
   }
 
+  makeFlat?:()=>void
+
   resetServicesData (){
     this.ProsemirrorEditorsService?.resetProsemirrorEditors();
     this.YdocService?.resetYdoc();

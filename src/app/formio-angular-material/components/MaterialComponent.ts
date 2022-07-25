@@ -67,6 +67,8 @@ export class MaterialComponent implements AfterViewInit, OnInit, OnDestroy {
       }
       this.ref.detectChanges();
     }
+    let isvisible = this.instance.conditionallyVisible()
+    this.setVisible(isvisible);
   }
 
   storeFormData() {
@@ -86,12 +88,12 @@ export class MaterialComponent implements AfterViewInit, OnInit, OnDestroy {
   }
 
   renderComponents() {
+    this.setVisible(this.instance._visible)
     //this.setVisible(true);
   }
 
   onChange(keepInputRaw?: boolean) {
     let value = this.getValue();
-
     if (value === undefined || value === null) {
       value = this.instance.emptyValue;
     }

@@ -228,7 +228,9 @@ export class FormBuilderService {
       //@ts-ignore
       control.componentType = component.type
       //@ts-ignore
-      if(!control.componentProps){control.componentProps = {}}control.componentProps.placeholder = component.placeholder
+      if(!control.componentProps){control.componentProps = {}}
+      //@ts-ignore
+      control.componentProps.placeholder = component.placeholder
       return control
     }
     let validators = component.type === 'number' ? [Validators.pattern("^[0-9]*$")] : [];
@@ -252,6 +254,10 @@ export class FormBuilderService {
     //@ts-ignore
     control.componentType = component.type
     component.readOnly ? control.disable() : undefined
+      //@ts-ignore
+    if(!control.componentProps&&(component.type == 'textfield'||component.type == 'number')){control.componentProps = {};control.componentProps.placeholder = component.placeholder}
+      //@ts-ignore
+
     return control
   }
 

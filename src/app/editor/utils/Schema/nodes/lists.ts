@@ -5,29 +5,29 @@ import { parseGenericAttributes, getGenericAttributes, genericAttributtesToDom }
 export const ordered_list = {
     content: "list_item+",
     group: 'block',
-    attrs: { 
+    attrs: {
         order: { default: 1 },
         ...getGenericAttributes(),
     },
     parseDOM: [{
         tag: "ol", getAttrs(dom: any) {
-            return { 
+            return {
                 order: dom.hasAttribute("start") ? +dom.getAttribute("start") : 1 ,
                 ...parseGenericAttributes(dom)
             }
         }
     }],
     toDOM(node: any) {
-        return node.attrs.order == 1 ? ["ol", { 
+        return node.attrs.order == 1 ? ["ol", {
             ...genericAttributtesToDom(node)
-        }, 0] : ["ol", { 
+        }, 0] : ["ol", {
             start: node.attrs.order ,
             ...genericAttributtesToDom(node)
         }, 0]
     }
 }
 export const bullet_list = {
-    group: 'block',
+    group: 'block*',
     content: "list_item+",
     attrs:{
         ...getGenericAttributes(),
@@ -44,7 +44,7 @@ export const bullet_list = {
     }
 }
 export const list_item = {
-    content: "paragraph block*",
+    content: "block*",
     attrs:{
         ...getGenericAttributes(),
     },

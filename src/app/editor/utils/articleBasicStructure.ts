@@ -149,6 +149,7 @@ export const renderSectionFunc:
       children: children,
       sectionVersionId: sectionFromBackend.version_id,
       type: 'simple',
+      custom:sectionFromBackend.customSection?true:undefined,
       sectionTypeID: sectionFromBackend.id,
       sectionTypeVersion: sectionFromBackend.version,
       sectionMeta: {main: false}
@@ -174,6 +175,7 @@ export const renderSectionFunc:
       prosemirrorHTMLNodesTempl: sectionFromBackend.template,
       children: children,
       type:  'complex' ,
+      custom:sectionFromBackend.customSection?true:undefined,
       sectionVersionId: sectionFromBackend.version_id,
       sectionTypeID: sectionFromBackend.id,
       sectionTypeVersion: sectionFromBackend.version,

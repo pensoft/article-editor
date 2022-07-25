@@ -10,7 +10,6 @@ import {EditSectionDialogComponent} from "@app/editor/dialogs/edit-section-dialo
 import {FormBuilderService} from "@app/editor/services/form-builder.service";
 import Papa from 'papaparse';
 import {HelperService} from "@app/editor/section/helpers/helper.service";
-
 @Component({
   selector: 'app-materials-section',
   templateUrl: './materials-section.component.html',
@@ -140,24 +139,21 @@ export class MaterialsSectionComponent implements AfterViewInit {
 
   async onFileSelected(event: any) {
     this.isLoading = true;
-    // var fr=new FileReader();
-    // fr.onload=function(){
-    //   console.log(CSVToArray(fr.result, ';'));
-    //   // document.getElementById('output')
-    //   //   .textContent=fr.result;
-    // }
-    //
-    // fr.readAsText(event.target.files[0]);
+
+
     Papa.parse(event.target.files[0], {
       worker: true,
+      delimiter:";",
       complete: (results) => {
         const convertedData = []
         for (let i = 1; i < results.data.length; i++) {
-          const data = {};
-          results.data[0].map((item, index) => {
-            data[item] = results.data[i][index];
-          })
-          convertedData.push(data);
+          if(!(results.data[i].length == 0||results.data[i].reduce((prev,curr)=>{return prev+curr},'').length == 0)){
+            const data = {};
+            results.data[0].map((item, index) => {
+              data[item] = results.data[i][index];
+            })
+            convertedData.push(data);
+          }
         }
         // const convertedData = results.data;
         convertedData.forEach((row: any) => {
@@ -177,7 +173,6 @@ export class MaterialsSectionComponent implements AfterViewInit {
       }
     });
     // const convertedData = await CSVToArray(event.target.files[0], ';');
-    // console.log(convertedData, this.section);
   }
 
 }

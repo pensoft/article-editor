@@ -23,7 +23,7 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
 
   data?: articleSection
   showSection = false;
-
+  editOnAddFromParent?:true
   data1: articleSection;
   sectionForm: FormGroup;
   formIOJson: any;
@@ -44,6 +44,7 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
       this.sectionForm = sectionData.form;
       this.formIOJson = sectionData.formIOJson;
       this.prityJson = JSON.stringify(sectionData.formIOJson,null,"\t")
+      this.editOnAddFromParent = sectionData.editOnAddFromParent
 
   }
 
@@ -63,6 +64,8 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
       this.copySection(this.data!);
       this.EditSubmitsubscription = this.editSectionService.editChangeSubject.subscribe((submit:any) => {
         this.dialogRef.close({...submit,section:this.data})
+        this.EditSubmitsubscription.unsubscribe()
+        delete this.EditSubmitsubscription
         return
       })
       //this.data = data

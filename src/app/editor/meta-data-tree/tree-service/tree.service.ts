@@ -81,12 +81,23 @@ export class TreeService implements OnDestroy {
       let formGroup = this.sectionFormGroups[node.sectionID]!;
       node.title.label = /{{\s*\S*\s*}}/gm.test(node.title.label) ? node.title.name! : node.title.label;
       formGroup.valueChanges.subscribe((data) => {
-        this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle: string) => {
-          let container = document.createElement('div')
-          container.innerHTML = newTitle;
-          container.innerHTML = container.textContent!;
-          node.title.label = container.textContent!;
-        })
+        if(node.title.name == '[MM] Materials'||node.title.name == 'Material'){
+          let customPropsObj = this.ydocService.customSectionProps?.get('customPropsObj');
+          let data = customPropsObj[node.sectionID];
+          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, data, formGroup).then((newTitle: string) => {
+            let container = document.createElement('div')
+            container.innerHTML = newTitle;
+            container.innerHTML = container.textContent!;
+            node.title.label = container.textContent!;
+          })
+        }else{
+          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle: string) => {
+            let container = document.createElement('div')
+            container.innerHTML = newTitle;
+            container.innerHTML = container.textContent!;
+            node.title.label = container.textContent!;
+          })
+        }
       })
     } else {
       let formGroup = this.sectionFormGroups[node.sectionID]!;
@@ -149,8 +160,8 @@ export class TreeService implements OnDestroy {
 
       this.treeSubsctiption = this.treeVisibilityChange.subscribe((data) => {
         let guid = this.metadatachangeMap?.doc?.guid
-        this.setArticleSectionStructureFlat()
         this.metadatachangeMap?.set('change', {...data, guid})
+        this.setArticleSectionStructureFlat()
       })
     }
     if (this.ydocService.editorIsBuild) {
@@ -392,6 +403,13 @@ export class TreeService implements OnDestroy {
   deleteNodeChange(nodeId: string, parentId: string) {
     let {nodeRef, i} = this.deleteNodeById(nodeId);
     setTimeout(()=>{
+      if(nodeRef.custom){
+        let customSectionPropsObj = this.ydocService.customSectionProps.get('customPropsObj');
+        if(customSectionPropsObj[nodeId]){
+          customSectionPropsObj[nodeId] = undefined;
+        }
+        this.ydocService.customSectionProps.set('customPropsObj',customSectionPropsObj)
+      }
       this.serviceShare.FiguresControllerService.updateOnlyFiguresView();
     },10)
     this.treeVisibilityChange.next({action: 'deleteNode', parentId, childId: nodeId, indexInList: i});

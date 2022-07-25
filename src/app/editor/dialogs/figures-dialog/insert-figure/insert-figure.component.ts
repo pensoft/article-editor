@@ -89,7 +89,6 @@ export class InsertFigureComponent implements AfterViewInit {
           sectionID = this.data.sectionID
         }
         //let sectionID = pluginData.sectionName
-        console.log(this.citats,this.data);
         let citat = this.citats[sectionID][this.data.citatData.citateid];
         (citat.figureIDs as string[]).forEach((figure)=>{
           if(figure.includes('|')){

@@ -89,7 +89,6 @@ export class FiguresControllerService {
 
   allFigsAreRendered() {
     setTimeout(() => {
-      console.log('All figures are rendered ');
       if (this.updatingFiguresAndFiguresCitations) {
         this.serviceShare.YjsHistoryService.stopCapturingUndoItem()
         this.updatingFiguresAndFiguresCitations = false;
@@ -108,7 +107,6 @@ export class FiguresControllerService {
 
   countRenderedFigures() {
     this.rendered++;
-    console.log('rendereing', this.rendered);
     let allFigs = this.ydocService.figuresMap!.get('ArticleFigures')
     if (Object.keys(allFigs).length == this.rendered) {
       this.allFigsAreRendered()
@@ -261,7 +259,6 @@ export class FiguresControllerService {
     })
     this.prosemirrorEditorsService.saveScrollPosition()
     this.updateFiguresNumbers(newFigures, figureNumbers)
-    console.log('1',JSON.parse(JSON.stringify(newFigures)));
     this.ydocService.figuresMap!.set('ArticleFiguresNumbers', figureNumbers)
     this.ydocService.figuresMap!.set('ArticleFigures', newFigures)
 
@@ -306,7 +303,6 @@ export class FiguresControllerService {
       }
       //check selections
       let insertionView = this.prosemirrorEditorsService.editorContainers[sectionID].editorView
-      console.log(insertionView.state.selection, citatAttrs);
       let citatStartPos: number
       let citatEndPos: number
 
@@ -433,7 +429,6 @@ export class FiguresControllerService {
   markCitatsViews = (citatsBySection: any) => {
     this.resetCountedRenderedViews();
     let numbersCopy: string[] = JSON.parse(JSON.stringify(this.figuresNumbers));
-    console.log('9',JSON.parse(JSON.stringify(this.figures)));
 
     this.figures = this.ydocService.figuresMap!.get('ArticleFigures')
     Object.keys(this.prosemirrorEditorsService.editorContainers).forEach((key) => {
@@ -711,7 +706,6 @@ export class FiguresControllerService {
             serializedFigureToFormIOsubmission.figureID = figureData.figureID
             serializedFigureToFormIOsubmission.figureNumber = figureData.figureNumber
             serializedFigureToFormIOsubmission.viewed_by_citat = citatID
-            console.log(serializedFigureToFormIOsubmission);
             let figureFormGroup = buildFigureForm(serializedFigureToFormIOsubmission)
             this.prosemirrorEditorsService.interpolateTemplate(figureTemplate!.html, serializedFigureToFormIOsubmission, figureFormGroup).then((data: any) => {
               let templ = document.createElement('div')

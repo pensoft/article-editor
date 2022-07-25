@@ -207,11 +207,10 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
           templDiv.innerHTML = result.compiledHtml
           let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
           if (trackStatus) {
-            const snapshotFromBackGround = Y.snapshot(this.ydocService.ydoc);
+            //const snapshotFromBackGround = Y.snapshot(this.ydocService.ydoc);
             updateYFragment(updateYdoc, updateXmlFragment, node1, new Map());
-            const updatedSnapshot = Y.snapshot(this.ydocService.ydoc)
-            let editorView = this.prosemirrorEditorsService
-              .editorContainers[node.sectionID].editorView
+            //const updatedSnapshot = Y.snapshot(this.ydocService.ydoc)
+            //let editorView = this.prosemirrorEditorsService.editorContainers[node.sectionID].editorView
             copyOriginUpdatesBeforeReplace.forEach((update) => {
               Y.applyUpdate(updateYdoc, update);
             })
@@ -287,6 +286,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     if (event.type == 'blur') {
       element.setAttribute('contenteditable', 'false');
       (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;
+      console.log(element.textContent);
       this.treeService.saveNewTitleChange(node, element.textContent!);
       this.scrolledToView = false;
     } else if (event.type == 'click') {
@@ -343,7 +343,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       this.dialog.open(EditSectionDialogComponent, {
         width: '95%',
         height: '90%',
-        data: {node: node, form: formGroup, sectionContent, component: '[MM] Material'},
+        data: {node: node, form: formGroup, sectionContent, component: '[MM] Material',editOnAddFromParent:true},
         disableClose: false
       }).afterClosed().subscribe(result => {
         if(result && result.data) {

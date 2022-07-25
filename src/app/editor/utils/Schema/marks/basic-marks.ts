@@ -1,4 +1,5 @@
 import { Mark } from "prosemirror-model";
+import { genericAttributtesToDom, getGenericAttributes, parseGenericAttributes } from "../helpers";
 
 // :: Object
 // [Specs](#model.NodeSpec) for the nodes defined in this schema.
@@ -15,19 +16,20 @@ export const marks = {
     attrs: {
       href: {},
       download: {default: null},
-      title: { default: null }
+      title: { default: null },
+      ...getGenericAttributes(),
     },
     inclusive: false,
     parseDOM: [{
       tag: "a[href]", getAttrs: function getAttrs(dom: any) {
-        return { href: dom.getAttribute("href"), title: dom.getAttribute("title"), download: dom.getAttribute("download") }
+        return { href: dom.getAttribute("href"), title: dom.getAttribute("title"), download: dom.getAttribute("download"),...parseGenericAttributes(dom) }
       }
     }],
     toDOM: function toDOM(node: Mark) {
       var ref = node.attrs;
       var href = ref.href;
       var download = ref.download;
-      var title = ref.title; return ["a", { href: href, title: title, download: download }, 0]
+      var title = ref.title; return ["a", { href: href, title: title, download: download,...genericAttributtesToDom(node) }, 0]
     }
   },
 

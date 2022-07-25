@@ -179,6 +179,7 @@ export class TaxonSectionComponent implements AfterViewInit {
       }
     }
     data.taxonTitle = title.join('&nbsp;');
+    this.treeService.sectionFormGroups[this.section.sectionID].get('taxonTitle').setValue(data.taxonTitle)
     this.onSubmit({data});
   }
 }

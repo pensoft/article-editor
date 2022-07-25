@@ -84,7 +84,6 @@ export class ArticleMetadataComponent implements OnInit {
   }
 
   preventAddToHistory(){
-    console.log(this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin?'oof':'on');
     this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin? this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = null:this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = this.serviceShare.ProsemirrorEditorsService.ySyncKey
   }
 

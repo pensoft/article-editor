@@ -55,7 +55,7 @@ export class PlaceholderPluginService {
                     let placeholder = document.createElement('span');
                     placeholder.classList.add('ProseMirror__placeholder');
                     //@ts-ignore
-                    placeholder.setAttribute('data-placeholder', (control.componentProps&&control.componentProps.placeholder)?control.componentProps.placeholder:'Type here...');
+                    placeholder.setAttribute('data-placeholder', (control.componentProps&&control.componentProps.placeholder)?control.componentProps.placeholder:'');
                     decorations.push(Decoration.widget(pos+1,placeholder))
                   }
                 }

@@ -10,406 +10,141 @@ export const externalLinks = {
   delete: {active: false, main: false},
   select: {active: false, main: false},
   "schema": {
-    "isTrusted": true,
     "components": [
-      {
-        "label": "External Links",
-        "reorder": true,
-        "addAnother": "Add",
-        "addAnotherPosition": "bottom",
-        "layoutFixed": false,
-        "enableRowGroups": false,
-        "initEmpty": true,
-        "tableView": false,
-        "defaultValue": [],
-        "key": "externalLinks",
-        "type": "datagrid",
-        "input": true,
-        "components": [
-          {
-            "label": "Link type",
-            "widget": "choicesjs",
-            "defaultValue": "",
-            "tableView": true,
-            "data": {
-              "values": [
+        {
+            "label": "External Links",
+            "reorder": false,
+            "addAnotherPosition": "bottom",
+            "defaultOpen": false,
+            "layoutFixed": false,
+            "enableRowGroups": false,
+            "initEmpty": true,
+            "tableView": false,
+            "defaultValue": [],
+            "clearOnHide": true,
+            "key": "externalLinks",
+            "type": "datagrid",
+            "input": true,
+            "components": [
                 {
-                  "label": "Barcode of Life",
-                  "value": "Barcode of Life"
+                    "label": "Link type",
+                    "widget": "choicesjs",
+                    "tableView": true,
+                    "data": {
+                        "values": [
+                            {
+                                "label": "Barcode of Life",
+                                "value": "Barcode of Life"
+                            },
+                            {
+                                "label": "BHL",
+                                "value": "BHL"
+                            },
+                            {
+                                "label": "Catalogue of Life",
+                                "value": "Catalogue of Life"
+                            },
+                            {
+                                "label": "Encyclopedia of Life",
+                                "value": "Encyclopedia of Life"
+                            },
+                            {
+                                "label": "GBIF",
+                                "value": "GBIF"
+                            },
+                            {
+                                "label": "GenBank",
+                                "value": "GenBank"
+                            },
+                            {
+                                "label": "MorphBank",
+                                "value": "MorphBank"
+                            },
+                            {
+                                "label": "Other URL",
+                                "value": "Other URL"
+                            },
+                            {
+                                "label": "Pensoft Taxon Profile",
+                                "value": "Pensoft Taxon Profile"
+                            },
+                            {
+                                "label": "Plazi",
+                                "value": "Plazi"
+                            },
+                            {
+                                "label": "Species-ID",
+                                "value": "Species-ID"
+                            },
+                            {
+                                "label": "ZooBank",
+                                "value": "ZooBank"
+                            }
+                        ]
+                    },
+                    "selectThreshold": 0.3,
+                    "key": "select",
+                    "type": "select",
+                    "indexeddb": {
+                        "filter": {}
+                    },
+                    "input": true
                 },
                 {
-                  "label": "BHL",
-                  "value": "BHL"
+                    "label": "Label",
+                    "placeholder": "Label...",
+                    "tableView": true,
+                    "key": "label",
+                    /* "conditional": {
+                        "show": true,
+                        "when": "externalLinks.select",
+                        "eq": "Other URL"
+                    }, */
+                    "type": "textfield",
+                    "input": true
                 },
                 {
-                  "label": "Catalogue of Life",
-                  "value": "Catalogue of Life"
-                },
-                {
-                  "label": "Encyclopedia of Life",
-                  "value": "Encyclopedia of Life"
-                },
-                {
-                  "label": "GBIF",
-                  "value": "GBIF"
-                },
-                {
-                  "label": "GenBank",
-                  "value": "GenBank"
-                },
-                {
-                  "label": "MorphBank",
-                  "value": "MorphBank"
-                },
-                {
-                  "label": "Other URL",
-                  "value": "Other URL"
-                },
-                {
-                  "label": "Pensoft Taxon Profile",
-                  "value": "Pensoft Taxon Profile"
-                },
-                {
-                  "label": "Plazi",
-                  "value": "Plazi"
-                },
-                {
-                  "label": "Species-ID",
-                  "value": "Species-ID"
-                },
-                {
-                  "label": "ZooBank",
-                  "value": "ZooBank"
+                    "label": "Link",
+                    "placeholder": "Link...",
+                    "tableView": true,
+                    "key": "link",
+                    "type": "textfield",
+                    "input": true
                 }
-              ]
-            },
-            /*"validate": {
-              "required": true
-            },*/
-            "key": "select",
-            "type": "select",
-            "input": true
-          },
-          {
-            "label": "Label",
-            "placeholder": "Label...",
-            "autoExpand": false,
-            "tableView": true,
-            "validate": {
-              "required": false,
-              "pattern": false,
-              "custom": "",
-              "customPrivate": false,
-              "strictDateValidation": false,
-              "multiple": false,
-              "unique": false,
-              "minLength": "",
-              "maxLength": "",
-              "minWords": "",
-              "maxWords": ""
-            },
-            "key": "label",
-            "properties": {
-              "noLabel": "true"
-            },
-            "type": "textfield",
+            ]
+        },
+        {
+            "type": "button",
+            "label": "Submit",
+            "key": "submit",
+            "disableOnInvalid": true,
             "input": true,
-            "id": "eurm2v0000000000000000000",
-            "prefix": "",
-            "customClass": "",
-            "suffix": "",
-            "multiple": false,
-            "defaultValue": null,
-            "protected": false,
-            "unique": false,
-            "persistent": true,
-            "hidden": false,
-            "clearOnHide": true,
-            "refreshOn": "",
-            "redrawOn": "",
-            "modalEdit": false,
-            "dataGridLabel": false,
-            "labelPosition": "top",
-            "description": "",
-            "errorLabel": "",
-            "tooltip": "",
-            "hideLabel": false,
-            "tabindex": "",
-            "disabled": false,
-            "autofocus": false,
-            "dbIndex": false,
-            "customDefaultValue": "",
-            "calculateValue": "",
-            "calculateServer": false,
-            "widget": {
-              "type": "input"
-            },
-            "attributes": [],
-            "validateOn": "change",
-            "conditional": {
-              "show": null,
-              "when": null,
-              "eq": ""
-            },
-            "overlay": {
-              "style": "",
-              "left": "",
-              "top": "",
-              "width": "",
-              "height": ""
-            },
-            "allowCalculateOverride": false,
-            "encrypted": false,
-            "showCharCount": false,
-            "showWordCount": false,
-            "allowMultipleMasks": false,
-            "addons": [],
-            "mask": false,
-            "inputType": "text",
-            "inputFormat": "html",
-            "inputMask": "",
-            "displayMask": "",
-            "spellcheck": true,
-            "truncateMultipleSpaces": false,
-            "rows": 3,
-            "wysiwyg": false,
-            "editor": "",
-            "fixedSize": true
-          },
-          {
-            "label": "Link",
-            "placeholder": "Link...",
-            "autoExpand": false,
-            "tableView": true,
-            "validate": {
-              "required": true,
-              "minLength": 5,
-              "maxLength": 255,
-              "custom": "",
-              "customPrivate": false,
-              "strictDateValidation": false,
-              "multiple": false,
-              "unique": false,
-              "pattern": "",
-              "minWords": "",
-              "maxWords": ""
-            },
-            "key": "link",
-            "properties": {
-              "noLabel": "true"
-            },
-            "type": "textfield",
-            "input": true,
-            "id": "efa6h20000000000000000000",
-            "prefix": "",
-            "customClass": "",
-            "suffix": "",
-            "multiple": false,
-            "defaultValue": null,
-            "protected": false,
-            "unique": false,
-            "persistent": true,
-            "hidden": false,
-            "clearOnHide": true,
-            "refreshOn": "",
-            "redrawOn": "",
-            "modalEdit": false,
-            "dataGridLabel": false,
-            "labelPosition": "top",
-            "description": "",
-            "errorLabel": "",
-            "tooltip": "",
-            "hideLabel": false,
-            "tabindex": "",
-            "disabled": false,
-            "autofocus": false,
-            "dbIndex": false,
-            "customDefaultValue": "",
-            "calculateValue": "",
-            "calculateServer": false,
-            "widget": {
-              "type": "input"
-            },
-            "attributes": [],
-            "validateOn": "change",
-            "conditional": {
-              "show": null,
-              "when": null,
-              "eq": ""
-            },
-            "overlay": {
-              "style": "",
-              "left": "",
-              "top": "",
-              "width": "",
-              "height": ""
-            },
-            "allowCalculateOverride": false,
-            "encrypted": false,
-            "showCharCount": false,
-            "showWordCount": false,
-            "allowMultipleMasks": false,
-            "addons": [],
-            "mask": false,
-            "inputType": "text",
-            "inputFormat": "html",
-            "inputMask": "",
-            "displayMask": "",
-            "spellcheck": true,
-            "truncateMultipleSpaces": false,
-            "rows": 3,
-            "wysiwyg": false,
-            "editor": "",
-            "fixedSize": true
-          }
-        ],
-        "placeholder": "",
-        "prefix": "",
-        "customClass": "",
-        "suffix": "",
-        "multiple": false,
-        "protected": false,
-        "unique": false,
-        "persistent": true,
-        "hidden": false,
-        "clearOnHide": true,
-        "refreshOn": "",
-        "redrawOn": "",
-        "modalEdit": false,
-        "dataGridLabel": false,
-        "labelPosition": "top",
-        "description": "",
-        "errorLabel": "",
-        "tooltip": "",
-        "hideLabel": false,
-        "tabindex": "",
-        "disabled": false,
-        "autofocus": false,
-        "dbIndex": false,
-        "customDefaultValue": "",
-        "calculateValue": "",
-        "calculateServer": false,
-        "widget": null,
-        "attributes": [],
-        "validateOn": "change",
-        "validate": {
-          "required": false,
-          "custom": "",
-          "customPrivate": false,
-          "strictDateValidation": false,
-          "multiple": false,
-          "unique": false
-        },
-        "conditional": {
-          "show": null,
-          "when": null,
-          "eq": ""
-        },
-        "overlay": {
-          "style": "",
-          "left": "",
-          "top": "",
-          "width": "",
-          "height": ""
-        },
-        "allowCalculateOverride": false,
-        "encrypted": false,
-        "showCharCount": false,
-        "showWordCount": false,
-        "properties": [],
-        "allowMultipleMasks": false,
-        "addons": [],
-        "tree": true,
-        "lazyLoad": false,
-        "disableAddingRemovingRows": false,
-        "id": "eisf0z9"
-      },
-      {
-        "label": "Submit",
-        "showValidations": false,
-        "tableView": false,
-        "key": "submit",
-        "type": "button",
-        "input": true,
-        "placeholder": "",
-        "prefix": "",
-        "customClass": "",
-        "suffix": "",
-        "multiple": false,
-        "defaultValue": null,
-        "protected": false,
-        "unique": false,
-        "persistent": false,
-        "hidden": false,
-        "clearOnHide": true,
-        "refreshOn": "",
-        "redrawOn": "",
-        "modalEdit": false,
-        "dataGridLabel": true,
-        "labelPosition": "top",
-        "description": "",
-        "errorLabel": "",
-        "tooltip": "",
-        "hideLabel": false,
-        "tabindex": "",
-        "disabled": false,
-        "autofocus": false,
-        "dbIndex": false,
-        "customDefaultValue": "",
-        "calculateValue": "",
-        "calculateServer": false,
-        "widget": {
-          "type": "input"
-        },
-        "attributes": [],
-        "validateOn": "change",
-        "validate": {
-          "required": false,
-          "custom": "",
-          "customPrivate": false,
-          "strictDateValidation": false,
-          "multiple": false,
-          "unique": false
-        },
-        "conditional": {
-          "show": null,
-          "when": null,
-          "eq": ""
-        },
-        "overlay": {
-          "style": "",
-          "left": "",
-          "top": "",
-          "width": "",
-          "height": ""
-        },
-        "allowCalculateOverride": false,
-        "encrypted": false,
-        "showCharCount": false,
-        "showWordCount": false,
-        "properties": [],
-        "allowMultipleMasks": false,
-        "addons": [],
-        "size": "md",
-        "leftIcon": "",
-        "rightIcon": "",
-        "block": false,
-        "action": "submit",
-        "disableOnInvalid": false,
-        "theme": "primary",
-        "id": "et15j2l"
-      }
+            "tableView": false
+        }
     ]
-  },
+},
   "sections": null,
-  "template": `<div class="tableWrapper" *ngIf="formGroup.controls.externalLinks.controls &&formGroup.controls.externalLinks.controls.length && formGroup.controls.externalLinks.controls[0].controls.select.value">
-                    \t<ol style="min-width: 50px;list-style-type: circle;" formArrayName="externalLinks" contenteditableNode="false" >
-                    \t\t<li *ngFor="let control of formGroup.controls.externalLinks.controls;let i=index" formGroupName="{{i}}"  contenteditableNode="false">
-                    \t\t\t<inline-block-container controlpath="" formcontrolname="" contenteditablenode="" menutype="" commentable="" invalid="false" style="" class="set-align-left">{{formGroup.controls.externalLinks.controls[i].controls.select.value}}&nbsp;{{formGroup.controls.externalLinks.controls[i].controls.select.value == 'Other URL'? formGroup.controls.externalLinks.controls[i].controls.label.value : ''}}&nbsp;<a href="{{formGroup.controls.externalLinks.controls[i].controls.link.value}}" title="">{{formGroup.controls.externalLinks.controls[i].controls.link.value}}</a>
-                    \t\t</inline-block-container>
-                    \t</li>
-                    </ol>
-                    </div>`,
+  "template": `
+  <div class="tableWrapper" *ngIf="formGroup.controls.externalLinks.controls &&formGroup.controls.externalLinks.controls.length && formGroup.controls.externalLinks.controls[0].controls.select.value">
+<ol style="min-width: 50px;list-style-type: circle;" formArrayName="externalLinks" contenteditableNode="false" >
+	<li *ngFor="let control of formGroup.controls.externalLinks.controls;let i=index" formGroupName="{{i}}"  contenteditableNode="false">
+		<p formControlName="select" contenteditablenode="false" commentable="" style="display: inline-block;">
+		</p>
+		<p contenteditablenode="false" commentable="" style="display: inline-block;">
+                &nbsp;
+              </p>
+		<p style="display: inline-block;" contenteditablenode="false" formControlName="label" *ngIf="formGroup.controls.externalLinks.controls[i].controls.select.value == 'Other URL'" menuType="" commentable="">
+		</p>
+		<p contenteditablenode="false" commentable="" style="display: inline-block;">
+                &nbsp;
+              </p>
+		<p style="display: inline-block;">
+			<a formControlName="link" contenteditablenode="false" href="{{formGroup.controls.externalLinks.controls[i].controls.link.value}}"  commentable="" >
+			</a>
+		</p>
+	</li>
+</ol>
+</div>`,
   "type": 0,
   "version_id": 309,
   "version": 1,
@@ -803,6 +538,7 @@ export const taxonSection = {
   "type": 1,
   "version_id": 471,
   "version": 8,
+  "customSection":true,
   "version_pre_defined": false,
   "version_date": "2022-05-03T04:09:09.000000Z",
   "complex_section_settings": [],

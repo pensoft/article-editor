@@ -33,9 +33,9 @@ Webform.prototype.render2 = function() {
 };
 let submissionData:any = {}
 Webform.prototype.setFullValue  = function(){
-    Object.assign(submissionData.data,JSON.parse(JSON.stringify(this._submission.data)))
-  //this.renderComponents();
+  Object.assign(submissionData.data,JSON.parse(JSON.stringify(this._submission.data)))
   this.setValue(JSON.parse(JSON.stringify(submissionData)));
+    //this.renderComponents();
   //this.setDefaultValue(JSON.parse(JSON.stringify(submissionData)));
   //this.updateValue(JSON.parse(JSON.stringify(submissionData)));
 }

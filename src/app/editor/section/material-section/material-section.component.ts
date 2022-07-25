@@ -7,6 +7,7 @@ import {HelperService} from "@app/editor/section/helpers/helper.service";
 import {Observable} from "rxjs";
 import {startWith, map} from "rxjs/operators";
 import { ServiceShare } from '@app/editor/services/service-share.service';
+import { closeSingleQuote } from 'prosemirror-inputrules';
 
 @Component({
   selector: 'app-material-section',
@@ -54,17 +55,22 @@ export class MaterialSectionComponent implements AfterViewInit {
         return entry.localName
       })
     }).flat();
-    console.log(this.treeService.sectionFormGroups[this.section.sectionID]);
 
     this.typeStatus = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get('typeStatus')?.value);
     this.typeHeading = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get('typeHeading')?.value);
     this.listChar = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get('listChar')?.value);
     this.render = true;
     let customPropsObj = this.serviceShare.YdocService.customSectionProps.get('customPropsObj')
+    let sectionCustomData = customPropsObj[this.section.sectionID]
+    if(sectionCustomData){
+      sectionCustomData.typeHeading?this.typeHeading.setValue(sectionCustomData.typeHeading):null
+      sectionCustomData.typeStatus?this.typeStatus.setValue(sectionCustomData.typeStatus):null
+      sectionCustomData.listChar?this.listChar.setValue(sectionCustomData.listChar):null
+    }
     this.props.forEach(control => {
       this[control] = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get(control)?.value);
-      if(customPropsObj[this.section.sectionID]){
-        this[control] = customPropsObj[this.section.sectionID][control]
+      if(sectionCustomData){
+        this[control] = new FormControl(sectionCustomData[control]);
       }
     });
 
@@ -90,13 +96,15 @@ export class MaterialSectionComponent implements AfterViewInit {
       typeHeading: this.typeHeading!.value,
       listChar: this.listChar!.value
     }
+    /* if(data.typeStatus!=data.typeHeading){
+      data.typeHeading = data.typeStatus
+    } */
     this.props.forEach(prop => {
       data[prop] = this[prop] && this[prop]!.value
     });
-    console.log('data',data);
     Object.keys(data).forEach(key => {
       if (data[key] === undefined || data[key] === null) {
-        if (key !== 'listChar' && key !== 'typeHeading') {
+        if (key !== 'listChar' && key !== 'typeHeading' && key !== 'typeStatus') {
           delete data[key];
         }
       }

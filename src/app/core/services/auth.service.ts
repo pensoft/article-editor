@@ -46,7 +46,6 @@ export class AuthService implements OnDestroy {
       responseType:'json' */
     }).pipe(
       map((token) => {
-        console.log('res', token);
         this.storeToken('token', token['access_token']);
         this.storeToken('refresh_token', token['refresh_token']);
         return token;

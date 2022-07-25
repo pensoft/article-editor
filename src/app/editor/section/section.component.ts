@@ -36,6 +36,8 @@ import {updateYFragment} from '../../y-prosemirror-src/plugins/sync-plugin.js';
 import {DOMParser as DOMParserPM} from 'prosemirror-model';
 import {schema} from '../utils/Schema';
 import {HelperService} from "@app/editor/section/helpers/helper.service";
+import { ThisReceiver } from '@angular/compiler';
+import { ServiceShare } from '../services/service-share.service';
 
 @Component({
   selector: 'app-section',
@@ -66,6 +68,8 @@ export class SectionComponent implements AfterViewInit, OnInit {
   @Input() component!: any;
   @Input() section!: articleSection;
   @Output() sectionChange = new EventEmitter<articleSection>();
+  @Input() editOnAddFromParent?: true;
+
 
   _sectionForm!: FormGroup;
   sectionFormClone!: FormGroup;
@@ -97,6 +101,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     private formBuilderService: FormBuilderService,
     public detectFocusService: DetectFocusService,
     public helperService: HelperService,
+    private serviceShare:ServiceShare,
     private figuresControllerService: FiguresControllerService) {
 
     /* if(this.formControlService.popUpSectionConteiners[this.section.sectionID]){
@@ -143,6 +148,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   addCustomSectionData(section:articleSection,data:any){
     let customPropsObj = this.ydocService.customSectionProps?.get('customPropsObj');
     customPropsObj[section.sectionID] = data;
+    this.ydocService.customSectionProps?.set('customPropsObj',customPropsObj);
   }
 
   onSubmit = async (submision?: any) => {
@@ -152,10 +158,12 @@ export class SectionComponent implements AfterViewInit, OnInit {
       }
       if(this.section.title.name == 'Taxon'||this.section.title.name == '[MM] Materials'||this.section.title.name == 'Material'){
         // custum section
-        this.addCustomSectionData(this.section,submision)
+        this.addCustomSectionData(this.section,submision.data)
       }
-
-      //this.prosemirrorEditorsService.updateFormIoDefaultValues(this.section.sectionID, submision.data)
+      if(this.section.title.name == '[MM] Materials'||this.section.title.name == 'Material'){
+        this.serviceShare.makeFlat()
+      }
+        //this.prosemirrorEditorsService.updateFormIoDefaultValues(this.section.sectionID, submision.data)
       this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, {
         data: submision.data,
         updatedFrom: this.ydocService.ydoc?.guid
@@ -180,25 +188,17 @@ export class SectionComponent implements AfterViewInit, OnInit {
       let tr = this.codemirrorHTMLEditor?.state.update()
       this.codemirrorHTMLEditor?.dispatch(tr!);
       prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
-      console.log(prosemirrorNewNodeContent,submision.data);
-
       if (prosemirrorNewNodeContent.indexOf(`<ng-template #${this.section.title.name.replace(/[\W_]+/g,'')}`) > -1) {
-        prosemirrorNewNodeContent = prosemirrorNewNodeContent;
         if (this.section.title.name === 'Material') {
-          console.log(prosemirrorNewNodeContent,this.section.defaultFormIOValues,this.sectionForm,this.section.title.name.replace(/[\W_]+/g,''));
           interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
         } else {
-          interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
+          interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
         }
       } else {
         interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!,submision.data, this.sectionForm);
       }
-      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm);
-      console.log(interpolated);
       submision.compiledHtml = interpolated
       this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
-      let figuresMap = this.ydocService.figuresMap!;
-      this.figuresControllerService.markCitatsViews(figuresMap.get('articleCitatsObj'));
       this.editSectionService.editChangeSubject.next(submision);
 
     } catch (err: any) {
@@ -272,6 +272,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   async initialRender() {
     //this.ydocService.sectionFormGroupsStructures!.set(this.section.sectionID, { data: submision.data, updatedFrom: this.ydocService.ydoc?.guid })
     //this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema, this.section.sectionID,this.sectionForm);
+
     if (this.treeService.sectionFormGroups[this.section.sectionID]) {
       this.sectionForm = this.treeService.sectionFormGroups[this.section.sectionID]
       Object.keys(this.sectionForm.controls).forEach((key) => {
@@ -294,10 +295,13 @@ export class SectionComponent implements AfterViewInit, OnInit {
     this.codemirrorHTMLEditor?.dispatch(tr!);
     prosemirrorNewNodeContent = this.section.prosemirrorHTMLNodesTempl;
     const root = this.helperService.filter(this.treeService.articleSectionsStructure, this.section.sectionID);
+    if((this.section.title.name == 'Taxon'||this.section.title.name == '[MM] Materials'||this.section.title.name == 'Material')/* &&!this.editOnAddFromParent */){
+      // custum section
+      this.addCustomSectionData(this.section,this.section.defaultFormIOValues)
+    }
     if (root.prosemirrorHTMLNodesTempl.indexOf(`<ng-template #${this.section.title.name.replace(/[\W_]+/g,'')}`) > -1) {
       prosemirrorNewNodeContent = root.prosemirrorHTMLNodesTempl;
       if (this.section.title.name === 'Material') {
-        console.log(prosemirrorNewNodeContent,this.section.defaultFormIOValues,this.sectionForm,this.section.title.name.replace(/[\W_]+/g,''));
         interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, this.section.defaultFormIOValues, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
       } else {
         interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));

@@ -118,7 +118,6 @@ export class ChecklistDatabase {
     const data = this.buildFileTree(TREE_DATA, 0);
     this.dataChange.next(data);
 
-    // console.log(data);
   }
 
   buildFileTree(obj: { [key: string]: any }, level: number): any[] {
@@ -263,7 +262,6 @@ export class TreeChecklistComponent implements OnInit{
 
   writeValue(value: any) {
     this.selectedNode = value;
-    // console.log('flatNodeMap', this.flatNodeMap);
     let result: any = null;
     for (const [key, value] of this.flatNodeMap) {
       // @ts-ignore
@@ -289,7 +287,6 @@ export class TreeChecklistComponent implements OnInit{
       })
     }
     this.treeControl.expand(result);
-    // console.log(result);
 
     // [0].value.item
   }
@@ -362,7 +359,6 @@ export class TreeChecklistComponent implements OnInit{
     this.selectedNode = node.item.name;
     this.onChange(this.selectedNode);
     this.myControl.setValue(this.selectedNode);
-    // console.log(node);
     // const descendants = this.treeControl.getDescendants(node);
     // this.checklistSelection.isSelected(node)
     //   ? this.checklistSelection.select(...descendants)

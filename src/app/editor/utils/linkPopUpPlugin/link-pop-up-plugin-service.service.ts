@@ -1,11 +1,12 @@
-import {Injectable} from '@angular/core';
-import {EditorState, Plugin, PluginKey} from 'prosemirror-state'
-import {Decoration, DecorationSet, EditorView} from 'prosemirror-view';
-import {ProsemirrorEditorsService} from '../../services/prosemirror-editors.service';
-import {DetectFocusService} from '../detectFocusPlugin/detect-focus.service';
-import {schema} from '../Schema';
-import {CsvServiceService} from "@app/editor/csv-service/csv-service.service";
+import { Injectable } from '@angular/core';
+import { EditorState, Plugin, PluginKey } from 'prosemirror-state'
+import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
+import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
+import { DetectFocusService } from '../detectFocusPlugin/detect-focus.service';
+import { schema } from '../Schema';
+import { CsvServiceService } from "@app/editor/csv-service/csv-service.service";
 import Papa from 'papaparse';
+import { normalize } from 'path';
 
 @Injectable({
   providedIn: 'root'
@@ -14,6 +15,7 @@ export class LinkPopUpPluginServiceService {
   linkPopUpPluginKey
   linkPopUpPlugin: Plugin;
   download(filename, text) {
+    console.log('download from plugin');
     var pom = document.createElement('a');
     pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     pom.setAttribute('download', filename);
@@ -45,7 +47,7 @@ export class LinkPopUpPluginServiceService {
       key: this.linkPopUpPluginKey,
       state: {
         init: (_, state) => {
-          return {sectionName: _.sectionName};
+          return { sectionName: _.sectionName };
         },
         apply(tr, prev, _, newState) {
           return prev
@@ -54,7 +56,7 @@ export class LinkPopUpPluginServiceService {
       props: {
         decorations(state: EditorState) {
           const doc = state.doc;
-          let {from, to, empty} = state.selection;
+          let { from, to, empty } = state.selection;
           let pluginState = linkPopUpPluginKey.getState(state);
           let focusRN = detectFocusPluginKey.getState(state);
           //if(empty)  return
@@ -64,10 +66,7 @@ export class LinkPopUpPluginServiceService {
           let mark = node?.marks.find((mark) => mark.type == state.schema.marks.link);
           if (!mark) return DecorationSet.empty
           if (mark?.attrs?.download) {
-            const text  = csvServiceService.arrayToCSV(lastFocusedEditor);
-            const fileName = mark?.attrs.download;
-            self.download(fileName, text);
-            lastFocusedEditor = null;
+
           } else {
             let linkPopUp = document.createElement('div')
             linkPopUp.classList.add('link_popup_div');
@@ -92,8 +91,21 @@ export class LinkPopUpPluginServiceService {
             return DecorationSet.create(doc, [Decoration.widget(position, linkPopUp)]);
           }
 
-        }
-      }
+        },
+        handleClick(this: Plugin<any, any>, view: EditorView<any>, pos: number, event: MouseEvent) {
+          let sectionId = linkPopUpPluginKey.getState(view.state).sectionName
+          let node = view.state.doc.nodeAt(pos);
+          if (node&&node.marks.filter((mark) => mark.attrs.download && mark.attrs.download != "").length > 0) {
+            let mark = node.marks.find((mark) => mark.attrs.download && mark.attrs.download != "");
+            console.log(mark);
+            const text = csvServiceService.arrayToCSV(sectionId);
+            const fileName = mark?.attrs.download;
+            self.download(fileName, text);
+            lastFocusedEditor = null;
+          }
+          return true
+        },
+      },
     })
   }
 }

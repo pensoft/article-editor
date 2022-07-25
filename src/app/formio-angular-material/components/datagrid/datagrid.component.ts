@@ -101,7 +101,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
   columns: any;
   dataSource = new MatTableDataSource();
   dragEnabled = false;
-  constructor(ref: ElementRef, changeDetection: ChangeDetectorRef, private formioEventsService: FormioEventsService) {
+  constructor(ref: ElementRef,private changeDetection: ChangeDetectorRef, private formioEventsService: FormioEventsService) {
     super(ref, changeDetection)
   }
 
@@ -151,9 +151,14 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
     //this.dataSource._updateChangeSubscription
     this.checkRowsNumber();
     this.instance.addRow();
+
+
     if (this.dataSource.data.length < this.instance.rows.length) {
       this.dataSource.data.push({});
+
     }
+    //this.changeDetection.detectChanges()
+    //this.dataSource = new MatTableDataSource(this.dataSource.data);
     this.dataSource.data = [...this.dataSource.data];
   }
 
@@ -166,6 +171,11 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
   removeRow(index: any) {
     this.instance.removeRow(index);
     this.dataSource.data.splice(index, 1);
+    if(this.dataSource.data.length==0&&this.instance.rows.length==1){
+      this.dataSource.data.push({});
+    }
+    //this.changeDetection.detectChanges()
+    //this.dataSource = new MatTableDataSource(this.dataSource.data);
     this.dataSource.data = [...this.dataSource.data];
   }
 
@@ -296,7 +306,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
           if(rowEL.materialComponent){
             rowEL.materialComponent.updateVisibility(instance);
           }else{
-            rowEL.render();
+            //rowEL.render();
           }
           setTimeout(()=>{
           },1000 )
@@ -317,7 +327,7 @@ export class MaterialDataGridComponent extends MaterialNestedComponent {
     if(value!==null&&value?.length>0&&value?.reduce((prev:any,curr:any,i:number,arr)=>{return prev&&(Object.keys(curr).length==0)},true)){
       value = JSON.parse(JSON.stringify(this.oldvalue))
       setTimeout(()=>{
-        this.instance.getRows();
+        //this.instance.getRows();
         this.instance.updateValue(value, { modified: true });
         this.instance.setValue(value);
       },10)

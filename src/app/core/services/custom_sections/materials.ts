@@ -20,6 +20,7 @@ export const materials =  {
   sections: [],
   "version_id": 473,
   "version": 3,
+  "customSection":true,
   "version_pre_defined": false,
   "version_date": "2022-05-03T04:12:10.000000Z",
   "complex_section_settings": [

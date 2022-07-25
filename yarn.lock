@@ -7692,6 +7692,13 @@
     "ts-md5" "^1.2.4"
     "tslib" "^2.0.0"
 
+"ngx-cookie-service@^12.0.3":
+  "integrity" "sha512-F5xJBTrrreI2DERGOrO6U+L7s031HxTER+3Z4gDCwxdTl4AXmtWddMxxQVw7KflOLZ4InYEs6FjQsXmKU4HsJg=="
+  "resolved" "https://registry.npmjs.org/ngx-cookie-service/-/ngx-cookie-service-12.0.3.tgz"
+  "version" "12.0.3"
+  dependencies:
+    "tslib" "^2.0.0"
+
 "ngx-dropzone@^3.0.0":
   "integrity" "sha512-rVTp/ORu7etkcwtXGtsph7sigziAr1DitnHS9JueoXPvYhhB/Ni00MuMl4MinCdU2o9Z9MWF0jzW7UrydcC71A=="
   "resolved" "https://registry.npmjs.org/ngx-dropzone/-/ngx-dropzone-3.0.0.tgz"

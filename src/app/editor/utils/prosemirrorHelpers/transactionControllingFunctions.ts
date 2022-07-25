@@ -48,7 +48,7 @@ export const updateControlsAndFigures = (
       let figuresCitats = figuresMap.get('articleCitatsObj');
       let figuresTemplates = figuresMap!.get('figuresTemplates');
       let customPropsObj = sharedService.YdocService!.customSectionProps?.get('customPropsObj')
-
+      let setcustomProp = false
       let tr1 = newState.tr
       // return value whe r = false the transaction is canseled
       trs.forEach((transaction) => {
@@ -81,18 +81,29 @@ export const updateControlsAndFigures = (
               }) */
               figuresMap.set('ArticleFigures', JSON.parse(JSON.stringify(figures)))
             }
-            if(node.attrs.customPropPath&&node.attrs.customPropPath!=''){
+            if((node.attrs.customPropPath&&node.attrs.customPropPath!='')||(node.marks.filter((mark)=>mark.attrs.customPropPath != ''&&mark.attrs.customPropPath).length>0)){
               if(!customPropsObj[section!.sectionID]){
                 customPropsObj[section!.sectionID] = {}
               }
-              if(node.textContent.trim() != customPropsObj[section!.sectionID][node.attrs.customPropPath]){
-                customPropsObj[section!.sectionID][node.attrs.customPropPath] = node.textContent.trim()
+              let customPropPath = node.attrs.customPropPath
+              if(node.marks.filter((mark)=>mark.attrs.customPropPath != ''&&mark.attrs.customPropPath).length>0){
+                customPropPath = node.marks.find((mark)=>mark.attrs.customPropPath != ''&&mark.attrs.customPropPath).attrs.customPropPath
+              }
+              if(node.textContent.trim() != customPropsObj[section!.sectionID][customPropPath]){
+                customPropsObj[section!.sectionID][customPropPath] = node.textContent.trim()
+                setcustomProp =  true
               }
             }
-            if (GroupControl && node.attrs.formControlName && GroupControl[section!.sectionID]) {      // validation for the formCOntrol
+            /* if(node.marks.filter((mark)=>mark.type.name == 'link').length>0&&node.marks.find((mark)=>mark.type.name == 'link').attrs.formControlName){
+
+            } */
+            if (GroupControl && (node.attrs.formControlName||(node.marks.filter((mark)=>mark.attrs.formControlName != ''&&mark.attrs.formControlName).length>0)) && GroupControl[section!.sectionID]) {      // validation for the formCOntrol
               try {
                 const fg = GroupControl[section!.sectionID];
-                const controlPath = node.attrs.controlPath;
+                let controlPath = node.attrs.controlPath;
+                if(node.marks.filter((mark)=>mark.attrs.formControlName != ''&&mark.attrs.formControlName).length>0){
+                  controlPath = node.marks.find((mark)=>mark.attrs.formControlName != ''&&mark.attrs.formControlName).attrs.controlPath
+                }
                 if (controlPath == 'sectionTreeTitle') {
                   if (!transaction.getMeta('titleupdateFromControl')) {
                     if (transaction.getMeta('editingTitle')) {
@@ -147,10 +158,10 @@ export const updateControlsAndFigures = (
                     }
                     control.updateValueAndValidity()
                     const mark = schema.mark('invalid')
-                    if (control.invalid && node.attrs.invalid !== "true") {
+                    if (control.invalid && node.attrs.invalid !== "true"&&node.type.name !== 'text') {
                       // newState.tr.addMark(pos + 1, pos + node.nodeSize - 1, mark)
                       tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "true" })
-                    } else if (control.valid && node.attrs.invalid !== "false") {
+                    } else if (control.valid && node.attrs.invalid !== "false"&&node.type.name !== 'text') {
                       if (node.attrs.invalid !== "false") {
                         tr1 = tr1.setNodeMarkup(pos, node.type, { ...node.attrs, invalid: "false" })
                       }
@@ -165,8 +176,10 @@ export const updateControlsAndFigures = (
           })
         }
       })
+      if(setcustomProp){
+        sharedService.YdocService!.customSectionProps?.set('customPropsObj',customPropsObj)
+      }
       sharedService.YjsHistoryService.stopLessItemsCapturePrevention();
-      tr1.steps.length > 0?console.log(tr1.steps):console.log();
       return tr1
     } catch (e) {
       console.error(e);
@@ -350,3 +363,4 @@ export function buildFigureForm(submision:any):FormGroup{
   figureFormGroup.addControl('figureComponents',figComponentArray);
   return figureFormGroup
 }
+

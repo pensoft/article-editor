@@ -30,23 +30,23 @@ export class ArticleComponent implements OnInit {
     public prosemirrorEditorsService: ProsemirrorEditorsService,
     public figuresControllerService: FiguresControllerService,
     public detectFocusService: DetectFocusService,
-    public serviceShare:ServiceShare,
-    private refsAPI:RefsApiService,
-    private cslService:CslService,
+    public serviceShare: ServiceShare,
+    private refsAPI: RefsApiService,
+    private cslService: CslService,
   ) {
     this.articleStructureMap = this.ydocService.articleStructure!;
     this.ydocService.articleStructure!.observe((data) => {
       this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
       let change = this.serviceShare?.TreeService?.metadatachangeMap!.get('change');
-      if(change &&(change.action == 'editNode'||change.action == 'saveNewTitle')&&this.serviceShare.TreeService!.findNodeById(change.nodeId||change.node.sectionID)?.active){
+      if (change && (change.action == 'editNode' || change.action == 'saveNewTitle') && this.serviceShare.TreeService!.findNodeById(change.nodeId || change.node.sectionID)?.active) {
         return;
       }
       this.makeFlat();
       setTimeout(() => {
         if (this.detectFocusService.sectionName) {
-          if(!this.prosemirrorEditorsService.editorContainers[this.detectFocusService.sectionName]){
+          if (!this.prosemirrorEditorsService.editorContainers[this.detectFocusService.sectionName]) {
             this.detectFocusService.sectionName = undefined;
-          }else{
+          } else {
             let editorView = this.prosemirrorEditorsService.editorContainers[this.detectFocusService.sectionName].editorView
             editorView.focus();
             editorView.dispatch(editorView.state.tr.scrollIntoView());
@@ -65,29 +65,32 @@ export class ArticleComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.serviceShare.makeFlat = this.makeFlat
   }
 
-  makeFlat() {
+  makeFlat = ()=> {
+    let customPropsObj = this.ydocService.customSectionProps?.get('customPropsObj');
     let articleSectionsStructureFlat: any = []
-     let makeFlatMaterials = (structure: articleSection[]) => {
-      let orderedMat : {[key:string]:articleSection[]}= {}
-      let order:string[] = [];
-      let unorderedMat : articleSection[]= []
-      structure.forEach((mat)=>{
-        let matType = mat.defaultFormIOValues?.typeStatus||(this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]&&this.serviceShare.TreeService.sectionFormGroups[mat.sectionID].value.typeStatus);
-        if(matType){
-          if(!order.includes(matType)){
+    let makeFlatMaterials = (structure: articleSection[]) => {
+      let orderedMat: { [key: string]: articleSection[] } = {}
+      let order: string[] = [];
+      let unorderedMat: articleSection[] = []
+      structure.forEach((mat) => {
+        customPropsObj[mat.sectionID] ? mat.defaultFormIOValues = customPropsObj[mat.sectionID] : mat.defaultFormIOValues = mat.defaultFormIOValues
+        let matType = mat.defaultFormIOValues?.typeStatus || (this.serviceShare.TreeService.sectionFormGroups[mat.sectionID] && this.serviceShare.TreeService.sectionFormGroups[mat.sectionID].value.typeStatus);
+        if (matType) {
+          if (!order.includes(matType)) {
             order.push(matType);
             orderedMat[matType] = []
           }
           orderedMat[matType].push(mat)
-        }else{
+        } else {
           unorderedMat.push(mat)
         }
       })
-      order.forEach((type,i)=>{
-        orderedMat[type].forEach((mat,j,arr)=>{
-          if(this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]){
+      order.forEach((type, i) => {
+        orderedMat[type].forEach((mat, j, arr) => {
+          if (this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]) {
             // if(i==0&&j==0){
             //   this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]!.get('materialsHeading')!.setValue('true');
             //   mat.defaultFormIOValues.materialsHeading = true;
@@ -95,27 +98,31 @@ export class ArticleComponent implements OnInit {
             //   this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]!.get('materialsHeading')!.setValue(null);
             //   mat.defaultFormIOValues.materialsHeading = null;
             // }
-            mat.defaultFormIOValues = mat.defaultFormIOValues || {};
-            if(j == 0){
-              if(arr.length>1){
-                this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]!.get('typeHeading')!.setValue(type+"s");
-                mat.defaultFormIOValues.typeHeading = type+"s";
-              }else{
+            mat.defaultFormIOValues = customPropsObj[mat.sectionID] || mat.defaultFormIOValues || {};
+            if (j == 0) {
+              if (arr.length > 1) {
+                this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]!.get('typeHeading')!.setValue(type + "s");
+                mat.defaultFormIOValues.typeHeading = type + "s";
+                customPropsObj[mat.sectionID] ? customPropsObj[mat.sectionID].typeHeading = type + "s" : null
+              } else {
                 this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]!.get('typeHeading')!.setValue(type)
                 mat.defaultFormIOValues.typeHeading = type;
+                customPropsObj[mat.sectionID] ? customPropsObj[mat.sectionID].typeHeading = type : null
               }
-            }else{
+            } else {
               this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]!.get('typeHeading')!.setValue(null)
               mat.defaultFormIOValues.typeHeading = null;
+              customPropsObj[mat.sectionID] ? customPropsObj[mat.sectionID].typeHeading = null : null
             }
-            let listOrder = String.fromCharCode(97+j);
+            let listOrder = String.fromCharCode(97 + j);
+            customPropsObj[mat.sectionID] ? customPropsObj[mat.sectionID].listOrder = listOrder : null
             this.serviceShare.TreeService.sectionFormGroups[mat.sectionID]!.get('listChar')!.setValue(listOrder)
             mat.defaultFormIOValues.listChar = listOrder;
           }
           articleSectionsStructureFlat.push(mat);
         })
       })
-      unorderedMat.forEach((mat)=>{
+      unorderedMat.forEach((mat) => {
         articleSectionsStructureFlat.push(mat);
       })
     }
@@ -123,18 +130,18 @@ export class ArticleComponent implements OnInit {
       if (structure) {
         structure.forEach((section) => {
           if (section.active) {
-            if(section.title.name == "[MM] Materials") {
+            if (section.title.name == "[MM] Materials") {
               const hasValues = section.children.some(el => {
                 return el.defaultFormIOValues
               });
-              if(hasValues) {
+              if (hasValues) {
                 articleSectionsStructureFlat.push(section);
               }
-            } else if(section.title.name == "[MM] Treatment sections") {
+            } else if (section.title.name == "[MM] Treatment sections") {
               const hasValues = section.children.some(el => {
                 return el.defaultFormIOValues
               });
-              if(hasValues) {
+              if (hasValues) {
                 articleSectionsStructureFlat.push(section);
               }
             } else {
@@ -142,12 +149,12 @@ export class ArticleComponent implements OnInit {
             }
           }
           if (section.children.length > 0) {
-            if(section.title.name == "[MM] Materials"){
+            if (section.title.name == "[MM] Materials") {
               makeFlatMaterials(section.children)
             } else {
 
-               makeFlat(section.children)
-             }
+              makeFlat(section.children)
+            }
           }
         })
       }
@@ -157,7 +164,9 @@ export class ArticleComponent implements OnInit {
     this.articleSectionsStructureFlat = []
     setTimeout(() => {
       this.articleSectionsStructureFlat = articleSectionsStructureFlat
+      //set article structure flat
     }, 10)
+    this.ydocService.customSectionProps?.set('customPropsObj',customPropsObj);
     return articleSectionsStructureFlat
   }
 
