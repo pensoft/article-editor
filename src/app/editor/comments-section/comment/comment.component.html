@@ -2,8 +2,8 @@
 
   <mat-card-header>
     <!-- <div mat-card-avatar class="comment-avatar"></div> -->
-<!--    <app-avatar mat-card-avatar class="comment-avatar"></app-avatar>-->
-<!--    {{userComment!.initialComment | json}}-->
+    <!--    <app-avatar mat-card-avatar class="comment-avatar"></app-avatar>-->
+    <!--    {{userComment!.initialComment | json}}-->
     <ngx-avatar mat-card-avatar size="36" [gravatarId]="userComment!.initialComment.userData.email" [name]="userComment!.initialComment.userData.name"></ngx-avatar>
     <mat-card-title class="comment-title">{{userComment!.initialComment.userData.name}}</mat-card-title>
     <mat-card-subtitle class="comment-subtitle">{{getDate(userComment!.initialComment.date)}}</mat-card-subtitle>
@@ -26,7 +26,7 @@
   <mat-card-content>
     <div class="selected-text">
       <div class="selected-text-title">Selected text:</div>
-      <div class="selected-text-content">{{comment!.text}}</div>
+      <div class="selected-text-content" (click)="selectComment()">{{comment!.commentTxt}}</div>
     </div>
 
     <div #content [ngClass]="{

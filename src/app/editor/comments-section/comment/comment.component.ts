@@ -1,5 +1,5 @@
 import { D } from '@angular/cdk/keycodes';
-import { Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
 import { DateSelectionModelChange } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import { uuidv4 } from 'lib0/random';
@@ -10,6 +10,10 @@ import { AddCommentDialogComponent } from '../../add-comment-dialog/add-comment-
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
 import { YdocService } from '../../services/ydoc.service';
 import {AuthService} from "@core/services/auth.service";
+import { commentData } from '@app/editor/utils/commentsService/comments.service';
+import { ServiceShare } from '@app/editor/services/service-share.service';
+import { Subject } from 'rxjs';
+import { TextSelection } from 'prosemirror-state';
 
 export function getDate(date:number){
   let timeOffset = (new Date()).getTimezoneOffset()*60*1000;
@@ -24,16 +28,13 @@ export function getDate(date:number){
   templateUrl: './comment.component.html',
   styleUrls: ['./comment.component.scss']
 })
-export class CommentComponent implements OnInit {
+export class CommentComponent implements OnInit ,AfterViewInit{
 
-  @Input() comment?: {
-    from: number,
-    to: number,
-    text: string,
-    section: string,
-    attrs: any,
-    viewRef: EditorView
-  };
+  @Input() comment?: commentData;
+
+  @Input() doneRenderingCommentsSubject?: Subject<any>;
+  @Output() doneRenderingCommentsSubjectChange = new EventEmitter<Subject<any>>();
+
   @ViewChild('content') elementView: ElementRef | undefined;
 
   replyInputDisplay = false
@@ -50,6 +51,7 @@ export class CommentComponent implements OnInit {
     private ydocService: YdocService,
     public sharedDialog: MatDialog,
     private prosemirrorEditorService:ProsemirrorEditorsService,
+    private sharedService:ServiceShare
     ) {
     if(this.ydocService.editorIsBuild){
       this.commentsMap = this.ydocService.getCommentsMap()
@@ -64,7 +66,7 @@ export class CommentComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    this.userComment = this.commentsMap?.get(this.comment!.attrs.id) || {initialComment:undefined,commentReplies:undefined};
+    this.userComment = this.commentsMap?.get(this.comment!.commentAttrs.id) || {initialComment:undefined,commentReplies:undefined};
     this.prosemirrorEditorService.mobileVersionSubject.subscribe((data)=>{
       // data == true => mobule version
       this.mobileVersion = data
@@ -72,7 +74,10 @@ export class CommentComponent implements OnInit {
   }
 
   ngAfterViewInit() {
-
+    console.log('rendered');
+    setTimeout(()=>{
+      this.doneRenderingCommentsSubject.next('rendered')
+    },10)
     this.userComment?.commentReplies.forEach((comment,index)=>{
       this.repliesShowMore[index] = false
     })
@@ -80,20 +85,26 @@ export class CommentComponent implements OnInit {
     s.offsetWidth
   }
 
+  selectComment(){
+    let view = this.sharedService.ProsemirrorEditorsService.editorContainers[this.comment.section].editorView;
+    view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(this.comment.pmDocStartPos))))
+  }
+
   deleteComment() {
-    let from = this.comment?.from;
-    let to = this.comment?.to;
-    let state = this.comment?.viewRef.state
+    let from = this.comment?.pmDocStartPos;
+    let to = this.comment?.pmDocEndPos;
+    let viewRef = this.sharedService.ProsemirrorEditorsService.editorContainers[this.comment.section].editorView
+    let state = viewRef.state
     let commentsMark = state?.schema.marks.comment
 
-    this.comment?.viewRef.dispatch(state?.tr.removeMark(from!, to!, commentsMark)!)
-    this.commentsMap?.delete(this.comment?.attrs.id)
+    viewRef.dispatch(state?.tr.removeMark(from!, to!, commentsMark)!)
+    this.commentsMap?.delete(this.comment?.commentAttrs.id)
   }
 
   deleteReply(id:string){
-    let commentData: {initialComment:any,commentReplies:any[]} = this.commentsMap?.get(this.comment?.attrs.id);
+    let commentData: {initialComment:any,commentReplies:any[]} = this.commentsMap?.get(this.comment?.commentAttrs.id);
     commentData.commentReplies.splice(commentData.commentReplies.findIndex((el)=>{return el.id == id}),1);
-    this.commentsMap?.set(this.comment?.attrs.id, commentData);
+    this.commentsMap?.set(this.comment?.commentAttrs.id, commentData);
     this.userComment = commentData;
   }
 
@@ -122,7 +133,7 @@ export class CommentComponent implements OnInit {
   }
 
   editComment(id: string, comment: string) {
-    let commentData: {initialComment:any,commentReplies:any[]} = this.commentsMap?.get(this.comment?.attrs.id);
+    let commentData: {initialComment:any,commentReplies:any[]} = this.commentsMap?.get(this.comment?.commentAttrs.id);
     let commentContent: any = comment;
     const dialogRef = this.sharedDialog.open(AddCommentDialogComponent, { width: 'auto', data: { url: commentContent, type: 'comment' } });
     dialogRef.afterClosed().subscribe(result => {
@@ -130,16 +141,16 @@ export class CommentComponent implements OnInit {
       if (result) {
         commentData.initialComment.comment = commentContent;
         this.userComment = commentData;
-        this.commentsMap?.set(this.comment?.attrs.id, commentData);
+        this.commentsMap?.set(this.comment?.commentAttrs.id, commentData);
         this.contentWidth = this.elementView?.nativeElement.firstChild.offsetWidth;
-        this.moreLessBtnView[this.comment!.attrs.id] = this.contentWidth >= this.MAX_CONTENT_WIDTH
+        this.moreLessBtnView[this.comment!.commentAttrs.id] = this.contentWidth >= this.MAX_CONTENT_WIDTH
 
       }
     });
   }
 
   editReply(id: string, comment: string){
-    let commentData: {initialComment:any,commentReplies:any[]} = this.commentsMap?.get(this.comment?.attrs.id);
+    let commentData: {initialComment:any,commentReplies:any[]} = this.commentsMap?.get(this.comment?.commentAttrs.id);
     let commentContent: any = comment;
     const dialogRef = this.sharedDialog.open(AddCommentDialogComponent, { width: 'auto', data: { url: commentContent, type: 'comment' } });
     dialogRef.afterClosed().subscribe(result => {
@@ -151,9 +162,9 @@ export class CommentComponent implements OnInit {
           }
         })
         this.userComment = commentData;
-        this.commentsMap?.set(this.comment?.attrs.id, commentData);
+        this.commentsMap?.set(this.comment?.commentAttrs.id, commentData);
         this.contentWidth = this.elementView?.nativeElement.firstChild.offsetWidth;
-        this.moreLessBtnView[this.comment!.attrs.id] = this.contentWidth >= this.MAX_CONTENT_WIDTH
+        this.moreLessBtnView[this.comment!.commentAttrs.id] = this.contentWidth >= this.MAX_CONTENT_WIDTH
 
       }
     });
@@ -171,7 +182,7 @@ export class CommentComponent implements OnInit {
     if (!input.value) {
       return
     }
-    let commentData: {initialComment:any,commentReplies:any[]} = this.commentsMap?.get(this.comment?.attrs.id);
+    let commentData: {initialComment:any,commentReplies:any[]} = this.commentsMap?.get(this.comment?.commentAttrs.id);
     let commentContent;
     let userCommentId = uuidv4();
     let commentDate = Date.now()
@@ -185,7 +196,7 @@ export class CommentComponent implements OnInit {
       date:commentDate
     }
     commentData.commentReplies.push(userComment);
-    this.commentsMap?.set(this.comment?.attrs.id, commentData);
+    this.commentsMap?.set(this.comment?.commentAttrs.id, commentData);
     this.userComment = commentData;
     input.value = ''
     replyDiv.style.display = 'none';

@@ -21,10 +21,10 @@
       </mat-form-field>
       <div class="right-avatars">
         <div class="more-avatar">
-<!--          {{usersInArticle.length}} {{usersInArticle | json}}-->
+          <!--          {{usersInArticle.length}} {{usersInArticle | json}}-->
           <ng-container *ngFor="let user of usersInArticle | skipCurrent">
             <ngx-avatar size="36" [gravatarId]="user.ususerInfoer.data.email" [name]="user.ususerInfoer.data.name" [bgColor]="user.ususerInfoer.color"></ngx-avatar>
-<!--            <app-avatar user="user"></app-avatar>-->
+            <!--            <app-avatar user="user"></app-avatar>-->
           </ng-container>
         </div>
       </div>
@@ -107,7 +107,7 @@
         <app-article-metadata></app-article-metadata>
       </div>
       <div class="editor-container" [ngClass]="{'editorSpace': !sidebar}" style="flex-direction: column!;">
-        <app-article id="app-article-element" style="height:97%;"></app-article>
+        <app-article id="app-article-element" style="display: table;"></app-article>
         <!-- <app-prosemirror-editor style="height:97%;"></app-prosemirror-editor> -->
         <!-- <app-formio ></app-formio> -->
         <!-- <app-taxonomy-editor></app-taxonomy-editor> -->

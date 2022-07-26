@@ -300,6 +300,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
   }
 
   toggleSidebar(section: string) {
+
     if (this.innerWidth > 600) {
       if (!this.sidebarDrawer?.opened || this.sidebar == section) {
         this.sidebarDrawer?.toggle();
@@ -311,6 +312,9 @@ export class EditorComponent implements OnInit, AfterViewInit {
         this.sidebar = '';
       }
     } else {
+      if(this.sidebar == section){
+        this.sidebar == ''
+      }
       this.sidebar = section;
       this._bottomSheet.open(EditorSidebarComponent, {
         disableClose: true,
@@ -323,6 +327,18 @@ export class EditorComponent implements OnInit, AfterViewInit {
         .subscribe((data) => {
           this.sidebar = '';
         });
+    }
+    if(section == 'comments'){
+      this.serviceShare.CommentsService.shouldCalc = true;
+      setTimeout(()=>{
+        this.serviceShare.ProsemirrorEditorsService.dispatchEmptyTransaction()
+        setTimeout(()=>{
+          this.serviceShare.ProsemirrorEditorsService.dispatchEmptyTransaction()
+          this.serviceShare.CommentsService.getCommentsInAllEditors()
+        },50)
+      },50)
+    }else{
+      this.serviceShare.CommentsService.shouldCalc = false;
     }
   }
 

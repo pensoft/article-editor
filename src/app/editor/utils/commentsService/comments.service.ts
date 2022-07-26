@@ -11,6 +11,15 @@ import { Observable } from 'lib0/observable';
 import { state } from '@angular/animations';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 
+export interface commentData {
+  pmDocStartPos:number,
+  pmDocEndPos:number,
+  domTop:number,
+  commentTxt:string,
+  section:string,
+  commentAttrs:any
+
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -27,18 +36,18 @@ export class CommentsService {
   commentAllowdIn?: any = {} // editor id where comment can be made RN equals ''/undefined if there is no such editor RN
   selectedTextInEditors?: any = {} // selected text in every editor
 
-  resetCommentsService(){
-    this.storeData= undefined;
-    this.editorsOuterDiv= undefined;
-    Object.keys(this.commentsObject).forEach((key)=>{
+  resetCommentsService() {
+    this.storeData = undefined;
+    this.editorsOuterDiv = undefined;
+    Object.keys(this.commentsObject).forEach((key) => {
       this.commentsObject[key] = []
     })
-    this.addCommentData= {}
+    this.addCommentData = {}
     this.commentAllowdIn = {} // editor id where comment can be made RN equals ''/undefined if there is no such editor RN
     this.selectedTextInEditors = {}
   }
-  constructor(private serviceShare:ServiceShare) {
-    serviceShare.shareSelf('CommentsService',this)
+  constructor(private serviceShare: ServiceShare) {
+    serviceShare.shareSelf('CommentsService', this)
     let addCommentSubject1 = new Subject<any>()
     this.addCommentSubject = addCommentSubject1
     this.addCommentSubject.subscribe((data) => {
@@ -52,6 +61,7 @@ export class CommentsService {
 
       }
     })
+
     let commentPluginKey = new PluginKey('commentPlugin')
     this.commentPluginKey = commentPluginKey;
     let checkPosition = (editorP: { top: number, bottom: number }, positionToCheck: { top: number, bottom: number }) => {
@@ -64,7 +74,7 @@ export class CommentsService {
       }
       return undefined
     }
-
+    let getCommentsInDoc = this.getCommentsInDoc
     let commentsVisibilityChange: Subject<any> = new Subject<any>();
     this.commentsVisibilityChange = commentsVisibilityChange
 
@@ -86,15 +96,14 @@ export class CommentsService {
             errorMessage = 'Selection is empty.'
             err = true
           }
-
           if (!err) {
             newState.doc.nodesBetween(from, to, (node, pos, parent) => {
-              /* if (node.marks.length > 0) {
+              /*if (node.marks.length > 0) {
                 if (node.marks.filter((el) => { return el.type.name == 'comment' }).length > 0) {
-                  err = true
+                   err = true
                   errorMessage = "There is a comment here already"
                 }
-              } */
+              }*/
               if (node.attrs.commentable == 'false') {
                 commentableAttr = false
               }
@@ -106,6 +115,7 @@ export class CommentsService {
           }
           let commentdata = { type: 'commentAllownes', sectionId: prev.sectionName, allow: !err, text, errorMessage, err }
           addCommentSubject1.next(commentdata)
+
           return { ...prev, commentsStatus: commentdata }
         },
       },
@@ -113,14 +123,15 @@ export class CommentsService {
       view: function () {
         return {
           update: (view, prevState) => {
-
-            if(JSON.stringify(view.state.doc)== JSON.stringify(prevState.doc)&&!view.hasFocus()){
+            let pluginData = commentPluginKey.getState(view.state)
+            let sectionName = pluginData.sectionName
+            getCommentsInDoc(view, sectionName)
+            if (JSON.stringify(view.state.doc) == JSON.stringify(prevState.doc) && !view.hasFocus()) {
               return;
             }
             let commentsMark = view.state.schema.marks.comment
             let editor = document.getElementsByClassName('editor-container').item(0) as HTMLDivElement
-            let pluginData = commentPluginKey.getState(view.state)
-            let sectionName = pluginData.sectionName
+
             let commentsStatus = pluginData.commentsStatus
             attachCommentBtn(editor, view, commentsStatus)
 
@@ -227,6 +238,56 @@ export class CommentsService {
         this.addCommentSubject.next({ type: 'commentData', sectionName, showBox: true })
       })
     }
+  }
+
+  commentsObj:{[key:string]:commentData[]} = {}
+  commentsChangeSubject:Subject<any> = new Subject()
+  shouldCalc = false;
+
+  getCommentsInDoc = (view: EditorView, sectionId: string)=>{
+    this.getComments(view,sectionId);
+    this.commentsChangeSubject.next('comments pos calc for section : '+ sectionId);
+  }
+
+  getCommentsInAllEditors=()=>{
+    this.commentsObj = {}
+    let edCont = this.serviceShare.ProsemirrorEditorsService.editorContainers
+    Object.keys(edCont).forEach((sectionId)=>{
+      let view = edCont[sectionId].editorView;
+      this.getComments(view,sectionId);
+    })
+    this.commentsChangeSubject.next('comments pos calc for all sections');
+  }
+
+  getComments = (view: EditorView, sectionId: string) => {
+
+    this.commentsObj[sectionId] = []
+    if(!this.shouldCalc){
+      return;
+    }
+    let commentsMark = view.state.schema.marks.comment
+
+    let doc = view.state.doc
+    let docSize: number = doc.content.size;
+
+    doc.nodesBetween(0, docSize - 1, (node, pos, parent, index) => {
+      const actualMark = node.marks.find(mark => mark.type === commentsMark);
+
+      if (actualMark) {
+        // should get the top position , the node document position , the section id of this view
+        let articleElement = document.getElementById('app-article-element') as HTMLDivElement
+        let articleElementRactangle = articleElement.getBoundingClientRect()
+        let domCoords = view.coordsAtPos(pos)
+        this.commentsObj[sectionId].push({
+          pmDocStartPos:pos,
+          pmDocEndPos:pos+node.nodeSize,
+          section:sectionId,
+          domTop:domCoords.top - articleElementRactangle.top,
+          commentTxt:node.textContent,
+          commentAttrs:actualMark.attrs
+        })
+      }
+    })
   }
 
   removeEditorComment(editorId: any) {
