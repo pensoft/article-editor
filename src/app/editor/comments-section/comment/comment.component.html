@@ -6,15 +6,18 @@
     <!--    {{userComment!.initialComment | json}}-->
     <ngx-avatar mat-card-avatar size="36" [gravatarId]="userComment!.initialComment.userData.email" [name]="userComment!.initialComment.userData.name"></ngx-avatar>
     <mat-card-title class="comment-title">{{userComment!.initialComment.userData.name}}</mat-card-title>
-    <mat-card-subtitle class="comment-subtitle">{{getDate(userComment!.initialComment.date)}}</mat-card-subtitle>
+    <mat-card-subtitle class="comment-subtitle">{{userComment!.initialComment.date | date:'medium'}}</mat-card-subtitle>
 
     <div class="header-actions">
       <ng-container *ngIf="authService.currentUserSubject | async as user">
         <arpha-button *ngIf="!mobileVersion && userComment!.initialComment.userData.email == user.email" (clickEvent)="deleteComment()" label="Resolve" style="background-color: transparent;" class="small secondary resolve-button"></arpha-button>
       </ng-container>
-      <button *ngIf="!mobileVersion" mat-icon-button [matMenuTriggerFor]="menu">
+      <ng-container *ngIf="authService.currentUserSubject | async as user">
+        <button *ngIf="!mobileVersion&&userComment!.initialComment.userData.email == user.email" mat-icon-button [matMenuTriggerFor]="menu">
         <mat-icon>more_horiz</mat-icon>
-      </button>
+        </button>
+      </ng-container>
+
 
       <mat-menu #menu="matMenu">
         <button (click)="editComment(userComment!.initialComment.id, userComment!.initialComment.comment)" mat-menu-item>Edit</button>
@@ -61,12 +64,14 @@
   <mat-card-header>
     <div mat-card-avatar class="comment-avatar"></div>
     <mat-card-title class="comment-title">{{comment.userData.name}}</mat-card-title>
-    <mat-card-subtitle class="comment-subtitle">{{getDate(comment.date)}}</mat-card-subtitle>
+    <mat-card-subtitle class="comment-subtitle">{{comment.date|date:'medium'}}</mat-card-subtitle>
 
     <div class="header-actions">
-      <button *ngIf="!mobileVersion" mat-icon-button [matMenuTriggerFor]="menu">
-        <mat-icon>more_horiz</mat-icon>
+      <ng-container *ngIf="authService.currentUserSubject | async as user">
+        <button *ngIf="!mobileVersion && userComment!.initialComment.userData.email == user.email" mat-icon-button [matMenuTriggerFor]="menu">
+          <mat-icon>more_horiz</mat-icon>
         </button>
+      </ng-container>
 
       <mat-menu #menu="matMenu">
         <button (click)="editReply(comment.id, comment.comment)" mat-menu-item>Edit</button>

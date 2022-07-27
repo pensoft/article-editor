@@ -14,7 +14,7 @@ import { YdocService } from '../services/ydoc.service';
 import { YArray } from 'yjs/dist/src/internals';
 import { iif } from 'rxjs';
 import { AnyTxtRecord } from 'dns';
-
+import { EditorView } from 'prosemirror-view';
 interface undoServiceItem {
   editors: string[],
   undoItemMeta?: any,
@@ -252,8 +252,19 @@ export class YjsHistoryService {
         }
       }
     }
+    let handleKeyDown:(view:EditorView,event:KeyboardEvent)=>boolean = (view,event)=>{
+      if(event.key == 'Enter'){
+        setTimeout(()=>{
+          this.startCapturingNewUndoItem()
+        },20)
+      }
+      return false
+    }
     return new Plugin({
       key: YjsPluginKey,
+      props:{
+        handleKeyDown
+      },
       state: {
         init: (initargs, state) => {
           // TODO: check if plugin order matches and fix
@@ -463,7 +474,6 @@ export class YjsHistoryService {
 
       return true
     } */
-    console.log('undo redo stacks',this.undoStack, this.redoStack);
     return true
   }
 
@@ -494,7 +504,6 @@ export class YjsHistoryService {
       let result = undoManager.redo()
       return true
     } */
-    console.log('undo redo stacks',this.undoStack, this.redoStack);
     return true
   }
 
@@ -540,7 +549,6 @@ export class YjsHistoryService {
     if (!info.addnewItem&&(this.undoStack.length == 0 || (this.undoStack.length > 0 && this.undoStack[0].finished))) {
       this.createNewUndoStackItem()
     }
-    console.log(info.data);
     this.undoStack[0].undoItemMeta = info
     /* if (info.type == 'figure') {
       // add undoitem data to last undo item

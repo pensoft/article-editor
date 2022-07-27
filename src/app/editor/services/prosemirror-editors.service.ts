@@ -289,7 +289,7 @@ export class ProsemirrorEditorsService {
     }else{
       view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(sel.from),view.state.doc.resolve(sel.to))))
     } */
-    view.focus()
+    //view.focus()
   }
 
   scrollMainEditorIntoView(id: string) {
@@ -588,12 +588,10 @@ export class ProsemirrorEditorsService {
             })
             //@ts-ignore
             if (!event.ctrlKey) {  // means that the drag is only moving the selected not a copy of the selection -> without Ctrl
-              console.log('drag wihtout copy ');
               this.dispatchEmptyTransaction()
             } else {      // the drag is moving a copy of the selection
               //@ts-ignore
               let dropPosition = view.posAtCoords({ left: event.clientX, top: event.clientY }).pos + pos - slice.openStart
-              console.log('drag wiht copy ');
 
               setTimeout(() => {
                 let newMark = view.state.doc.nodeAt(dropPosition)

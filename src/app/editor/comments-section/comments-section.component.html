@@ -10,7 +10,7 @@
       <mat-card-header>
         <ngx-avatar mat-card-avatar size="36" [bgColor]="prosemirrorEditorsService.userInfo.color" [name]="prosemirrorEditorsService.userInfo.data.name"></ngx-avatar>
         <mat-card-title class="commentBox-title">{{prosemirrorEditorsService.userInfo.data.name}}</mat-card-title>
-        <mat-card-subtitle class="commentBox-subtitle">{{getDate(getTime())}}</mat-card-subtitle>
+        <mat-card-subtitle class="commentBox-subtitle">{{getTime()|date:'medium'}}</mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         <div class="selected-commet-text">
@@ -25,8 +25,8 @@
         <button mat-button label="Comment" (click)="commentBtnHandle(input.value)" [disabled]="!selectedTextInEditors[lastFocusedEditor!] || input.value.length === 0 || !commentAllowdIn[lastFocusedEditor!]" class="small  secondary comment-button">Comment</button>
       </div>
     </mat-card>
-    <div *ngFor="let comment of this.allComments" class="comment-container" attr.commentId="{{comment.commentAttrs.id}}" attr.sectionId="{{comment.section}}">
-      <app-comment [comment]="comment" [(doneRenderingCommentsSubject)]="doneRenderingCommentsSubject"></app-comment>
+    <div *ngFor="let comment of this.allComments" class="comment-container" attr.commentId="{{comment.commentAttrs.id}}" attr.sectionId="{{comment.section}}" #commentContainer>
+      <app-comment [comment]="comment" [(doneRenderingCommentsSubject)]="doneRenderingCommentsSubject" (selected)="changeParentContainer($event,commentContainer)"></app-comment>
     </div>
   </div>
 

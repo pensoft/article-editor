@@ -1,4 +1,4 @@
-import { D } from '@angular/cdk/keycodes';
+import { D, E } from '@angular/cdk/keycodes';
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
 import { DateSelectionModelChange } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
@@ -36,6 +36,9 @@ export class CommentComponent implements OnInit ,AfterViewInit{
   @Output() doneRenderingCommentsSubjectChange = new EventEmitter<Subject<any>>();
 
   @ViewChild('content') elementView: ElementRef | undefined;
+  @ViewChild('ReplyDiv') ReplyDiv: ElementRef | undefined;
+
+  @Output() selected = new EventEmitter<boolean>();
 
   replyInputDisplay = false
   initialShowMore = false;
@@ -71,10 +74,12 @@ export class CommentComponent implements OnInit ,AfterViewInit{
       // data == true => mobule version
       this.mobileVersion = data
     })
+
   }
 
+  authenticated = false
+
   ngAfterViewInit() {
-    console.log('rendered');
     setTimeout(()=>{
       this.doneRenderingCommentsSubject.next('rendered')
     },10)
@@ -83,11 +88,37 @@ export class CommentComponent implements OnInit ,AfterViewInit{
     })
     let s : HTMLSpanElement = document.createElement('span');
     s.offsetWidth
+    this.sharedService.CommentsService.lastSelectedCommentSubject.subscribe((comment)=>{
+      if(this.comment.commentAttrs.id == comment.commentId){
+        (this.ReplyDiv.nativeElement as HTMLDivElement).style.display = 'block'
+        this.selected.emit(true);
+      }else{
+        (this.ReplyDiv.nativeElement as HTMLDivElement).style.display = 'none'
+        this.selected.emit(false);
+      }
+    })
+
   }
 
   selectComment(){
     let view = this.sharedService.ProsemirrorEditorsService.editorContainers[this.comment.section].editorView;
-    view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(this.comment.pmDocStartPos))))
+    let actualComment : commentData
+    let allComments = this.sharedService.CommentsService.commentsObj
+    Object.keys(allComments).forEach((sectionid)=>{
+      let commentsInSection = allComments[sectionid];
+      Object.keys(commentsInSection).forEach((commentid)=>{
+        let com = commentsInSection[commentid]
+        if(com&&com.commentAttrs.id == this.comment.commentAttrs.id){
+          actualComment = com
+        }
+      })
+    })
+    if(actualComment){
+      let commentMiddlePos = Math.floor((actualComment.pmDocStartPos+ actualComment.pmDocEndPos)/2)
+      view.focus()
+      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(commentMiddlePos))))
+      this.sharedService.ProsemirrorEditorsService.dispatchEmptyTransaction()
+    }
   }
 
   deleteComment() {
@@ -110,9 +141,9 @@ export class CommentComponent implements OnInit ,AfterViewInit{
 
   showHideReply(replyDiv:HTMLDivElement) {
     if(replyDiv.style.display == 'block'){
-      replyDiv.style.display = 'none';
+      this.sharedService.CommentsService.lastSelectedCommentSubject.next({commentId:undefined,pos:undefined,sectionId:undefined})
     }else{
-      replyDiv.style.display = 'block';
+      this.sharedService.CommentsService.lastSelectedCommentSubject.next({commentId:this.comment.commentAttrs.id,pos:this.comment.pmDocStartPos,sectionId:this.comment.section})
     }
 
     /*  let commentsArray = this.commentsMap.get(this.comment?.attrs.id);

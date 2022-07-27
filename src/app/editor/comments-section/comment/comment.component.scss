@@ -3,7 +3,7 @@
     padding: 16px 15px 16px 16px !important;
     margin-right: 10px;
     margin-left: 44px;
-    border-radius: 0 !important;
+    border-radius: 10px !important;
     border-left: 2px solid transparent;
     .comment-avatar {
       height: 36px;
@@ -29,15 +29,14 @@
       color: var(--color-e3e3e3);
     }
     &:hover {
-      background: var(--color-f5f5f5);
-      border-color: var(--color-559efe);
+      // background: var(--color-f5f5f5);
+      background-color: #f1f1f1;
+      border: 1px solid #00000050;
     }
   }
   .comment-box {
     padding: 16px 15px 16px 16px !important;
-    margin-right: 10px;
-    border-radius: 0 !important;
-    border-left: 2px solid transparent;
+    border-radius: 11px !important;
     .comment-avatar {
       height: 36px;
       width: 36px;
@@ -60,8 +59,8 @@
       }
     }
     &:hover {
-      background: var(--color-f5f5f5);
-      border-color: var(--color-559efe);
+      background-color: #f1f1f1;
+      border: 1px solid #00000050;
     }
   }
   .mat-card {

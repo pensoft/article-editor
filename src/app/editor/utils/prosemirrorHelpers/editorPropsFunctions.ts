@@ -21,6 +21,11 @@ export function handlePaste(mathMap: YMap<any>, sectionID: string,sharedService:
         mark.attrs.citateid = uuidv4()
         newPastedCitation = true;
       }
+      if(node.marks.filter((mark) => { return mark.type.name == 'comment' }).length > 0) {
+        let comment = node.marks.filter((mark) => { return mark.type.name == 'comment' })[0]
+
+        comment.attrs.commentmarkid = uuidv4()
+      }
       if (node.type.name == 'math_inline' || node.type.name == 'math_display') {
         let oldId = node.attrs.math_id;
         node.attrs.math_id = uuidv4()

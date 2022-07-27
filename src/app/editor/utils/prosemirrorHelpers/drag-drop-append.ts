@@ -12,6 +12,7 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
     let moovingANodeWithUUID = false;
     let stepsIndexes: { from: number, to: number }[] = [];
     let dragDropCitation = false
+    let dragDropComment = false
     transactions.forEach((transaction) => {
       //@ts-ignore
       let meta = transaction.meta
@@ -33,6 +34,12 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
                 if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
                   moovingANodeWithUUID = true
                   dragDropCitation = true
+                  //@ts-ignore
+                  stepsIndexes.push({ from: step.from, to: step.from + fr.size })
+                }
+                if (node.marks.filter((mark) => { return mark.type.name == 'comment' }).length > 0) {
+                  moovingANodeWithUUID = true
+                  dragDropComment = true
                   //@ts-ignore
                   stepsIndexes.push({ from: step.from, to: step.from + fr.size })
                 }
@@ -71,7 +78,16 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
         if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
           let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
           let newid = uuidv4()
+          console.log(newid);
           let newMark = newState.schema.mark('citation', { ...citationMark.attrs, citateid: newid })
+          tr = tr.addMark(pos, pos + node.nodeSize, newMark)
+          changed = true
+        }
+        if (node.marks.filter((mark) => { return mark.type.name == 'comment' }).length > 0) {
+          let commentMark = node.marks.filter((mark) => { return mark.type.name == 'comment' })[0]
+          let newid = uuidv4()
+          let newMark = newState.schema.mark('comment', { ...commentMark.attrs, commentmarkid: newid })
+          console.log(newMark);
           tr = tr.addMark(pos, pos + node.nodeSize, newMark)
           changed = true
         }

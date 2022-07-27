@@ -8,7 +8,8 @@ export const comment = {
         conversation: { default: [] },
         date:{default:''},
         userid:{default:''},
-        username:{default:''}
+        username:{default:''},
+        commentmarkid:{default:''}
     },
     inclusive: false,
     excludes: '',
@@ -23,6 +24,7 @@ export const comment = {
                 date: dom.dataset.date,
                 userid: dom.dataset.userid,
                 username: dom.dataset.username,
+                commentmarkid: dom.dataset.commentmarkid,
                 //conversation: JSON.parse(dom.dataset.conversation),
             }
         },
@@ -39,6 +41,7 @@ export const comment = {
                 'data-date': node.attrs.date,
                 'data-userid': node.attrs.userid,
                 'data-username': node.attrs.username,
+                'data-commentmarkid': node.attrs.commentmarkid,
             },
         ];
     },
