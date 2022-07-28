@@ -140,14 +140,11 @@ export class CommentComponent implements OnInit ,AfterViewInit{
     let view = this.sharedService.ProsemirrorEditorsService.editorContainers[this.comment.section].editorView;
     let actualComment : commentData
     let allComments = this.sharedService.CommentsService.commentsObj
-    Object.keys(allComments).forEach((sectionid)=>{
-      let commentsInSection = allComments[sectionid];
-      Object.keys(commentsInSection).forEach((commentid)=>{
-        let com = commentsInSection[commentid]
+    Object.keys(allComments).forEach((commentid)=>{
+        let com = allComments[commentid]
         if(com&&com.commentAttrs.id == this.comment.commentAttrs.id){
           actualComment = com
         }
-      })
     })
     if(actualComment){
       //let commentMiddlePos = Math.floor((actualComment.pmDocStartPos+ actualComment.pmDocEndPos)/2)
@@ -179,6 +176,7 @@ export class CommentComponent implements OnInit ,AfterViewInit{
     if(replyDiv.style.display == 'block'){
       this.sharedService.CommentsService.lastSelectedCommentSubject.next({commentId:undefined,pos:undefined,sectionId:undefined})
     }else{
+      console.log('selected comment',this.comment);
       this.sharedService.CommentsService.lastSelectedCommentSubject.next({commentId:this.comment.commentAttrs.id,pos:this.comment.pmDocStartPos,sectionId:this.comment.section})
     }
 

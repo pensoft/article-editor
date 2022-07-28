@@ -330,13 +330,13 @@ export class EditorComponent implements OnInit, AfterViewInit {
     }
     if(section == 'comments'){
       this.serviceShare.CommentsService.shouldCalc = true;
-      setTimeout(()=>{
+      /* setTimeout(()=>{
         this.serviceShare.ProsemirrorEditorsService.dispatchEmptyTransaction()
         setTimeout(()=>{
           this.serviceShare.ProsemirrorEditorsService.dispatchEmptyTransaction()
           this.serviceShare.CommentsService.getCommentsInAllEditors()
         },50)
-      },50)
+      },50) */
     }else{
       this.serviceShare.CommentsService.shouldCalc = false;
     }

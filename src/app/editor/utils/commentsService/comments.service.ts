@@ -13,25 +13,26 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
 import { Mark } from 'prosemirror-model';
 import { YMap } from 'yjs/dist/src/internals';
 import { checkAllEditorsIfMarkOfCommentExists } from './commentMarksHelpers';
+import { I } from '@angular/cdk/keycodes';
 
 export interface userDataInComment {
-  created_at:string
-  email:string
-  email_verified_at:string
-  id:String
-  name:string
-  updated_at:string
+  created_at: string
+  email: string
+  email_verified_at: string
+  id: String
+  name: string
+  updated_at: string
 }
 
 export interface ydocComment {
-  comment:string
-  date:number
-  id:string
-  userData:userDataInComment
+  comment: string
+  date: number
+  id: string
+  userData: userDataInComment
 }
 
-export interface commentYdocSave {commentReplies:ydocComment[],initialComment:ydocComment}
-export interface ydocCommentsObj {[key:string]:commentYdocSave}
+export interface commentYdocSave { commentReplies: ydocComment[], initialComment: ydocComment }
+export interface ydocCommentsObj { [key: string]: commentYdocSave }
 
 export interface commentData {
   pmDocStartPos: number,
@@ -40,9 +41,8 @@ export interface commentData {
   commentTxt: string,
   section: string,
   commentAttrs: any,
-  commentMarkId:string,
-  selected?: true,
-  lastSelected?: true
+  commentMarkId: string,
+  selected: boolean
 }
 @Injectable({
   providedIn: 'root'
@@ -59,21 +59,22 @@ export class CommentsService {
   addCommentData?: any = {}
   commentAllowdIn?: any = {} // editor id where comment can be made RN equals ''/undefined if there is no such editor RN
   selectedTextInEditors?: any = {} // selected text in every editor
-  lastSelectedComments: { [key: string]: { [key: string]: { selected: boolean, markid: string } } }
+  lastSelectedComments: { [key: string]: { commentId: string, commentMarkId: string, sectionId: string } } = {}
   lastCommentSelected: {
     commentId?: string,
     pos?: number,
     sectionId?: string,
-    commentMarkId?:string,
+    commentMarkId?: string,
   }
   commentsMap?: YMap<any>
-  lastSelectedCommentSubject:Subject<{
+  lastSelectedCommentSubject: Subject<{
     commentId?: string,
     pos?: number,
-    sectionId?: string
+    sectionId?: string,
+    commentMarkId?: string
   }> = new Subject()
 
-  commentsInYdoc:ydocCommentsObj = {}
+  commentsInYdoc: ydocCommentsObj = {}
 
   resetCommentsService() {
     this.storeData = undefined;
@@ -86,13 +87,13 @@ export class CommentsService {
     this.selectedTextInEditors = {}
   }
 
-  ydocCommentsChangeSubject:Subject<ydocCommentsObj> = new Subject()
+  ydocCommentsChangeSubject: Subject<ydocCommentsObj> = new Subject()
 
-  setYdocCommentsObj(){
-    let commObj:any = {}
-    Array.from(this.commentsMap.keys()).forEach((commentid)=>{
+  setYdocCommentsObj() {
+    let commObj: any = {}
+    Array.from(this.commentsMap.keys()).forEach((commentid) => {
       let comment = this.commentsMap.get(commentid)
-      if(comment){
+      if (comment) {
         commObj[commentid] = comment
       }
     })
@@ -100,32 +101,31 @@ export class CommentsService {
     this.ydocCommentsChangeSubject.next(this.commentsInYdoc)
   }
 
-  addCommentsMapChangeListener(){
+  addCommentsMapChangeListener() {
     this.commentsMap = this.serviceShare.YdocService.getCommentsMap()
     this.setYdocCommentsObj()
-    this.commentsMap.observe((ymapEvent,trnasact)=>{
+    this.commentsMap.observe((ymapEvent, trnasact) => {
       this.setYdocCommentsObj()
     })
   }
 
-  handleDeletedComments(deleted:any[]){
-    let filteredFromRepeatingMarks:string[] = []
-    deleted.forEach((comAttrs)=>{
+  handleDeletedComments(deleted: any[]) {
+    let filteredFromRepeatingMarks: string[] = []
+    deleted.forEach((comAttrs) => {
       let commentId = comAttrs.attrs.id
-      if(!filteredFromRepeatingMarks.includes(commentId)){
+      if (!filteredFromRepeatingMarks.includes(commentId)) {
         filteredFromRepeatingMarks.push(commentId)
       }
     })
     let edConts = this.serviceShare.ProsemirrorEditorsService.editorContainers;
-    filteredFromRepeatingMarks.forEach((commentId)=>{
-      if(!checkAllEditorsIfMarkOfCommentExists(edConts,commentId)){
-        this.commentsMap.set(commentId,undefined);
+    filteredFromRepeatingMarks.forEach((commentId) => {
+      if (!checkAllEditorsIfMarkOfCommentExists(edConts, commentId)) {
+        this.commentsMap.set(commentId, undefined);
       }
     })
   }
 
-  updateAllComments(){
-    console.log('update from service');
+  updateAllComments() {
     this.getCommentsInAllEditors()
     this.updateTimestamp = Date.now();
   }
@@ -135,25 +135,27 @@ export class CommentsService {
 
   changeInEditors = () => {
     let now = Date.now();
-    if(!this.updateTimestamp){
+    if (!this.updateTimestamp) {
       this.updateTimestamp = Date.now();
     }
-    if(this.updateTimeout){
+    if (this.updateTimeout) {
       clearTimeout(this.updateTimeout);
     }
-    if(now-this.updateTimestamp>1200){
+    if (now - this.updateTimestamp > 1200) {
       this.updateAllComments()
     }
-    this.updateTimeout = setTimeout(()=>{
+    this.updateTimeout = setTimeout(() => {
       this.updateAllComments()
-    },1200)
+    }, 1200)
   }
 
   constructor(private serviceShare: ServiceShare) {
-    this.lastSelectedCommentSubject.subscribe((data)=>{
+    this.lastSelectedCommentSubject.subscribe((data) => {
+      console.log('setting data for last selected comment',data);
       this.lastCommentSelected.commentId = data.commentId
       this.lastCommentSelected.pos = data.pos
       this.lastCommentSelected.sectionId = data.sectionId
+      this.lastCommentSelected.commentMarkId = data.commentMarkId
     })
     if (this.serviceShare.YdocService.editorIsBuild) {
       this.addCommentsMapChangeListener()
@@ -196,15 +198,17 @@ export class CommentsService {
 
     let commentsObject: any = {};
     this.commentsObject = commentsObject;
-    let lastSelectedComments: { [key: string]: { [key: string]: { selected: boolean, markid: string } } } = {}
+    let lastSelectedComments: { [key: string]: { commentId: string, commentMarkId: string, sectionId: string } } = {}
     let lastCommentSelected: {
       commentId?: string,
       pos?: number,
-      sectionId?: string
+      sectionId?: string,
+      commentMarkId?: string,
     } = {}
     this.lastCommentSelected = lastCommentSelected
     this.lastSelectedComments = lastSelectedComments
     let setLastSelectedComment = this.setLastSelectedComment
+    let sameAsLastSelectedComment = this.sameAsLastSelectedComment
     let changeInEditors = this.changeInEditors
     this.commentsPlugin = new Plugin({
       key: this.commentPluginKey,
@@ -225,27 +229,22 @@ export class CommentsService {
           let selectedAComment = false;
           let commentsMark = oldState.schema.marks.comment
           let commentInSelection = (actualMark: Mark, pos: number) => {
+            console.log('comm in selection pos', pos);
+            if (sameAsLastSelectedComment(actualMark.attrs.id, pos, prev.sectionName, actualMark.attrs.commentmarkid)) {
+              return
+            } else {
+            }
             err = true
             errorMessage = "There is a comment here already"
-            if (!lastSelectedComments[prev.sectionName]) {
-              lastSelectedComments[prev.sectionName] = {}
+            setLastSelectedComment(actualMark.attrs.id, pos, prev.sectionName, actualMark.attrs.commentmarkid)
+            lastSelectedComments[actualMark.attrs.id] = {
+              commentId: actualMark.attrs.id,
+              commentMarkId: actualMark.attrs.commentmarkid,
+              sectionId: prev.sectionName
             }
-            lastSelectedComments[prev.sectionName][actualMark.attrs.id] = { selected: true, markid:actualMark.attrs.commentmarkid };
-            setLastSelectedComment(actualMark.attrs.id,pos,prev.sectionName,actualMark.attrs.commentmarkid)
-            Object.keys(lastSelectedComments).forEach((section) => {
-              let selCommInSec = lastSelectedComments[section]
-              if(selCommInSec){
-                Object.keys(selCommInSec).forEach((commentid) => {
-                  let comm = selCommInSec[commentid];
-                  if (commentid == actualMark.attrs.id && section != prev.sectionName) {
-                    lastSelectedComments[section][commentid] = undefined
-                  }
-                })
-              }
-            })
           }
           let view = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName].editorView
-          if (!(oldState.selection instanceof AllSelection)&&view.hasFocus()) {
+          if (!(oldState.selection instanceof AllSelection) && view.hasFocus() && from == to) {
 
             oldState.doc.nodesBetween(from, to, (node, pos, parent) => {
               if (node.marks.length > 0) {
@@ -265,33 +264,33 @@ export class CommentsService {
             errorMessage = "You can't leave comment there."
             err = true
           }
-          if(!selectedAComment&&!(oldState.selection instanceof AllSelection)&&view.hasFocus()){
+          if (!selectedAComment && !(oldState.selection instanceof AllSelection) && view.hasFocus() && from == to) {
             let sel = newState.selection
             let nodeAfterSelection = sel.$to.nodeAfter
             let nodeBeforeSelection = sel.$from.nodeBefore
             let foundMark = false;
-            if(nodeAfterSelection){
+            if (nodeAfterSelection) {
               let pos = sel.to
               let commentMark = nodeAfterSelection.marks.find(mark => mark.type === commentsMark)
-              if(commentMark){
+              if (commentMark) {
                 commentInSelection(commentMark, pos)
                 selectedAComment = true;
                 foundMark = true;
               }
             }
-            if(nodeBeforeSelection&&!foundMark){
-              let pos = sel.from-nodeBeforeSelection.nodeSize
+            if (nodeBeforeSelection && !foundMark) {
+              let pos = sel.from - nodeBeforeSelection.nodeSize
               let commentMark = nodeBeforeSelection.marks.find(mark => mark.type === commentsMark)
-              if(commentMark){
+              if (commentMark) {
                 commentInSelection(commentMark, pos)
                 selectedAComment = true;
               }
             }
           }
-          if (!selectedAComment&&!(oldState.selection instanceof AllSelection)&&view.hasFocus()) {
-            setLastSelectedComment(undefined,undefined,undefined,undefined)
+          if ((!selectedAComment && !(oldState.selection instanceof AllSelection) && view.hasFocus() && from == to) || from != to) {
+            setLastSelectedComment(undefined, undefined, undefined, undefined)
           }
-          if(!(oldState.selection instanceof AllSelection)&&view.hasFocus()&&tr.steps.length>0){
+          if (!(oldState.selection instanceof AllSelection) /* && view.hasFocus() && tr.steps.length > 0 */) {
             changeInEditors()
           }
           let commentdata = { type: 'commentAllownes', sectionId: prev.sectionName, allow: !err, text, errorMessage, err }
@@ -417,25 +416,32 @@ export class CommentsService {
       editorBtnsWrapper.style.marginLeft = '-6px'
       commentBtn.addEventListener('click', () => {
         this.addCommentSubject.next({ type: 'commentData', sectionName, showBox: true })
-        setTimeout(()=>{
+        setTimeout(() => {
           this.getCommentsInAllEditors()
-        },30)
+        }, 30)
       })
     }
   }
 
-  setLastSelectedComment = (commentId?: string, pos?: number, sectionId?: string,commentMarkId?:string) => {
-    if(
-      this.lastCommentSelected.commentId!=commentId||
-      this.lastCommentSelected.pos!=pos||
-      this.lastCommentSelected.sectionId!=sectionId||
-      this.lastCommentSelected.commentMarkId!=commentMarkId
-      ){
-      this.lastSelectedCommentSubject.next({commentId,pos,sectionId})
+  sameAsLastSelectedComment = (commentId?: string, pos?: number, sectionId?: string, commentMarkId?: string) => {
+    if (
+      this.lastCommentSelected.commentId != commentId ||
+      this.lastCommentSelected.sectionId != sectionId ||
+      this.lastCommentSelected.commentMarkId != commentMarkId
+    ) {
+      return false;
+    } else {
+      return true
     }
   }
 
-  commentsObj: { [key: string]: { [key: string]: commentData } } = {}
+  setLastSelectedComment = (commentId?: string, pos?: number, sectionId?: string, commentMarkId?: string) => {
+    if (!this.sameAsLastSelectedComment(commentId, pos, sectionId, commentMarkId)) {
+      this.lastSelectedCommentSubject.next({ commentId, pos, sectionId, commentMarkId })
+    }
+  }
+
+  commentsObj: { [key: string]: commentData } = {}
   commentsChangeSubject: Subject<any> = new Subject()
   shouldCalc = false;
 
@@ -456,10 +462,7 @@ export class CommentsService {
 
   getComments = (view: EditorView, sectionId: string) => {
 
-    this.commentsObj[sectionId] = {}
-    if (!this.shouldCalc) {
-      return;
-    }
+
     let commentsMark = view.state.schema.marks.comment
 
     let doc = view.state.doc
@@ -473,22 +476,16 @@ export class CommentsService {
         let articleElement = document.getElementById('app-article-element') as HTMLDivElement
         let articleElementRactangle = articleElement.getBoundingClientRect()
         let domCoords = view.coordsAtPos(pos)
-        let selected: true | undefined
-        let selectedInSection: string;
-        let commentMarkId: string
-        Object.keys(this.lastSelectedComments).forEach((secid) => {
+        let markIsLastSelected = false
 
-          let selCommInSec = this.lastSelectedComments[secid];
-          if(!this.serviceShare.ProsemirrorEditorsService.editorContainers[secid]){
-            selCommInSec = {}
-            this.lastSelectedComments[secid] = undefined
+        let selComment = this.lastSelectedComments[actualMark.attrs.id];
+        if (selComment) {
+          if (!this.serviceShare.ProsemirrorEditorsService.editorContainers[selComment.sectionId]) {
+            this.lastSelectedComments[actualMark.attrs.id] = undefined
+          } else if (selComment.commentId == actualMark.attrs.id && selComment.commentMarkId == actualMark.attrs.commentmarkid && selComment.sectionId == sectionId) {
+            markIsLastSelected = true
           }
-          if (selCommInSec[actualMark.attrs.id]) {
-            selectedInSection = secid
-            selected = true;
-            commentMarkId = selCommInSec[actualMark.attrs.id].markid
-          }
-        })
+        }
         let lastSelected: true | undefined
         if (
           this.lastCommentSelected.commentId == actualMark.attrs.id &&
@@ -497,19 +494,18 @@ export class CommentsService {
         ) {
           lastSelected = true
         }
-        if (selected && (selectedInSection != sectionId || (selectedInSection == sectionId && actualMark.attrs.commentmarkid != commentMarkId))) {
-          // do nothing beacouse the comment was not selected in this editor
-        } else {
-          this.commentsObj[sectionId][actualMark.attrs.id] = {
-            commentMarkId:actualMark.attrs.commentmarkid,
+        if (lastSelected) {
+        }
+        if (markIsLastSelected || lastSelected || (!(markIsLastSelected || lastSelected) && !this.commentsObj[actualMark.attrs.id])) {
+          this.commentsObj[actualMark.attrs.id] = {
+            commentMarkId: actualMark.attrs.commentmarkid,
             pmDocStartPos: pos,
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
             domTop: domCoords.top - articleElementRactangle.top,
             commentTxt: node.textContent,
             commentAttrs: actualMark.attrs,
-            selected,
-            lastSelected
+            selected: markIsLastSelected,
           }
         }
       }
