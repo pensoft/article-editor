@@ -3,14 +3,14 @@
   <mat-icon class="search-icon" matPrefix>search</mat-icon>
   <input matInput style="color: black !important;">
 </mat-form-field>
-
+<button (click)="splice()">splice top </button>
 <div class="comments-wrapper">
   <div style="height:100%;" class="all-comments-container">
-    <mat-card *ngIf='showAddCommentBox' class="commentBox">
+    <mat-card *ngIf='showAddCommentBox' class="commentBox ">
       <mat-card-header>
         <ngx-avatar mat-card-avatar size="36" [bgColor]="prosemirrorEditorsService.userInfo.color" [name]="prosemirrorEditorsService.userInfo.data.name"></ngx-avatar>
         <mat-card-title class="commentBox-title">{{prosemirrorEditorsService.userInfo.data.name}}</mat-card-title>
-        <mat-card-subtitle class="commentBox-subtitle">{{getTime()|date:'medium'}}</mat-card-subtitle>
+        <mat-card-subtitle class="commentBox-subtitle"></mat-card-subtitle>
       </mat-card-header>
       <mat-card-content>
         <div class="selected-commet-text">

@@ -22,7 +22,7 @@ import {reject} from 'lodash';
 import {complexSectionFormIoSchema} from '@app/editor/utils/section-templates/form-io-json/complexSection';
 import {ReturnStatement} from '@angular/compiler';
 import {installPatch} from '../cdk-list-recursive/patchCdk';
-import {transferArrayItem} from '@angular/cdk/drag-drop';
+import {CdkDropList, DropListRef, transferArrayItem} from '@angular/cdk/drag-drop';
 
 @Injectable({
   providedIn: 'root'
@@ -134,10 +134,29 @@ export class TreeService implements OnDestroy {
 
   registerConnection(id: string) {
     if (!this.connectedLists.includes(id)) {
-      this.connectedLists.push(id)
+      this.connectedLists.push(id);
     }
   }
 
+  connectionChangeSubject:Subject<boolean> = new Subject();
+  dropListRefs:{ids:string[],refs:DropListRef[],cdkRefs:CdkDropList[]} = {ids:[],refs:[],cdkRefs:[]};
+  registerDropListRef(ref:DropListRef,cdkDropList:CdkDropList,id:string){
+    if(!this.dropListRefs.ids.includes(id)){
+      this.dropListRefs.ids.push(id);
+      this.dropListRefs.cdkRefs.push(cdkDropList)
+      this.dropListRefs.refs.push(ref)
+      this.connectionChangeSubject.next(true)
+    }
+  }
+  unregisterDropListRef(id:string){
+    if(this.dropListRefs.ids.includes(id)){
+      let index = this.dropListRefs.ids.findIndex((idsearch)=>idsearch == id);
+      this.dropListRefs.ids.splice(index)
+      this.dropListRefs.cdkRefs.splice(index)
+      this.dropListRefs.refs.splice(index)
+      this.connectionChangeSubject.next(true)
+    }
+  }
   unregisterConnection(id: string) {
     if (this.connectedLists.includes(id)) {
       this.connectedLists.splice(this.connectedLists.findIndex((connId) => connId == id), 1);
@@ -273,7 +292,7 @@ export class TreeService implements OnDestroy {
   }
 
   dragNodeChange(from: number, to: number, prevContainerId: string, newContainerId: string) {
-    /* console.log('node drag',from,to,prevContainerId,newContainerId);
+    /*
     this.serviceShare.YjsHistoryService.startCapturingNewUndoItem();
     this.serviceShare.YjsHistoryService.addUndoItemInformation({type:'section-drag-drop',data:{
       from,
@@ -448,8 +467,22 @@ export class TreeService implements OnDestroy {
     }
     findF(this.articleSectionsStructure);
     arrayRef?.splice(i!, 1);
-    this.serviceShare.ProsemirrorEditorsService?.deleteEditor(nodeRef?.sectionID!);
-    this.serviceShare.YjsHistoryService?.deleteUndoManager(nodeRef?.sectionID!);
+    let deleteNodeData = (node:articleSection) => {
+      let id = node.sectionID;
+      this.serviceShare.ProsemirrorEditorsService?.deleteEditor(id);
+      this.serviceShare.YjsHistoryService?.deleteUndoManager(id);
+    }
+    let deleteNodeDataRecursive = (node:articleSection)=>{
+      if(node.children&&node.children.length>0){
+        node.children.forEach((child)=>{
+          deleteNodeDataRecursive(child);
+        })
+      }
+      deleteNodeData(node);
+    }
+    deleteNodeDataRecursive(nodeRef);
+    console.log('deleted node ',nodeRef.sectionID);
+    this.serviceShare.CommentsService.getCommentsInAllEditors()
     return {nodeRef, i}
   }
 

@@ -8,7 +8,7 @@ import { DOMSerializer, DOMParser, Schema, Fragment } from 'prosemirror-model';
 import { schema } from 'src/app/editor/utils/Schema';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
-import { ProsemirrorEditorsService } from 'src/app/editor/services/prosemirror-editors.service';
+import { editorContainer, ProsemirrorEditorsService } from 'src/app/editor/services/prosemirror-editors.service';
 import { YdocService } from 'src/app/editor/services/ydoc.service';
 //@ts-ignore
 import Validator from 'formiojs/validator/Validator.js';
@@ -39,13 +39,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   placeholder = 'asd'
   DOMPMSerializer = DOMSerializer.fromSchema(schema);
 
-  editorContainer?: {
-    editorID: string,
-    containerDiv: HTMLDivElement,
-    editorState: EditorState,
-    editorView: EditorView,
-    dispatchTransaction: any
-  };
+  editorContainer?:editorContainer;
   DOMPMParser = DOMParser.fromSchema(schema)
   value: any
   instanceValidations: any

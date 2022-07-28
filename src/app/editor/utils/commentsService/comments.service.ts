@@ -11,6 +11,27 @@ import { Observable } from 'lib0/observable';
 import { state } from '@angular/animations';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { Mark } from 'prosemirror-model';
+import { YMap } from 'yjs/dist/src/internals';
+import { checkAllEditorsIfMarkOfCommentExists } from './commentMarksHelpers';
+
+export interface userDataInComment {
+  created_at:string
+  email:string
+  email_verified_at:string
+  id:String
+  name:string
+  updated_at:string
+}
+
+export interface ydocComment {
+  comment:string
+  date:number
+  id:string
+  userData:userDataInComment
+}
+
+export interface commentYdocSave {commentReplies:ydocComment[],initialComment:ydocComment}
+export interface ydocCommentsObj {[key:string]:commentYdocSave}
 
 export interface commentData {
   pmDocStartPos: number,
@@ -45,11 +66,15 @@ export class CommentsService {
     sectionId?: string,
     commentMarkId?:string,
   }
+  commentsMap?: YMap<any>
   lastSelectedCommentSubject:Subject<{
     commentId?: string,
     pos?: number,
     sectionId?: string
   }> = new Subject()
+
+  commentsInYdoc:ydocCommentsObj = {}
+
   resetCommentsService() {
     this.storeData = undefined;
     this.editorsOuterDiv = undefined;
@@ -60,12 +85,85 @@ export class CommentsService {
     this.commentAllowdIn = {} // editor id where comment can be made RN equals ''/undefined if there is no such editor RN
     this.selectedTextInEditors = {}
   }
+
+  ydocCommentsChangeSubject:Subject<ydocCommentsObj> = new Subject()
+
+  setYdocCommentsObj(){
+    let commObj:any = {}
+    Array.from(this.commentsMap.keys()).forEach((commentid)=>{
+      let comment = this.commentsMap.get(commentid)
+      if(comment){
+        commObj[commentid] = comment
+      }
+    })
+    this.commentsInYdoc = commObj
+    this.ydocCommentsChangeSubject.next(this.commentsInYdoc)
+  }
+
+  addCommentsMapChangeListener(){
+    this.commentsMap = this.serviceShare.YdocService.getCommentsMap()
+    this.setYdocCommentsObj()
+    this.commentsMap.observe((ymapEvent,trnasact)=>{
+      this.setYdocCommentsObj()
+    })
+  }
+
+  handleDeletedComments(deleted:any[]){
+    let filteredFromRepeatingMarks:string[] = []
+    deleted.forEach((comAttrs)=>{
+      let commentId = comAttrs.attrs.id
+      if(!filteredFromRepeatingMarks.includes(commentId)){
+        filteredFromRepeatingMarks.push(commentId)
+      }
+    })
+    let edConts = this.serviceShare.ProsemirrorEditorsService.editorContainers;
+    filteredFromRepeatingMarks.forEach((commentId)=>{
+      if(!checkAllEditorsIfMarkOfCommentExists(edConts,commentId)){
+        this.commentsMap.set(commentId,undefined);
+      }
+    })
+  }
+
+  updateAllComments(){
+    console.log('update from service');
+    this.getCommentsInAllEditors()
+    this.updateTimestamp = Date.now();
+  }
+
+  updateTimestamp = 0;
+  updateTimeout
+
+  changeInEditors = () => {
+    let now = Date.now();
+    if(!this.updateTimestamp){
+      this.updateTimestamp = Date.now();
+    }
+    if(this.updateTimeout){
+      clearTimeout(this.updateTimeout);
+    }
+    if(now-this.updateTimestamp>1200){
+      this.updateAllComments()
+    }
+    this.updateTimeout = setTimeout(()=>{
+      this.updateAllComments()
+    },1200)
+  }
+
   constructor(private serviceShare: ServiceShare) {
     this.lastSelectedCommentSubject.subscribe((data)=>{
       this.lastCommentSelected.commentId = data.commentId
       this.lastCommentSelected.pos = data.pos
       this.lastCommentSelected.sectionId = data.sectionId
     })
+    if (this.serviceShare.YdocService.editorIsBuild) {
+      this.addCommentsMapChangeListener()
+    } else {
+      this.serviceShare.YdocService.ydocStateObservable.subscribe((event) => {
+        if (event == 'docIsBuild') {
+          this.addCommentsMapChangeListener()
+        }
+      });
+    }
     serviceShare.shareSelf('CommentsService', this)
     let addCommentSubject1 = new Subject<any>()
     this.addCommentSubject = addCommentSubject1
@@ -93,7 +191,6 @@ export class CommentsService {
       }
       return undefined
     }
-    let getCommentsInDoc = this.getCommentsInDoc
     let commentsVisibilityChange: Subject<any> = new Subject<any>();
     this.commentsVisibilityChange = commentsVisibilityChange
 
@@ -108,6 +205,7 @@ export class CommentsService {
     this.lastCommentSelected = lastCommentSelected
     this.lastSelectedComments = lastSelectedComments
     let setLastSelectedComment = this.setLastSelectedComment
+    let changeInEditors = this.changeInEditors
     this.commentsPlugin = new Plugin({
       key: this.commentPluginKey,
       state: {
@@ -136,12 +234,14 @@ export class CommentsService {
             setLastSelectedComment(actualMark.attrs.id,pos,prev.sectionName,actualMark.attrs.commentmarkid)
             Object.keys(lastSelectedComments).forEach((section) => {
               let selCommInSec = lastSelectedComments[section]
-              Object.keys(selCommInSec).forEach((commentid) => {
-                let comm = selCommInSec[commentid];
-                if (commentid == actualMark.attrs.id && section != prev.sectionName) {
-                  lastSelectedComments[section][commentid] = undefined
-                }
-              })
+              if(selCommInSec){
+                Object.keys(selCommInSec).forEach((commentid) => {
+                  let comm = selCommInSec[commentid];
+                  if (commentid == actualMark.attrs.id && section != prev.sectionName) {
+                    lastSelectedComments[section][commentid] = undefined
+                  }
+                })
+              }
             })
           }
           let view = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName].editorView
@@ -191,6 +291,9 @@ export class CommentsService {
           if (!selectedAComment&&!(oldState.selection instanceof AllSelection)&&view.hasFocus()) {
             setLastSelectedComment(undefined,undefined,undefined,undefined)
           }
+          if(!(oldState.selection instanceof AllSelection)&&view.hasFocus()&&tr.steps.length>0){
+            changeInEditors()
+          }
           let commentdata = { type: 'commentAllownes', sectionId: prev.sectionName, allow: !err, text, errorMessage, err }
           addCommentSubject1.next(commentdata)
 
@@ -201,12 +304,12 @@ export class CommentsService {
       view: function () {
         return {
           update: (view, prevState) => {
-            let pluginData = commentPluginKey.getState(view.state)
-            let sectionName = pluginData.sectionName
-            getCommentsInDoc(view, sectionName)
             if (JSON.stringify(view.state.doc) == JSON.stringify(prevState.doc) && !view.hasFocus()) {
               return;
             }
+            let pluginData = commentPluginKey.getState(view.state)
+            let sectionName = pluginData.sectionName
+
             let commentsMark = view.state.schema.marks.comment
             let editor = document.getElementsByClassName('editor-container').item(0) as HTMLDivElement
 
@@ -314,6 +417,9 @@ export class CommentsService {
       editorBtnsWrapper.style.marginLeft = '-6px'
       commentBtn.addEventListener('click', () => {
         this.addCommentSubject.next({ type: 'commentData', sectionName, showBox: true })
+        setTimeout(()=>{
+          this.getCommentsInAllEditors()
+        },30)
       })
     }
   }
@@ -371,7 +477,12 @@ export class CommentsService {
         let selectedInSection: string;
         let commentMarkId: string
         Object.keys(this.lastSelectedComments).forEach((secid) => {
+
           let selCommInSec = this.lastSelectedComments[secid];
+          if(!this.serviceShare.ProsemirrorEditorsService.editorContainers[secid]){
+            selCommInSec = {}
+            this.lastSelectedComments[secid] = undefined
+          }
           if (selCommInSec[actualMark.attrs.id]) {
             selectedInSection = secid
             selected = true;
@@ -407,6 +518,8 @@ export class CommentsService {
 
   removeEditorComment(editorId: any) {
     this.commentsObject[editorId] = [];
+    this.lastSelectedComments[editorId] = undefined
+
   }
 
   init() {
@@ -421,5 +534,7 @@ export class CommentsService {
 
     return this.commentsObject
   }
+
+  register
 }
 

@@ -6,7 +6,7 @@ import { EditorState, Transaction } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { figure, figure_component } from '../utils/interfaces/figureComponent';
 import { endEditorNodes, endEditorSchema, schema } from '../utils/Schema';
-import { ProsemirrorEditorsService } from './prosemirror-editors.service';
+import { editorContainer, ProsemirrorEditorsService } from './prosemirror-editors.service';
 import { YdocService } from './ydoc.service';
 import { DOMParser } from 'prosemirror-model';
 import { indexOf, remove } from 'lodash';
@@ -32,13 +32,7 @@ export class FiguresControllerService {
   DOMPMParser = DOMParser.fromSchema(schema)
   /* figuresArray: figure[] = []
   figuresFormGroups:FormArray = new FormArray([]) */
-  endEditorContainer?: {
-    editorID: string,
-    containerDiv: HTMLDivElement,
-    editorState: EditorState,
-    editorView: EditorView,
-    dispatchTransaction: any
-  }
+  endEditorContainer?: editorContainer
   figuresNumbers?: string[] = []
   figures: { [key: string]: figure } = {}
   renderEditorFn: any

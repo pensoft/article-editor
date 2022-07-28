@@ -2,7 +2,7 @@ import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { FiguresControllerService } from '../services/figures-controller.service';
-import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
+import { editorContainer, ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
 import { YdocService } from '../services/ydoc.service';
 import { figure } from '../utils/interfaces/figureComponent';
 
@@ -15,13 +15,7 @@ export class FiguresProsemirrorViewComponent implements AfterViewInit {
 
   @ViewChild('ProsemirrorEditor', { read: ElementRef }) ProsemirrorEditor?: ElementRef;
   @Input() figures!: figure[];
-  endEditorContainer?:{
-    editorID: string,
-    containerDiv: HTMLDivElement,
-    editorState: EditorState,
-    editorView: EditorView,
-    dispatchTransaction: any
-  }
+  endEditorContainer?:editorContainer
 
   constructor(
     private prosemirrEditorsService:ProsemirrorEditorsService,

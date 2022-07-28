@@ -77,7 +77,15 @@ import html2canvas from 'html2canvas';
 import { uuidv4 } from 'lib0/random.js';
 import { filterSectionChildren } from '../utils/articleBasicStructure';
 import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
-import { changeNodesOnDragDrop, handleDeleteOfRefAndFigCitation } from '../utils/prosemirrorHelpers/drag-drop-append';
+import { changeNodesOnDragDrop, handleDeleteOfRefsFigsCitationsAndComments } from '../utils/prosemirrorHelpers/drag-drop-append';
+export interface editorContainersObj {[key:string]:editorContainer}
+export interface editorContainer {
+  editorID: string,
+  containerDiv: HTMLDivElement,
+  editorState: EditorState,
+  editorView: EditorView,
+  dispatchTransaction: any
+}
 @Injectable({
   providedIn: 'root'
 })
@@ -91,15 +99,7 @@ export class ProsemirrorEditorsService {
 
   articleSectionsStructure?: articleSection[];
   initDocumentReplace: any = {};
-  editorContainers: {
-    [key: string]: {
-      editorID: string,
-      containerDiv: HTMLDivElement,
-      editorState: EditorState,
-      editorView: EditorView,
-      dispatchTransaction: any
-    }
-  } = {}
+  editorContainers: editorContainersObj = {}
   xmlFragments: { [key: string]: Y.XmlFragment } = {}
 
   usersInArticleStatusSubject = new Subject<Map<any, any>>()
@@ -276,13 +276,13 @@ export class ProsemirrorEditorsService {
     })
   }
 
-  getEditorSelection(editorId:string){
+  getEditorSelection(editorId: string) {
     let from = this.editorContainers[editorId].editorView.state.selection.from;
     let to = this.editorContainers[editorId].editorView.state.selection.to;
-    return {from,to}
+    return { from, to }
   }
 
-  changeSelectionOfEditorAndFocus(id:string,sel:{from:number,to:number}){
+  changeSelectionOfEditorAndFocus(id: string, sel: { from: number, to: number }) {
     let view = this.editorContainers[id].editorView;
     /* if(sel.from == sel.to){
       view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(sel.from))))
@@ -304,13 +304,7 @@ export class ProsemirrorEditorsService {
     }
   }
 
-  renderEditorInWithId(EditorContainer: HTMLDivElement, editorId: string, section: articleSection): {
-    editorID: string,
-    containerDiv: HTMLDivElement,
-    editorState: EditorState,
-    editorView: EditorView,
-    dispatchTransaction: any
-  } {
+  renderEditorInWithId(EditorContainer: HTMLDivElement, editorId: string, section: articleSection): editorContainer {
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
 
     if (this.editorContainers[editorId]) {
@@ -347,7 +341,7 @@ export class ProsemirrorEditorsService {
     let handleRefDeletePluginKey = new PluginKey('handleRefDelete');
     let handleRefDelete = new Plugin({
       key: handleRefDeletePluginKey,
-      appendTransaction: handleDeleteOfRefAndFigCitation(this.serviceShare)
+      appendTransaction: handleDeleteOfRefsFigsCitationsAndComments(this.serviceShare)
     })
 
     let changeNodesKey = new PluginKey('changeNodesKey');
@@ -570,7 +564,7 @@ export class ProsemirrorEditorsService {
         }
       },
       dispatchTransaction,
-      handlePaste: handlePaste(mathMap!, editorID,this.serviceShare),
+      handlePaste: handlePaste(mathMap!, editorID, this.serviceShare),
       handleClick: handleClick(hideshowPluginKEey, this.citatContextPluginService.citatContextPluginKey),
       handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
       handleTripleClickOn,
@@ -639,13 +633,7 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
-  renderDocumentEndEditor(EditorContainer: HTMLDivElement, figures: figure[]): {
-    editorID: string,
-    containerDiv: HTMLDivElement,
-    editorState: EditorState,
-    editorView: EditorView,
-    dispatchTransaction: any
-  } {
+  renderDocumentEndEditor(EditorContainer: HTMLDivElement, figures: figure[]): editorContainer {
     let editorId = 'endEditor'
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
 
@@ -799,7 +787,7 @@ export class ProsemirrorEditorsService {
       dispatchTransaction,
       handleClick: handleClick(hideshowPluginKEey, this.citatContextPluginService.citatContextPluginKey),
       handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
-      handlePaste: handlePaste(mathMap!, editorID,this.serviceShare),
+      handlePaste: handlePaste(mathMap!, editorID, this.serviceShare),
       handleTripleClickOn,
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
       //handleKeyDown,
@@ -818,13 +806,7 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
-  renderEditorWithNoSync(EditorContainer: HTMLDivElement, formIOComponentInstance: any, control: FormioControl, options: any, nodesArray?: Slice): {
-    editorID: string,
-    containerDiv: HTMLDivElement,
-    editorState: EditorState,
-    editorView: EditorView,
-    dispatchTransaction: any
-  } {
+  renderEditorWithNoSync(EditorContainer: HTMLDivElement, formIOComponentInstance: any, control: FormioControl, options: any, nodesArray?: Slice): editorContainer {
 
     let placeholder = (formIOComponentInstance.component.placeholder && formIOComponentInstance.component.placeholder !== '') ? formIOComponentInstance.component.placeholder : undefined
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
@@ -1017,13 +999,7 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
-  renderSeparatedEditorWithNoSync(EditorContainer: HTMLDivElement, menuContainerClass: string, startingText?: string): {
-    editorID: string,
-    containerDiv: HTMLDivElement,
-    editorState: EditorState,
-    editorView: EditorView,
-    dispatchTransaction: any
-  } {
+  renderSeparatedEditorWithNoSync(EditorContainer: HTMLDivElement, menuContainerClass: string, startingText?: string): editorContainer {
 
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
     EditorContainer.innerHTML = ''

@@ -28,11 +28,11 @@
       align-self: end;
       color: var(--color-e3e3e3);
     }
-    &:hover {
+    /* &:hover {
       // background: var(--color-f5f5f5);
       background-color: #f1f1f1;
       border: 1px solid #00000050;
-    }
+    } */
   }
   .comment-box {
     padding: 16px 15px 16px 16px !important;
@@ -58,10 +58,10 @@
         color: var(--color-e3e3e3);
       }
     }
-    &:hover {
+    /* &:hover {
       background-color: #f1f1f1;
       border: 1px solid #00000050;
-    }
+    } */
   }
   .mat-card {
     box-shadow: none !important;
@@ -129,7 +129,6 @@
     border-left: 2px solid;
     border-color: var(--color-559efe);
     padding-left: 5px;
-    cursor: pointer;
   }
 }
 
@@ -164,6 +163,7 @@
   color: var(--color-192956);
   overflow: hidden;
   display: inline-block;
+  cursor: pointer;
 }
 
 .show-more-label {

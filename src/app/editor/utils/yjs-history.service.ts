@@ -574,6 +574,7 @@ export class YjsHistoryService {
   }
 
   preventCaptureOfBigNumberOfUpcomingItems() {
+    console.log('preventing capture');
     this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = null
     this.preventingCaptureOfBigNumberOfTransactions = true
   }

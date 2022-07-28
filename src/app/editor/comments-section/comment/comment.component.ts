@@ -10,7 +10,7 @@ import { AddCommentDialogComponent } from '../../add-comment-dialog/add-comment-
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
 import { YdocService } from '../../services/ydoc.service';
 import {AuthService} from "@core/services/auth.service";
-import { commentData } from '@app/editor/utils/commentsService/comments.service';
+import { commentData, commentYdocSave, ydocComment } from '@app/editor/utils/commentsService/comments.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { Subject } from 'rxjs';
 import { TextSelection } from 'prosemirror-state';
@@ -47,7 +47,7 @@ export class CommentComponent implements OnInit ,AfterViewInit{
   MAX_CONTENT_WIDTH = 290;
   contentWidth: number = this.MAX_CONTENT_WIDTH;
   commentsMap?: YMap<any>
-  userComment?: {initialComment:any,commentReplies:any[]};
+  userComment?: commentYdocSave;
   mobileVersion:boolean
   constructor(
     public authService: AuthService,
@@ -77,12 +77,48 @@ export class CommentComponent implements OnInit ,AfterViewInit{
 
   }
 
-  authenticated = false
+  commentIsChangedInYdoc(){
+    console.log(this.userComment);
+  }
+
+  checkIfCommentHasChanged(commentInYdoc:commentYdocSave){
+    let changed = false;
+    if(commentInYdoc){
+      if(commentInYdoc.initialComment.comment != this.userComment.initialComment.comment){
+        changed = true;
+      }
+      if(commentInYdoc.commentReplies.length != this.userComment.commentReplies.length){
+        changed = true;
+      }else{
+        commentInYdoc.commentReplies.forEach((reply,index)=>{
+          let localReply = this.userComment.commentReplies[index];
+          if(localReply.comment!=reply.comment){
+            changed = true;
+          }
+        })
+      }
+    }else{
+      // comment deleted
+      changed = true;
+    }
+    if(changed){
+      this.userComment = JSON.parse(JSON.stringify(commentInYdoc))
+
+      setTimeout(()=>{
+        this.commentIsChangedInYdoc()
+      },20)
+    }
+  }
+
 
   ngAfterViewInit() {
     setTimeout(()=>{
       this.doneRenderingCommentsSubject.next('rendered')
     },10)
+    this.sharedService.CommentsService.ydocCommentsChangeSubject.subscribe((commentsObj)=>{
+      let ydocCommentInstance = commentsObj[this.comment.commentAttrs.id]
+      this.checkIfCommentHasChanged(ydocCommentInstance)
+    })
     this.userComment?.commentReplies.forEach((comment,index)=>{
       this.repliesShowMore[index] = false
     })
@@ -114,9 +150,9 @@ export class CommentComponent implements OnInit ,AfterViewInit{
       })
     })
     if(actualComment){
-      let commentMiddlePos = Math.floor((actualComment.pmDocStartPos+ actualComment.pmDocEndPos)/2)
+      //let commentMiddlePos = Math.floor((actualComment.pmDocStartPos+ actualComment.pmDocEndPos)/2)
       view.focus()
-      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(commentMiddlePos))))
+      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualComment.pmDocStartPos),view.state.doc.resolve(actualComment.pmDocEndPos))))
       this.sharedService.ProsemirrorEditorsService.dispatchEmptyTransaction()
     }
   }

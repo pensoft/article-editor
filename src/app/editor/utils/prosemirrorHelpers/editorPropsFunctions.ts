@@ -1,4 +1,5 @@
 import { CompileShallowModuleMetadata } from "@angular/compiler";
+import { editorContainer, editorContainersObj } from "@app/editor/services/prosemirror-editors.service";
 import { ServiceShare } from "@app/editor/services/service-share.service";
 import { mathBackspaceCmd } from "@benrbray/prosemirror-math";
 import { SelectionRange } from "@codemirror/state";
@@ -433,16 +434,7 @@ export const createSelectionBetween = (editorsEditableObj: any, editorId: string
 
 }
 
-export function handleScrollToSelection(editorContainers:
-  {
-    [key: string]: {
-      editorID: string,
-      containerDiv: HTMLDivElement,
-      editorState: EditorState,
-      editorView: EditorView,
-      dispatchTransaction: any
-    }
-  }, section: articleSection) {
+export function handleScrollToSelection(editorContainers:editorContainersObj, section: articleSection) {
   return (view: EditorView) => {
     /*
     editorContainers[section.sectionID].containerDiv.scrollIntoView({behavior: "smooth", block: "end", inline: "nearest"}) */

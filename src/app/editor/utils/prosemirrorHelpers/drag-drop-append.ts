@@ -106,10 +106,10 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
   }
 }
 
-export function handleDeleteOfRefAndFigCitation(sharedService: ServiceShare) {
+export function handleDeleteOfRefsFigsCitationsAndComments(sharedService: ServiceShare) {
   return (transactions: Transaction[], oldState: EditorState, newState: EditorState) => {
     let deletedRefCitations: any[] = []
-
+    let deletedCommentsMarks:any[]=[]
     let deletingFigCitation = false
     transactions.forEach((transaction) => {
       //@ts-ignore
@@ -126,6 +126,9 @@ export function handleDeleteOfRefAndFigCitation(sharedService: ServiceShare) {
               }
               if (node.type.name == 'reference_citation') {
                 deletedRefCitations.push(JSON.parse(JSON.stringify(node.attrs)))
+              }
+              if(node.marks.filter((mark) => { return mark.type.name == 'comment' }).length > 0){
+                deletedCommentsMarks.push(JSON.parse(JSON.stringify(node.marks.filter((mark) => { return mark.type.name == 'comment' })[0])))
               }
             })
           }
@@ -151,6 +154,11 @@ export function handleDeleteOfRefAndFigCitation(sharedService: ServiceShare) {
           sharedService.YjsHistoryService.stopCapturingUndoItem()
         },20)
       },10)
+    }
+    if(deletedCommentsMarks.length>0){
+      setTimeout(() => {
+        sharedService.CommentsService.handleDeletedComments(deletedCommentsMarks)
+      }, 10);
     }
     return undefined;
   }

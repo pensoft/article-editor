@@ -27,7 +27,7 @@
 
   </mat-card-header>
   <mat-card-content>
-    <div class="selected-text">
+    <div [ngStyle]="{'display':'none'}" class="selected-text">
       <div class="selected-text-title">Selected text:</div>
       <div class="selected-text-content" (click)="selectComment()">{{comment!.commentTxt}}</div>
     </div>
@@ -36,7 +36,7 @@
       'comment-content':true,
       'comment-elipsis-content':!initialShowMore,
       'comment-full-content':initialShowMore
-    }"><span #commentSpan>{{userComment!.initialComment.comment}}</span></div>
+    }" (click)="selectComment()"><span #commentSpan>{{userComment!.initialComment.comment}}</span></div>
     <a (click)="initialShowMore = !initialShowMore" [ngClass]="{
       'morelessBtn':true,
       'comment-display-none':commentSpan.offsetWidth < 295 && commentSpan.offsetHeight < 20
@@ -85,7 +85,7 @@
     <div #content [ngClass]="{'comment-content':true,'comment-elipsis-content':!repliesShowMore[index],'comment-full-content':repliesShowMore[index]}"><span #commentSpan>{{comment.comment}}</span></div>
     <a (click)="repliesShowMore[index] = !repliesShowMore[index]" [ngClass]="{'morelessBtn':true,'comment-display-none':commentSpan.offsetWidth < 295 && commentSpan.offsetHeight < 20}">{{repliesShowMore[index] ? 'Show less': 'Show More' }}</a>
 
-    <div class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
+    <div class="reply" style="display: none;" (click)="showHideReply(ReplyDiv)">Reply</div>
     <div #ReplyDiv style="display: none;">
       <div class="reply-input">
         <div class="input_div">

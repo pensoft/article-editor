@@ -2,6 +2,7 @@ import { ThrowStmt } from '@angular/compiler';
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { uuidv4 } from 'lib0/random';
 import { toggleMark } from 'prosemirror-commands';
+import { TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { Subject } from 'rxjs';
 import { YMap } from 'yjs/dist/src/internals';
@@ -100,6 +101,11 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     this.commentsObj = this.commentsService.getData()
     this.comments = (Object.values(this.commentsObj) as Array<any>).flat()
   }
+
+  splice(){
+    this.allComments.splice(0,1);
+  }
+
 
   getDate = getDate
   preservedScroll?:number
@@ -225,8 +231,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
         spaceBeforeComments.push({i,space:0,h,pos})
         lastElementPosition = pos + h;
       }
-    })
-    console.log(spaceBeforeComments); */
+    }) */
 
   }
 
@@ -253,7 +258,8 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     this.commentsMap!.set(commentId, { initialComment: userComment, commentReplies: [] });
     let state = this.editorView?.state;
     let dispatch = this.editorView?.dispatch
-
+    let from = state.selection.from
+    let to = state.selection.to
     toggleMark(state!.schema.marks.comment, {
       id: commentId,
       date: commentDate,
@@ -264,6 +270,17 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     this.showAddCommentBox = false
     let sectionName = this.addCommentEditorId
     this.addCommentSubject!.next({ type: 'commentData', sectionName, showBox: false })
+    setTimeout(()=>{
+      this.prosemirrorEditorsService.dispatchEmptyTransaction()
+      this.editorView.focus()
+      this.editorView.dispatch(this.editorView.state.tr.setSelection(new TextSelection(this.editorView.state.doc.resolve(from),this.editorView.state.doc.resolve(to+2))))
+      setTimeout(()=>{
+        let pluginData = this.commentsService.commentPluginKey.getState(this.editorView.state)
+        let sectionName = pluginData.sectionName
+        this.commentsService.getCommentsInAllEditors()
+        this.commentsService.setLastSelectedComment(commentId,from,sectionName,commentmarkid)
+      },10)
+    },20)
   }
 
   getTime() {
@@ -337,6 +354,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
       this.comments = (Object.values(commentsObj) as Array<any>).flat()
     })
     this.commentsService.commentsChangeSubject.subscribe((msg) => {
+      console.log(msg,this.commentsService.commentsObj);
       let commentsToAdd: commentData[] = []
       let commentsToRemove: commentData[] = []
 
@@ -410,6 +428,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
         this.setContainerHeight()
       }
     })
+    this.commentsService.getCommentsInAllEditors()
   }
 
 }
