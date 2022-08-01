@@ -273,6 +273,16 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
             console.log('add comment');
             let addedCommentId = idsNewOrder.find((comid)=>!idsOldOrder.includes(comid))
             console.log(addedCommentId);
+            let sortedComment = sortedComments.find((com)=>com.commentAttrs.id == addedCommentId);
+            let commentContainer = comments.find((element) => {
+              return element.getAttribute('commentid') == addedCommentId
+            })
+
+            commentContainer.style.top = sortedComment.domTop+'px';
+            commentContainer.style.opacity = '1';
+            this.displayedCommentsPositions[addedCommentId] = {displayedTop:sortedComment.domTop,height:commentContainer.getBoundingClientRect().height}
+            this.loopFromTopAndOrderComments(sortedComments, comments)
+            this.loopFromBottomAndOrderComments(sortedComments, comments, container)
           } else if (idsNewOrder.length < idsOldOrder.length) { // removed a comment
             this.loopFromTopAndOrderComments(sortedComments, comments)
             this.loopFromBottomAndOrderComments(sortedComments, comments, container)
@@ -515,7 +525,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
         let sectionName = pluginData.sectionName
         this.commentsService.getCommentsInAllEditors()
 
-        this.commentsService.setLastSelectedComment(commentId, from, sectionName, commentmarkid)
+        //this.commentsService.setLastSelectedComment(commentId, from, sectionName, commentmarkid)
       }, 10)
     }, 20)
   }
