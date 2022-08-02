@@ -38,6 +38,12 @@ spacer {
   display: block;
 }
 
+.editor-drawer {
+  .mat-drawer-content {
+    width: calc(100% - 341px);
+  }
+}
+
 td {
   block-figure {
     display: inline;

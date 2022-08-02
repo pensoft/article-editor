@@ -286,7 +286,6 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     if (event.type == 'blur') {
       element.setAttribute('contenteditable', 'false');
       (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;
-      console.log(element.textContent);
       this.treeService.saveNewTitleChange(node, element.textContent!);
       this.scrolledToView = false;
     } else if (event.type == 'click') {

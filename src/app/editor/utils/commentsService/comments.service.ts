@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AllSelection, EditorState, Plugin, PluginKey } from 'prosemirror-state'
+import { AllSelection, EditorState, Plugin, PluginKey, Selection } from 'prosemirror-state'
 import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
 import { Transaction } from 'yjs';
 //@ts-ignore
@@ -10,11 +10,16 @@ import { from, Subject } from 'rxjs';
 import { Observable } from 'lib0/observable';
 import { state } from '@angular/animations';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-import { Mark } from 'prosemirror-model';
+import { Mark, Node } from 'prosemirror-model';
 import { YMap } from 'yjs/dist/src/internals';
 import { checkAllEditorsIfMarkOfCommentExists } from './commentMarksHelpers';
 import { I } from '@angular/cdk/keycodes';
 
+export let selInComment = (sel:Selection,node:Node,nodePos:number) =>{
+  let nodestart= nodePos;
+  let nodeend = nodePos+node.nodeSize;
+  return nodestart<=sel.from&&nodeend>=sel.to
+}
 export interface userDataInComment {
   created_at: string
   email: string
@@ -89,15 +94,19 @@ export class CommentsService {
 
   ydocCommentsChangeSubject: Subject<ydocCommentsObj> = new Subject()
 
-  setYdocCommentsObj() {
-    let commObj: any = {}
+  getCommentsFromYdoc():ydocCommentsObj{
+    let commObj: ydocCommentsObj = {}
     Array.from(this.commentsMap.keys()).forEach((commentid) => {
       let comment = this.commentsMap.get(commentid)
       if (comment) {
         commObj[commentid] = comment
       }
     })
-    this.commentsInYdoc = commObj
+    return commObj
+  }
+
+  setYdocCommentsObj() {
+    this.commentsInYdoc = this.getCommentsFromYdoc()
     this.ydocCommentsChangeSubject.next(this.commentsInYdoc)
   }
 
@@ -151,7 +160,6 @@ export class CommentsService {
 
   constructor(private serviceShare: ServiceShare) {
     this.lastSelectedCommentSubject.subscribe((data) => {
-      console.log('setting data for last selected comment',data);
       this.lastCommentSelected.commentId = data.commentId
       this.lastCommentSelected.pos = data.pos
       this.lastCommentSelected.sectionId = data.sectionId
@@ -217,9 +225,9 @@ export class CommentsService {
           return { sectionName: _.sectionName };
         },
         apply(tr, prev, oldState, newState) {
-          let { from, to, empty } = oldState.selection;
+          let { from, to, empty } = newState.selection;
           let err = false
-          let text = oldState.doc.textBetween(from, to)
+          let text = newState.doc.textBetween(from, to)
           let commentableAttr = true
           let errorMessage = ''
           if (empty || from == to) {
@@ -227,9 +235,8 @@ export class CommentsService {
             err = true
           }
           let selectedAComment = false;
-          let commentsMark = oldState.schema.marks.comment
+          let commentsMark = newState.schema.marks.comment
           let commentInSelection = (actualMark: Mark, pos: number) => {
-            console.log('comm in selection pos', pos);
             if (sameAsLastSelectedComment(actualMark.attrs.id, pos, prev.sectionName, actualMark.attrs.commentmarkid)) {
               return
             } else {
@@ -244,12 +251,12 @@ export class CommentsService {
             }
           }
           let view = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName].editorView
-          if (!(oldState.selection instanceof AllSelection) && view.hasFocus() && from == to) {
+          if (!(newState.selection instanceof AllSelection) && view.hasFocus() ) {
 
-            oldState.doc.nodesBetween(from, to, (node, pos, parent) => {
+            newState.doc.nodesBetween(from, to, (node, pos, parent) => {
               if (node.marks.length > 0) {
                 const actualMark = node.marks.find(mark => mark.type === commentsMark)
-                if (actualMark) {
+                if (actualMark && selInComment(newState.selection,node,pos)) {
                   commentInSelection(actualMark, pos)
                   selectedAComment = true;
                 }
@@ -264,7 +271,7 @@ export class CommentsService {
             errorMessage = "You can't leave comment there."
             err = true
           }
-          if (!selectedAComment && !(oldState.selection instanceof AllSelection) && view.hasFocus() && from == to) {
+          if (!selectedAComment && !(newState.selection instanceof AllSelection) && view.hasFocus() ) {
             let sel = newState.selection
             let nodeAfterSelection = sel.$to.nodeAfter
             let nodeBeforeSelection = sel.$from.nodeBefore
@@ -272,25 +279,25 @@ export class CommentsService {
             if (nodeAfterSelection) {
               let pos = sel.to
               let commentMark = nodeAfterSelection.marks.find(mark => mark.type === commentsMark)
-              if (commentMark) {
+              if (commentMark  && selInComment(newState.selection,nodeAfterSelection,pos)) {
                 commentInSelection(commentMark, pos)
                 selectedAComment = true;
                 foundMark = true;
               }
             }
-            if (nodeBeforeSelection && !foundMark) {
+            /* if (nodeBeforeSelection && !foundMark) {
               let pos = sel.from - nodeBeforeSelection.nodeSize
               let commentMark = nodeBeforeSelection.marks.find(mark => mark.type === commentsMark)
-              if (commentMark) {
+              if (commentMark && selInComment(newState.selection,nodeBeforeSelection,pos)) {
                 commentInSelection(commentMark, pos)
                 selectedAComment = true;
               }
-            }
+            } */
           }
-          if ((!selectedAComment && !(oldState.selection instanceof AllSelection) && view.hasFocus() && from == to) || from != to) {
+          if (!selectedAComment && !(newState.selection instanceof AllSelection) && view.hasFocus() ) {
             setLastSelectedComment(undefined, undefined, undefined, undefined)
           }
-          if (!(oldState.selection instanceof AllSelection) /* && view.hasFocus() && tr.steps.length > 0 */) {
+          if (!(newState.selection instanceof AllSelection) /* && view.hasFocus() && tr.steps.length > 0 */) {
             changeInEditors()
           }
           let commentdata = { type: 'commentAllownes', sectionId: prev.sectionName, allow: !err, text, errorMessage, err }
@@ -437,7 +444,6 @@ export class CommentsService {
 
   setLastSelectedComment = (commentId?: string, pos?: number, sectionId?: string, commentMarkId?: string) => {
     if (!this.sameAsLastSelectedComment(commentId, pos, sectionId, commentMarkId)) {
-      console.log('setLastSelectedComment',commentId, pos, sectionId, commentMarkId);
       this.lastSelectedCommentSubject.next({ commentId, pos, sectionId, commentMarkId })
     }
   }

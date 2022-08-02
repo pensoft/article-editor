@@ -1,7 +1,9 @@
 ::ng-deep {
-  .search-box {
-    display: none !important;
+  .search-box-comments {
+    //display: none !important;
     //margin-bottom: 10px;
+    font-size: 11.5px;
+    height: 43px;
     .mat-form-field-wrapper {
       padding-bottom: 0;
     }
@@ -16,6 +18,13 @@
       margin-left: 7px;
       color: var(--color-cacdd3);
     }
+    .mat-form-field-label {
+      top: 0 !important;
+      display: initial !important;
+      padding-top: 0 !important;
+      padding-left: 0 !important;
+      margin-top: 5px !important
+    }
     .search-icon {
       color: var(--color-cacdd3);
     }
@@ -28,7 +37,7 @@
 }
 
 .comment-container {
-  transition: width .3s linear, height .3s linear, margin .3s linear, top .3s linear, padding .3s linear, opacity .2s ease-in-out .3s;
+  transition: width .3s linear, top .3s linear, padding-left .3s linear, padding-right .3s linear, opacity .2s ease-in-out .3s;
   padding-left: 18px;
   padding-right: 18px;
   padding-top: 9px;
@@ -219,7 +228,8 @@ app-comment:hover {
 
 .comments-wrapper {
   //height: calc(100% - 62px);
-  height: 100%;
+  height: calc(100% - 43px);
+  //height: 100%;
   overflow-x: hidden;
   overflow-y: hidden;
   width: 100%;

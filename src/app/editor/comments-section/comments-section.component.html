@@ -1,7 +1,7 @@
-<mat-form-field class="search-box" style="width:100%;background:white;" appearance="fill">
+<mat-form-field class="search-box-comments" style="width:100%;background:white;" appearance="fill">
   <mat-label class="character-style-9 label">Search comments...</mat-label>
   <mat-icon class="search-icon" matPrefix>search</mat-icon>
-  <input matInput style="color: black !important;">
+  <input [formControl]="searchForm" matInput style="color: black !important;">
 </mat-form-field>
 <div class="comments-wrapper">
   <div style="height:100%;" class="all-comments-container">
@@ -22,12 +22,12 @@
         <input #input class="comment-input" type="text" placeholder="Leave a comment...">
         <div class="comment-btns">
           <button mat-button label="Cancel" (click)="cancelBtnHandle()" class="small  secondary cencel-button">Cancel</button>
-          <button mat-button label="Comment" (click)="commentBtnHandle(input.value)" [disabled]="!selectedTextInEditors[lastFocusedEditor!] || input.value.length === 0 || !commentAllowdIn[lastFocusedEditor!]" class="small  secondary comment-button">Comment</button>
+          <button mat-button label="Comment" (click)="commentBtnHandle(input,input.value)" [disabled]="!selectedTextInEditors[lastFocusedEditor!] || input.value.length === 0 || !commentAllowdIn[lastFocusedEditor!]" class="small  secondary comment-button">Comment</button>
         </div>
       </mat-card>
     </div>
     <div *ngFor="let comment of this.allComments" class="comment-container" style="opacity: 0;" attr.commentId="{{comment.commentAttrs.id}}" attr.sectionId="{{comment.section}}" #commentContainer>
-      <app-comment [comment]="comment" [(doneRenderingCommentsSubject)]="doneRenderingCommentsSubject" (selected)="changeParentContainer($event,commentContainer)"></app-comment>
+      <app-comment [comment]="comment" [(doneRenderingCommentsSubject)]="doneRenderingCommentsSubject" (selected)="changeParentContainer($event,commentContainer,comment)"></app-comment>
     </div>
   </div>
 

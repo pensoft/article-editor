@@ -1,17 +1,20 @@
 import { ThrowStmt } from '@angular/compiler';
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { FormControl, Validators } from '@angular/forms';
 import { EditorChange } from 'codemirror';
 import { uuidv4 } from 'lib0/random';
 import { toggleMark } from 'prosemirror-commands';
+import { closeSingleQuote } from 'prosemirror-inputrules';
 import { TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
-import { Subject } from 'rxjs';
+import { interval, Subject } from 'rxjs';
+import { debounce } from 'rxjs/operators';
 import { YMap } from 'yjs/dist/src/internals';
 import { MenuService } from '../services/menu.service';
 import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
 import { YdocService } from '../services/ydoc.service';
 import { filterSectionsFromBackendWithComplexMinMaxValidations } from '../utils/articleBasicStructure';
-import { commentData, CommentsService } from '../utils/commentsService/comments.service';
+import { commentData, CommentsService, commentYdocSave } from '../utils/commentsService/comments.service';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 import { isCommentAllowed } from '../utils/menu/menuItems';
 import { getDate } from './comment/comment.component';
@@ -36,6 +39,8 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
   commentsMap?: YMap<any>
   editorView?: EditorView
   userInfo: any
+
+  searchForm = new FormControl('');
 
   rendered = 0;
   nOfCommThatShouldBeRendered = 0
@@ -78,10 +83,10 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
         } else if (data.type == 'commentData') {
           this.addCommentEditorId = data.sectionName
           //this.showAddCommentBox = this.lastFocusedEditor! == this.addCommentEditorId! && this.commentAllowdIn[this.addCommentEditorId]
-          if (this.showAddCommentBox!==data.showBox) {
-            setTimeout(()=>{
+          if (this.showAddCommentBox !== data.showBox) {
+            setTimeout(() => {
               this.moveAddCommentBox(this.editorView)
-            },0)
+            }, 0)
           }
           this.showAddCommentBox = data.showBox
         } else if (data.type == 'commentAllownes') {
@@ -119,9 +124,9 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
   addCommentBoxH: number;
 
   moveAddCommentBox(view: EditorView) {
-    if(!this.showAddCommentBox){
+    if (!this.showAddCommentBox) {
       this.doneRendering('hide_comment_box')
-    }else{
+    } else {
       this.doneRendering()
     }
   }
@@ -135,7 +140,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     commentMarkId?: string;
   }
   initialRenderComments(sortedComments: commentData[], comContainers: HTMLDivElement[]) {
-    console.log('initioalRenderComments');
     this.notRendered = false;
     let lastElementPosition = 0;
     let i = 0;
@@ -164,7 +168,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     }
   }
   loopFromTopAndOrderComments(sortedComments: commentData[], comContainers: HTMLDivElement[],) {
-    console.log('loopFromTopAndOrderComments');
     let lastElementBottom = 0;
     sortedComments.forEach((com, index) => {
       let id = com.commentAttrs.id;
@@ -190,7 +193,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     })
   }
   loopFromBottomAndOrderComments(sortedComments: commentData[], comContainers: HTMLDivElement[], addComContainer: HTMLDivElement) {
-    console.log('loopFromBottomAndOrderComments');
     let lastCommentTop = addComContainer.getBoundingClientRect().height;
     let i = sortedComments.length - 1
     while (i >= 0) {
@@ -222,7 +224,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
   lastSorted: commentData[];
   displayedCommentsPositions: { [key: string]: { displayedTop: number, height: number } } = {}
   notRendered = true
-  doneRendering(cause?:string) {
+  doneRendering(cause?: string) {
     let comments = Array.from(document.getElementsByClassName('comment-container')) as HTMLDivElement[];
     let container = document.getElementsByClassName('all-comments-container')[0] as HTMLDivElement;
     let allCommentCopy: commentData[] = JSON.parse(JSON.stringify(this.allComments));
@@ -235,14 +237,14 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     })/*
     let allCommentsInitioalPositions: { commentTop: number, commentBottom: number, id: string }[] = [];
     let allCommentsPositions: { commentTop: number, commentBottom: number, id: string }[] = []; */
-    if(!container||comments.length == 0){
+    if (!container || comments.length == 0) {
       this.lastSorted = JSON.parse(JSON.stringify(sortedComments))
       return
     }
     let selectedComment = this.commentsService.lastCommentSelected
     if (this.notRendered) {
       this.initialRenderComments(sortedComments, comments)
-    } else if (cause||!this.shouldScrollSelected || (this.shouldScrollSelected && (!selectedComment.commentId || !selectedComment.commentMarkId || !selectedComment.sectionId))) {
+    } else if (this.tryMoveItemsUp||cause || !this.shouldScrollSelected || (this.shouldScrollSelected && (!selectedComment.commentId || !selectedComment.commentMarkId || !selectedComment.sectionId))) {
       if (this.shouldScrollSelected && (!selectedComment.commentId || !selectedComment.commentMarkId || !selectedComment.sectionId)) {
         this.shouldScrollSelected = false;
       }
@@ -250,49 +252,114 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
       let oldPos = this.lastSorted.reduce<{ top: number, id: string }[]>((prev, curr) => { idsOldOrder.push(curr.commentAttrs.id); return [...prev, { top: curr.domTop, id: curr.commentAttrs.id }] }, [])
       let idsNewOrder: string[] = []
       let newPos = sortedComments.reduce<{ top: number, id: string }[]>((prev, curr) => { idsNewOrder.push(curr.commentAttrs.id); return [...prev, { top: curr.domTop, id: curr.commentAttrs.id }] }, [])
+      if (this.preventRerenderUntilCommentAdd.bool) {
+        let newComId = this.preventRerenderUntilCommentAdd.id;
+        if (!idsNewOrder.includes(newComId)) {
+          return
+        } else {
+          this.preventRerenderUntilCommentAdd.bool = false
+        }
+      }
       // determine what kind of change it is
-      console.log('reorder',idsOldOrder,idsNewOrder);
-      if (JSON.stringify(oldPos) != JSON.stringify(newPos)||cause) {
-        console.log('dif pos');
-        if (JSON.stringify(idsOldOrder) == JSON.stringify(idsNewOrder)||cause) { // comments are in same order
-          console.log('same order');
+      if (JSON.stringify(oldPos) != JSON.stringify(newPos) || cause || this.tryMoveItemsUp) {
+        if (JSON.stringify(idsOldOrder) == JSON.stringify(idsNewOrder) || cause || this.tryMoveItemsUp) { // comments are in same order
           if (oldPos[oldPos.length - 1].top > newPos[newPos.length - 1].top) {  // comments have decreased top should loop from top
             this.loopFromTopAndOrderComments(sortedComments, comments)
           } else if (oldPos[oldPos.length - 1].top < newPos[newPos.length - 1].top) { // comments have increased top should loop from bottom
             this.loopFromBottomAndOrderComments(sortedComments, comments, container)
-          } else if(cause == 'hide_comment_box'){
+          } else if (cause == 'hide_comment_box') {
             this.loopFromTopAndOrderComments(sortedComments, comments)
             this.loopFromBottomAndOrderComments(sortedComments, comments, container)
-          }else{ // moved an existing comment
+          } else if(this.tryMoveItemsUp){
+            this.loopFromTopAndOrderComments(sortedComments, comments)
+            this.tryMoveItemsUp = false;
+          }else { // moved an existing comment
             this.loopFromBottomAndOrderComments(sortedComments, comments, container)
             this.loopFromTopAndOrderComments(sortedComments, comments)
           }
         } else { // comments are not in the same order
-          console.log('not in same order ');
           if (idsOldOrder.length < idsNewOrder.length) { // added a comment
-            console.log('add comment');
-            let addedCommentId = idsNewOrder.find((comid)=>!idsOldOrder.includes(comid))
-            console.log(addedCommentId);
-            let sortedComment = sortedComments.find((com)=>com.commentAttrs.id == addedCommentId);
+            let addedCommentId = idsNewOrder.find((comid) => !idsOldOrder.includes(comid))
+            let sortedComment = sortedComments.find((com) => com.commentAttrs.id == addedCommentId);
             let commentContainer = comments.find((element) => {
               return element.getAttribute('commentid') == addedCommentId
             })
-
-            commentContainer.style.top = sortedComment.domTop+'px';
+            commentContainer.style.top = sortedComment.domTop + 'px';
             commentContainer.style.opacity = '1';
-            this.displayedCommentsPositions[addedCommentId] = {displayedTop:sortedComment.domTop,height:commentContainer.getBoundingClientRect().height}
+            this.displayedCommentsPositions[addedCommentId] = { displayedTop: sortedComment.domTop, height: commentContainer.getBoundingClientRect().height }
             this.loopFromTopAndOrderComments(sortedComments, comments)
-            this.loopFromBottomAndOrderComments(sortedComments, comments, container)
           } else if (idsNewOrder.length < idsOldOrder.length) { // removed a comment
             this.loopFromTopAndOrderComments(sortedComments, comments)
             this.loopFromBottomAndOrderComments(sortedComments, comments, container)
-          } else if (idsNewOrder.length == idsOldOrder.length){ // comments are reordered
+          } else if (idsNewOrder.length == idsOldOrder.length) { // comments are reordered
             //this.loopFromTopAndOrderComments(sortedComments, comments)
-            this.loopFromBottomAndOrderComments(sortedComments, comments, container)
-            this.loopFromTopAndOrderComments(sortedComments, comments)
+            //this.loopFromBottomAndOrderComments(sortedComments, comments, container)
+            //this.loopFromTopAndOrderComments(sortedComments, comments)
+            this.initialRenderComments(sortedComments, comments)
           }
         }
       }
+    } else if (this.shouldScrollSelected && selectedComment.commentId && selectedComment.commentMarkId && selectedComment.sectionId) {
+      let selectedCommentIndex = sortedComments.findIndex((com) => {
+        return com.commentAttrs.id == selectedComment.commentId;
+      })
+      let selectedCommentSorted = sortedComments[selectedCommentIndex];
+      let commentContainer = comments.find((element) => {
+        return element.getAttribute('commentid') == selectedComment.commentId
+      })
+      commentContainer.style.top = selectedCommentSorted.domTop + 'px';
+      this.displayedCommentsPositions[selectedComment.commentId] = { displayedTop: selectedCommentSorted.domTop, height: commentContainer.getBoundingClientRect().height }
+
+      //loop comments up in the group and move them if any
+      let lastCommentTop = selectedCommentSorted.domTop;
+      let i = selectedCommentIndex - 1
+      let commentsGrouTopEnd = false
+      while (i >= 0 && !commentsGrouTopEnd) {
+        let com = sortedComments[i]
+        let id = com.commentAttrs.id;
+        let domElement = comments.find((element) => {
+          return element.getAttribute('commentid') == id
+        })
+        let h = domElement.getBoundingClientRect().height
+        if (lastCommentTop > com.domTop + h) {
+          let pos = com.domTop
+          domElement.style.top = pos + 'px';
+          this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
+          lastCommentTop = pos;
+        } else {
+          let pos = lastCommentTop - h
+          domElement.style.top = pos + 'px';
+          this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
+          lastCommentTop = pos;
+        }
+        i--;
+      }
+      let lastElementBottom = selectedCommentSorted.domTop+commentContainer.getBoundingClientRect().height;
+      let i1 = selectedCommentIndex + 1
+      let n = sortedComments.length
+      let commentsGrouBottomEnd = false
+      while (i1 < n && !commentsGrouBottomEnd) {
+        let com = sortedComments[i1];
+        let index = i1
+        let id = com.commentAttrs.id;
+        let domElement = comments.find((element) => {
+          return element.getAttribute('commentid') == id
+        })
+        let h = domElement.getBoundingClientRect().height
+        if (lastElementBottom < com.domTop) {
+          let pos = com.domTop
+          domElement.style.top = pos + 'px';
+          this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
+          lastElementBottom = pos + h;
+        } else {
+          let pos = lastElementBottom
+          domElement.style.top = pos + 'px';
+          this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
+          lastElementBottom = pos + h;
+        }
+        i1++
+      }
+      this.shouldScrollSelected = false;
     }
     if (this.showAddCommentBox) {
       let addCommentBoxEl = document.getElementsByClassName('add-comment-box')[0] as HTMLDivElement
@@ -317,23 +384,23 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
         return a.displayedTop - b.displayedTop
       })
       let commentsInBox: { id: string, displayedTop: number, height: number, posArrIndex: number, dir: 'up' | 'down' }[] = []
-      let mostLowerThatShouldMoveUp :number;
+      let mostLowerThatShouldMoveUp: number;
       let mostHigherThatShouldMoveDown: number;
-      let idOfComThatShouldBeBeforeAddBox:string
-      let idOfComThatShouldBeAfterAddBox:string
-      sortedComments.forEach((com)=>{
-        if(com.domTop<boxTop||(com.domTop==boxTop&&com.pmDocStartPos<newMarkPos)){
+      let idOfComThatShouldBeBeforeAddBox: string
+      let idOfComThatShouldBeAfterAddBox: string
+      sortedComments.forEach((com) => {
+        if (com.domTop < boxTop || (com.domTop == boxTop && com.pmDocStartPos < newMarkPos)) {
           idOfComThatShouldBeBeforeAddBox = com.commentAttrs.id
         }
-        if(!idOfComThatShouldBeAfterAddBox&&(com.domTop>boxTop||(com.domTop==boxTop&&com.pmDocStartPos>newMarkPos))){
+        if (!idOfComThatShouldBeAfterAddBox && (com.domTop > boxTop || (com.domTop == boxTop && com.pmDocStartPos > newMarkPos))) {
           idOfComThatShouldBeAfterAddBox = com.commentAttrs.id
         }
       })
       positionsArr.forEach((pos, index) => {
-        if(pos.id == idOfComThatShouldBeBeforeAddBox){
+        if (pos.id == idOfComThatShouldBeBeforeAddBox) {
           commentsInBox[0] = { ...pos, posArrIndex: index, dir: 'up' }
         }
-        if(pos.id == idOfComThatShouldBeAfterAddBox){
+        if (pos.id == idOfComThatShouldBeAfterAddBox) {
           commentsInBox[1] = { ...pos, posArrIndex: index, dir: 'down' }
         }
         /* if (
@@ -363,14 +430,14 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
           }
         } */
       })
-      let newComsPos:  { displayedTop: number, height: number, id: string }[]  = []
+      let newComsPos: { displayedTop: number, height: number, id: string }[] = []
       commentsInBox.forEach((pos) => {
         if (pos.dir == 'up') {
           let offset = boxTop - (pos.displayedTop + pos.height);
           let index = pos.posArrIndex
           let comTop: number
           let comBot: number
-          while ( index >= 0 &&(offset < 0||pos.displayedTop<sortedComments.find((com)=>com.commentAttrs.id == pos.id).domTop) ) {
+          while (index >= 0 && (offset < 0 || pos.displayedTop < sortedComments.find((com) => com.commentAttrs.id == pos.id).domTop)) {
             comTop = positionsArr[index].displayedTop
             comBot = positionsArr[index].displayedTop + positionsArr[index].height
             let spaceUntilUpperElement = index == 0 ? 0 : comTop - (positionsArr[index - 1].displayedTop + positionsArr[index - 1].height);
@@ -382,12 +449,12 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
           }
 
         } else {
-          let offset =   boxH+boxTop - pos.displayedTop
+          let offset = boxH + boxTop - pos.displayedTop
           let index = pos.posArrIndex
           let comTop: number
           let comBot: number
           let commN = sortedComments.length;
-          while (index < commN&&(offset > 0 ||pos.displayedTop>sortedComments.find((com)=>com.commentAttrs.id == pos.id).domTop) ) {
+          while (index < commN && (offset > 0 || pos.displayedTop > sortedComments.find((com) => com.commentAttrs.id == pos.id).domTop)) {
             comTop = positionsArr[index].displayedTop
             comBot = positionsArr[index].displayedTop + positionsArr[index].height
             let spaceUntilLowerElement = index == commN - 1 ? 0 : positionsArr[index + 1].displayedTop - comBot;
@@ -399,13 +466,13 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
           }
         }
       })
-      newComsPos.forEach((pos,i)=>{
+      newComsPos.forEach((pos, i) => {
         let id = pos.id;
         this.displayedCommentsPositions[id] = { displayedTop: pos.displayedTop, height: pos.height }
         let domElement = comments.find((element) => {
           return element.getAttribute('commentid') == id
         })
-        domElement.style.top = this.displayedCommentsPositions[id].displayedTop+'px'
+        domElement.style.top = this.displayedCommentsPositions[id].displayedTop + 'px'
       })
     }
     this.lastSorted = JSON.parse(JSON.stringify(sortedComments))
@@ -486,8 +553,8 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     let sectionName = this.addCommentEditorId
     this.addCommentSubject!.next({ type: 'commentData', sectionName, showBox: false })
   }
-
-  commentBtnHandle(value: string) {
+  preventRerenderUntilCommentAdd = { bool: false, id: '' }
+  commentBtnHandle(input: HTMLInputElement, value: string) {
     if (value.length == 0) {
       return
     }
@@ -515,11 +582,13 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     })(state!, dispatch);
     let sectionName = this.addCommentEditorId
     this.addCommentSubject!.next({ type: 'commentData', sectionName, showBox: false })
-    console.log(commentId);
+    this.preventRerenderUntilCommentAdd.bool = true
+    this.preventRerenderUntilCommentAdd.id = commentId
     setTimeout(() => {
       this.prosemirrorEditorsService.dispatchEmptyTransaction()
       this.editorView.focus()
       this.editorView.dispatch(this.editorView.state.tr.setSelection(new TextSelection(this.editorView.state.doc.resolve(from), this.editorView.state.doc.resolve(to + 2))))
+      input.value = ''
       setTimeout(() => {
         let pluginData = this.commentsService.commentPluginKey.getState(this.editorView.state)
         let sectionName = pluginData.sectionName
@@ -555,18 +624,18 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     })
   }
 
-  changeParentContainer(event: boolean, commentContainer: HTMLDivElement) {
+  changeParentContainer(event: boolean, commentContainer: HTMLDivElement, comment: commentData) {
     if (event) {
       commentContainer.classList.add('selected-comment')
     } else {
-      commentContainer.classList.remove('selected-comment')
+      commentContainer.classList.remove('selected-comment');
     }
   }
 
   setContainerHeight() {
     let container = document.getElementsByClassName('all-comments-container')[0] as HTMLDivElement;
     let articleElement = document.getElementById('app-article-element') as HTMLDivElement;
-    if(!container||!articleElement){
+    if (!container || !articleElement) {
       return;
     }
     let articleElementRactangle = articleElement.getBoundingClientRect();
@@ -575,7 +644,50 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
 
   }
   shouldScrollSelected = false;
+  tryMoveItemsUp = false;
+
+  setFromControlChangeListener(){
+    this.searchForm.valueChanges.pipe(debounce(val=>interval(700))).subscribe((val)=>{
+      if(val&&val!=""&&typeof val == 'string'&& val.trim().length>0){
+        let searchVal = val.toLocaleLowerCase()
+        let comsInYdocMap = this.commentsService.getCommentsFromYdoc();
+        let commentsInYdocFiltered:{inydoc:commentYdocSave,pmmark:commentData}[] = []
+        this.allComments.forEach(com=>{
+          commentsInYdocFiltered.push({inydoc:comsInYdocMap[com.commentAttrs.id],pmmark:com})
+        })
+        let foundCom = commentsInYdocFiltered.find(data=>
+          data.inydoc.initialComment.comment.toLocaleLowerCase().includes(searchVal)||
+          data.inydoc.initialComment.userData.email.toLocaleLowerCase().includes(searchVal)||
+          data.inydoc.initialComment.userData.name.toLocaleLowerCase().includes(searchVal)||
+          data.inydoc.commentReplies.reduce((prev,curr)=>{
+            return prev||
+            curr.comment.toLocaleLowerCase().includes(searchVal)||
+            curr.userData.email.toLocaleLowerCase().includes(searchVal)||
+            curr.userData.name.toLocaleLowerCase().includes(searchVal)},false)
+          )
+
+        if(foundCom){
+          let actualMark = this.commentsService.commentsObj[foundCom.pmmark.commentAttrs.id];
+          let edView = this.prosemirrorEditorsService.editorContainers[actualMark.section].editorView;
+          let st = edView.state
+          let doc = st.doc
+          let tr = st.tr;
+          let textSel = new TextSelection(doc.resolve(actualMark.pmDocStartPos),doc.resolve(actualMark.pmDocEndPos));
+          edView.dispatch(tr.setSelection(textSel));
+          let articleElement = document.getElementsByClassName('editor-container')[0] as HTMLDivElement;
+          articleElement.scroll({
+            top:actualMark.domTop-300,
+            left:0,
+            behavior:'smooth'
+          })
+          edView.focus()
+        }
+      }
+    })
+  }
+
   ngAfterViewInit(): void {
+    this.setFromControlChangeListener()
     this.setContainerHeight()
     this.setScrollListener()
     this.userInfo
@@ -583,7 +695,11 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
       if (data.commentId && data.commentMarkId && data.sectionId) {
         this.shouldScrollSelected = true
       } else {
-        if (this.preservedScroll === 0 || this.preservedScroll) {
+        this.tryMoveItemsUp = true
+        setTimeout(()=>{
+          this.doneRendering()
+        },20)
+        /* if (this.preservedScroll === 0 || this.preservedScroll) {
           let container = document.getElementsByClassName('comments-wrapper')[0] as HTMLDivElement;
           let articleElement = document.getElementsByClassName('editor-container')[0] as HTMLDivElement
 
@@ -593,7 +709,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
             behavior: 'smooth'
           })
           this.preservedScroll = undefined
-        }
+        } */
       }
       setTimeout(() => {
         this.commentsService.getCommentsInAllEditors()
