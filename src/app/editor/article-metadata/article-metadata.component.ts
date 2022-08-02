@@ -87,6 +87,11 @@ export class ArticleMetadataComponent implements OnInit {
     this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin? this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = null:this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = this.serviceShare.ProsemirrorEditorsService.ySyncKey
   }
 
+  logUserData(){
+    this.authService.getUserInfo().subscribe((data)=>{
+      console.log(data);
+    })
+  }
 
   addNewSectionToArticle() {
     let articleSections = this.ydocService.articleData.layout.template.sections.filter((data: any) => {

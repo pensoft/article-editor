@@ -44,6 +44,10 @@
 
     <div class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
     <div #ReplyDiv style="display: none;">
+      <!-- <mat-form-field appearance="outline" class="reply-form-field">
+        <input #input matInput type="text" placeholder="Write a reply...">
+        <mat-icon matSuffix>alternate_email</mat-icon>
+      </mat-form-field> -->
       <div class="reply-input">
         <div class="input_div">
           <input #input type="text" placeholder="Write a reply...">
@@ -62,7 +66,9 @@
 <mat-card class="comment-box-replies" *ngFor="let comment of userComment!.commentReplies;let index=index">
 
   <mat-card-header>
-    <div mat-card-avatar class="comment-avatar"></div>
+
+    <ngx-avatar mat-card-avatar size="36" [gravatarId]="comment.userData.email" [name]="comment.userData.name"></ngx-avatar>
+    <!--  <div mat-card-avatar class="comment-avatar"></div> -->
     <mat-card-title class="comment-title">{{comment.userData.name}}</mat-card-title>
     <mat-card-subtitle class="comment-subtitle">{{comment.date|date:'medium'}}</mat-card-subtitle>
 

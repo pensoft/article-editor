@@ -1,4 +1,20 @@
 ::ng-deep {
+  .reply-form-field {
+    font-size: 14px;
+    height: 44px;
+    .mat-form-field-wrapper {
+      margin-top: 0;
+      margin-bottom: 0;
+      padding-bottom: 0;
+      height: 44px;
+      .mat-form-field-outline {
+        height: 44px;
+      }
+    }
+  }
+}
+
+::ng-deep {
   .comment-box-replies {
     padding: 16px 15px 16px 16px !important;
     margin-right: 10px;
