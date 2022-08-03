@@ -14,6 +14,8 @@ import print from 'print-js'
 import printJS from 'print-js';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { HttpClient } from '@angular/common/http';
+import { AllUsersService } from '@app/core/services/all-users.service';
+import { ContributorsApiService } from '@app/core/services/comments/contributors-api.service';
 
 @Component({
   selector: 'app-article-metadata',
@@ -32,6 +34,7 @@ export class ArticleMetadataComponent implements OnInit {
     private ydocService: YdocService,
     private serviceShare: ServiceShare,
     private treeService: TreeService,
+    private contributorsApiService:ContributorsApiService,
     private authService: AuthService) {
     this.previewMode = serviceShare.ProsemirrorEditorsService?.previewArticleMode!
   }
@@ -90,6 +93,9 @@ export class ArticleMetadataComponent implements OnInit {
   logUserData(){
     this.authService.getUserInfo().subscribe((data)=>{
       console.log(data);
+    })
+    this.contributorsApiService.getContributors().subscribe((data)=>{
+      console.log('all users ',data);
     })
   }
 

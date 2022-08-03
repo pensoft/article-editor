@@ -1,15 +1,24 @@
 ::ng-deep {
   .reply-form-field {
-    font-size: 14px;
-    height: 44px;
+    font-size: 14px!important;
+    height: 37px!important;
+    color: black !important;
+    width: 90% !important;
     .mat-form-field-wrapper {
-      margin-top: 0;
-      margin-bottom: 0;
-      padding-bottom: 0;
-      height: 44px;
+      margin-top: 0!important;
+      margin-bottom: 0!important;
+      padding-bottom: 0!important;
+      height: 37px!important;
       .mat-form-field-outline {
-        height: 44px;
+        height: 37px!important;
       }
+      .mat-form-field-infix {
+        height: 37px!important;
+        padding: 4px 0 0 0!important;
+      }
+    }
+    .comment-reply-field-icon {
+      color: #bbbaba9e !important;
     }
   }
 }
@@ -210,6 +219,7 @@
   color: var(--color-192956);
   cursor: pointer;
   width: 33px;
+  margin-bottom: 4px;
 }
 
 .reply-input {

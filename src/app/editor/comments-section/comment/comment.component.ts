@@ -14,6 +14,9 @@ import { commentData, commentYdocSave, ydocComment } from '@app/editor/utils/com
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { Subject } from 'rxjs';
 import { TextSelection } from 'prosemirror-state';
+import { FormControl } from '@angular/forms';
+import { fakeUser } from '@app/core/services/comments/comments-interceptor.service';
+import { ContributorsApiService } from '@app/core/services/comments/contributors-api.service';
 
 export function getDate(date: number) {
   let timeOffset = (new Date()).getTimezoneOffset() * 60 * 1000;
@@ -49,11 +52,17 @@ export class CommentComponent implements OnInit, AfterViewInit {
   commentsMap?: YMap<any>
   userComment?: commentYdocSave;
   mobileVersion: boolean
+  filteredUsers:fakeUser[]
+
+  replyFormControl = new FormControl('');
+  showAutoComplete =  false;
+
   constructor(
     public authService: AuthService,
     private ydocService: YdocService,
     public sharedDialog: MatDialog,
     private prosemirrorEditorService: ProsemirrorEditorsService,
+    private contributorsApiService:ContributorsApiService,
     private sharedService: ServiceShare
   ) {
     if (this.ydocService.editorIsBuild) {

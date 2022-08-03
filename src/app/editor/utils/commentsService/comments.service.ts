@@ -134,6 +134,8 @@ export class CommentsService {
     })
   }
 
+
+
   updateAllComments() {
     this.getCommentsInAllEditors()
     this.updateTimestamp = Date.now();

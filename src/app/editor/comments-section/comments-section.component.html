@@ -1,8 +1,18 @@
-<mat-form-field class="search-box-comments" style="width:100%;background:white;" appearance="fill">
-  <mat-label class="character-style-9 label">Search comments...</mat-label>
-  <mat-icon class="search-icon" matPrefix>search</mat-icon>
-  <input [formControl]="searchForm" matInput style="color: black !important;">
-</mat-form-field>
+<div class="search-comments">
+  <mat-form-field class="search-box-comments" style="background:white;" appearance="fill">
+    <mat-label class="character-style-9 label">Search comments...</mat-label>
+    <mat-icon class="search-icon" matPrefix>search</mat-icon>
+    <input [formControl]="searchForm" matInput style="color: black !important;">
+  </mat-form-field>
+  <div class="results-from-search" *ngIf="searching">
+    <div class="number-results">
+      {{searchIndex+1}}/{{searchResults.length}}
+    </div>
+    <button mat-icon-button [disabled]="searchIndex == 0" (click)="selectPrevComFromSearch()"><mat-icon>arrow_upward</mat-icon></button>
+    <button mat-icon-button [disabled]="searchResults&&searchResults.length-1 == searchIndex" (click)="selectNextComFromSearch()"><mat-icon>arrow_downward</mat-icon></button>
+    <button mat-icon-button class="end-search-btn" (click)="endSearch()"><mat-icon>close</mat-icon></button>
+  </div>
+</div>
 <div class="comments-wrapper">
   <div style="height:100%;" class="all-comments-container">
     <div [ngStyle]="{'opacity':showAddCommentBox?'1':'0'}" class="add-comment-box">

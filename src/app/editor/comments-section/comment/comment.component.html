@@ -44,18 +44,23 @@
 
     <div class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
     <div #ReplyDiv style="display: none;">
-      <!-- <mat-form-field appearance="outline" class="reply-form-field">
+      <mat-form-field appearance="outline" class="reply-form-field">
         <input #input matInput type="text" placeholder="Write a reply...">
-        <mat-icon matSuffix>alternate_email</mat-icon>
-      </mat-form-field> -->
-      <div class="reply-input">
+        <mat-icon matSuffix class="comment-reply-field-icon">alternate_email</mat-icon>
+        <mat-autocomplete *ngIf="showAutoComplete" class="comment-reply-autocomplete" autoActiveFirstOption #auto="matAutocomplete">
+          <mat-option *ngFor="let user of filteredUsers" [value]="user">
+            {{user.email}}
+          </mat-option>
+        </mat-autocomplete>
+      </mat-form-field>
+      <!-- <div class="reply-input">
         <div class="input_div">
           <input #input type="text" placeholder="Write a reply...">
         </div>
         <div class="input_icon">
           <mat-icon class="maticon">alternate_email</mat-icon>
         </div>
-      </div>
+      </div> -->
       <div class="comment-reply-btns">
         <button mat-button label="Cancel" (click)="cancelReplyBtnHandle(ReplyDiv)" class="small  secondary cencel-button">Cancel</button>
         <button mat-button label="Comment" (click)="commentReplyBtnHandle(input,ReplyDiv)" [disabled]="input.value.length === 0" class="small  secondary comment-button">Reply</button>

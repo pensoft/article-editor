@@ -125,6 +125,7 @@ import {Observable} from "rxjs";
 import {RefsApiService} from "@app/layout/pages/library/lib-service/refs-api.service";
 import {OauthCallbackComponent} from "@app/layout/pages/oauth-callback/oauth-callback.component";
 import {CookieService} from "ngx-cookie-service";
+import { CommentsInterceptorService } from './core/services/comments/comments-interceptor.service';
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -260,6 +261,11 @@ const gravatarConfig: GravatarConfig = {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: FakeBackendInterceptor,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: CommentsInterceptorService,
       multi: true,
     },
     STORAGE_PROVIDERS,

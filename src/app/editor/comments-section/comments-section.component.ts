@@ -609,8 +609,11 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
   setScrollListener() {
     let container = document.getElementsByClassName('comments-wrapper')[0] as HTMLDivElement;
     let articleElement = document.getElementsByClassName('editor-container')[0] as HTMLDivElement
+    let editorsElement = document.getElementById('app-article-element') as HTMLDivElement
+    let commentsContainer = document.getElementsByClassName('all-comments-container')[0] as HTMLElement
+    let spaceElement = document.getElementsByClassName('end-article-spase')[0] as HTMLDivElement
     articleElement.addEventListener('scroll', (event) => {
-      container.scrollTop = container.scrollTop + articleElement.scrollTop - this.lastArticleScrollPosition
+      //container.scrollTop = container.scrollTop + articleElement.scrollTop - this.lastArticleScrollPosition
       /*  container.scroll({
          top: container.scrollTop + articleElement.scrollTop - this.lastArticleScrollPosition,
          left: 0,
@@ -618,7 +621,40 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
          behavior: 'instant'
        }) */
       this.lastArticleScrollPosition = articleElement.scrollTop
+      if(this.lastSorted){
+        let lastElement = this.lastSorted[this.lastSorted.length-1];
+        let dispPos = this.displayedCommentsPositions[lastElement.commentAttrs.id]
+        let elBottom = dispPos.displayedTop+dispPos.height;
+        let containerH = commentsContainer.getBoundingClientRect().height
+        if(containerH < elBottom){
+          //console.log('setting container h','containerH',containerH,'elBottom',elBottom,(elBottom + 30));
+          commentsContainer.style.height = (elBottom + 30) + 'px'
+        }else if(containerH > elBottom+100){
+          //console.log('setting container h','containerH',containerH,'elBottom',elBottom,(elBottom + 30));
+          commentsContainer.style.height = (elBottom + 30) + 'px'
+        }
+        let editorH = editorsElement.getBoundingClientRect().height
+        let spaceElementH = spaceElement.getBoundingClientRect().height
+        let actualEditorH = editorH - spaceElementH
+        if(editorH<elBottom){
+          //console.log('setting editr H','editorH',editorH,'elBottom',elBottom,((elBottom + 30)-actualEditorH));
+          spaceElement.style.height = ((elBottom + 30)-actualEditorH)+'px'
+        }else if(editorH>elBottom+100){
+          //console.log('setting editr H','editorH',editorH,'elBottom',elBottom,((elBottom + 30)-actualEditorH));
+          spaceElement.style.height = ((elBottom + 30)-actualEditorH)+'px'
+
+        }
+      }
+      container.scrollTop = articleElement.scrollTop
+      /* container.scroll({
+        top:articleElement.scrollTop,
+        left:0,
+        //@ts-ignore
+        behavior: 'instant'
+      }) */
     });
+    container.scrollTop = articleElement.scrollTop
+
     container.addEventListener('wheel', (event) => {
       event.preventDefault()
     })
@@ -639,12 +675,30 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
       return;
     }
     let articleElementRactangle = articleElement.getBoundingClientRect();
-
-    container.style.height = articleElementRactangle.height + 1000 + "px"
+    if(container.getBoundingClientRect().height<articleElementRactangle.height){
+      container.style.height = articleElementRactangle.height + "px"
+    }
 
   }
   shouldScrollSelected = false;
   tryMoveItemsUp = false;
+
+  selectComent(com:commentData){
+    let actualMark = this.commentsService.commentsObj[com.commentAttrs.id];
+    let edView = this.prosemirrorEditorsService.editorContainers[actualMark.section].editorView;
+    let st = edView.state
+    let doc = st.doc
+    let tr = st.tr;
+    let textSel = new TextSelection(doc.resolve(actualMark.pmDocStartPos),doc.resolve(actualMark.pmDocEndPos));
+    edView.dispatch(tr.setSelection(textSel));
+    let articleElement = document.getElementsByClassName('editor-container')[0] as HTMLDivElement;
+    articleElement.scroll({
+      top:actualMark.domTop-300,
+      left:0,
+      behavior:'smooth'
+    })
+    edView.focus()
+  }
 
   setFromControlChangeListener(){
     this.searchForm.valueChanges.pipe(debounce(val=>interval(700))).subscribe((val)=>{
@@ -652,10 +706,17 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
         let searchVal = val.toLocaleLowerCase()
         let comsInYdocMap = this.commentsService.getCommentsFromYdoc();
         let commentsInYdocFiltered:{inydoc:commentYdocSave,pmmark:commentData}[] = []
-        this.allComments.forEach(com=>{
+        let sortedComments = this.allComments.sort((c1, c2) => {
+          if (c1.domTop != c2.domTop) {
+            return c1.domTop - c2.domTop
+          } else {
+            return c1.pmDocStartPos - c2.pmDocStartPos
+          }
+        })
+        sortedComments.forEach(com=>{
           commentsInYdocFiltered.push({inydoc:comsInYdocMap[com.commentAttrs.id],pmmark:com})
         })
-        let foundCom = commentsInYdocFiltered.find(data=>
+        let foundComs = commentsInYdocFiltered.filter(data=>
           data.inydoc.initialComment.comment.toLocaleLowerCase().includes(searchVal)||
           data.inydoc.initialComment.userData.email.toLocaleLowerCase().includes(searchVal)||
           data.inydoc.initialComment.userData.name.toLocaleLowerCase().includes(searchVal)||
@@ -666,24 +727,41 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
             curr.userData.name.toLocaleLowerCase().includes(searchVal)},false)
           )
 
-        if(foundCom){
-          let actualMark = this.commentsService.commentsObj[foundCom.pmmark.commentAttrs.id];
-          let edView = this.prosemirrorEditorsService.editorContainers[actualMark.section].editorView;
-          let st = edView.state
-          let doc = st.doc
-          let tr = st.tr;
-          let textSel = new TextSelection(doc.resolve(actualMark.pmDocStartPos),doc.resolve(actualMark.pmDocEndPos));
-          edView.dispatch(tr.setSelection(textSel));
-          let articleElement = document.getElementsByClassName('editor-container')[0] as HTMLDivElement;
-          articleElement.scroll({
-            top:actualMark.domTop-300,
-            left:0,
-            behavior:'smooth'
-          })
-          edView.focus()
+        if(foundComs.length>0){
+          this.searchResults = foundComs
+          this.searchIndex = 0;
+          this.selectComent(foundComs[0].pmmark)
+          this.searching = true;
+        }else{
+          this.searching = false;
         }
+      }else{
+        this.searching = false;
       }
     })
+  }
+
+  searching:boolean = false
+  searchIndex:number = 0;
+  searchResults?:{inydoc:commentYdocSave,pmmark:commentData}[]
+
+  selectPrevComFromSearch(){
+    this.searchIndex--;
+    let com = this.searchResults[this.searchIndex]
+    this.selectComent(com.pmmark)
+  }
+
+  selectNextComFromSearch(){
+    this.searchIndex++;
+    let com = this.searchResults[this.searchIndex]
+    this.selectComent(com.pmmark)
+  }
+
+  endSearch(){
+    this.searching = false
+    this.searchIndex = 0;
+    this.searchResults = []
+    this.searchForm.setValue('');
   }
 
   ngAfterViewInit(): void {
