@@ -123,12 +123,12 @@ text-content-type {
 }
 
 app-article {
-  width: calc(100% - 52px);
-  height: 443px;
+  width: calc(100% - 61px);
+  height: fit-content;
   border-top-left-radius: 20px;
   margin-top: 20px;
   margin-left: 0;
-  display: inline-block;
+  display: block;
   margin-right: 0;
   padding: 10px;
 }
@@ -264,10 +264,11 @@ $treeSpace: 290px;
 }
 
 .editor_buttons {
-  width: 40px;
+  width: 22px;
   height: 100px;
-  margin: 12px 12px 12px 0px;
+  margin: 12px 12px 12px 4px;
   position: relative;
+  align-self: flex-end;
   .editor_buttons_wrapper {
     display: none;
   }

@@ -627,21 +627,22 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
         let elBottom = dispPos.displayedTop+dispPos.height;
         let containerH = commentsContainer.getBoundingClientRect().height
         if(containerH < elBottom){
-          //console.log('setting container h','containerH',containerH,'elBottom',elBottom,(elBottom + 30));
+          console.log('setting container h','containerH',containerH,'elBottom',elBottom,(elBottom + 30));
           commentsContainer.style.height = (elBottom + 30) + 'px'
-        }else if(containerH > elBottom+100){
-          //console.log('setting container h','containerH',containerH,'elBottom',elBottom,(elBottom + 30));
+        }/* else if(containerH > elBottom+100){
+          console.log('setting container h','containerH',containerH,'elBottom',elBottom,(elBottom + 30));
           commentsContainer.style.height = (elBottom + 30) + 'px'
-        }
+        } */
         let editorH = editorsElement.getBoundingClientRect().height
         let spaceElementH = spaceElement.getBoundingClientRect().height
         let actualEditorH = editorH - spaceElementH
         if(editorH<elBottom){
-          //console.log('setting editr H','editorH',editorH,'elBottom',elBottom,((elBottom + 30)-actualEditorH));
+          console.log('setting editr H','editorH',editorH,'elBottom',elBottom,((elBottom + 30)-actualEditorH));
           spaceElement.style.height = ((elBottom + 30)-actualEditorH)+'px'
-        }else if(editorH>elBottom+100){
-          //console.log('setting editr H','editorH',editorH,'elBottom',elBottom,((elBottom + 30)-actualEditorH));
-          spaceElement.style.height = ((elBottom + 30)-actualEditorH)+'px'
+        }else if(editorH>elBottom+100&&spaceElementH>0){
+          let space = ((elBottom + 30)-actualEditorH)<0?0:((elBottom + 30)-actualEditorH)
+          console.log(spaceElementH,'setting editr H','editorH',editorH,'elBottom',elBottom,space);
+          spaceElement.style.height = space+'px'
 
         }
       }
