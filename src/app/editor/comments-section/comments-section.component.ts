@@ -1,5 +1,5 @@
 import { ThrowStmt } from '@angular/compiler';
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { EditorChange } from 'codemirror';
 import { uuidv4 } from 'lib0/random';
@@ -7,7 +7,7 @@ import { toggleMark } from 'prosemirror-commands';
 import { closeSingleQuote } from 'prosemirror-inputrules';
 import { TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
-import { interval, Subject } from 'rxjs';
+import { interval, Subject, Subscriber, Subscription } from 'rxjs';
 import { debounce } from 'rxjs/operators';
 import { YMap } from 'yjs/dist/src/internals';
 import { MenuService } from '../services/menu.service';
@@ -24,7 +24,7 @@ import { getDate } from './comment/comment.component';
   templateUrl: './comments-section.component.html',
   styleUrls: ['./comments-section.component.scss']
 })
-export class CommentsSectionComponent implements AfterViewInit, OnInit {
+export class CommentsSectionComponent implements AfterViewInit, OnInit,OnDestroy {
 
   comments: any[] = [];
   commentsObj: any;
@@ -98,7 +98,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
           this.errorMessages[data.sectionId] = data.errorMessage
         }
       })
-      this.doneRenderingCommentsSubject.subscribe(() => {
+      this.subjSub = this.doneRenderingCommentsSubject.subscribe(() => {
         if (this.rendered < this.nOfCommThatShouldBeRendered) {
           this.rendered++;
         }
@@ -108,6 +108,17 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
       })
     } catch (e) {
       console.error(e);
+    }
+  }
+
+  subjSub:Subscription
+
+  ngOnDestroy(): void {
+    if(this.subjSub){
+      this.subjSub.unsubscribe()
+    }
+    if(this.lastSelSub){
+      this.lastSelSub.unsubscribe()
     }
   }
 
@@ -244,7 +255,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     let selectedComment = this.commentsService.lastCommentSelected
     if (this.notRendered) {
       this.initialRenderComments(sortedComments, comments)
-    } else if (this.tryMoveItemsUp||cause || !this.shouldScrollSelected || (this.shouldScrollSelected && (!selectedComment.commentId || !selectedComment.commentMarkId || !selectedComment.sectionId))) {
+    } else if (!this.notRendered) {
       if (this.shouldScrollSelected && (!selectedComment.commentId || !selectedComment.commentMarkId || !selectedComment.sectionId)) {
         this.shouldScrollSelected = false;
       }
@@ -261,6 +272,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
         }
       }
       // determine what kind of change it is
+      console.log(JSON.stringify(oldPos) != JSON.stringify(newPos),cause,this.tryMoveItemsUp);
       if (JSON.stringify(oldPos) != JSON.stringify(newPos) || cause || this.tryMoveItemsUp) {
         if (JSON.stringify(idsOldOrder) == JSON.stringify(idsNewOrder) || cause || this.tryMoveItemsUp) { // comments are in same order
           if (oldPos[oldPos.length - 1].top > newPos[newPos.length - 1].top) {  // comments have decreased top should loop from top
@@ -286,6 +298,8 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
             })
             commentContainer.style.top = sortedComment.domTop + 'px';
             commentContainer.style.opacity = '1';
+
+            console.log('adding comment');
             this.displayedCommentsPositions[addedCommentId] = { displayedTop: sortedComment.domTop, height: commentContainer.getBoundingClientRect().height }
             this.loopFromTopAndOrderComments(sortedComments, comments)
           } else if (idsNewOrder.length < idsOldOrder.length) { // removed a comment
@@ -298,8 +312,10 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
             this.initialRenderComments(sortedComments, comments)
           }
         }
+        console.log(idsOldOrder.length , idsNewOrder.length);
       }
-    } else if (this.shouldScrollSelected && selectedComment.commentId && selectedComment.commentMarkId && selectedComment.sectionId) {
+    }
+    if (this.shouldScrollSelected && selectedComment.commentId && selectedComment.commentMarkId && selectedComment.sectionId) {
       let selectedCommentIndex = sortedComments.findIndex((com) => {
         return com.commentAttrs.id == selectedComment.commentId;
       })
@@ -475,6 +491,12 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
         domElement.style.top = this.displayedCommentsPositions[id].displayedTop + 'px'
       })
     }
+    /* comments.forEach((val)=>{
+      if(val.style.opacity == '0'){
+        val.style.opacity = '1'
+      }
+    }) */
+    console.log('settinh last sorted comments');
     this.lastSorted = JSON.parse(JSON.stringify(sortedComments))
 
     /* {
@@ -587,15 +609,17 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     setTimeout(() => {
       this.prosemirrorEditorsService.dispatchEmptyTransaction()
       this.editorView.focus()
-      this.editorView.dispatch(this.editorView.state.tr.setSelection(new TextSelection(this.editorView.state.doc.resolve(from), this.editorView.state.doc.resolve(to + 2))))
+      this.editorView.dispatch(this.editorView.state.tr.setSelection(new TextSelection(this.editorView.state.doc.resolve(from), this.editorView.state.doc.resolve(to))))
       input.value = ''
       setTimeout(() => {
         let pluginData = this.commentsService.commentPluginKey.getState(this.editorView.state)
         let sectionName = pluginData.sectionName
         this.commentsService.getCommentsInAllEditors()
-
-        //this.commentsService.setLastSelectedComment(commentId, from, sectionName, commentmarkid)
-      }, 10)
+        setTimeout(()=>{
+          this.commentsService.setLastSelectedComment(commentId, from, sectionName, commentmarkid,true)
+        },300)
+        //this.prosemirrorEditorsService.dispatchEmptyTransaction()
+      }, 20)
     }, 20)
   }
 
@@ -765,12 +789,14 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     this.searchForm.setValue('');
   }
 
+  lastSelSub:Subscription
+
   ngAfterViewInit(): void {
     this.setFromControlChangeListener()
     this.setContainerHeight()
     this.setScrollListener()
     this.userInfo
-    this.commentsService.lastSelectedCommentSubject.subscribe((data) => {
+    this.lastSelSub = this.commentsService.lastSelectedCommentSubject.subscribe((data) => {
       if (data.commentId && data.commentMarkId && data.sectionId) {
         this.shouldScrollSelected = true
       } else {
@@ -801,7 +827,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit {
     this.commentsService.commentsChangeSubject.subscribe((msg) => {
       let commentsToAdd: commentData[] = []
       let commentsToRemove: commentData[] = []
-
       let allCommentsInEditors: commentData[] = []
       let editedComments = false;
       allCommentsInEditors.push(...Object.values(this.commentsService.commentsObj))

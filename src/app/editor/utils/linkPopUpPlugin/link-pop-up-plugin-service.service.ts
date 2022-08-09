@@ -103,7 +103,7 @@ export class LinkPopUpPluginServiceService {
             self.download(fileName, text);
             lastFocusedEditor = null;
           }
-          return true
+          return false
         },
       },
     })

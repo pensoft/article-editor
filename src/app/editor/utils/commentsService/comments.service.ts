@@ -252,8 +252,9 @@ export class CommentsService {
               sectionId: prev.sectionName
             }
           }
-          let view = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName].editorView
-          if (!(newState.selection instanceof AllSelection) && view.hasFocus() ) {
+          let sectionContainer = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName]
+          let view = sectionContainer?sectionContainer.editorView:undefined
+          if (!(newState.selection instanceof AllSelection) && view && view.hasFocus() ) {
 
             newState.doc.nodesBetween(from, to, (node, pos, parent) => {
               if (node.marks.length > 0) {
@@ -273,7 +274,7 @@ export class CommentsService {
             errorMessage = "You can't leave comment there."
             err = true
           }
-          if (!selectedAComment && !(newState.selection instanceof AllSelection) && view.hasFocus() ) {
+          if (!selectedAComment && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() ) {
             let sel = newState.selection
             let nodeAfterSelection = sel.$to.nodeAfter
             let nodeBeforeSelection = sel.$from.nodeBefore
@@ -296,7 +297,7 @@ export class CommentsService {
               }
             } */
           }
-          if (!selectedAComment && !(newState.selection instanceof AllSelection) && view.hasFocus() ) {
+          if (!selectedAComment && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() ) {
             setLastSelectedComment(undefined, undefined, undefined, undefined)
           }
           if (!(newState.selection instanceof AllSelection) /* && view.hasFocus() && tr.steps.length > 0 */) {
@@ -444,8 +445,9 @@ export class CommentsService {
     }
   }
 
-  setLastSelectedComment = (commentId?: string, pos?: number, sectionId?: string, commentMarkId?: string) => {
-    if (!this.sameAsLastSelectedComment(commentId, pos, sectionId, commentMarkId)) {
+  setLastSelectedComment = (commentId?: string, pos?: number, sectionId?: string, commentMarkId?: string,focus?:true) => {
+    if (!this.sameAsLastSelectedComment(commentId, pos, sectionId, commentMarkId)||focus) {
+      console.log(commentId, pos, sectionId, commentMarkId);
       this.lastSelectedCommentSubject.next({ commentId, pos, sectionId, commentMarkId })
     }
   }

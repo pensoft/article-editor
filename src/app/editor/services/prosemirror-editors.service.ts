@@ -78,6 +78,7 @@ import { uuidv4 } from 'lib0/random.js';
 import { filterSectionChildren } from '../utils/articleBasicStructure';
 import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
 import { changeNodesOnDragDrop, handleDeleteOfRefsFigsCitationsAndComments } from '../utils/prosemirrorHelpers/drag-drop-append';
+import katex from 'katex';
 export interface editorContainersObj {[key:string]:editorContainer}
 export interface editorContainer {
   editorID: string,
@@ -1163,7 +1164,13 @@ export class ProsemirrorEditorsService {
       MathView.prototype.afterRender = (ret: any, mathview: any) => {
         /*  mathObj = ydocservice.mathMap?.get('dataURLObj');
          let matDom = (mathview.dom as HTMLElement).getElementsByClassName('katex-display')[0]||(mathview.dom as HTMLElement).getElementsByClassName('math-render')[0]||mathview.dom;
- */
+         */
+        if(mathview&&mathview._node&&mathview._node.textContent){
+          let div = document.createElement('div')
+          katex.render(mathview._node.textContent,div,{output:'mathml'})
+          console.log(div);
+        }
+
         let nodeDomAttrs = mathview._node.type.spec.toDOM(mathview._node)[1];
         Object.keys(nodeDomAttrs).forEach((key) => {
           ((mathview.dom as HTMLElement).hasAttribute(key) && nodeDomAttrs[key] !== '' && nodeDomAttrs[key]) ? undefined : (mathview.dom as HTMLElement).setAttribute(key, nodeDomAttrs[key]);

@@ -1,8 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 import { DialogAddFilesComponent } from '@app/layout/pages/create-new-project/dialog-add-files/dialog-add-files.component';
 import { EditBeforeExportComponent } from '../edit-before-export/edit-before-export.component';
 import { ExportJsonLdComponent } from '../export-json-ld/export-json-ld.component';
+import { exportAsJatsXML } from './jatsXML/exportAsJatsXML';
 
 @Component({
   selector: 'app-export-options',
@@ -13,7 +15,7 @@ export class ExportOptionsComponent implements OnInit {
 
   selectedType: 'pdf' | 'rtf' | 'msWord' | 'jatsXml' | 'json-ld' = 'pdf';
   path = 'C:/users/User1/Descktop'
-  constructor(private dialog:MatDialog) { }
+  constructor(private dialog:MatDialog,private sharedService:ServiceShare) { }
 
   ngOnInit(): void {
   }
@@ -37,6 +39,8 @@ export class ExportOptionsComponent implements OnInit {
         panelClass:'pdf-edit-and-preview',
         data:{selected}
       });
+    }else if(selected == 'jatsXml'){
+      exportAsJatsXML(this.sharedService);
     }
   }
 

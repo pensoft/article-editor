@@ -27,7 +27,7 @@ export const ordered_list = {
     }
 }
 export const bullet_list = {
-    group: 'block*',
+    group: 'block',
     content: "list_item+",
     attrs:{
         ...getGenericAttributes(),

@@ -30,7 +30,7 @@ export const nodes = {
     },
     heading: {
         attrs: { tagName: { default: 'H1' },...getGenericAttributes() },
-        content: "block+",
+        content: "paragraph*",
         group: "block",
         defining: true,
         parseDOM: (function () {
