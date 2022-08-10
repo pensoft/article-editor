@@ -126,6 +126,7 @@ import {RefsApiService} from "@app/layout/pages/library/lib-service/refs-api.ser
 import {OauthCallbackComponent} from "@app/layout/pages/oauth-callback/oauth-callback.component";
 import {CookieService} from "ngx-cookie-service";
 import { CommentsInterceptorService } from './core/services/comments/comments-interceptor.service';
+import { TestingComponent } from './editor/dialogs/testing/testing.component';
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -223,7 +224,8 @@ const gravatarConfig: GravatarConfig = {
     CurrentColorPipe,
     TaxonSectionComponent,
     MaterialsSectionComponent,
-    MaterialSectionComponent
+    MaterialSectionComponent,
+    TestingComponent
   ],
   imports: [
     HttpClientJsonpModule,

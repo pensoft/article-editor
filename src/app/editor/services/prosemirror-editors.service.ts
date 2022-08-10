@@ -1165,11 +1165,11 @@ export class ProsemirrorEditorsService {
         /*  mathObj = ydocservice.mathMap?.get('dataURLObj');
          let matDom = (mathview.dom as HTMLElement).getElementsByClassName('katex-display')[0]||(mathview.dom as HTMLElement).getElementsByClassName('math-render')[0]||mathview.dom;
          */
-        if(mathview&&mathview._node&&mathview._node.textContent){
+        /* if(mathview&&mathview._node&&mathview._node.textContent){
           let div = document.createElement('div')
           katex.render(mathview._node.textContent,div,{output:'mathml'})
           console.log(div);
-        }
+        } */
 
         let nodeDomAttrs = mathview._node.type.spec.toDOM(mathview._node)[1];
         Object.keys(nodeDomAttrs).forEach((key) => {

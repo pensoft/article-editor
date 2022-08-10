@@ -30,14 +30,17 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   let tableCount = countTablesInArticle(serviceShare)
 
   let lang = { 'xml:lang': "en" }
-  let article = create({ version: '1.0', encoding: "UTF-8" }).ele('article', {
+  let article = create({ version: '1.0', encoding: "UTF-8",standalone:false }).dtd({
+    name:"article",
+    pubID:"-//TaxPub//DTD Taxonomic Treatment Publishing DTD v1.0 20180101//EN",
+    sysID:"./JATS-Publishing-1-1-MathML3-DTD/tax-treatment-NS0-v1.dtd"})
+    .ele('article', {
     'xmlns:mml': "http://www.w3.org/1998/Math/MathML",
     'xmlns:xlink': "http://www.w3.org/1999/xlink",
     'xmlns:xsi': "http://www.w3.org/2001/XMLSchema-instance",
     'xmlns:tp': "http://www.plazi.org/taxpub",
     'article-type': 'research-article',// should probably come from the article layout
-    'dtd-version': "3.0",
-
+    'dtd-version': "1.0",
     ...lang,
   })
   /**/let front = article.ele('front')
@@ -138,11 +141,11 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   /**/let floatsGroup = article.ele('floats-group')
 
   let xmlString = article.end({ prettyPrint: true })
-  //xmlString = '<?xml-stylesheet type="text/css" href="name_of_css_file.css"?>\n'+xmlString
+  //xmlString = '<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v3.0 20151215//EN" "JATS-journalpublishing1.dtd">\n'+xmlString
   var blob = new Blob([xmlString], {type: "text/xml"});
   let xmlUrl = URL.createObjectURL(blob);
   window.open(xmlUrl)
-  saveAs(blob, "save.xml");
+  //saveAs(blob, "save.xml");
 }
 
 function parseSection(view:EditorView,container:XMLBuilder,serviceShare:ServiceShare,section:articleSection){
@@ -178,8 +181,10 @@ function processPmNodeAsXML(node:any,xmlPar:XMLBuilder,before:string){
     newParNode = xmlPar.ele('xref',{"ref_type":"bibr","rid":node.attrs.actualRefId})
   }else if(node.type == "paragraph"){
     newParNode = xmlPar.ele('p')
-  }else if(node.type == 'math_inline'||node.type=="math_display"){
-    newParNode = xmlPar.ele('tex-math')
+  }else if(node.type == 'math_inline'){
+    newParNode = xmlPar.ele('inline-formula').ele('tex-math')
+  }else if(node.type == 'math_display'){
+    newParNode = xmlPar.ele('disp-formula').ele('tex-math')
   }else if(node.type == 'ordered_list'){
     newParNode =xmlPar.ele('list',{"list-type":"ordered"})
   }else if(node.type == 'bullet_list'){
@@ -192,6 +197,31 @@ function processPmNodeAsXML(node:any,xmlPar:XMLBuilder,before:string){
     newParNode = xmlPar.ele('tr');
   }else if(node.type == 'table_cell'){
     newParNode = xmlPar.ele('th');
+  }else if(node.type == 'blockquote'){
+    newParNode = xmlPar.ele('disp-quote')
+  }else if(node.type == 'horizontal_rule'){
+    xmlPar.ele('hr')
+    return;
+  }else if(node.type == 'code'){
+    newParNode = xmlPar.ele('code');
+  }else if(node.type == 'hard_break'){
+    newParNode = xmlPar.ele('break');
+    return
+  }else if(node.type == 'image'){
+    xmlPar.ele('inline-graphic',{
+      "xlink:href":node.attrs.src,
+      "orientation":"portrait",
+      "xlink:type":"simple",
+    });
+    return
+  }else if(node.type == "video"){
+    xmlPar.ele('media',{
+      "mimetype":"video",
+      "xlink:href":'node.attrs.src',
+      "orientation":"portrait",
+      "xlink:type":"simple",
+    });
+    return
   }else{
     if(node.content&&node.content.length>0){
       node.content.forEach((ch)=>{
@@ -225,8 +255,6 @@ function processPmMarkAsXML(node:any,xmlPar:XMLBuilder,before:string){
       xmlParent = xmlParent.ele('sub');
     }else if(mark.type == "superscript"){
       xmlParent = xmlParent.ele('sup');
-    }else if(mark.type == 'code'){
-      xmlParent = xmlParent.ele('code');
     }else if(mark.type == 'link'){
       let linkHref = mark.attrs.href;
       xmlParent = xmlParent.ele('ext-link',{"xlink:href":linkHref,"ext-link-type":'uri',"xlink:type":"simple"});
@@ -239,7 +267,16 @@ function processPmMarkAsXML(node:any,xmlPar:XMLBuilder,before:string){
 
 let nodesToSkip = ['form_field','inline_block_container'];
 let nodesNotToLoop = ['figures_nodes_container'];
-let nodesThatShouldNotBeSkipped = ['ordered_list','list_item','table','bullet_list']
+let nodesThatShouldNotBeSkipped = [
+  'ordered_list',
+  'list_item','table',
+  'bullet_list',
+  'blockquote',
+  "math_display",
+  "horizontal_rule",
+  "code_block",
+  "hard_break",
+]
 
 function isBlockNode (name:string){
   if(schema.nodes[name]&&schema.nodes[name].isBlock){

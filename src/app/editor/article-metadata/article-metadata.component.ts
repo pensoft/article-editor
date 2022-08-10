@@ -16,6 +16,7 @@ import { ArticlesService } from '@app/core/services/articles.service';
 import { HttpClient } from '@angular/common/http';
 import { AllUsersService } from '@app/core/services/all-users.service';
 import { ContributorsApiService } from '@app/core/services/comments/contributors-api.service';
+import { TestingComponent } from '../dialogs/testing/testing.component';
 
 @Component({
   selector: 'app-article-metadata',
@@ -46,6 +47,17 @@ export class ArticleMetadataComponent implements OnInit {
   logToWorker() {
     //this.serviceShare.WorkerService?.logToWorker('qweqwe');
     this.serviceShare.WorkerService?.convertImgInWorker('https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image1.jpg');
+  }
+
+  openTestingDialog(){
+    this.dialog.open(TestingComponent, {
+      width: '100%',
+      height: '90%',
+      data: {},
+      disableClose: false
+    }).afterClosed().subscribe(result => {
+
+    })
   }
 
   openFiguresDialog() {

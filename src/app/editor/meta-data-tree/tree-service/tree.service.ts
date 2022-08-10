@@ -481,7 +481,6 @@ export class TreeService implements OnDestroy {
       deleteNodeData(node);
     }
     deleteNodeDataRecursive(nodeRef);
-    console.log('deleted node ',nodeRef.sectionID);
     this.serviceShare.CommentsService.getCommentsInAllEditors()
     return {nodeRef, i}
   }
