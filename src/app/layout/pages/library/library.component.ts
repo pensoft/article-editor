@@ -56,6 +56,7 @@ export class LibraryPage implements AfterViewInit {
               let refType: reference = result.referenceScheme;
               let refStyle = result.referenceStyle
               let formioData = result.submissionData.data;
+              console.log('formioData',formioData);
               let globally = result.globally
               this.editRef(refType, refStyle,formioData, ref,globally).subscribe((editRes:any)=>{
                 // this.userReferences = undefined;

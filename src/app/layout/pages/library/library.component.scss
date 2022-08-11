@@ -2,6 +2,11 @@
   width: 100%;
 }
 
+.table-wrapper {
+  height: 500px;
+  overflow: auto;
+}
+
 ::ng-deep .references-lib {
   height: 100%;
   mat-sidenav-content {

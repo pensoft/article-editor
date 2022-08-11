@@ -447,7 +447,6 @@ export class CommentsService {
 
   setLastSelectedComment = (commentId?: string, pos?: number, sectionId?: string, commentMarkId?: string,focus?:true) => {
     if (!this.sameAsLastSelectedComment(commentId, pos, sectionId, commentMarkId)||focus) {
-      console.log(commentId, pos, sectionId, commentMarkId);
       this.lastSelectedCommentSubject.next({ commentId, pos, sectionId, commentMarkId })
     }
   }

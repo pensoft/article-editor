@@ -272,7 +272,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit,OnDestroy
         }
       }
       // determine what kind of change it is
-      console.log(JSON.stringify(oldPos) != JSON.stringify(newPos),cause,this.tryMoveItemsUp);
       if (JSON.stringify(oldPos) != JSON.stringify(newPos) || cause || this.tryMoveItemsUp) {
         if (JSON.stringify(idsOldOrder) == JSON.stringify(idsNewOrder) || cause || this.tryMoveItemsUp) { // comments are in same order
           if (oldPos[oldPos.length - 1].top > newPos[newPos.length - 1].top) {  // comments have decreased top should loop from top
@@ -299,7 +298,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit,OnDestroy
             commentContainer.style.top = sortedComment.domTop + 'px';
             commentContainer.style.opacity = '1';
 
-            console.log('adding comment');
             this.displayedCommentsPositions[addedCommentId] = { displayedTop: sortedComment.domTop, height: commentContainer.getBoundingClientRect().height }
             this.loopFromTopAndOrderComments(sortedComments, comments)
           } else if (idsNewOrder.length < idsOldOrder.length) { // removed a comment
@@ -312,7 +310,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit,OnDestroy
             this.initialRenderComments(sortedComments, comments)
           }
         }
-        console.log(idsOldOrder.length , idsNewOrder.length);
       }
     }
     if (this.shouldScrollSelected && selectedComment.commentId && selectedComment.commentMarkId && selectedComment.sectionId) {
@@ -496,7 +493,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit,OnDestroy
         val.style.opacity = '1'
       }
     }) */
-    console.log('settinh last sorted comments');
     this.lastSorted = JSON.parse(JSON.stringify(sortedComments))
 
     /* {
@@ -651,21 +647,17 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit,OnDestroy
         let elBottom = dispPos.displayedTop+dispPos.height;
         let containerH = commentsContainer.getBoundingClientRect().height
         if(containerH < elBottom){
-          console.log('setting container h','containerH',containerH,'elBottom',elBottom,(elBottom + 30));
           commentsContainer.style.height = (elBottom + 30) + 'px'
         }/* else if(containerH > elBottom+100){
-          console.log('setting container h','containerH',containerH,'elBottom',elBottom,(elBottom + 30));
           commentsContainer.style.height = (elBottom + 30) + 'px'
         } */
         let editorH = editorsElement.getBoundingClientRect().height
         let spaceElementH = spaceElement.getBoundingClientRect().height
         let actualEditorH = editorH - spaceElementH
         if(editorH<elBottom){
-          console.log('setting editr H','editorH',editorH,'elBottom',elBottom,((elBottom + 30)-actualEditorH));
           spaceElement.style.height = ((elBottom + 30)-actualEditorH)+'px'
         }else if(editorH>elBottom+100&&spaceElementH>0){
           let space = ((elBottom + 30)-actualEditorH)<0?0:((elBottom + 30)-actualEditorH)
-          console.log(spaceElementH,'setting editr H','editorH',editorH,'elBottom',elBottom,space);
           spaceElement.style.height = space+'px'
 
         }

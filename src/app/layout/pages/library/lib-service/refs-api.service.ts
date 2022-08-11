@@ -20,13 +20,21 @@ export class RefsApiService {
 
   mapRefItems(refItemsFromBackend: any) {
     let refs: any[] = [];
-    let ydocRefs = this.serviceShare.YdocService.referenceCitationsMap?.get('localRefs');
+    let ydocRefs = JSON.parse(JSON.stringify(this.serviceShare.YdocService.referenceCitationsMap?.get('localRefs')));
     refItemsFromBackend.data.forEach((refFromBackend: any) => {
       let ref = ydocRefs[refFromBackend.id]||refFromBackend
+
       let newRef: any = {};
       let formGroup = this.serviceShare.FormBuilderService.buildFormGroupFromSchema(new FormGroup({}),refFromBackend.reference_definition.schema)
+      let oldData = JSON.parse(JSON.stringify(ref.data))
       formGroup.patchValue(ref.data)
       ref.data = formGroup.value
+      let newData = JSON.parse(JSON.stringify(ref.data))
+      Object.keys(oldData).forEach((key)=>{
+        if(newData[key]){
+          ref.data[key] = oldData[key];
+        }
+      })
       newRef.refType = {
         formIOSchema: ref.reference_definition.schema,
         label: ref.reference_definition.title,
@@ -96,7 +104,7 @@ export class RefsApiService {
   }
 
   getReferences() {
-    let obs = this._http.get(API_URL + '/references/items').pipe(map((data: any) => {
+    let obs = this._http.get(API_URL + '/references/items',{params:{page:1,pageSize:100}}).pipe(map((data: any) => {
       data.data.forEach(item => {
         if (item.issued && item.issued.hasOwnProperty('date-parts')) {
           item.issued = item.issued['date-parts'].join('-');
@@ -171,6 +179,7 @@ export class RefsApiService {
       let observable = new Observable(subscriber => {
         this._http.get(API_URL + '/references/definitions/' + refType.refTypeId).subscribe((refDefData:any)=>{
           let def = refDefData.data
+
           let localRef = {
             "updated_at": useOldTime?ref.refData.last_modified:Date.now(),
             "id": ref.refData.referenceData.id,
