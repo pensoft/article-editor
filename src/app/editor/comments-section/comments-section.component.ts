@@ -84,10 +84,10 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit,OnDestroy
           this.addCommentEditorId = data.sectionName
           //this.showAddCommentBox = this.lastFocusedEditor! == this.addCommentEditorId! && this.commentAllowdIn[this.addCommentEditorId]
           if (this.showAddCommentBox !== data.showBox) {
+          }
             setTimeout(() => {
               this.moveAddCommentBox(this.editorView)
             }, 0)
-          }
           this.showAddCommentBox = data.showBox
         } else if (data.type == 'commentAllownes') {
           if (this.showAddCommentBox && data.allow == false) {
@@ -98,9 +98,13 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit,OnDestroy
           this.errorMessages[data.sectionId] = data.errorMessage
         }
       })
-      this.subjSub = this.doneRenderingCommentsSubject.subscribe(() => {
+      this.subjSub = this.doneRenderingCommentsSubject.subscribe((data) => {
         if (this.rendered < this.nOfCommThatShouldBeRendered) {
           this.rendered++;
+        }
+        if(data == 'replay_rerender'){
+          this.doneRendering('replay_rerender')
+          return;
         }
         if (this.rendered == this.nOfCommThatShouldBeRendered) {
           this.doneRendering()
@@ -138,7 +142,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit,OnDestroy
     if (!this.showAddCommentBox) {
       this.doneRendering('hide_comment_box')
     } else {
-      this.doneRendering()
+      this.doneRendering('show_comment_box')
     }
   }
 
@@ -248,14 +252,14 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit,OnDestroy
     })/*
     let allCommentsInitioalPositions: { commentTop: number, commentBottom: number, id: string }[] = [];
     let allCommentsPositions: { commentTop: number, commentBottom: number, id: string }[] = []; */
-    if (!container || comments.length == 0) {
+    if ((!container || comments.length == 0)&&cause!='show_comment_box') {
       this.lastSorted = JSON.parse(JSON.stringify(sortedComments))
       return
     }
     let selectedComment = this.commentsService.lastCommentSelected
     if (this.notRendered) {
       this.initialRenderComments(sortedComments, comments)
-    } else if (!this.notRendered) {
+    } else if (!this.notRendered&&sortedComments.length>0) {
       if (this.shouldScrollSelected && (!selectedComment.commentId || !selectedComment.commentMarkId || !selectedComment.sectionId)) {
         this.shouldScrollSelected = false;
       }
@@ -278,7 +282,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit,OnDestroy
             this.loopFromTopAndOrderComments(sortedComments, comments)
           } else if (oldPos[oldPos.length - 1].top < newPos[newPos.length - 1].top) { // comments have increased top should loop from bottom
             this.loopFromBottomAndOrderComments(sortedComments, comments, container)
-          } else if (cause == 'hide_comment_box') {
+          } else if (cause == 'hide_comment_box'||cause == 'replay_rerender') {
             this.loopFromTopAndOrderComments(sortedComments, comments)
             this.loopFromBottomAndOrderComments(sortedComments, comments, container)
           } else if(this.tryMoveItemsUp){
@@ -641,7 +645,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit,OnDestroy
          behavior: 'instant'
        }) */
       this.lastArticleScrollPosition = articleElement.scrollTop
-      if(this.lastSorted){
+      if(this.lastSorted&&this.lastSorted.length>0){
         let lastElement = this.lastSorted[this.lastSorted.length-1];
         let dispPos = this.displayedCommentsPositions[lastElement.commentAttrs.id]
         let elBottom = dispPos.displayedTop+dispPos.height;

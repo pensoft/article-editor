@@ -10,8 +10,8 @@ const targetPath = isProduction
   ? `./src/environments/environment.prod.ts`
   : `./src/environments/environment.ts`;
 const websocket = {
-  host: process.env.WEBSOCKET_HOST || 'ps-article-storage.dev.scalewest.com',
-  port: process.env.WEBSOCKET_PORT || 443,
+  host: process.env.WEBSOCKET_HOST || process.env.ENV_WEBSOCKET_HOST,
+  port: process.env.WEBSOCKET_PORT || process.env.ENV_WEBSOCKET_PORT,
 }
 // we have access to our environment variables
 // in the process.env object thanks to dotenv
@@ -21,12 +21,12 @@ export const environment = {
    BUILD_NUMBER: '${process.env.BUILD_NUMBER}',
    VERSION: '${version}',
    WEBSOCKET_HOST: '${websocket.host}',
-   EXTERNAL_REFS_API: '${isProduction?"https://refindit.org/find":"/find"}',
+   EXTERNAL_REFS_API: '${isProduction?process.env.EXTERNAL_REFS_API_PROD:process.env.EXTERNAL_REFS_API_DEV}',
    WEBSOCKET_PORT: '${websocket.port}',
-   authServer: 'https://ps-accounts.dev.scalewest.com',
-   authUrl: 'https://ps-accounts.dev.scalewest.com/api',
-   apiUrl: 'https://ps-api.dev.scalewest.com/api',
-   passport_client_id: '96c50ae2-91d6-4df2-b9b0-1b1f5ef40def'
+   authServer: '${process.env.AUTH_SERVER}',
+   authUrl: '${process.env.AUTH_URL}',
+   apiUrl: '${process.env.API_URL}',
+   passport_client_id: '${process.env.PASSPORT_CLIENT_ID}'
 };
 `;
 // write the content to the respective file

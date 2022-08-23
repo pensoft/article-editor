@@ -286,7 +286,9 @@ export class CommentComponent implements OnInit, AfterViewInit {
     this.userComment = commentData;
     input.value = ''
     replyDiv.style.display = 'none';
-
+    setTimeout(()=>{
+      this.doneRenderingCommentsSubject.next('replay_rerender')
+    },400)
   }
 }
 
