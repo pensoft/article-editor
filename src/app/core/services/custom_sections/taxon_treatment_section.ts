@@ -2,7 +2,7 @@ import {taxonSection} from "@core/services/custom_sections/taxon";
 
 export const taxonTreatmentSection = {
   "id": 9909,
-  "name": "[MM] Taxon treatments",
+  "name": "Taxon treatments",
   "label": "Taxon treatments",
   label_read_only: true,
   "schema": {
