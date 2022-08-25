@@ -115,11 +115,19 @@ export class YjsHistoryService {
     if (undoManager) {
       undoManager.destroy();
       delete this.mainProsemirrorUndoManagers[id]
-      this.undoStack.forEach((undoItem) => {
-        undoItem.editors = undoItem.editors.filter(val => val !== id);
+      this.undoStack.forEach((undoItem,i) => {
+        if(undoItem.editors.includes(id)&&undoItem.editors.includes("endEditor")&&undoItem.editors.length == 2){
+          undoItem.editors = []
+        }else{
+          undoItem.editors = undoItem.editors.filter(val => val !== id);
+        }
       })
-      this.redoStack.forEach((undoItem) => {
-        undoItem.editors = undoItem.editors.filter(val => val !== id);
+      this.redoStack.forEach((undoItem,i) => {
+        if(undoItem.editors.includes(id)&&undoItem.editors.includes("endEditor")&&undoItem.editors.length == 2){
+          undoItem.editors = []
+        }else{
+          undoItem.editors = undoItem.editors.filter(val => val !== id);
+        }
       })
       this.undoStack = this.undoStack.filter(val => val.editors.length > 0)
       this.redoStack = this.redoStack.filter(val => val.editors.length > 0)
@@ -545,7 +553,9 @@ export class YjsHistoryService {
   }
 
   addUndoItemInformation(info: { type: 'refs-yjs-delete'|'figure' | 'refs-yjs' | 'figure-citation' | 'section-drag-drop'|'figure-citation-and-text', data: any ,addnewItem?:true}) {
-
+    if(this.preventingCaptureOfBigNumberOfTransactions&&info.type == 'refs-yjs-delete'){
+      return;
+    }
     if (!info.addnewItem&&(this.undoStack.length == 0 || (this.undoStack.length > 0 && this.undoStack[0].finished))) {
       this.createNewUndoStackItem()
     }

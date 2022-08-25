@@ -1,28 +1,28 @@
-import {Injectable, OnDestroy} from '@angular/core';
-import {Subject, Subscriber, Subscription} from 'rxjs';
-import {YdocService} from '../../services/ydoc.service';
-import {treeNode} from '../../utils/interfaces/treeNode';
+import { Injectable, OnDestroy } from '@angular/core';
+import { Subject, Subscriber, Subscription } from 'rxjs';
+import { YdocService } from '../../services/ydoc.service';
+import { treeNode } from '../../utils/interfaces/treeNode';
 //@ts-ignore
 import * as Y from 'yjs'
-import {uuidv4} from 'lib0/random';
-import {articleSection, editorData} from '../../utils/interfaces/articleSection';
-import {FormGroup} from '@angular/forms';
+import { uuidv4 } from 'lib0/random';
+import { articleSection, editorData } from '../../utils/interfaces/articleSection';
+import { FormGroup } from '@angular/forms';
 import {
   checkIfSectionsAreAboveOrAtMax,
   checkIfSectionsAreUnderOrAtMin,
   editorFactory,
   renderSectionFunc
 } from '@app/editor/utils/articleBasicStructure';
-import {formIODefaultValues, formIOTemplates, htmlNodeTemplates} from '@app/editor/utils/section-templates';
-import {FormBuilderService} from '@app/editor/services/form-builder.service';
-import {ServiceShare} from '@app/editor/services/service-share.service';
-import {ArticlesService} from '@app/core/services/articles.service';
-import {ArticleSectionsService} from '@app/core/services/article-sections.service';
-import {reject} from 'lodash';
-import {complexSectionFormIoSchema} from '@app/editor/utils/section-templates/form-io-json/complexSection';
-import {ReturnStatement} from '@angular/compiler';
-import {installPatch} from '../cdk-list-recursive/patchCdk';
-import {CdkDropList, DropListRef, transferArrayItem} from '@angular/cdk/drag-drop';
+import { formIODefaultValues, formIOTemplates, htmlNodeTemplates } from '@app/editor/utils/section-templates';
+import { FormBuilderService } from '@app/editor/services/form-builder.service';
+import { ServiceShare } from '@app/editor/services/service-share.service';
+import { ArticlesService } from '@app/core/services/articles.service';
+import { ArticleSectionsService } from '@app/core/services/article-sections.service';
+import { reject } from 'lodash';
+import { complexSectionFormIoSchema } from '@app/editor/utils/section-templates/form-io-json/complexSection';
+import { ReturnStatement } from '@angular/compiler';
+import { installPatch } from '../cdk-list-recursive/patchCdk';
+import { CdkDropList, DropListRef, transferArrayItem } from '@angular/cdk/drag-drop';
 
 @Injectable({
   providedIn: 'root'
@@ -61,7 +61,7 @@ export class TreeService implements OnDestroy {
       } else if (metadatachange.action == "addNode") {
         this.attachChildToNode(metadatachange.parentId, metadatachange.newChild);
       } else if (metadatachange.action == "deleteNode") {
-        let {nodeRef, i} = this.deleteNodeById(metadatachange.childId);
+        let { nodeRef, i } = this.deleteNodeById(metadatachange.childId);
       } else if (metadatachange.action == 'addNodeAtPlace') {
         this.addNodeAtPlace(metadatachange.parentContainerID, metadatachange.newSection, metadatachange.place, metadatachange.newNode);
       } else if (metadatachange.action == 'replaceChildren') {
@@ -81,7 +81,7 @@ export class TreeService implements OnDestroy {
       let formGroup = this.sectionFormGroups[node.sectionID]!;
       node.title.label = /{{\s*\S*\s*}}/gm.test(node.title.label) ? node.title.name! : node.title.label;
       formGroup.valueChanges.subscribe((data) => {
-        if(node.title.name == '[MM] Materials'||node.title.name == 'Material'){
+        if (node.title.name == '[MM] Materials' || node.title.name == 'Material') {
           let customPropsObj = this.ydocService.customSectionProps?.get('customPropsObj');
           let data = customPropsObj[node.sectionID];
           this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, data, formGroup).then((newTitle: string) => {
@@ -90,7 +90,7 @@ export class TreeService implements OnDestroy {
             container.innerHTML = container.textContent!;
             node.title.label = container.textContent!;
           })
-        }else{
+        } else {
           this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle: string) => {
             let container = document.createElement('div')
             container.innerHTML = newTitle;
@@ -102,7 +102,7 @@ export class TreeService implements OnDestroy {
     } else {
       let formGroup = this.sectionFormGroups[node.sectionID]!;
       if (!this.labelupdateLocalMeta[node.sectionID]) {
-        this.labelupdateLocalMeta[node.sectionID] = {time: 0, updatedFrom: 'treelist'}
+        this.labelupdateLocalMeta[node.sectionID] = { time: 0, updatedFrom: 'treelist' }
       }
       formGroup.get('sectionTreeTitle')?.valueChanges.subscribe((change) => {
         //@ts-ignore
@@ -138,19 +138,19 @@ export class TreeService implements OnDestroy {
     }
   }
 
-  connectionChangeSubject:Subject<boolean> = new Subject();
-  dropListRefs:{ids:string[],refs:DropListRef[],cdkRefs:CdkDropList[]} = {ids:[],refs:[],cdkRefs:[]};
-  registerDropListRef(ref:DropListRef,cdkDropList:CdkDropList,id:string){
-    if(!this.dropListRefs.ids.includes(id)){
+  connectionChangeSubject: Subject<boolean> = new Subject();
+  dropListRefs: { ids: string[], refs: DropListRef[], cdkRefs: CdkDropList[] } = { ids: [], refs: [], cdkRefs: [] };
+  registerDropListRef(ref: DropListRef, cdkDropList: CdkDropList, id: string) {
+    if (!this.dropListRefs.ids.includes(id)) {
       this.dropListRefs.ids.push(id);
       this.dropListRefs.cdkRefs.push(cdkDropList)
       this.dropListRefs.refs.push(ref)
       this.connectionChangeSubject.next(true)
     }
   }
-  unregisterDropListRef(id:string){
-    if(this.dropListRefs.ids.includes(id)){
-      let index = this.dropListRefs.ids.findIndex((idsearch)=>idsearch == id);
+  unregisterDropListRef(id: string) {
+    if (this.dropListRefs.ids.includes(id)) {
+      let index = this.dropListRefs.ids.findIndex((idsearch) => idsearch == id);
       this.dropListRefs.ids.splice(index)
       this.dropListRefs.cdkRefs.splice(index)
       this.dropListRefs.refs.splice(index)
@@ -179,7 +179,7 @@ export class TreeService implements OnDestroy {
 
       this.treeSubsctiption = this.treeVisibilityChange.subscribe((data) => {
         let guid = this.metadatachangeMap?.doc?.guid
-        this.metadatachangeMap?.set('change', {...data, guid})
+        this.metadatachangeMap?.set('change', { ...data, guid })
         this.setArticleSectionStructureFlat()
       })
     }
@@ -266,7 +266,7 @@ export class TreeService implements OnDestroy {
 
   saveNewTitleChange(node: articleSection, title: string) {
     this.saveNewTitle(node, title)
-    this.treeVisibilityChange.next({action: "saveNewTitle", node, title})
+    this.treeVisibilityChange.next({ action: "saveNewTitle", node, title })
   }
 
   saveNewTitle(node: articleSection, title: string) {
@@ -278,7 +278,7 @@ export class TreeService implements OnDestroy {
 
   buildNewFormGroupsChange(nodes: articleSection[]) {
     this.buildNewFormGroups(nodes)
-    this.treeVisibilityChange.next({action: "buildNewFromGroups", nodes})
+    this.treeVisibilityChange.next({ action: "buildNewFromGroups", nodes })
   }
 
   replaceChildren(newChildren: articleSection[], parent: articleSection, replaceFromOtherRoot: boolean) {
@@ -288,7 +288,7 @@ export class TreeService implements OnDestroy {
 
   replaceChildrenChange(newChildren: articleSection[], parent: articleSection) {
     this.replaceChildren(newChildren, parent, false)
-    this.treeVisibilityChange.next({action: 'replaceChildren', newChildren, parent});
+    this.treeVisibilityChange.next({ action: 'replaceChildren', newChildren, parent });
   }
 
   dragNodeChange(from: number, to: number, prevContainerId: string, newContainerId: string) {
@@ -302,10 +302,10 @@ export class TreeService implements OnDestroy {
     }})
     this.serviceShare.YjsHistoryService.stopCapturingUndoItem(); */
 
-    setTimeout(()=>{
+    setTimeout(() => {
       this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
-    },10)
-    this.treeVisibilityChange.next({action: 'listNodeDrag', from, to, prevContainerId, newContainerId})
+    }, 10)
+    this.treeVisibilityChange.next({ action: 'listNodeDrag', from, to, prevContainerId, newContainerId })
   }
 
   editNodeChange(nodeId: string) {
@@ -316,13 +316,13 @@ export class TreeService implements OnDestroy {
       } catch (e) {
         console.error(e);
       }
-      this.treeVisibilityChange.next({action: 'editNode', nodeId});
+      this.treeVisibilityChange.next({ action: 'editNode', nodeId });
     }
   }
 
   async addNodeChange(nodeId: string) {
     let newChild = await this.attachChildToNode(nodeId, undefined);
-    this.treeVisibilityChange.next({action: 'addNode', parentId: nodeId, newChild});
+    this.treeVisibilityChange.next({ action: 'addNode', parentId: nodeId, newChild });
   }
 
   renderForms = (sectionToRender: articleSection) => {
@@ -348,7 +348,7 @@ export class TreeService implements OnDestroy {
 
   addNodeAtPlaceChange(parentContainerID: string, newSection: any, place: any) {
     let newNode = this.addNodeAtPlace(parentContainerID, newSection, place);
-    this.treeVisibilityChange.next({action: 'addNodeAtPlace', parentContainerID, newSection, place, newNode});
+    this.treeVisibilityChange.next({ action: 'addNodeAtPlace', parentContainerID, newSection, place, newNode });
   }
 
   addNodeAtPlace(parentContainerID: string, newSection: any, place: any, newNode?: any) {
@@ -420,18 +420,37 @@ export class TreeService implements OnDestroy {
   }
 
   deleteNodeChange(nodeId: string, parentId: string) {
-    let {nodeRef, i} = this.deleteNodeById(nodeId);
-    setTimeout(()=>{
-      if(nodeRef.custom){
+    let doc = this.serviceShare.ProsemirrorEditorsService.editorContainers[nodeId].editorView.state.doc;
+    let docSize = doc.content.size
+    let deletedRefCitations: any[] = []
+    doc.nodesBetween(0, docSize - 2, (node, pos, par, i) => {
+      if (node.type.name == 'reference_citation') {
+        deletedRefCitations.push(JSON.parse(JSON.stringify(node.attrs)))
+      }
+    })
+    if (deletedRefCitations.length > 0) {
+      setTimeout(()=>{
+        this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
+        this.serviceShare.YjsHistoryService.capturingNewItem = true
+        this.serviceShare.EditorsRefsManagerService!.handleRefCitationDelete(deletedRefCitations)
+        setTimeout(() => {
+          this.serviceShare.YjsHistoryService.stopBigNumberItemsCapturePrevention()
+          console.log(this.serviceShare.YjsHistoryService.undoStack,this.serviceShare.YjsHistoryService.redoStack);
+        }, 30)
+      },30)
+    }
+    let { nodeRef, i } = this.deleteNodeById(nodeId);
+    setTimeout(() => {
+      if (nodeRef.custom) {
         let customSectionPropsObj = this.ydocService.customSectionProps.get('customPropsObj');
-        if(customSectionPropsObj[nodeId]){
+        if (customSectionPropsObj[nodeId]) {
           customSectionPropsObj[nodeId] = undefined;
         }
-        this.ydocService.customSectionProps.set('customPropsObj',customSectionPropsObj)
+        this.ydocService.customSectionProps.set('customPropsObj', customSectionPropsObj)
       }
       this.serviceShare.FiguresControllerService.updateOnlyFiguresView();
-    },10)
-    this.treeVisibilityChange.next({action: 'deleteNode', parentId, childId: nodeId, indexInList: i});
+    }, 10)
+    this.treeVisibilityChange.next({ action: 'deleteNode', parentId, childId: nodeId, indexInList: i });
   }
 
   findListArray(id: string) {
@@ -467,14 +486,14 @@ export class TreeService implements OnDestroy {
     }
     findF(this.articleSectionsStructure);
     arrayRef?.splice(i!, 1);
-    let deleteNodeData = (node:articleSection) => {
+    let deleteNodeData = (node: articleSection) => {
       let id = node.sectionID;
       this.serviceShare.ProsemirrorEditorsService?.deleteEditor(id);
       this.serviceShare.YjsHistoryService?.deleteUndoManager(id);
     }
-    let deleteNodeDataRecursive = (node:articleSection)=>{
-      if(node.children&&node.children.length>0){
-        node.children.forEach((child)=>{
+    let deleteNodeDataRecursive = (node: articleSection) => {
+      if (node.children && node.children.length > 0) {
+        node.children.forEach((child) => {
           deleteNodeDataRecursive(child);
         })
       }
@@ -482,7 +501,7 @@ export class TreeService implements OnDestroy {
     }
     deleteNodeDataRecursive(nodeRef);
     this.serviceShare.CommentsService.getCommentsInAllEditors()
-    return {nodeRef, i}
+    return { nodeRef, i }
   }
 
   findNodeById(id: string) {

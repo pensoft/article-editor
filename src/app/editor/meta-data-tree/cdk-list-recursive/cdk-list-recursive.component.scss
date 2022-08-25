@@ -542,3 +542,6 @@ $itemHeight: 30px;
 .outer-list {
   padding-top: 55px;
 }
+.outer-list:last-child {
+  margin-bottom: 60px;
+}

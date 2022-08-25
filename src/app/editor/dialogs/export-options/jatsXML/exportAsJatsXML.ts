@@ -161,7 +161,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
     let refData = actualRef.ref.refData.referenceData
     let refType = refData.type;
     let ref = refsList.ele('ref', { id: refIdsG[refActualId] })
-    /**/let elementCitation = ref.ele('element-citation', { "publication-type": refType, "xlink:type": "simple", 'xml:lang': refData.language || 'en' });
+    /**/let elementCitation = ref.ele('element-citation', { "publication-type": refType, "xlink:type": "simple"});
     if (refData.author && refData.author.length > 0) {
       let personGroupAuthor = elementCitation.ele('person-group', { "person-group-type": "author" })
       refData.author.forEach((author) => {
@@ -171,7 +171,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
       })
     }
     if (refData.contributor && refData.contributor.length > 0) {
-      let personGroupContributor = elementCitation.ele('person-group', { "person-group-type": "contributor" })
+      let personGroupContributor = elementCitation.ele('person-group', { "person-group-type": "guest-editor" })
       refData.contributor.forEach((contributor) => {
         let name = personGroupContributor.ele('name', { "name-style": "western" });
         name.ele('surname').txt(contributor.family);
@@ -247,7 +247,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
       elementCitation.ele('institution').txt(refData.institution + '')
     }
     if (refData.version) {
-      elementCitation.ele('version').txt(refData.version + '')
+      elementCitation.ele('named-content',{'content-type':'version'}).txt(refData.version + '')
     }
   })
   /**/let floatsGroup = article.ele('floats-group') // figs
@@ -259,8 +259,9 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
     dom.innerHTML = fig.description;
     let figDescNodes = domPMParser.parse(dom).toJSON();
 
-    figXML.ele('label').txt("Figure " + ((fig.figureNumber + 1) + '.'));
     let figCaption = figXML.ele('caption');
+    figCaption.ele('title').txt("Figure " + ((fig.figureNumber + 1) + '.'));
+
     parseNode(figDescNodes, figCaption, false, '--', 0);
     fig.components.forEach((figComp, i) => {
       let figCompXML = figXML.ele('fig', { position: "float", orientation: "portrait" });
@@ -531,6 +532,8 @@ function parseSection(view: EditorView | undefined, container: XMLBuilder, servi
   }
 }
 
+let mathCount = 1;
+
 let processPmNodeAsXML = (node: any, xmlPar: XMLBuilder, before: string, index: number) => {
   let newParNode: XMLBuilder
   let shouldSkipNextBlockElements = false;
@@ -552,9 +555,11 @@ let processPmNodeAsXML = (node: any, xmlPar: XMLBuilder, before: string, index: 
   } else if (node.type == "paragraph") {
     newParNode = xmlPar.ele('p')
   } else if (node.type == 'math_inline') {
-    newParNode = xmlPar.ele('inline-formula').ele('tex-math', { id: node.attrs.math_id })
+    newParNode = xmlPar.ele('inline-formula').ele('tex-math', { id: "M"+mathCount })
+    mathCount++
   } else if (node.type == 'math_display') {
-    newParNode = xmlPar.ele('disp-formula').ele('tex-math', { id: node.attrs.math_id })
+    newParNode = xmlPar.ele('disp-formula').ele('tex-math', { id: "M"+mathCount })
+    mathCount++
   } else if (node.type == 'ordered_list') {
     newParNode = xmlPar.ele('list', { "list-type": "ordered" })
   } else if (node.type == 'bullet_list') {
@@ -581,7 +586,7 @@ let processPmNodeAsXML = (node: any, xmlPar: XMLBuilder, before: string, index: 
   } */ else if (node.type == 'image') {
     xmlPar.ele('inline-graphic', {
       "xlink:href": node.attrs.src,
-      "orientation": "portrait",
+      /* "orientation": "portrait", */
       "xlink:type": "simple",
     });
     return
@@ -613,8 +618,12 @@ let processPmMarkAsXML = (node: any, xmlPar: XMLBuilder, before: string) => {
   node.marks.forEach((mark, i: number) => {
     if (mark.type == 'citation') {
       let citatedFigs = mark.attrs.citated_figures.map((fig: string) => fig.split('|')[0]);
-      citatedFigs.forEach((fig) => {
-        xmlParent = xmlParent.ele('xref', { "ref-type": "fig", "rid": figIdsG[fig] });
+      citatedFigs.forEach((fig,i) => {
+        if(i==0){
+          xmlParent = xmlParent.ele('xref', { "ref-type": "fig", "rid": figIdsG[fig] });
+        }else{
+          xmlParent = xmlParent.ele('named-content',{"content-type":'xref'}).ele('xref', { "ref-type": "fig", "rid": figIdsG[fig] });
+        }
       })
     } else if (mark.type == 'em') {
       xmlParent = xmlParent.ele('italic');

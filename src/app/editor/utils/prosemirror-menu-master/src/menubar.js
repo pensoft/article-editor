@@ -161,6 +161,9 @@ class MenuBarView {
     }
 
     destroy() {
+      if(this.menuContainer&&this.menu){
+        this.menuContainer.removeChild(this.menu)
+      }
         if (this.wrapper.parentNode)
             this.wrapper.parentNode.replaceChild(this.editorView.dom, this.wrapper)
     }

@@ -13,7 +13,7 @@ export const externalLinks = {
     "components": [
         {
             "label": "External Links",
-            "reorder": false,
+            "reorder": true,
             "addAnotherPosition": "bottom",
             "defaultOpen": false,
             "layoutFixed": false,

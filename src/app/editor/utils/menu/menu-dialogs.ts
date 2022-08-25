@@ -45,7 +45,6 @@ let citateRef = (sharedService: ServiceShare) => {
             refCitationID:uuidv4(),
             actualRefId:refInYdoc.ref.refData.referenceData.id,
           }
-          console.log(refInYdoc);
           let tr = state.tr.replaceWith(start, end, nodeType.create(recCitationAttrs,state.schema.text(refInYdoc.citationDisplayText)))
           tr = tr.setSelection(new TextSelection(tr.doc.resolve(end+2+refInYdoc.citationDisplayText.length),tr.doc.resolve(end+2+refInYdoc.citationDisplayText.length)))
           dispatch(tr)

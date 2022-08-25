@@ -12,7 +12,6 @@ export function getHtmlInlineNodes(htmlSteing:string){
   let html = htmlSteing.replace(/<p[^>]+>|<div[^>]+>|<\/p>|<\/div>/gm,'');
   container.innerHTML = html;
   let nodes = PMDomParser.parseSlice(container)
-  console.log(nodes.content,html);
   //@ts-ignore
   return nodes.content.content
 }
@@ -30,7 +29,6 @@ export class EditorsRefsManagerService {
   dothSaveToHistory = false;
 
   removeRefsThatAreNotInEndEditor(refs:any){
-    console.log('refs in yjs',refs);
     let filteredRefs:any = {}
     let editorContainers = this.serviceShare.ProsemirrorEditorsService.editorContainers;
     Object.keys(editorContainers).forEach((sectionId)=>{
@@ -53,7 +51,6 @@ export class EditorsRefsManagerService {
     refs = this.removeRefsThatAreNotInEndEditor(refs)
     let oldRefs = JSON.parse(JSON.stringify(refs))
     let citationDisplayText = refDataFromDialog.citation.text;
-    console.log('refDataFromDialog',refDataFromDialog);
     let countOfRefsWithTheSameDisplayText = 0;
     let refID
     if (refDataFromDialog.refInstance == 'local') {
