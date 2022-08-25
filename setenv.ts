@@ -23,9 +23,9 @@ export const environment = {
    WEBSOCKET_HOST: '${websocket.host}',
    EXTERNAL_REFS_API: '${isProduction?process.env.EXTERNAL_REFS_API_PROD:process.env.EXTERNAL_REFS_API_DEV}',
    WEBSOCKET_PORT: '${websocket.port}',
-   authServer: '${process.env.AUTH_SERVER}',
-   authUrl: '${process.env.AUTH_URL}',
-   apiUrl: '${process.env.API_URL}',
+   authServer: '${process.env.AUTH_SERVICE}',
+   authUrl: '${process.env.AUTH_SERVICE}/api',
+   apiUrl: '${process.env.API_GATEWAY_SERVICE}/api',
    passport_client_id: '${process.env.PASSPORT_CLIENT_ID}'
 };
 `;

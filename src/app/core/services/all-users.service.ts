@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-
-const API_USERS_URL = `https://ps-api.dev.scalewest.com/api`;
+import { environment } from '@env';
+const API_USERS_URL = environment.apiUrl;
 @Injectable({
   providedIn: 'root',
 })

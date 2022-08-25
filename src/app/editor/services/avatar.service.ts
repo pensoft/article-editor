@@ -2,8 +2,9 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { IUserAvatar } from '@app/core/interfaces/avatar.interface';
 import { Observable } from 'rxjs';
+import { environment } from '@env';
 
-const API_AUTH_USERS = `https://ps-api.dev.scalewest.com/api/users`;
+const API_AUTH_USERS = environment.apiUrl+`/users`;
 @Injectable({
   providedIn: 'root'
 })

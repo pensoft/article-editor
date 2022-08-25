@@ -5,8 +5,8 @@ import { catchError, map } from 'rxjs/operators';
 import { IPermission } from '../interfaces/permission.interface';
 import { ISingInEmails } from '../interfaces/sing-in-emails.interface';
 import { UserModel } from '../models/user.model';
-
-const API_URL = `https://ps-api.dev.scalewest.com/api`;
+import { environment } from '@env';
+const API_URL = environment.apiUrl;
 
 @Injectable({
   providedIn: 'root',

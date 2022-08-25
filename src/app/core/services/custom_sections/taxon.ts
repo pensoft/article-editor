@@ -383,7 +383,6 @@ export const taxonSection = {
     ]
   },
   "sections": [
-    externalLinks,
     {
       "id": 9945,
       "name": "[MM] Nomenclature",
@@ -394,97 +393,108 @@ export const taxonSection = {
       select: {active: false, main: false},
       "schema": {
         "components": [
-          {
-            "label": "Text Area",
-            "placeholder": "Nomenclature",
-            "autoExpand": false,
-            "tableView": true,
-            "key": "textArea",
-            "type": "textfield",
-            "input": true,
-            "prefix": "",
-            "customClass": "",
-            "suffix": "",
-            "multiple": false,
-            "defaultValue": '',
-            "protected": false,
-            "unique": false,
-            "persistent": true,
-            "hidden": false,
-            "clearOnHide": true,
-            "refreshOn": "",
-            "redrawOn": "",
-            "modalEdit": false,
-            "dataGridLabel": false,
-            "labelPosition": "top",
-            "description": "",
-            "errorLabel": "",
-            "tooltip": "",
-            "hideLabel": false,
-            "tabindex": "",
-            "disabled": false,
-            "autofocus": false,
-            "dbIndex": false,
-            "customDefaultValue": "",
-            "calculateValue": "",
-            "calculateServer": false,
-            "widget": {
-              "type": "input"
+            {
+                "label": "Name",
+                "placeholder": "Name...",
+                "autoExpand": false,
+                "tableView": true,
+                "key": "name",
+                "type": "textarea",
+                "input": true
             },
-            "attributes": [],
-            "validateOn": "change",
-            "validate": {
-              "required": false,
-              "custom": "",
-              "customPrivate": false,
-              "strictDateValidation": false,
-              "multiple": false,
-              "unique": false,
-              "minLength": "",
-              "maxLength": "",
-              "pattern": "",
-              "minWords": "",
-              "maxWords": ""
+            {
+                "label": "Authority",
+                "placeholder": "Authority...",
+                "autoExpand": false,
+                "tableView": true,
+                "key": "authority",
+                "type": "textarea",
+                "input": true
             },
-            "conditional": {
-              "show": null,
-              "when": null,
-              "eq": ""
+            {
+                "label": "Status",
+                "placeholder": "Status...",
+                "autoExpand": false,
+                "tableView": true,
+                "key": "status",
+                "type": "textarea",
+                "input": true
             },
-            "overlay": {
-              "style": "",
-              "left": "",
-              "top": "",
-              "width": "",
-              "height": ""
+            {
+                "label": "Identifier",
+                "placeholder": "Identifier...",
+                "autoExpand": false,
+                "tableView": true,
+                "key": "identifier",
+                "type": "textarea",
+                "input": true
             },
-            "allowCalculateOverride": false,
-            "encrypted": false,
-            "showCharCount": false,
-            "showWordCount": false,
-            "properties": [],
-            "allowMultipleMasks": false,
-            "addons": [],
-            "mask": false,
-            "inputType": "text",
-            "inputFormat": "html",
-            "inputMask": "",
-            "displayMask": "",
-            "spellcheck": true,
-            "truncateMultipleSpaces": false,
-            "rows": 3,
-            "wysiwyg": false,
-            "editor": "",
-            "fixedSize": true,
-            "id": "e3ijnsa"
-          }
+            {
+                "label": "Link",
+                "placeholder": "Link...",
+                "autoExpand": false,
+                "tableView": true,
+                "key": "link",
+                "type": "textarea",
+                "input": true
+            },
+            {
+                "label": "Genus",
+                "placeholder": "Genus...",
+                "autoExpand": false,
+                "tableView": true,
+                "key": "genus",
+                "type": "textarea",
+                "input": true
+            },
+            {
+                "label": "Species",
+                "placeholder": "Species...",
+                "autoExpand": false,
+                "tableView": true,
+                "key": "species",
+                "type": "textarea",
+                "input": true
+            },
+            {
+                "label": "Location",
+                "placeholder": "Location...",
+                "autoExpand": false,
+                "tableView": true,
+                "key": "location",
+                "type": "textarea",
+                "input": true
+            },
+            {
+                "type": "button",
+                "label": "Submit",
+                "key": "submit",
+                "disableOnInvalid": true,
+                "input": true,
+                "tableView": false
+            }
         ]
-      },
+    },
       "sections": null,
-      "template": `<ng-container *ngIf="formGroup.controls.textArea.value"><h2 contenteditableNode="false">Nomenclatures</h2>
-<form-field  class="set-align-left" formControlName="textArea">
+      "template": `
+      <h2 contenteditableNode="false">Nomenclatures</h2>
+<form-field  class="set-align-left" formControlName="name">
 </form-field >
-</ng-container>`,
+<form-field  class="set-align-left" formControlName="authority">
+</form-field >
+<form-field  class="set-align-left" formControlName="status">
+</form-field >
+<form-field  class="set-align-left" formControlName="identifier">
+</form-field >
+<form-field  class="set-align-left" formControlName="link">
+</form-field >
+<form-field  class="set-align-left" formControlName="genus">
+</form-field >
+<form-field  class="set-align-left" formControlName="species">
+</form-field >
+<form-field  class="set-align-left" formControlName="location">
+</form-field >
+`,
       "type": 0,
       "version_id": 473,
       "version": 3,
@@ -495,6 +505,7 @@ export const taxonSection = {
       "compatibility": null,
       "created_at": "2022-05-02T21:22:05.000000Z"
     },
+    externalLinks,
     {...materials},
     {...treatmentSections}
   ],

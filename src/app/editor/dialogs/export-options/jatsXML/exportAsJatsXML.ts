@@ -8,32 +8,39 @@ import { XMLBuilder } from "xmlbuilder2/lib/interfaces";
 import { articleSection } from "@app/editor/utils/interfaces/articleSection";
 import { EditorView } from "prosemirror-view";
 import { schema } from "@app/editor/utils/Schema";
-
+let figIdsG: any
+let refIdsG: any
 export function exportAsJatsXML(serviceShare: ServiceShare) {
 
   let figObj = serviceShare.YdocService.figuresMap.get('ArticleFigures')
+  let figIds: { [key: string]: string } = {}
   let figCount = 0
-  Object.keys(figObj).forEach((figId) => {
+  Object.keys(figObj).forEach((figId, i) => {
     let val = figObj[figId];
+    figIds[figId] = 'F' + i
     if (val) {
       figCount++
     }
   })
+  figIdsG = figIds
   let refObj = serviceShare.YdocService.referenceCitationsMap?.get('referencesInEditor')
+  let refIds: { [key: string]: string } = {}
   let refCount = 0
-  Object.keys(refObj).forEach((refId) => {
+  Object.keys(refObj).forEach((refId, i) => {
     let val = refObj[refId];
+    refIds[refId] = 'R' + i
     if (val) {
       refCount++
     }
   })
+  refIdsG = refIds
   let tableCount = countTablesInArticle(serviceShare)
 
   let lang = { 'xml:lang': "en" }
   let article = create({ version: '1.0', encoding: "UTF-8", standalone: false }).dtd({
     name: "article",
-    pubID: "-//TaxPub//DTD Taxonomic Treatment Publishing DTD v1.0 20180101//EN",
-    sysID: "./JATS-Publishing-1-1-MathML3-DTD/tax-treatment-NS0-v1.dtd"
+    pubID: "-//TaxPub//DTD Taxonomic Treatment Publishing DTD v3.0 20180101//EN",
+    sysID: "./nlm/tax-treatment-NS0.dtd"
   })
     .ele('article', {
       'xmlns:mml': "http://www.w3.org/1998/Math/MathML",
@@ -41,7 +48,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
       'xmlns:xsi': "http://www.w3.org/2001/XMLSchema-instance",
       'xmlns:tp': "http://www.plazi.org/taxpub",
       'article-type': 'research-article',// should probably come from the article layout
-      'dtd-version': "1.0",
+      'dtd-version': "3.0",
       ...lang,
     })
   /**/let front = article.ele('front')
@@ -82,13 +89,13 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   /*                      */let surname = name.ele('surname').txt('Gottschling')
   /*                      */let givenNames = name.ele('given-names').txt('Marc')
   /*                  */let email = contrib.ele('email', { "xlink:type": "simple" }).txt('gottschling@bio.lmu.de')
-  /*                  */let xref = contrib.ele('xref', { "ref-type": "aff", "rid": "A3" }).txt('3')
+  /*                  let xref = contrib.ele('xref', { "ref-type": "aff", "rid": "A3" }).txt('3')*/
   /*          */let aff = article_meta.ele('aff', { "id": "A1" }) // should probably come from the backend and is maybe linked with contributors
   /*              */let label = aff.ele('label').txt('1');
   /*              */let addrLineVer = aff.ele('addr-line', { "content-type": "verbatim" }).txt('NIRDBS/Stejarul Research Centre for Biological Sciences, Piatra Neamţ, Romania');
   /*              */let institution = aff.ele('institution', { "xlink:type": "simple" }).txt('NIRDBS/Stejarul Research Centre for Biological Sciences');
   /*              */let addrLineCity = aff.ele('addr-line', { "content-type": "city" }).txt('Piatra Neamţ');
-  /*              */let country = aff.ele('country').txt('Romania');
+  /*              */let country = aff.ele('country', { 'country': 'RO' }).txt('Romania');
   /*          */let authorNotes = article_meta.ele('author-notes') // should probably come from the backend
   /*              */let fnCor = authorNotes.ele('fn', { "fn-type": "corresp" })
   /*                  */let pfnCor = fnCor.ele('p').txt('Corresponding author: Marc Gottschling (')
@@ -119,18 +126,18 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   /*              */let copyrightStatement = permissions.ele('copyright-statement').txt('Ramona-Elena Irimia, Marc Gottschling')
   /*              */let license = permissions.ele('license', { "license-type": "creative-commons-attribution", "xlink:href": "http://creativecommons.org/licenses/by/4.0/", "xlink:type": "simple" })
   /*                  */let licenseP = license.ele('license-p').txt('This is an open access article distributed under the terms of the Creative Commons Attribution License (CC BY 4.0), which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.')
-  /*          */let abstract = article_meta.ele('abstract')
-  /*              */let abstractLabel = abstract.ele('label').txt('Abstract')
-  /*              */let abstractContent = abstract.ele('sec').txt('Abstract content') // should come fron the editor as a section
+  /*          */let abstract = article_meta.ele('abstract').ele('sec', { 'sec-type': 'Abstract content' })
+  /*              */let abstractLabel = abstract.ele('title').txt('Abstract')
+  /*              */let abstractContent = abstract.ele('p').txt('Abstract content') // should come fron the editor as a section
   /*          */let kwdGroup = article_meta.ele('kwd-group')
   /*              */let kwdGroupLabel = kwdGroup.ele('label').txt('Keywords');
   /*              */let kwdGroupKwd1 = kwdGroup.ele('kwd').txt('keyword1'); // sgould come from the editor as a section or from meta data
   /*          */let fundingGroup = article_meta.ele('funding-group')
   /*              */let fundingStatement = fundingGroup.ele('funding-statement').txt('Funding information'); // meta data for the article
   /*          */let counts = article_meta.ele('counts'); // number of refs,figs,tables in the article
-  /*              */let countsFig = counts.ele('fig-count').txt(figCount + '');
-  /*              */let countsTable = counts.ele('table-count').txt(tableCount + '');
-  /*              */let countsRef = counts.ele('ref-count').txt(refCount + "");
+  /*              */let countsFig = counts.ele('fig-count', { "count": "" + figCount })
+  /*              */let countsTable = counts.ele('table-count', { "count": "" + tableCount })
+  /*              */let countsRef = counts.ele('ref-count', { "count": "" + refCount })
   /**/let body = article.ele('body')
   // create all article sections
   serviceShare.TreeService.articleSectionsStructure.forEach((sec) => {
@@ -153,7 +160,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
     let actualRef = refObj[refActualId]
     let refData = actualRef.ref.refData.referenceData
     let refType = refData.type;
-    let ref = refsList.ele('ref', { id: refActualId })
+    let ref = refsList.ele('ref', { id: refIdsG[refActualId] })
     /**/let elementCitation = ref.ele('element-citation', { "publication-type": refType, "xlink:type": "simple", 'xml:lang': refData.language || 'en' });
     if (refData.author && refData.author.length > 0) {
       let personGroupAuthor = elementCitation.ele('person-group', { "person-group-type": "author" })
@@ -180,18 +187,19 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
       })
     }
     if (refData.issued && refData.issued['date-parts'] && refData.issued['date-parts'][0]) {
+      let dateEl = elementCitation.ele('date-in-citation');
       if (refData.issued['date-parts'][0][0]) {
-        elementCitation.ele('year').txt(refData.issued['date-parts'][0][0] + '')
+        dateEl.ele('year').txt(refData.issued['date-parts'][0][0] + '')
       }
       if (refData.issued['date-parts'][0][1]) {
-        elementCitation.ele('month').txt(refData.issued['date-parts'][0][1] + '')
+        dateEl.ele('month').txt(refData.issued['date-parts'][0][1] + '')
       }
       if (refData.issued['date-parts'][0][2]) {
-        elementCitation.ele('day').txt(refData.issued['date-parts'][0][2] + '')
+        dateEl.ele('day').txt(refData.issued['date-parts'][0][2] + '')
       }
     }
     if (refData.title) {
-      elementCitation.ele('title').txt(refData.title)
+      elementCitation.ele('article-title').txt(refData.title)
     }
     if (refData.volume) {
       elementCitation.ele('volume').txt(refData.volume + '')
@@ -246,18 +254,18 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   let domPMParser = DOMParser.fromSchema(schema);
   Object.keys(figObj).forEach((figid) => {
     let fig = figObj[figid];
-    let figXML = floatsGroup.ele('fig-group', { id: figid, position: "float", orientation: "portrait" })
+    let figXML = floatsGroup.ele('fig-group', { id: figIdsG[figid], position: "float", orientation: "portrait" })
     let dom = document.createElement('div');
     dom.innerHTML = fig.description;
     let figDescNodes = domPMParser.parse(dom).toJSON();
 
     figXML.ele('label').txt("Figure " + ((fig.figureNumber + 1) + '.'));
     let figCaption = figXML.ele('caption');
-    parseNode(figDescNodes, figCaption, false, '--');
+    parseNode(figDescNodes, figCaption, false, '--', 0);
     fig.components.forEach((figComp, i) => {
       let figCompXML = figXML.ele('fig', { position: "float", orientation: "portrait" });
-      let figCompXMLLabel = figCompXML.ele('label').txt("Figure " + (fig.figureNumber + 1) + String.fromCharCode(97 + i) + ".");
       let figCompXMLCaption = figCompXML.ele('caption');
+      let figCompXMLLabel = figCompXMLCaption.ele('title').txt("Figure " + (fig.figureNumber + 1) + String.fromCharCode(97 + i) + ".");
 
       let figCompType = figComp.componentType
       let figCompDesc = figComp.description
@@ -266,7 +274,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
       let domOfCompDesc = document.createElement('div');
       domOfCompDesc.innerHTML = figCompDesc;
       let figCompDescNodes = domPMParser.parse(domOfCompDesc).toJSON();
-      parseNode(figCompDescNodes, figCompXMLCaption, false, '--');
+      parseNode(figCompDescNodes, figCompXMLCaption, false, '--', 0);
 
       if (figCompType == "image") {
         let figCompGraphic = figCompXML.ele('graphic', {
@@ -285,29 +293,42 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
     })
   })
   let xmlString = article.end({ prettyPrint: true })
-  //xmlString = '<!DOCTYPE article PUBLIC "-//NLM//DTD JATS (Z39.96) Journal Publishing DTD v3.0 20151215//EN" "JATS-journalpublishing1.dtd">\n'+xmlString
   var blob = new Blob([xmlString], { type: "text/xml" });
-  let xmlUrl = URL.createObjectURL(blob);
-  window.open(xmlUrl)
+  /* let xmlUrl = URL.createObjectURL(blob);
+  window.open(xmlUrl) */
+  const file = new File([xmlString], "foo.xml", {
+    type: "text/xml",
+  });
+  var formdata = new FormData();
+  formdata.append("file", file);
+  formdata.append("file222", "qwaeqwe");
+  console.log(formdata, blob);
+
   saveAs(blob, "save.xml");
+  const formData = new FormData();
+  formData.append("file", file);
+  serviceShare.httpClient.post("http://localhost:3000/validate/xml", formData).subscribe((data) => {
+    console.log(data);
+  })
 }
 
 function parseMaterial(material: articleSection, matList: XMLBuilder, serviceShare: ServiceShare) {
   let matData = material.defaultFormIOValues;
+  let matP = matList.ele('p')
   Object.keys(matData).forEach((key, i) => {
     if (key != 'typeHeading') {
       if (i != 0) {
-        matList.txt('; ');
+        matP.txt('; ');
       }
-      matList.txt(key + ': ');
+      matP.txt(key + ': ');
       if ((matData[key] as string).startsWith('https:') || (matData[key] as string).startsWith('http:')) {
-        matList.ele('named-content', { 'content-type': "dwc:" + key, 'xlink:type': "simple" }).ele('ext-link', {
+        matP.ele('named-content', { 'content-type': "dwc:" + key, 'xlink:type': "simple" }).ele('ext-link', {
           'ext-link-type': "uri",
           'xlink:href': matData[key],
           'xlink:type': "simple"
         }).txt(matData[key])
       } else {
-        matList.ele('named-content', { 'content-type': "dwc:" + key, 'xlink:type': "simple" }).txt(matData[key])
+        matP.ele('named-content', { 'content-type': "dwc:" + key, 'xlink:type': "simple" }).txt(matData[key])
       }
     }
   })
@@ -316,16 +337,119 @@ function parseMaterial(material: articleSection, matList: XMLBuilder, serviceSha
 function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serviceShare: ServiceShare, section: articleSection) {
   let xmlTaxon = container.ele('tp:taxon-treatment');
   if (section.children && section.children.length > 0) {
-    section.children.forEach((child) => {
+    console.log('taxon', section);
+    let taxNomencl = section.children.find((sec) => sec.title.name == '[MM] Nomenclature');
+    let nomencData = serviceShare.ProsemirrorEditorsService.editorContainers[taxNomencl.sectionID].editorView.state.toJSON().doc
+    let nomenclatureEl = xmlTaxon.ele('tp:nomenclature')
+    nomenclatureEl.ele('label').txt('Nomenclature');
+    let name = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == 'name');
+    if (name) {
+      let nameEl = nomenclatureEl.ele('tp:taxon-name')
+      name.content.forEach((ch, i) => {
+        parseNode(ch, nameEl, true, '', i)
+      })
+    }
+    let authority = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "authority");
+    if (authority) {
+      let El = nomenclatureEl.ele('tp:taxon-authority')
+      authority.content.forEach((ch, i) => {
+        parseNode(ch, El, true, '', i)
+      })
+    }
+    let status = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "status");
+    if (status) {
+      let El = nomenclatureEl.ele('tp:taxon-status')
+      status.content.forEach((ch, i) => {
+        parseNode(ch, El, true, '', i)
+      })
+    }
+    let identifier = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "identifier");
+    if (identifier) {
+      let El = nomenclatureEl.ele('tp:taxon-identifier')
+      identifier.content.forEach((ch, i) => {
+        parseNode(ch, El, true, '', i)
+      })
+    }
+    let link = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "link");
+    if (link) {
+      let El = nomenclatureEl.ele('xref')
+      link.content.forEach((ch, i) => {
+        parseNode(ch, El, true, '', i)
+      })
+    }
+    let genus = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == 'genus');
+    if (genus) {
+      let El = nomenclatureEl.ele('tp:type-genus').ele('tp:taxon-name')
+      genus.content.forEach((ch, i) => {
+        parseNode(ch, El, true, '', i)
+      })
+    }
+    /* let species = nomencData.content.find((el)=>el.type == "form_field"&&el.attrs.formControlName == 'species');
+    if(species){
+      let El = nomenclatureEl.ele('tp:type-species').ele('tp:taxon-name')
+      species.content.forEach((ch,i)=>{
+        parseNode(ch,El,true,'',i)
+      })
+    } */
+    let location = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == 'location');
+    if (location) {
+      let El = nomenclatureEl.ele('tp:taxon-type-location')
+      location.content.forEach((ch, i) => {
+        parseNode(ch, El, true, '', i)
+      })
+    }
+
+    let taxExtLinks = section.children.find((sec) => sec.title.name == '[MM] External Links');
+    let taxExtLinksEl = xmlTaxon.ele('tp:treatment-sec', { "sec-type": taxExtLinks.title.name })
+    let viewExtLinks = serviceShare.ProsemirrorEditorsService.editorContainers[taxExtLinks.sectionID] ? serviceShare.ProsemirrorEditorsService.editorContainers[taxExtLinks.sectionID].editorView : undefined;
+    viewExtLinks ? parseNode(viewExtLinks.state.toJSON().doc, taxExtLinksEl, false, '--', 0) : undefined;
+
+
+    let taxMaterials = section.children.find((sec) => sec.title.name == '[MM] Materials');
+    let taxMatSection = xmlTaxon.ele('tp:treatment-sec', { "sec-type": taxMaterials.title.name })
+    let materailsTitle = taxMatSection.ele('title').txt('Materials');
+    let matList = taxMatSection.ele('list');
+    if (taxMaterials.type == 'complex' && taxMaterials.children && taxMaterials.children.length > 0) {
+      taxMaterials.children.forEach((matChild) => {
+        let matListItem = matList.ele('list-item')
+        parseMaterial(matChild, matListItem, serviceShare)
+      })
+    }
+
+    let taxSections = section.children.find((sec) => sec.title.name == '[MM] Treatment sections');
+    if (taxSections.children && taxSections.children.length > 0) {
+      taxSections.children.forEach((treatmentSubSec) => {
+        let chId = treatmentSubSec.sectionID;
+        let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
+        let taxonSection = xmlTaxon.ele('tp:treatment-sec', { "sec-type": treatmentSubSec.title.name })
+        view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
+        if (treatmentSubSec.type == 'complex' && treatmentSubSec.children && treatmentSubSec.children.length > 0) {
+          treatmentSubSec.children.forEach((subsec) => {
+            let chId = subsec.sectionID;
+            let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
+            let taxonSection = xmlTaxon.ele('tp:treatment-sec', { "sec-type": subsec.title.name })
+            view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
+            if (subsec.type == 'complex' && subsec.children && subsec.children.length > 0) {
+              subsec.children.forEach((subsecchild) => {
+                let chId = subsecchild.sectionID;
+                let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
+                parseSection(view, taxonSection, serviceShare, subsecchild);
+              })
+            }
+          })
+        }
+      })
+    }
+    /* section.children.forEach((child) => {
       let chId = child.sectionID
       let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
       if (child.title.name == '[MM] Nomenclature') {
         let taxonNomenclature = xmlTaxon.ele('tp:nomenclature')
-        view ? parseNode(view.state.toJSON().doc, taxonNomenclature, false, '--') : undefined;
+        view ? parseNode(view.state.toJSON().doc, taxonNomenclature, false, '--', 0) : undefined;
       } else if (child.title.name == '[MM] External Links' || child.title.name == '[MM] Materials') {
         let taxonSection = xmlTaxon.ele('tp:treatment-sec', { "sec-type": child.title.name })
         if (child.title.name == '[MM] External Links') {
-          view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--') : undefined;
+          view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
         } else {
           let materailsTitle = taxonSection.ele('title').txt('Materials');
           let matList = taxonSection.ele('list');
@@ -343,13 +467,13 @@ function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serv
             let chId = treatmentSubSec.sectionID;
             let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
             let taxonSection = xmlTaxon.ele('tp:treatment-sec', { "sec-type": treatmentSubSec.title.name })
-            view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--') : undefined;
+            view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
             if (treatmentSubSec.type == 'complex' && treatmentSubSec.children && treatmentSubSec.children.length > 0) {
               treatmentSubSec.children.forEach((subsec) => {
                 let chId = subsec.sectionID;
                 let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
                 let taxonSection = xmlTaxon.ele('tp:treatment-sec', { "sec-type": subsec.title.name })
-                view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--') : undefined;
+                view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
                 if (subsec.type == 'complex' && subsec.children && subsec.children.length > 0) {
                   subsec.children.forEach((subsecchild) => {
                     let chId = subsecchild.sectionID;
@@ -362,14 +486,15 @@ function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serv
           })
         }
       }
-    })
+    }) */
   }
 }
 
 function parseSection(view: EditorView | undefined, container: XMLBuilder, serviceShare: ServiceShare, section: articleSection) {
   if (section.title.name != 'Taxon' && section.title.name != '[MM] Materials' && section.title.name != 'Material' && section.title.name != 'Taxon' && section.title.name != '[MM] Taxon treatments') { // not a custum section
     let secXml = container.ele('sec', { "sec-type": section.title.name });
-    view ? parseNode(view.state.toJSON().doc, secXml, false, '--') : undefined;
+    let title = secXml.ele('title').txt(section.title.label.length > 0 ? section.title.label : section.title.name)
+    view ? parseNode(view.state.toJSON().doc, secXml, false, '--', 0) : undefined;
     if (section.type == 'complex' && section.children && section.children.length > 0) {
       section.children.forEach((child) => {
         let chId = child.sectionID;
@@ -377,10 +502,16 @@ function parseSection(view: EditorView | undefined, container: XMLBuilder, servi
         parseSection(view, secXml, serviceShare, child);
       })
     }
+    if (secXml.some((node, i) => { return node.node.nodeName == 'title' && i == 1 })) {
+      console.log('starts with title');
+      title.remove();
+    } else {
+      console.log('does not start with title')
+    }
   } else if (section.title.name == '[MM] Taxon treatments') {
     // render taxons section
     let secXml = container.ele('sec', { "sec-type": 'Taxon treatments' });
-    view ? parseNode(view.state.toJSON().doc, secXml, false, '--') : undefined;
+    view ? parseNode(view.state.toJSON().doc, secXml, false, '--', 0) : undefined;
     if (section.type == 'complex' && section.children && section.children.length > 0) {
       section.children.forEach((child) => {
         let chId = child.sectionID;
@@ -400,11 +531,15 @@ function parseSection(view: EditorView | undefined, container: XMLBuilder, servi
   }
 }
 
-function processPmNodeAsXML(node: any, xmlPar: XMLBuilder, before: string) {
+let processPmNodeAsXML = (node: any, xmlPar: XMLBuilder, before: string, index: number) => {
   let newParNode: XMLBuilder
   let shouldSkipNextBlockElements = false;
   if (node.type == 'heading') {
-    newParNode = xmlPar.ele('title')
+    if (index == 0) {
+      newParNode = xmlPar.ele('title')
+    } else {
+      newParNode = xmlPar.ele('p')
+    }
     shouldSkipNextBlockElements = true;
   } else if (node.type == 'text' && (!node.marks || node.marks.length == 0)) {
     xmlPar.txt(node.text);
@@ -413,7 +548,7 @@ function processPmNodeAsXML(node: any, xmlPar: XMLBuilder, before: string) {
     processPmMarkAsXML(node, xmlPar, before)
     return;
   } else if (node.type == "reference_citation") {
-    newParNode = xmlPar.ele('xref', { "ref_type": "bibr", "rid": node.attrs.actualRefId })
+    newParNode = xmlPar.ele('xref', { "ref-type": "bibr", "rid": refIdsG[node.attrs.actualRefId] })
   } else if (node.type == "paragraph") {
     newParNode = xmlPar.ele('p')
   } else if (node.type == 'math_inline') {
@@ -432,6 +567,7 @@ function processPmNodeAsXML(node: any, xmlPar: XMLBuilder, before: string) {
     newParNode = xmlPar.ele('tr');
   } else if (node.type == 'table_cell') {
     newParNode = xmlPar.ele('th');
+    shouldSkipNextBlockElements = true;
   } else if (node.type == 'blockquote') {
     newParNode = xmlPar.ele('disp-quote')
   } else if (node.type == 'horizontal_rule') {
@@ -439,10 +575,10 @@ function processPmNodeAsXML(node: any, xmlPar: XMLBuilder, before: string) {
     return;
   } else if (node.type == 'code') {
     newParNode = xmlPar.ele('code');
-  } else if (node.type == 'hard_break') {
+  }/*  else if (node.type == 'hard_break') {
     newParNode = xmlPar.ele('break');
     return
-  } else if (node.type == 'image') {
+  } */ else if (node.type == 'image') {
     xmlPar.ele('inline-graphic', {
       "xlink:href": node.attrs.src,
       "orientation": "portrait",
@@ -459,26 +595,26 @@ function processPmNodeAsXML(node: any, xmlPar: XMLBuilder, before: string) {
     return
   } else {
     if (node.content && node.content.length > 0) {
-      node.content.forEach((ch) => {
-        parseNode(ch, xmlPar, false, before + "|--")
+      node.content.forEach((ch, i) => {
+        parseNode(ch, xmlPar, false, before + "|--", i)
       })
     }
     return;
   }
   if (node.content && node.content.length > 0) {
-    node.content.forEach((ch) => {
-      parseNode(ch, newParNode, shouldSkipNextBlockElements, before + "|--")
+    node.content.forEach((ch, i) => {
+      parseNode(ch, newParNode, shouldSkipNextBlockElements, before + "|--", i)
     })
   }
 }
 
-function processPmMarkAsXML(node: any, xmlPar: XMLBuilder, before: string) {
+let processPmMarkAsXML = (node: any, xmlPar: XMLBuilder, before: string) => {
   let xmlParent = xmlPar
   node.marks.forEach((mark, i: number) => {
     if (mark.type == 'citation') {
       let citatedFigs = mark.attrs.citated_figures.map((fig: string) => fig.split('|')[0]);
       citatedFigs.forEach((fig) => {
-        xmlParent = xmlParent.ele('xref', { "ref_type": "fig", "rid": fig });
+        xmlParent = xmlParent.ele('xref', { "ref-type": "fig", "rid": figIdsG[fig] });
       })
     } else if (mark.type == 'em') {
       xmlParent = xmlParent.ele('italic');
@@ -519,16 +655,16 @@ function isBlockNode(name: string) {
   }
   return false;
 }
-function parseNode(node: any, xmlPar: XMLBuilder, shouldSkipBlockElements: boolean, before: string) {
+function parseNode(node: any, xmlPar: XMLBuilder, shouldSkipBlockElements: boolean, before: string, index: number) {
   if (nodesToSkip.includes(node.type) || (shouldSkipBlockElements && isBlockNode(node.type) && !nodesNotToLoop.includes(node.type) && !nodesThatShouldNotBeSkipped.includes(node.type))) { // nodes that should be skipped and looped through their children
     if (node.content && node.content.length > 0) {
-      node.content.forEach((ch) => {
-        parseNode(ch, xmlPar, shouldSkipBlockElements, before)
+      node.content.forEach((ch, i) => {
+        parseNode(ch, xmlPar, shouldSkipBlockElements, before, i)
       })
     }
   } else if (nodesNotToLoop.includes(node.type)) { // nodes that should not be looped nor their children
   } else {
-    processPmNodeAsXML(node, xmlPar, before)
+    processPmNodeAsXML(node, xmlPar, before, index)
   }
 }
 

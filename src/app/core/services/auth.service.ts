@@ -7,9 +7,10 @@ import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
 import {NavigationEnd, Router} from '@angular/router';
 import {UserModel} from '@core/models/user.model';
 import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
-
-const API_AUTH_URL = `https://ps-accounts.dev.scalewest.com/api`;
-const API_URL = `https://ps-api.dev.scalewest.com/api`;
+import { environment } from '@env';
+console.log(environment);
+const API_AUTH_URL = environment.authUrl;
+const API_URL = environment.apiUrl;
 export type UserType = UserModel | undefined;
 
 @Injectable({providedIn: 'root'})

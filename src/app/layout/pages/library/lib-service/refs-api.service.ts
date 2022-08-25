@@ -3,11 +3,12 @@ import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
+import { environment } from '@env';
 import { uuidv4 } from 'lib0/random';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { genereteNewReference } from './refs-funcs';
-const API_URL = `https://ps-api.dev.scalewest.com/api`;
+const API_URL = environment.apiUrl;
 
 @Injectable({
   providedIn: 'root'

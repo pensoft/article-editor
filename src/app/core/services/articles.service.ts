@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-const API_ARTICLES_URL = `https://ps-api.dev.scalewest.com/api/articles`
+import { environment } from '@env';
+const API_ARTICLES_URL = environment.apiUrl+`/articles`
 
 @Injectable({
   providedIn: 'root'
