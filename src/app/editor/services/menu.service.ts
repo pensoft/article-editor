@@ -213,6 +213,7 @@ export class MenuService {
     let menuTypes: any = {}
 
     menuTypes.SimpleMenu = this.attachMenuItems('SimpleMenu');
+    menuTypes.main = this.attachMenuItems('SimpleMenu');
     Object.keys(this.sectionMenus).forEach((key) => {
       if (key !== 'SimpleMenu') {
         menuTypes[key] = this.attachMenuItems(key);

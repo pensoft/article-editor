@@ -179,7 +179,14 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
       let { $from, $to, from, to } = sel
       let key = event.key
       let canEdit = false;
-
+      if(key == "Tab"){
+        if(
+          (serviceShare.YjsHistoryService.undoStack.length > 0 )&&
+          (serviceShare.YjsHistoryService.undoStack[serviceShare.YjsHistoryService.undoStack.length-1].editors.length>0||
+          serviceShare.YjsHistoryService.undoStack[serviceShare.YjsHistoryService.undoStack.length-1].undoItemMeta)){
+            serviceShare.YjsHistoryService.startCapturingNewUndoItem()
+          }
+      }
       /* if (sel instanceof CellSelection) {
           from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
           to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);

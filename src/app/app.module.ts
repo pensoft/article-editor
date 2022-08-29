@@ -127,6 +127,7 @@ import {OauthCallbackComponent} from "@app/layout/pages/oauth-callback/oauth-cal
 import {CookieService} from "ngx-cookie-service";
 import { CommentsInterceptorService } from './core/services/comments/comments-interceptor.service';
 import { TestingComponent } from './editor/dialogs/testing/testing.component';
+import { SendInvitationComponent } from './editor/dialogs/add-contributors-dialog/send-invitation/send-invitation.component';
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -225,7 +226,8 @@ const gravatarConfig: GravatarConfig = {
     TaxonSectionComponent,
     MaterialsSectionComponent,
     MaterialSectionComponent,
-    TestingComponent
+    TestingComponent,
+    SendInvitationComponent
   ],
   imports: [
     HttpClientJsonpModule,

@@ -308,7 +308,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   saveAs(blob, "save.xml");
   const formData = new FormData();
   formData.append("file", file);
-  serviceShare.httpClient.post("http://localhost:3000/validate/xml", formData).subscribe((data) => {
+  serviceShare.httpClient.post("https://ps-jats.dev.scalewest.com/validate/xml", formData).subscribe((data) => {
     console.log(data);
   })
 }

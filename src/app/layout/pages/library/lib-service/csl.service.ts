@@ -380,7 +380,7 @@ export class CslService {
               height: '90%',
               maxWidth: '100%'
             });
-
+            this.serviceShare.ProsemirrorEditorsService.stopSpinner()
             dialogRef.afterClosed().subscribe((result: any) => {
               if (result) {
                 let refType: reference = result.referenceScheme;

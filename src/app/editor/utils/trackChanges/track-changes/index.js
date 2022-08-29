@@ -1,4 +1,5 @@
 import { TextSelection } from 'prosemirror-state';
+import { Selection } from 'prosemirror-state';
 import {
   ReplaceStep,
   ReplaceAroundStep,
@@ -132,6 +133,7 @@ export const findMark1 = (state, PMmark, toArr = false) => {
 
 const trackedTransaction = (
   tr,
+  view,
   state,
   user,
   lastContainingInsertionMark,
@@ -165,14 +167,63 @@ const trackedTransaction = (
   }
 
   // const group = tr.getMeta('outsideView') ? tr.getMeta('outsideView') : 'main';
-  const newTr = state.tr;
+  let newTr = state.tr;
   const map = new Mapping();
   const date = Math.floor(Date.now());
+
+  let diffTrackingMarksAtStartAndEnd = false;
+  let newStart // moved start so that it only containes the insertion mark
+  let newEnd //  moved end
+  let replaceWith
+
+  tr.steps.forEach((step)=>{
+
+    if(step.constructor == ReplaceStep&&step.from != step.to){
+      let nodeAtFrom = state.doc.nodeAt(step.from)
+      let nodeAtTo = state.doc.nodeAt(step.to)
+      if(
+        (nodeAtFrom.marks.find((mark)=>mark.type.name == "deletion")&&nodeAtTo.marks.find((mark)=>mark.type.name == "insertion"))||
+        (nodeAtTo.marks.find((mark)=>mark.type.name == "deletion")&&nodeAtFrom.marks.find((mark)=>mark.type.name == "insertion"))
+        ){
+          diffTrackingMarksAtStartAndEnd = true;
+      }
+      if(diffTrackingMarksAtStartAndEnd){ // search for the insertion mark
+        let resolvedAtFrom = state.doc.resolve(step.from);
+        let resolvedAtTo = state.doc.resolve(step.to);
+        console.log('resolvedAtFrom.nodeAfter',resolvedAtFrom.nodeAfter,'nodeAtFrom',nodeAtFrom);
+        console.log('resolvedAtFrom.nodeAfter',resolvedAtTo.nodeBefore,'nodeAtTo',nodeAtTo);
+        let insAtFrom = nodeAtFrom.marks.find((mark)=>mark.type.name == "insertion");
+        let insAtTo = nodeAtTo.marks.find((mark)=>mark.type.name == "insertion");
+        if(insAtFrom){
+          console.log('insAtFrom');
+          newStart = step.from
+          newEnd = resolvedAtFrom.nodeAfter.nodeSize + step.from
+        }else if(insAtTo){
+          console.log('insAtTo');
+          newStart = step.to - resolvedAtTo.nodeBefore.nodeSize
+          newEnd = step.to
+        }
+        replaceWith = step.slice
+      }
+    }
+  })
+  if(diffTrackingMarksAtStartAndEnd){
+    console.log(newStart,newEnd,replaceWith,state.selection.from,state.selection.to);
+    let setSelectionTr = state.tr.setSelection(TextSelection.create(state.tr.doc,newStart,newEnd));
+    let newstate = view?.state.apply(setSelectionTr);
+    view?.updateState(newstate);
+    state = newstate
+    newTr = state.tr
+    tr = state.tr/* .setSelection(new TextSelection(state.doc.resolve(newStart),state.doc.resolve(newEnd))) */.replaceRange(newStart,newEnd,replaceWith);
+  }
 
   tr.steps.forEach(originalStep => {
     const step = originalStep.map(map);
     const { doc } = newTr;
     if (!step) return;
+
+
+
     switch (step.constructor) {
       case ReplaceStep:
         replaceStep(

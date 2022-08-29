@@ -64,7 +64,7 @@ export class CommentsService {
   addCommentData?: any = {}
   commentAllowdIn?: any = {} // editor id where comment can be made RN equals ''/undefined if there is no such editor RN
   selectedTextInEditors?: any = {} // selected text in every editor
-  lastSelectedComments: { [key: string]: { commentId: string, commentMarkId: string, sectionId: string } } = {}
+  lastSelectedComments: { [key: string]: { commentId: string, commentMarkId: string, sectionId: string,pos:number } } = {}
   lastCommentSelected: {
     commentId?: string,
     pos?: number,
@@ -208,7 +208,7 @@ export class CommentsService {
 
     let commentsObject: any = {};
     this.commentsObject = commentsObject;
-    let lastSelectedComments: { [key: string]: { commentId: string, commentMarkId: string, sectionId: string } } = {}
+    let lastSelectedComments: { [key: string]: { commentId: string, commentMarkId: string, sectionId: string,pos:number } } = {}
     let lastCommentSelected: {
       commentId?: string,
       pos?: number,
@@ -249,7 +249,8 @@ export class CommentsService {
             lastSelectedComments[actualMark.attrs.id] = {
               commentId: actualMark.attrs.id,
               commentMarkId: actualMark.attrs.commentmarkid,
-              sectionId: prev.sectionName
+              sectionId: prev.sectionName,
+              pos
             }
           }
           let sectionContainer = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName]
@@ -437,7 +438,8 @@ export class CommentsService {
     if (
       this.lastCommentSelected.commentId != commentId ||
       this.lastCommentSelected.sectionId != sectionId ||
-      this.lastCommentSelected.commentMarkId != commentMarkId
+      this.lastCommentSelected.commentMarkId != commentMarkId ||
+      this.lastCommentSelected.pos!=pos
     ) {
       return false;
     } else {
@@ -492,7 +494,7 @@ export class CommentsService {
         if (selComment) {
           if (!this.serviceShare.ProsemirrorEditorsService.editorContainers[selComment.sectionId]) {
             this.lastSelectedComments[actualMark.attrs.id] = undefined
-          } else if (selComment.commentId == actualMark.attrs.id && selComment.commentMarkId == actualMark.attrs.commentmarkid && selComment.sectionId == sectionId) {
+          } else if (selComment.pos == pos&&selComment.commentId == actualMark.attrs.id && selComment.commentMarkId == actualMark.attrs.commentmarkid && selComment.sectionId == sectionId) {
             markIsLastSelected = true
           }
         }
@@ -500,7 +502,8 @@ export class CommentsService {
         if (
           this.lastCommentSelected.commentId == actualMark.attrs.id &&
           this.lastCommentSelected.commentMarkId == actualMark.attrs.commentmarkid &&
-          this.lastCommentSelected.sectionId == sectionId
+          this.lastCommentSelected.sectionId == sectionId&&
+          this.lastCommentSelected.pos == pos
         ) {
           lastSelected = true
         }

@@ -75,7 +75,9 @@ export class ReferencePluginService {
                   let button1 = document.createElement('button')
                   button1.className = 'update-data-reference-button';
                   button1.addEventListener('click', () => {
+                    serviceShare.ProsemirrorEditorsService.spinSpinner()
                     serviceShare.CslService!.editReferenceThroughPMEditor(node,prev.sectionName);
+
                   })
                   button1.style.cursor = 'pointer'
                   button1.title = 'Click this button to edit this reference.'

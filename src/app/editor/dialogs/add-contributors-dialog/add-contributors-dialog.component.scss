@@ -8,13 +8,108 @@
     background: #ffffff;
     padding: 24px;
     border-radius: 20px !important;
-  //  box-shadow: 0px 6px 10px $box-shadow !important;
+    //  box-shadow: 0px 6px 10px $box-shadow !important;
+  }
+}
+::ng-deep .add-contributor-input-container {
+  width: auto;
+  margin-right: 7px;
+  .mat-form-field-underline {
+    display: none;
+  }
+  .mat-form-field-should-float {
+    .mat-form-field-label {
+      display: none !important;
+    }
+  }
+  .contributor-input-field {
+    display: block !important;
+    .mat-form-field-prefix {
+      mat-icon {
+        margin-left: 7px !important;
+      }
+    }
+    .mat-form-field-infix {
+      .mat-input-element {
+        padding-left: 34px !important;
+      }
+      .mat-form-field-label {
+        margin-left: 8px !important;
+        margin-top: 2px !important;
+      }
+    }
+  }
+}
+
+.search-result-container {
+  position: relative;
+  .search-results {
+    max-height: 350px;
+    overflow: auto;
+    position: absolute;
+    background: white;
+    width: 100%;
+    transform: translate(-3px, -24px);
+    box-shadow: 0px 11px 15px -7px rgb(0 0 0 / 20%), 0px 24px 38px 3px rgb(0 0 0 / 14%),
+      0px 9px 46px 8px rgb(0 0 0 / 12%);
+    padding: 5px;
+    z-index: 10;
+    border-radius: 7px;
+    .cont-search-result {
+      padding-top: 10px;
+      padding-bottom: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      .cont-name {
+        margin-left: 7px;
+      }
+      .cont-add-btn {
+        margin-left: auto;
+      }
+    }
+    .cont-search-result:hover {
+      background-color: #c5c3c375;
+    }
+  }
+}
+.dialogbtns {
+  margin-top: 34px !important;
+  .contr-cancel-btn {
+    margin-right: 15px;
+    background-color: white;
+    border: 1px solid #979797;
+    color: #979797;
+    font-size: 1em;
+    padding: 7px;
+    font-weight: 600;
+    padding-right: 23px;
+    padding-left: 23px;
+    border-radius: 25px;
+    cursor: pointer;
+  }
+  .contr-cancel-btn:hover {
+    background-color: rgb(243, 242, 242);
+  }
+  .contr-done-btn:hover {
+    background-color: rgb(243, 242, 242);
+  }
+  .contr-done-btn {
+    background-color: white;
+    border: 1px solid #02b1b4;
+    color: #02b1b4;
+    font-size: 1em;
+    padding: 7px;
+    font-weight: 600;
+    padding-right: 23px;
+    padding-left: 23px;
+    border-radius: 25px;
+    cursor: pointer;
   }
 }
 // .section-choose {
 //     padding: 24px 0 24px 0;
 // }
-.container-contributers{
+.container-contributers {
   max-height: 400px;
   overflow: auto;
 }
@@ -35,7 +130,7 @@
   border-radius: 20px;
 }
 .border1px-primary {
-  border: 1px solid $primary-green;
+  border: 2px solid #00b1b24a;
 }
 .border-radius20 {
   border-radius: 20px;

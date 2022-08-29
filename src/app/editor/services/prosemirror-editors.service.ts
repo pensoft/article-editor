@@ -79,7 +79,7 @@ import { filterSectionChildren } from '../utils/articleBasicStructure';
 import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
 import { changeNodesOnDragDrop, handleDeleteOfRefsFigsCitationsAndComments } from '../utils/prosemirrorHelpers/drag-drop-append';
 import katex from 'katex';
-export interface editorContainersObj {[key:string]:editorContainer}
+export interface editorContainersObj { [key: string]: editorContainer }
 export interface editorContainer {
   editorID: string,
   containerDiv: HTMLDivElement,
@@ -497,7 +497,7 @@ export class ProsemirrorEditorsService {
 
         } else {
 
-          const tr = trackedTransaction.default(transaction, editorView?.state,
+          const tr = trackedTransaction.default(transaction,editorView, editorView?.state,
             {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
@@ -747,7 +747,7 @@ export class ProsemirrorEditorsService {
           editorView?.updateState(state!);
 
         } else {
-          const tr = trackedTransaction.default(transaction, editorView?.state,
+          const tr = trackedTransaction.default(transaction,editorView, editorView?.state,
             {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
@@ -938,7 +938,7 @@ export class ProsemirrorEditorsService {
           editorView?.updateState(state!);
 
         } else {
-          const tr = trackedTransaction.default(transaction, editorView?.state,
+          const tr = trackedTransaction.default(transaction,editorView, editorView?.state,
             {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
@@ -1227,6 +1227,17 @@ export class ProsemirrorEditorsService {
 
   setIntFunction(interpulateFunction: any) {
     this.interpolateTemplate = interpulateFunction
+  }
+
+  spinnerContainer?: HTMLDivElement
+  setSpinner(spinnerContainer: HTMLDivElement) {
+    this.spinnerContainer = spinnerContainer;
+  }
+  spinSpinner() {
+    this.spinnerContainer.style.display = 'block'
+  }
+  stopSpinner() {
+    this.spinnerContainer.style.display = 'none'
   }
 }
 
