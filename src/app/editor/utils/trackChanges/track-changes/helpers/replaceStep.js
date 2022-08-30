@@ -19,12 +19,11 @@ const replaceStep = (
   group,
   viewId
 ) => {
-  console.log(step);
   const deletionMarkSchema = state.schema.marks.deletion;
   const deletionMark = findMark(state, deletionMarkSchema, false);
   //const positionTo = step.to;
   const positionTo =
-    deletionMark && deletionMark.contained ? deletionMark.to : step.to;
+    deletionMark && deletionMark.selIsInsideMark ? deletionMark.to : step.to;
 
   let deleteMarkId = deletionMark ? deletionMark.attrs.id : uuidv4();
 
@@ -48,7 +47,7 @@ const replaceStep = (
     step.slice,
     step.structure
   );
-
+    console.log('1',positionTo,step,newStep);
   let insertionMarkID;
   // We didn't apply the original step in its original place. We adjust the map accordingly.
   map.appendMap(step.invert(doc).getMap());
@@ -195,6 +194,7 @@ const replaceStep = (
       newStep.to,
       trTemp.doc.slice(newStep.from, mappedNewStepTo)
     );
+    console.log(newTr);
 
     newTr.step(condensedStep);
     const mirrorIndex = map.maps.length - 1;
@@ -204,7 +204,6 @@ const replaceStep = (
     }
   }
   if (step.from !== step.to) {
-    console.log('mark deleteion');
     map.appendMap(
       markDeletion(
         newTr,

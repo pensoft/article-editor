@@ -9,12 +9,54 @@ import { Console } from 'console';
 import { SendInvitationComponent } from './send-invitation/send-invitation.component';
 
 export interface contributorData {
-  avatar: string,
   name: string,
-  role?: 'Author' | 'Viewer' | 'Commenter',
+  role?: 'Editor' | 'Viewer' | 'Commenter',
   email:string,
   userIsAdded?: boolean,
 }
+
+export let searchData: contributorData[] = [
+  {
+    name: 'Hrissy V.',
+    email:'hrissyv@gmail.com',
+  },
+  {
+    name: 'Hristo Iliev',
+    email:'iceto@gmail.com',
+  },
+  {
+    name: 'Milen Milkov',
+    email:'milcho@gmail.com',
+  },
+  {
+    name: 'Ivan Bonev',
+    email:'ivbon@gmail.com',
+  },
+  {
+    name: 'Iren Hristova',
+    email:'iren@gmail.com',
+  },
+  {
+    name: 'Ralitsa Jivkova',
+    email:'ral@gmail.com',
+  },
+  {
+    name: 'Iliq Dimov',
+    email:'iliq@gmail.com',
+  },
+  {
+    name: 'Petar Petrov',
+    email:'petko@gmail.com',
+  },
+  {
+    name: 'Vladimir Tanev',
+    email:'vladicha@gmail.com',
+  },
+  {
+    name: 'Nekoi Nekoisi',
+    email:'nekoi@gmail.com',
+  },
+];
 
 @Component({
   selector: 'app-add-contributors-dialog',
@@ -31,73 +73,20 @@ export class AddContributorsDialogComponent implements OnInit {
   public role: any[] = [];
   public contributersData: contributorData[] = [
     {
-      avatar: 'avatar',
       name: 'Hrissy V.',
       email:'hrissyv@gmail.com',
-      role: 'Author',
+      role: 'Editor',
       userIsAdded: false,
     },
     {
-      avatar: 'avatar',
       name: 'Nekoi Nekoisi',
       role: 'Viewer',
       email:'nekoi@gmail.com',
       userIsAdded: true,
     },
   ];
+  searchData = searchData;
 
-  public searchData: contributorData[] = [
-    {
-      avatar: 'avatar',
-      name: 'Hrissy V.',
-      email:'hrissyv@gmail.com',
-    },
-    {
-      avatar: 'avatar',
-      name: 'Hristo Iliev',
-      email:'iceto@gmail.com',
-    },
-    {
-      avatar: 'avatar',
-      name: 'Milen Milkov',
-      email:'milcho@gmail.com',
-    },
-    {
-      avatar: 'avatar',
-      name: 'Ivan Bonev',
-      email:'ivbon@gmail.com',
-    },
-    {
-      avatar: 'avatar',
-      name: 'Iren Hristova',
-      email:'iren@gmail.com',
-    },
-    {
-      avatar: 'avatar',
-      name: 'Ralitsa Jivkova',
-      email:'ral@gmail.com',
-    },
-    {
-      avatar: 'avatar',
-      name: 'Iliq Dimov',
-      email:'iliq@gmail.com',
-    },
-    {
-      avatar: 'avatar',
-      name: 'Petar Petrov',
-      email:'petko@gmail.com',
-    },
-    {
-      avatar: 'avatar',
-      name: 'Vladimir Tanev',
-      email:'vladicha@gmail.com',
-    },
-    {
-      avatar: 'avatar',
-      name: 'Nekoi Nekoisi',
-      email:'nekoi@gmail.com',
-    },
-  ];
 
   searchResults:any[] = []
 
@@ -165,7 +154,7 @@ export class AddContributorsDialogComponent implements OnInit {
   }
   openAddContrDialog(contributor:any){
     const dialogRef = this.dialog.open(SendInvitationComponent, {
-      width: '250px',
+      width: '550px',
       data: {contributor},
     });
 

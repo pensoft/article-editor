@@ -38,7 +38,8 @@ export const environment = {
    authServer: '${process.env.AUTH_SERVICE}',
    authUrl: '${process.env.AUTH_SERVICE}/api',
    apiUrl: '${process.env.API_GATEWAY_SERVICE}/api',
-   passport_client_id: '${process.env.PKCE_CLIENT_ID}'
+   passport_client_id: '${process.env.PKCE_CLIENT_ID}',
+   validate_jats:'${isProduction?process.env.VALIDATE_JATS:"/validate/xml"}'
 };
 `;
 // write the content to the respective file

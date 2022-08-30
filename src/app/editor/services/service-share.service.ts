@@ -25,6 +25,7 @@ import { PmDialogSessionService } from './pm-dialog-session.service';
 import { ProsemirrorEditorsService } from './prosemirror-editors.service';
 import { WorkerService } from './worker.service';
 import { YdocService } from './ydoc.service';
+import { AuthService } from '@app/core/services/auth.service'
 
 @Injectable({
   providedIn: 'root'
@@ -51,6 +52,7 @@ export class ServiceShare {
   EditorsRefsManagerService?:EditorsRefsManagerService
   FormBuilderService?:FormBuilderService
   RefsApiService?:RefsApiService
+  AuthService?:AuthService
 
   constructor(
     public dialog: MatDialog,
@@ -90,24 +92,26 @@ export class ServiceShare {
         data: { layouts: articleLayouts }
       });
       dialogRef.afterClosed().subscribe(result => {
+        this.AuthService.getUserInfo().subscribe((userData)=>{
+          let selectedLayout = (this.articleLayouts.data as Array<any>).find((layout: any) => {
+            return layout.id == result
+          }).template
+          let articleStructure: articleSection[] = []
+          //let filteredSections = selectedLayout.sections.filter((section: any) => { return section.type == 0 });
 
-        let selectedLayout = (this.articleLayouts.data as Array<any>).find((layout: any) => {
-          return layout.id == result
-        }).template
-        let articleStructure: articleSection[] = []
-        //let filteredSections = selectedLayout.sections.filter((section: any) => { return section.type == 0 });
+          this.ArticlesService!.createArticle('Untitled',+result).subscribe((createArticleRes:any)=>{
+            this.resetServicesData();
+            this.YdocService!.setArticleData(createArticleRes.data)
+            this.router.navigate([createArticleRes.data.uuid])
+            this.YdocService.newArticleIsCreated(userData,createArticleRes.data.uuid)
 
-        this.ArticlesService!.createArticle('Untitled',+result).subscribe((createArticleRes:any)=>{
-          this.resetServicesData();
-          this.YdocService!.setArticleData(createArticleRes.data)
-          this.router.navigate([createArticleRes.data.uuid])
-
-          selectedLayout.sections.forEach((section: any) => {
-            if(section.settings&&section.settings.main_section == true){
-              let newSection = renderSectionFunc(section,articleStructure,this.YdocService!.ydoc,'end');
-            }
+            selectedLayout.sections.forEach((section: any) => {
+              if(section.settings&&section.settings.main_section == true){
+                let newSection = renderSectionFunc(section,articleStructure,this.YdocService!.ydoc,'end');
+              }
+            })
+            this.YdocService!.articleStructureFromBackend = articleStructure;
           })
-          this.YdocService!.articleStructureFromBackend = articleStructure;
         })
       });
     })

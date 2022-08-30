@@ -8,6 +8,7 @@ import {NavigationEnd, Router} from '@angular/router';
 import {UserModel} from '@core/models/user.model';
 import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import { environment } from '@env';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 console.log(environment);
 const API_AUTH_URL = environment.authUrl;
 const API_URL = environment.apiUrl;
@@ -31,9 +32,10 @@ export class AuthService implements OnDestroy {
   }
 
   constructor(private _http: HttpClient,
-              private router: Router) {
+              private router: Router,private sharedService:ServiceShare) {
     this.currentUserSubject = new BehaviorSubject<UserType>(undefined);
     this.currentUser$ = this.currentUserSubject.asObservable();
+    this.sharedService.shareSelf('AuthService',this)
   }
 
   login(userdetails: IUserDetail) {

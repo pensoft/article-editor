@@ -71,6 +71,14 @@ const PROXY_CONFIG = {
       autoRewrite: true,
       "ws": true,
     },
+    "/validate": {
+      "target": "https://ps-jats.dev.scalewest.com",
+      "secure": false,
+      "logLevel": "debug",
+      "changeOrigin": true,
+      autoRewrite: true,
+      "ws": true,
+    },
 
 
 

@@ -1,1 +1,54 @@
-<p>send-invitation works!</p>
+<section fxLayout="column">
+    <form [formGroup]="inviteUsersForm">
+        <article fxLayout="row" fxLayoutAlign="start center">
+            <div fxLayout="column" fxFlex="60">
+                <h1 class="invite-contributors-header">Invite Contributors</h1>
+            </div>
+        </article>
+        <article class="people-container">
+          <div class="form-container">
+
+            <mat-form-field class="form-chips" appearance="fill" fxFlex="48">
+                <mat-chip-list #chipList aria-label="Select user">
+                    <mat-chip *ngFor="let user of users" (removed)="remove(user)">
+                        {{user.name}}
+                        <button matChipRemove>
+                            <mat-icon>cancel</mat-icon>
+                        </button>
+                    </mat-chip>
+                    <input placeholder="User..." #usersInput [formControl]="invitedPeople" [matAutocomplete]="auto"
+                        [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" >
+                </mat-chip-list>
+                <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
+                    <mat-option *ngFor="let invitedUser of filteredInvitedPeople | async" [value]="invitedUser">
+                        {{invitedUser.name}}
+                    </mat-option>
+                </mat-autocomplete>
+            </mat-form-field>
+          </div>
+            <div class="form-container">
+              <mat-form-field floatLabel='never' class="form-role" appearance="fill" fxFlex="48">
+                  <mat-label>Role</mat-label>
+                  <mat-select formControlName="selectOptions">
+                      <mat-option *ngFor="let option of selectOptions" [value]="option.name">{{option.name}}</mat-option>
+                  </mat-select>
+              </mat-form-field>
+
+            </div>
+          </article>
+        <article fxLayout="row">
+            <div>Write a message.</div>
+        </article>
+        <article fxLayout="row" class="meessage-form-container">
+            <mat-form-field class="message-form" appearance="fill" fxFill>
+                <textarea matInput formControlName="message"></textarea>
+            </mat-form-field>
+        </article>
+        <article fxLayout="row" fxLayoutAlign="end center" fxLayoutGap="20px">
+            <button  class="normal-btn-cancel-graystyle"  (click)="onNoClick()">Cancel
+            </button>
+            <!-- <arpha-button label="Insert" (clickEvent)="doAction(data)" class="small primary action-button"></arpha-button> -->
+            <button  class="normal-btn-done-greenstyle" (click)="submitInviteUsersForm()">OK</button>
+        </article>
+    </form>
+</section>

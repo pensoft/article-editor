@@ -35,7 +35,8 @@ export const findMark = (state, PMmark, toArr = false) => {
           from,
           to: from + node.nodeSize,
           attrs: actualMark.attrs,
-          contained: !fromMark || !toMark || fromMark === toMark
+          contained: !fromMark || !toMark || fromMark === toMark,
+          selIsInsideMark:fromMark === toMark
         };
         marksFound.push(markFound);
       }
@@ -78,10 +79,28 @@ export const findMark = (state, PMmark, toArr = false) => {
     }
   }
 
+
   if (containedMark && markAtEndOfSel) {
     markFound.contained = true;
     containedMark.atEndOfSel = false;
   }
+
+  if(
+    markFound &&
+    (state.doc.nodeAt($to.pos) && state.doc.nodeAt($to.pos).marks.find(mark=>mark.type === PMmark)) &&
+    (state.doc.nodeAt($from.pos) && !state.doc.nodeAt($from.pos).marks.find(mark=>mark.type === PMmark))
+    ){
+      markFound.onlyEndOfSelIsInMark = true;
+  }
+
+  if(
+    markFound &&
+    (state.doc.nodeAt($to.pos) && !state.doc.nodeAt($to.pos).marks.find(mark=>mark.type === PMmark)) &&
+    (state.doc.nodeAt($from.pos) && state.doc.nodeAt($from.pos).marks.find(mark=>mark.type === PMmark))
+    ){
+      markFound.onlyStartOfSelIsInMark = true;
+  }
+
 
   if (toArr) return marksFound;
   return markFound;
@@ -171,7 +190,7 @@ const trackedTransaction = (
   const map = new Mapping();
   const date = Math.floor(Date.now());
 
-  let diffTrackingMarksAtStartAndEnd = false;
+/*   let diffTrackingMarksAtStartAndEnd = false;
   let newStart // moved start so that it only containes the insertion mark
   let newEnd //  moved end
   let replaceWith
@@ -190,16 +209,12 @@ const trackedTransaction = (
       if(diffTrackingMarksAtStartAndEnd){ // search for the insertion mark
         let resolvedAtFrom = state.doc.resolve(step.from);
         let resolvedAtTo = state.doc.resolve(step.to);
-        console.log('resolvedAtFrom.nodeAfter',resolvedAtFrom.nodeAfter,'nodeAtFrom',nodeAtFrom);
-        console.log('resolvedAtFrom.nodeAfter',resolvedAtTo.nodeBefore,'nodeAtTo',nodeAtTo);
         let insAtFrom = nodeAtFrom.marks.find((mark)=>mark.type.name == "insertion");
         let insAtTo = nodeAtTo.marks.find((mark)=>mark.type.name == "insertion");
         if(insAtFrom){
-          console.log('insAtFrom');
           newStart = step.from
           newEnd = resolvedAtFrom.nodeAfter.nodeSize + step.from
         }else if(insAtTo){
-          console.log('insAtTo');
           newStart = step.to - resolvedAtTo.nodeBefore.nodeSize
           newEnd = step.to
         }
@@ -208,14 +223,13 @@ const trackedTransaction = (
     }
   })
   if(diffTrackingMarksAtStartAndEnd){
-    console.log(newStart,newEnd,replaceWith,state.selection.from,state.selection.to);
-    let setSelectionTr = state.tr.setSelection(TextSelection.create(state.tr.doc,newStart,newEnd));
+    let setSelectionTr = state.tr.setSelection(TextSelection.between(state.tr.doc.resolve(newStart),state.tr.doc.resolve(newEnd)));
     let newstate = view?.state.apply(setSelectionTr);
     view?.updateState(newstate);
     state = newstate
     newTr = state.tr
-    tr = state.tr/* .setSelection(new TextSelection(state.doc.resolve(newStart),state.doc.resolve(newEnd))) */.replaceRange(newStart,newEnd,replaceWith);
-  }
+    tr = state.tr.replaceRange(newStart,newEnd,replaceWith);
+  } */
 
   tr.steps.forEach(originalStep => {
     const step = originalStep.map(map);
@@ -306,11 +320,15 @@ const trackedTransaction = (
       (tr.selection.from < state.selection.from ||
         tr.getMeta('inputType') === 'backwardsDelete')
     ) {
+
       const caretPos = map.map(tr.selection.from, -1);
       newTr.setSelection(new TextSelection(newTr.doc.resolve(caretPos)));
-    } else if (tr.selection.from > state.selection.from && deletionMark && (deletionMark.atStartOfSel || deletionMark.atEndOfSel)) {
+    } else if (tr.selection.from > state.selection.from && deletionMark && (deletionMark.onlyStartOfSelIsInMark || deletionMark.onlyEndOfSelIsInMark )) {
       newTr.setSelection(tr.selection.map(newTr.doc, map));
-    } else if (tr.selection.from > state.selection.from && deletionMark) {
+    } else if (tr.selection.from > state.selection.from && deletionMark && state.selection.from!=state.selection.to ) {
+      const caretPos = map.map(deletionMark.to + 1 - (state.selection.to-state.selection.from), 1);
+      newTr.setSelection(new TextSelection(newTr.doc.resolve(caretPos)));
+    }else if (tr.selection.from > state.selection.from && deletionMark) {
       const caretPos = map.map(deletionMark.to + 1, 1);
       newTr.setSelection(new TextSelection(newTr.doc.resolve(caretPos)));
     } else {
@@ -352,7 +370,7 @@ const trackedTransaction = (
   if (tr.storedMarksSet) newTr.setStoredMarks(tr.storedMarks);
 
   if (tr.scrolledIntoView) newTr.scrollIntoView();
-
+  console.log(newTr);
   return newTr;
 };
 

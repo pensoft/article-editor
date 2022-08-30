@@ -64,6 +64,7 @@ export class YdocService {
   referenceCitationsMap?:YMap<any>;
   printMap?: YMap<any>
   customSectionProps?: YMap<any>
+  collaborators?: YMap<any>
   userInfo: any
   getCommentsMap(): YMap<any> {
     return this.comments!
@@ -263,6 +264,9 @@ export class YdocService {
       this.trackChangesMetadata?.set('trackChangesMetadata', { trackTransactions: false });
     }
     this.comments = this.ydoc.getMap('comments');
+    if(this.shouldSetTheOwnerForTheNewArticle){
+      this.setArticleOwnerInfo()
+    }
     this.ydocStateObservable.next('docIsBuild');
     this.getData()
     this.editorIsBuild = true;
@@ -498,5 +502,21 @@ export class YdocService {
 
       this.buildEditor();
     }
+  }
+
+  shouldSetTheOwnerForTheNewArticle = false
+  ownerInfo :any
+  newArticleId :string = ''
+
+  newArticleIsCreated(user:any,articleId:string){
+    this.shouldSetTheOwnerForTheNewArticle = true
+    this.ownerInfo = user
+    this.newArticleId = articleId
+  }
+
+  setArticleOwnerInfo(){
+    this.shouldSetTheOwnerForTheNewArticle = false
+    this.collaborators = this.ydoc.getMap('articleCollaborators');
+    this.collaborators.set('collaborators',{owners:[this.ownerInfo],})
   }
 }

@@ -9,6 +9,39 @@ citation {
   white-space: pre;
 }
 
+.normal-btn-cancel-graystyle{
+  margin-right: 15px;
+  background-color: white;
+  border: 1px solid #979797;
+  color: #979797;
+  font-size: 1em;
+  padding: 7px;
+  font-weight: 600;
+  padding-right: 23px;
+  padding-left: 23px;
+  border-radius: 25px;
+  cursor: pointer;
+}
+.normal-btn-cancel-graystyle:hover {
+  background-color: rgb(243, 242, 242);
+}
+
+.normal-btn-done-greenstyle:hover{
+  background-color: rgb(243, 242, 242);
+}
+.normal-btn-done-greenstyle {
+  background-color: white;
+  border: 1px solid #02b1b4;
+  color: #02b1b4;
+  font-size: 1em;
+  padding: 7px;
+  font-weight: 600;
+  padding-right: 23px;
+  padding-left: 23px;
+  border-radius: 25px;
+  cursor: pointer;
+}
+
 app-figures-prosemirror-view {
   figures-nodes-container {
     border-top: 2px dashed rgb(0 0 0 / 87%);

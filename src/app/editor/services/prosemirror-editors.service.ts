@@ -518,8 +518,11 @@ export class ProsemirrorEditorsService {
               }
             }
           }
+          console.log(tr);
           let state = editorView?.state.apply(tr);
           editorView?.updateState(state!);
+
+          console.log(editorView.state);
         }
       } catch (err) { console.error(err); }
     };
@@ -959,6 +962,7 @@ export class ProsemirrorEditorsService {
               }
             }
           }
+
           let state = editorView?.state.apply(tr);
           editorView?.updateState(state!);
         }

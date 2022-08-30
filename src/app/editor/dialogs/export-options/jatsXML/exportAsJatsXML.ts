@@ -8,8 +8,9 @@ import { XMLBuilder } from "xmlbuilder2/lib/interfaces";
 import { articleSection } from "@app/editor/utils/interfaces/articleSection";
 import { EditorView } from "prosemirror-view";
 import { schema } from "@app/editor/utils/Schema";
-let figIdsG: any
-let refIdsG: any
+import { environment } from "@env";
+let figIdsG: any;
+let refIdsG: any;
 export function exportAsJatsXML(serviceShare: ServiceShare) {
 
   let figObj = serviceShare.YdocService.figuresMap.get('ArticleFigures')
@@ -307,8 +308,8 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
 
   saveAs(blob, "save.xml");
   const formData = new FormData();
-  formData.append("file", file);
-  serviceShare.httpClient.post("https://ps-jats.dev.scalewest.com/validate/xml", formData).subscribe((data) => {
+  formData.append("file", file);//https://ps-jats.dev.scalewest.com/validate/xml
+  serviceShare.httpClient.post(environment.validate_jats, formData).subscribe((data) => {
     console.log(data);
   })
 }
