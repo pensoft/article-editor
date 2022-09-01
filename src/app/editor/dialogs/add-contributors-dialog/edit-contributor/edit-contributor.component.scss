@@ -1,0 +1,15 @@
+::ng-deep .form-container {
+  width: 100%;
+  .form-role {
+    .mat-form-field-label {
+      padding-left: 1px !important;
+      padding-top: 1px !important;
+    }
+  }
+}
+.btns-container{
+  text-align: right;
+}
+.margin-left-10{
+  margin-left: 10px;
+}

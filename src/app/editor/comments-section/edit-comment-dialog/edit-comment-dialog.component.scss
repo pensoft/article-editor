@@ -1,0 +1,10 @@
+
+::ng-deep .edit-comment-form {
+  width: 100%;
+  .mat-form-field-infix {
+    border-top: none !important;
+  }
+  textarea{
+    color: black !important;
+  }
+}

@@ -128,6 +128,11 @@ import {CookieService} from "ngx-cookie-service";
 import { CommentsInterceptorService } from './core/services/comments/comments-interceptor.service';
 import { TestingComponent } from './editor/dialogs/testing/testing.component';
 import { SendInvitationComponent } from './editor/dialogs/add-contributors-dialog/send-invitation/send-invitation.component';
+import { EditContributorComponent } from './editor/dialogs/add-contributors-dialog/edit-contributor/edit-contributor.component';
+import { CollaboratorsAutoCompleteComponent } from './editor/comments-section/collaborators-auto-complete/collaborators-auto-complete.component';
+import { EmailPipe } from './editor/comments-section/email.pipe';
+import { EditCommentDialogComponent } from './editor/comments-section/edit-comment-dialog/edit-comment-dialog.component';
+import { CantOpenArticleDialogComponent } from './layout/widgets/arpha-navigation/cant-open-article-dialog/cant-open-article-dialog.component';
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -227,7 +232,12 @@ const gravatarConfig: GravatarConfig = {
     MaterialsSectionComponent,
     MaterialSectionComponent,
     TestingComponent,
-    SendInvitationComponent
+    SendInvitationComponent,
+    EditContributorComponent,
+    CollaboratorsAutoCompleteComponent,
+    EmailPipe,
+    EditCommentDialogComponent,
+    CantOpenArticleDialogComponent
   ],
   imports: [
     HttpClientJsonpModule,

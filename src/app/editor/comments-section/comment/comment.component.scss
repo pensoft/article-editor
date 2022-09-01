@@ -23,6 +23,11 @@
   }
 }
 
+app-collaborators-auto-complete{
+  position: relative;
+  top: 10px;
+}
+
 ::ng-deep {
   .comment-box-replies {
     padding: 16px 15px 16px 16px !important;

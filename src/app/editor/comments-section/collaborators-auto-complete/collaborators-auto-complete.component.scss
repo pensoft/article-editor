@@ -1,0 +1,28 @@
+.auto-complete-container {
+  position: absolute;
+  height: fit-content;
+  width: 234px;
+  z-index: 2;
+  border: 1px solid #02b1b3;
+  border-radius: 6px;
+  padding: 4px;
+  background-color: #f1ffff;
+  .user-option {
+    height: 38px;
+    border-radius: 7px;
+    cursor: pointer;
+    .avatar-autocomplete {
+      display: inline-block;
+    }
+    .email-autocomplete{
+      display: inline-block;
+      margin-left: 5px;
+    }
+  }
+  .user-option:hover {
+    background-color: #02b0b31e;
+  }
+  .selected-option{
+    background-color: #02b0b380;
+  }
+}

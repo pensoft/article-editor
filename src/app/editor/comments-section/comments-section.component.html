@@ -29,10 +29,12 @@
             <div *ngIf="!commentAllowdIn[lastFocusedEditor!]" class="selected-commet-text-content-no-selection">{{errorMessages[lastFocusedEditor!]}}</div>
           </div>
         </mat-card-content>
-        <input #input class="comment-input" type="text" placeholder="Leave a comment...">
+        <input #input class="comment-input" type="text" placeholder="Leave a comment..." [formControl]="commentInputFormControl" (keydown)="autocomplete.keyHandle($event)">
+        <app-collaborators-auto-complete [(inputFromControl)]="commentInputFormControl" #autocomplete></app-collaborators-auto-complete>
+
         <div class="comment-btns">
           <button mat-button label="Cancel" (click)="cancelBtnHandle()" class="small  secondary cencel-button">Cancel</button>
-          <button mat-button label="Comment" (click)="commentBtnHandle(input,input.value)" [disabled]="!selectedTextInEditors[lastFocusedEditor!] || input.value.length === 0 || !commentAllowdIn[lastFocusedEditor!]" class="small  secondary comment-button">Comment</button>
+          <button mat-button label="Comment" (click)="autocomplete.canFinishComment(commentBtnHandle,[input,input.value])" [disabled]="!selectedTextInEditors[lastFocusedEditor!] || input.value.length === 0 || !commentAllowdIn[lastFocusedEditor!]" class="small  secondary comment-button">Comment</button>
         </div>
       </mat-card>
     </div>

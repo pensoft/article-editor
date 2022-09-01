@@ -1,0 +1,12 @@
+<div *ngIf="searchResults.length>0" class="auto-complete-container">
+  <div *ngFor="let user of searchResults;let i = index" (click)="selectedUser(user)" class="user-option {{i == selectedUserIndex?'selected-option':''}}">
+    <div class="avatar-autocomplete">
+      <ngx-avatar mat-card-avatar size="36" [gravatarId]="user.email" [name]="user.name"></ngx-avatar>
+    </div>
+    <div class="email-autocomplete">
+      <div>
+        {{user.email}}
+      </div>
+    </div>
+  </div>
+</div>

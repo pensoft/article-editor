@@ -1,6 +1,7 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import {environment} from '../environments/environment'
 import { ProsemirrorEditorsService } from './editor/services/prosemirror-editors.service';
+import { ServiceShare } from './editor/services/service-share.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -11,7 +12,9 @@ export class AppComponent implements AfterViewInit {
   build_number = environment.BUILD_NUMBER;
   @ViewChild('globalSpinner', { read: ElementRef })globalSpinner?: ElementRef;
 
-  constructor(private prosemirrorEditorsService:ProsemirrorEditorsService) {
+  constructor(private prosemirrorEditorsService:ProsemirrorEditorsService,
+    private serviceShare:ServiceShare
+    ) {
     navigator.serviceWorker.ready.then(function (registration) {
       //@ts-ignore
       return registration.sync.register('sendFormData')

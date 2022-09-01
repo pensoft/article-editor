@@ -684,10 +684,24 @@ img[ychange_type="removed"] {
   background-color: transparent !important;
 }
 
-.mat-form-field.mat-focused {
+.comment-edit-dialog{
+  overflow: visible !important;
+  mat-dialog-container{
+    overflow: visible !important;
+  }
+}
+
+.disabled-ok-btn{
+  background-color: #dfdfdfcc;
+  border-color: #017274;
+  color: #017173;
+  cursor:not-allowed;
+}
+
+/* .mat-form-field.mat-focused {
   background-color: transparent;
   color: transparent;
-}
+} */
 
 .math-node .math-render {
   font-size: inherit !important;

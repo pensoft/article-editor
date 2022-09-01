@@ -1,0 +1,13 @@
+<div>
+  <mat-label>Comment edit :</mat-label>
+</div>
+<div>
+  <mat-form-field class="edit-comment-form" appearance="fill">
+    <textarea matInput placeholder="Whire a comment" [formControl]="editCommentControl" (keydown)="autocomplete.keyHandle($event)"></textarea>
+    <app-collaborators-auto-complete [(inputFromControl)]="editCommentControl" #autocomplete></app-collaborators-auto-complete>
+  </mat-form-field>
+</div>
+<div class="buttons-container">
+  <button class="normal-btn-cancel-graystyle" (click)="cancelEdit()">Cancel</button>
+  <button class="normal-btn-done-greenstyle" (click)="autocomplete.canFinishComment(submitEdit,[])">Edit</button>
+</div>

@@ -11,17 +11,17 @@
             <mat-form-field class="form-chips" appearance="fill" fxFlex="48">
                 <mat-chip-list #chipList aria-label="Select user">
                     <mat-chip *ngFor="let user of users" (removed)="remove(user)">
-                        {{user.name}}
-                        <button matChipRemove>
+                        {{user.email}}
+                        <button *ngIf="!dialogIsOpenedFromComment" matChipRemove>
                             <mat-icon>cancel</mat-icon>
                         </button>
                     </mat-chip>
-                    <input placeholder="User..." #usersInput [formControl]="invitedPeople" [matAutocomplete]="auto"
-                        [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" >
+                    <input *ngIf="!dialogIsOpenedFromComment" placeholder="User..." #usersInput [formControl]="invitedPeople" [matAutocomplete]="auto"
+                        [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="add($event)">
                 </mat-chip-list>
                 <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
                     <mat-option *ngFor="let invitedUser of filteredInvitedPeople | async" [value]="invitedUser">
-                        {{invitedUser.name}}
+                        {{invitedUser.email}}
                     </mat-option>
                 </mat-autocomplete>
             </mat-form-field>
@@ -33,7 +33,6 @@
                       <mat-option *ngFor="let option of selectOptions" [value]="option.name">{{option.name}}</mat-option>
                   </mat-select>
               </mat-form-field>
-
             </div>
           </article>
         <article fxLayout="row">
@@ -48,7 +47,7 @@
             <button  class="normal-btn-cancel-graystyle"  (click)="onNoClick()">Cancel
             </button>
             <!-- <arpha-button label="Insert" (clickEvent)="doAction(data)" class="small primary action-button"></arpha-button> -->
-            <button  class="normal-btn-done-greenstyle" (click)="submitInviteUsersForm()">OK</button>
+            <button class="normal-btn-done-greenstyle {{users.length==0||!inviteUsersForm.controls.selectOptions.value?'disabled-ok-btn':''}}" (click)="users.length==0||!inviteUsersForm.controls.selectOptions.value?undefined:submitInviteUsersForm()">OK</button>
         </article>
     </form>
 </section>

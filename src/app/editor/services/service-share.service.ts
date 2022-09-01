@@ -118,7 +118,7 @@ export class ServiceShare {
   }
 
 
-
+  openNotAddedToEditorDialog:()=>void
   shareSelf(serviceName:string,serviceInstance:any){
     //@ts-ignore
     this[serviceName] = serviceInstance

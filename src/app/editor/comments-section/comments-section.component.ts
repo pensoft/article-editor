@@ -26,6 +26,7 @@ import { getDate } from './comment/comment.component';
 })
 export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestroy {
 
+  commentInputFormControl = new FormControl('')
   comments: any[] = [];
   commentsObj: any;
   addCommentEditorId?: any   // id of the editor where the Comment button was clicked in the menu
@@ -576,7 +577,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     this.addCommentSubject!.next({ type: 'commentData', sectionName, showBox: false })
   }
   preventRerenderUntilCommentAdd = { bool: false, id: '' }
-  commentBtnHandle(input: HTMLInputElement, value: string) {
+  commentBtnHandle = (input: HTMLInputElement, value: string)=> {
     if (value.length == 0) {
       return
     }

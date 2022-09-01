@@ -44,7 +44,7 @@
 .search-result-container {
   position: relative;
   .search-results {
-    max-height: 350px;
+    max-height: 250px;
     overflow: auto;
     position: absolute;
     background: white;
@@ -110,7 +110,7 @@
 //     padding: 24px 0 24px 0;
 // }
 .container-contributers {
-  max-height: 400px;
+  height: 300px;
   overflow: auto;
 }
 .input-search {
@@ -120,6 +120,25 @@
   padding-left: 25px;
   width: 95%;
   color: $black;
+}
+
+.role-div{
+  text-align: right;
+}
+
+.button-div{
+  text-align: center;
+}
+
+.edit-contributor-btn{
+  background-color: #edf8f9;
+  border: none;
+  border-radius: 9px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  padding-left: 14px;
+  padding-right: 14px;
+  cursor: pointer;
 }
 
 .error {

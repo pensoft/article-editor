@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserModel } from '@core/models/user.model';
@@ -6,15 +6,16 @@ import { AuthService } from '@core/services/auth.service';
 import { BroadcasterService } from '@core/services/broadcaster.service';
 import { CONSTANTS } from '@core/services/constants';
 import { FormioBaseService } from '@core/services/formio-base.service';
-import {Observable, Subscription} from 'rxjs';
-import {first, take} from 'rxjs/operators';
-import {uuidv4} from "lib0/random";
-import {lpClient} from "@core/services/oauth-client";
+import { Observable, Subscription } from 'rxjs';
+import { first, take } from 'rxjs/operators';
+import { uuidv4 } from "lib0/random";
+import { lpClient } from "@core/services/oauth-client";
+import { ServiceShare } from '@app/editor/services/service-share.service';
 
 @Component({
   selector: 'app-login',
   templateUrl: './login.component.html',
-  styleUrls: [ './login.component.scss' ]
+  styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit, OnDestroy {
   // KeenThemes mock, change it to:
@@ -34,7 +35,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private _broadcaster: BroadcasterService,
-    public formioBaseService: FormioBaseService
+    public formioBaseService: FormioBaseService,
+    private serviceShare: ServiceShare
   ) {
   }
 
@@ -45,7 +47,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.initForm();
     this.returnUrl = uuidv4();
-      // this.route.snapshot.queryParams['returnUrl'.toString()] || '/';
+    // this.route.snapshot.queryParams['returnUrl'.toString()] || '/';
   }
 
   initForm() {
@@ -72,26 +74,28 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   submit() {
     this.hasError = false;
-    let loginSub = this.authService.login({[CONSTANTS.EMAIL]: this.f.email.value, [CONSTANTS.PASSWORD]: this.f.password.value })
+    this.serviceShare.ProsemirrorEditorsService.spinSpinner()
+    let loginSub = this.authService.login({ [CONSTANTS.EMAIL]: this.f.email.value, [CONSTANTS.PASSWORD]: this.f.password.value })
     loginSub.pipe(first())
       .subscribe((user: UserModel) => {
         if (user) {
 
-          this.router.navigate([ 'dashboard' ]);
+          this.router.navigate(['dashboard']);
           // this.formioBaseService.login();
         } else {
           this.hasError = true;
         }
+        this.serviceShare.ProsemirrorEditorsService.stopSpinner()
       });
-      loginSub.subscribe((data:any)=>{
-        console.log(data);
-      })
+    loginSub.subscribe((data: any) => {
+      console.log(data);
+    })
   }
 
   signIn() {
     lpClient.signIn().then(async signInResult => {
       console.log(signInResult);
-      if(signInResult){
+      if (signInResult) {
         const token: string = await lpClient.getToken();
         this.authService.storeToken('token', token);
         const loginSubscr = this.authService.getUserInfo().pipe(take(1))

@@ -20,7 +20,7 @@
           <label>Invite people</label> -->
           <div class="add-contributor-input-container">
             <mat-form-field class="contributor-input-field">
-              <input matInput class="input-search" placeholder="Search by name" [formControl]="searchFormControl">
+              <input matInput class="input-search" placeholder="Search by name" [formControl]="searchFormControl" autocomplete="off">
               <mat-icon matPrefix class="prefix-icon">search</mat-icon>
             </mat-form-field>
             <div class="search-result-container">
@@ -32,12 +32,17 @@
                         <ngx-avatar mat-card-avatar size="36" [gravatarId]="contributor.email" [name]="contributor.name"></ngx-avatar>
                       </div>
                       <div fxFlex="65%" class="font-size16px ml-10px cont-name">
-                        {{contributor.name}}
+                        <div class="user-name">
+                          {{contributor.name}}
+                        </div>
+                        <div class="user-email">
+                          {{contributor.email}}
+                        </div>
                       </div>
                       <!-- <div fxFlex="10%" class="text-primary cont-add-btn">
                         <button mat-icon-button color="primary" type="button" *ngIf="!contributer.userIsAdded" (click)="addUser(contributersData)">
-                                                <mat-icon>add</mat-icon>
-                                            </button>
+                          <mat-icon>add</mat-icon>
+                        </button>
                       </div> -->
                     </div>
                   </div>
@@ -49,45 +54,53 @@
         </div>
       </div>
     </article>
-    <article fxLayout="column">
-      <div *ngIf="userName" fxLayout="row" fxFill fxLayoutAlign="start center" class="blue-bg-owner">
-        <div fxFlex="10%" class="avatar-owner">
-          <ngx-avatar mat-card-avatar size="36" [gravatarId]="userName.email" [name]="userName.name"></ngx-avatar>
-        </div>
-        <div fxFlex="80%" class="font-size16px ml-10px">
-          {{userName.name}}(you)
-        </div>
-        <div fxFlex="10%" class="text-primary">
-          Owner
-        </div>
-      </div>
-      <div class="container-contributers">
-        <div fxLayout="row" fxFill fxLayoutAlign="start center" class="border1px-primary border-radius20 mt10px" *ngFor="let contributer of contributersData">
+    <div *ngIf="collaborators && currentUser" class="container-contributers">
+      <article *ngFor="let contributor of collaborators.collaborators" fxLayout="column">
+        <div *ngIf="contributor.role == 'Owner'" fxLayout="row" fxFill fxLayoutAlign="start center" class="blue-bg-owner">
           <div fxFlex="10%" class="avatar-owner">
-            <ngx-avatar mat-card-avatar size="36" [gravatarId]="contributer.email" [name]="contributer.name"></ngx-avatar>
+            <ngx-avatar mat-card-avatar size="36" [gravatarId]="contributor.email" [name]="contributor.name"></ngx-avatar>
           </div>
-          <div fxFlex="65%" class="font-size16px ml-10px">
-            {{contributer.name}}
+          <div fxFlex="60%" class="font-size16px ml-10px">
+            <div>
+              {{contributor.name}}{{contributor.email == currentUser.email?"(you)":''}}
+            </div>
+            <div>
+              {{contributor.email}}
+            </div>
           </div>
-          <div fxFlex="15%" class="text-primary">
-            {{contributersData[0].role}}
+
+          <div fxFlex="20%" class="text-primary  role-div">
+            {{contributor.role}}
           </div>
-          <div fxFlex="10%" class="text-primary">
-            <!-- <button mat-icon-button color="primary">
-                        <mat-icon svgIcon="editGreen"></mat-icon>
-                    </button> -->
-            <!-- <button mat-icon-button color="primary" type="button" *ngIf="!contributer.userIsAdded"
-                            (click)="addUser(contributersData)">
-                            <mat-icon>add</mat-icon> -->
-            <!-- <mat-icon svgIcon="editGreen"></mat-icon> -->
-            <!-- </button> -->
-            <button type="button" mat-icon-button (click)="removeUser(contributersData)">
-                            <mat-icon color="warn">delete</mat-icon>
-                        </button>
+          <div fxFlex="10%" >
           </div>
         </div>
-      </div>
-
+        <div *ngIf="contributor.role != 'Owner'" fxLayout="row" fxFill fxLayoutAlign="start center" class="border1px-primary border-radius20 mt10px">
+          <div fxFlex="10%" class="avatar-owner">
+            <ngx-avatar mat-card-avatar size="36" [gravatarId]="contributor.email" [name]="contributor.name"></ngx-avatar>
+          </div>
+          <div fxFlex="{{isOwner?'55%':'60%'}}" class="font-size16px ml-10px">
+            <div class="user-name">
+              {{contributor.name}}{{contributor.email == currentUser.email?"(you)":''}}
+            </div>
+            <div class="user-email">
+              {{contributor.email}}
+            </div>
+          </div>
+          <div fxFlex="20%" class="text-primary role-div">
+            {{contributor.role}}
+          </div>
+          <div fxFlex="10%" *ngIf="!isOwner">
+          </div>
+          <div  fxFlex="15%" *ngIf="isOwner" class="button-div">
+            <button class="edit-contributor-btn" (click)="editContr(contributor)">
+                        <mat-icon svgIcon="editGreen"></mat-icon>
+                    </button>
+          </div>
+        </div>
+      </article>
+    </div>
+    <article fxLayout="column">
       <div fxLayout="row" fxLayoutGap="15px" fxFill fxLayoutAlign="end" class="dialogbtns border-radius20 mt10px">
         <button class="normal-btn-cancel-graystyle" (click)="closeDialog()">Cancel</button>
         <button class="normal-btn-done-greenstyle" (click)="sendAllSelectContributers()">

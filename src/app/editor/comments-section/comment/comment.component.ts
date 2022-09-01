@@ -17,6 +17,7 @@ import { TextSelection } from 'prosemirror-state';
 import { FormControl } from '@angular/forms';
 import { fakeUser } from '@app/core/services/comments/comments-interceptor.service';
 import { ContributorsApiService } from '@app/core/services/comments/contributors-api.service';
+import { EditCommentDialogComponent } from '../edit-comment-dialog/edit-comment-dialog.component';
 
 export function getDate(date: number) {
   let timeOffset = (new Date()).getTimezoneOffset() * 60 * 1000;
@@ -221,16 +222,15 @@ export class CommentComponent implements OnInit, AfterViewInit {
   editComment(id: string, comment: string) {
     let commentData: commentYdocSave = this.commentsMap?.get(this.comment?.commentAttrs.id);
     let commentContent: any = comment;
-    const dialogRef = this.sharedDialog.open(AddCommentDialogComponent, { width: 'auto', data: { url: commentContent, type: 'comment' } });
+    const dialogRef = this.sharedDialog.open(EditCommentDialogComponent, { panelClass:'comment-edit-dialog',width: '350px', data: { comment: commentContent, type: 'comment' } });
     dialogRef.afterClosed().subscribe(result => {
-      commentContent = result;
-      if (result) {
-        commentData.initialComment.comment = commentContent;
+      let newcommentContent = result;
+      if (result && newcommentContent!=commentContent) {
+        commentData.initialComment.comment = newcommentContent;
         this.userComment = commentData;
         this.commentsMap?.set(this.comment?.commentAttrs.id, commentData);
         this.contentWidth = this.elementView?.nativeElement.firstChild.offsetWidth;
         this.moreLessBtnView[this.comment!.commentAttrs.id] = this.contentWidth >= this.MAX_CONTENT_WIDTH
-
       }
     });
   }
@@ -238,13 +238,13 @@ export class CommentComponent implements OnInit, AfterViewInit {
   editReply(id: string, comment: string) {
     let commentData: commentYdocSave = this.commentsMap?.get(this.comment?.commentAttrs.id);
     let commentContent: any = comment;
-    const dialogRef = this.sharedDialog.open(AddCommentDialogComponent, { width: 'auto', data: { url: commentContent, type: 'comment' } });
+    const dialogRef = this.sharedDialog.open(EditCommentDialogComponent, { panelClass:'comment-edit-dialog',width: '350px', data: { comment: commentContent, type: 'comment' } });
     dialogRef.afterClosed().subscribe(result => {
-      commentContent = result;
-      if (result) {
+      let newcommentContent = result;
+      if (result && newcommentContent!=commentContent) {
         commentData.commentReplies.forEach((userComment, index, array) => {
           if (userComment.id == id) {
-            array[index].comment = commentContent;
+            array[index].comment = newcommentContent;
           }
         })
         this.userComment = commentData;
@@ -264,8 +264,8 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
   getDate = getDate
 
-  commentReplyBtnHandle(input: HTMLInputElement, replyDiv: HTMLDivElement) {
-    if (!input.value) {
+  commentReplyBtnHandle = ( replyDiv: HTMLDivElement)=> {
+    if (!this.replyFormControl.value) {
       return
     }
     let commentData: commentYdocSave = this.commentsMap?.get(this.comment?.commentAttrs.id);
@@ -273,7 +273,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
     let userCommentId = uuidv4();
     let commentDate = Date.now()
 
-    commentContent = input.value
+    commentContent = this.replyFormControl.value
 
     let userComment = {
       id: userCommentId,
@@ -284,7 +284,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
     commentData.commentReplies.push(userComment);
     this.commentsMap?.set(this.comment?.commentAttrs.id, commentData);
     this.userComment = commentData;
-    input.value = ''
+    this.replyFormControl.setValue('')
     replyDiv.style.display = 'none';
     setTimeout(()=>{
       this.doneRenderingCommentsSubject.next('replay_rerender')

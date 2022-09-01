@@ -1,4 +1,4 @@
-import { Component, Injectable, OnInit } from '@angular/core';
+import { Component, Injectable, OnDestroy, OnInit } from '@angular/core';
 //@ts-ignore
 import * as Y from 'yjs'
 import { WebrtcConn, WebrtcProvider as OriginalWebRtc, } from 'y-webrtc';
@@ -19,7 +19,7 @@ import { sectionNode } from '../utils/interfaces/section-node'
 import { editorContainer } from '../utils/interfaces/editor-container'
 import { Subject } from 'rxjs';
 import { ydocData } from '../utils/interfaces/ydocData';
-import { YMap } from 'yjs/dist/src/internals';
+import { YMap, YMapEvent } from 'yjs/dist/src/internals';
 import { treeNode } from '../utils/interfaces/treeNode';
 import { uuidv4 } from "lib0/random";
 import { articleSection, editorData, taxonomicCoverageContentData } from '../utils/interfaces/articleSection';
@@ -29,11 +29,12 @@ import { threadId } from 'worker_threads';
 import { ServiceShare } from './service-share.service';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
+import { Transaction as YTransaction } from 'yjs';
 
 @Injectable({
   providedIn: 'root'
 })
-export class YdocService {
+export class YdocService{
   ydocStateObservable: Subject<any> = new Subject<any>();
 
   editorIsBuild = false;
@@ -264,12 +265,36 @@ export class YdocService {
       this.trackChangesMetadata?.set('trackChangesMetadata', { trackTransactions: false });
     }
     this.comments = this.ydoc.getMap('comments');
+    this.collaborators = this.ydoc.getMap('articleCollaborators');
+    this.collaborators.observe(this.observeCollaboratorsFunc);
+    this.checkIfUserIsInArticle()
     if(this.shouldSetTheOwnerForTheNewArticle){
       this.setArticleOwnerInfo()
     }
     this.ydocStateObservable.next('docIsBuild');
     this.getData()
     this.editorIsBuild = true;
+  }
+
+  checkIfUserIsInArticle(){
+    this.serviceShare.AuthService.getUserInfo().subscribe((res)=>{
+      let userinfo = res.data;
+      let currUserEmail = userinfo.email;
+      let collaborators = this.collaborators.get('collaborators').collaborators as any[]
+      if(!collaborators.find((user)=>user.email == currUserEmail)){
+        this.serviceShare.openNotAddedToEditorDialog()
+      }
+    })
+  }
+
+  collaboratorsSubject = new Subject()
+  observeCollaboratorsFunc = (event:YMapEvent<any>,transaction:YTransaction) => {
+    let collaboratorsData = this.collaborators.get('collaborators')
+    if(collaboratorsData){
+      console.log(collaboratorsData);
+      this.checkIfUserIsInArticle()
+    }
+    this.collaboratorsSubject.next(collaboratorsData)
   }
 
   setArticleData(articleData: any) {
@@ -313,6 +338,13 @@ export class YdocService {
     this.userInfo = undefined;
     this.creatingANewArticle = false;
     this.mathMap = undefined;
+    this.referenceCitationsMap= undefined;
+    this.printMap= undefined;
+    this.customSectionProps= undefined;
+    if(this.collaborators){
+      this.collaborators.unobserve(this.observeCollaboratorsFunc);
+    }
+    this.collaborators = undefined;
   }
 
   setUserColor(userInfo: any) {
@@ -516,7 +548,10 @@ export class YdocService {
 
   setArticleOwnerInfo(){
     this.shouldSetTheOwnerForTheNewArticle = false
-    this.collaborators = this.ydoc.getMap('articleCollaborators');
-    this.collaborators.set('collaborators',{owners:[this.ownerInfo],})
+    if(this.roomName == this.newArticleId){
+      this.collaborators.set('collaborators',{collaborators:[{...this.ownerInfo.data,role:'Owner'}]});
+    }
+    this.ownerInfo = undefined
+    this.newArticleId = ''
   }
 }
