@@ -419,11 +419,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   saveAs(blob, "save.xml");
   const formData = new FormData();
   formData.append("file", file);//https://ps-jats.dev.scalewest.com/validate/xml
-  serviceShare.httpClient.post(environment.validate_jats, formData, {
-    headers: {
-      'Referrer-Policy': 'no-referrer'
-    }
-  }).subscribe((data) => {
+  serviceShare.httpClient.post(environment.validate_jats, formData).subscribe((data) => {
   })
 }
 
