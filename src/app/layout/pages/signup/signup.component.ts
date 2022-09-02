@@ -98,7 +98,6 @@ export class SignupComponent implements OnInit, OnDestroy {
 
   signIn() {
     lpClient.signIn().then(async signInResult => {
-      console.log(signInResult);
       if (signInResult) {
         const token: string = await lpClient.getToken();
         this.authService.storeToken('token', token);

@@ -359,7 +359,6 @@ export class CslService {
       let citationRefId = attrs.referenceData.refId;
       let refsInEndEditor =  this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
       let ref:any
-      console.log(attrs,refs);
       if(attrs.refInstance == 'external'){
         ref = refsInEndEditor[citationRefId]?refsInEndEditor[citationRefId].ref:undefined
       }else{
@@ -367,7 +366,6 @@ export class CslService {
           return ref.refData.referenceData.id == citationRefId;
         })
       }
-      console.log(refs,refsInEndEditor);
       if (ref) {
         this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
           this.refsAPI.getStyles().subscribe((refStyles: any) => {

@@ -104,10 +104,8 @@ export class ArticleMetadataComponent implements OnInit {
 
   logUserData(){
     this.authService.getUserInfo().subscribe((data)=>{
-      console.log(data);
     })
     this.contributorsApiService.getContributors().subscribe((data)=>{
-      console.log('all users ',data);
     })
   }
 

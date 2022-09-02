@@ -9,7 +9,6 @@ import {UserModel} from '@core/models/user.model';
 import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
 import { environment } from '@env';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-console.log(environment);
 const API_AUTH_URL = environment.authUrl;
 const API_URL = environment.apiUrl;
 export type UserType = UserModel | undefined;
@@ -53,7 +52,7 @@ export class AuthService implements OnDestroy {
         this.storeToken('refresh_token', token['refresh_token']);
         return token;
       }),
-      switchMap(() => this.getUserInfo()),
+      switchMap((token) => this.getUserInfo(token)),
       catchError((err) => {
         return of(undefined);
       })
@@ -131,8 +130,12 @@ export class AuthService implements OnDestroy {
     });
   }
 
-  getUserInfo() {
-    const auth = this.getToken();
+  getUserInfo(token = null) {
+    const auth = token || this.getToken();
+    if(token){
+      this.storeToken('token', token['access_token']);
+      this.storeToken('refresh_token', token['refresh_token']);
+    }
     if (!auth) {
       return of(undefined);
     }

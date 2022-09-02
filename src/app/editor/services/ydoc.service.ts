@@ -291,7 +291,6 @@ export class YdocService{
   observeCollaboratorsFunc = (event:YMapEvent<any>,transaction:YTransaction) => {
     let collaboratorsData = this.collaborators.get('collaborators')
     if(collaboratorsData){
-      console.log(collaboratorsData);
       this.checkIfUserIsInArticle()
     }
     this.collaboratorsSubject.next(collaboratorsData)

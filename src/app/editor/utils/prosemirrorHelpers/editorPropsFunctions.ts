@@ -73,7 +73,6 @@ export function handlePaste(mathMap: YMap<any>, sectionID: string,sharedService:
       return true
     }
     if(newPastedCitation){
-      console.log('paste add meta info');
       sharedService.YjsHistoryService.addUndoItemInformation({
         type: 'figure-citation',
         data: {}

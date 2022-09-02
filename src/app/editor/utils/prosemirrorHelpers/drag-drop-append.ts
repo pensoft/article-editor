@@ -78,7 +78,6 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
         if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
           let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
           let newid = uuidv4()
-          console.log(newid);
           let newMark = newState.schema.mark('citation', { ...citationMark.attrs, citateid: newid })
           tr = tr.addMark(pos, pos + node.nodeSize, newMark)
           changed = true
@@ -87,7 +86,6 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
           let commentMark = node.marks.filter((mark) => { return mark.type.name == 'comment' })[0]
           let newid = uuidv4()
           let newMark = newState.schema.mark('comment', { ...commentMark.attrs, commentmarkid: newid })
-          console.log(newMark);
           tr = tr.addMark(pos, pos + node.nodeSize, newMark)
           changed = true
         }

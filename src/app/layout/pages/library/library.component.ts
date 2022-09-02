@@ -56,11 +56,9 @@ export class LibraryPage implements AfterViewInit {
               let refType: reference = result.referenceScheme;
               let refStyle = result.referenceStyle
               let formioData = result.submissionData.data;
-              console.log('formioData',formioData);
               let globally = result.globally
               this.editRef(refType, refStyle,formioData, ref,globally).subscribe((editRes:any)=>{
                 // this.userReferences = undefined;
-                console.log('editRes',editRes);
                 this.refsAPI.getReferences().subscribe((refs:any)=>{
                   this.messageSource.next(refs.data);
                   // this.userReferences = refs.data;
@@ -171,7 +169,6 @@ export class LibraryPage implements AfterViewInit {
       this.shouldRender = true;
       // this.userReferences = refs.data;
       this.messageSource.next(refs.data);
-      console.log(refs.data);
       this.changeDetection.detectChanges();
     })
   }

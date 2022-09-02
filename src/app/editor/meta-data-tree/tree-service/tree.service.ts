@@ -435,7 +435,6 @@ export class TreeService implements OnDestroy {
         this.serviceShare.EditorsRefsManagerService!.handleRefCitationDelete(deletedRefCitations)
         setTimeout(() => {
           this.serviceShare.YjsHistoryService.stopBigNumberItemsCapturePrevention()
-          console.log(this.serviceShare.YjsHistoryService.undoStack,this.serviceShare.YjsHistoryService.redoStack);
         }, 30)
       },30)
     }

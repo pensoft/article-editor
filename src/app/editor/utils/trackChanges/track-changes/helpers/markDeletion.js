@@ -34,7 +34,6 @@ const markDeletion = (
     if (node.type.name.includes("table")) {
       return;
     }
-    console.log(from,to);
     if (
       node.isInline &&
       node.marks.find(
@@ -43,10 +42,8 @@ const markDeletion = (
           mark.attrs.user.toString() === user.userId.toString()
       )
     ) {
-      console.log('insertion');
       let newFrom = deletionMap.map(Math.max(from, pos))
       let newTo = deletionMap.map(Math.min(to, pos + node.nodeSize))
-      console.log(newFrom,newTo);
       const removeStep = new ReplaceStep(
         newFrom,
         newTo,
@@ -59,7 +56,6 @@ const markDeletion = (
       node.isInline &&
       !node.marks.find((mark) => mark.type.name === "deletion")
     ) {
-      console.log('no deletion');
 
       tr.addMark(
         deletionMap.map(Math.max(from, pos)),
@@ -71,7 +67,6 @@ const markDeletion = (
       !node.attrs.track.find((trackAttr) => trackAttr.type === "deletion") &&
       !["bullet_list", "ordered_list"].includes(node.type.name)
     ) {
-      console.log('deletion');
 
       if (
         node.attrs.track.find(
@@ -110,7 +105,6 @@ const markDeletion = (
           }
         });
       });
-      console.log(object);
       if (node.content.size === 0 || counter === node.nodeSize) {
         const track = node.attrs.track.slice();
         track.push({

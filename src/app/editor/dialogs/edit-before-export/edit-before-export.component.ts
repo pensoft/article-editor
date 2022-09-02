@@ -1665,7 +1665,6 @@ export class EditBeforeExportComponent implements AfterViewInit {
       }
 
       this.data.images = ImagesByKeys
-      console.log('---ImagesByKeys',ImagesByKeys);
       this.data.content = cont;
 
       let checkIfHeadingIsLastNodeOnNonLastPage = (node: any, nodesAfterNodeOnSamePage: any) => {

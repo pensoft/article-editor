@@ -38,8 +38,6 @@ export class ProfileService {
     // ne znam koi link da sloja
   }
   public submitPermissionForm(model: IPermission) {
-    console.log('---permissionData ' + model);
-    console.dir('---permissionData ' + model);
     return this.http.post(`http://localhost:4200/profileData`, model);
     // ne znam kam koi link da go post-na
   }

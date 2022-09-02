@@ -87,6 +87,14 @@ export interface editorContainer {
   editorView: EditorView,
   dispatchTransaction: any
 }
+let requestFiveFrames = function (num: number) {
+  return () => {
+    if (num < 5) {
+      window.requestAnimationFrame(requestFiveFrames(num++))
+    }
+  }
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -166,6 +174,7 @@ export class ProsemirrorEditorsService {
     private trackChangesService: TrackChangesService,
     private yjsHistory: YjsHistoryService,
     private serviceShare: ServiceShare) {
+
 
     // change the mathBlock input rule
     sherePreviewModeState(this.previewArticleMode)
@@ -450,6 +459,7 @@ export class ProsemirrorEditorsService {
     });
 
     let mapping = new Mapping();
+    let nodeType = 1;
 
     let lastStep: any
     let lastContainingInsertionMark: any
@@ -497,7 +507,7 @@ export class ProsemirrorEditorsService {
 
         } else {
 
-          const tr = trackedTransaction.default(transaction,editorView, editorView?.state,
+          const tr = trackedTransaction.default(transaction, editorView, editorView?.state,
             {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
@@ -518,11 +528,11 @@ export class ProsemirrorEditorsService {
               }
             }
           }
-          console.log(tr);
           let state = editorView?.state.apply(tr);
           editorView?.updateState(state!);
+          editorView?.updateState(state!);
+          editorView?.updateState(state!);
 
-          console.log(editorView.state);
         }
       } catch (err) { console.error(err); }
     };
@@ -750,7 +760,7 @@ export class ProsemirrorEditorsService {
           editorView?.updateState(state!);
 
         } else {
-          const tr = trackedTransaction.default(transaction,editorView, editorView?.state,
+          const tr = trackedTransaction.default(transaction, editorView, editorView?.state,
             {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
@@ -941,7 +951,7 @@ export class ProsemirrorEditorsService {
           editorView?.updateState(state!);
 
         } else {
-          const tr = trackedTransaction.default(transaction,editorView, editorView?.state,
+          const tr = trackedTransaction.default(transaction, editorView, editorView?.state,
             {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
@@ -1172,7 +1182,6 @@ export class ProsemirrorEditorsService {
         /* if(mathview&&mathview._node&&mathview._node.textContent){
           let div = document.createElement('div')
           katex.render(mathview._node.textContent,div,{output:'mathml'})
-          console.log(div);
         } */
 
         let nodeDomAttrs = mathview._node.type.spec.toDOM(mathview._node)[1];
@@ -1237,10 +1246,14 @@ export class ProsemirrorEditorsService {
   setSpinner(spinnerContainer: HTMLDivElement) {
     this.spinnerContainer = spinnerContainer;
   }
+
+  spinning = false;
   spinSpinner() {
+    this.spinning = true;
     this.spinnerContainer.style.display = 'block'
   }
   stopSpinner() {
+    this.spinning = false;
     this.spinnerContainer.style.display = 'none'
   }
 }

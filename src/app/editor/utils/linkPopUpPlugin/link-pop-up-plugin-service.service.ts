@@ -15,7 +15,6 @@ export class LinkPopUpPluginServiceService {
   linkPopUpPluginKey
   linkPopUpPlugin: Plugin;
   download(filename, text) {
-    console.log('download from plugin');
     var pom = document.createElement('a');
     pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
     pom.setAttribute('download', filename);
@@ -97,7 +96,6 @@ export class LinkPopUpPluginServiceService {
           let node = view.state.doc.nodeAt(pos);
           if (node&&node.marks.filter((mark) => mark.attrs.download && mark.attrs.download != "").length > 0) {
             let mark = node.marks.find((mark) => mark.attrs.download && mark.attrs.download != "");
-            console.log(mark);
             const text = csvServiceService.arrayToCSV(sectionId);
             const fileName = mark?.attrs.download;
             self.download(fileName, text);

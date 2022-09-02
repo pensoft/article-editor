@@ -88,7 +88,6 @@ export class CommentComponent implements OnInit, AfterViewInit {
   }
 
   commentIsChangedInYdoc() {
-    console.log(this.userComment);
   }
 
   checkIfCommentHasChanged(commentInYdoc: commentYdocSave) {

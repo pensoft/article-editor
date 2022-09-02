@@ -34,7 +34,6 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit {
   }
 
   selectedUser(user:contributorData){
-    console.log('selected-user');
     let inputval = this.inputFromControl.value as string
 
     if(this.allusers&&this.emailAddRegex.test(inputval)){

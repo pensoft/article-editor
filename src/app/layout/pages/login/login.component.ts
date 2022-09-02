@@ -88,7 +88,6 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.serviceShare.ProsemirrorEditorsService.stopSpinner()
       });
     loginSub.subscribe((data: any) => {
-      console.log(data);
     })
   }
 

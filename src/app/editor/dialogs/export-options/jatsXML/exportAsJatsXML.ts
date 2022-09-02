@@ -304,13 +304,11 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   var formdata = new FormData();
   formdata.append("file", file);
   formdata.append("file222", "qwaeqwe");
-  console.log(formdata, blob);
 
   saveAs(blob, "save.xml");
   const formData = new FormData();
   formData.append("file", file);//https://ps-jats.dev.scalewest.com/validate/xml
   serviceShare.httpClient.post(environment.validate_jats, formData).subscribe((data) => {
-    console.log(data);
   })
 }
 
@@ -339,7 +337,6 @@ function parseMaterial(material: articleSection, matList: XMLBuilder, serviceSha
 function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serviceShare: ServiceShare, section: articleSection) {
   let xmlTaxon = container.ele('tp:taxon-treatment');
   if (section.children && section.children.length > 0) {
-    console.log('taxon', section);
     let taxNomencl = section.children.find((sec) => sec.title.name == '[MM] Nomenclature');
     let nomencData = serviceShare.ProsemirrorEditorsService.editorContainers[taxNomencl.sectionID].editorView.state.toJSON().doc
     let nomenclatureEl = xmlTaxon.ele('tp:nomenclature')
@@ -505,10 +502,8 @@ function parseSection(view: EditorView | undefined, container: XMLBuilder, servi
       })
     }
     if (secXml.some((node, i) => { return node.node.nodeName == 'title' && i == 1 })) {
-      console.log('starts with title');
       title.remove();
     } else {
-      console.log('does not start with title')
     }
   } else if (section.title.name == '[MM] Taxon treatments') {
     // render taxons section

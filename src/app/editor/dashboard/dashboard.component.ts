@@ -65,6 +65,9 @@ export class DashboardComponent implements AfterViewInit {
       this.paginator!.pageIndex = 0;
     })
 
+    if(this.serviceShare.ProsemirrorEditorsService.spinning){
+      this.serviceShare.ProsemirrorEditorsService.stopSpinner()
+    }
     /* this.articlesService.getAllArticles().subscribe((responseData:any)=>{
       this.data = responseData.data;
     }) */

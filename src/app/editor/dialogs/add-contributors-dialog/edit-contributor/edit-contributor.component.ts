@@ -31,7 +31,6 @@ export class EditContributorComponent implements AfterViewInit {
   ) { }
 
   ngAfterViewInit(): void {
-    console.log(this.data);
     this.roleControl.setValue(this.data.contrData.role)
   }
 

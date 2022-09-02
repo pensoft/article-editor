@@ -42,13 +42,12 @@ export class SendInvitationComponent implements OnInit, AfterViewInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.filteredInvitedPeople = this.invitedPeople.valueChanges.pipe(
-      map((invitedUser: any) => { console.log(invitedUser); return invitedUser ? this._filter(invitedUser) : this._filter('') })
+      map((invitedUser: any) => {  return invitedUser ? this._filter(invitedUser) : this._filter('') })
     )
 
   }
 
   add(event: MatChipInputEvent): void {
-    console.log(event.value); // should be an email
     if (event.value) {
       this.users.push({email:event.value,name:''});
     }

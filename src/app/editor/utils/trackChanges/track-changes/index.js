@@ -82,7 +82,7 @@ export const findMark = (state, PMmark, toArr = false) => {
 
   if (containedMark && markAtEndOfSel) {
     markFound.contained = true;
-    containedMark.atEndOfSel = false;
+    markFound.atEndOfSel = false;
   }
 
   if(
@@ -370,7 +370,6 @@ const trackedTransaction = (
   if (tr.storedMarksSet) newTr.setStoredMarks(tr.storedMarks);
 
   if (tr.scrolledIntoView) newTr.scrollIntoView();
-  console.log(newTr);
   return newTr;
 };
 

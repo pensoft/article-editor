@@ -401,7 +401,6 @@ CanvasRenderer.prototype.prepare = function(node) {
 
         default:
           // TODO: should throw an exception here one day
-          //console.log("---Don't know how to handle class " + className);
       }
     }
     for (key in node.style) {

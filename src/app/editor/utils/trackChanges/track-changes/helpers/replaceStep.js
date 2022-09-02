@@ -33,21 +33,12 @@ const replaceStep = (
   let atStartOfDeletionMark =
     deletionMark && deletionMark.atEndOfSel ? true : false;
 
-  console.log(
-    "insideDeleteMark",
-    insideDeleteMark,
-    "atednOfDeleteMark",
-    atednOfDeleteMark,
-    "atStartOfDeletionMark",
-    atStartOfDeletionMark
-  );
   const newStep = new ReplaceStep(
     positionTo, // We insert all the same steps, but with "from"/"to" both set to "to" in order not to delete content. Mapped as needed.
     positionTo,
     step.slice,
     step.structure
   );
-    console.log('1',positionTo,step,newStep);
   let insertionMarkID;
   // We didn't apply the original step in its original place. We adjust the map accordingly.
   map.appendMap(step.invert(doc).getMap());
@@ -194,7 +185,6 @@ const replaceStep = (
       newStep.to,
       trTemp.doc.slice(newStep.from, mappedNewStepTo)
     );
-    console.log(newTr);
 
     newTr.step(condensedStep);
     const mirrorIndex = map.maps.length - 1;

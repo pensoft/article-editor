@@ -299,7 +299,6 @@ export class SectionComponent implements AfterViewInit, OnInit {
       // custum section
       this.addCustomSectionData(this.section,this.section.defaultFormIOValues)
     }
-    console.log(this.section.defaultFormIOValues);
     if (root.prosemirrorHTMLNodesTempl.indexOf(`<ng-template #${this.section.title.name.replace(/[\W_]+/g,'')}`) > -1) {
       prosemirrorNewNodeContent = root.prosemirrorHTMLNodesTempl;
       if (this.section.title.name === 'Material') {

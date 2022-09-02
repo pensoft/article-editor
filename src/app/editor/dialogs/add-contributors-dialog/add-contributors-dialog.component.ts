@@ -136,7 +136,6 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
         }
         this.sharedService.YdocService.collaborators.set('collaborators',{collaborators:editedContributors})
       }
-      console.log('edit result',result);
     });
   }
 
@@ -158,7 +157,6 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
   setCollaboratorsData(collaboratorsData: any) {
     setTimeout(() => {
       this.collaborators = collaboratorsData
-      console.log(this.collaborators);
       if (this.currentUser) {
         this.checkIfCurrUserIsOwner()
       }
@@ -176,7 +174,6 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
   ngAfterViewInit(): void {
     this.sharedService.AuthService.getUserInfo().subscribe((response) => {
       this.currentUser = response.data;
-      console.log(this.currentUser);
       if (this.collaborators) {
         this.checkIfCurrUserIsOwner()
       }
@@ -194,16 +191,19 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
     this.dialogRef.close();
   }
   submitOwnerSettingsForm() {
-    console.log('---submitOwnerSettingsForm');
   }
   addUser(contributersData: any) {
-    console.log('---addUser');
     contributersData.userIsAdded = true;
   }
   removeUser(contributersData: any) {
-    console.log('---removeUser');
     contributersData.userIsAdded = false;
   }
+
+  dataIsLoaded = true;
+
+
+
+
   sendAllSelectContributers() {
 
   }
@@ -214,7 +214,6 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      console.log('invitation data', result);
       if (result.usersChipList.length > 0 && result.selectOptions && result.selectOptions != '' && this.collaborators) {
         let collaboratorsCopy = [...this.collaborators.collaborators];
         result.usersChipList.forEach((newColaborator) => {
