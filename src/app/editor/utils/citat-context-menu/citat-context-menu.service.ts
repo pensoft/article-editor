@@ -39,10 +39,12 @@ export class CitatContextMenuService {
     this.citatContextPlugin = new Plugin({
       key: this.citatContextPluginKey,
       state: {
-        init: (_, state) => {
+        init: (_:any, state) => {
           return {
             sectionName: _.sectionName,
-            editorType: _.editorType ? _.editorType : undefined
+            editorType: _.editorType ? _.editorType : undefined,
+            decorations:undefined,
+            meta:undefined
           };
         },
         apply(tr, prev, _, newState) {

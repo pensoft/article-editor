@@ -310,9 +310,15 @@ const trackedTransaction = (
 
   if (tr.selectionSet) {
     const deletionMarkSchema = state.schema.marks.deletion;
+    const insertionMarkSchema = state.schema.marks.insertion;
     const deletionMark = findMark(
       state,
       deletionMarkSchema,
+      false,
+    );
+    const insertionMark = findMark(
+      state,
+      insertionMarkSchema,
       false,
     );
     if (
@@ -323,12 +329,22 @@ const trackedTransaction = (
 
       const caretPos = map.map(tr.selection.from, -1);
       newTr.setSelection(new TextSelection(newTr.doc.resolve(caretPos)));
-    } else if (tr.selection.from > state.selection.from && deletionMark && (deletionMark.onlyStartOfSelIsInMark || deletionMark.onlyEndOfSelIsInMark )) {
+    } else if (tr.selection.from > state.selection.from && deletionMark &&state.selection.to!=state.selection.from&& (deletionMark.onlyStartOfSelIsInMark || deletionMark.onlyEndOfSelIsInMark )) {
+      if(deletionMark.onlyEndOfSelIsInMark){
+        newTr.setSelection(tr.selection.map(newTr.doc, map))
+      }else if(deletionMark.onlyStartOfSelIsInMark){
+        newTr.setSelection(tr.selection.map(newTr.doc, map));
+      }
+    } else if (tr.selection.from > state.selection.from && state.selection.from==state.selection.to && deletionMark && deletionMark.contained){
+      let newPos = deletionMark.to  + (tr.selection.from-deletionMark.to)+(deletionMark.to-state.selection.to)
+      const caretPos = map.map(newPos);
+      newTr.setSelection(new TextSelection(newTr.doc.resolve(caretPos)));
+    }else if(tr.selection.from > state.selection.from && state.selection.from==state.selection.to && deletionMark && (deletionMark.atEndOfSel || deletionMark.atStartOfSel)){
       newTr.setSelection(tr.selection.map(newTr.doc, map));
-    } else if (tr.selection.from > state.selection.from && deletionMark && state.selection.from!=state.selection.to ) {
+    }/* else if (tr.selection.from > state.selection.from && deletionMark && state.selection.from!=state.selection.to ) {
       const caretPos = map.map(deletionMark.to + 1 - (state.selection.to-state.selection.from), 1);
       newTr.setSelection(new TextSelection(newTr.doc.resolve(caretPos)));
-    }else if (tr.selection.from > state.selection.from && deletionMark) {
+    } */else if (tr.selection.from > state.selection.from && deletionMark) {
       const caretPos = map.map(deletionMark.to + 1, 1);
       newTr.setSelection(new TextSelection(newTr.doc.resolve(caretPos)));
     } else {

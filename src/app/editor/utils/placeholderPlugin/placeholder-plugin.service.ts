@@ -19,7 +19,7 @@ export class PlaceholderPluginService {
     this.placeholderPlugin = new Plugin({
       key: this.key,
       state: {
-        init: (_, state)=> {
+        init: (_:any, state)=> {
           return JSON.parse(JSON.stringify({ data: _.data,sectionID:_.sectionID }));
         },
         apply(tr, prev, _, newState) {

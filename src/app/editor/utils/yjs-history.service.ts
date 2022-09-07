@@ -274,7 +274,7 @@ export class YjsHistoryService {
         handleKeyDown
       },
       state: {
-        init: (initargs, state) => {
+        init: (initargs:any, state) => {
           // TODO: check if plugin order matches and fix
           const ystate = ySyncPluginKey.getState(state)
           const undoManager = new UndoManager(ystate.type, {

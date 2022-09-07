@@ -223,7 +223,7 @@ export class CommentsService {
     this.commentsPlugin = new Plugin({
       key: this.commentPluginKey,
       state: {
-        init: (_, state) => {
+        init: (_:any, state) => {
           return { sectionName: _.sectionName };
         },
         apply(tr, prev, oldState, newState) {

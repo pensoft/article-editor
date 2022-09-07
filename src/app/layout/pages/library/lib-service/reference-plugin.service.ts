@@ -27,8 +27,8 @@ export class ReferencePluginService {
     this.referencePlugin = new Plugin({
       key: referencePluginKey,
       state: {
-        init: (_, state) => {
-          return { sectionName: _.sectionName };
+        init: (_:any, state) => {
+          return { sectionName: _.sectionName,decs:undefined };
         },
         apply:(tr, prev, editorState, newState)=> {
           let decs: Decoration[] = [];

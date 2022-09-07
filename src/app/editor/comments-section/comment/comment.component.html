@@ -8,7 +8,7 @@
     <mat-card-title class="comment-title">{{userComment!.initialComment.userData.name}}</mat-card-title>
     <mat-card-subtitle class="comment-subtitle" >{{userComment!.initialComment.date | date:'medium'}}</mat-card-subtitle>
 
-    <div class="header-actions">
+    <div *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'" class="header-actions">
       <ng-container *ngIf="authService.currentUserSubject | async as user">
         <arpha-button *ngIf="!mobileVersion && userComment!.initialComment.userData.email == user.email" (clickEvent)="deleteComment()" label="Resolve" style="background-color: transparent;" class="small secondary resolve-button"></arpha-button>
       </ng-container>
@@ -32,26 +32,28 @@
       <div class="selected-text-content" (click)="selectComment()">{{comment!.commentTxt}}</div>
     </div>
 
-    <div #content [ngClass]="{
+    <div  #content [ngClass]="{
       'comment-content':true,
       'comment-elipsis-content':!initialShowMore,
       'comment-full-content':initialShowMore
     }" (click)="selectComment()" ><span #commentSpan [innerHtml]="userComment!.initialComment.comment | email"></span></div>
-    <a (click)="initialShowMore = !initialShowMore" [ngClass]="{
+    <a (click)="initialShowMore = !initialShowMore;showMoreLessClick()" [ngClass]="{
       'morelessBtn':true,
       'comment-display-none':commentSpan.offsetWidth < 295 && commentSpan.offsetHeight < 20
     }">{{initialShowMore ? 'Show less': 'Show More' }}</a>
 
-    <div class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
-    <div #ReplyDiv style="display: none;">
-      <mat-form-field appearance="outline" class="reply-form-field">
-        <input #input matInput type="text" placeholder="Write a reply..." [formControl]="replyFormControl" (keydown)="autocomplete.keyHandle($event)">
-        <app-collaborators-auto-complete [(inputFromControl)]="replyFormControl" #autocomplete></app-collaborators-auto-complete>
-        <mat-icon matSuffix class="comment-reply-field-icon">alternate_email</mat-icon>
-      </mat-form-field>
-      <div class="comment-reply-btns">
-        <button mat-button label="Cancel" (click)="cancelReplyBtnHandle(ReplyDiv)" class="small  secondary cencel-button">Cancel</button>
-        <button mat-button label="Comment" (click)="autocomplete.canFinishComment(commentReplyBtnHandle,[ReplyDiv])" [disabled]="input.value.length === 0" class="small  secondary comment-button">Reply</button>
+    <div *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'">
+      <div  class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
+      <div  #ReplyDiv style="display: none;">
+        <mat-form-field appearance="outline" class="reply-form-field">
+          <input #input matInput type="text" placeholder="Write a reply..." [formControl]="replyFormControl" (keydown)="autocomplete.keyHandle($event)">
+          <app-collaborators-auto-complete [(inputFromControl)]="replyFormControl" #autocomplete></app-collaborators-auto-complete>
+          <mat-icon matSuffix class="comment-reply-field-icon">alternate_email</mat-icon>
+        </mat-form-field>
+        <div class="comment-reply-btns">
+          <button mat-button label="Cancel" (click)="cancelReplyBtnHandle(ReplyDiv)" class="small  secondary cencel-button">Cancel</button>
+          <button mat-button label="Comment" (click)="autocomplete.canFinishComment(commentReplyBtnHandle,[ReplyDiv])" [disabled]="input.value.length === 0" class="small  secondary comment-button">Reply</button>
+        </div>
       </div>
     </div>
   </mat-card-content>
@@ -67,7 +69,7 @@
 
     <div class="header-actions">
       <ng-container *ngIf="authService.currentUserSubject | async as user">
-        <button *ngIf="!mobileVersion && userComment!.initialComment.userData.email == user.email" mat-icon-button [matMenuTriggerFor]="menu">
+        <button *ngIf="!mobileVersion && comment.userData.email == user.email" mat-icon-button [matMenuTriggerFor]="menu">
           <mat-icon>more_horiz</mat-icon>
         </button>
       </ng-container>
@@ -82,7 +84,7 @@
   <mat-card-content>
 
     <div #content [ngClass]="{'comment-content':true,'comment-elipsis-content':!repliesShowMore[index],'comment-full-content':repliesShowMore[index]}"><span #commentSpan [innerHTML]="comment.comment|email"></span></div>
-    <a (click)="repliesShowMore[index] = !repliesShowMore[index]" [ngClass]="{'morelessBtn':true,'comment-display-none':commentSpan.offsetWidth < 295 && commentSpan.offsetHeight < 20}">{{repliesShowMore[index] ? 'Show less': 'Show More' }}</a>
+    <a (click)="repliesShowMore[index] = !repliesShowMore[index];showMoreLessClick()" [ngClass]="{'morelessBtn':true,'comment-display-none':commentSpan.offsetWidth < 295 && commentSpan.offsetHeight < 20}">{{repliesShowMore[index] ? 'Show less': 'Show More' }}</a>
 
     <!-- <div class="reply" style="display: none;" (click)="showHideReply(ReplyDiv)">Reply</div>
     <div #ReplyDiv style="display: none;">

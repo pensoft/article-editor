@@ -60,7 +60,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
   constructor(
     public authService: AuthService,
-    private ydocService: YdocService,
+    public ydocService: YdocService,
     public sharedDialog: MatDialog,
     private prosemirrorEditorService: ProsemirrorEditorsService,
     private contributorsApiService:ContributorsApiService,
@@ -88,6 +88,13 @@ export class CommentComponent implements OnInit, AfterViewInit {
   }
 
   commentIsChangedInYdoc() {
+    this.doneRenderingCommentsSubject.next('change_in_comments_in_ydoc');
+  }
+
+  showMoreLessClick(){
+    setTimeout(()=>{
+      this.doneRenderingCommentsSubject.next('show_more_less_click');
+    },30)
   }
 
   checkIfCommentHasChanged(commentInYdoc: commentYdocSave) {
@@ -134,6 +141,9 @@ export class CommentComponent implements OnInit, AfterViewInit {
     let s: HTMLSpanElement = document.createElement('span');
     s.offsetWidth
     this.sharedService.CommentsService.lastSelectedCommentSubject.subscribe((comment) => {
+      if(this.ydocService.curUserRole&&this.ydocService.curUserRole=='Viewer'){
+        return
+      }
       if (this.comment.commentAttrs.id == comment.commentId) {
         (this.ReplyDiv.nativeElement as HTMLDivElement).style.display = 'block'
         this.selected.emit(true);

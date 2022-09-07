@@ -1,3 +1,4 @@
+import { I } from '@angular/cdk/keycodes';
 import {
   AfterViewInit, ChangeDetectorRef,
   Component,
@@ -230,13 +231,22 @@ export class EditorComponent implements OnInit, AfterViewInit {
     }
   }
 
+  userRole:string
   ngOnInit(): void {
+    this.ydocService.currUserRoleSubject.subscribe((userData:any)=>{
+      this.userRole = userData.role
+      if(this.userRole == 'Commenter'||this.userRole == 'Viewer'){
+        this.prosemirrorEditorServie.previewArticleMode.mode = true
+        this.titleControl.disable()
+      }
+    })
     this.route.paramMap
       .pipe(map((params: ParamMap) => params.get('id')))
       .subscribe((roomName) => {
         this.authService.getUserInfo().subscribe((userInfo) => {
           this.roomName = roomName;
           this.ydocService.init(roomName!, userInfo);
+
         });
       });
 

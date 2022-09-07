@@ -107,6 +107,12 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
           this.doneRendering('replay_rerender')
           return;
         }
+        if(data == 'change_in_comments_in_ydoc'){
+          this.doneRendering('change_in_comments_in_ydoc')
+        }
+        if(data == 'show_more_less_click'){
+          this.doneRendering('show_more_less_click');
+        }
         if (this.rendered == this.nOfCommThatShouldBeRendered) {
           this.doneRendering()
         }
@@ -191,7 +197,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
         return element.getAttribute('commentid') == id
       })
       let h = domElement.getBoundingClientRect().height
-      if (this.displayedCommentsPositions[id].height != h || (com.domTop <= this.displayedCommentsPositions[id].displayedTop)) { // old and new comment either dont have the same top or comment's height is changed
+      if (!this.displayedCommentsPositions[id]||(this.displayedCommentsPositions[id].height != h || (com.domTop <= this.displayedCommentsPositions[id].displayedTop))) { // old and new comment either dont have the same top or comment's height is changed
         if (lastElementBottom < com.domTop) {
           let pos = com.domTop
           domElement.style.top = pos + 'px';
@@ -218,7 +224,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
         return element.getAttribute('commentid') == id
       })
       let h = domElement.getBoundingClientRect().height
-      if (this.displayedCommentsPositions[id].height != h || (this.displayedCommentsPositions[id].displayedTop <= com.domTop)) { // old and new comment either dont have the same top or comment's height is changed
+      if (!this.displayedCommentsPositions[id]||(this.displayedCommentsPositions[id].height != h || (this.displayedCommentsPositions[id].displayedTop <= com.domTop))) { // old and new comment either dont have the same top or comment's height is changed
         if (lastCommentTop > com.domTop + h) {
           let pos = com.domTop
           domElement.style.top = pos + 'px';
@@ -283,7 +289,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
             this.loopFromTopAndOrderComments(sortedComments, comments)
           } else if (oldPos[oldPos.length - 1].top < newPos[newPos.length - 1].top) { // comments have increased top should loop from bottom
             this.loopFromBottomAndOrderComments(sortedComments, comments, container)
-          } else if (cause == 'hide_comment_box' || cause == 'replay_rerender') {
+          } else if (cause == 'hide_comment_box' || cause == 'replay_rerender' || cause == 'change_in_comments_in_ydoc' || cause == 'show_more_less_click') {
             this.loopFromTopAndOrderComments(sortedComments, comments)
             this.loopFromBottomAndOrderComments(sortedComments, comments, container)
           } else if (this.tryMoveItemsUp) {

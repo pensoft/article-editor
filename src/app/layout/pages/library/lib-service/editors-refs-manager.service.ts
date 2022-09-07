@@ -186,8 +186,8 @@ export class EditorsRefsManagerService {
   checkIfEditorHasCitationOfRef(container: {
     editorID: string;
     containerDiv: HTMLDivElement;
-    editorState: EditorState<any>;
-    editorView: EditorView<any>;
+    editorState: EditorState;
+    editorView: EditorView;
     dispatchTransaction: any;
   }, refId: string) {
     let count = 0
@@ -327,8 +327,8 @@ export class EditorsRefsManagerService {
   updateRefCitation(container: {
     editorID: string;
     containerDiv: HTMLDivElement;
-    editorState: EditorState<any>;
-    editorView: EditorView<any>;
+    editorState: EditorState;
+    editorView: EditorView;
     dispatchTransaction: any;
   }, ydocRef: any, refId: String) {
     let edView = container.editorView;

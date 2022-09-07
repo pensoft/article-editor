@@ -192,6 +192,9 @@ export class YdocService{
     }
 
   }
+
+  turnOnOffPreviewModeEditorFn:()=>void
+
   buildEditor() {
     this.sectionFormGroupsStructures = this.ydoc.getMap('sectionFormGroupsStructures');
     this.figuresMap = this.ydoc.getMap('ArticleFiguresMap');
@@ -276,13 +279,20 @@ export class YdocService{
     this.editorIsBuild = true;
   }
 
+  curUserRole:string
+  currUserRoleSubject = new Subject()
   checkIfUserIsInArticle(){
     this.serviceShare.AuthService.getUserInfo().subscribe((res)=>{
       let userinfo = res.data;
       let currUserEmail = userinfo.email;
       let collaborators = this.collaborators.get('collaborators').collaborators as any[]
-      if(!collaborators.find((user)=>user.email == currUserEmail)){
+      let userInArticle = collaborators.find((user)=>user.email == currUserEmail)
+
+      if(!userInArticle){
         this.serviceShare.openNotAddedToEditorDialog()
+      }else{
+        this.curUserRole = userInArticle.role;
+        this.currUserRoleSubject.next(userInArticle);
       }
     })
   }

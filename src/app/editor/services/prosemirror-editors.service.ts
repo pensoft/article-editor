@@ -368,6 +368,65 @@ export class ProsemirrorEditorsService {
       }
     })
 
+    let handlePasteInSelWithInsAndDelPluginKey = new PluginKey('handleTCpaste');
+    let handlePasteInSelWithInsAndDelPlugin = new Plugin({
+      keyL:handlePasteInSelWithInsAndDelPluginKey,
+      props:{
+        handlePaste(view,event,slice){
+          let delNode:any
+          let delNodeStartpos:any
+          let delNodeEndpos:any
+          let actualDelMark:any
+
+          let insNode:any
+          let insNodeStartpos:any
+          let insNodeEndpos:any
+          let actualInsMark:any
+
+          let from = view.state.selection.from;
+          let to = view.state.selection.to
+          let textnodeWithNoMarks = false;
+          view.state.doc.nodesBetween(from,to,(node,pos)=>{
+            let delmark = node.marks.find((mark)=>mark.type.name=="deletion")
+            let deleteMarkInNode = delmark?node:undefined;
+            actualDelMark = delmark;
+            let insmark = node.marks.find((mark)=>mark.type.name=="insertion")
+            let insertionMarkInNode = insmark?node:undefined;
+            actualInsMark = insmark;
+
+            if(node.type.name == 'text'){
+              if(deleteMarkInNode&&!delNode){
+                delNode = deleteMarkInNode
+                delNodeStartpos = pos
+                delNodeEndpos = pos+node.nodeSize
+              }else if(insertionMarkInNode&&!insNode){
+                insNode = insertionMarkInNode
+                insNodeStartpos = pos
+                insNodeEndpos = pos+node.nodeSize
+              }else if(node.marks.length == 0){
+                textnodeWithNoMarks = true;
+              }
+            }
+          })
+          if(!textnodeWithNoMarks&&delNode&&insNode){
+
+            setTimeout(()=>{
+              if(insNodeStartpos<from&&from<insNodeEndpos){ //  the start of the selection in insertion node
+                //should set new sel from=from to=insNodeEndpos
+                view.dispatch(view.state.tr.setSelection(TextSelection.between(view.state.tr.doc.resolve(from),view.state.tr.doc.resolve(insNodeEndpos),-1)).replaceSelection(slice))
+              }else if(insNodeStartpos<to&&to<insNodeEndpos){//  the end of the selection in insertion node
+                //should set new sel from=insNodeStartpos to=to
+                view.dispatch(view.state.tr.setSelection(TextSelection.between(view.state.tr.doc.resolve(insNodeStartpos),view.state.tr.doc.resolve(to),1)).replaceSelection(slice))
+              }
+            },10)
+            return true;
+          }
+
+          return false;
+        },
+      }
+    })
+
     let previewModePluginKey = new PluginKey('selectWholeCitat');
     let previewModePlugin = new Plugin({
       key: previewModePluginKey,
@@ -436,6 +495,7 @@ export class ProsemirrorEditorsService {
         transactionControllerPlugin,
         handleRefDelete,
         changeNodes,
+        handlePasteInSelWithInsAndDelPlugin,
         selectWholeCitat,
         previewModePlugin,
         this.detectFocusService.getPlugin(),
@@ -506,7 +566,6 @@ export class ProsemirrorEditorsService {
           editorView?.updateState(state!);
 
         } else {
-
           const tr = trackedTransaction.default(transaction, editorView, editorView?.state,
             {
               userId: this.userInfo.data.id,
@@ -530,9 +589,6 @@ export class ProsemirrorEditorsService {
           }
           let state = editorView?.state.apply(tr);
           editorView?.updateState(state!);
-          editorView?.updateState(state!);
-          editorView?.updateState(state!);
-
         }
       } catch (err) { console.error(err); }
     };
@@ -546,6 +602,56 @@ export class ProsemirrorEditorsService {
       editable: (state: EditorState) => {
         return !this.mobileVersion /* && this.editorsEditableObj[editorID] */
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
+      },
+      handleTextInput(this, view, from, to, text) {
+
+        let delNode:any
+        let delNodeStartpos:any
+        let delNodeEndpos:any
+        let actualDelMark:any
+
+        let insNode:any
+        let insNodeStartpos:any
+        let insNodeEndpos:any
+        let actualInsMark:any
+
+        let textnodeWithNoMarks = false;
+        view.state.doc.nodesBetween(from,to,(node,pos)=>{
+          let delmark = node.marks.find((mark)=>mark.type.name=="deletion")
+          let deleteMarkInNode = delmark?node:undefined;
+          actualDelMark = delmark;
+          let insmark = node.marks.find((mark)=>mark.type.name=="insertion")
+          let insertionMarkInNode = insmark?node:undefined;
+          actualInsMark = insmark;
+
+          if(node.type.name == 'text'){
+            if(deleteMarkInNode&&!delNode){
+              delNode = deleteMarkInNode
+              delNodeStartpos = pos
+              delNodeEndpos = pos+node.nodeSize
+            }else if(insertionMarkInNode&&!insNode){
+              insNode = insertionMarkInNode
+              insNodeStartpos = pos
+              insNodeEndpos = pos+node.nodeSize
+            }else if(node.marks.length == 0){
+              textnodeWithNoMarks = true;
+            }
+          }
+        })
+        if(!textnodeWithNoMarks&&delNode&&insNode){
+          setTimeout(()=>{
+            if(insNodeStartpos<from&&from<insNodeEndpos){ //  the start of the selection in insertion node
+              //should set new sel from=from to=insNodeEndpos
+              view.dispatch(view.state.tr.setSelection(TextSelection.between(view.state.tr.doc.resolve(from),view.state.tr.doc.resolve(insNodeEndpos),-1)).replaceSelectionWith(schema.text(text,[actualInsMark])))
+            }else if(insNodeStartpos<to&&to<insNodeEndpos){//  the end of the selection in insertion node
+              //should set new sel from=insNodeStartpos to=to
+              view.dispatch(view.state.tr.setSelection(TextSelection.between(view.state.tr.doc.resolve(insNodeStartpos),view.state.tr.doc.resolve(to),1)).replaceSelectionWith(schema.text(text,[actualInsMark])))
+            }
+          },10)
+          return true;
+        }
+
+        return false;
       },
       handleDOMEvents: {
         contextmenu: (view, event) => {
@@ -855,18 +961,19 @@ export class ProsemirrorEditorsService {
         createSelectionBetween: selectWholeCitatMarks
       },
       state: {
-        init(config) {
+        init(config:any) {
           return { sectionID: config.sectionID }
         },
         apply(tr, prev, _, newState) {
           return prev
         }
       },
-      appendTransaction: (trs: Transaction<any>[], oldState: EditorState, newState: EditorState) => {
+      appendTransaction: (trs: Transaction[], oldState: EditorState, newState: EditorState) => {
         let containerElement = document.createElement('div');
         let htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(newState.doc.content.firstChild!.content)
         containerElement.appendChild(htmlNOdeRepresentation);
         options.onChange(true, containerElement.innerHTML)
+        return newState.tr
       },
       filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, sectionID, this.serviceShare)
 

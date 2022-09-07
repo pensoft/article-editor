@@ -45,7 +45,7 @@ export class LinkPopUpPluginServiceService {
     this.linkPopUpPlugin = new Plugin({
       key: this.linkPopUpPluginKey,
       state: {
-        init: (_, state) => {
+        init: (_:any, state) => {
           return { sectionName: _.sectionName };
         },
         apply(tr, prev, _, newState) {
@@ -91,7 +91,7 @@ export class LinkPopUpPluginServiceService {
           }
 
         },
-        handleClick(this: Plugin<any, any>, view: EditorView<any>, pos: number, event: MouseEvent) {
+        handleClick(this: Plugin, view: EditorView, pos: number, event: MouseEvent) {
           let sectionId = linkPopUpPluginKey.getState(view.state).sectionName
           let node = view.state.doc.nodeAt(pos);
           if (node&&node.marks.filter((mark) => mark.attrs.download && mark.attrs.download != "").length > 0) {

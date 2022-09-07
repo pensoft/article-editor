@@ -8,7 +8,7 @@ const citation = {
     inclusive: false,
     attrs: {
         citated_figures: { default: [] },
-        nonexistingFigure:{ default:'false' }, 
+        nonexistingFigure:{ default:'false' },
         citateid: { default: '' },
         last_time_updated: { default: '' },
         figures_display_view: { default: [] },
@@ -28,7 +28,7 @@ const citation = {
             return attrs
         }
     }],
-    toDOM(node: Node) {
+    toDOM(node: any) {
         node.attrs.contenteditableNode = 'false';
         return ["citation", {
             "citated_figures": node.attrs.citated_figures.join(','),

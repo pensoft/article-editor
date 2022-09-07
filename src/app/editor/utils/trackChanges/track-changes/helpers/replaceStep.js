@@ -27,7 +27,7 @@ const replaceStep = (
 
   let deleteMarkId = deletionMark ? deletionMark.attrs.id : uuidv4();
 
-  let insideDeleteMark = deletionMark ? deletionMark.contained : false;
+  let insideDeleteMark = deletionMark ? deletionMark.selIsInsideMark : false;
   let atednOfDeleteMark =
     deletionMark && deletionMark.atStartOfSel ? true : false;
   let atStartOfDeletionMark =
@@ -74,7 +74,29 @@ const replaceStep = (
             insertionMarkAtEndOfDeletionMark.attrs.user == user.userId;
         }
       }
-    } else if (atednOfDeleteMark && state.selection.$to.nodeAfter) {
+    } /* else if(state.selection.from != state.selection.to&&insertionMark&&deletionMark){
+      if(deletionMark.atStartOfSel){
+        let insetrionMarkAtEndOfSelection =
+        state.selection.$to.nodeAfter.marks.filter(
+          (mark) => mark.type.name == insertionMarkFromSchema.name
+        )[0];
+        if (insetrionMarkAtEndOfSelection) {
+          insertionMarkAttrs = insetrionMarkAtEndOfSelection.attrs;
+          userHasInsertionMarkAtEndOdDeletionMark =
+          insetrionMarkAtEndOfSelection.attrs.user == user.userId;
+        }
+      }else if(deletionMark.atEndOfSel){
+        let insetrionMarkAtEndOfSelection =
+        state.selection.$from.nodeAfter.marks.filter(
+          (mark) => mark.type.name == insertionMarkFromSchema.name
+        )[0];
+        if (insetrionMarkAtEndOfSelection) {
+          insertionMarkAttrs = insetrionMarkAtEndOfSelection.attrs;
+          userHasInsertionMarkAtEndOdDeletionMark =
+          insetrionMarkAtEndOfSelection.attrs.user == user.userId;
+        }
+      }
+    } */else if (atednOfDeleteMark && state.selection.$to.nodeAfter) {
       let insertionMarkAtEndOfDeletionMark =
         state.selection.$to.nodeAfter.marks.filter(
           (mark) => mark.type.name == insertionMarkFromSchema.name
@@ -96,9 +118,16 @@ const replaceStep = (
       }
     }
 
+    let theFoundInsMarkIsFromThisUser = false;
+
+    if(insertionMark&&insertionMark.attrs.user == user.userId){
+      theFoundInsMarkIsFromThisUser = true;
+    }
+
     let userIsContinuingItsOwnMarkAroundADeletion =
       userHasInsertionMarkAtEndOdDeletionMark ||
-      userHasInsertionMarkAtStartOFDeletionMark;
+      userHasInsertionMarkAtStartOFDeletionMark ||
+      theFoundInsMarkIsFromThisUser;
     let thereIsADeletionAroundcursur = deletionMark && true;
     let userIsInInsertion = insertionMark && true;
 
@@ -118,6 +147,7 @@ const replaceStep = (
         );
       } else {
         insertionMarkID = uuidv4();
+
         markInsertion(
           trTemp,
           newStep.from,

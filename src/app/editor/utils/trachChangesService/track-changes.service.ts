@@ -92,7 +92,7 @@ export class TrackChangesService {
     let hideShowPlugin = new Plugin({
       key: hideShowPluginKey,
       state: {
-        init: (_, state) => {
+        init: (_:any, state) => {
           return {
             sectionName: _.sectionName,
             createdDecorations: DecorationSet.empty,

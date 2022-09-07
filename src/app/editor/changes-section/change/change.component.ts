@@ -6,6 +6,7 @@ import { TrackChangesService } from '@app/editor/utils/trachChangesService/track
 import { getDate } from '@app/editor/comments-section/comment/comment.component';
 import { Subscription } from 'rxjs';
 import { ServiceShare } from '@app/editor/services/service-share.service';
+import { YdocService } from '@app/editor/services/ydoc.service';
 
 @Component({
   selector: 'app-change',
@@ -20,7 +21,8 @@ export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
   previewMode
   constructor(
     public changesService: TrackChangesService,
-    private serviceShare:ServiceShare
+    private serviceShare:ServiceShare,
+    public ydocService:YdocService
     ) {
     this.previewMode = serviceShare.ProsemirrorEditorsService!.previewArticleMode
     this.sub = this.changesService.changesFocusFunctions.subscribe((index)=>{

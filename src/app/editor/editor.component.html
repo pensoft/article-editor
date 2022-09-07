@@ -2,7 +2,7 @@
   <mat-toolbar-row class="controls-toolbar-row">
     <div class="left-group">
 
-      <button (click)="clickEditorTab()" color="primary" mat-button [class.active]="active=='editor'" style="color:var(--color-192956)">
+      <button [ngStyle]="{'display':(userRole == 'Commenter'||userRole == 'Viewer')?'none':'block'}" [disabled]="(userRole == 'Commenter'||userRole == 'Viewer')" (click)="clickEditorTab()" color="primary" mat-button [class.active]="active=='editor'" style="color:var(--color-192956)">
         <mat-icon svgIcon="edit1"></mat-icon>
         <span style="margin-left:2px">Editor</span>
       </button>
@@ -54,13 +54,13 @@
     </button>
     </div> -->
     <div class="prosemirror_menu_container">
-      <app-editor-menu>
+      <app-editor-menu [ngStyle]="{'display':(userRole == 'Commenter'||userRole == 'Viewer')?'none':'inline'}">
       </app-editor-menu>
     </div>
 
 
     <div class="side-navbar-actions">
-      <button #trachChangesOnOffBtn [ngStyle]="{'color':previewMode.mode?'gray':this.shouldTrackChanges?'#19d928':'#f37b4a'}" mat-icon-button class="changes_state_btn" [matMenuTriggerFor]="beforeMenu">
+      <button *ngIf="!(userRole == 'Commenter'||userRole == 'Viewer')" #trachChangesOnOffBtn [ngStyle]="{'color':previewMode.mode?'gray':this.shouldTrackChanges?'#19d928':'#f37b4a'}" mat-icon-button class="changes_state_btn" [matMenuTriggerFor]="beforeMenu">
         <mat-icon>{{previewMode.mode?'visibility':this.shouldTrackChanges?'mode_edit':'edit_off'}}</mat-icon>
       </button>
       <mat-menu #beforeMenu="matMenu" xPosition="before">
@@ -113,14 +113,14 @@
         <!-- <app-prosemirror-editor style="height:97%;"></app-prosemirror-editor> -->
         <!-- <app-formio ></app-formio> -->
         <!-- <app-taxonomy-editor></app-taxonomy-editor> -->
-        <div class="editor_buttons">
+        <div [ngStyle]="{'display':(userRole == 'Viewer')?'none':'block'}" class="editor_buttons">
           <div class="editor_buttons_wrapper">
             <div class="commentBtnDiv">
               <button class="commentsBtn" mat-icon-button>
                 <mat-icon svgIcon="comments"></mat-icon>
               </button>
             </div>
-            <div class="trackChangesBtnDiv">
+            <div [ngStyle]="{'display':(userRole == 'Commenter'||userRole == 'Viewer')?'none':'block'}" class="trackChangesBtnDiv">
               <button [ngClass]="shouldTrackChanges?'changes_on_editor_side_btn':'changes_off_editor_side_btn'" (click)="turnOnOffTrachChanges()" class="trackChangesBtn" mat-icon-button>
                 <mat-icon svgIcon="reference"></mat-icon>
               </button>

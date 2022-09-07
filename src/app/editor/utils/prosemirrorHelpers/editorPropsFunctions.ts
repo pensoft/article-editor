@@ -15,15 +15,15 @@ import { articleSection } from "../interfaces/articleSection";
 export function handlePaste(mathMap: YMap<any>, sectionID: string,sharedService:ServiceShare) {
   return function handlePaste(view: EditorView, event: Event, slice: Slice) {
     let newPastedCitation = false;
-    slice.content.nodesBetween(0, slice.size - 2, (node, pos, parent) => {
+    slice.content.nodesBetween(0, slice.size - 2, (node:any, pos, parent) => {
       if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
-        let mark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
+        let mark:any = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
 
         mark.attrs.citateid = uuidv4()
         newPastedCitation = true;
       }
       if(node.marks.filter((mark) => { return mark.type.name == 'comment' }).length > 0) {
-        let comment = node.marks.filter((mark) => { return mark.type.name == 'comment' })[0]
+        let comment:any = node.marks.filter((mark) => { return mark.type.name == 'comment' })[0]
 
         comment.attrs.commentmarkid = uuidv4()
       }
@@ -357,7 +357,7 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
       if (!canEdit && to !== from && contentEditableNodeAroundPos($from) && contentEditableNodeAroundPos($to)) {
 
 
-        view.dispatch(view.state.tr.setSelection(new Selection(view.state.doc.resolve(from - 1), view.state.doc.resolve(to + 1))))
+        view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(from - 1), view.state.doc.resolve(to + 1))))
         canEdit = true;
       }
       if (!canEdit || previewMode.mode) {

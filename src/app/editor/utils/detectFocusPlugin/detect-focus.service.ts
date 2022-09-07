@@ -38,7 +38,7 @@ export class DetectFocusService {
     this.detectFocusPlugin = new Plugin({
       key: detectFocusPluginKey,
       state: {
-        init: (_, state) => {
+        init: (_:any, state) => {
           return { sectionName: _.sectionName ,hasFocus:false};
         },
         apply(tr, prev, editorState, newState) {

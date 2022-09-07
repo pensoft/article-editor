@@ -41,7 +41,7 @@ export const updateControlsAndFigures = (
   }
 
   let sectionTreeTitleUpdateMetas: any
-  return (trs: Transaction<any>[], oldState: EditorState, newState: EditorState) => {
+  return (trs: Transaction[], oldState: EditorState, newState: EditorState) => {
     try {
 
       let figures = figuresMap.get('ArticleFigures');
@@ -190,7 +190,7 @@ export const updateControlsAndFigures = (
 
 export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathMap:YMap<any>, rerenderFigures: (citats: any) => any, sectionID: string,sharedService:ServiceShare) => {
 
-  return (transaction: Transaction<any>, state: EditorState) => {
+  return (transaction: Transaction, state: EditorState) => {
     try {
       if (sectionID == 'endEditor') {
         return true
