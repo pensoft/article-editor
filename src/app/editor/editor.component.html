@@ -2,7 +2,7 @@
   <mat-toolbar-row class="controls-toolbar-row">
     <div class="left-group">
 
-      <button [ngStyle]="{'display':(userRole == 'Commenter'||userRole == 'Viewer')?'none':'block'}" [disabled]="(userRole == 'Commenter'||userRole == 'Viewer')" (click)="clickEditorTab()" color="primary" mat-button [class.active]="active=='editor'" style="color:var(--color-192956)">
+      <button   (click)="clickEditorTab()" color="primary" mat-button [class.active]="active=='editor'" style="color:var(--color-192956)">
         <mat-icon svgIcon="edit1"></mat-icon>
         <span style="margin-left:2px">Editor</span>
       </button>

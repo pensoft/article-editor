@@ -59,6 +59,22 @@ export let searchData: contributorData[] = [
     name: 'Nekoi Nekoisi',
     email: 'nekoi@gmail.com',
   },
+  {
+    name:'Admin 1',
+    email:"admin@pensoft.com"
+  },
+  {
+    name:"Tsvetomir Vasilev",
+    email:'tsvetomir.vasilev@scalewest.com'
+  },
+  {
+    name: 'Admin 2',
+    email: 'admin@demo.com'
+  },
+  {
+    name:'Miroslav Ivanov',
+    email: 'miro@scalewest.com'
+  }
 ];
 
 @Component({
