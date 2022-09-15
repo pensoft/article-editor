@@ -30,8 +30,19 @@
       "@features/*": ["src/app/features/*"],
       "@assets/*": ["src/assets/*"],
       "@errors/*": ["src/app/errors/*"],
-      "@metronic/*": ["src/app/_metronic/*"]
-    }
+      "@metronic/*": ["src/app/_metronic/*"],
+      "path": [
+        "./node_modules/path-browserify"
+      ],
+      "stream":[
+        "./node_modules/stream-browserify"
+      ],
+      "fs":[
+        "./node_modules/browserify-fs"
+      ]
+    },
+    "types": [ "node" ],
+    "typeRoots": [ "../node_modules/@types" ],
   },
   "angularCompilerOptions": {
     "allowSyntheticDefaultImports": true,

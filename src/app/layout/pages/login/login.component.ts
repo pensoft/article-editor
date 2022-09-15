@@ -79,13 +79,17 @@ export class LoginComponent implements OnInit, OnDestroy {
     loginSub.pipe(first())
       .subscribe((user: UserModel) => {
         if (user) {
+          setTimeout(()=>{
+            this.router.navigate(['dashboard']);
+            this.serviceShare.ProsemirrorEditorsService.stopSpinner()
 
-          this.router.navigate(['dashboard']);
+          },2000)
           // this.formioBaseService.login();
         } else {
           this.hasError = true;
+          this.serviceShare.ProsemirrorEditorsService.stopSpinner()
+
         }
-        this.serviceShare.ProsemirrorEditorsService.stopSpinner()
       });
     loginSub.subscribe((data: any) => {
     })

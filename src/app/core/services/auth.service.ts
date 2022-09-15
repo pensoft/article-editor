@@ -3,10 +3,10 @@ import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 
 import {CONSTANTS} from './constants';
 import {Injectable, OnDestroy} from '@angular/core';
-import {BehaviorSubject, Observable, of, Subject} from 'rxjs';
+import {BehaviorSubject, interval, Observable, of, Subject} from 'rxjs';
 import {NavigationEnd, Router} from '@angular/router';
 import {UserModel} from '@core/models/user.model';
-import {catchError, filter, map, switchMap, takeUntil, tap} from 'rxjs/operators';
+import {catchError, filter, map, switchMap, takeUntil, tap, timeout} from 'rxjs/operators';
 import { environment } from '@env';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 const API_AUTH_URL = environment.authUrl;
@@ -50,6 +50,9 @@ export class AuthService implements OnDestroy {
       map((token) => {
         this.storeToken('token', token['access_token']);
         this.storeToken('refresh_token', token['refresh_token']);
+        setTimeout(()=>{
+          this.sharedService.EnforcerService.triggerUpdatePolicy()
+        },0)
         return token;
       }),
       switchMap((token) => this.getUserInfo(token)),

@@ -14,6 +14,7 @@ import { HttpClient } from '@angular/common/http';
 import { RefsApiService } from './lib-service/refs-api.service';
 import { styles, styles1 } from './data/styles';
 import { genereteNewReference } from './lib-service/refs-funcs';
+import { EnforcerService } from '@app/casbin/services/enforcer.service';
 
 @Component({
   selector: 'app-library',
@@ -30,7 +31,8 @@ export class LibraryPage implements AfterViewInit {
     public dialog: MatDialog,
     private cslService: CslService,
     private refsAPI:RefsApiService,
-    private changeDetection: ChangeDetectorRef
+    private changeDetection: ChangeDetectorRef,
+    public enforcer:EnforcerService
   ) {
 
   }

@@ -78,6 +78,10 @@ export let searchData: contributorData[] = [
   {
     name:'Mincho Milev',
     email: 'mincho@scalewest.com'
+  },
+  {
+    name:'Nikolai Baldzhiev',
+    email: 'nick@scalewest.com'
   }
 ];
 

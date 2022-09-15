@@ -34,7 +34,7 @@ import { Transaction as YTransaction } from 'yjs';
 @Injectable({
   providedIn: 'root'
 })
-export class YdocService{
+export class YdocService {
   ydocStateObservable: Subject<any> = new Subject<any>();
 
   editorIsBuild = false;
@@ -48,7 +48,7 @@ export class YdocService{
   constructor(
     private http: HttpClient,
     private serviceShare: ServiceShare,
-    private articleService:ArticlesService
+    private articleService: ArticlesService
   ) {
     this.serviceShare.shareSelf('YdocService', this)
   }
@@ -62,7 +62,7 @@ export class YdocService{
   trackChangesMetadata?: YMap<any>
   usersDataMap?: YMap<any>
   mathMap?: YMap<any>
-  referenceCitationsMap?:YMap<any>;
+  referenceCitationsMap?: YMap<any>;
   printMap?: YMap<any>
   customSectionProps?: YMap<any>
   collaborators?: YMap<any>
@@ -193,7 +193,7 @@ export class YdocService{
 
   }
 
-  turnOnOffPreviewModeEditorFn:()=>void
+  turnOnOffPreviewModeEditorFn: () => void
 
   buildEditor() {
     this.sectionFormGroupsStructures = this.ydoc.getMap('sectionFormGroupsStructures');
@@ -216,34 +216,34 @@ export class YdocService{
     let externalRefs = this.referenceCitationsMap?.get('externalRefs');
     let localRefs = this.referenceCitationsMap?.get('localRefs');
     let customPropsObj = this.customSectionProps?.get('customPropsObj');
-    if(!customPropsObj){
-      this.customSectionProps?.set('customPropsObj',{})
+    if (!customPropsObj) {
+      this.customSectionProps?.set('customPropsObj', {})
     }
-    if(!localRefs){
-      this.referenceCitationsMap?.set('localRefs',{})
+    if (!localRefs) {
+      this.referenceCitationsMap?.set('localRefs', {})
     }
-    if(!externalRefs){
-      this.referenceCitationsMap?.set('externalRefs',{})
+    if (!externalRefs) {
+      this.referenceCitationsMap?.set('externalRefs', {})
     }
-    if(!references){
-      this.referenceCitationsMap?.set('references',{})
+    if (!references) {
+      this.referenceCitationsMap?.set('references', {})
     }
-    if(!referencesInEditor){
-      this.referenceCitationsMap?.set('referencesInEditor',{})
+    if (!referencesInEditor) {
+      this.referenceCitationsMap?.set('referencesInEditor', {})
     }
     if (!usersColors) {
-      this.usersDataMap.set('usersColors', { });
+      this.usersDataMap.set('usersColors', {});
     }
     this.setUserColor(this.userInfo);
 
     if (!pdfSettings) {
       let pdfPrintSettings = (
-        this.articleData&&
-        this.articleData.layout&&
-        this.articleData.layout.settings&&
+        this.articleData &&
+        this.articleData.layout &&
+        this.articleData.layout.settings &&
         this.articleData.layout.settings.print_settings
-        )?this.articleData.layout.settings.print_settings:{}
-      this.printMap.set('pdfPrintSettings',pdfPrintSettings)
+      ) ? this.articleData.layout.settings.print_settings : {}
+      this.printMap.set('pdfPrintSettings', pdfPrintSettings)
     }
     if (!figures) {
       this.figuresMap!.set('ArticleFigures', {})
@@ -257,7 +257,7 @@ export class YdocService{
     if (!figuresNumbers) {
       this.figuresMap!.set('ArticleFiguresNumbers', []);
     }
-    if(!mathObj){
+    if (!mathObj) {
       this.mathMap!.set('dataURLObj', {});
     }
 
@@ -271,7 +271,7 @@ export class YdocService{
     this.collaborators = this.ydoc.getMap('articleCollaborators');
     this.collaborators.observe(this.observeCollaboratorsFunc);
     this.checkIfUserIsInArticle()
-    if(this.shouldSetTheOwnerForTheNewArticle){
+    if (this.shouldSetTheOwnerForTheNewArticle) {
       this.setArticleOwnerInfo()
     }
     this.ydocStateObservable.next('docIsBuild');
@@ -279,20 +279,23 @@ export class YdocService{
     this.editorIsBuild = true;
   }
 
-  curUserRole:string
+  curUserRole: string
   currUserRoleSubject = new Subject()
-  checkIfUserIsInArticle(){
-    this.serviceShare.AuthService.getUserInfo().subscribe((res)=>{
+  checkIfUserIsInArticle() {
+    this.serviceShare.AuthService.getUserInfo().subscribe((res) => {
       let userinfo = res.data;
       let currUserEmail = userinfo.email;
       let collaborators = this.collaborators.get('collaborators').collaborators as any[]
-      let userInArticle = collaborators.find((user)=>user.email == currUserEmail)
-      if(currUserEmail == 'mincho@scalewest.com'){
+      let userInArticle = collaborators.find((user) => user.email == currUserEmail)
+      if (currUserEmail == 'mincho@scalewest.com') {
         userInArticle = true;
       }
-      if(!userInArticle){
+      if (!userInArticle) {
         this.serviceShare.openNotAddedToEditorDialog()
-      }else{
+      } else {
+        if (this.curUserRole && this.curUserRole != userInArticle.role) {
+          this.serviceShare.openNotifyUserRoleChangeDialog(this.curUserRole, userInArticle.role)
+        }
         this.curUserRole = userInArticle.role;
         this.currUserRoleSubject.next(userInArticle);
       }
@@ -300,9 +303,9 @@ export class YdocService{
   }
 
   collaboratorsSubject = new Subject()
-  observeCollaboratorsFunc = (event:YMapEvent<any>,transaction:YTransaction) => {
+  observeCollaboratorsFunc = (event: YMapEvent<any>, transaction: YTransaction) => {
     let collaboratorsData = this.collaborators.get('collaborators')
-    if(collaboratorsData){
+    if (collaboratorsData) {
       this.checkIfUserIsInArticle()
     }
     this.collaboratorsSubject.next(collaboratorsData)
@@ -315,9 +318,9 @@ export class YdocService{
     this.checkLastTimeUpdated();
   }
 
-  checkLastTimeUpdated(){
-    if(new Date(this.articleData.updated_at).toDateString() !== new Date().toDateString()){
-      this.articleService.updateArticleUpdatedAt(this.articleData).subscribe((res)=>{
+  checkLastTimeUpdated() {
+    if (new Date(this.articleData.updated_at).toDateString() !== new Date().toDateString()) {
+      this.articleService.updateArticleUpdatedAt(this.articleData).subscribe((res) => {
       });
     }
   }
@@ -328,13 +331,13 @@ export class YdocService{
 
     this.ydoc = new Y.Doc();
 
-    if(this.provider){
+    if (this.provider) {
       this.provider.awareness.destroy();
       this.provider.destroy();
     }
     this.provider = undefined;
     this.roomName = 'webrtc-test3';
-    if(this.providerIndexedDb){
+    if (this.providerIndexedDb) {
       this.providerIndexedDb.destroy();
     }
     this.providerIndexedDb = undefined;
@@ -349,10 +352,10 @@ export class YdocService{
     this.userInfo = undefined;
     this.creatingANewArticle = false;
     this.mathMap = undefined;
-    this.referenceCitationsMap= undefined;
-    this.printMap= undefined;
-    this.customSectionProps= undefined;
-    if(this.collaborators){
+    this.referenceCitationsMap = undefined;
+    this.printMap = undefined;
+    this.customSectionProps = undefined;
+    if (this.collaborators) {
       this.collaborators.unobserve(this.observeCollaboratorsFunc);
     }
     this.collaborators = undefined;
@@ -361,7 +364,7 @@ export class YdocService{
   setUserColor(userInfo: any) {
     let usersColors = this.usersDataMap!.get('usersColors');
     let userId = userInfo.data.id;
-    let colors:string[] = [
+    let colors: string[] = [
       '#84aff5',
       '#edeaa6',
       '#d5eda6',
@@ -390,7 +393,7 @@ export class YdocService{
       '#ffdbfb',
       '#ffdbe2',]
     if (!usersColors[userId]) {
-      let newUserColor = colors[+(Math.random() * colors.length-2).toFixed(0)]
+      let newUserColor = colors[+(Math.random() * colors.length - 2).toFixed(0)]
       usersColors[userId] = newUserColor;
     }
     this.usersDataMap!.set('usersColors', usersColors);
@@ -408,9 +411,9 @@ export class YdocService{
     this.roomName = roomName
     this.userInfo = userInfo;
     //@ts-ignore
-    window.indexedDB.databases().then((value:any[])=>{
-      value.forEach((db:{name:string,version:number})=>{
-        if(db.name!==this.roomName){
+    window.indexedDB.databases().then((value: any[]) => {
+      value.forEach((db: { name: string, version: number }) => {
+        if (db.name !== this.roomName) {
           //@ts-ignore
           window.indexedDB.deleteDatabase(db.name);
         }
@@ -425,21 +428,21 @@ export class YdocService{
         awareness: new awarenessProtocol.Awareness(this.ydoc),
       })
       this.provider
-      this.provider.on('connection-close', function(WSClosedEvent:any){
-        console.log("---",WSClosedEvent,(new Date()).getTime());
+      this.provider.on('connection-close', function (WSClosedEvent: any) {
+        console.log("---", WSClosedEvent, (new Date()).getTime());
       });
-      this.provider.on('connection-error', function(WSErrorEvent:any){
-        console.log("---",WSErrorEvent,(new Date()).getTime());
+      this.provider.on('connection-error', function (WSErrorEvent: any) {
+        console.log("---", WSErrorEvent, (new Date()).getTime());
       });
       this.provider.on('synced', (isSynced: boolean) => {
-        let checkSyncStatus = setInterval(()=>{
-          if(this.ydoc.store.clients.size!==0||this.ydoc.getXmlFragment().length>0||this.creatingANewArticle){
-            setTimeout(()=>{
+        let checkSyncStatus = setInterval(() => {
+          if (this.ydoc.store.clients.size !== 0 || this.ydoc.getXmlFragment().length > 0 || this.creatingANewArticle) {
+            setTimeout(() => {
               this.buildEditor();
-            },1000)
+            }, 1000)
             clearInterval(checkSyncStatus)
           }
-        },500)
+        }, 500)
       })
       /* this.provider = new WebrtcProvider(this.roomName, this.ydoc, {
         signaling: ['ws://dev.scalewest.com:4444','ws://localhost:4444',  'wss://y-webrtc-signaling-eu.herokuapp.com' , 'wss://signaling.yjs.dev'  ,'wss://y-webrtc-signaling-us.herokuapp.com'],
@@ -548,21 +551,23 @@ export class YdocService{
   }
 
   shouldSetTheOwnerForTheNewArticle = false
-  ownerInfo :any
-  newArticleId :string = ''
+  ownerInfo: any
+  newArticleId: string = ''
 
-  newArticleIsCreated(user:any,articleId:string){
+  newArticleIsCreated(user: any, articleId: string) {
     this.shouldSetTheOwnerForTheNewArticle = true
     this.ownerInfo = user
     this.newArticleId = articleId
   }
 
-  setArticleOwnerInfo(){
+  setArticleOwnerInfo() {
     this.shouldSetTheOwnerForTheNewArticle = false
-    if(this.roomName == this.newArticleId){
-      this.collaborators.set('collaborators',{collaborators:[{...this.ownerInfo.data,role:'Owner'}]});
+    if (this.roomName == this.newArticleId) {
+      this.collaborators.set('collaborators', { collaborators: [{ ...this.ownerInfo.data, role: 'Owner' }] });
     }
     this.ownerInfo = undefined
     this.newArticleId = ''
   }
+
+
 }

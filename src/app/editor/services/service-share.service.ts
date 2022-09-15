@@ -26,6 +26,7 @@ import { ProsemirrorEditorsService } from './prosemirror-editors.service';
 import { WorkerService } from './worker.service';
 import { YdocService } from './ydoc.service';
 import { AuthService } from '@app/core/services/auth.service'
+import { EnforcerService } from '@app/casbin/services/enforcer.service';
 
 @Injectable({
   providedIn: 'root'
@@ -53,6 +54,7 @@ export class ServiceShare {
   FormBuilderService?:FormBuilderService
   RefsApiService?:RefsApiService
   AuthService?:AuthService
+  EnforcerService?:EnforcerService
 
   constructor(
     public dialog: MatDialog,
@@ -114,7 +116,7 @@ export class ServiceShare {
     })
   }
 
-
+  openNotifyUserRoleChangeDialog:(oldrole:string,newrole:string)=>void
   openNotAddedToEditorDialog:()=>void
   shareSelf(serviceName:string,serviceInstance:any){
     //@ts-ignore

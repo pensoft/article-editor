@@ -133,6 +133,11 @@ import { CollaboratorsAutoCompleteComponent } from './editor/comments-section/co
 import { EmailPipe } from './editor/comments-section/email.pipe';
 import { EditCommentDialogComponent } from './editor/comments-section/edit-comment-dialog/edit-comment-dialog.component';
 import { CantOpenArticleDialogComponent } from './layout/widgets/arpha-navigation/cant-open-article-dialog/cant-open-article-dialog.component';
+import { UsersRoleIsChangedComponent } from './layout/widgets/arpha-navigation/users-role-is-changed/users-role-is-changed.component';
+import { TestPageComponent } from './casbin/test-page/test-page.component';
+import { EnforcerService } from './casbin/services/enforcer.service';
+import { HasPermissionPipe } from './casbin/permission-pipe/has-permission.pipe';
+import { CasbinInterceptor } from './casbin/interceptor/casbin.interceptor';
 
 
 export function createCompiler(compilerFactory: CompilerFactory) {
@@ -237,7 +242,10 @@ const gravatarConfig: GravatarConfig = {
     CollaboratorsAutoCompleteComponent,
     EmailPipe,
     EditCommentDialogComponent,
-    CantOpenArticleDialogComponent
+    CantOpenArticleDialogComponent,
+    UsersRoleIsChangedComponent,
+    TestPageComponent,
+    HasPermissionPipe
   ],
   imports: [
     HttpClientJsonpModule,
@@ -266,6 +274,7 @@ const gravatarConfig: GravatarConfig = {
   ],
 
   providers: [
+    //EnforcerService,
     CookieService,
     {
       provide: HTTP_INTERCEPTORS,
@@ -280,6 +289,11 @@ const gravatarConfig: GravatarConfig = {
     {
       provide: HTTP_INTERCEPTORS,
       useClass: CommentsInterceptorService,
+      multi: true,
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: CasbinInterceptor,
       multi: true,
     },
     STORAGE_PROVIDERS,

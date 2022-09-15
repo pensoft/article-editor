@@ -1,10 +1,12 @@
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
+import { EnforcerService } from '@app/casbin/services/enforcer.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { AuthService } from '@core/services/auth.service';
 import { TreeService } from 'src/app/editor/meta-data-tree/tree-service/tree.service';
 import { CantOpenArticleDialogComponent } from './cant-open-article-dialog/cant-open-article-dialog.component';
+import { UsersRoleIsChangedComponent } from './users-role-is-changed/users-role-is-changed.component';
 
 @Component({
   selector: 'arpha-navigation',
@@ -21,6 +23,7 @@ export class ArphaNavigationComponent implements AfterViewInit {
     private router: Router,
     private serviceShare:ServiceShare,
     public sharedDialog: MatDialog,
+    public enforcer:EnforcerService,
   ) {}
 
   openNotAddedToEditorDialog=()=>{
@@ -31,6 +34,10 @@ export class ArphaNavigationComponent implements AfterViewInit {
     })
   }
 
+  openNotifyUserRoleChangeDialog = (oldrole:string,newrole:string)=>{
+    let cantOpenDialog = this.sharedDialog.open(UsersRoleIsChangedComponent,{data:{oldrole,newrole}})
+  }
+
 
   openDashBoard() {
     this.router.navigate(['dashboard']);
@@ -38,6 +45,7 @@ export class ArphaNavigationComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.serviceShare.openNotAddedToEditorDialog = this.openNotAddedToEditorDialog
+    this.serviceShare.openNotifyUserRoleChangeDialog = this.openNotifyUserRoleChangeDialog
   }
 
   toggleTreeDrawer() {
