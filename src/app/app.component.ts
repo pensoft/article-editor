@@ -1,5 +1,7 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import {environment} from '../environments/environment'
+import { EnforcerService } from './casbin/services/enforcer.service';
+import { AuthService } from './core/services/auth.service';
 import { ProsemirrorEditorsService } from './editor/services/prosemirror-editors.service';
 import { ServiceShare } from './editor/services/service-share.service';
 @Component({
@@ -13,7 +15,9 @@ export class AppComponent implements AfterViewInit {
   @ViewChild('globalSpinner', { read: ElementRef })globalSpinner?: ElementRef;
 
   constructor(private prosemirrorEditorsService:ProsemirrorEditorsService,
-    private serviceShare:ServiceShare
+    private serviceShare:ServiceShare,
+    private authService:AuthService,
+    private enfprcer:EnforcerService
     ) {
     navigator.serviceWorker.ready.then(function (registration) {
       //@ts-ignore
@@ -25,6 +29,7 @@ export class AppComponent implements AfterViewInit {
     });
   }
   ngAfterViewInit(): void {
+    this.serviceShare.AuthService.getUserInfo().subscribe()
     this.prosemirrorEditorsService.setSpinner(this.globalSpinner.nativeElement)
   }
 }

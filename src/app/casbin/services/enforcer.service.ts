@@ -1,5 +1,6 @@
 import { E, I } from "@angular/cdk/keycodes";
 import { Injectable, OnInit } from "@angular/core";
+import { FlexStyleBuilder } from "@angular/flex-layout";
 import { AuthService } from "@app/core/services/auth.service";
 import { ServiceShare } from "@app/editor/services/service-share.service";
 import { forEach } from "lodash";
@@ -23,24 +24,27 @@ export class EnforcerService {
   newBeahviorSubject = new BehaviorSubject(null);
   enforcedEndpoints:any = {}
 
-  policiesFromBackend
+  policiesFromBackend:any
   constructor(private serviceShare:ServiceShare) {
     this.false.subscribe((d) => false);
     this.triggerUpdatePolicy();
     this.serviceShare.shareSelf('EnforcerService',this)
   }
 
+  policiesChangeSubject = new BehaviorSubject(null);
+  userInfo:any
   triggerUpdatePolicy(){
-    this.serviceShare.AuthService.getUserInfo().subscribe((res)=>{
-      this.policiesFromBackend = this.mapPolicies(res.data.permissions);
-      console.log(this.policiesFromBackend);
-      this.updateAllPolicies(this.policiesFromBackend)
+    this.policiesChangeSubject.subscribe((res)=>{
+      if(res){
+        this.userInfo = res.data
+        this.policiesFromBackend = this.mapPolicies(res.data.permissions);
+        this.updateAllPolicies(this.policiesFromBackend)
+      }
     })
   }
 
   enforceRequest = (obj:string,act:string) => {
-    this.enforcer.enforcePromise(obj, act).then((access)=>{
-      console.log('enforce from pipe',obj,act,access);
+    this.enforcer.enforcePromise(this.userInfo.id,obj, act).then((access)=>{
       this.enforcedEndpoints[getRequestKey('',obj,act)] = {access}
       this.newBeahviorSubject.next(this.enforcedEndpoints);
     })
@@ -54,8 +58,7 @@ export class EnforcerService {
     if(!this.enforcer){
       return of(false)
     }
-    console.log(obj,act);
-    return from(this.enforcer.enforcePromise(obj,act))
+    return from(this.enforcer.enforcePromise(this.userInfo.id,obj,act))
   }
 
   mapPolicies = (policiesFromBackend:any) => {
@@ -96,7 +99,9 @@ export class EnforcerService {
     });
   }
 
+  loadedPolicies = false;
   notifyForUpdate(){
+    this.loadedPolicies = true;
     this.enforcedEndpoints = {}
     this.newBeahviorSubject.next('updated_policies')
   }

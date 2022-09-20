@@ -9,7 +9,7 @@ import {
 } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-import { map, mergeMap } from 'rxjs/operators';
+import { map, mergeMap, subscribeOn } from 'rxjs/operators';
 
 @Injectable()
 export class CasbinInterceptor implements HttpInterceptor {
@@ -19,6 +19,9 @@ export class CasbinInterceptor implements HttpInterceptor {
   }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+    if(!this.sharedService.EnforcerService||!this.sharedService.EnforcerService.loadedPolicies){
+      return next.handle(request)
+    }
     let unauthenticatedObservable:Observable<HttpEvent<unknown>> = new Observable((sub)=>{
       sub.next(new HttpResponse({body:{message:"Not authentucated.",status:404,url:request.url}}));
     })
@@ -29,8 +32,6 @@ export class CasbinInterceptor implements HttpInterceptor {
       let urlParts = request.url.split('/');
       let casbinobj = '/'+urlParts[urlParts.length - 1]
       return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method).pipe(mergeMap((access) => {
-        console.log(`casbin ${casbinobj}`, access);
-        console.log("real url ",request.url);
         if (access) {
           return next.handle(request);
         } else {
@@ -44,8 +45,6 @@ export class CasbinInterceptor implements HttpInterceptor {
       let urlParts = request.url.split('/');
       let casbinobj = `/${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`
       return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method).pipe(mergeMap((access) => {
-        console.log(`casbin ${casbinobj}`, access);
-        console.log("real url ",request.url);
         if (access) {
           return next.handle(request);
         } else {
@@ -60,8 +59,6 @@ export class CasbinInterceptor implements HttpInterceptor {
       let urlParts = request.url.split('/');
       let casbinobj = `/${urlParts[urlParts.length - 2]}/*`
       return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method).pipe(mergeMap((access) => {
-        console.log(`casbin ${casbinobj}`, access);
-        console.log("real url ",request.url);
         if (access) {
           return next.handle(request);
         } else {
@@ -75,8 +72,6 @@ export class CasbinInterceptor implements HttpInterceptor {
       let urlParts = request.url.split('/');
       let casbinobj = `/${urlParts[urlParts.length - 3]}/${urlParts[urlParts.length - 2]}/*`
       return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method).pipe(mergeMap((access) => {
-        console.log(`casbin ${casbinobj}`, access);
-        console.log("real url ",request.url);
         if (access) {
           return next.handle(request);
         } else {

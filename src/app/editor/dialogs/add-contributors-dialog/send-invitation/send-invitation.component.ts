@@ -7,19 +7,30 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
 import { Observable } from 'rxjs';
 import { map, startWith, tap } from 'rxjs/operators';
-import { contributorData, searchData } from '../add-contributors-dialog.component';
+import { contributorData } from '../add-contributors-dialog.component';
+import { AllUsersService } from '@app/core/services/all-users.service';
 @Component({
   selector: 'app-send-invitation',
   templateUrl: './send-invitation.component.html',
   styleUrls: ['./send-invitation.component.scss']
 })
 export class SendInvitationComponent implements OnInit, AfterViewInit {
-  inviteUsersForm: FormGroup;
+  usersChipList = new FormControl('', Validators.required);
+  notifyingPeople = new FormControl('', Validators.required);
+  selectOptions2 = new FormControl('', Validators.required);
+  message = new FormControl('', Validators.required);
+
+  inviteUsersForm: FormGroup = new FormGroup({
+    'usersChipList': this.usersChipList,
+    'notifyingPeople': this.notifyingPeople,
+    'selectOptions': this.selectOptions2,
+    'message': this.message
+  });
   separatorKeysCodes: number[] = [ENTER, COMMA];
   invitedPeople = new FormControl('');
   filteredInvitedPeople: Observable<contributorData[]>;
   users: contributorData[] = [];
-  searchData = searchData
+  searchData :contributorData[]
   @ViewChild('usersInput') usersInput: ElementRef<HTMLInputElement>;
 
   selectOptions: any[] = [
@@ -39,17 +50,21 @@ export class SendInvitationComponent implements OnInit, AfterViewInit {
     private location: Location,
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<SendInvitationComponent>,
+    public allUsersService:AllUsersService,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
+    this.allUsersService.getAllUsers().subscribe((response: any) => {
+      this.searchData = response;
+    });
     this.filteredInvitedPeople = this.invitedPeople.valueChanges.pipe(
-      map((invitedUser: any) => {  return invitedUser ? this._filter(invitedUser) : this._filter('') })
+      map((invitedUser: any) => { return invitedUser ? this._filter(invitedUser) : this._filter('') })
     )
 
   }
 
   add(event: MatChipInputEvent): void {
     if (event.value) {
-      this.users.push({email:event.value,name:''});
+      //this.users.push({ email: event.value, name: '' });
     }
 
     // Clear the input value
@@ -59,12 +74,9 @@ export class SendInvitationComponent implements OnInit, AfterViewInit {
   }
 
   ngOnInit() {
-    this.inviteUsersForm = this.formBuilder.group({
-      usersChipList: ['', Validators.required],
-      notifyingPeople: ['', Validators.required],
-      selectOptions: ['', Validators.required],
-      message: ['', Validators.required],
-    });
+/*     this.inviteUsersForm = this.formBuilder.group({
+
+    }); */
   }
 
   backClicked() {
@@ -107,7 +119,7 @@ export class SendInvitationComponent implements OnInit, AfterViewInit {
   dialogIsOpenedFromComment = false
   ngAfterViewInit(): void {
     this.users.push(...this.data.contributor)
-    if(this.data.fromComment){
+    if (this.data.fromComment) {
       this.dialogIsOpenedFromComment = true
     }
   }

@@ -38,14 +38,14 @@ export default class JwtEnforcer {
     }
 
     //casbin.enforce return a promise
-    return from(this.casbin.enforce(this.sub, obj, act)) as Observable<boolean>;
+    return from(this.casbin.enforce(sub, obj, act)) as Observable<boolean>;
   }
 
-  enforcePromise(obj: string, act: string):Promise<boolean>{
-    return this.casbin.enforce(this.sub,obj, act);
+  enforcePromise(sub:string,obj: string, act: string):Promise<boolean>{
+    return this.casbin.enforce(sub,obj, act);
   }
 
-  enforceSync(obj: string, act: string):boolean{
-    return this.casbin.enforceSync(this.sub,obj, act)
+  enforceSync(sub:string,obj: string, act: string):boolean{
+    return this.casbin.enforceSync(sub,obj, act)
   }
 }

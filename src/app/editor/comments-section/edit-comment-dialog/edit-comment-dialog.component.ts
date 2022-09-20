@@ -10,13 +10,14 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 export class EditCommentDialogComponent implements AfterViewInit {
 
   editCommentControl = new FormControl()
-
+  commentmarkId:string;
   constructor(
     public dialogRef: MatDialogRef<EditCommentDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) { }
 
   ngAfterViewInit(): void {
+    this.commentmarkId = this.data.actualCommentId.commentMarkId
     this.editCommentControl.setValue(this.data.comment)
   }
 

@@ -4,7 +4,7 @@
 <div>
   <mat-form-field class="edit-comment-form" appearance="fill">
     <textarea matInput placeholder="Whire a comment" [formControl]="editCommentControl" (keydown)="autocomplete.keyHandle($event)"></textarea>
-    <app-collaborators-auto-complete [(inputFromControl)]="editCommentControl" #autocomplete></app-collaborators-auto-complete>
+    <app-collaborators-auto-complete [(commentmarkId)]="commentmarkId" [(inputFormControl)]="editCommentControl" #autocomplete></app-collaborators-auto-complete>
   </mat-form-field>
 </div>
 <div class="buttons-container">

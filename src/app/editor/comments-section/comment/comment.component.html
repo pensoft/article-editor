@@ -47,7 +47,7 @@
       <div  #ReplyDiv style="display: none;">
         <mat-form-field appearance="outline" class="reply-form-field">
           <input #input matInput type="text" placeholder="Write a reply..." [formControl]="replyFormControl" (keydown)="autocomplete.keyHandle($event)">
-          <app-collaborators-auto-complete [(inputFromControl)]="replyFormControl" #autocomplete></app-collaborators-auto-complete>
+          <app-collaborators-auto-complete [(commentmarkId)]="comment.commentMarkId" [(inputFormControl)]="replyFormControl" #autocomplete></app-collaborators-auto-complete>
           <mat-icon matSuffix class="comment-reply-field-icon">alternate_email</mat-icon>
         </mat-form-field>
         <div class="comment-reply-btns">
