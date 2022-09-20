@@ -41,7 +41,7 @@ import { TrackChangesService } from '../utils/trachChangesService/track-changes.
 import { PlaceholderPluginService } from '../utils/placeholderPlugin/placeholder-plugin.service';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 import { MenuService } from './menu.service';
-import { Subject } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { LinkPopUpPluginServiceService } from '../utils/linkPopUpPlugin/link-pop-up-plugin-service.service';
 import {
   articleSection,
@@ -1343,6 +1343,14 @@ export class ProsemirrorEditorsService {
       }
     }
     this.serviceShare.WorkerService!.logToWorker('rendering prosemirrors')
+    //check if chould be scrolled to comment ;
+    return new Observable((sub)=>{
+      setTimeout(()=>{
+        // editors should be rendered
+        sub.next(true);
+      },1000)
+    })
+
   }
 
   setIntFunction(interpulateFunction: any) {

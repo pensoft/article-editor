@@ -30,14 +30,19 @@ export class LoginGuard implements CanActivate {
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    this.subject = new ReplaySubject<any>(1);
-    this._authservice.getUserInfo().subscribe(user => {
+    //this.subject = new ReplaySubject<any>(1);
+    let logged = this._authservice.isLoggedIn()
+    if (logged) {
+      this.router.navigate(['dashboard']);
+    }
+    return true;
+    /* this._authservice.getUserInfo().subscribe(user => {
 
       if (user) {
         this.router.navigate(['dashboard']);
       }
       this.subject.next(true);
     });
-    return this.subject.pipe(first());
+    return this.subject.pipe(first()); */
   }
 }

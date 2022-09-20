@@ -2,7 +2,6 @@ import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { IUserDetail } from '@app/core/interfaces/auth.interface';
-import { IContributersData } from '@app/core/interfaces/contributer.interface';
 import { AllUsersService } from '@app/core/services/all-users.service';
 import { AuthService } from '@app/core/services/auth.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
@@ -16,74 +15,14 @@ export interface contributorData {
   name: string,
   role?: 'Editor' | 'Viewer' | 'Commenter',
   email: string,
+  id: string
 }
 
-export let searchData: contributorData[] = [
-  {
-    name: 'Hrissy V.',
-    email: 'hrissyv@gmail.com',
-  },
-  {
-    name: 'Hristo Iliev',
-    email: 'iceto@gmail.com',
-  },
-  {
-    name: 'Milen Milkov',
-    email: 'milcho@gmail.com',
-  },
-  {
-    name: 'Ivan Bonev',
-    email: 'ivbon@gmail.com',
-  },
-  {
-    name: 'Iren Hristova',
-    email: 'iren@gmail.com',
-  },
-  {
-    name: 'Ralitsa Jivkova',
-    email: 'ral@gmail.com',
-  },
-  {
-    name: 'Iliq Dimov',
-    email: 'iliq@gmail.com',
-  },
-  {
-    name: 'Petar Petrov',
-    email: 'petko@gmail.com',
-  },
-  {
-    name: 'Vladimir Tanev',
-    email: 'vladicha@gmail.com',
-  },
-  {
-    name: 'Nekoi Nekoisi',
-    email: 'nekoi@gmail.com',
-  },
-  {
-    name:'Admin 1',
-    email:"admin@pensoft.com"
-  },
-  {
-    name:"Tsvetomir Vasilev",
-    email:'tsvetomir.vasilev@scalewest.com'
-  },
-  {
-    name: 'Admin 2',
-    email: 'admin@demo.com'
-  },
-  {
-    name:'Miroslav Ivanov',
-    email: 'miro@scalewest.com'
-  },
-  {
-    name:'Mincho Milev',
-    email: 'mincho@scalewest.com'
-  },
-  {
-    name:'Nikolai Baldzhiev',
-    email: 'nick@scalewest.com'
-  }
-];
+export let roleMaping = {
+  'Editor':'WRITER',
+  "Commenter":'COMMENTER',
+  "Viewer":'READER'
+}
 
 @Component({
   selector: 'app-add-contributors-dialog',
@@ -96,22 +35,10 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
   searchFormControl = new FormControl('')
 
   showError = false;
-  //public contributersData!: IContributersData[];
   public role: any[] = [];
-  public contributersData: contributorData[] = [
-    {
-      name: 'Hrissy V.',
-      email: 'hrissyv@gmail.com',
-      role: 'Editor',
-    },
-    {
-      name: 'Nekoi Nekoisi',
-      role: 'Viewer',
-      email: 'nekoi@gmail.com',
-    },
-  ];
-  searchData = searchData;
 
+  searchData: contributorData[]
+  contributersData: contributorData[]
 
   searchResults: any[] = []
 
@@ -136,35 +63,38 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
       } else {
         this.searchResults = this.filterSearchResults(value)
       }
-    })
+    });
+    this.allUsersService.getAllUsers().subscribe((response: any) => {
+      this.searchData = response;
+    });
   }
 
   clickedOutOdInput() {
     this.searchFormControl.setValue('')
   }
 
-  editContr(contrData:any){
+  editContr(contrData: any) {
     const dialogRef = this.dialog.open(EditContributorComponent, {
       width: '250px',
       data: { contrData },
     });
 
     dialogRef.afterClosed().subscribe(result => {
-      if(result&&result.edited){
+      if (result && result.edited) {
         let editedContributors = [...this.collaborators.collaborators]
-        let userIndex = editedContributors.findIndex((user)=>user.email == contrData.email)
-        if(result.removed){
-          editedContributors.splice(userIndex,1)
-        }else if(result.role){
+        let userIndex = editedContributors.findIndex((user) => user.email == contrData.email)
+        if (result.removed) {
+          editedContributors.splice(userIndex, 1)
+        } else if (result.role) {
           editedContributors[userIndex].role = result.role
         }
-        this.sharedService.YdocService.collaborators.set('collaborators',{collaborators:editedContributors})
+        this.sharedService.YdocService.collaborators.set('collaborators', { collaborators: editedContributors })
       }
     });
   }
 
   filterSearchResults(filterVal: string) {
-    if (this.collaborators && this.currentUser) {
+    if (this.collaborators && this.currentUser && this.searchData) {
 
       return this.searchData.filter((user) => { return (user.email.includes(filterVal.toLocaleLowerCase()) && user.email != this.currentUser.email && !this.collaborators.collaborators.find((col) => col.email == user.email)) })
     } else {
@@ -206,21 +136,12 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
       this.setCollaboratorsData(data)
     });
     this.setCollaboratorsData(this.sharedService.YdocService.collaborators.get('collaborators'))
-    this.allUsersService.getAllUsers().subscribe((response: any) => {
-      // const name = response.data.name;
-      this.contributersData = response.data;
-    });
+
   }
   closeDialog() {
     this.dialogRef.close();
   }
   submitOwnerSettingsForm() {
-  }
-  addUser(contributersData: any) {
-    contributersData.userIsAdded = true;
-  }
-  removeUser(contributersData: any) {
-    contributersData.userIsAdded = false;
   }
 
   dataIsLoaded = true;
@@ -234,16 +155,39 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
   openAddContrDialog(contributor: any) {
     const dialogRef = this.dialog.open(SendInvitationComponent, {
       width: '550px',
-      data: { contributor:[contributor] },
+      data: { contributor: [contributor] },
     });
 
     dialogRef.afterClosed().subscribe(result => {
       if (result.usersChipList.length > 0 && result.selectOptions && result.selectOptions != '' && this.collaborators) {
+        this.sharedService.ProsemirrorEditorsService.spinSpinner()
         let collaboratorsCopy = [...this.collaborators.collaborators];
         result.usersChipList.forEach((newColaborator) => {
           collaboratorsCopy.push({ ...newColaborator, role: result.selectOptions })
         })
-        this.sharedService.YdocService.collaborators.set('collaborators', { collaborators: collaboratorsCopy })
+        let articleData = {
+          "id": this.sharedService.YdocService.articleData.uuid,
+          "title": this.sharedService.YdocService.articleData.name
+        }
+        let role = result.selectOptions
+        let postBody = {
+          "article": articleData,
+          "message": result.message,
+          "invited": result.usersChipList.map((x: any) => {
+            x.type = roleMaping[role];
+            return x
+          }),
+        }
+        this.allUsersService.sendInviteInformation(postBody).subscribe(
+          (res) => {
+            this.sharedService.YdocService.collaborators.set('collaborators', { collaborators: collaboratorsCopy })
+            this.sharedService.ProsemirrorEditorsService.stopSpinner()
+          },
+          (err) => {
+            console.error(err)
+            this.sharedService.ProsemirrorEditorsService.stopSpinner()
+          }
+        )
       }
       this.searchFormControl.setValue(null)
     });

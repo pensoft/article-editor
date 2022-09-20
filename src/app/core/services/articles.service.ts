@@ -27,6 +27,10 @@ export class ArticlesService {
     return this._http.put(`${API_ARTICLES_URL}/${articleId}`,oldArticleData)
   }
 
+  getArticleCollaboratorsData(id:string){
+    return this._http.get(`${API_ARTICLES_URL}/${id}`)
+  }
+
   updateArticleUpdatedAt(oldArticleData:any){
     oldArticleData.updated_at = new Date().toISOString();
     return this._http.put(`${API_ARTICLES_URL}/${oldArticleData.id}`,oldArticleData)

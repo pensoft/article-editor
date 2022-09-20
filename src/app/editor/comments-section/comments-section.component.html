@@ -30,7 +30,7 @@
           </div>
         </mat-card-content>
         <input #input class="comment-input" type="text" placeholder="Leave a comment..." [formControl]="commentInputFormControl" (keydown)="autocomplete.keyHandle($event)">
-        <app-collaborators-auto-complete [(inputFromControl)]="commentInputFormControl" #autocomplete></app-collaborators-auto-complete>
+        <app-collaborators-auto-complete [(commentmarkId)]="newCommentMarkId" [(inputFormControl)]="commentInputFormControl" #autocomplete></app-collaborators-auto-complete>
 
         <div class="comment-btns">
           <button mat-button label="Cancel" (click)="cancelBtnHandle()" class="small  secondary cencel-button">Cancel</button>

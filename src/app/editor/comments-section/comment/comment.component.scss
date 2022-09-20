@@ -25,7 +25,9 @@
 
 app-collaborators-auto-complete{
   position: relative;
-  top: 10px;
+    top: 10px;
+    width: 1px;
+    right: 45%;
 }
 
 ::ng-deep {

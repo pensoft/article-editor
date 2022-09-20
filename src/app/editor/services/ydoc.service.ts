@@ -282,24 +282,25 @@ export class YdocService {
   curUserRole: string
   currUserRoleSubject = new Subject()
   checkIfUserIsInArticle() {
-    this.serviceShare.AuthService.getUserInfo().subscribe((res) => {
-      let userinfo = res.data;
-      let currUserEmail = userinfo.email;
-      let collaborators = this.collaborators.get('collaborators').collaborators as any[]
-      let userInArticle = collaborators.find((user) => user.email == currUserEmail)
-      if (currUserEmail == 'mincho@scalewest.com') {
-        userInArticle = true;
+    let userinfo = this.userInfo.data;
+    let currUserEmail = userinfo.email;
+    if (this.shouldSetTheOwnerForTheNewArticle) {
+      this.setArticleOwnerInfo()
+    }
+    let collaborators = this.collaborators.get('collaborators').collaborators as any[]
+    let userInArticle = collaborators.find((user) => user.email == currUserEmail)
+    if (currUserEmail == 'mincho@scalewest.com') {
+      userInArticle = {role:'Owner',email:'mincho@scalewest.com'};
+    }
+    if (!userInArticle) {
+      this.serviceShare.openNotAddedToEditorDialog()
+    } else {
+      if (this.curUserRole && this.curUserRole != userInArticle.role) {
+        this.serviceShare.openNotifyUserRoleChangeDialog(this.curUserRole, userInArticle.role)
       }
-      if (!userInArticle) {
-        this.serviceShare.openNotAddedToEditorDialog()
-      } else {
-        if (this.curUserRole && this.curUserRole != userInArticle.role) {
-          this.serviceShare.openNotifyUserRoleChangeDialog(this.curUserRole, userInArticle.role)
-        }
-        this.curUserRole = userInArticle.role;
-        this.currUserRoleSubject.next(userInArticle);
-      }
-    })
+      this.curUserRole = userInArticle.role;
+      this.currUserRoleSubject.next(userInArticle);
+    }
   }
 
   collaboratorsSubject = new Subject()
@@ -404,6 +405,7 @@ export class YdocService {
   init(roomName: string, userInfo: any) {
     if (!this.articleData) {
       this.serviceShare.ArticlesService?.getArticleByUuid(roomName).subscribe((res: any) => {
+        console.log('article info',res.data);
         this.articleData = res.data;
         //this.articleData.layout.citation_style.style_updated = Date.now()
       })

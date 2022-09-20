@@ -2,7 +2,7 @@ import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { AllUsersService } from '@app/core/services/all-users.service';
-import { contributorData } from '@app/editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
+import { contributorData, roleMaping } from '@app/editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
 import { SendInvitationComponent } from '@app/editor/dialogs/add-contributors-dialog/send-invitation/send-invitation.component';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 
@@ -13,19 +13,22 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
 })
 export class CollaboratorsAutoCompleteComponent implements AfterViewInit {
 
-  @Input() inputFromControl!:FormControl;
-  @Output() inputFromControlChange = new EventEmitter<FormControl>();
+  @Input() commentmarkId?: string;
+  @Output() commentmarkIdChange = new EventEmitter<string>();
+
+  @Input() inputFormControl!: FormControl;
+  @Output() inputFormControlChange = new EventEmitter<FormControl>();
 
   allusers?: contributorData[]
-  searchResults:contributorData[] = []
-  currCollaboratorsIneditor:any
+  searchResults: contributorData[] = []
+  currCollaboratorsIneditor: any
 
   constructor(
-    public usersService:AllUsersService,
-    public serviceShare:ServiceShare,
+    public usersService: AllUsersService,
+    public serviceShare: ServiceShare,
     public dialog: MatDialog,) {
     // should get all the users at the rendering of this component
-    usersService.getAllUsers().subscribe((res)=>{
+    usersService.getAllUsers().subscribe((res) => {
       this.allusers = res
     })
 
@@ -33,71 +36,125 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit {
 
   }
 
-  selectedUser(user:contributorData){
-    let inputval = this.inputFromControl.value as string
+  selectedUser(user: contributorData) {
+    let inputval = this.inputFormControl.value as string
 
-    if(this.allusers&&this.emailAddRegex.test(inputval)){
+    if (this.allusers && this.emailAddRegex.test(inputval)) {
       let vals = inputval.split(this.regexToSplit);
-      this.inputFromControl.setValue(vals[0]+"@"+user.email+" ")
+      this.inputFormControl.setValue(vals[0] + "@" + user.email + " ")
     }
   }
 
   selectedUserIndex = 0;
 
-  keyHandle(event:KeyboardEvent){
+  keyHandle(event: KeyboardEvent) {
     let key = event.key
-    if(key == 'ArrowDown'&&this.selectedUserIndex<this.searchResults.length-1){
+    if (key == 'ArrowDown' && this.selectedUserIndex < this.searchResults.length - 1) {
       this.selectedUserIndex++
-    }else if(key == 'ArrowUp'&&this.selectedUserIndex>0){
+    } else if (key == 'ArrowUp' && this.selectedUserIndex > 0) {
       this.selectedUserIndex--
-    }else if(key == 'Enter'){
+    } else if (key == 'Enter') {
       this.selectedUser(this.searchResults[this.selectedUserIndex])
     }
   }
 
-  canFinishComment = (func:any,args:any[])=>{
-    if(this.currCollaboratorsIneditor&&this.inputFromControl.value){
-      let emailsInText:string[]|null = this.inputFromControl.value.match(/[\w-\.]+@([\w-]+\.)+[\w-]{2,4}/gm)
-      if(!emailsInText){
-        func(...args)
-        return
+  addDataToBackend(emailsInText: string[], newEmails: string[],role?:string) {
+    let mappedNewCollaborators = newEmails.map((email) => {
+      let actualUser = this.allusers.find((user) => user.email == email)
+      if (actualUser) {
+        return actualUser
+      } else {
+        return { email, name: '' }
       }
-      let newCollaborators:any[] = [];
-      emailsInText.forEach((email)=>{
-        if(!this.currCollaboratorsIneditor.collaborators.find((collab)=>{
+    })
+    let invitedPeople = mappedNewCollaborators;
+    let mentionedPeople = this.allusers.filter((user) => {
+      return (
+        !mappedNewCollaborators.some((u1) => u1.email == user.email) &&
+        emailsInText.some((email) => email == user.email)
+      );
+    })
+    let articleData = {
+      "id": this.serviceShare.YdocService.articleData.uuid,
+      "title": this.serviceShare.YdocService.articleData.name
+    }
+    let message = this.inputFormControl.value;
+    let commentMarkHash = this.commentmarkId
+    let invited = invitedPeople.map((x:any)=>{
+      x.type = roleMaping[role];
+      return x
+    })
+    let postBody = {
+      "article": articleData,
+      "message": message,
+      "invited": invited,
+      "mentioned": mentionedPeople,
+      "hash": commentMarkHash
+    }
+    console.log(postBody,);
+    return this.usersService.sendCommentMentionInformation(postBody);
+  }
+
+  canFinishComment = (func: any, args: any[]) => {
+    let emailsInText: string[] | null = this.inputFormControl.value.match(/[\w-\.]+@([\w-]+\.)+[\w-]{2,4}/gm)
+    if (this.currCollaboratorsIneditor && this.inputFormControl.value && this.allusers && emailsInText) {
+      let newCollaborators: any[] = [];
+      emailsInText.forEach((email) => {
+        if (!this.currCollaboratorsIneditor.collaborators.find((collab) => {
           return collab.email == email
-        })){
+        })) {
           newCollaborators.push(email);
         }
       })
-      if(newCollaborators.length>0){
+      if (newCollaborators.length > 0) {
+        let mappedNewCollaborators = newCollaborators.map((email) => {
+          let actualUser = this.allusers.find((user) => user.email == email)
+          if (actualUser) {
+            return actualUser
+          } else {
+            return { email, name: '' }
+          }
+        })
         // should add contributers to editor do finish comment add
         const dialogRef = this.dialog.open(SendInvitationComponent, {
           width: '550px',
-          data: { contributor:newCollaborators.map((email)=>{
-            let actualUser = this.allusers.find((user)=>user.email == email)
-            if(actualUser){
-              return actualUser
-            }else{
-              return {email,name:''}
-            }
-          }) ,fromComment:true},
+          data: { contributor: mappedNewCollaborators, fromComment: true },
         });
 
         dialogRef.afterClosed().subscribe(result => {
           if (result.usersChipList.length > 0 && result.selectOptions && result.selectOptions != '' && this.currCollaboratorsIneditor) {
+            this.serviceShare.ProsemirrorEditorsService.spinSpinner()
             let collaboratorsCopy = [...this.currCollaboratorsIneditor.collaborators];
             result.usersChipList.forEach((newColaborator) => {
               collaboratorsCopy.push({ ...newColaborator, role: result.selectOptions })
             })
-            this.serviceShare.YdocService.collaborators.set('collaborators', { collaborators: collaboratorsCopy })
-            func(...args)
+
+            this.addDataToBackend(emailsInText, newCollaborators,result.selectOptions).subscribe((data)=>{
+              console.log(data);
+              this.serviceShare.YdocService.collaborators.set('collaborators', { collaborators: collaboratorsCopy });
+              this.serviceShare.ProsemirrorEditorsService.stopSpinner()
+              func(...args)
+            },
+            (err) => {
+              console.error(err)
+              this.serviceShare.ProsemirrorEditorsService.stopSpinner()
+            });
           }
         });
-      }else{
-        func(...args)
+
+      } else {
+        this.serviceShare.ProsemirrorEditorsService.spinSpinner()
+        this.addDataToBackend(emailsInText, newCollaborators).subscribe((data)=>{
+              console.log(data);
+              this.serviceShare.ProsemirrorEditorsService.stopSpinner()
+          func(...args)
+        },
+        (err) => {
+          console.error(err)
+          this.serviceShare.ProsemirrorEditorsService.stopSpinner()
+        });
       }
-    }else{
+    } else {
       func(...args)
     }
 
@@ -107,12 +164,12 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit {
   emailAddRegex = /( |^)@\S*$/gm
   emailAddRegexMathStart = /( |^)@+/gm
   ngAfterViewInit(): void {
-    this.inputFromControl.valueChanges.subscribe((data:string)=>{
-      if(this.allusers&&this.emailAddRegex.test(data)){
-        let searchVal = data.match(this.emailAddRegex)[0].replace(this.emailAddRegexMathStart,'');
-        this.searchResults = this.allusers.filter((user)=>user.email.startsWith(searchVal));
+    this.inputFormControl.valueChanges.subscribe((data: string) => {
+      if (this.allusers && this.emailAddRegex.test(data)) {
+        let searchVal = data.match(this.emailAddRegex)[0].replace(this.emailAddRegexMathStart, '');
+        this.searchResults = this.allusers.filter((user) => user.email.startsWith(searchVal));
         this.selectedUserIndex = 0
-      }else{
+      } else {
         this.searchResults = []
       }
     })

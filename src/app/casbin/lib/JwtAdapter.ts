@@ -1,3 +1,4 @@
+import { I } from "@angular/cdk/keycodes";
 import { Helper, Model } from "casbin";
 import { ACL } from "../interfaces";
 
@@ -15,7 +16,12 @@ export default class JwtAdapter {
     }
 
     for (const acl of this.acls) {
-      const row = `p, ${this.sub}, ${acl.obj}, ${acl.act}, ${acl.eft}`;
+      let row;
+      if(acl.prefix == 'p'){
+        row = `${acl.prefix}, ${acl.sub}, ${acl.obj}, ${acl.act}, ${acl.eft}`;
+      }else if(acl.prefix == 'g'){
+        row = `${acl.prefix}, ${acl.obj}, ${acl.act}`;
+      }
       Helper.loadPolicyLine(row, model);
     }
   }

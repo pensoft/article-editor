@@ -1,5 +1,8 @@
 import { E, I } from "@angular/cdk/keycodes";
+import { HttpClient } from "@angular/common/http";
 import { Injectable, OnInit } from "@angular/core";
+import { FlexStyleBuilder } from "@angular/flex-layout";
+import { MatSnackBar } from "@angular/material/snack-bar";
 import { AuthService } from "@app/core/services/auth.service";
 import { ServiceShare } from "@app/editor/services/service-share.service";
 import { forEach } from "lodash";
@@ -23,24 +26,27 @@ export class EnforcerService {
   newBeahviorSubject = new BehaviorSubject(null);
   enforcedEndpoints:any = {}
 
-  policiesFromBackend
-  constructor(private serviceShare:ServiceShare) {
+  policiesFromBackend:any
+  constructor(private serviceShare:ServiceShare,private _snackBar: MatSnackBar) {
     this.false.subscribe((d) => false);
     this.triggerUpdatePolicy();
     this.serviceShare.shareSelf('EnforcerService',this)
   }
 
+  policiesChangeSubject = new BehaviorSubject(null);
+  userInfo:any
   triggerUpdatePolicy(){
-    this.serviceShare.AuthService.getUserInfo().subscribe((res)=>{
-      this.policiesFromBackend = this.mapPolicies(res.data.permissions);
-      console.log(this.policiesFromBackend);
-      this.updateAllPolicies(this.policiesFromBackend)
+    this.policiesChangeSubject.subscribe((res)=>{
+      if(res){
+        this.userInfo = res.data
+        this.policiesFromBackend = this.mapPolicies(res.data.permissions);
+        this.updateAllPolicies(this.policiesFromBackend)
+      }
     })
   }
 
   enforceRequest = (obj:string,act:string) => {
-    this.enforcer.enforcePromise(obj, act).then((access)=>{
-      console.log('enforce from pipe',obj,act,access);
+    this.enforceAsync(obj, act).subscribe((access)=>{
       this.enforcedEndpoints[getRequestKey('',obj,act)] = {access}
       this.newBeahviorSubject.next(this.enforcedEndpoints);
     })
@@ -54,26 +60,33 @@ export class EnforcerService {
     if(!this.enforcer){
       return of(false)
     }
-    console.log(obj,act);
-    return from(this.enforcer.enforcePromise(obj,act))
+    return from(this.enforcer.enforcePromise(this.userInfo.id,obj,act)).pipe(map((x)=>{
+      if(!x){
+        console.log(obj,act,x);
+        this._snackBar.open("You don't have permission and cannot access this information or do this action.",'Ok')
+      }
+      return x
+    }))
   }
 
   mapPolicies = (policiesFromBackend:any) => {
+    console.log(policiesFromBackend);
     let allParsedPolicies:any[]= [];
     let parseRecursive = (array:any[])=>{
       if(array.length>0&&typeof array[0] == 'string'){
         let policy = {
-          sub:array[0],
-          obj:array[1],
-          act:array[2],
-          eft:array[3]
+          prefix:array[0],
+          sub:array[1],
+          obj:array[2],
+          act:array[3],
+          eft:array[4],
         }
-        if(!policy.obj.includes('isOwner(')){
-          /* if(policy.obj == "/references/items"){
+        /* if(!policy.obj.includes('isOwner(')){
+          if(policy.obj == "/references/items"){
             policy.act = "(GET)"
-          } */
-          allParsedPolicies.push(policy);
-        }
+          }
+        } */
+        allParsedPolicies.push(policy);
       }else{
         array.forEach((el,i)=>{
           if(typeof el != 'string'){
@@ -91,12 +104,15 @@ export class EnforcerService {
   }
 
   updateAllPolicies(policiesFromBackend:any){
+    console.log(policiesFromBackend);
     this.load(of(policiesFromBackend)).then((done)=>{
       this.notifyForUpdate()
     });
   }
 
+  loadedPolicies = false;
   notifyForUpdate(){
+    this.loadedPolicies = true;
     this.enforcedEndpoints = {}
     this.newBeahviorSubject.next('updated_policies')
   }
@@ -111,7 +127,7 @@ export class EnforcerService {
               return NEVER;
             }
 
-            const enforcer = new JwtEnforcer(acls);
+            const enforcer = new JwtEnforcer(acls,this.serviceShare);
             return from(enforcer.setup(getModel()));
           })
         )

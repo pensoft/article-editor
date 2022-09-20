@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { AllSelection, EditorState, Plugin, PluginKey, Selection } from 'prosemirror-state'
+import { AllSelection, EditorState, Plugin, PluginKey, Selection, TextSelection } from 'prosemirror-state'
 import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
 import { Transaction } from 'yjs';
 //@ts-ignore
@@ -79,6 +79,8 @@ export class CommentsService {
     commentMarkId?: string
   }> = new Subject()
 
+  shouldScrollComment = false;
+  markIdOfScrollComment?:string = undefined
   commentsInYdoc: ydocCommentsObj = {}
 
   resetCommentsService() {
@@ -116,6 +118,44 @@ export class CommentsService {
     this.commentsMap.observe((ymapEvent, trnasact) => {
       this.setYdocCommentsObj()
     })
+  }
+
+  scrollToCommentMarkAndSelect(){
+    let markid = this.markIdOfScrollComment;
+    let edCont = this.serviceShare.ProsemirrorEditorsService.editorContainers
+
+    let commentFound = false;
+    let sectionId;
+    let start;
+    let end;
+
+    Object.keys(edCont).forEach((sectionid)=>{
+      let edDoc = edCont[sectionid].editorView.state.doc;
+      let docSize = edDoc.content.size;
+      edDoc.nodesBetween(0,docSize-1,(node,pos,parent,i)=>{
+        if(node.marks.find((mark)=>{
+          return (mark.type.name == 'comment'&&mark.attrs.commentmarkid == markid)
+        })&&!commentFound){
+          commentFound = true;
+          sectionId = sectionid;
+          start = pos;
+          end = pos+node.nodeSize
+        }
+      })
+    })
+    if(commentFound){
+      setTimeout(()=>{
+        let view = edCont[sectionId].editorView
+        let state = view.state;
+        let doc = state.doc
+        view.focus()
+        view.dispatch(state.tr.setSelection(TextSelection.between(doc.resolve(start),doc.resolve(end))));
+        view.dispatch(view.state.tr.scrollIntoView())
+      },100)
+      return true;
+    }else{
+      return false;
+    }
   }
 
   handleDeletedComments(deleted: any[]) {

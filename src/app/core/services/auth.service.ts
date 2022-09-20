@@ -84,6 +84,7 @@ export class AuthService implements OnDestroy {
     this.router.navigate(['/login'], {
       queryParams: {},
     })
+    this.userInfo = undefined
   }
 
   invalidateToken() {
@@ -133,6 +134,8 @@ export class AuthService implements OnDestroy {
     });
   }
 
+  userInfo:any = undefined
+
   getUserInfo(token = null) {
     const auth = token || this.getToken();
     if(token){
@@ -142,18 +145,24 @@ export class AuthService implements OnDestroy {
     if (!auth) {
       return of(undefined);
     }
-
-    return this._http.get<any>(`${API_AUTH_URL}/me`)
-      .pipe(
-        map((user) => {
-          if (user) {
-            this.currentUserSubject.next(user.data);
-          } else {
-            this.logout();
-          }
-          return user;
-        }),
-      )
+    if(this.userInfo){
+      //this.sharedService.EnforcerService.policiesChangeSubject.next(this.userInfo);
+      return of(this.userInfo)
+    }else{
+    }
+      return this._http.get<any>(`${API_AUTH_URL}/me`)
+        .pipe(
+          map((user) => {
+            if (user) {
+              this.userInfo = user;
+              this.currentUserSubject.next(user.data);
+              this.sharedService.EnforcerService.policiesChangeSubject.next(user);
+            } else {
+              this.logout();
+            }
+            return user;
+          }),
+        )
   }
 
   ngOnDestroy() {

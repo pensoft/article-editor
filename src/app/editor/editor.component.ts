@@ -241,10 +241,18 @@ export class EditorComponent implements OnInit, AfterViewInit {
       }
     })
     this.route.paramMap
-      .pipe(map((params: ParamMap) => params.get('id')))
+      .pipe(map((params: ParamMap) => {
+        return params.get('id')
+      }))
       .subscribe((roomName) => {
         this.authService.getUserInfo().subscribe((userInfo) => {
           this.roomName = roomName;
+          let commentId = window.location.href.split(roomName)[1].replace('#','');
+          if(commentId&&commentId.length>0){
+            this.commentService.shouldScrollComment = true;
+            this.commentService.markIdOfScrollComment = commentId;
+            console.log(commentId);
+          }
           this.ydocService.init(roomName!, userInfo);
 
         });
@@ -270,7 +278,13 @@ export class EditorComponent implements OnInit, AfterViewInit {
         //this.provider = data.provider;
         this.articleSectionsStructure = data.articleSectionsStructure;
         this.shouldBuild = true;
-        this.prosemirrorEditorServie.init();
+        this.prosemirrorEditorServie.init().subscribe(()=>{
+          if(this.commentService.shouldScrollComment){
+            if(this.commentService.scrollToCommentMarkAndSelect()){
+              this.toggleSidebar('comments')
+            }
+          }
+        });
         if (!this.ydocService.articleData) {
           this.articlesService
             .getArticleByUuid(this.roomName!)

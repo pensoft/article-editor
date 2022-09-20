@@ -47,7 +47,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
   nOfCommThatShouldBeRendered = 0
 
   doneRenderingCommentsSubject: Subject<any> = new Subject()
-
+  newCommentMarkId:string
   constructor(
     private commentsService: CommentsService,
     private menuService: MenuService,
@@ -57,7 +57,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     private detectFocus: DetectFocusService,
     public prosemirrorEditorsService: ProsemirrorEditorsService) {
 
-
+      this.newCommentMarkId = uuidv4()
 
     try {
       this.commentAllowdIn = commentsService.commentAllowdIn
@@ -149,6 +149,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     if (!this.showAddCommentBox) {
       this.doneRendering('hide_comment_box')
     } else {
+      this.newCommentMarkId = uuidv4();
       this.doneRendering('show_comment_box')
     }
   }
@@ -590,7 +591,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     let commentDate = Date.now()
     let commentId = uuidv4()
     let userCommentId = uuidv4()
-    let commentmarkid = uuidv4();
+    let commentmarkid = this.newCommentMarkId;
     let userComment = {
       id: userCommentId,
       comment: value,

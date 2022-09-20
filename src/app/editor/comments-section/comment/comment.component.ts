@@ -231,7 +231,15 @@ export class CommentComponent implements OnInit, AfterViewInit {
   editComment(id: string, comment: string) {
     let commentData: commentYdocSave = this.commentsMap?.get(this.comment?.commentAttrs.id);
     let commentContent: any = comment;
-    const dialogRef = this.sharedDialog.open(EditCommentDialogComponent, { panelClass:'comment-edit-dialog',width: '350px', data: { comment: commentContent, type: 'comment' } });
+    const dialogRef = this.sharedDialog.open(EditCommentDialogComponent, {
+      panelClass:'comment-edit-dialog',
+      width: '350px',
+      data: {
+        comment: commentContent,
+        type: 'comment',
+        actualCommentId:this.comment
+      }
+    });
     dialogRef.afterClosed().subscribe(result => {
       let newcommentContent = result;
       if (result && newcommentContent!=commentContent) {
@@ -247,7 +255,15 @@ export class CommentComponent implements OnInit, AfterViewInit {
   editReply(id: string, comment: string) {
     let commentData: commentYdocSave = this.commentsMap?.get(this.comment?.commentAttrs.id);
     let commentContent: any = comment;
-    const dialogRef = this.sharedDialog.open(EditCommentDialogComponent, { panelClass:'comment-edit-dialog',width: '350px', data: { comment: commentContent, type: 'comment' } });
+    const dialogRef = this.sharedDialog.open(EditCommentDialogComponent, {
+      panelClass:'comment-edit-dialog',
+      width: '350px',
+      data: { comment:
+        commentContent,
+        type: 'comment',
+        actualCommentId:this.comment,
+      }
+    });
     dialogRef.afterClosed().subscribe(result => {
       let newcommentContent = result;
       if (result && newcommentContent!=commentContent) {

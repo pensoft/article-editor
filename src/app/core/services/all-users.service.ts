@@ -1,8 +1,8 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { contributorData, searchData } from '@app/editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
 import { environment } from '@env';
 import { Observable, Subscriber } from 'rxjs';
+import { map } from 'rxjs/operators';
 const API_USERS_URL = environment.apiUrl;
 @Injectable({
   providedIn: 'root',
@@ -11,15 +11,14 @@ export class AllUsersService {
   constructor(private http: HttpClient) {}
 
   public getAllUsers() {
-    let AllUsersObservable = new Observable<contributorData[]>((sub)=>{
-      setTimeout(() => {
-        sub.next(searchData);
-      }, 1000);
-    })
-    return AllUsersObservable /* this.http.get(`${API_USERS_URL}/users`); */
+    return this.http.get(`${API_USERS_URL}/users`).pipe(map((x:any)=>{return x.data||[]}));
   }
 
-  public sendAllSelectContributers() {
-   // return this.http.post(`${API_USERS_URL}/users/addList`,)
+  sendCommentMentionInformation(body:any){
+    return this.http.post(`${API_USERS_URL}/collaborators/comment`,body)
+  }
+
+  sendInviteInformation(body:any){
+    return this.http.post(`${API_USERS_URL}/collaborators/invite`,body)
   }
 }
