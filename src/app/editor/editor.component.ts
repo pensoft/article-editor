@@ -12,6 +12,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MatDialog } from '@angular/material/dialog';
 import { MatDrawer } from '@angular/material/sidenav';
 import { ActivatedRoute, ParamMap } from '@angular/router';
+import { EnforcerService } from '@app/casbin/services/enforcer.service';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { AuthService } from '@app/core/services/auth.service';
@@ -87,6 +88,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     private treeService: TreeService,
     private serviceShare:ServiceShare,
     public config: FormioAppConfig,
+    public enforcer: EnforcerService,
     private authService: AuthService,
     private editorsRefsManager:EditorsRefsManagerService,
     private articleSectionsService: ArticleSectionsService,
@@ -240,6 +242,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
         this.titleControl.disable()
       }
     })
+    let articleData = this.route.snapshot.data['product'];
     this.route.paramMap
       .pipe(map((params: ParamMap) => {
         return params.get('id')
@@ -251,9 +254,8 @@ export class EditorComponent implements OnInit, AfterViewInit {
           if(commentId&&commentId.length>0){
             this.commentService.shouldScrollComment = true;
             this.commentService.markIdOfScrollComment = commentId;
-            console.log(commentId);
           }
-          this.ydocService.init(roomName!, userInfo);
+          this.ydocService.init(roomName!, userInfo,articleData);
 
         });
       });

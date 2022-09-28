@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpBackend, HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ServiceShare } from '@app/editor/services/service-share.service';
@@ -15,7 +15,15 @@ const API_URL = environment.apiUrl;
 })
 export class RefsApiService {
 
-  constructor(private _http: HttpClient, private serviceShare: ServiceShare, private ydocService: YdocService) {
+  _httpBackend:HttpClient
+
+  constructor(
+    private _http: HttpClient,
+    private serviceShare: ServiceShare,
+    private ydocService: YdocService,
+    private HttpBackend: HttpBackend
+    ) {
+    this._httpBackend =   new HttpClient(this.HttpBackend)
     serviceShare.shareSelf('RefsApiService',this)
   }
 
@@ -27,8 +35,8 @@ export class RefsApiService {
     }
     refItemsFromBackend.data.forEach((refFromBackend: any) => {
       let ref = ydocRefs[refFromBackend.id]||refFromBackend
-
       let newRef: any = {};
+      newRef.user = refFromBackend.user
       let formGroup = this.serviceShare.FormBuilderService.buildFormGroupFromSchema(new FormGroup({}),refFromBackend.reference_definition.schema)
       let oldData = JSON.parse(JSON.stringify(ref.data))
       formGroup.patchValue(ref.data)
@@ -72,6 +80,9 @@ export class RefsApiService {
         basicCitation,
         referenceData: refFormated
       }
+      let refGlobalDataUUID = 'ref'+newRef.refData.referenceData.id
+      newRef.globaldatauuid = refGlobalDataUUID
+      this.serviceShare.addDataToGlobalObj(refGlobalDataUUID,newRef)
       refs.push(newRef);
     })
     return refs
@@ -94,8 +105,24 @@ export class RefsApiService {
     return mapedTypes
   }
 
-  getReferenceById(id:number){
-    let obs = this._http.get(API_URL + '/references/items/'+id).pipe(map((data: any) => {
+  getReferenceBackend(id:number){
+    let obs = this._httpBackend.get(API_URL + '/references/items/'+id).pipe(map((data: any) => {
+      [data.data].forEach(item => {
+        if (item.issued && item.issued.hasOwnProperty('date-parts')) {
+          item.issued = item.issued['date-parts'].join('-');
+        }
+      })
+      let refs = this.mapRefItems({data:[data.data]})
+      return refs[0]
+    }))
+    return obs;
+  }
+
+  getReferenceById(id:number,fromcasbin?:true){
+    let obs = this._http.get(API_URL + '/references/items/'+id,fromcasbin?{headers:{
+      "sendFromCasbin":"true"
+    }}:{}).pipe(map((data: any) => {
+      console.log(data);
       [data.data].forEach(item => {
         if (item.issued && item.issued.hasOwnProperty('date-parts')) {
           item.issued = item.issued['date-parts'].join('-');

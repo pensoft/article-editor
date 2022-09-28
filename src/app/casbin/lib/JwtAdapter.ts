@@ -20,7 +20,7 @@ export default class JwtAdapter {
       if(acl.prefix == 'p'){
         row = `${acl.prefix}, ${acl.sub}, ${acl.obj}, ${acl.act}, ${acl.eft}`;
       }else if(acl.prefix == 'g'){
-        row = `${acl.prefix}, ${acl.obj}, ${acl.act}`;
+        row = `${acl.prefix}, ${acl.sub}, ${acl.obj}`;
       }
       Helper.loadPolicyLine(row, model);
     }

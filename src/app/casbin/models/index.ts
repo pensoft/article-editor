@@ -13,7 +13,7 @@ import { newModelFromString } from "casbin";
 
 const modelDefinition = `
   [request_definition]
-r = sub, obj, act
+r = sub, obj, act, ctx
 
 [policy_definition]
 p = sub, obj, act, eft
@@ -25,7 +25,7 @@ g = _, _
 e = priority(p.eft) || deny
 
 [matchers]
-m = g(r.sub, p.sub) &&  keyMatchChanged(r.obj, p.obj) && matchAction(r.act, p.act) && logMatching(r.obj,r.act,p.obj,p.act) && asyncLog(r.obj,r.act,p.obj,p.act)
+m = g(r.sub, p.sub) && keyMatch(r.obj, p.obj) && checkFnsIfAny(r.sub, r.obj, p.obj, r.ctx) && matchAction(r.act, p.act) && logMatching(r.obj,r.act,p.obj,p.act) && asyncLog(r.obj,r.act,p.obj,p.act)
 `;
 /*const modelDefinition = `
   [request_definition]

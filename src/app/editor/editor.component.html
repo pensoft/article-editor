@@ -6,7 +6,12 @@
         <mat-icon svgIcon="edit1"></mat-icon>
         <span style="margin-left:2px">Editor</span>
       </button>
-      <button (click)="active='library'" mat-button [class.active]="active=='library'" style="color:var(--color-192956)">
+      <button *ngIf="
+                enforcer.newBeahviorSubject |
+                hasPermission:'/references/items':
+                'GET' |
+                async
+                " (click)="active='library'" mat-button [class.active]="active=='library'" style="color:var(--color-192956)">
         <mat-icon svgIcon="library"></mat-icon>
         <span style="margin-left:5px">Library</span>
       </button>

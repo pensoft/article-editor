@@ -27,6 +27,8 @@ import { LibraryPage } from './layout/pages/library/library.component';
 import {OauthCallbackComponent} from "@app/layout/pages/oauth-callback/oauth-callback.component";
 import { TestPageComponent } from './casbin/test-page/test-page.component';
 import { LoadedCasbinGuard } from './core/guards/loaded-casbin.guard';
+import { CasbinGuard } from './casbin/guard/casbin.guard';
+import { CasbinResolver } from './casbin/resolver/casbin.resolver';
 
 const routes: Routes = [
   { path: 'profile-info', component: ProfileInfoComponent },
@@ -47,13 +49,21 @@ const routes: Routes = [
       //{ path: 'choose',canActivate: [AuthGuard], component: ChooseManuscriptDialogComponent },
       { path: 'create', canActivate: [AuthGuard], component: CreateNewProjectComponent },
       { path: 'add-files', canActivate: [AuthGuard], component: DialogAddFilesComponent },
-      { path: 'dashboard', canActivate: [AuthGuard,LoadedCasbinGuard, AnyProjectsGuard], component: DashboardComponent },
+      { path: 'dashboard', canActivate: [
+        AuthGuard,
+        LoadedCasbinGuard,
+        AnyProjectsGuard,
+      ], component: DashboardComponent },
       { path: 'profile', canActivate: [AuthGuard, AnyProjectsGuard], component: ProfileComponent },
       { path: 'profile-info', canActivate: [AuthGuard, AnyProjectsGuard], component: ProfileInfoComponent },
       { path: 'recent-permisson', canActivate: [AuthGuard, AnyProjectsGuard], component: RecentPermissionComponent },
       { path: 'library', canActivate: [AuthGuard, AnyProjectsGuard], component: LibraryPage },
       { path: 'casbin-tes', canActivate: [AuthGuard, AnyProjectsGuard], component:  TestPageComponent},
-      { path: ':id', canActivate: [AuthGuard,LoadedCasbinGuard], component: EditorComponent },
+      { path: ':id', canActivate: [AuthGuard,] ,children:[
+        {path:'',canActivate:[LoadedCasbinGuard],children:[
+          {path:'',canActivate:[CasbinGuard],component:EditorComponent,resolve:{product:CasbinResolver}}
+        ]}
+      ]},
     ],
   },
 ];

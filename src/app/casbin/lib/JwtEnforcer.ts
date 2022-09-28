@@ -12,9 +12,9 @@ export default class JwtEnforcer {
   casbin: any | null;
   acls: ACL[];
   sub: string = 'asd';
-  serviceShare:ServiceShare
+  serviceShare: ServiceShare
 
-  constructor(acls: ACL[],serviceShare:ServiceShare) {
+  constructor(acls: ACL[], serviceShare: ServiceShare) {
     this.casbin = null;
     this.serviceShare = serviceShare
     if (!acls) {
@@ -24,58 +24,52 @@ export default class JwtEnforcer {
     this.acls = acls;
   }
 
-  isOwner = (requestObj:string,policyObj:string) => {
-    console.log(requestObj,policyObj);
-    if(requestObj.includes('/references/items/')){
-      let refId = requestObj.split('/references/items/')[1];
-      return new Promise((resolve,reject)=>{
-
-        /* setTimeout(()=>{
-        },1000) */
-        resolve(true);
-
-        // breaks the interceptor
-        /* this.serviceShare.RefsApiService.getReferenceById(+refId).subscribe((res)=>{
-          console.log(res);
-          resolve(true);
-        }) */
-      })
+  isOwner = (requestObj: string, policyObj: string, reqsub: string, ctx: any) => {
+    if(ctx&&ctx.uuid){
+      console.log(requestObj,policyObj);
+      if(policyObj.includes('/references/items')){
+        let ref = this.serviceShare.globalObj[ctx.uuid];
+        let refOwnerId = ref.user.id;
+        return refOwnerId == reqsub
+      }
     }
-    return Promise.resolve(true)
+    return false;
   }
 
   ownershipFuncs = {
     'isOwner': this.isOwner
   }
 
-  handleOwnershipFunctions = (funcname:string,requestObj:string,policyObj:string) => {
-    return this.ownershipFuncs[funcname](requestObj,policyObj);
+  handleOwnershipFunctions = (funcname: string, requestObj: string, policyObj: string, reqsub: string, ctx: any) => {
+    return this.ownershipFuncs[funcname](requestObj, policyObj, reqsub, ctx);
   }
 
-  checkForOwnershipFuntions(policiObj:string):any|undefined{
-    if(policiObj.includes('isOwner(')){
+  checkForOwnershipFuntions(policiObj: string): any | undefined {
+    if (policiObj.includes('isOwner')) {
       return 'isOwner'
     }
     return
   }
 
-  keyMatchChanged = async (/* request */key1: string,/* policy */key2: string) => {
-    console.log('matching -------------------------------- ', 'request', key1, 'policy', key2);
+    checkFnsIfAny = (reqsub: string,/* request */key1: string,/* policy */key2: string,/* ctx */ctx:any) => {
+    let funcPolicy:string
+    let funcRequest:string
+    if(key2.includes('(')&&key1.includes('(')){
+      let dataRequest = key1.split('(');
+      funcRequest = dataRequest[0];
+      let dataPolicy = key2.split('(');
+      funcPolicy = dataPolicy[0];
+    }else{
+      return true;
+    }
     const pos: number = key2.indexOf('*');
-    if (pos === -1) {
-      return Promise.resolve(key1 === key2);
+    let anyOwnershipFunction = funcPolicy?this.checkForOwnershipFuntions(funcPolicy):undefined
+    if (anyOwnershipFunction&&key1.slice(0, pos)==key2.slice(0, pos)&&funcPolicy==funcRequest) {
+      let isOwner = this.handleOwnershipFunctions(anyOwnershipFunction, key1, key2, reqsub, ctx);
+      return isOwner
+    }else{
+      return true;
     }
-
-    let anyOwnershipFunction = this.checkForOwnershipFuntions(key2)
-    if(anyOwnershipFunction){
-      return await this.handleOwnershipFunctions(anyOwnershipFunction,key1,key2);
-    }
-
-    if (key1.length > pos) {
-      return Promise.resolve(key1.slice(0, pos) === key2.slice(0, pos));
-    }
-
-    return Promise.resolve(key1 === key2.slice(0, pos));
   }
 
   setup(model: Model) {
@@ -83,8 +77,8 @@ export default class JwtEnforcer {
       concatMap((casbin) => {
         this.casbin = casbin;
         this.casbin.addFunction("matchAction", matchAction)
-        this.casbin.addFunction('asyncLog',asyncLog)
-        this.casbin.addFunction('keyMatchChanged',this.keyMatchChanged)
+        this.casbin.addFunction('asyncLog', asyncLog)
+        this.casbin.addFunction('checkFnsIfAny', this.checkFnsIfAny)
         return from(this.casbin.addFunction("logMatching", logMatching)).pipe(
           map(() => this)
         );
@@ -92,20 +86,25 @@ export default class JwtEnforcer {
     );
   }
 
-  enforce( sub:string,obj: string, act: string): Observable<boolean> {
+  enforce(sub: string, obj: string, act: string, ctx:any): Observable<boolean> {
     if (!this.casbin) {
       throw new Error("Run setup() before enforcing!");
     }
 
     //casbin.enforce return a promise
-    return from(this.casbin.enforce(sub, obj, act)) as Observable<boolean>;
+    return from(this.casbin.enforce(sub, obj, act, ctx)) as Observable<boolean>;
   }
 
-  enforcePromise(sub:string,obj: string, act: string):Promise<boolean>{
-    return this.casbin.enforce(sub,obj, act);
+  enforcePromise(sub: string, obj: string, act: string, ctx: any): Promise<boolean> {
+    return new Promise((resolve,reject)=>{
+      this.casbin.enforce(sub, obj, act, ctx).then((data:any)=>{
+        console.log(sub, obj, act,ctx,data);
+        resolve(data)
+      })
+    })
   }
 
-  enforceSync(sub:string,obj: string, act: string):boolean{
-    return this.casbin.enforceSync(sub,obj, act)
+  enforceSync(sub: string, obj: string, act: string): boolean {
+    return this.casbin.enforceSync(sub, obj, act)
   }
 }

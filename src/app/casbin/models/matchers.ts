@@ -11,18 +11,18 @@ function matchAction(/* request */key1: string,/* policy */ key2: string) {
 
 
 function logMatching(robj: string, ract: string, pobj: string, pact: string) {
-  console.log('robj', robj, 'ract', ract, 'pobj', pobj, 'pact', pact);
+  //console.log('robj', robj, 'ract', ract, 'pobj', pobj, 'pact', pact);
   return true;
 }
 
 async function asyncLog(robj: string, ract: string, pobj: string, pact: string) {
-  console.log('async log -------1');
+  //console.log('async log -------1');
   await new Promise((resolve, reject) => {
     setTimeout(() => {
       resolve(true)
     }, 1000)
   })
-  console.log('async log -------2');
+  //console.log('async log -------2');
   return true;
 }
 

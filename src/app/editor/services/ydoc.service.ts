@@ -329,7 +329,7 @@ export class YdocService {
   resetYdoc() {
 
     this.editorIsBuild = false;
-
+    this.curUserRole = undefined
     this.ydoc = new Y.Doc();
 
     if (this.provider) {
@@ -402,13 +402,9 @@ export class YdocService {
     this.userInfo.color = usersColors[userId];
   }
 
-  init(roomName: string, userInfo: any) {
+  init(roomName: string, userInfo: any,articleData:any) {
     if (!this.articleData) {
-      this.serviceShare.ArticlesService?.getArticleByUuid(roomName).subscribe((res: any) => {
-        console.log('article info',res.data);
-        this.articleData = res.data;
-        //this.articleData.layout.citation_style.style_updated = Date.now()
-      })
+      this.articleData = articleData
     }
     this.roomName = roomName
     this.userInfo = userInfo;

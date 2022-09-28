@@ -9,29 +9,28 @@ import { AuthService } from '../services/auth.service';
   providedIn: 'root'
 })
 export class LoadedCasbinGuard implements CanActivate {
-  constructor(public enforcer:EnforcerService,public authService:AuthService){
+  constructor(public enforcer: EnforcerService, public authService: AuthService) {
   }
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-      return from(new Promise((resolve,reject)=>{
-        if(!this.authService.isLoggedIn()){
+    return new Promise((resolve, reject) => {
+        if (!this.authService.isLoggedIn()) {
           resolve(false);
-        }else{
-          if(this.enforcer.loadedPolicies){
+        } else {
+          if (this.enforcer.loadedPolicies) {
             resolve(true);
-          }else{
-            this.enforcer.newBeahviorSubject.subscribe((data)=>{
-              if(data == 'updated_policies'){
+          } else {
+            this.enforcer.newBeahviorSubject.subscribe((data) => {
+              if (data == 'updated_policies') {
                 resolve(true);
               }
             })
           }
         }
-        setTimeout(()=>{
+        setTimeout(() => {
           resolve(false)
-        },3000)
-      }) as Promise<boolean>)
+        }, 3000)
+    })
   }
-
 }

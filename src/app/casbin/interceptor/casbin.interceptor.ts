@@ -16,15 +16,24 @@ import { I } from '@angular/cdk/keycodes';
 @Injectable()
 export class CasbinInterceptor implements HttpInterceptor {
 
-  constructor(private sharedService: ServiceShare,private _snackBar: MatSnackBar) {
+  constructor(
+    private sharedService: ServiceShare,
+    private _snackBar: MatSnackBar
+    ) {
 
   }
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
+    //return next.handle(request)
+    /* if(request.headers.has('sendFromCasbin')){
+      let newreq = request.clone({ headers: request.headers.delete('sendFromCasbin') });
+      return next.handle(newreq)
+    } */
     if(!this.sharedService.EnforcerService||!this.sharedService.EnforcerService.loadedPolicies){
       return next.handle(request)
     }
     let unauthenticatedObservable:Observable<HttpEvent<unknown>> = new Observable((sub)=>{
+      this._snackBar.open("You don't have permission and cannot access this information or do this action.",'Ok')
       sub.next(new HttpResponse({body:{message:"Not authentucated.",status:404,url:request.url}}));
     })
     if (
@@ -33,7 +42,7 @@ export class CasbinInterceptor implements HttpInterceptor {
     ) {
       let urlParts = request.url.split('/');
       let casbinobj = '/'+urlParts[urlParts.length - 1]
-      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method).pipe(mergeMap((access) => {
+      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method,undefined).pipe(mergeMap((access) => {
         if (access) {
           return next.handle(request);
         } else {
@@ -41,12 +50,21 @@ export class CasbinInterceptor implements HttpInterceptor {
         }
       }))
     } else if (
-      request.url.endsWith('/references/items') ||
+      /articles\/uuid\/\S+$/.test(request.url)
+    ) {
+      return this.sharedService.EnforcerService.enforceAsync('/articles/*', request.method,undefined).pipe(mergeMap((access) => {
+        if (access) {
+          return next.handle(request);
+        } else {
+          return unauthenticatedObservable
+        }
+      }))
+    }else if (
       request.url.endsWith('/references/definitions')
     ){
       let urlParts = request.url.split('/');
       let casbinobj = `/${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`
-      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method).pipe(mergeMap((access) => {
+      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method,undefined).pipe(mergeMap((access) => {
         if (access) {
           return next.handle(request);
         } else {
@@ -55,12 +73,11 @@ export class CasbinInterceptor implements HttpInterceptor {
       }))
     }else if (
       /\/articles\/[^\/\s]+$/.test(request.url) ||
-      /\/citation-styles\/[^\/\s]+$/.test(request.url) ||
-      /\/articles\/[^\/\s]+$/.test(request.url)
+      /\/citation-styles\/[^\/\s]+$/.test(request.url)
     ) {
       let urlParts = request.url.split('/');
       let casbinobj = `/${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`
-      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method).pipe(mergeMap((access) => {
+      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method,undefined).pipe(mergeMap((access) => {
         if (access) {
           return next.handle(request);
         } else {
@@ -68,13 +85,11 @@ export class CasbinInterceptor implements HttpInterceptor {
         }
       }))
     } else if (
-      /\/references\/definitions\/[^\/\s]+$/.test(request.url) ||
-      /\/references\/items\/[^\/\s]+$/.test(request.url)
+      /\/references\/definitions\/[^\/\s]+$/.test(request.url)
     ) {
       let urlParts = request.url.split('/');
-      console.log(urlParts);
       let casbinobj = `/${urlParts[urlParts.length - 3]}/${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`
-      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method).pipe(mergeMap((access) => {
+      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method,undefined).pipe(mergeMap((access) => {
         if (access) {
           return next.handle(request);
         } else {

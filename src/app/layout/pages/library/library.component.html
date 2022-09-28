@@ -39,14 +39,20 @@
       <ng-container matColumnDef="delete">
         <th mat-header-cell *matHeaderCellDef> </th>
         <td mat-cell *matCellDef="let element">
-          <button mat-raised-button (click)="deleteReference(element)">Delete</button>
+          <button *ngIf="
+          enforcer.newBeahviorSubject |
+          hasPermission:'isOwner(/references/items/' + element.refData.referenceData.id + ')':
+          'DELETE':
+          { uuid: element.globaldatauuid } |
+          async
+          " mat-raised-button (click)="deleteReference(element)">Delete</button>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="edit">
         <th mat-header-cell *matHeaderCellDef> </th>
         <td mat-cell *matCellDef="let element">
-          <button mat-raised-button (click)="editReference(element)">Edit</button>
+          <button *ngIf="enforcer.newBeahviorSubject| hasPermission:'isOwner(/references/items/' + element.refData.referenceData.id + ')':'PUT':{ uuid: element.globaldatauuid } | async" mat-raised-button (click)=" editReference(element)">Edit</button>
         </td>
       </ng-container>
 

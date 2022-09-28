@@ -17,6 +17,7 @@ import { HttpClient } from '@angular/common/http';
 import { AllUsersService } from '@app/core/services/all-users.service';
 import { ContributorsApiService } from '@app/core/services/comments/contributors-api.service';
 import { TestingComponent } from '../dialogs/testing/testing.component';
+import { EnforcerService } from '@app/casbin/services/enforcer.service';
 
 @Component({
   selector: 'app-article-metadata',
@@ -33,6 +34,7 @@ export class ArticleMetadataComponent implements OnInit {
     private sectionsService: ArticleSectionsService,
     private figuresControllerService: FiguresControllerService,
     private ydocService: YdocService,
+    public enforcer: EnforcerService,
     private serviceShare: ServiceShare,
     private treeService: TreeService,
     private contributorsApiService:ContributorsApiService,
@@ -103,9 +105,8 @@ export class ArticleMetadataComponent implements OnInit {
   }
 
   getArticleCollaboratorsData(){
-    this.serviceShare.ArticlesService.getArticleCollaboratorsData(this.ydocService.roomName).subscribe((data)=>{
-      console.log(data);
-    })
+    /* this.serviceShare.ArticlesService.getArticleCollaboratorsData(this.ydocService.roomName).subscribe((data)=>{
+    }) */
   }
 
   addNewSectionToArticle() {

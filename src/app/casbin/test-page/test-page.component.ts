@@ -20,7 +20,7 @@ export class TestPageComponent implements AfterViewInit {
   }
 
   testEnforce(sub:string,obj:string,act:string){
-    this.enforcer.enforceAsync(obj,act).subscribe((access)=>{
+    this.enforcer.enforceAsync(obj,act,undefined).subscribe((access)=>{
       this.output = `obj:{${obj}}  --  act:{${act}}  --  access:{${access}}`
     })
   }

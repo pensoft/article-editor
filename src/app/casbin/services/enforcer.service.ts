@@ -27,7 +27,7 @@ export class EnforcerService {
   enforcedEndpoints:any = {}
 
   policiesFromBackend:any
-  constructor(private serviceShare:ServiceShare,private _snackBar: MatSnackBar) {
+  constructor(private serviceShare:ServiceShare) {
     this.false.subscribe((d) => false);
     this.triggerUpdatePolicy();
     this.serviceShare.shareSelf('EnforcerService',this)
@@ -40,13 +40,14 @@ export class EnforcerService {
       if(res){
         this.userInfo = res.data
         this.policiesFromBackend = this.mapPolicies(res.data.permissions);
+        console.log(this.policiesFromBackend);
         this.updateAllPolicies(this.policiesFromBackend)
       }
     })
   }
 
-  enforceRequest = (obj:string,act:string) => {
-    this.enforceAsync(obj, act).subscribe((access)=>{
+  enforceRequest = (obj:string,act:string,ctx:any) => {
+    this.enforceAsync(obj, act,ctx).subscribe((access)=>{
       this.enforcedEndpoints[getRequestKey('',obj,act)] = {access}
       this.newBeahviorSubject.next(this.enforcedEndpoints);
     })
@@ -56,21 +57,18 @@ export class EnforcerService {
     return this.enforcer.enforceSync(obj,act);
   } */
 
-  enforceAsync = (obj:string,act:string) => {
+  enforceAsync = (obj:string,act:string,ctx:any) => {
     if(!this.enforcer){
       return of(false)
     }
-    return from(this.enforcer.enforcePromise(this.userInfo.id,obj,act)).pipe(map((x)=>{
+    return from(this.enforcer.enforcePromise(this.userInfo.id,obj,act,ctx)).pipe(map((x)=>{
       if(!x){
-        console.log(obj,act,x);
-        this._snackBar.open("You don't have permission and cannot access this information or do this action.",'Ok')
       }
       return x
     }))
   }
 
   mapPolicies = (policiesFromBackend:any) => {
-    console.log(policiesFromBackend);
     let allParsedPolicies:any[]= [];
     let parseRecursive = (array:any[])=>{
       if(array.length>0&&typeof array[0] == 'string'){
@@ -81,12 +79,18 @@ export class EnforcerService {
           act:array[3],
           eft:array[4],
         }
-        /* if(!policy.obj.includes('isOwner(')){
-          if(policy.obj == "/references/items"){
-            policy.act = "(GET)"
-          }
-        } */
-        allParsedPolicies.push(policy);
+        if(policy.obj == '*'&&policy.act=='.*'&&policy.eft=='allow'){
+          //allParsedPolicies.push(policy);
+        }/* else if (policy.obj == '/articles/sections') {
+          policy.eft = 'deny'
+          allParsedPolicies.push(policy);
+        }else if (policy.obj == '/articles/*') {
+          policy.eft = 'deny'
+          allParsedPolicies.push(policy);
+        } */else{
+          allParsedPolicies.push(policy);
+        }
+        //allParsedPolicies.push(policy);
       }else{
         array.forEach((el,i)=>{
           if(typeof el != 'string'){
@@ -104,7 +108,6 @@ export class EnforcerService {
   }
 
   updateAllPolicies(policiesFromBackend:any){
-    console.log(policiesFromBackend);
     this.load(of(policiesFromBackend)).then((done)=>{
       this.notifyForUpdate()
     });

@@ -200,6 +200,7 @@ export class DashboardComponent implements AfterViewInit {
   editArticle(articleData: any) {
     this.serviceShare.resetServicesData();
     this.ydocService.setArticleData(articleData);
+    //this.router.navigateByUrl('/'+articleData.uuid, { state: { id:1 , name:'Angular',articleData } });
     this.router.navigate([articleData.uuid])
   }
 

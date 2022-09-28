@@ -49,6 +49,7 @@ import {material} from "@core/services/custom_sections/material";
 import {treatmentSectionsSubsection} from "@core/services/custom_sections/tratment_sections_subsection";
 import {treatmentSectionsCustom} from "@core/services/custom_sections/treatment_sections_description";
 import {taxonSection} from "@core/services/custom_sections/taxon";
+import { EnforcerService } from '@app/casbin/services/enforcer.service';
 
 @Component({
   selector: 'app-section-leaf',
@@ -92,6 +93,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     public treeService: TreeService,
     public ydocService: YdocService,
     private serviceShare: ServiceShare,
+    public enforcer: EnforcerService,
     public detectFocusService: DetectFocusService,
     public prosemirrorEditorsService: ProsemirrorEditorsService,
     public PmDialogSessionService: PmDialogSessionService,

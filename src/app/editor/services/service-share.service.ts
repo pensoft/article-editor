@@ -27,6 +27,7 @@ import { WorkerService } from './worker.service';
 import { YdocService } from './ydoc.service';
 import { AuthService } from '@app/core/services/auth.service'
 import { EnforcerService } from '@app/casbin/services/enforcer.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 @Injectable({
   providedIn: 'root'
@@ -59,9 +60,21 @@ export class ServiceShare {
   constructor(
     public dialog: MatDialog,
     private router: Router,
-    public httpClient:HttpClient
+    public httpClient:HttpClient,
     ) {
 
+  }
+
+  globalObj:{[key:string]:any} = {}
+
+  addDataToGlobalObj(dataKey:string,data:any){
+    this.globalObj[dataKey] = data
+  }
+
+  resolversData:{[key:string]:any} = {}
+
+  addResolverData(resolveKey:string,data:any){
+    this.resolversData[resolveKey] = data;
   }
 
   logData(){
@@ -80,6 +93,7 @@ export class ServiceShare {
     this.DetectFocusService?.resetDetectFocusService();
     this.TrackChangesService?.resetTrackChangesService();
     this.YjsHistoryService?.resetHistoryData();
+    this.resolversData = {}
   }
 
   createNewArticle(){
