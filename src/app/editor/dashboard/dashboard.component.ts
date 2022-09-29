@@ -1,13 +1,13 @@
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
 import { ArticlesService } from '@app/core/services/articles.service';
-import { merge, Observable, of, Subject } from 'rxjs';
+import { from, merge, Observable, of, Subject } from 'rxjs';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, SortDirection } from '@angular/material/sort';
 import { HttpClient } from '@angular/common/http';
 import { catchError, map, startWith, switchMap } from 'rxjs/operators';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { YdocService } from '../services/ydoc.service';
 import { articleSection } from '../utils/interfaces/articleSection';
 import { uuidv4 } from 'lib0/random';
@@ -15,6 +15,8 @@ import { ProsemirrorEditorsService } from '../services/prosemirror-editors.servi
 import { ServiceShare } from '../services/service-share.service';
 import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
 import { leadingComment } from '@angular/compiler';
+import { EnforcerService } from '@app/casbin/services/enforcer.service';
+import { I } from '@angular/cdk/keycodes';
 
 @Component({
   selector: 'app-dashboard',
@@ -38,14 +40,17 @@ export class DashboardComponent implements AfterViewInit {
   typeChange: Subject<any> = new Subject();
   selectedType = -1;
   refreshSubject = new Subject();
+  onRender = true;
 
   @ViewChild(MatPaginator) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
 
   constructor(
     public dialog: MatDialog,
+    private route: ActivatedRoute,
     private router: Router,
     private ydocService: YdocService,
+    public enforcer: EnforcerService,
     private _httpClient: HttpClient,
     private articlesService: ArticlesService,
     private articleSectionsService: ArticleSectionsService,
@@ -53,6 +58,7 @@ export class DashboardComponent implements AfterViewInit {
     private serviceShare: ServiceShare,
   ) { }
   ngAfterViewInit() {
+    let articlesDataFromResolver = this.route.snapshot.data['product'];
     /* this.articleSectionsService.getAllLayouts().subscribe((articleLayouts: any) => {
       this.articleLayouts = [...articleLayouts.data, { name: 'none', id: -1 }]
     }) */
@@ -95,6 +101,10 @@ export class DashboardComponent implements AfterViewInit {
           /* if(this.allArticlesData){
             return of({data:JSON.parse(JSON.stringify(this.allArticlesData))})
           }else { */
+          if(this.onRender){
+            this.onRender = false;
+            return of(articlesDataFromResolver)
+          }
           return this.articlesService.getAllArticles(params).pipe(catchError(() => new Observable(undefined)))
           //}
           return 'sd'

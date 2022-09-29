@@ -10,8 +10,8 @@ import { Observable, of } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class CasbinResolver implements Resolve<boolean> {
-  resolverKey = 'CasbinResolver';
+export class DashboardResolver implements Resolve<boolean> {
+  resolverKey = 'DasboardResolver';
   constructor(
     private serviceShare:ServiceShare
   ){}

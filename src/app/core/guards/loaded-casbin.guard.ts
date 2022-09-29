@@ -14,7 +14,8 @@ export class LoadedCasbinGuard implements CanActivate {
   canActivate(
     route: ActivatedRouteSnapshot,
     state: RouterStateSnapshot): Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    return new Promise((resolve, reject) => {
+
+    return from(new Promise<boolean>((resolve, reject) => {
         if (!this.authService.isLoggedIn()) {
           resolve(false);
         } else {
@@ -31,6 +32,6 @@ export class LoadedCasbinGuard implements CanActivate {
         setTimeout(() => {
           resolve(false)
         }, 3000)
-    })
+    }))
   }
 }

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { Observable } from 'rxjs';
+import { shareReplay } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -11,7 +12,8 @@ export class CasbinGuard implements CanActivate {
 
   constructor(
     private router: Router,
-    private sharedService: ServiceShare) {
+    private sharedService: ServiceShare
+    ) {
   }
   canActivate(
     route: ActivatedRouteSnapshot,
@@ -22,19 +24,20 @@ export class CasbinGuard implements CanActivate {
       ) {
       return new Promise<boolean>((resolve, reject) => {
         let articleId = route.params.id;
-        this.sharedService.ArticlesService?.getArticleByUuid(articleId).subscribe((res: any) => {
+        let articleByIdRequest = this.sharedService.ArticlesService?.getArticleByUuid(articleId).pipe(shareReplay());
+        articleByIdRequest.subscribe((res: any) => {
           if(res.status == 404){
             this.router.navigate(['dashboard']);
             resolve(false)
           }else{
             let articleData = res.data;
-            this.sharedService.addResolverData('CasbinResolver',articleData);
             resolve(true);
           }
         }, (error) => {
           console.error(error);
           resolve(false)
         })
+        this.sharedService.addResolverData('CasbinResolver',articleByIdRequest);
 
       })
     }

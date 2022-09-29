@@ -104,7 +104,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         const loginSubscr = this.authService.getUserInfo().pipe(take(1))
           .subscribe((user: UserModel | undefined) => {
             if (user) {
-              this.router.navigate(['/dashboard']);
+              setTimeout(()=>{
+                this.router.navigate(['/dashboard']);
+              },2000)
               this.formioBaseService.login();
             } else {
               this.hasError = true;

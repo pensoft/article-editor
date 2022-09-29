@@ -11,7 +11,6 @@ import { Observable } from 'rxjs';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { map, mergeMap, subscribeOn } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { I } from '@angular/cdk/keycodes';
 
 @Injectable()
 export class CasbinInterceptor implements HttpInterceptor {
@@ -38,6 +37,7 @@ export class CasbinInterceptor implements HttpInterceptor {
     })
     if (
       request.url.endsWith('/articles') ||
+      request.url.endsWith('/layouts') ||
       request.url.endsWith('/citation-styles')
     ) {
       let urlParts = request.url.split('/');
@@ -73,6 +73,7 @@ export class CasbinInterceptor implements HttpInterceptor {
       }))
     }else if (
       /\/articles\/[^\/\s]+$/.test(request.url) ||
+      /\/layouts\/[^\/\s]+$/.test(request.url) ||
       /\/citation-styles\/[^\/\s]+$/.test(request.url)
     ) {
       let urlParts = request.url.split('/');
@@ -85,6 +86,18 @@ export class CasbinInterceptor implements HttpInterceptor {
         }
       }))
     } else if (
+      /\/references\/definitions\/[^\/\s]+$/.test(request.url)
+    ) {
+      let urlParts = request.url.split('/');
+      let casbinobj = `/${urlParts[urlParts.length - 3]}/${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`
+      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method,undefined).pipe(mergeMap((access) => {
+        if (access) {
+          return next.handle(request);
+        } else {
+          return unauthenticatedObservable
+        }
+      }))
+    }else if (
       /\/references\/definitions\/[^\/\s]+$/.test(request.url)
     ) {
       let urlParts = request.url.split('/');

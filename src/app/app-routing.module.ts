@@ -29,6 +29,7 @@ import { TestPageComponent } from './casbin/test-page/test-page.component';
 import { LoadedCasbinGuard } from './core/guards/loaded-casbin.guard';
 import { CasbinGuard } from './casbin/guard/casbin.guard';
 import { CasbinResolver } from './casbin/resolver/casbin.resolver';
+import { DashboardResolver } from './casbin/resolver/dashboard.resolver';
 
 const routes: Routes = [
   { path: 'profile-info', component: ProfileInfoComponent },
@@ -49,11 +50,16 @@ const routes: Routes = [
       //{ path: 'choose',canActivate: [AuthGuard], component: ChooseManuscriptDialogComponent },
       { path: 'create', canActivate: [AuthGuard], component: CreateNewProjectComponent },
       { path: 'add-files', canActivate: [AuthGuard], component: DialogAddFilesComponent },
-      { path: 'dashboard', canActivate: [
+      { path: 'dashboard', canActivate: [AuthGuard] ,children:[
+        {path:'',canActivate:[LoadedCasbinGuard],children:[
+          {path:'',canActivate:[AnyProjectsGuard],component:DashboardComponent,resolve:{product:DashboardResolver}}
+        ]}
+      ]},
+/*       { path: 'dashboard', canActivate: [
         AuthGuard,
         LoadedCasbinGuard,
         AnyProjectsGuard,
-      ], component: DashboardComponent },
+      ], component: DashboardComponent }, */
       { path: 'profile', canActivate: [AuthGuard, AnyProjectsGuard], component: ProfileComponent },
       { path: 'profile-info', canActivate: [AuthGuard, AnyProjectsGuard], component: ProfileInfoComponent },
       { path: 'recent-permisson', canActivate: [AuthGuard, AnyProjectsGuard], component: RecentPermissionComponent },

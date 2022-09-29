@@ -80,7 +80,7 @@ export class EnforcerService {
           eft:array[4],
         }
         if(policy.obj == '*'&&policy.act=='.*'&&policy.eft=='allow'){
-          //allParsedPolicies.push(policy);
+          allParsedPolicies.push(policy);
         }/* else if (policy.obj == '/articles/sections') {
           policy.eft = 'deny'
           allParsedPolicies.push(policy);

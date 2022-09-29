@@ -2,7 +2,11 @@
   <div class="container-shadow br-15px mt35px p26px h867px">
     <article fxLayout="row" fxFill>
       <div class="mt20px">
-        <button mat-button (click)="openchooseDialog()" class="btn-start-new-project">
+        <button mat-button *ngIf="
+        enforcer.newBeahviorSubject| hasPermission:
+        '/layouts':
+        'POST' |
+        async" (click)="openchooseDialog()" class="btn-start-new-project">
           <mat-icon svgIcon="dasboardNewProject" class="icon-plus"></mat-icon>Start new project
         </button>
       </div>
