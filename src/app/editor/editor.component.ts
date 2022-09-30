@@ -242,7 +242,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
         this.titleControl.disable()
       }
     })
-    let articleData = this.route.snapshot.data['product'];
+    let articleData = this.route.snapshot.data['product'].data;
     this.route.paramMap
       .pipe(map((params: ParamMap) => {
         return params.get('id')

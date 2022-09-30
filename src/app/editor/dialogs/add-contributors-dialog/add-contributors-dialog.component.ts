@@ -119,9 +119,15 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
 
   checkIfCurrUserIsOwner() {
     let user = this.collaborators.collaborators.find((col) => { return col.email == this.currentUser.email });
-    if (user.role == 'Owner') {
-      this.isOwner = true
-    }
+    this.sharedService.EnforcerService.enforceAsync('is-admin','admin-can-do-anything',undefined).subscribe((admin)=>{
+      if(admin){
+        this.isOwner = true
+      }else{
+        if (user.role == 'Owner') {
+          this.isOwner = true
+        }
+      }
+    })
   }
 
   collaboratorstSubs: Subscription

@@ -1,9 +1,10 @@
 import { ThrowStmt } from '@angular/compiler';
 import { Injectable } from '@angular/core';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-import { Observable } from 'rxjs';
-import { shareReplay } from 'rxjs/operators';
+import { from, Observable } from 'rxjs';
+import { delayWhen, shareReplay, switchMap, tap } from 'rxjs/operators';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,8 @@ export class CasbinGuard implements CanActivate {
 
   constructor(
     private router: Router,
-    private sharedService: ServiceShare
+    private sharedService: ServiceShare,
+    private _snackBar: MatSnackBar
     ) {
   }
   canActivate(
@@ -22,24 +24,42 @@ export class CasbinGuard implements CanActivate {
       route.pathFromRoot.length>0&&
       route.pathFromRoot[2].routeConfig.path == ':id'
       ) {
-      return new Promise<boolean>((resolve, reject) => {
+      return from(new Promise<boolean>((resolve, reject) => {
         let articleId = route.params.id;
-        let articleByIdRequest = this.sharedService.ArticlesService?.getArticleByUuid(articleId).pipe(shareReplay());
-        articleByIdRequest.subscribe((res: any) => {
-          if(res.status == 404){
-            this.router.navigate(['dashboard']);
+        let userData
+        this.sharedService.AuthService.getUserInfo().subscribe({next:(data)=>{
+          userData = data
+          let articleByIdRequest = this.sharedService.ArticlesService?.getArticleByUuid(articleId).pipe(shareReplay());
+          articleByIdRequest.subscribe((res: any) => {
+            if(res.status == 404){
+              this.router.navigate(['dashboard']);
+              resolve(false)
+            }else{
+              this.sharedService.EnforcerService.enforceAsync('is-admin','admin-can-do-anything',undefined).subscribe((admin)=>{
+                if(admin){
+                  resolve(true);
+                }else{
+                  let currUserId = userData.data.id;
+                  let collaborators:{user_id:string,type:string}[] = res.data.collaborators;
+                  if(collaborators.some((user)=>user.user_id == currUserId)){
+                    resolve(true);
+                  }else{
+                    resolve(false);
+                  }
+                }
+              })
+            }
+          }, (error) => {
+            console.error(error);
             resolve(false)
-          }else{
-            let articleData = res.data;
-            resolve(true);
-          }
-        }, (error) => {
-          console.error(error);
-          resolve(false)
-        })
-        this.sharedService.addResolverData('CasbinResolver',articleByIdRequest);
-
-      })
+          })
+          this.sharedService.addResolverData('CasbinResolver',articleByIdRequest);
+        },error:(err)=>{
+          resolve(false);
+        }})
+      })).pipe(tap((x)=>{if(!x){
+        this._snackBar.open("You don't have permission and cannot access this information or do this action.",'Ok');
+      }}))
     }
     return Promise.resolve(true);
   }

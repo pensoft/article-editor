@@ -41,7 +41,7 @@
         <td mat-cell *matCellDef="let element">
           <button *ngIf="
           enforcer.newBeahviorSubject |
-          hasPermission:'isOwner(/references/items/' + element.refData.referenceData.id + ')':
+          hasPermission:'/references/items/' + element.refData.referenceData.id:
           'DELETE':
           { uuid: element.globaldatauuid } |
           async
@@ -54,7 +54,7 @@
         <td mat-cell *matCellDef="let element">
           <button *ngIf="
           enforcer.newBeahviorSubject| hasPermission:
-          'isOwner(/references/items/' + element.refData.referenceData.id + ')':
+          '/references/items/' + element.refData.referenceData.id:
           'PUT':
           { uuid: element.globaldatauuid } |
          async

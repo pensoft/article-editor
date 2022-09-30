@@ -289,18 +289,20 @@ export class YdocService {
     }
     let collaborators = this.collaborators.get('collaborators').collaborators as any[]
     let userInArticle = collaborators.find((user) => user.email == currUserEmail)
-    if (currUserEmail == 'mincho@scalewest.com') {
-      userInArticle = {role:'Owner',email:'mincho@scalewest.com'};
-    }
-    if (!userInArticle) {
-      this.serviceShare.openNotAddedToEditorDialog()
-    } else {
-      if (this.curUserRole && this.curUserRole != userInArticle.role) {
-        this.serviceShare.openNotifyUserRoleChangeDialog(this.curUserRole, userInArticle.role)
+    this.serviceShare.EnforcerService.enforceAsync('is-admin','admin-can-do-anything',undefined).subscribe((admin)=>{
+      if(admin){
+        userInArticle = {role:'Owner',email:'mincho@scalewest.com'};
       }
-      this.curUserRole = userInArticle.role;
-      this.currUserRoleSubject.next(userInArticle);
-    }
+      if (!userInArticle) {
+        this.serviceShare.openNotAddedToEditorDialog()
+      } else {
+        if (this.curUserRole && this.curUserRole != userInArticle.role) {
+          this.serviceShare.openNotifyUserRoleChangeDialog(this.curUserRole, userInArticle.role)
+        }
+        this.curUserRole = userInArticle.role;
+        this.currUserRoleSubject.next(userInArticle);
+      }
+    })
   }
 
   collaboratorsSubject = new Subject()

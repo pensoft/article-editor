@@ -26,7 +26,7 @@ export default class JwtEnforcer {
 
   isOwner = (requestObj: string, policyObj: string, reqsub: string, ctx: any) => {
     if(ctx&&ctx.uuid){
-      console.log(requestObj,policyObj);
+      //console.log(requestObj,policyObj);
       if(policyObj.includes('/references/items')){
         let ref = this.serviceShare.globalObj[ctx.uuid];
         let refOwnerId = ref.user.id;
@@ -53,22 +53,25 @@ export default class JwtEnforcer {
 
     checkFnsIfAny = (reqsub: string,/* request */key1: string,/* policy */key2: string,/* ctx */ctx:any) => {
     let funcPolicy:string
-    let funcRequest:string
-    if(key2.includes('(')&&key1.includes('(')){
-      let dataRequest = key1.split('(');
-      funcRequest = dataRequest[0];
+    let actualObjReq = key1
+    let actualObjPol
+    if(key2.includes('(')){
       let dataPolicy = key2.split('(');
       funcPolicy = dataPolicy[0];
+      let obj = dataPolicy[1].replace(')','')
+      actualObjPol = obj
     }else{
-      return true;
+      return false;
     }
-    const pos: number = key2.indexOf('*');
+
+    const pos: number = actualObjPol.indexOf('*');
+
     let anyOwnershipFunction = funcPolicy?this.checkForOwnershipFuntions(funcPolicy):undefined
-    if (anyOwnershipFunction&&key1.slice(0, pos)==key2.slice(0, pos)&&funcPolicy==funcRequest) {
+    if (anyOwnershipFunction&&actualObjReq.slice(0,pos)==actualObjPol.slice(0,pos)) {
       let isOwner = this.handleOwnershipFunctions(anyOwnershipFunction, key1, key2, reqsub, ctx);
       return isOwner
     }else{
-      return true;
+      return false;
     }
   }
 
@@ -98,6 +101,7 @@ export default class JwtEnforcer {
   enforcePromise(sub: string, obj: string, act: string, ctx: any): Promise<boolean> {
     return new Promise((resolve,reject)=>{
       this.casbin.enforce(sub, obj, act, ctx).then((data:any)=>{
+
         console.log(sub, obj, act,ctx,data);
         resolve(data)
       })
