@@ -1,5 +1,6 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
 import {environment} from '../environments/environment'
+import { CasbinGlobalObjectsService } from './casbin/services/casbin-global-objects.service';
 import { EnforcerService } from './casbin/services/enforcer.service';
 import { AuthService } from './core/services/auth.service';
 import { ProsemirrorEditorsService } from './editor/services/prosemirror-editors.service';
@@ -17,7 +18,8 @@ export class AppComponent implements AfterViewInit {
   constructor(private prosemirrorEditorsService:ProsemirrorEditorsService,
     private serviceShare:ServiceShare,
     private authService:AuthService,
-    private enfprcer:EnforcerService
+    private enfprcer:EnforcerService,
+    private casbinGlobalObjectService:CasbinGlobalObjectsService
     ) {
     navigator.serviceWorker.ready.then(function (registration) {
       //@ts-ignore

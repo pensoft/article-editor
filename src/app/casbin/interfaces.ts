@@ -5,3 +5,8 @@ export interface ACL {
   act: string;
   eft: "allow" | "deny";
 }
+
+export interface GlobalObjContainer {
+  items:{[key:string]:any};
+  isOwner:(objId:string,subId:string)=>boolean;
+}

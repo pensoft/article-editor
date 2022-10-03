@@ -80,9 +80,14 @@ export class RefsApiService {
         basicCitation,
         referenceData: refFormated
       }
-      let refGlobalDataUUID = 'ref'+newRef.refData.referenceData.id
-      newRef.globaldatauuid = refGlobalDataUUID
-      this.serviceShare.addDataToGlobalObj(refGlobalDataUUID,newRef)
+      let refGlobalDataUUID1 = newRef.refData.referenceData.id
+      let refGlobalDataUUID2 = 'ref'+newRef.refData.referenceData.id
+      newRef.globaldatauuid = refGlobalDataUUID2
+      newRef.isOwner = function(reqSub:string){
+        return this.user.id==reqSub
+      }
+      this.serviceShare.addDataToGlobalObj(refGlobalDataUUID2,newRef)
+      this.serviceShare.CasbinGlobalObjectsService.addItemToGlobalContainer('referenceClass',refGlobalDataUUID1,newRef);
       refs.push(newRef);
     })
     return refs
@@ -122,7 +127,6 @@ export class RefsApiService {
     let obs = this._http.get(API_URL + '/references/items/'+id,fromcasbin?{headers:{
       "sendFromCasbin":"true"
     }}:{}).pipe(map((data: any) => {
-      console.log(data);
       [data.data].forEach(item => {
         if (item.issued && item.issued.hasOwnProperty('date-parts')) {
           item.issued = item.issued['date-parts'].join('-');

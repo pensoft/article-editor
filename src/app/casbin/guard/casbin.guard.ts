@@ -41,7 +41,7 @@ export class CasbinGuard implements CanActivate {
                 }else{
                   let currUserId = userData.data.id;
                   let collaborators:{user_id:string,type:string}[] = res.data.collaborators;
-                  if(collaborators.some((user)=>user.user_id == currUserId)){
+                  if(collaborators.some((user)=>user.user_id == currUserId)||res.data.user.id == currUserId){
                     resolve(true);
                   }else{
                     resolve(false);
@@ -59,6 +59,7 @@ export class CasbinGuard implements CanActivate {
         }})
       })).pipe(tap((x)=>{if(!x){
         this._snackBar.open("You don't have permission and cannot access this information or do this action.",'Ok');
+        this.router.navigate(['dashboard'])
       }}))
     }
     return Promise.resolve(true);

@@ -27,7 +27,7 @@ export class EnforcerService {
   enforcedEndpoints:any = {}
 
   policiesFromBackend:any
-  constructor(private serviceShare:ServiceShare) {
+  constructor(private serviceShare:ServiceShare, private authService: AuthService) {
     this.false.subscribe((d) => false);
     this.triggerUpdatePolicy();
     this.serviceShare.shareSelf('EnforcerService',this)
@@ -130,7 +130,7 @@ export class EnforcerService {
               return NEVER;
             }
 
-            const enforcer = new JwtEnforcer(acls,this.serviceShare);
+            const enforcer = new JwtEnforcer(acls,this.serviceShare, this.authService);
             return from(enforcer.setup(getModel()));
           })
         )

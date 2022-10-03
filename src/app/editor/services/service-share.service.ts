@@ -28,6 +28,7 @@ import { YdocService } from './ydoc.service';
 import { AuthService } from '@app/core/services/auth.service'
 import { EnforcerService } from '@app/casbin/services/enforcer.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { CasbinGlobalObjectsService } from '@app/casbin/services/casbin-global-objects.service';
 
 @Injectable({
   providedIn: 'root'
@@ -56,6 +57,7 @@ export class ServiceShare {
   RefsApiService?:RefsApiService
   AuthService?:AuthService
   EnforcerService?:EnforcerService
+  CasbinGlobalObjectsService?:CasbinGlobalObjectsService
 
   constructor(
     public dialog: MatDialog,
