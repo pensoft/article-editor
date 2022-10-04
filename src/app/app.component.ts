@@ -18,7 +18,7 @@ export class AppComponent implements AfterViewInit {
   constructor(private prosemirrorEditorsService:ProsemirrorEditorsService,
     private serviceShare:ServiceShare,
     private authService:AuthService,
-    private enfprcer:EnforcerService,
+    private enforcer:EnforcerService,
     private casbinGlobalObjectService:CasbinGlobalObjectsService
     ) {
     navigator.serviceWorker.ready.then(function (registration) {

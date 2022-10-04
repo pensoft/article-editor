@@ -46,8 +46,8 @@ export class EnforcerService {
     })
   }
 
-  enforceRequest = (obj:string,act:string,ctx:any) => {
-    this.enforceAsync(obj, act,ctx).subscribe((access)=>{
+  enforceRequest = (obj:string,act:string) => {
+    this.enforceAsync(obj, act).subscribe((access)=>{
       this.enforcedEndpoints[getRequestKey('',obj,act)] = {access}
       this.newBeahviorSubject.next(this.enforcedEndpoints);
     })
@@ -57,11 +57,11 @@ export class EnforcerService {
     return this.enforcer.enforceSync(obj,act);
   } */
 
-  enforceAsync = (obj:string,act:string,ctx:any) => {
+  enforceAsync = (obj:string,act:string) => {
     if(!this.enforcer){
       return of(false)
     }
-    return from(this.enforcer.enforcePromise(this.userInfo.id,obj,act,ctx)).pipe(map((x)=>{
+    return from(this.enforcer.enforcePromise(this.userInfo.id,obj,act)).pipe(map((x)=>{
       if(!x){
       }
       return x
@@ -80,7 +80,7 @@ export class EnforcerService {
           eft:array[4],
         }
         if(policy.obj == '*'&&policy.act=='.*'&&policy.eft=='allow'){
-          allParsedPolicies.push(policy);
+          //allParsedPolicies.push(policy);
         }/* else if (policy.obj == '/articles/sections') {
           policy.eft = 'deny'
           allParsedPolicies.push(policy);

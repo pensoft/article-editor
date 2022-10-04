@@ -274,7 +274,6 @@ const gravatarConfig: GravatarConfig = {
   ],
 
   providers: [
-    //EnforcerService,
     HasPermissionPipe,
     CookieService,
     {

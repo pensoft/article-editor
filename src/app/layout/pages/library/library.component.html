@@ -42,8 +42,7 @@
           <button *ngIf="
           enforcer.newBeahviorSubject |
           hasPermission:'/references/items/' + element.refData.referenceData.id:
-          'DELETE':
-          { uuid: element.globaldatauuid } |
+          'DELETE' |
           async
           " mat-raised-button (click)="deleteReference(element)">Delete</button>
         </td>
@@ -55,8 +54,7 @@
           <button *ngIf="
           enforcer.newBeahviorSubject| hasPermission:
           '/references/items/' + element.refData.referenceData.id:
-          'PUT':
-          { uuid: element.globaldatauuid } |
+          'PUT' |
          async
          " mat-raised-button (click)=" editReference(element)">Edit</button>
         </td>

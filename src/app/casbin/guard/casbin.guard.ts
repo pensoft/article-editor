@@ -35,7 +35,7 @@ export class CasbinGuard implements CanActivate {
               this.router.navigate(['dashboard']);
               resolve(false)
             }else{
-              this.sharedService.EnforcerService.enforceAsync('is-admin','admin-can-do-anything',undefined).subscribe((admin)=>{
+              this.sharedService.EnforcerService.enforceAsync('is-admin','admin-can-do-anything').subscribe((admin)=>{
                 if(admin){
                   resolve(true);
                 }else{

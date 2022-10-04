@@ -1,29 +1,38 @@
-import { Injectable } from '@angular/core';
-import { ServiceShare } from '@app/editor/services/service-share.service';
-import { GlobalObjContainer } from '../interfaces';
+import {Injectable} from '@angular/core';
+import {ServiceShare} from '@app/editor/services/service-share.service';
+import {GlobalObjContainer} from '../interfaces';
+import {keyMatchFunc} from "casbin/lib/cjs/util";
 
 @Injectable({
   providedIn: 'root'
 })
 export class CasbinGlobalObjectsService {
 
-  constructor(private sharedService:ServiceShare) {
-    this.sharedService.shareSelf('CasbinGlobalObjectsService',this)
+  constructor(private sharedService: ServiceShare) {
+    this.sharedService.shareSelf('CasbinGlobalObjectsService', this)
   }
 
-  referenceClass:GlobalObjContainer = {
-    items:{},
-    isOwner(reqObj,subId){
+  ReferenceItem: GlobalObjContainer = {
+    items: {},
+    isOwner: (robj, ...args) => {
+      // check if there is arg that maches with requested obj
+      const matched = args.some((arg) => keyMatchFunc(robj, `${arg}`));
+
+      if (!matched) return false;
+
+      const reqObj = robj;
+      const currUserId = this.sharedService.EnforcerService.userInfo.id;
+
       const reqObjData = reqObj.split('/');
-      let objId = reqObjData[reqObjData.length-1];
-      let ref = this.items[objId];
+      let objId = reqObjData[reqObjData.length - 1];
+      let ref = this.ReferenceItem.items[objId];
       let refOwnerId = ref.user.id;
-      console.log('isOwenr',objId,refOwnerId == subId);
-      return refOwnerId == subId
+      console.log('isOwner', objId, refOwnerId == currUserId);
+      return refOwnerId == currUserId
     }
   }
 
-  addItemToGlobalContainer(glContainerKey:string,objId:string,obj:any){
+  addItemToGlobalContainer(glContainerKey: string, objId: string, obj: any) {
     this[glContainerKey].items[objId] = obj
   }
 }

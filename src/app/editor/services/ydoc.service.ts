@@ -289,7 +289,7 @@ export class YdocService {
     }
     let collaborators = this.collaborators.get('collaborators').collaborators as any[]
     let userInArticle = collaborators.find((user) => user.email == currUserEmail)
-    this.serviceShare.EnforcerService.enforceAsync('is-admin','admin-can-do-anything',undefined).subscribe((admin)=>{
+    this.serviceShare.EnforcerService.enforceAsync('is-admin','admin-can-do-anything').subscribe((admin)=>{
       if(admin){
         userInArticle = {role:'Owner',email:'mincho@scalewest.com'};
       }

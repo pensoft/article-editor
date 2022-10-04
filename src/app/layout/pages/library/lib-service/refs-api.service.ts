@@ -87,7 +87,7 @@ export class RefsApiService {
         return this.user.id==reqSub
       }
       this.serviceShare.addDataToGlobalObj(refGlobalDataUUID2,newRef)
-      this.serviceShare.CasbinGlobalObjectsService.addItemToGlobalContainer('referenceClass',refGlobalDataUUID1,newRef);
+      this.serviceShare.CasbinGlobalObjectsService.addItemToGlobalContainer('ReferenceItem',refGlobalDataUUID1,newRef);
       refs.push(newRef);
     })
     return refs

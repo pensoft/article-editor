@@ -42,7 +42,7 @@ export class CasbinInterceptor implements HttpInterceptor {
     ) {
       let urlParts = request.url.split('/');
       let casbinobj = '/'+urlParts[urlParts.length - 1]
-      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method,undefined).pipe(mergeMap((access) => {
+      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method).pipe(mergeMap((access) => {
         if (access) {
           return next.handle(request);
         } else {
@@ -52,7 +52,7 @@ export class CasbinInterceptor implements HttpInterceptor {
     } else if (
       /articles\/uuid\/\S+$/.test(request.url)
     ) {
-      return this.sharedService.EnforcerService.enforceAsync('/articles/*', request.method,undefined).pipe(mergeMap((access) => {
+      return this.sharedService.EnforcerService.enforceAsync('/articles/*', request.method).pipe(mergeMap((access) => {
         if (access) {
           return next.handle(request);
         } else {
@@ -64,7 +64,7 @@ export class CasbinInterceptor implements HttpInterceptor {
     ){
       let urlParts = request.url.split('/');
       let casbinobj = `/${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`
-      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method,undefined).pipe(mergeMap((access) => {
+      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method).pipe(mergeMap((access) => {
         if (access) {
           return next.handle(request);
         } else {
@@ -78,7 +78,7 @@ export class CasbinInterceptor implements HttpInterceptor {
     ) {
       let urlParts = request.url.split('/');
       let casbinobj = `/${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`
-      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method,undefined).pipe(mergeMap((access) => {
+      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method).pipe(mergeMap((access) => {
         if (access) {
           return next.handle(request);
         } else {
@@ -90,7 +90,7 @@ export class CasbinInterceptor implements HttpInterceptor {
     ) {
       let urlParts = request.url.split('/');
       let casbinobj = `/${urlParts[urlParts.length - 3]}/${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`
-      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method,undefined).pipe(mergeMap((access) => {
+      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method).pipe(mergeMap((access) => {
         if (access) {
           return next.handle(request);
         } else {
@@ -102,7 +102,7 @@ export class CasbinInterceptor implements HttpInterceptor {
     ) {
       let urlParts = request.url.split('/');
       let casbinobj = `/${urlParts[urlParts.length - 3]}/${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`
-      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method,undefined).pipe(mergeMap((access) => {
+      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method).pipe(mergeMap((access) => {
         if (access) {
           return next.handle(request);
         } else {

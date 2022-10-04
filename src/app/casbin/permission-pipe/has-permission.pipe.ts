@@ -15,10 +15,9 @@ export class HasPermissionPipe implements PipeTransform {
   transform(value: BehaviorSubject<any>, ...args: any[]): Observable<boolean> {
     let obj = args[0]
     let act = args[1]
-    let ctx = args[2];
     let enforceSelf = ()=>{
       setTimeout(()=>{
-        this.enforcer.enforceRequest(obj,act,ctx);
+        this.enforcer.enforceRequest(obj,act);
       },0)
     }
     enforceSelf()
