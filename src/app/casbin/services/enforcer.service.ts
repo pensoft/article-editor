@@ -62,8 +62,7 @@ export class EnforcerService {
       return of(false)
     }
     return from(this.enforcer.enforcePromise(this.userInfo.id,obj,act)).pipe(map((x)=>{
-      if(!x){
-      }
+      console.log(obj,act,x);
       return x
     }))
   }
@@ -80,7 +79,7 @@ export class EnforcerService {
           eft:array[4],
         }
         if(policy.obj == '*'&&policy.act=='.*'&&policy.eft=='allow'){
-          //allParsedPolicies.push(policy);
+          allParsedPolicies.push(policy);
         }/* else if (policy.obj == '/articles/sections') {
           policy.eft = 'deny'
           allParsedPolicies.push(policy);

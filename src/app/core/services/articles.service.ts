@@ -2,7 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { environment } from '@env';
-const API_ARTICLES_URL = environment.apiUrl+`/articles`
+const API_ARTICLES_URL = environment.apiUrl+`/articles/items`
 
 @Injectable({
   providedIn: 'root'

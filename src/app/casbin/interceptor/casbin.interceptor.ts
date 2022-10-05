@@ -36,7 +36,7 @@ export class CasbinInterceptor implements HttpInterceptor {
       sub.next(new HttpResponse({body:{message:"Not authentucated.",status:404,url:request.url}}));
     })
     if (
-      request.url.endsWith('/articles') ||
+      request.url.endsWith('/articles/items') ||
       request.url.endsWith('/layouts') ||
       request.url.endsWith('/citation-styles')
     ) {
@@ -50,9 +50,9 @@ export class CasbinInterceptor implements HttpInterceptor {
         }
       }))
     } else if (
-      /articles\/uuid\/\S+$/.test(request.url)
+      /articles\/items\/uuid\/\S+$/.test(request.url)
     ) {
-      return this.sharedService.EnforcerService.enforceAsync('/articles/*', request.method).pipe(mergeMap((access) => {
+      return this.sharedService.EnforcerService.enforceAsync('/articles/items/*', request.method).pipe(mergeMap((access) => {
         if (access) {
           return next.handle(request);
         } else {
@@ -72,7 +72,7 @@ export class CasbinInterceptor implements HttpInterceptor {
         }
       }))
     }else if (
-      /\/articles\/[^\/\s]+$/.test(request.url) ||
+      /\/articles\/items\/[^\/\s]+$/.test(request.url) ||
       /\/layouts\/[^\/\s]+$/.test(request.url) ||
       /\/citation-styles\/[^\/\s]+$/.test(request.url)
     ) {
@@ -85,20 +85,9 @@ export class CasbinInterceptor implements HttpInterceptor {
           return unauthenticatedObservable
         }
       }))
-    } else if (
-      /\/references\/definitions\/[^\/\s]+$/.test(request.url)
-    ) {
-      let urlParts = request.url.split('/');
-      let casbinobj = `/${urlParts[urlParts.length - 3]}/${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`
-      return this.sharedService.EnforcerService.enforceAsync(casbinobj, request.method).pipe(mergeMap((access) => {
-        if (access) {
-          return next.handle(request);
-        } else {
-          return unauthenticatedObservable
-        }
-      }))
     }else if (
-      /\/references\/definitions\/[^\/\s]+$/.test(request.url)
+      /\/references\/definitions\/[^\/\s]+$/.test(request.url)||
+      /\/articles\/sections\/[^\/\s]+$/.test(request.url)
     ) {
       let urlParts = request.url.split('/');
       let casbinobj = `/${urlParts[urlParts.length - 3]}/${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`

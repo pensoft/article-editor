@@ -25,7 +25,7 @@ g = _, _
 e = priority(p.eft) || deny
 
 [matchers]
-m = g(r.sub, p.sub) && ( keyMatch(r.obj,p.obj) || aclFunction(r.obj, p.obj) ) && matchAction(r.act, p.act)
+m = g(r.sub, p.sub) && ( keyMatch(r.obj,p.obj) || aclFunction(r.obj, p.obj) ) && matchAction(r.act, p.act) && log(r.obj,p.obj,r.act,p.act,p.eft)
 `;
 
 /*const modelDefinition = `

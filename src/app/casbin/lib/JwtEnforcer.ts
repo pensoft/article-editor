@@ -5,7 +5,7 @@ import {resolve} from "dns";
 import {from, Observable} from "rxjs";
 import {concatMap, map} from "rxjs/operators";
 import {ACL} from "../interfaces";
-import {matchAction} from "../models/matchers";
+import {log, matchAction} from "../models/matchers";
 import JwtAdapter from "./JwtAdapter";
 import {AuthService} from "@core/services/auth.service";
 import {I} from "@angular/cdk/keycodes";
@@ -48,6 +48,7 @@ export default class JwtEnforcer {
       concatMap((casbin) => {
         this.casbin = casbin;
         this.casbin.addFunction("matchAction", matchAction);
+        this.casbin.addFunction("log", log);
         return from(this.casbin.addFunction('aclFunction', this.aclFunction)).pipe(
           map(() => this)
         );
