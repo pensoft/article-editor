@@ -1,0 +1,27 @@
+<div *ngIf="tablesNumbers" class='tables-container'>
+  <div *ngIf="tablesNumbers.length==0">There are no tables right now.You can be the first one to add a table with the
+    "Add Table" button.
+  </div>
+  <ng-container *ngIf="tablesNumbers.length>0">
+    <div cdkDropList class="tables-list" (cdkDropListDropped)="drop($event)">
+      <div class="table-box" *ngFor="let table of tablesNumbers;let i = index" cdkDrag>
+        <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+        <div>
+          <div class="table-view">
+            <!-- <img src="{{tables![table].canvasData.dataURL}}" alt=""> -->
+            <app-citable-table [(table)]="tables![table]" [tableIndex]="i"></app-citable-table>
+          </div>
+          <div class="table-control-buttons">
+            <button mat-raised-button (click)="editTable(tables![table],i)">Edit table</button>
+            <button mat-raised-button (click)="deleteTable(tables![table],i)">Delete table</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <div class="tables-buttons">
+    <button mat-raised-button (click)="addTable()">Add Table</button>
+    <button mat-raised-button (click)="saveTables()">Save Tables</button>
+    <button mat-raised-button (click)="cancelTablesEdit()">Cancel</button>
+  </div>
+</div>

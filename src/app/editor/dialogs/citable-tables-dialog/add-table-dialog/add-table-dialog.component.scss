@@ -1,0 +1,19 @@
+.container{
+  width: 100%;
+  height: 100%;
+}
+
+.template-buttons {
+  button {
+      margin-right: 20px;
+      margin-bottom: 10px;
+  }
+}
+.codemirror-editor {
+  width: 100%;
+  height: 350px;
+  border: #85dfe0 2px solid;
+}
+::ng-deep .cm-editor {
+  height: 100%;
+}

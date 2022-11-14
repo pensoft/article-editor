@@ -40,7 +40,7 @@ export class EnforcerService {
       if(res){
         this.userInfo = res.data
         this.policiesFromBackend = this.mapPolicies(res.data.permissions);
-        console.log(this.policiesFromBackend);
+        //console.log(this.policiesFromBackend);
         this.updateAllPolicies(this.policiesFromBackend)
       }
     })
@@ -62,7 +62,7 @@ export class EnforcerService {
       return of(false)
     }
     return from(this.enforcer.enforcePromise(this.userInfo.id,obj,act)).pipe(map((x)=>{
-      console.log(obj,act,x);
+      //console.log(obj,act,x);
       return x
     }))
   }

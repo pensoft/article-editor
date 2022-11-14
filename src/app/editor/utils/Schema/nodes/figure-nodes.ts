@@ -14,7 +14,7 @@ export const image = {
     alt: { default: '' },
     title: { default: 'default image' },
 
-    ...getGenericAttributes(),
+    ...getGenericAttributes({styling:{default:'max-width: 100%;'}}),
   },
   group: "inline",
   draggable: true,
@@ -32,7 +32,6 @@ export const image = {
     var ref = node.attrs;
     var src = ref.src;
     var alt = ref.alt;
-
     var title = ref.title; return ["img", { src: src, alt: alt, title: title, ...genericAttributtesToDom(node) }]
   }
 }

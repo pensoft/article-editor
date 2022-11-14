@@ -7,6 +7,15 @@ const PROXY_CONFIG = {
       autoRewrite: true,
       "ws": true,
     },
+    "/proxy/*": {
+      "target": "https://ps-article-storage.dev.scalewest.com/",
+      "secure": false,
+      "changeOrigin": true,
+      "logLevel": "debug",
+      "pathRewrite": {
+          "^/proxy": ""
+      }
+    },
     "/citation-style": {
       "target": "https://ps-article.dev.scalewest.com/",
       "secure": false,

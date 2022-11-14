@@ -1,0 +1,18 @@
+<div [formGroup]="sectionForm">
+  <div class="template-buttons">
+    <button mat-raised-button (click)="hidehtml=!hidehtml">Edit Html Template</button>
+  </div>
+  <div #codemirrorHtmlTemplate class='codemirror-editor' [ngStyle]="{'display': hidehtml ? 'none' : 'block'}"></div>
+  <ng-container *ngIf='renderForm'>
+    <div class="popup-menu-container"></div>
+    <div>
+      <mat-formio #formio [form]="sectionContent" (submit)="onSubmit($event)"></mat-formio>
+    </div>
+  </ng-container>
+</div>
+
+<div style="display: none;">
+  <div #container>
+
+  </div>
+</div>

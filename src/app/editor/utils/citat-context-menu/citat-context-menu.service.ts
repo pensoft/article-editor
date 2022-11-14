@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { InsertTableComponent } from '@app/editor/dialogs/citable-tables-dialog/insert-table/insert-table.component';
 import { InsertFigureComponent } from '@app/editor/dialogs/figures-dialog/insert-figure/insert-figure.component';
 import { FiguresControllerService } from '@app/editor/services/figures-controller.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
@@ -54,7 +55,8 @@ export class CitatContextMenuService {
           } else if (tr.getMeta('citatContextPlugin')) {
 
             let meta = tr.getMeta('citatContextPlugin')
-            let citationMark = newState.doc.nodeAt(newState.selection.from)?.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
+            let citationMark = newState.doc.nodeAt(newState.selection.from)?.marks.filter((mark) => { return (mark.type.name == 'citation'||mark.type.name == 'table_citation') })[0]
+            let type = citationMark.type.name ==  'citation'?'figure':'table';
             if(citationMark){
               prev.meta = meta
               prev.decorations = DecorationSet.create(newState.doc, [Decoration.widget(newState.selection.from, (view) => {
@@ -85,8 +87,8 @@ export class CitatContextMenuService {
                 editCitationButton.setAttribute('class', 'citat-menu-context')
                 let deleteCitationButton = document.createElement('button')
                 deleteCitationButton.setAttribute('class', 'citat-menu-context-delete-citat-btn')
-                editCitationButton.textContent = 'Edit figure citation'
-                deleteCitationButton.textContent = 'Delete figure citation'
+                editCitationButton.textContent = `Edit ${type} citation`
+                deleteCitationButton.textContent = `Delete ${type} citation`
                 editCitationButton.setAttribute('style', `
                 background-color: #eff9ef;
                 border-radius: 13px;
@@ -112,19 +114,29 @@ export class CitatContextMenuService {
                   if (citationMark) {
                     data = JSON.parse(JSON.stringify(citationMark.attrs));
                   }
-                  const dialogRef = dialog.open(InsertFigureComponent, {
-                    width: '80%',
-                    height: '90%',
-                    panelClass: 'insert-figure-in-editor',
-                    data: { view, citatData: data, sectionID: prev.sectionName }
-                  });
+                  let dialogRef
+                  if(type == 'figure'){
+                    dialogRef = dialog.open(InsertFigureComponent, {
+                      width: '80%',
+                      height: '90%',
+                      panelClass: 'insert-figure-in-editor',
+                      data: { view, citatData: data, sectionID: prev.sectionName }
+                    });
+                  }else if(type == 'table'){
+                    dialogRef = dialog.open(InsertTableComponent, {
+                      width: '80%',
+                      height: '90%',
+                      panelClass: 'insert-figure-in-editor',
+                      data: { view, citatData: data, sectionID: prev.sectionName }
+                    });
+                  }
                   dialogRef.afterClosed().subscribe(result => {
                     shouldCloseContextMenu = true
                   });
                 })
                 deleteCitationButton.addEventListener('click', () => {
                   if (citationMark) {
-                    deleteData = {mark:citationMark,sectionID:prev.sectionName}
+                    deleteData = {mark:citationMark,sectionID:prev.sectionName,type}
                     shouldCloseContextMenu = true
                   }
                 })
@@ -279,7 +291,7 @@ export class CitatContextMenuService {
               let mark = deleteData.mark
               let sectionID = deleteData.sectionID
 
-              if(pluginState.sectionName == sectionID){
+              if(pluginState.sectionName == sectionID && deleteData.type == 'figure'){
                 let citatsData = ydocServide.figuresMap?.get('articleCitatsObj');
                 let markActualData = citatsData[sectionID][mark.attrs.citateid]
                 if(markActualData){
@@ -296,6 +308,25 @@ export class CitatContextMenuService {
                   view.dispatch(view.state.tr.replaceWith(start,end,Fragment.empty))
                   setTimeout(()=>{
                     serviceShare.FiguresControllerService.updateOnlyFiguresView()
+                  },10)
+                }
+              }else if(pluginState.sectionName == sectionID && deleteData.type == 'table'){
+                let tablecitatsData = ydocServide.tablesMap?.get('tableCitatsObj');
+                let markActualData = tablecitatsData[sectionID][mark.attrs.citateid];
+                if(markActualData){
+                  deleteData = undefined
+                  let start = +markActualData.position
+                  let end = +markActualData.position+view.state.doc.nodeAt(markActualData.position)?.nodeSize!
+                  //citatsData[sectionID][mark.attrs.citateid] = undefined
+                  //ydocServide.figuresMap?.set('articleCitatsObj',citatsData)
+                  serviceShare.YjsHistoryService.startCapturingNewUndoItem();
+                  serviceShare.YjsHistoryService.addUndoItemInformation({
+                    type: 'figure-citation',
+                    data: {}
+                  })
+                  view.dispatch(view.state.tr.replaceWith(start,end,Fragment.empty))
+                  setTimeout(()=>{
+                    serviceShare.CitableTablesService.updateOnlyTablesView()
                   },10)
                 }
               }

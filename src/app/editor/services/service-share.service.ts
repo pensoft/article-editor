@@ -23,12 +23,13 @@ import { FormBuilderService } from './form-builder.service';
 import { MenuService } from './menu.service';
 import { PmDialogSessionService } from './pm-dialog-session.service';
 import { ProsemirrorEditorsService } from './prosemirror-editors.service';
-import { WorkerService } from './worker.service';
 import { YdocService } from './ydoc.service';
 import { AuthService } from '@app/core/services/auth.service'
 import { EnforcerService } from '@app/casbin/services/enforcer.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CasbinGlobalObjectsService } from '@app/casbin/services/casbin-global-objects.service';
+import { NotificationsService } from '@app/layout/widgets/arpha-navigation/notifications/notifications.service';
+import { CitableTablesService } from './citable-tables.service';
 
 @Injectable({
   providedIn: 'root'
@@ -50,7 +51,6 @@ export class ServiceShare {
   ArticlesService?:ArticlesService
   YjsHistoryService?:YjsHistoryService
   PmDialogSessionService?:PmDialogSessionService
-  WorkerService?:WorkerService
   MenuService?:MenuService
   EditorsRefsManagerService?:EditorsRefsManagerService
   FormBuilderService?:FormBuilderService
@@ -58,6 +58,8 @@ export class ServiceShare {
   AuthService?:AuthService
   EnforcerService?:EnforcerService
   CasbinGlobalObjectsService?:CasbinGlobalObjectsService
+  NotificationsService?:NotificationsService
+  CitableTablesService?:CitableTablesService
 
   constructor(
     public dialog: MatDialog,

@@ -36,7 +36,6 @@ export class CasbinInterceptor implements HttpInterceptor {
       sub.next(new HttpResponse({body:{message:"Not authentucated.",status:404,url:request.url}}));
     })
     if (
-      request.url.endsWith('/articles/items') ||
       request.url.endsWith('/layouts') ||
       request.url.endsWith('/citation-styles')
     ) {
@@ -60,7 +59,8 @@ export class CasbinInterceptor implements HttpInterceptor {
         }
       }))
     }else if (
-      request.url.endsWith('/references/definitions')
+      request.url.endsWith('/references/definitions') ||
+      request.url.endsWith('/articles/items')
     ){
       let urlParts = request.url.split('/');
       let casbinobj = `/${urlParts[urlParts.length - 2]}/${urlParts[urlParts.length - 1]}`
@@ -72,7 +72,6 @@ export class CasbinInterceptor implements HttpInterceptor {
         }
       }))
     }else if (
-      /\/articles\/items\/[^\/\s]+$/.test(request.url) ||
       /\/layouts\/[^\/\s]+$/.test(request.url) ||
       /\/citation-styles\/[^\/\s]+$/.test(request.url)
     ) {
@@ -87,6 +86,7 @@ export class CasbinInterceptor implements HttpInterceptor {
       }))
     }else if (
       /\/references\/definitions\/[^\/\s]+$/.test(request.url)||
+      /\/articles\/items\/[^\/\s]+$/.test(request.url) ||
       /\/articles\/sections\/[^\/\s]+$/.test(request.url)
     ) {
       let urlParts = request.url.split('/');

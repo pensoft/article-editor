@@ -5,8 +5,8 @@ import { tableNodes } from './table';
 import { listNodes } from './lists';
 import { parseGenericAttributes, getGenericAttributes, genericAttributtesToDom, htmlTags } from '../helpers';
 import { nodes as basicNodes } from './basic-nodes'
-import { figureNodes, video } from './figure-nodes';
-import { uuidv4 } from 'lib0/random';
+import { figureNodes } from './figure-nodes';
+import { tableNodes as citableTableNodes } from './citable-tables';
 
 export const paragraph = {
   content: "inline*",
@@ -298,6 +298,7 @@ export const nodes: NodeSpec = {
     }
   }),
   ...figureNodes,
+  ...citableTableNodes,
   text: {
     inline: true,
     group: "inline"

@@ -34,7 +34,6 @@
               "src/assets",
               "src/manifest.webmanifest",
               "src/editor-service-worker.js",
-              "src/task-processing-worker.js",
               {
                 "glob": "**/*",
                 "input": "./node_modules/y-prosemirror/",

@@ -2,6 +2,6 @@
   <ng-container *ngFor="let section of articleSectionsStructureFlat,let i = index">
     <app-section [(section)]="articleSectionsStructureFlat![i]"></app-section>
   </ng-container>
-  <app-figures-prosemirror-view [figures]="articleFigures!"></app-figures-prosemirror-view>
+  <app-figures-prosemirror-view [figures]="articleFigures!" [ngClass]="{'not-empty':!prosemirrorEditorsService.endDocIsEmpty}"></app-figures-prosemirror-view>
   <div class="end-article-spase"></div>
 </ng-container>

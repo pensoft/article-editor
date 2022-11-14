@@ -1,0 +1,212 @@
+import { parseGenericAttributes, getGenericAttributes, genericAttributtesToDom, htmlTags } from '../helpers';
+import { Node } from 'prosemirror-model';
+
+
+
+
+export const tables_nodes_container = {
+  content: "block*",
+  group: 'block',
+  inline: false,
+  isolating: true,
+
+  attrs: {
+    containerid: { default: '' },
+    ...getGenericAttributes(),
+  },
+  parseDOM: [{
+    tag: "tables-nodes-container", getAttrs(dom: HTMLElement) {
+      return {
+        containerid: dom.getAttribute('containerid'),
+        ...parseGenericAttributes(dom)
+      }
+    }
+  }],
+  toDOM(node: any) {
+    return ["tables-nodes-container", {
+      'containerid': node.attrs.containerid,
+      ...genericAttributtesToDom(node)
+    }, 0]
+  }
+}
+
+export const block_table = {
+  group: 'block',
+  content: "block+",
+  inline: false,
+  isolating: true,
+  attrs: {
+    table_number: {},
+    table_id: {},
+    viewed_by_citat: { default: "" },
+    ...getGenericAttributes(),
+  },
+  parseDOM: [{
+    tag: "block-table", getAttrs(dom: HTMLElement) {
+      return {
+        table_number: dom.getAttribute('table_number'),
+        table_id: dom.getAttribute('table_id'),
+        viewed_by_citat: dom.getAttribute('viewed_by_citat'),
+        ...parseGenericAttributes(dom)
+      }
+    }
+  }],
+  toDOM(node: any) {
+    return ["block-table", {
+      'table_number': node.attrs.table_number,
+      'table_id': node.attrs.table_id,
+      'viewed_by_citat': node.attrs.viewed_by_citat,
+      ...genericAttributtesToDom(node)
+    }, 0]
+  }
+}
+
+export const table_description_container = {
+  group: 'block',
+  content: "block+",
+  isolating: true,
+  inline: false,
+  attrs: {
+    ...getGenericAttributes(),
+  },
+  parseDOM: [{
+    tag: "table-descriptions-container", getAttrs(dom: any) {
+      return {
+        ...parseGenericAttributes(dom)
+      }
+    }
+  }],
+  toDOM(node: Node) {
+    return ["table-descriptions-container", {
+      ...genericAttributtesToDom(node)
+    }, 0]
+  }
+}
+
+export const table_description = {
+  content: "block+",
+  group: "block",
+  isolating: true,
+  inline: false,
+  attrs: {
+    ...getGenericAttributes()
+  },
+  parseDOM: [{
+    tag: "table-description", getAttrs(dom: any) {
+      return {
+        ...parseGenericAttributes(dom),
+      }
+    },
+  }],
+  toDOM(node: any) {
+    let attributesToDom: any = {
+      ...genericAttributtesToDom(node),
+      style: 'display:block;'
+
+    }
+    return ["table-description", attributesToDom, 0];
+  }
+}
+
+export const table_content = {
+  content: "block+",
+  group: "block",
+  isolating: true,
+  inline: false,
+  attrs: {
+    ...getGenericAttributes()
+  },
+  parseDOM: [{
+    tag: "table-content", getAttrs(dom: any) {
+      return {
+        ...parseGenericAttributes(dom),
+      }
+    },
+  }],
+  toDOM(node: any) {
+    let attributesToDom: any = {
+      ...genericAttributtesToDom(node),
+      style: 'display:block;'
+
+    }
+    return ["table-content", attributesToDom, 0];
+  }
+}
+
+/* export const table_component_description = {
+  content: "block+",
+  isolating: true,
+  group: "block",
+  inline: false,
+  attrs: {
+    component_number: {},
+    viewed_by_citat: { default: "" },
+    ...getGenericAttributes()
+  },
+  parseDOM: [{
+    tag: "table-component-description", getAttrs(dom: any) {
+      return {
+        component_number: dom.getAttribute('component_number'),
+        viewed_by_citat: dom.getAttribute('viewed_by_citat'),
+        ...parseGenericAttributes(dom),
+      }
+    },
+  }],
+  toDOM(node: any) {
+    let attributesToDom: any = {
+      'viewed_by_citat': node.attrs.viewed_by_citat,
+      'component_number': node.attrs.component_number,
+      ...genericAttributtesToDom(node),
+      style: 'display:flex;'
+
+    }
+    return ["table-component-description", attributesToDom, 0];
+  }
+} */
+
+
+
+/* export const table = {
+    content: "block_table+",
+    group: 'block',
+    attrs: {
+        ...getGenericAttributes(),
+    },
+    parseDOM: [{
+        tag: "table-component", getAttrs(dom: any) {
+            return {
+                ...parseGenericAttributes(dom)
+            }
+        }
+    }],
+    toDOM(node: any) {
+        return ["table-component", {
+            ...genericAttributtesToDom(node)
+        }, 0]
+    }
+} */
+export const tableNodes = {
+  tables_nodes_container,
+  block_table,
+  table_description_container,
+  table_description,
+  table_content,
+}
+
+/* export const table_description = {
+    group: 'block+',
+    content: "inline+",
+    attrs:{
+        ...getGenericAttributes(),
+    },
+    parseDOM: [{ tag: "table-description" ,getAttrs(dom:any){
+        return{
+            ...parseGenericAttributes(dom)
+        }
+    }}],
+    toDOM(node:Node) {
+        return ["table-description", {
+            ...genericAttributtesToDom(node)
+        },0]
+    }
+} */

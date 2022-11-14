@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import { AbstractControl, FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
-import { addRowBefore } from 'prosemirror-tables';
-import { retryWhen } from 'rxjs/operators';
 import { articleSection } from '../utils/interfaces/articleSection';
 import { pmMaxLength, pmMinLength, pmPattern, pmRequired } from '../utils/pmEditorFormValidators/validators';
 import { ServiceShare } from './service-share.service';

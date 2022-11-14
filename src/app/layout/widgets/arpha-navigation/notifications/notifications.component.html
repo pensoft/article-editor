@@ -1,0 +1,15 @@
+<mat-icon class="notifications-btn" color="primary" [matBadge]="NumberofNewNotifications" matBadgePosition="after" matBadgeColor="accent" matBadgeSize="small" (click)="showhideNotifications()">notifications</mat-icon>
+<div class="abs-cont"  *ngIf="showNotifications" (clickOutside)="close()">
+  <div class="notifications-container" >
+    <div *ngIf="lastNNotifications.length>0" class="list">
+      <div *ngFor="let event of lastNNotifications">
+        <div [ngClass]="{'new':event.new?true:false,'event':true}" (click)="viewNotification(event)">
+          {{event.event}}
+        </div>
+      </div>
+    </div>
+    <button  class="view-all-btn" (click)="openAllNotificationsPage()">
+      Show all notifications
+    </button>
+  </div>
+</div>

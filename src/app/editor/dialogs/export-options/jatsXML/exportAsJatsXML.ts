@@ -420,6 +420,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   const formData = new FormData();
   formData.append("file", file);//https://ps-jats.dev.scalewest.com/validate/xml
   serviceShare.httpClient.post(environment.validate_jats, formData).subscribe((data) => {
+    console.log('validate_jats',data);
   })
 }
 

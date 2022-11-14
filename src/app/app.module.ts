@@ -138,7 +138,14 @@ import { TestPageComponent } from './casbin/test-page/test-page.component';
 import { EnforcerService } from './casbin/services/enforcer.service';
 import { HasPermissionPipe } from './casbin/permission-pipe/has-permission.pipe';
 import { CasbinInterceptor } from './casbin/interceptor/casbin.interceptor';
-
+import { NotificationsComponent } from './layout/widgets/arpha-navigation/notifications/notifications.component';
+import { AllnotificationsComponent } from './layout/widgets/arpha-navigation/allnotifications/allnotifications.component';
+import { ClickOutsideModule } from 'ng4-click-outside';
+import { CitableTablesDialogComponent } from './editor/dialogs/citable-tables-dialog/citable-tables-dialog.component';
+import { AddTableDialogComponent } from './editor/dialogs/citable-tables-dialog/add-table-dialog/add-table-dialog.component';
+import { CitableTableComponent } from './editor/dialogs/citable-tables-dialog/citable-table/citable-table.component';
+import { InsertTableComponent } from './editor/dialogs/citable-tables-dialog/insert-table/insert-table.component';
+import { JwtModule } from '@auth0/angular-jwt';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -245,7 +252,13 @@ const gravatarConfig: GravatarConfig = {
     CantOpenArticleDialogComponent,
     UsersRoleIsChangedComponent,
     TestPageComponent,
-    HasPermissionPipe
+    HasPermissionPipe,
+    NotificationsComponent,
+    AllnotificationsComponent,
+    CitableTablesDialogComponent,
+    AddTableDialogComponent,
+    CitableTableComponent,
+    InsertTableComponent,
   ],
   imports: [
     HttpClientJsonpModule,
@@ -254,9 +267,17 @@ const gravatarConfig: GravatarConfig = {
     BrowserModule,
     MaterialModule,
     FormsModule,
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: function(){
+          return localStorage.getItem("access_token");
+        },
+      },
+    }),
     ReactiveFormsModule,
     MatFormioModule,
     FormioModule,
+    ClickOutsideModule,
     DragDropModule,
     HttpClientModule,
     AppRoutingModule,

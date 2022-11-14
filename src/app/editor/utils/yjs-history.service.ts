@@ -184,82 +184,8 @@ export class YjsHistoryService {
     trackedOrigins = []
   } = {}) {
     let sectionId = metadata.editorID;
-    let figuresMap = metadata.figuresMap;
-    let renderFigures = metadata.renderFigures;
 
     let YjsPluginKey = this.YjsHistoryKey
-    let citatsObj = figuresMap.get('articleCitatsObj');
-    let addremoveCitatsFunc = (item: any) => {
-      let changedItems = item.changedParentTypes
-      let iterator = changedItems.entries()
-      let element = iterator.next();
-      let elValue = element.value
-      let xmlEl;
-      if (elValue && elValue[0] instanceof XmlText) {
-        xmlEl = elValue[0];
-      }
-      while (!element.done && !(xmlEl instanceof XmlText)) {
-        element = iterator.next();
-        elValue = element.value
-        if (elValue && elValue[0] instanceof XmlText) {
-          xmlEl = elValue[0];
-        }
-      }
-      if (xmlEl) {
-        let delta = xmlEl.toDelta()
-        let newCitatsCount = 0;
-        let newCitats: any[] = []
-        delta.forEach((element: any) => {
-          let attributes = element.attributes;
-          if (attributes) {
-            Object.keys(attributes).forEach((key) => {
-              if (key == 'citation') {
-                newCitatsCount++
-                let citatAtributes = attributes[key];
-                newCitats.push(citatAtributes)
-              }
-            })
-          }
-        })
-
-        let oldC = item.stackItem.meta.citatData || [];
-        let newC = newCitats || [];
-        let citatsToRemove = oldC.filter((element: any) => {
-          return newC.filter((el) => { return el.citateid == element.citateid }).length == 0;
-        })
-        let citatsToAdd = newC.filter((element) => {
-          return oldC.filter((el: any) => { return el.citateid == element.citateid }).length == 0;
-        })
-        if (oldC.length > newC.length) {
-          citatsToRemove.forEach((citatData: any) => {
-            citatsObj[sectionId][citatData.citateid] = undefined
-          })
-
-        } else if (oldC.length < newC.length) {
-
-          citatsToAdd.forEach((citatData) => {
-            /* {
-                "figureIDs": [
-                    "5672f573-3349-4b2e-aa7a-2a90fbc3b88f|3"
-                ],
-                "position": 1374,
-                "lastTimeUpdated": 1642428807052,
-                "displaydFiguresViewhere": []
-            } */
-            citatsObj[sectionId][citatData.citateid] = {
-              "figureIDs": citatData.citated_figures,
-              "lastTimeUpdated": new Date().getTime(),
-              "displaydFiguresViewhere": []
-            }
-          })
-        }
-        if (oldC.length !== newC.length && renderFigures) {
-          setTimeout(() => {
-            renderFigures(citatsObj)
-          }, 10)
-        }
-      }
-    }
     let handleKeyDown:(view:EditorView,event:KeyboardEvent)=>boolean = (view,event)=>{
       if(event.key == 'Enter'){
         setTimeout(()=>{
@@ -345,46 +271,8 @@ export class YjsHistoryService {
         })
         undoManager.on('stack-item-added', (item: any) => {
           item.undoRedoMeta.sectionId = sectionId;
-
-          //if(item.type!=='undo'&&item.type!=='redo'){
           this.computeHistoryChange(item.undoRedoMeta,item.stackItem,item);
-          //}
-          /*let changedItems = item.changedParentTypes
-          let iterator = changedItems.entries()
-          let element = iterator.next();
-          let elValue = element.value
-           let xmlEl;
-          if (elValue && elValue[0] instanceof XmlText) {
-            xmlEl = elValue[0];
-          }
-
-          while (!element.done && !(xmlEl instanceof XmlText)) {
-            element = iterator.next();
-            elValue = element.value
-            if (elValue && elValue[0] instanceof XmlText) {
-              xmlEl = elValue[0];
-            }
-          }
-          if (xmlEl) {
-            let delta = xmlEl.toDelta()
-            delta.forEach((element: any, index: any) => {
-              let attributes = element.attributes;
-              if (attributes) {
-                Object.keys(attributes).forEach((key) => {
-                  if (key == 'citation') {
-                    let citatAtributes = attributes[key];
-                    if (!item.stackItem.meta.citatData) {
-                      item.stackItem.meta.citatData = [];
-                    }
-                    if (item.stackItem.meta.citatData.filter((attrs: any) => { return attrs.citateid == citatAtributes.citateid }).length == 0) {
-                      item.stackItem.meta.citatData.push(citatAtributes);
-                    }
-                  }
-                })
-              }
-            })
-          } */
-        })
+          })
         return {
           destroy: () => {
             undoManager.destroy()
@@ -401,9 +289,19 @@ export class YjsHistoryService {
       } else {
         this.serviceShare.FiguresControllerService.writeFiguresDataGlobalV2(meta.data.newData.articleCitatsObj, meta.data.newData.ArticleFiguresNumbers, meta.data.newData.ArticleFigures)
       }
-    } else if (meta.type == 'figure-citation') {
+    } else if (meta.type == 'citable-teble'){
+      if (action == 'undo') {
+        this.serviceShare.CitableTablesService.writeTablesDataGlobalV2(meta.data.oldData.tableCitatsObj, meta.data.oldData.ArticleTablesNumbers, meta.data.oldData.ArticleTables)
+      } else {
+        this.serviceShare.CitableTablesService.writeTablesDataGlobalV2(meta.data.newData.tableCitatsObj, meta.data.newData.ArticleTablesNumbers, meta.data.newData.ArticleTables)
+      }
+    }else if (meta.type == 'figure-citation') {
       setTimeout(()=>{
         this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
+      },10)
+    }else if(meta.type =='table-citation'){
+      setTimeout(()=>{
+        this.serviceShare.CitableTablesService.updateOnlyTablesView()
       },10)
     } else if(meta.type == 'figure-citation-and-text'){
       setTimeout(()=>{
@@ -552,7 +450,7 @@ export class YjsHistoryService {
 
   }
 
-  addUndoItemInformation(info: { type: 'refs-yjs-delete'|'figure' | 'refs-yjs' | 'figure-citation' | 'section-drag-drop'|'figure-citation-and-text', data: any ,addnewItem?:true}) {
+  addUndoItemInformation(info: { type: 'refs-yjs-delete'|'figure'|'citable-teble'|'table-citation' | 'refs-yjs' | 'figure-citation' | 'section-drag-drop'|'figure-citation-and-text', data: any ,addnewItem?:true}) {
     if(this.preventingCaptureOfBigNumberOfTransactions&&info.type == 'refs-yjs-delete'){
       return;
     }

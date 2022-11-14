@@ -1,0 +1,11 @@
+.table {
+  .table-index {
+  }
+  .table-description {
+      width: 100%;
+  }
+  .table-components {
+      display: grid;
+      grid-template-columns: 2fr 2fr 2fr;
+  }
+}

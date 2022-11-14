@@ -18,6 +18,8 @@ import { AllUsersService } from '@app/core/services/all-users.service';
 import { ContributorsApiService } from '@app/core/services/comments/contributors-api.service';
 import { TestingComponent } from '../dialogs/testing/testing.component';
 import { EnforcerService } from '@app/casbin/services/enforcer.service';
+import { CitableTableComponent } from '../dialogs/citable-tables-dialog/citable-table/citable-table.component';
+import { CitableTablesDialogComponent } from '../dialogs/citable-tables-dialog/citable-tables-dialog.component';
 
 @Component({
   selector: 'app-article-metadata',
@@ -46,11 +48,6 @@ export class ArticleMetadataComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  logToWorker() {
-    //this.serviceShare.WorkerService?.logToWorker('qweqwe');
-    this.serviceShare.WorkerService?.convertImgInWorker('https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image1.jpg');
-  }
-
   openTestingDialog(){
     this.dialog.open(TestingComponent, {
       width: '100%',
@@ -65,6 +62,22 @@ export class ArticleMetadataComponent implements OnInit {
   openFiguresDialog() {
     //this.serviceShare.PmDialogSessionService!.createSession()
     this.dialog.open(FiguresDialogComponent, {
+      width: '100%',
+      height: '90%',
+      data: {},
+      disableClose: false
+    }).afterClosed().subscribe(result => {
+      /* if(result){
+        this.serviceShare.PmDialogSessionService!.endSession(true)
+      }else{
+        this.serviceShare.PmDialogSessionService!.endSession(false)
+      } */
+    })
+  }
+
+  openTablesDialog() {
+    //this.serviceShare.PmDialogSessionService!.createSession()
+    this.dialog.open(CitableTablesDialogComponent, {
       width: '100%',
       height: '90%',
       data: {},

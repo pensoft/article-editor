@@ -27,6 +27,9 @@ export const figureJson = {
               "validate": {
                 "required": true
               },
+              "properties":{
+                "addFigureEditor":true
+              },
               "key": "figureDescription",
               "type": "textarea",
               "input": true
@@ -156,6 +159,9 @@ export const figureJson = {
                       "validate": {
                         "required": true
                       },
+                      "properties":{
+                        "addFigureEditor":true
+                      },
                       "key": "description",
                       "type": "textarea",
                       "rows": 1,
@@ -217,6 +223,9 @@ export const figureJson1 = {
       "defaultValue": `<p align="set-align-left" class="set-align-left"></p>`,
       "validate": {
         "required": true
+      },
+      "properties":{
+        "addFigureEditor":true
       },
       "key": "figureDescription",
       "type": "textarea",
@@ -325,6 +334,9 @@ export const figureJson1 = {
               "tableView": true,
               "validate": {
                 "required": true
+              },
+              "properties":{
+                "addFigureEditor":true
               },
               "key": "description",
               "type": "textarea",

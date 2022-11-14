@@ -6,6 +6,7 @@ import { Node } from "prosemirror-model";
 import delFromPopup from "./trackChangesMarks/delFromPopupMark";
 import insFromPopup from "./trackChangesMarks/insFromPopup";
 import citation from "./trackChangesMarks/citation";
+import  table_citation  from "./trackChangesMarks/table-citation";
 
 const calcYChangeStyle = (ychange: any) => {
     switch (ychange.type) {
@@ -17,6 +18,8 @@ const calcYChangeStyle = (ychange: any) => {
             return ''
     }
 }
+
+
 
 const hoverWrapper = (ychange:any, els:any) =>
   ychange === null ? els : [['span', { class: 'ychange-hover', style: `background-color:${ychange.color.dark}` }, ychange.user || 'Unknown'], ['span', ...els]]
@@ -56,6 +59,7 @@ export const marks: MarkSpec = {
     ...trackChangesMarks,
     delFromPopup,
     insFromPopup,
+    table_citation,
     citation,
     ...basicmarks,
     invalid: {

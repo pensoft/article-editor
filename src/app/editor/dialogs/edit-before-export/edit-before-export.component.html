@@ -1,5 +1,39 @@
+
+<div class="pm-toolbar">
+  <div class="pm-pdf-menu-container"></div>
+  <div class='hf-fields'>
+
+    <div class="pm-editor-label">
+      Header:
+    </div>
+    <div class="pm-editor-label">
+      Footer:
+    </div>
+  </div>
+  <div class='hf-fields'>
+
+    <div class="pm-editor" #headerPMEditor>
+
+    </div>
+    <div class="pm-editor" #footerPMEditor>
+
+    </div>
+  </div>
+</div>
+<div class='preview-container'>
+  <div class="margineditor-and-pdf-container">
+    <div class="margin-editor" #codemirrorJson></div>
+    <!-- <iframe class="pdfVi1" id='pdfV'></iframe> -->
+  </div>
+  <div class="loader" #spinnerEl style="display: none;">
+    <div class="spinnerSpace"><img spinner class="spinnerImg" src="./../../../../assets/icons/spinner.svg" alt=""></div>
+  </div>
+</div>
+<p id="width-measure-container" style="display:inline-block">
+
+</p>
 <mat-toolbar class="toolbar">
-  <button mat-raised-button (click)="refreshContent()">Refresh Pdf view</button>
+  <button mat-raised-button (click)="renderPdf()">Render PDF</button>
   <!-- <div class="select-format">
     <mat-label class="format-label">Choose format:</mat-label>
     <mat-select [(value)]="pageSize">
@@ -34,52 +68,3 @@
     <button mat-raised-button (click)="closePdfPrintDialog()">Close</button>
   </div>
 </mat-toolbar>
-<div class="pm-toolbar">
-  <div class="pm-pdf-menu-container"></div>
-  <div class='hf-fields'>
-
-    <div class="pm-editor-label">
-      Header:
-    </div>
-    <div class="pm-editor-label">
-      Footer:
-    </div>
-  </div>
-  <div class='hf-fields'>
-
-    <div class="pm-editor" #headerPMEditor>
-
-    </div>
-    <div class="pm-editor" #footerPMEditor>
-
-    </div>
-  </div>
-</div>
-<div class='preview-container'>
-  <div class="elements-container">
-    <!-- <div class="horizontal-lines" id="hr-lines">horizontal lines</div> -->
-    <div #elementsContainer id="pm-elements-container">
-      <div *ngIf="sectionsContainers.length>0">
-        <div *ngFor="let section of sectionsContainers;let i = index">
-          <div cdkDropList (cdkDropListDropped)="drop($event,i)">
-            <div *ngFor="let element of sectionsContainers[i];let j = index" cdkDrag>
-              <app-print-element *ngIf="i==sectionsContainers.length-1&&j==sectionsContainers[i].length-1" [(elementHTML)]="sectionsContainers[i][j]" [(refreshContent)]="refreshContent" [end]="true"></app-print-element>
-              <app-print-element *ngIf="!(i==sectionsContainers.length-1&&j==sectionsContainers[i].length-1)" [(elementHTML)]="sectionsContainers[i][j]" [(refreshContent)]="refreshContent" [end]="false"></app-print-element>
-              <!-- <app-print-element [(elementHTML)]="sectionsContainers[i][j]"></app-print-element> -->
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="margineditor-and-pdf-container">
-    <div class="margin-editor" #codemirrorJson></div>
-    <iframe class="pdfVi1" id='pdfV'></iframe>
-  </div>
-  <div class="loader" #spinnerEl style="display: flex;">
-    <div class="spinnerSpace"><img spinner class="spinnerImg" src="./../../../../assets/icons/spinner.svg" alt=""></div>
-  </div>
-</div>
-<p id="width-measure-container" style="display:inline-block">
-
-</p>

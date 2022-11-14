@@ -4,8 +4,8 @@
 
 import { Mark, Node } from "prosemirror-model"
 
-export const getGenericAttributes = () => {
-    return {
+export const getGenericAttributes = (defaults?:{[key:string]:any}) => {
+    let attrs = {
         controlPath: { default: '' },
         customPropPath: { default: '' },
         formControlName: { default: '' },
@@ -15,6 +15,12 @@ export const getGenericAttributes = () => {
         invalid:{default:'false'},
         styling:{default:''},
     }
+    if(defaults){
+      Object.keys(defaults).forEach((attr)=>{
+        attrs[attr] = defaults[attr]
+      })
+    }
+    return attrs
 }
 
 export const parseGenericAttributes = (dom: any) => {

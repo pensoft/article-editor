@@ -4,7 +4,32 @@
 @import "../node_modules/katex/dist/katex.min.css";
 @import "../node_modules/prosemirror-view/style/prosemirror.css";
 @import "./assets/colors";
+
 citation {
+  background: #b2f0f0;
+  white-space: pre;
+}
+
+table-descriptions-container{
+  border: 1px solid #E2E2DD;
+  display: block;
+  margin-top: 10px;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: #FAFAF8;
+  margin-right: 4px;
+  margin-left: 4px;
+}
+
+table-content{
+  border: 1px solid #E2E2DD;
+    display: block;
+    padding: 5px;
+    border-radius: 5px;
+    margin-top: 2px;
+}
+
+table-citation {
   background: #b2f0f0;
   white-space: pre;
 }
@@ -42,11 +67,9 @@ citation {
   cursor: pointer;
 }
 
-app-figures-prosemirror-view {
-  figures-nodes-container {
-    border-top: 2px dashed rgb(0 0 0 / 87%);
-    display: block;
-  }
+app-figures-prosemirror-view.not-empty {
+  border-top: 2px dashed rgb(0 0 0 / 87%);
+  display: block;
 }
 
 .show-article-data {
@@ -288,6 +311,11 @@ app-article:not(.display-changes-hover) .deletion{
 }
 
 citation[nonexistingfigure="true"] {
+  background-color: rgb(194, 54, 54);
+  color: white;
+}
+
+table-citation[nonexistingtable="true"] {
   background-color: rgb(194, 54, 54);
   color: white;
 }

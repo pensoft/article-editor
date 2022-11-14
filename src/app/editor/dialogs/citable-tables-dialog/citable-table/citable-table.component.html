@@ -1,0 +1,13 @@
+<div *ngIf="table" class="figure">
+  <div class="figure-index">Figure №{{tableIndex!+1}} :</div>
+  <div class="figure-description">
+    <span [innerHTML]="table.description">
+        </span>
+  </div>
+  <div class="figure-components">
+    <div class="figure-description">
+      <span [innerHTML]="table.components">
+          </span>
+    </div>
+  </div>
+</div>

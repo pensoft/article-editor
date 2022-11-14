@@ -448,6 +448,7 @@ export class TreeService implements OnDestroy {
         this.ydocService.customSectionProps.set('customPropsObj', customSectionPropsObj)
       }
       this.serviceShare.FiguresControllerService.updateOnlyFiguresView();
+
     }, 10)
     this.treeVisibilityChange.next({ action: 'deleteNode', parentId, childId: nodeId, indexInList: i });
   }

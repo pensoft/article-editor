@@ -12,6 +12,7 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
     let moovingANodeWithUUID = false;
     let stepsIndexes: { from: number, to: number }[] = [];
     let dragDropCitation = false
+    let dragDropTableCitation = false
     let dragDropComment = false
     transactions.forEach((transaction) => {
       //@ts-ignore
@@ -37,6 +38,12 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
                   //@ts-ignore
                   stepsIndexes.push({ from: step.from, to: step.from + fr.size })
                 }
+                if (node.marks.filter((mark) => { return mark.type.name == 'table_citation' }).length > 0) {
+                  moovingANodeWithUUID = true
+                  dragDropCitation = true
+                  //@ts-ignore
+                  stepsIndexes.push({ from: step.from, to: step.from + fr.size })
+                }
                 if (node.marks.filter((mark) => { return mark.type.name == 'comment' }).length > 0) {
                   moovingANodeWithUUID = true
                   dragDropComment = true
@@ -55,6 +62,9 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
               fr.nodesBetween(0, fr.size, (node, start, parent, i) => {
                 if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
                   dragDropCitation = true
+                }
+                if (node.marks.filter((mark) => { return mark.type.name == 'table_citation' }).length > 0) {
+                  dragDropTableCitation = true
                 }
               })
             }
@@ -82,6 +92,13 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
           tr = tr.addMark(pos, pos + node.nodeSize, newMark)
           changed = true
         }
+        if (node.marks.filter((mark) => { return mark.type.name == 'table_citation' }).length > 0) {
+          let citationMark = node.marks.filter((mark) => { return mark.type.name == 'table_citation' })[0]
+          let newid = uuidv4()
+          let newMark = newState.schema.mark('table_citation', { ...citationMark.attrs, citateid: newid })
+          tr = tr.addMark(pos, pos + node.nodeSize, newMark)
+          changed = true
+        }
         if (node.marks.filter((mark) => { return mark.type.name == 'comment' }).length > 0) {
           let commentMark = node.marks.filter((mark) => { return mark.type.name == 'comment' })[0]
           let newid = uuidv4()
@@ -100,6 +117,15 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
         sharedService.FiguresControllerService.updateOnlyFiguresView()
       }, 20)
     }
+    if(dragDropTableCitation){
+      sharedService.YjsHistoryService.addUndoItemInformation({
+        type: 'figure-citation',
+        data: {}
+      })
+      setTimeout(() => {
+        sharedService.CitableTablesService.updateOnlyTablesView()
+      }, 20)
+    }
     return changed ? tr : undefined
   }
 }
@@ -109,6 +135,7 @@ export function handleDeleteOfRefsFigsCitationsAndComments(sharedService: Servic
     let deletedRefCitations: any[] = []
     let deletedCommentsMarks:any[]=[]
     let deletingFigCitation = false
+    let deletingTableCitation = false
     transactions.forEach((transaction) => {
       //@ts-ignore
       if (transaction.steps.length > 0 && (transaction.meta && transaction.meta.uiEvent != 'paste' && transaction.meta.uiEvent != 'drop')) {
@@ -121,6 +148,9 @@ export function handleDeleteOfRefsFigsCitationsAndComments(sharedService: Servic
             fr.nodesBetween(0, fr.size, (node, start, parent, i) => {
               if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
                 deletingFigCitation = true
+              }
+              if (node.marks.filter((mark) => { return mark.type.name == 'table_citation' }).length > 0) {
+                deletingTableCitation = true
               }
               if (node.type.name == 'reference_citation') {
                 deletedRefCitations.push(JSON.parse(JSON.stringify(node.attrs)))
@@ -141,6 +171,17 @@ export function handleDeleteOfRefsFigsCitationsAndComments(sharedService: Servic
         })
         setTimeout(() => {
           sharedService.FiguresControllerService.updateOnlyFiguresView()
+        }, 20)
+      },10)
+    }
+    if(deletingTableCitation){
+      setTimeout(()=>{
+        sharedService.YjsHistoryService.addUndoItemInformation({
+          type: 'figure-citation',
+          data: {}
+        })
+        setTimeout(() => {
+          sharedService.CitableTablesService.updateOnlyTablesView();
         }, 20)
       },10)
     }

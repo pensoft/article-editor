@@ -8,6 +8,7 @@ import {NavigationEnd, Router} from '@angular/router';
 import {UserModel} from '@core/models/user.model';
 import {catchError, filter, map, switchMap, takeUntil, tap, timeout} from 'rxjs/operators';
 import { environment } from '@env';
+import { JwtHelperService } from '@auth0/angular-jwt';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 const API_AUTH_URL = environment.authUrl;
 const API_URL = environment.apiUrl;
@@ -30,8 +31,12 @@ export class AuthService implements OnDestroy {
     this.currentUserSubject.next(user);
   }
 
-  constructor(private _http: HttpClient,
-              private router: Router,private sharedService:ServiceShare) {
+  constructor(
+    private _http: HttpClient,
+    private router: Router,
+    private sharedService:ServiceShare,
+    private jwtHelper: JwtHelperService
+  ) {
     this.currentUserSubject = new BehaviorSubject<UserType>(undefined);
     this.currentUser$ = this.currentUserSubject.asObservable();
     this.sharedService.shareSelf('AuthService',this)
@@ -110,6 +115,10 @@ export class AuthService implements OnDestroy {
 
   getToken() {
     return localStorage.getItem('token');
+  }
+
+  isTokenExpired(access_token:string){
+    return this.jwtHelper.isTokenExpired(access_token);
   }
 
   getRefreshToken() {

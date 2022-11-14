@@ -69,7 +69,7 @@ export class MenuService {
       ['alignMenu'],
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem', 'highLightMenuItem'],
-      ['insertMenu', 'logNodesMenuItem', 'insertFigure', 'insertPageBreak', 'headings'],
+      ['insertMenu', 'logNodesMenuItem', 'insertFigure','insertTable', 'insertPageBreak', 'headings'],
       ['citateReference']
     ],
     'fullMenuPMundoRedo': [
@@ -91,22 +91,22 @@ export class MenuService {
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItem', 'redoItem', 'insertVideoItem'],
-      ['logNodesMenuItem', 'insertFigure', 'insertPageBreak', 'headings'],
-      ['citateReference']
+      ['logNodesMenuItem', 'insertFigure','insertTable', 'insertPageBreak', 'headings'],
+      ['citateReference','tableMenu']
     ],
     'SimpleMenuPMundoRedo': [
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItemPM', 'redoItemPM', 'insertVideoItem'],
       ['logNodesMenuItem', 'insertPageBreak', 'headings'],
-      ['citateReference']
+      ['citateReference','insertTable']
     ],
     'onlyPmMenu': [
       ['textMenu'],
       ['alignMenu'],
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem', 'highLightMenuItem'],
-      ['insertMenu', 'headings','citateReference' ],
+      ['insertMenu', 'headings','citateReference','insertTable' ],
     ]
   }
 
@@ -129,7 +129,7 @@ export class MenuService {
     menu.fullMenu[8].push(menuItems.insertLink);
   }
 
-  attachMenuItems(sectionName: string) {
+  attachMenuItems(sectionName: string,) {
     let menuItemsData
     if (!this.sectionMenus[sectionName]) {
       menuItemsData = [...this.sectionMenus['fullMenu1']]
@@ -142,7 +142,6 @@ export class MenuService {
     let getMenuItem = (itemName: string) => {
       let item: any;
       if (itemName == 'alignMenu') {
-
         item = new Dropdown2(menuItems[itemName], { class: "horizontal-dropdown", dropdownType: 'alignmenu', icon: createCustomIcon('align2.svg', 18) })
       } else if (itemName == 'citateReference'){
         item = menuItems[itemName](this.serviceShare)
@@ -173,7 +172,8 @@ export class MenuService {
     }
     let buildDropDown = (name: string, type: string, content: any[], label?: string) => {
 
-      let conentItems: any[] = []
+      let conentItems: any[] = [];
+      let filteredContent = content
       content.forEach((value, index, array) => {
         if (typeof value !== 'string') {
           let submenu = buildDropDown(value.dropdownSubmenuName, 'dropdownSubmenu', value.content);
@@ -209,9 +209,33 @@ export class MenuService {
     return menuBuild;
   }
 
-  buildMenuTypes() {
+  buildMenuTypes(editorType?:string) {
     let menuTypes: any = {}
-
+    let removeItemFormMenu = (itemToRemove:string) => {
+      let filterMenus = (menuarr:any[])=>{
+        let i = 0;
+        while(i<menuarr.length){
+          let item = menuarr[i];
+          if(typeof item == 'string' &&( item == 'insertFigure'||item == 'insertTable')){
+            menuarr.splice(i,1);
+            i = 0;
+          }else if(item instanceof Array){
+            filterMenus(item);
+          }else if(typeof item == 'object'&&item.content){
+            filterMenus(item.content)
+          }
+          i++
+        }
+      }
+      Object.keys(this.sectionMenus).forEach((key) => {
+        filterMenus(this.sectionMenus[key]);
+      })
+    }
+    if(editorType == 'addTableEditor'){
+      removeItemFormMenu('insertTable')
+    }if(editorType == 'addFigureEditor'){
+      removeItemFormMenu('insertFigure')
+    }
     menuTypes.SimpleMenu = this.attachMenuItems('SimpleMenu');
     menuTypes.main = this.attachMenuItems('SimpleMenu');
     Object.keys(this.sectionMenus).forEach((key) => {

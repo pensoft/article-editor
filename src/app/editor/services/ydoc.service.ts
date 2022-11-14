@@ -59,6 +59,7 @@ export class YdocService {
   comments?: YMap<any>
   creatingANewArticle = false
   figuresMap?: YMap<any>
+  tablesMap?: YMap<any>
   trackChangesMetadata?: YMap<any>
   usersDataMap?: YMap<any>
   mathMap?: YMap<any>
@@ -147,10 +148,12 @@ export class YdocService {
     let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
     let articleSectionsStructureFlat: articleSection[] = this.articleStructure?.get('articleSectionsStructureFlat');
     let citatsObj = this.figuresMap!.get('articleCitatsObj');
+    let tableCitatsObj = this.tablesMap!.get('tableCitatsObj');
     try {
 
       if (articleSectionsStructure == undefined) {
         citatsObj = {}
+        tableCitatsObj = {}
         articleSectionsStructureFlat = []
 
         articleSectionsStructure = this.articleStructureFromBackend || articleBasicStructure
@@ -179,6 +182,14 @@ export class YdocService {
         })
         this.figuresMap!.set('articleCitatsObj', citatsObj);
       }
+      if (!tableCitatsObj) {
+        tableCitatsObj = {}
+        articleSectionsStructureFlat.forEach((section) => {
+          tableCitatsObj[section.sectionID] = {} // citats obj [key:string](citateID):{citatedFigures:[](citated figures-Ids),posiition:number(citatePosition)}
+
+        })
+        this.tablesMap!.set('tableCitatsObj', tableCitatsObj);
+      }
     } catch (e) {
       console.error(e);
     }
@@ -198,11 +209,14 @@ export class YdocService {
   buildEditor() {
     this.sectionFormGroupsStructures = this.ydoc.getMap('sectionFormGroupsStructures');
     this.figuresMap = this.ydoc.getMap('ArticleFiguresMap');
+    this.tablesMap = this.ydoc.getMap('ArticleTablesMap');
     this.provider?.awareness.setLocalStateField('userInfo', this.userInfo);
     let figuresNumbers = this.figuresMap!.get('ArticleFiguresNumbers');
     let figuresTemplates = this.figuresMap!.get('figuresTemplates');
     let figures = this.figuresMap!.get('ArticleFigures');
-    let figuresImagesDataURL = this.figuresMap!.get('ArticleFiguresDataURLS');
+    let tablesNumbers = this.tablesMap!.get('ArticleTablesNumbers');
+    let tablesTemplates = this.tablesMap!.get('tablesTemplates');
+    let tables = this.tablesMap!.get('ArticleTables');
     this.usersDataMap = this.ydoc.getMap('userDataMap')
     this.mathMap = this.ydoc.getMap('mathDataURLMap');
     this.printMap = this.ydoc.getMap('print');
@@ -248,14 +262,20 @@ export class YdocService {
     if (!figures) {
       this.figuresMap!.set('ArticleFigures', {})
     }
-    if (!figuresImagesDataURL) {
-      this.figuresMap!.set('ArticleFiguresDataURLS', {})
-    }
     if (!figuresTemplates) {
       this.figuresMap!.set('figuresTemplates', {})
     }
     if (!figuresNumbers) {
       this.figuresMap!.set('ArticleFiguresNumbers', []);
+    }
+    if (!tables) {
+      this.tablesMap!.set('ArticleTables', {})
+    }
+    if (!tablesTemplates) {
+      this.tablesMap!.set('tablesTemplates', {})
+    }
+    if (!tablesNumbers) {
+      this.tablesMap!.set('ArticleTablesNumbers', []);
     }
     if (!mathObj) {
       this.mathMap!.set('dataURLObj', {});
@@ -351,6 +371,7 @@ export class YdocService {
     this.sectionFormGroupsStructures = undefined;
     this.comments = undefined;
     this.figuresMap = undefined;
+    this.tablesMap = undefined;
     this.trackChangesMetadata = undefined;
     this.userInfo = undefined;
     this.creatingANewArticle = false;
@@ -427,12 +448,12 @@ export class YdocService {
         WebSocketPolyfill: WebSocket,
         awareness: new awarenessProtocol.Awareness(this.ydoc),
       })
-      /* this.provider = new WebsocketProvider(`ws://localhost:8080`, this.roomName, this.ydoc, {
+      /* this.provider = new WebsocketProvider(`ws://localhost:9182`, this.roomName, this.ydoc, {
         connect: true,
         params: {},
         WebSocketPolyfill: WebSocket,
         awareness: new awarenessProtocol.Awareness(this.ydoc),
-      }) */
+      } )*/
       this.provider
       this.provider.on('connection-close', function (WSClosedEvent: any) {
         console.log("---", WSClosedEvent, (new Date()).getTime());

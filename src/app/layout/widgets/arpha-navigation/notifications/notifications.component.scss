@@ -1,0 +1,40 @@
+.notifications-btn {
+  vertical-align: middle;
+  cursor: pointer;
+}
+.abs-cont{
+  position: absolute;
+  transform: translate(-380px, 20px);
+  background: white;
+  box-shadow: 0px 6px 10px #1bb1b269 !important;
+  padding: 20px;
+  border-radius: 10px;
+  width: 391px;
+  font-weight: 400;
+  font-size: 17px;
+}
+.notifications-container {
+  position: relative;
+  z-index: 20;
+  .event {
+    width: 100%;
+    word-wrap: break-word;
+    white-space: normal;
+    border-bottom: 1px solid #04949794;
+    cursor: pointer;
+  }
+  .view-all-btn {
+    border: none;
+    cursor: pointer;
+    background: transparent;
+    width: 100%;
+    height: 20px;
+    font-size: 18px;
+    color: #02b3b6;
+    transform: translate(0px, 10px);
+  }
+  .new{
+    font-weight: 1000;
+    text-decoration: underline;
+  }
+}

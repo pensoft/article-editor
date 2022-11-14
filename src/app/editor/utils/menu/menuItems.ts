@@ -7,16 +7,16 @@ import { MenuItem } from '../prosemirror-menu-master/src/index.js'
 import { EditorState, NodeSelection, Selection, TextSelection, Transaction } from "prosemirror-state"
 import { EditorView } from "prosemirror-view"
 import { schema } from "../Schema";
-import { addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow, mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell, deleteTable } from "prosemirror-tables";
+import { addColumnAfter, addColumnBefore, deleteColumn, addRowAfter, addRowBefore, deleteRow, mergeCells, splitCell, setCellAttr, toggleHeaderRow, toggleHeaderColumn, toggleHeaderCell, deleteTable } from "../../../../../prosemirror-tables/src/index";
 import { icons } from 'prosemirror-menu'
 //@ts-ignore'../../y-prosemirror-src/y-prosemirror.js'
-import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from '../../../y-prosemirror-src/y-prosemirror.js';
+import { redo, undo } from '../../../y-prosemirror-src/y-prosemirror.js';
 import { wrapItem, blockTypeItem, selectParentNodeItem as selectParentNodeItemPM } from "prosemirror-menu";
 import { YMap } from "yjs/dist/src/internals";
 import { wrapInList } from "prosemirror-schema-list";
 import { Subject } from 'rxjs';
 import { canInsert, createCustomIcon } from './common-methods';
-import { insertFigure, insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem, citateReference } from './menu-dialogs';
+import { insertFigure, insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem, citateReference, insertTable } from './menu-dialogs';
 import { MarkType, Node, NodeType, DOMParser, DOMSerializer, Mark, Fragment } from 'prosemirror-model';
 //@ts-ignore
 import { undo as undoLocalHistory, redo as redoLocalHistory } from '../prosemirror-history/history.js'
@@ -471,6 +471,7 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
   'addMathInlineMenuItem': addMathInlineMenuItem,
   'addMathBlockMenuItem': addMathBlockMenuItem,
   'toggleStrong': toggleStrong,
+  'insertTable':insertTable,
   'toggleEm': toggleEm,
   'toggleCode': toggleCode,
   'insertImage': insertImageItem,

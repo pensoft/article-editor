@@ -2,8 +2,6 @@ import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output, Pipe, Pi
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { figure as figure_interface } from 'src/app/editor/utils/interfaces/figureComponent';
 
-
-
 @Component({
   selector: 'app-figure',
   templateUrl: './figure.component.html',

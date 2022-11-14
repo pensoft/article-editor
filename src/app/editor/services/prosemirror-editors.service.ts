@@ -26,12 +26,11 @@ import { DOMSerializer, Node, NodeType, Slice } from 'prosemirror-model';
 import { EditorView } from 'prosemirror-view';
 import { EditorState, Plugin, PluginKey, Transaction, TextSelection, Selection, NodeSelection } from 'prosemirror-state';
 import { keymap } from 'prosemirror-keymap';
-//import { redo, undo, yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin } from 'y-prosemirror';
 import { chainCommands, deleteSelection, joinBackward, selectNodeBackward } from 'prosemirror-commands';
 import { undo, redo } from 'prosemirror-history';
 //@ts-ignore
-import { yCursorPlugin, yDocToProsemirrorJSON, ySyncPlugin, yUndoPlugin, yUndoPluginKey, ySyncPluginKey, ySyncPluginKeyObj } from '../../y-prosemirror-src/y-prosemirror.js';
-import { CellSelection, columnResizing, goToNextCell, tableEditing } from 'prosemirror-tables';
+import { yCursorPlugin,  ySyncPlugin, ySyncPluginKey, ySyncPluginKeyObj } from '../../y-prosemirror-src/y-prosemirror.js';
+import { CellSelection, columnResizing, goToNextCell, tableEditing } from '../../../../prosemirror-tables/src/index';
 //@ts-ignore
 import * as trackedTransaction from '../utils/trackChanges/track-changes/index.js';
 import { CommentsService } from '../utils/commentsService/comments.service';
@@ -64,7 +63,7 @@ import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
 import { E, I } from '@angular/cdk/keycodes';
 import { AddMarkStep, Mapping, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform';
 import { ViewFlags } from '@angular/compiler/src/core';
-import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn, selectWholeCitatMarks, handleScrollToSelection } from '../utils/prosemirrorHelpers';
+import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn, selectWholeCitatMarksAndRefCitatNode, handleScrollToSelection } from '../utils/prosemirrorHelpers';
 //@ts-ignore
 import { recreateTransform } from "prosemirror-recreate-steps"
 import { figure } from '../utils/interfaces/figureComponent';
@@ -78,7 +77,6 @@ import { uuidv4 } from 'lib0/random.js';
 import { filterSectionChildren } from '../utils/articleBasicStructure';
 import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
 import { changeNodesOnDragDrop, handleDeleteOfRefsFigsCitationsAndComments } from '../utils/prosemirrorHelpers/drag-drop-append';
-import katex from 'katex';
 export interface editorContainersObj { [key: string]: editorContainer }
 export interface editorContainer {
   editorID: string,
@@ -159,6 +157,10 @@ export class ProsemirrorEditorsService {
   rerenderFigures: any
   setFigureRerenderFunc = (fn: any) => {
     this.rerenderFigures = fn;
+  }
+  rerenderTables:any
+  setTablesRerenderFunc = (fn: any) => {
+    this.rerenderTables = fn
   }
   ySyncKey = ySyncPluginKey
   ySyncPluginKeyObj = ySyncPluginKeyObj
@@ -364,7 +366,7 @@ export class ProsemirrorEditorsService {
     let selectWholeCitat = new Plugin({
       key: selectWholeCitatPluginKey,
       props: {
-        createSelectionBetween: selectWholeCitatMarks
+        createSelectionBetween: selectWholeCitatMarksAndRefCitatNode
       }
     })
 
@@ -658,7 +660,9 @@ export class ProsemirrorEditorsService {
           let state = view.state;
           let sel = state.selection
           state.doc.nodesBetween(sel.from, sel.to, (node, pos, parent, index) => {
-            if (!this.previewArticleMode.mode && node.marks.length > 0 && node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
+            if (!this.previewArticleMode.mode && node.marks.length > 0 && (
+              node.marks.filter((mark) => { return (mark.type.name == 'citation'||mark.type.name == 'table_citation') }).length > 0
+              )) {
               setTimeout(() => {
                 let cursurCoord = view.coordsAtPos(sel.from);
                 event.preventDefault();
@@ -692,34 +696,6 @@ export class ProsemirrorEditorsService {
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
       handleKeyDown: handleKeyDown(this.serviceShare),
       scrollMargin: { top: 300, right: 5, bottom: 300, left: 5 },
-      /* handleDrop: (view: EditorView, event: Event, slice: Slice, moved: boolean) => {
-        slice.content.nodesBetween(0, slice.content.size - 2, (node, pos, parent) => {
-          if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
-            let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0];
-            this.serviceShare.YjsHistoryService.addUndoItemInformation({
-              type: 'figure-citation',
-              data: {}
-            })
-            //@ts-ignore
-            if (!event.ctrlKey) {  // means that the drag is only moving the selected not a copy of the selection -> without Ctrl
-              this.dispatchEmptyTransaction()
-            } else {      // the drag is moving a copy of the selection
-              //@ts-ignore
-              let dropPosition = view.posAtCoords({ left: event.clientX, top: event.clientY }).pos + pos - slice.openStart
-
-              setTimeout(() => {
-                let newMark = view.state.doc.nodeAt(dropPosition)
-                view.dispatch(view.state.tr.addMark(dropPosition, dropPosition + newMark?.nodeSize!, schema.mark('citation', { ...citationMark.attrs, citateid: uuidv4() })))
-              }, 10)
-            }
-            setTimeout(() => {
-              this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
-            }, 20)
-          }
-        })
-        return false
-      } */
-      //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
     });
     EditorContainer.appendChild(container);
 
@@ -753,6 +729,8 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
+  endDocIsEmpty = true;
+
   renderDocumentEndEditor(EditorContainer: HTMLDivElement, figures: figure[]): editorContainer {
     let editorId = 'endEditor'
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
@@ -766,6 +744,23 @@ export class ProsemirrorEditorsService {
       key: transactionControllerPluginKey,
       appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.interpolateTemplate, this.yjsHistory.YjsHistoryKey, this.serviceShare),
       filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, editorId, this.serviceShare),
+    })
+    let divideEndEditorFromTopPluginKey = new PluginKey('divideEndEditorFromTopPluginKey');
+    let divideEndEditorFromTopPlugin = new Plugin({
+      key: divideEndEditorFromTopPluginKey,
+      state:{
+        init(){
+
+        },
+        apply : (tr,val,oldstate,newState)=>{
+          if(newState.doc.content.size == 0){
+            this.endDocIsEmpty = true;
+          }else{
+            this.endDocIsEmpty = false;
+
+          }
+        }
+      }
     })
 
     let container = document.createElement('div');
@@ -810,6 +805,7 @@ export class ProsemirrorEditorsService {
         //this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         this.detectFocusService.getPlugin(),
+        divideEndEditorFromTopPlugin,
         this.serviceShare.ReferencePluginService?.referencePlugin,
         this.commentsService.getPlugin(),
         this.trackChangesService.getHideShowPlugin(),
@@ -958,7 +954,7 @@ export class ProsemirrorEditorsService {
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
       props: {
-        createSelectionBetween: selectWholeCitatMarks
+        createSelectionBetween: selectWholeCitatMarksAndRefCitatNode
       },
       state: {
         init(config:any) {
@@ -990,10 +986,16 @@ export class ProsemirrorEditorsService {
     })*/
 
     this.editorsEditableObj[editorID] = true
-
+    let menuTypes = this.menuTypes
+    if(options.addTableEditor){
+      menuTypes = this.menuService.buildMenuTypes('addTableEditor')
+    }
+    if(options.addFigureEditor){
+      menuTypes = this.menuService.buildMenuTypes('addFigureEditor')
+    }
     let menu: any = undefined
     if (options.menuType) {
-      menu = { main: this.menuTypes[options.menuType] }
+      menu = { main: menuTypes[options.menuType] }
     }
 
     let edState = EditorState.create({
@@ -1018,7 +1020,7 @@ export class ProsemirrorEditorsService {
         inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
         ...menuBar({
           floating: true,
-          content: menu ? menu : this.menuTypes, containerClass: menuContainerClass
+          content: menu ? menu : menuTypes, containerClass: menuContainerClass
         })
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
       ,
@@ -1342,7 +1344,6 @@ export class ProsemirrorEditorsService {
         return this.afterRender(ret, this)
       }
     }
-    this.serviceShare.WorkerService!.logToWorker('rendering prosemirrors')
     //check if chould be scrolled to comment ;
     return new Observable((sub)=>{
       setTimeout(()=>{

@@ -7,7 +7,7 @@ import { debug } from "console";
 import { uuidv4 } from "lib0/random";
 import { Fragment, ResolvedPos, Slice, Node } from "prosemirror-model";
 import { PluginKey, PluginSpec, TextSelection, Selection, EditorState, AllSelection } from "prosemirror-state";
-import { CellSelection } from "prosemirror-tables";
+import { CellSelection } from "../../../../../prosemirror-tables/src/index";
 import { EditorView } from "prosemirror-view";
 import { YMap } from "yjs/dist/src/internals";
 import { articleSection } from "../interfaces/articleSection";
@@ -15,12 +15,19 @@ import { articleSection } from "../interfaces/articleSection";
 export function handlePaste(mathMap: YMap<any>, sectionID: string,sharedService:ServiceShare) {
   return function handlePaste(view: EditorView, event: Event, slice: Slice) {
     let newPastedCitation = false;
+    let newPastedTableCitation = false;
     slice.content.nodesBetween(0, slice.size - 2, (node:any, pos, parent) => {
       if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
         let mark:any = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
 
         mark.attrs.citateid = uuidv4()
         newPastedCitation = true;
+      }
+      if (node.marks.filter((mark) => { return mark.type.name == 'table_citation' }).length > 0) {
+        let mark:any = node.marks.filter((mark) => { return mark.type.name == 'table_citation' })[0]
+
+        mark.attrs.citateid = uuidv4()
+        newPastedTableCitation = true;
       }
       if(node.marks.filter((mark) => { return mark.type.name == 'comment' }).length > 0) {
         let comment:any = node.marks.filter((mark) => { return mark.type.name == 'comment' })[0]
@@ -65,7 +72,7 @@ export function handlePaste(mathMap: YMap<any>, sectionID: string,sharedService:
           }
         }
       }
-      if (parentRef?.attrs.contenteditableNode === 'false' || parentRef?.attrs.contenteditableNode === false) {
+      if (parentRef?.attrs.contenteditableNode == 'false' || parentRef?.attrs.contenteditableNode === false) {
         noneditableNodes = true;
       }
     }
@@ -78,35 +85,81 @@ export function handlePaste(mathMap: YMap<any>, sectionID: string,sharedService:
         data: {}
       })
       setTimeout(()=>{
-        sharedService.FiguresControllerService.updateOnlyFiguresView()
+        sharedService.FiguresControllerService.updateOnlyFiguresView();
+      },10)
+    }
+    if(newPastedTableCitation){
+      sharedService.YjsHistoryService.addUndoItemInformation({
+        type: 'figure-citation',
+        data: {}
+      })
+      setTimeout(()=>{
+        sharedService.CitableTablesService.updateOnlyTablesView();
       },10)
     }
     return false
   }
 }
 
-export function selectWholeCitatMarks(view: EditorView, anchor: ResolvedPos, head: ResolvedPos) {
+export function selectWholeCitatMarksAndRefCitatNode(view: EditorView, anchor: ResolvedPos, head: ResolvedPos) {
 
-  let newSelection = false
+  let newSelection = false;
 
-  let newAnchor = anchor
-  let newHead = head
+  let newAnchor = anchor;
+  let newHead = head;
 
-  if (anchor.nodeAfter && anchor.nodeAfter.marks.filter(mark => { return mark.type.name == 'citation' }).length > 0 && anchor.pos > head.pos) {
-    newAnchor = view.state.doc.resolve(anchor.nodeAfter?.nodeSize! + anchor.pos)
+  let UnbrNodeAtAnchor = false;
+  let startOfUnbrNodeAtAnchor:number;
+  let endOfUnbrNodeAtAnchor:number;
+  let UnbrNodeAtHead = false;
+  let startOfUnbrNodeAtHead:number;
+  let endOfUnbrNodeAtHead:number;
+
+  if(
+    (
+      (anchor.nodeAfter &&anchor.nodeAfter.marks.filter(mark => { return (mark.type.name == 'citation'|| mark.type.name == 'table_citation') }).length > 0)&&
+      (anchor.nodeBefore&&anchor.nodeBefore.marks.filter(mark => { return (mark.type.name == 'citation'|| mark.type.name == 'table_citation') }).length > 0)
+    )||(
+      anchor.parent &&
+      anchor.parent.type.name == "reference_citation" &&
+      anchor.nodeAfter &&
+      anchor.nodeBefore
+    )){
+    UnbrNodeAtAnchor = true;
+    endOfUnbrNodeAtAnchor = anchor.nodeAfter?.nodeSize! + anchor.pos;
+    startOfUnbrNodeAtAnchor = anchor.pos - anchor.nodeBefore?.nodeSize!;
+  }
+  if(
+    (
+      (head.nodeAfter&&head.nodeAfter.marks.filter(mark => { return (mark.type.name == 'citation'|| mark.type.name == 'table_citation') }).length > 0)&&
+      (head.nodeBefore && head.nodeBefore.marks.filter(mark => { return (mark.type.name == 'citation'|| mark.type.name == 'table_citation') }).length > 0)
+    )||(
+      head.parent &&
+      head.parent.type.name == "reference_citation" &&
+      head.nodeAfter &&
+      head.nodeBefore
+    )){
+    UnbrNodeAtHead = true;
+    endOfUnbrNodeAtHead = head.pos + head.nodeAfter?.nodeSize!;
+    startOfUnbrNodeAtHead = head.pos - head.nodeBefore?.nodeSize!;
+  }
+  if(UnbrNodeAtAnchor||UnbrNodeAtHead){
     newSelection = true
   }
-  if (anchor.nodeBefore && anchor.nodeBefore.marks.filter(mark => { return mark.type.name == 'citation' }).length > 0 && anchor.pos < head.pos) {
-    newAnchor = view.state.doc.resolve(anchor.pos - anchor.nodeBefore?.nodeSize!)
-    newSelection = true
-  }
-  if (head.nodeAfter && head.nodeAfter.marks.filter(mark => { return mark.type.name == 'citation' }).length > 0 && anchor.pos < head.pos) {
-    newHead = view.state.doc.resolve(head.pos + head.nodeAfter?.nodeSize!)
-    newSelection = true
-  }
-  if (head.nodeBefore && head.nodeBefore.marks.filter(mark => { return mark.type.name == 'citation' }).length > 0 && anchor.pos > head.pos) {
-    newHead = view.state.doc.resolve(head.pos - head.nodeBefore?.nodeSize!)
-    newSelection = true
+  if (anchor.pos > head.pos ) {
+    if(UnbrNodeAtAnchor){
+      newAnchor = view.state.doc.resolve(endOfUnbrNodeAtAnchor)
+    }
+    if(UnbrNodeAtHead){
+      newHead = view.state.doc.resolve(startOfUnbrNodeAtHead)
+    }
+  }else if(anchor.pos < head.pos){
+    if(UnbrNodeAtAnchor){
+      newAnchor = view.state.doc.resolve(startOfUnbrNodeAtAnchor)
+    }
+    if(UnbrNodeAtHead){
+      newHead = view.state.doc.resolve(endOfUnbrNodeAtHead)
+    }
   }
 
   if (newSelection) {
@@ -123,7 +176,15 @@ export function handleClick(hideshowPluginKEey: PluginKey, citatContextPluginkey
         view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup',true))
       }, 0)
       return true
-    }else  */if (((event.target as HTMLElement).className == 'changes-placeholder')) {
+    }else  */
+    //@ts-ignore
+      if(event.detail == 1){
+        //@ts-ignore
+        let newSel = TextSelection.create(view.state.doc,pos)
+        console.log('setting new selection');
+        view.dispatch(view.state.tr.setSelection(newSel));
+      }
+    if (((event.target as HTMLElement).className == 'changes-placeholder')) {
       setTimeout(() => {
         view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup', true))
       }, 0)
@@ -219,7 +280,7 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
               if (!parentRef) {
                 parentRef = parentFrom
               } else if ((
-                !parentRef || !(parentRef.attrs.contenteditableNode == 'false' || parentRef.attrs.contenteditableNode == false)
+                !parentRef || !(parentRef.attrs.contenteditableNode == 'false' || parentRef.attrs.contenteditableNode === false)
               ) && parentFrom.type.name == 'form_field' && parentRef.type.name !== 'form_field' && (parentRef?.attrs.contenteditableNode != 'false' || parentRef?.attrs.contenteditableNode !== false)) {
                 parentRef = parentFrom
               }
@@ -254,6 +315,23 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
       if(firstnodeToTheRight&&firstnodeToTheRight.type.name == "figures_nodes_container"){
         figNodeContToTheRight = true
       }
+
+      /* if(from!=to&&(key == 'Delete'||key == 'Backspace')){
+        let noneditableNodeInSel = false;
+        let nodeStart:number;
+        let nodeEnd:number;
+        view.state.doc.nodesBetween(from,to,(node,pos,parent,i)=>{
+          if(node.attrs.contenteditableNode == 'false' || node.attrs.contenteditableNode === false){
+            noneditableNodeInSel = true;
+            nodeStart = pos;
+            nodeEnd = pos+=node.nodeSize;
+          }
+        })
+        if(){
+
+        }
+      } */
+
       if (onNoneditableMarkBorder) {
         if (onNoneditableMarkBorder == 'left') {
           if (key == 'Delete') {
@@ -304,7 +382,7 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
           let path = resolvedPos.path
           for (let i = path.length - 3; i > -1; i -= 3) {
             let parentNode = path[i];
-            if (!editableFirstParent && !(parentNode.attrs.contenteditableNode == false || parentNode.attrs.contenteditableNode == 'false')) {
+            if (!editableFirstParent && !(parentNode.attrs.contenteditableNode === false || parentNode.attrs.contenteditableNode == 'false')) {
               editableFirstParent = true;
             }
           }
@@ -325,7 +403,7 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
           let path = $from.path
           for (let i = path.length - 3; i > -1; i -= 3) {
             let parentNode = path[i];
-            if (!contenteditable && !(parentNode.attrs.contenteditableNode == false || parentNode.attrs.contenteditableNode == 'false')) {
+            if (!contenteditable && !(parentNode.attrs.contenteditableNode === false || parentNode.attrs.contenteditableNode == 'false')) {
               contenteditable = true;
             }
           }
@@ -336,7 +414,7 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
           let path = posMinusOne.path
           for (let i = path.length - 3; i > -1; i -= 3) {
             let parentNode = path[i];
-            if (!contenteditable && !(parentNode.attrs.contenteditableNode == false || parentNode.attrs.contenteditableNode == 'false')) {
+            if (!contenteditable && !(parentNode.attrs.contenteditableNode === false || parentNode.attrs.contenteditableNode == 'false')) {
               contenteditable = true;
             }
           }
@@ -347,7 +425,7 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
           let path = posPlusOne.path
           for (let i = path.length - 3; i > -1; i -= 3) {
             let parentNode = path[i];
-            if (!contenteditable && !(parentNode.attrs.contenteditableNode == false || parentNode.attrs.contenteditableNode == 'false')) {
+            if (!contenteditable && !(parentNode.attrs.contenteditableNode === false || parentNode.attrs.contenteditableNode == 'false')) {
               contenteditable = true;
             }
           }
@@ -420,7 +498,7 @@ export const createSelectionBetween = (editorsEditableObj: any, editorId: string
       let from = Math.min(view.state.selection.$anchor.pos, newHeadResolvedPosition.pos)
       let to = Math.max(view.state.selection.$anchor.pos, newHeadResolvedPosition.pos)
       view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-        if (node.attrs.contenteditableNode === 'false' || node.attrs.contenteditableNode === false) {
+        if (node.attrs.contenteditableNode == 'false' || node.attrs.contenteditableNode === false) {
           editorsEditableObj[editorId] = false;
 
         }
@@ -431,7 +509,7 @@ export const createSelectionBetween = (editorsEditableObj: any, editorId: string
     let from = Math.min(anchor.pos, head.pos)
     let to = Math.max(anchor.pos, head.pos)
     view.state.doc.nodesBetween(from, to, (node, pos, parent) => {
-      if (node.attrs.contenteditableNode === 'false' || node.attrs.contenteditableNode === false) {
+      if (node.attrs.contenteditableNode == 'false' || node.attrs.contenteditableNode === false) {
         editorsEditableObj[editorId] = false;
       }
     })

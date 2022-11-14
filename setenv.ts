@@ -22,7 +22,7 @@ packageContent.build = process.env.BUILD_NUMBER || packageContent.build || 1;
 
 writeFile(packageFile, JSON.stringify(packageContent, null, 4), (err: any) => {
   if (err) {
-    return console.log(err);
+    return console.error(err);
   } else {
     console.log(`BUILD_NUMBER=${process.env.BUILD_NUMBER}`);
   }

@@ -208,7 +208,7 @@
   dependencies:
     "tslib" "^2.2.0"
 
-"@angular/core@^11.1.0", "@angular/core@^12.0.0", "@angular/core@^12.0.0 || ^13.0.0-0", "@angular/core@^9.0.0 || ^10.0.0 || ^11.0.0 || ^12.0.0", "@angular/core@>=10.0.0", "@angular/core@>=11.0.0", "@angular/core@>=12.0.0", "@angular/core@>=13", "@angular/core@~12.2.16", "@angular/core@12.2.16":
+"@angular/core@^11.1.0", "@angular/core@^12.0.0", "@angular/core@^12.0.0 || ^13.0.0-0", "@angular/core@^9.0.0 || ^10.0.0 || ^11.0.0 || ^12.0.0", "@angular/core@>=10.0.0", "@angular/core@>=11.0.0", "@angular/core@>=12.0.0", "@angular/core@>=13", "@angular/core@>=2.3.0", "@angular/core@~12.2.16", "@angular/core@12.2.16":
   "integrity" "sha512-jsmvaRdAfng99z2a9mAmkfcsCE1wm+tBYVDxnc5JquSXznwtncjzcoc2X0J0dzrkCDvzFfpTsZ9vehylytBc+A=="
   "resolved" "https://registry.npmjs.org/@angular/core/-/core-12.2.16.tgz"
   "version" "12.2.16"
@@ -275,6 +275,13 @@
   "integrity" "sha512-H71nDOOL8Y7kWRLqf6Sums+01Q5msqBW2KhDUTemh1tvY04eSkSXrK0uj/4mmY0Xr16/3zyZmsrxN7CKuRbNRg=="
   "resolved" "https://registry.npmjs.org/@assemblyscript/loader/-/loader-0.10.1.tgz"
   "version" "0.10.1"
+
+"@auth0/angular-jwt@^5.1.0":
+  "integrity" "sha512-EAQoNKPQSZYphcX6FnY2e7xQpD4ZdHQ1DbHq/m+G1U1qA60m3XnhdjPPfu+blVHARlxEbRzWXc48UOVrnMsrZw=="
+  "resolved" "https://registry.npmjs.org/@auth0/angular-jwt/-/angular-jwt-5.1.0.tgz"
+  "version" "5.1.0"
+  dependencies:
+    "tslib" "^2.0.0"
 
 "@babel/code-frame@^7.0.0", "@babel/code-frame@^7.14.5":
   "integrity" "sha512-2IAnmn8zbvC/jKYhq5Ki9I+DwjlrtMPUCH/CpHvqI4dNnlwHwsxoIhlc8WcYY5LSYknXQtAlFYuHfqAFCvQ4Wg=="
@@ -7916,6 +7923,11 @@
   "integrity" "sha1-yobR/ogoFpsBICCOPchCS524NCw="
   "resolved" "https://registry.npmjs.org/next-tick/-/next-tick-1.0.0.tgz"
   "version" "1.0.0"
+
+"ng4-click-outside@^1.0.1":
+  "integrity" "sha512-QM+2hAZj7Bbv7dxYRdeFm+WxXuMHlCJ8kXlrqpsOftTfSY0uwwgmcecVnxYFxYwapheNIEqk5fSMTtvDh1Z0Gw=="
+  "resolved" "https://registry.npmjs.org/ng4-click-outside/-/ng4-click-outside-1.0.1.tgz"
+  "version" "1.0.1"
 
 "ngx-avatar@^4.1.0":
   "integrity" "sha512-0cIaCYOeY7tNsr9Zdg7SmgVG3Yka5mQDvYboybjP4yF47o2XO/rvkRaY98N5wtRF8FL9+OzLXfHbrvYGDGEomQ=="

@@ -1,10 +1,12 @@
 import { AfterViewInit, Component, ElementRef, ViewChild } from '@angular/core';
-import {environment} from '../environments/environment'
+import { Router } from '@angular/router';
+import { environment } from '../environments/environment'
 import { CasbinGlobalObjectsService } from './casbin/services/casbin-global-objects.service';
 import { EnforcerService } from './casbin/services/enforcer.service';
 import { AuthService } from './core/services/auth.service';
 import { ProsemirrorEditorsService } from './editor/services/prosemirror-editors.service';
 import { ServiceShare } from './editor/services/service-share.service';
+import { NotificationsService } from './layout/widgets/arpha-navigation/notifications/notifications.service';
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -15,12 +17,16 @@ export class AppComponent implements AfterViewInit {
   build_number = environment.BUILD_NUMBER;
   @ViewChild('globalSpinner', { read: ElementRef })globalSpinner?: ElementRef;
 
-  constructor(private prosemirrorEditorsService:ProsemirrorEditorsService,
+  constructor(
+    private prosemirrorEditorsService:ProsemirrorEditorsService,
     private serviceShare:ServiceShare,
     private authService:AuthService,
     private enforcer:EnforcerService,
-    private casbinGlobalObjectService:CasbinGlobalObjectsService
+    private NotificationsService:NotificationsService,
+    private casbinGlobalObjectService:CasbinGlobalObjectsService,
+    private router: Router,
     ) {
+      //loadMathConfig()
     navigator.serviceWorker.ready.then(function (registration) {
       //@ts-ignore
       return registration.sync.register('sendFormData')
@@ -31,7 +37,16 @@ export class AppComponent implements AfterViewInit {
     });
   }
   ngAfterViewInit(): void {
-    this.serviceShare.AuthService.getUserInfo().subscribe()
+    this.serviceShare.AuthService.getUserInfo().subscribe({
+      next:(data)=>{
+
+      },
+      error:(err)=>{
+        localStorage.removeItem('token')
+        this.router.navigate(['login']);
+        console.error(err);
+      }
+    })
     this.prosemirrorEditorsService.setSpinner(this.globalSpinner.nativeElement)
   }
 }

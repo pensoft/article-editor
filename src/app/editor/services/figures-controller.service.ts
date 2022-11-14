@@ -75,10 +75,6 @@ export class FiguresControllerService {
     this.figuresNumbers = figuresNumbersFromYMap
   }
 
-  setRenderEndEditorFunction(func: any) {
-    this.renderEditorFn = func
-  }
-
   rendered = 0;
 
   allFigsAreRendered() {
@@ -217,7 +213,6 @@ export class FiguresControllerService {
           let cel = figs[i][j].container;
           if (rowH < cel.h) {
             let url: string = cel.url
-            this.serviceShare.WorkerService?.convertImgInWorker(url)
           }
         }
       }
@@ -636,15 +631,35 @@ export class FiguresControllerService {
       }
       view.state.doc.nodesBetween(0, view.state.doc.nodeSize - 2, (node, pos, parent) => {
         if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
+          console.log(node);
+          let citationIsInFigure = false;
+          let currLoopNode = node;
+          //@ts-ignore
+          while(currLoopNode&&currLoopNode.parent){
+          //@ts-ignore
+            if(currLoopNode.parent.type.name == "figures_nodes_container"){
+              citationIsInFigure = true;
+              currLoopNode = undefined;
+            }else{
+              //@ts-ignore
+              currLoopNode = currLoopNode.parent
+            }
+          }
+
           let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0];
           let citatedFigures = [...citationMark.attrs.citated_figures]
           let citateid = citationMark.attrs.citateid
-
-          citations[sectionid][citateid] = {
-            displaydFiguresViewhere: [],
-            figureIDs: citatedFigures,
-            position: pos
+          if(!citationIsInFigure){
+            citations[sectionid][citateid] = {
+              displaydFiguresViewhere: [],
+              figureIDs: citatedFigures,
+              position: pos
+            }
+          }else{
+            debugger
           }
+
+
         }
       })
     })
@@ -758,13 +773,23 @@ export class FiguresControllerService {
           let wrappingParent
           let nodeAfterWrappingParent
 
-
           for (let i = resolvedCitationPath.length - 1; i > -1; i--) {
             let el = resolvedCitationPath[i];
             if (el instanceof Node) {
-              if (wrappingNodes.includes(el.type.name)) {
+              if (el.type.name == "tables_nodes_container") {
                 offsetOfwrappingParent = resolvedCitationPath[i - 1] as number
                 wrappingParent = el
+              }
+            }
+          }
+          if(!wrappingParent){
+            for (let i = resolvedCitationPath.length - 1; i > -1; i--) {
+              let el = resolvedCitationPath[i];
+              if (el instanceof Node) {
+                if (wrappingNodes.includes(el.type.name)) {
+                  offsetOfwrappingParent = resolvedCitationPath[i - 1] as number
+                  wrappingParent = el
+                }
               }
             }
           }
@@ -826,6 +851,7 @@ export class FiguresControllerService {
   }
   updatingFiguresAndFiguresCitations = false
   updateFiguresAndFiguresCitations(newFigures?:any) {
+    console.log('updateFiguresAndFiguresCitations');
     this.updatingFiguresAndFiguresCitations = true
     this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
     let citations = this.getFigureCitations()
@@ -837,13 +863,12 @@ export class FiguresControllerService {
 
   updatingOnlyFiguresView = false;
   updateOnlyFiguresView() {
+    console.log('updateOnlyFiguresView');
     this.updatingOnlyFiguresView = true
     this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
-
     let citations = this.getFigureCitations()
     let newCitatsObj = this.markCitatsViews(citations)
     this.ydocService.figuresMap?.set('articleCitatsObj', newCitatsObj)
     this.displayFigures(newCitatsObj)
-
   }
 }

@@ -10,9 +10,6 @@
     </a>
 
     <div class="profile-details">
-      <!-- <span class="eye-icon" (click)="openDashBoard()">
-        <mat-icon svgIcon="dashboard" ></mat-icon>Dashboard
-      </span> -->
       <div (mouseover)="changeText=true" (mouseout)="changeText=false">
         <div *ngIf="!changeText" class="eye-icon" (click)="openDashBoard()">
           <mat-icon svgIcon="dashboard"></mat-icon>
@@ -22,31 +19,22 @@
         </div>
       </div>
       <app-theme-toggle class="theme-toggle"></app-theme-toggle>
-      <!-- <span class="avatar"></span> -->
       <ng-container *ngIf="authService.currentUserSubject | async as user">
-<!--        {{user | json}}-->
         <ngx-avatar size="36" [gravatarId]="user.email" [name]="user.name" bgColor="#00B3B4"></ngx-avatar>
       </ng-container>
-
-<!--      <ngx-avatar [name]="authService.getUserInfo()"></ngx-avatar>-->
-<!--      <app-avatar></app-avatar>-->
+      <app-notifications class="notifications-component" ></app-notifications>
       <button mat-button [matMenuTriggerFor]="menu">
         <mat-icon color="primary" (click)="changeIcon('expand_less')">{{icon}}</mat-icon>
       </button>
       <mat-menu #menu="matMenu">
         <button mat-menu-item routerLink="/user-profile">
           <span>View Profile</span>
-          <!-- <ng-container *ngIf="authService.currentUserSubject | async as o ">
-            <span>Hi, {{o.name}}</span>
-          </ng-container> -->
         </button>
         <button mat-menu-item routerLink="/edit-profile">
           <span>Edit Profile</span>
         </button>
         <arpha-button label="Log Out" (clickEvent)="authService.logout();" class="text-icon upload-row"></arpha-button>
       </mat-menu>
-
     </div>
-
   </mat-toolbar-row>
 </mat-toolbar>

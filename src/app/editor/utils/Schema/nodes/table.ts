@@ -12,6 +12,7 @@ function getCellAttrs(dom: any, extraAttrs: any) {
         rowspan: Number(dom.getAttribute("rowspan") || 1),
         colwidth: widths && widths.length == colspan ? widths : null,
         ...parseGenericAttributes(dom),
+        tablewidth : dom.getAttribute('tablewidth')
     };
     for (var prop in extraAttrs) {
         var getter = extraAttrs[prop].getFromDOM;
@@ -25,7 +26,8 @@ function getCellAttrs(dom: any, extraAttrs: any) {
 
 function setCellAttrs(node: any, extraAttrs: any) {
     var attrs: any = {
-        ...genericAttributtesToDom(node)
+        ...genericAttributtesToDom(node),
+        tablewidth : node.attrs.tablewidth
     };
     if (node.attrs.colspan != 1) {
         attrs.colspan = node.attrs.colspan;
@@ -63,12 +65,12 @@ export function tableNodes(options: any) {
             tableRole: "table",
             isolating: true,
             attrs: {
-                ...getGenericAttributes(),
+              ...getGenericAttributes(),
             },
             group: options.tableGroup,
             parseDOM: [{
-                tag: "table", getAttrs(dom: any) {
-                    let attrs = {...parseGenericAttributes(dom)}
+                tag: "table", getAttrs(dom: HTMLElement) {
+                    let attrs:any = {...parseGenericAttributes(dom)}
                     return attrs
                 }
             }],
@@ -81,25 +83,27 @@ export function tableNodes(options: any) {
             content: "(table_cell | table_header)*",
             tableRole: "row",
             attrs: {
-                ...getGenericAttributes(),
+              ...getGenericAttributes(),
+              tablewidth:{default:0},
             },
             parseDOM: [{
                 tag: "tr", getAttrs(dom: any) {
                     return {
-                        ...parseGenericAttributes(dom),
-
-                    }
+                      ...parseGenericAttributes(dom),
+                      tablewidth : dom.getAttribute('tablewidth')
+                  }
                 }
             }],
             toDOM: function toDOM(node: any) {
                 return ["tr", {
                     ...genericAttributtesToDom(node),
-                }, 0]
+                    tablewidth : node.attrs.tablewidth
+                  }, 0]
             }
         },
         table_cell: {
             content: options.cellContent,
-            attrs: cellAttrs,
+            attrs: {...cellAttrs,tablewidth:{default:0}},
             tableRole: "cell",
             selectable:false,
             isolating: true,

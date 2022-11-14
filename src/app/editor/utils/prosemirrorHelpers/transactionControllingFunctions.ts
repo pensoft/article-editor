@@ -45,6 +45,7 @@ export const updateControlsAndFigures = (
     try {
 
       let figures = figuresMap.get('ArticleFigures');
+      let tables = sharedService.YdocService.tablesMap.get('ArticleTables')
       let figuresCitats = figuresMap.get('articleCitatsObj');
       let figuresTemplates = figuresMap!.get('figuresTemplates');
       let customPropsObj = sharedService.YdocService!.customSectionProps?.get('customPropsObj')
@@ -72,14 +73,24 @@ export const updateControlsAndFigures = (
                   })
                 }
               })
-              /* let descriptions = node.content.lastChild?.content
-              let figureDescriptionHtml = getHtmlFromFragment(descriptions?.child(1).content!)
-              figure.description = figureDescriptionHtml
-              node.content.firstChild?.content.forEach((node, offset, index) => {
-                let component = figure.components[node.attrs.component_number]
-                component.description = getHtmlFromFragment(descriptions?.child(index + 2).content!.lastChild?.content!)
-              }) */
               figuresMap.set('ArticleFigures', JSON.parse(JSON.stringify(figures)))
+            }
+            if (node.type.name == "block_table") {
+              let table = tables[node.attrs.table_id]
+              node.content.forEach((node1, offset, index) => {
+                if (node1.type.name == 'table_description_container') {
+                  node1.content.forEach((node2) => {
+                    if (node2.type.name == 'table_description') {
+                      let tableDescriptionHtml = getHtmlFromFragment(node2.content!)
+                      table.description = tableDescriptionHtml
+                    }
+                  })
+                }else if(node1.type.name == 'table_content'){
+                  let tableContentHtml = getHtmlFromFragment(node1.content!)
+                  table.components = tableContentHtml
+                }
+              })
+              sharedService.YdocService.tablesMap.set('ArticleTables', JSON.parse(JSON.stringify(tables)));
             }
             if((node.attrs.customPropPath&&node.attrs.customPropPath!='')||(node.marks.filter((mark)=>mark.attrs.customPropPath != ''&&mark.attrs.customPropPath).length>0)){
               if(!customPropsObj[section!.sectionID]){
@@ -238,7 +249,7 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathM
         let anchorFormField: Node
         stateSel.$head.path.forEach((element: number | Node) => {
           if (element instanceof Node) {
-            if (element.attrs.contenteditableNode === "false"||element.attrs.contenteditableNode === false) {
+            if (element.attrs.contenteditableNode == "false"||element.attrs.contenteditableNode === false) {
               noneditableNodesOnDropPosition = true
             }
             if (element.type.name == 'form_field') {
@@ -251,7 +262,7 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathM
         });
         stateSel.$anchor.path.forEach((element: number | Node) => {
           if (element instanceof Node) {
-            if (element.attrs.contenteditableNode === "false"||element.attrs.contenteditableNode === false) {
+            if (element.attrs.contenteditableNode == "false"||element.attrs.contenteditableNode === false) {
               noneditableNodesOnDropPosition = true
             }
             if (element.type.name == 'form_field') {
@@ -286,7 +297,7 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathM
           let trSelFormField: Node
           trSel.$anchor.path.forEach((element: number | Node) => {
             if (element instanceof Node) {
-              if (element.attrs.contenteditableNode === "false"||element.attrs.contenteditableNode === false) {
+              if (element.attrs.contenteditableNode == "false"||element.attrs.contenteditableNode === false) {
                 noneditableNodesOnDropPosition = true
               }
               if (element.type.name == 'form_field') {
@@ -322,7 +333,7 @@ export const handleClickOn = (citatContextPluginKey: PluginKey) => {
       )){
       return true;
     }
-    if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0 &&
+    if (node.marks.filter((mark) => { return (mark.type.name == 'citation'||mark.type.name == 'table_citation') }).length > 0 &&
       (("which" in e && e.which == 3) ||
         ("button" in e && e.button == 2)
       )) {

@@ -30,6 +30,7 @@ export class ExportOptionsComponent implements OnInit {
         panelClass:'pdf-edit-and-preview',
         data:{selected}
       });
+      dialogRef
     }else if(selected == 'json-ld'){
       let dialogRef = this.dialog.open(ExportJsonLdComponent, {
         maxWidth: '100vw',
@@ -42,6 +43,7 @@ export class ExportOptionsComponent implements OnInit {
     }else if(selected == 'jatsXml'){
       exportAsJatsXML(this.sharedService);
     }
+
   }
 
 }

@@ -1,17 +1,18 @@
-import { AfterViewInit, Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { AllUsersService } from '@app/core/services/all-users.service';
 import { contributorData, roleMaping } from '@app/editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
 import { SendInvitationComponent } from '@app/editor/dialogs/add-contributors-dialog/send-invitation/send-invitation.component';
 import { ServiceShare } from '@app/editor/services/service-share.service';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-collaborators-auto-complete',
   templateUrl: './collaborators-auto-complete.component.html',
   styleUrls: ['./collaborators-auto-complete.component.scss']
 })
-export class CollaboratorsAutoCompleteComponent implements AfterViewInit {
+export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestroy {
 
   @Input() commentmarkId?: string;
   @Output() commentmarkIdChange = new EventEmitter<string>();
@@ -22,7 +23,7 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit {
   allusers?: contributorData[]
   searchResults: contributorData[] = []
   currCollaboratorsIneditor: any
-
+  collabSub:Subscription
   constructor(
     public usersService: AllUsersService,
     public serviceShare: ServiceShare,
@@ -33,7 +34,15 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit {
     })
 
     this.currCollaboratorsIneditor = this.serviceShare.YdocService.collaborators.get('collaborators')
+    this.collabSub = this.serviceShare.YdocService.collaboratorsSubject.subscribe((collaborators)=>{
+      this.currCollaboratorsIneditor = collaborators
+    })
+  }
 
+  ngOnDestroy(): void {
+    if(this.collabSub){
+      this.collabSub.unsubscribe();
+    }
   }
 
   selectedUser(user: contributorData) {
@@ -91,7 +100,6 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit {
       "mentioned": mentionedPeople,
       "hash": commentMarkHash
     }
-    console.log(postBody,);
     return this.usersService.sendCommentMentionInformation(postBody);
   }
 
@@ -130,7 +138,6 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit {
             })
 
             this.addDataToBackend(emailsInText, newCollaborators,result.selectOptions).subscribe((data)=>{
-              console.log(data);
               this.serviceShare.YdocService.collaborators.set('collaborators', { collaborators: collaboratorsCopy });
               this.serviceShare.ProsemirrorEditorsService.stopSpinner()
               func(...args)
@@ -145,7 +152,6 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit {
       } else {
         this.serviceShare.ProsemirrorEditorsService.spinSpinner()
         this.addDataToBackend(emailsInText, newCollaborators).subscribe((data)=>{
-              console.log(data);
               this.serviceShare.ProsemirrorEditorsService.stopSpinner()
           func(...args)
         },

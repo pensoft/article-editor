@@ -9,7 +9,6 @@ import { HttpClient } from '@angular/common/http';
 })
 export class WorkerService {
 
-  worker: Worker
   workerScript:any;
   notifySubject = new Subject()
 
@@ -76,9 +75,8 @@ export class WorkerService {
       document.querySelector('#workerPromiseAjax')!.textContent!, workerRest]));
     this.worker = new Worker(this.workerScript); */
     this.responseSubject = new Subject()
-    this.worker = new Worker('./task-processing-worker.js')
     this.serviceShare.shareSelf('WorkerService', this)
-    this.worker.addEventListener('message', this.workerListener)
+    //this.worker.addEventListener('message', this.workerListener)
   }
 
   saveDataURL = (url: string, dataurl: string) => {
@@ -88,12 +86,12 @@ export class WorkerService {
   }
 
   logToWorker(text: string) {
-    this.worker.postMessage(text)
+    //this.worker.postMessage(text)
   }
 
   convertImgInWorker(url: string) {
     let dataURLObj = this.serviceShare.YdocService!.figuresMap!.get('ArticleFiguresDataURLS');
-    this.worker.postMessage({ meta: { action: 'loadImgAsDataURL' }, data: { url, environment: environment.production } })
+    //this.worker.postMessage({ meta: { action: 'loadImgAsDataURL' }, data: { url, environment: environment.production } })
     if (!dataURLObj[url] || dataURLObj[url] == 'data:' || dataURLObj[url] == '') {
     } else {
    }
