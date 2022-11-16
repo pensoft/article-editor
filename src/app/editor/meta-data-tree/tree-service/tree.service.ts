@@ -303,7 +303,8 @@ export class TreeService implements OnDestroy {
     this.serviceShare.YjsHistoryService.stopCapturingUndoItem(); */
 
     setTimeout(() => {
-      this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
+      //this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
+      this.serviceShare.updateCitableElementsViews()
     }, 10)
     this.treeVisibilityChange.next({ action: 'listNodeDrag', from, to, prevContainerId, newContainerId })
   }
@@ -447,8 +448,8 @@ export class TreeService implements OnDestroy {
         }
         this.ydocService.customSectionProps.set('customPropsObj', customSectionPropsObj)
       }
-      this.serviceShare.FiguresControllerService.updateOnlyFiguresView();
-
+      //this.serviceShare.FiguresControllerService.updateOnlyFiguresView();
+      this.serviceShare.updateCitableElementsViews()
     }, 10)
     this.treeVisibilityChange.next({ action: 'deleteNode', parentId, childId: nodeId, indexInList: i });
   }

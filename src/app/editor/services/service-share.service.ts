@@ -100,6 +100,16 @@ export class ServiceShare {
     this.resolversData = {}
   }
 
+  updateCitableElementsViews(){
+    this.FiguresControllerService.updateOnlyFiguresView()
+    this.CitableTablesService.updateOnlyTablesView()
+  }
+
+  updateCitableElementsViewsAndCites(figstToSet?:any,tblsToSet?:any){
+    this.FiguresControllerService.updateFiguresAndFiguresCitations(figstToSet)
+    this.CitableTablesService.updateTablesAndTablesCitations(tblsToSet)
+  }
+
   createNewArticle(){
     this.ArticleSectionsService!.getAllLayouts().subscribe((articleLayouts: any) => {
       this.articleLayouts = articleLayouts

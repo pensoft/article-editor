@@ -395,16 +395,29 @@ export class EditBeforeExportComponent implements AfterViewInit {
     let pdfSettings: any = this.fillSettings()
     let articleId = this.ydocService.articleData.uuid;
     //https://ps-article-storage.dev.scalewest.com/api/article/dfc43b3b-4700-4234-b398-bd9bec17db0d
-    let articleData = getYdocData(this.ydocService.ydoc);
+    //let articleData = getYdocData(this.ydocService.ydoc);
+    let articleData:any = {};
     articleData.pdfSettings = pdfSettings;
     articleData.headerPmNodesJson = headerPmNodesJson;
     articleData.footerPmNodesJson = footerPmNodesJson;
-    this.http.post('http://127.0.0.1:3003/article/create',articleData).subscribe((data)=>{
+    this.http.post('/proxy123',articleData).subscribe((data)=>{
       console.log('pdf',data);
       this.serviceShare.NotificationsService.newNotificationEvent({
         event:'A new pdf has been rendered. Click for view.',date:Date.now(),eventId:uuidv4(),
       })
     })
+    this.http.post('https://ps-article-editor.dev.scalewest.com/api/articles/items'+articleId+'/pdf/export',articleData).subscribe((data)=>{
+      console.log('pdf',data);
+      this.serviceShare.NotificationsService.newNotificationEvent({
+        event:'A new pdf has been rendered. Click for view.',date:Date.now(),eventId:uuidv4(),
+      })
+    })
+    /* this.http.post('http://127.0.0.1:3003/article/create',articleData).subscribe((data)=>{
+      console.log('pdf',data);
+      this.serviceShare.NotificationsService.newNotificationEvent({
+        event:'A new pdf has been rendered. Click for view.',date:Date.now(),eventId:uuidv4(),
+      })
+    }) */
     /* 'proxy/api/article/' */
     /* this.http.post('http://localhost:8080/api/article/'+articleId,{headerPmNodesJson,footerPmNodesJson,pdfSettings}).subscribe((articleData:any)=>{
     }) */

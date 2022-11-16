@@ -7,14 +7,21 @@ const PROXY_CONFIG = {
       autoRewrite: true,
       "ws": true,
     },
-    "/proxy/*": {
-      "target": "https://ps-article-storage.dev.scalewest.com/",
+    "/proxy-pdf-print/*/pdf/export": {
+      "target": "https://ps-article-editor.dev.scalewest.com/api/articles/items",
       "secure": false,
       "changeOrigin": true,
       "logLevel": "debug",
       "pathRewrite": {
-          "^/proxy": ""
+          "^/proxy-pdf-print/": ""
       }
+    },
+    "/proxy123": {
+      "target": "https://123.com/123/123",
+      "secure": false,
+      "changeOrigin": true,
+      "logLevel": "debug",
+      autoRewrite: true,
     },
     "/citation-style": {
       "target": "https://ps-article.dev.scalewest.com/",

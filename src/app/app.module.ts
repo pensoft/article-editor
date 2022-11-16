@@ -146,6 +146,7 @@ import { AddTableDialogComponent } from './editor/dialogs/citable-tables-dialog/
 import { CitableTableComponent } from './editor/dialogs/citable-tables-dialog/citable-table/citable-table.component';
 import { InsertTableComponent } from './editor/dialogs/citable-tables-dialog/insert-table/insert-table.component';
 import { JwtModule } from '@auth0/angular-jwt';
+import { NgxLaravelEchoModule } from 'ngx-laravel-echo';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -267,6 +268,14 @@ const gravatarConfig: GravatarConfig = {
     BrowserModule,
     MaterialModule,
     FormsModule,
+    NgxLaravelEchoModule.forRoot({
+      userModel: 'users',
+      notificationNamespace: 'App\\Notifications',
+      options: {
+        broadcaster: 'socket.io',
+        host: 'https://ps-event-dispatcher.dev.scalewest.com',
+      }
+    }),
     JwtModule.forRoot({
       config: {
         tokenGetter: function(){

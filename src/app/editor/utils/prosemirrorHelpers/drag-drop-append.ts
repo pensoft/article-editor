@@ -14,6 +14,9 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
     let dragDropCitation = false
     let dragDropTableCitation = false
     let dragDropComment = false
+
+    let rerenderingElements = false;
+
     transactions.forEach((transaction) => {
       //@ts-ignore
       let meta = transaction.meta
@@ -71,60 +74,67 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
           }
         }
       }
+      if(transaction.getMeta('citable-elements-rerender')){
+        rerenderingElements = true;
+      }
     })
 
     let tr = newState.tr;
     let changed = false;
-    stepsIndexes.forEach((range) => {
-      let fr = range.from;
-      let to = range.to;
-      newState.doc.nodesBetween(fr, to, (node, pos, parent, i) => {
-        if (node.type.name == 'reference_citation') {
-          let oldAttrs = JSON.parse(JSON.stringify(node.attrs))
-          oldAttrs.refCitationID = uuidv4();
-          tr = tr.setNodeMarkup(pos, node.type, oldAttrs)
-          changed = true
-        }
-        if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
-          let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
-          let newid = uuidv4()
-          let newMark = newState.schema.mark('citation', { ...citationMark.attrs, citateid: newid })
-          tr = tr.addMark(pos, pos + node.nodeSize, newMark)
-          changed = true
-        }
-        if (node.marks.filter((mark) => { return mark.type.name == 'table_citation' }).length > 0) {
-          let citationMark = node.marks.filter((mark) => { return mark.type.name == 'table_citation' })[0]
-          let newid = uuidv4()
-          let newMark = newState.schema.mark('table_citation', { ...citationMark.attrs, citateid: newid })
-          tr = tr.addMark(pos, pos + node.nodeSize, newMark)
-          changed = true
-        }
-        if (node.marks.filter((mark) => { return mark.type.name == 'comment' }).length > 0) {
-          let commentMark = node.marks.filter((mark) => { return mark.type.name == 'comment' })[0]
-          let newid = uuidv4()
-          let newMark = newState.schema.mark('comment', { ...commentMark.attrs, commentmarkid: newid })
-          tr = tr.addMark(pos, pos + node.nodeSize, newMark)
-          changed = true
-        }
+
+    if(!rerenderingElements){
+      stepsIndexes.forEach((range) => {
+        let fr = range.from;
+        let to = range.to;
+        newState.doc.nodesBetween(fr, to, (node, pos, parent, i) => {
+          if (node.type.name == 'reference_citation') {
+            let oldAttrs = JSON.parse(JSON.stringify(node.attrs))
+            oldAttrs.refCitationID = uuidv4();
+            tr = tr.setNodeMarkup(pos, node.type, oldAttrs)
+            changed = true
+          }
+          if (node.marks.filter((mark) => { return mark.type.name == 'citation' }).length > 0) {
+            let citationMark = node.marks.filter((mark) => { return mark.type.name == 'citation' })[0]
+            let newid = uuidv4()
+            let newMark = newState.schema.mark('citation', { ...citationMark.attrs, citateid: newid })
+            tr = tr.addMark(pos, pos + node.nodeSize, newMark)
+            changed = true
+          }
+          if (node.marks.filter((mark) => { return mark.type.name == 'table_citation' }).length > 0) {
+            let citationMark = node.marks.filter((mark) => { return mark.type.name == 'table_citation' })[0]
+            let newid = uuidv4()
+            let newMark = newState.schema.mark('table_citation', { ...citationMark.attrs, citateid: newid })
+            tr = tr.addMark(pos, pos + node.nodeSize, newMark)
+            changed = true
+          }
+          if (node.marks.filter((mark) => { return mark.type.name == 'comment' }).length > 0) {
+            let commentMark = node.marks.filter((mark) => { return mark.type.name == 'comment' })[0]
+            let newid = uuidv4()
+            let newMark = newState.schema.mark('comment', { ...commentMark.attrs, commentmarkid: newid })
+            tr = tr.addMark(pos, pos + node.nodeSize, newMark)
+            changed = true
+          }
+        })
       })
-    })
-    if (dragDropCitation) {
-      sharedService.YjsHistoryService.addUndoItemInformation({
-        type: 'figure-citation',
-        data: {}
-      })
-      setTimeout(() => {
-        sharedService.FiguresControllerService.updateOnlyFiguresView()
-      }, 20)
+      if (dragDropCitation) {
+        sharedService.YjsHistoryService.addUndoItemInformation({
+          type: 'figure-citation',
+          data: {}
+        })
+      }
+      if(dragDropTableCitation){
+        sharedService.YjsHistoryService.addUndoItemInformation({
+          type: 'table-citation',
+          data: {}
+        })
+      }
+      if(dragDropCitation||dragDropTableCitation){
+        setTimeout(() => {
+          //sharedService.FiguresControllerService.updateOnlyFiguresView()
+          //sharedService.CitableTablesService.updateOnlyTablesView()
+          sharedService.updateCitableElementsViews()
+        }, 20)
     }
-    if(dragDropTableCitation){
-      sharedService.YjsHistoryService.addUndoItemInformation({
-        type: 'figure-citation',
-        data: {}
-      })
-      setTimeout(() => {
-        sharedService.CitableTablesService.updateOnlyTablesView()
-      }, 20)
     }
     return changed ? tr : undefined
   }
@@ -136,6 +146,9 @@ export function handleDeleteOfRefsFigsCitationsAndComments(sharedService: Servic
     let deletedCommentsMarks:any[]=[]
     let deletingFigCitation = false
     let deletingTableCitation = false
+
+    let rerenderingElements = false;
+
     transactions.forEach((transaction) => {
       //@ts-ignore
       if (transaction.steps.length > 0 && (transaction.meta && transaction.meta.uiEvent != 'paste' && transaction.meta.uiEvent != 'drop')) {
@@ -161,43 +174,52 @@ export function handleDeleteOfRefsFigsCitationsAndComments(sharedService: Servic
             })
           }
         })
+        if(transaction.getMeta('citable-elements-rerender')){
+          rerenderingElements = true;
+        }
       }
     })
-    if (deletingFigCitation) {
-      setTimeout(()=>{
-        sharedService.YjsHistoryService.addUndoItemInformation({
-          type: 'figure-citation',
-          data: {}
-        })
-        setTimeout(() => {
-          sharedService.FiguresControllerService.updateOnlyFiguresView()
-        }, 20)
-      },10)
-    }
-    if(deletingTableCitation){
-      setTimeout(()=>{
-        sharedService.YjsHistoryService.addUndoItemInformation({
-          type: 'figure-citation',
-          data: {}
-        })
-        setTimeout(() => {
-          sharedService.CitableTablesService.updateOnlyTablesView();
-        }, 20)
-      },10)
-    }
-    if (deletedRefCitations.length > 0) {
-      setTimeout(()=>{
-        sharedService.YjsHistoryService.capturingNewItem = true
-        sharedService.EditorsRefsManagerService!.handleRefCitationDelete(deletedRefCitations)
+    if(!rerenderingElements){
+      let updateViews = ()=>{
+          setTimeout(() => {
+            //sharedService.FiguresControllerService.updateOnlyFiguresView()
+            //sharedService.CitableTablesService.updateOnlyTablesView();
+            sharedService.updateCitableElementsViews()
+          }, 20)
+      }
+      if (deletingFigCitation) {
         setTimeout(()=>{
-          sharedService.YjsHistoryService.stopCapturingUndoItem()
-        },20)
-      },10)
-    }
-    if(deletedCommentsMarks.length>0){
-      setTimeout(() => {
-        sharedService.CommentsService.handleDeletedComments(deletedCommentsMarks)
-      }, 10);
+          sharedService.YjsHistoryService.addUndoItemInformation({
+            type: 'figure-citation',
+            data: {}
+          })
+          updateViews()
+        },10)
+      }
+      if(deletingTableCitation){
+        setTimeout(()=>{
+          sharedService.YjsHistoryService.addUndoItemInformation({
+            type: 'table-citation',
+            data: {}
+          })
+          updateViews()
+        },10)
+      }
+
+      if (deletedRefCitations.length > 0) {
+        setTimeout(()=>{
+          sharedService.YjsHistoryService.capturingNewItem = true
+          sharedService.EditorsRefsManagerService!.handleRefCitationDelete(deletedRefCitations)
+          setTimeout(()=>{
+            sharedService.YjsHistoryService.stopCapturingUndoItem()
+          },20)
+        },10)
+      }
+      if(deletedCommentsMarks.length>0){
+        setTimeout(() => {
+          sharedService.CommentsService.handleDeletedComments(deletedCommentsMarks)
+        }, 10);
+      }
     }
     return undefined;
   }

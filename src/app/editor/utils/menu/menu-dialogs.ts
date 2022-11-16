@@ -140,7 +140,7 @@ export const insertFigure = new MenuItem({
     return true;
   },
   //@ts-ignore
-  enable(state) { return state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && ['figures_nodes_container', 'block_figure'].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
+  enable(state) { return state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'figures_nodes_container', 'block_figure' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
   icon: createCustomIcon('addfigure.svg', 18)
 })
 
@@ -166,7 +166,7 @@ export const insertTable = new MenuItem({
     return true;
   },
   //@ts-ignore
-  enable(state) { return state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && ['tables_nodes_container', 'block_table'].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
+  enable(state) { return state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'tables_nodes_container', 'block_table' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
   icon: createCustomIcon('citeTable.svg', 18,18,0,2,1.2)
 })
 

@@ -244,7 +244,8 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
               data: {}
             })
             setTimeout(()=>{
-              this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
+              this.serviceShare.updateCitableElementsViews()
+              //this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
             },10)
           }, 30)
 

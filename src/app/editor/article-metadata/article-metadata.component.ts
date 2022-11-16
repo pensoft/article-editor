@@ -109,9 +109,8 @@ export class ArticleMetadataComponent implements OnInit {
     this.ydocService.checkLastTimeUpdated()
   }
 
-  updateFigures(){
-    this.serviceShare.FiguresControllerService.updateFiguresAndFiguresCitations();
-  }
+  /* updateFigures(){
+  } */
 
   preventAddToHistory(){
     this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin? this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = null:this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = this.serviceShare.ProsemirrorEditorsService.ySyncKey

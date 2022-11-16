@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core';
 import { DEFAULT_CONFIG } from '@angular/flex-layout';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { environment } from '@env';
+import { EchoService } from 'ngx-laravel-echo';
 import { BehaviorSubject, ReplaySubject } from 'rxjs';
 import { map } from 'rxjs/operators';
 const EVENTSURL = environment.apiUrl + '/event-dispatcher'
@@ -48,8 +49,17 @@ export class NotificationsService {
 
   constructor(
     private ServiceShare:ServiceShare,
-    private http:HttpClient
+    private http:HttpClient,
+    private readonly echoService: EchoService,
     ) {
+    this.echoService.join('task_manager:tasks', 'public')
+                    .listen('task_manager:tasks', '.TaskCreatedEvent')
+                    .subscribe(data => console.log('TaskCreatedEvent',data))
+
+    this.echoService.join('task_manager:tasks', 'public')
+                    .listen('task_manager:tasks', '.TaskUpdateEvent')
+                    .subscribe(data => console.log('TaskUpdateEvent', data))
+
     ServiceShare.shareSelf('NotificationsService',this)
   }
 

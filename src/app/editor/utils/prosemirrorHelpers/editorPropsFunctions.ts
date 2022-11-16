@@ -84,17 +84,18 @@ export function handlePaste(mathMap: YMap<any>, sectionID: string,sharedService:
         type: 'figure-citation',
         data: {}
       })
-      setTimeout(()=>{
-        sharedService.FiguresControllerService.updateOnlyFiguresView();
-      },10)
     }
     if(newPastedTableCitation){
       sharedService.YjsHistoryService.addUndoItemInformation({
         type: 'figure-citation',
         data: {}
       })
+    }
+    if(newPastedCitation||newPastedTableCitation){
       setTimeout(()=>{
-        sharedService.CitableTablesService.updateOnlyTablesView();
+        //sharedService.FiguresControllerService.updateOnlyFiguresView();
+        //sharedService.CitableTablesService.updateOnlyTablesView();
+        sharedService.updateCitableElementsViews();
       },10)
     }
     return false

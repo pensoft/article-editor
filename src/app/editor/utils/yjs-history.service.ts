@@ -289,7 +289,7 @@ export class YjsHistoryService {
       } else {
         this.serviceShare.FiguresControllerService.writeFiguresDataGlobalV2(meta.data.newData.articleCitatsObj, meta.data.newData.ArticleFiguresNumbers, meta.data.newData.ArticleFigures)
       }
-    } else if (meta.type == 'citable-teble'){
+    } else if (meta.type == 'table'){
       if (action == 'undo') {
         this.serviceShare.CitableTablesService.writeTablesDataGlobalV2(meta.data.oldData.tableCitatsObj, meta.data.oldData.ArticleTablesNumbers, meta.data.oldData.ArticleTables)
       } else {
@@ -297,15 +297,13 @@ export class YjsHistoryService {
       }
     }else if (meta.type == 'figure-citation') {
       setTimeout(()=>{
-        this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
+        this.serviceShare.updateCitableElementsViews()
+        //this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
       },10)
     }else if(meta.type =='table-citation'){
       setTimeout(()=>{
-        this.serviceShare.CitableTablesService.updateOnlyTablesView()
-      },10)
-    } else if(meta.type == 'figure-citation-and-text'){
-      setTimeout(()=>{
-        this.serviceShare.FiguresControllerService.updateFiguresAndFiguresCitations()
+        this.serviceShare.updateCitableElementsViews()
+        //this.serviceShare.CitableTablesService.updateOnlyTablesView()
       },10)
     }else if (meta.type == 'refs-yjs') {
       /* let refsToReturn = action == 'undo' ? meta.data.oldRefs : meta.data.newRefs;
@@ -450,7 +448,7 @@ export class YjsHistoryService {
 
   }
 
-  addUndoItemInformation(info: { type: 'refs-yjs-delete'|'figure'|'citable-teble'|'table-citation' | 'refs-yjs' | 'figure-citation' | 'section-drag-drop'|'figure-citation-and-text', data: any ,addnewItem?:true}) {
+  addUndoItemInformation(info: { type: 'refs-yjs-delete'|'figure'|'table'|'table-citation' | 'refs-yjs' | 'figure-citation' | 'section-drag-drop', data: any ,addnewItem?:true}) {
     if(this.preventingCaptureOfBigNumberOfTransactions&&info.type == 'refs-yjs-delete'){
       return;
     }

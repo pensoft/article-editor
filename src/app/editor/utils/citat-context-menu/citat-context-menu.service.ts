@@ -307,7 +307,8 @@ export class CitatContextMenuService {
                   })
                   view.dispatch(view.state.tr.replaceWith(start,end,Fragment.empty))
                   setTimeout(()=>{
-                    serviceShare.FiguresControllerService.updateOnlyFiguresView()
+                    //serviceShare.FiguresControllerService.updateOnlyFiguresView()
+                    serviceShare.updateCitableElementsViews()
                   },10)
                 }
               }else if(pluginState.sectionName == sectionID && deleteData.type == 'table'){
@@ -326,7 +327,8 @@ export class CitatContextMenuService {
                   })
                   view.dispatch(view.state.tr.replaceWith(start,end,Fragment.empty))
                   setTimeout(()=>{
-                    serviceShare.CitableTablesService.updateOnlyTablesView()
+                    //serviceShare.CitableTablesService.updateOnlyTablesView()
+                    serviceShare.updateCitableElementsViews()
                   },10)
                 }
               }
