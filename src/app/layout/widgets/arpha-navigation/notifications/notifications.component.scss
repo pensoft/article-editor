@@ -2,6 +2,13 @@
   vertical-align: middle;
   cursor: pointer;
 }
+
+::ng-deep .notifications-toolbar-table{
+  margin: 0;
+  width: 100%;
+  border: none;
+  box-shadow: none;
+}
 .abs-cont{
   position: absolute;
   transform: translate(-380px, 20px);
@@ -20,7 +27,6 @@
     width: 100%;
     word-wrap: break-word;
     white-space: normal;
-    border-bottom: 1px solid #04949794;
     cursor: pointer;
   }
   .view-all-btn {

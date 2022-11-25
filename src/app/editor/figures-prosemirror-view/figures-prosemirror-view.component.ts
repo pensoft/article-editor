@@ -1,7 +1,6 @@
 import { AfterViewInit, Component, ElementRef, Input, OnInit, ViewChild } from '@angular/core';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
-import { FiguresControllerService } from '../services/figures-controller.service';
 import { editorContainer, ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
 import { YdocService } from '../services/ydoc.service';
 import { figure } from '../utils/interfaces/figureComponent';
@@ -19,7 +18,6 @@ export class FiguresProsemirrorViewComponent implements AfterViewInit {
 
   constructor(
     private prosemirrEditorsService:ProsemirrorEditorsService,
-    private figuresControllerService:FiguresControllerService,
     private ydocService:YdocService
     ) {}
 
@@ -41,8 +39,7 @@ export class FiguresProsemirrorViewComponent implements AfterViewInit {
   }
 
   renderEndEditor = ()=>{
-      this.endEditorContainer = this.prosemirrEditorsService.renderDocumentEndEditor(this.ProsemirrorEditor?.nativeElement,this.figures);
-      this.figuresControllerService.endEditorContainer = this.endEditorContainer
+    this.endEditorContainer = this.prosemirrEditorsService.renderDocumentEndEditor(this.ProsemirrorEditor?.nativeElement,this.figures);
   }
 
 }

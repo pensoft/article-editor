@@ -197,15 +197,14 @@ export class ProsemirrorEditorsService {
 
   }
 
-  preservedScrollPosition: number = 0;
-  saveScrollPosition() {
+  getScrollPosition() {
     let articleProsemirrorsContainer = document.getElementById('app-article-element');
-    this.preservedScrollPosition = articleProsemirrorsContainer!.scrollTop!;
+    return articleProsemirrorsContainer!.scrollTop!;
   }
 
-  applyLastScrollPosition() {
+  applyLastScrollPosition(scrollPos:number) {
     let articleProsemirrorsContainer = document.getElementById('app-article-element');
-    articleProsemirrorsContainer!.scrollTop = this.preservedScrollPosition;
+    articleProsemirrorsContainer!.scrollTop = scrollPos;
   }
 
   collab(config: any = {}) {
@@ -944,6 +943,9 @@ export class ProsemirrorEditorsService {
     } else {
       doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, nodesArray.content))
     }
+    if(options.rawNodeContent){
+      doc = schema.nodes.doc.create({},nodesArray.content);
+    }
     let menuContainerClass = "popup-menu-container";
 
     container.setAttribute('class', 'editor-container');
@@ -966,7 +968,12 @@ export class ProsemirrorEditorsService {
       },
       appendTransaction: (trs: Transaction[], oldState: EditorState, newState: EditorState) => {
         let containerElement = document.createElement('div');
-        let htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(newState.doc.content.firstChild!.content)
+        let htmlNOdeRepresentation
+        if(options.rawNodeContent){
+          htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(newState.doc.content)
+        }else{
+          htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(newState.doc.content.firstChild!.content)
+        }
         containerElement.appendChild(htmlNOdeRepresentation);
         options.onChange(true, containerElement.innerHTML)
         return newState.tr

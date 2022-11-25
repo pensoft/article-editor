@@ -29,7 +29,6 @@ import {FormArrayNameDirective} from "../directives/form-array-name.directive";
 import {FormBuilderService} from '../services/form-builder.service';
 import {YdocService} from '../services/ydoc.service';
 import {YMap} from 'yjs/dist/src/internals';
-import {FiguresControllerService} from '../services/figures-controller.service';
 import {DetectFocusService} from '../utils/detectFocusPlugin/detect-focus.service';
 //@ts-ignore
 import {updateYFragment} from '../../y-prosemirror-src/plugins/sync-plugin.js';
@@ -102,7 +101,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     public detectFocusService: DetectFocusService,
     public helperService: HelperService,
     private serviceShare:ServiceShare,
-    private figuresControllerService: FiguresControllerService) {
+    ) {
 
     /* if(this.formControlService.popUpSectionConteiners[this.section.sectionID]){
       this.popUpContainer = this.formControlService.popUpSectionConteiners[this.section.sectionID]

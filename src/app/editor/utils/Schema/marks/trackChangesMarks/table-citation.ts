@@ -5,21 +5,21 @@ const table_citation = {
   inline: true,
   inclusive: false,
   attrs: {
-      citated_tables: { default: [] },
-      nonexistingtable:{ default:'false' },
+      citated_elements: { default: [] },
+      nonexistingelement:{ default:'false' },
       citateid: { default: '' },
       last_time_updated: { default: '' },
-      tables_display_view: { default: [] },
+      elements_display_view: { default: [] },
       ...getGenericAttributes(),
   },
   parseDOM: [{
       tag: "table-citation", getAttrs(dom: HTMLElement) {
           let attrs = {
-              citated_tables: dom.getAttribute('citated_tables')!.split(','),
+            citated_elements: dom.getAttribute('citated_elements')!.split(','),
               citateid: dom.getAttribute('citateid'),
-              nonexistingTable: dom.getAttribute('nonexistingtable'),
+              nonexistingelement: dom.getAttribute('nonexistingelement'),
               last_time_updated: dom.getAttribute('last_time_updated'),
-              tables_display_view: dom.getAttribute('tables_display_view')!.split(','),
+              elements_display_view: dom.getAttribute('elements_display_view')!.split(','),
               ...parseGenericAttributes(dom)
           }
           attrs.contenteditableNode = 'false';
@@ -29,11 +29,11 @@ const table_citation = {
   toDOM(node: any) {
       node.attrs.contenteditableNode = 'false';
       return ["table-citation", {
-          "citated_tables": node.attrs.citated_tables.join(','),
+          "citated_elements": node.attrs.citated_elements.join(','),
           "citateid": node.attrs.citateid,
-          "nonexistingtable": node.attrs.nonexistingtable,
+          "nonexistingelement": node.attrs.nonexistingelement,
           "last_time_updated": node.attrs.last_time_updated,
-          "tables_display_view": node.attrs.tables_display_view.join(','),
+          "elements_display_view": node.attrs.elements_display_view.join(','),
           ...genericAttributtesToDom(node)
       }]
   }

@@ -7,7 +7,6 @@ import { ArticleDataViewComponent } from '../dialogs/article-data-view/article-d
 import { ChooseSectionComponent } from '../dialogs/choose-section/choose-section.component';
 import { FiguresDialogComponent } from '../dialogs/figures-dialog/figures-dialog.component';
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
-import { FiguresControllerService } from '../services/figures-controller.service';
 import { ServiceShare } from '../services/service-share.service';
 import { YdocService } from '../services/ydoc.service';
 import print from 'print-js'
@@ -34,7 +33,6 @@ export class ArticleMetadataComponent implements OnInit {
     public dialog: MatDialog,
     private http: HttpClient,
     private sectionsService: ArticleSectionsService,
-    private figuresControllerService: FiguresControllerService,
     private ydocService: YdocService,
     public enforcer: EnforcerService,
     private serviceShare: ServiceShare,
@@ -97,12 +95,11 @@ export class ArticleMetadataComponent implements OnInit {
   }
 
   resetCitatsObj() {
-    let articleCitatsObj = this.ydocService.figuresMap?.get('articleCitatsObj');
+    /* let articleCitatsObj = this.ydocService.figuresMap?.get('articleCitatsObj');
     Object.keys(articleCitatsObj).forEach((sectionId) => {
       articleCitatsObj[sectionId] = {}
     })
-    this.ydocService.figuresMap?.set('articleCitatsObj', articleCitatsObj);
-    this.figuresControllerService.markCitatsViews(articleCitatsObj);
+    this.ydocService.figuresMap?.set('articleCitatsObj', articleCitatsObj); */
   }
 
   logData() {

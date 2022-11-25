@@ -17,6 +17,7 @@ import { AnyTxtRecord } from 'dns';
 import { EditorView } from 'prosemirror-view';
 interface undoServiceItem {
   editors: string[],
+  scrollpositions:number[],
   undoItemMeta?: any,
   finished?: true,
   startSel?:{from:number,to:number},
@@ -135,15 +136,22 @@ export class YjsHistoryService {
   }
 
   createNewUndoStackItem() {
-    this.undoStack.unshift({ editors: [] })
+    this.undoStack.unshift({ editors: [],scrollpositions:[] })
+    this.redoStack = []
+    this.clearRedoStacks()
   }
 
   computeHistoryChange(changeMeta: any,item:any,itemWithMeta:any) {
-    if (changeMeta.addNewUndoItem && !(this.capturingNewItem && this.undoStack.length > 0 && !this.undoStack[0].finished)/*&&  !(this.undoStack.length>0&&this.undoStack[0].undoItemMeta&&this.undoStack[0].editors.length == 0&&!this.undoStack[0].finished)  */) {
+    if(changeMeta.addToLastUndoItem && this.undoStack.length == 0){
+      this.createNewUndoStackItem()
+    }
+    if ((changeMeta.addNewUndoItem&&!this.capturingBigOperation ) && !(this.capturingNewItem && this.undoStack.length > 0 && !this.undoStack[0].finished)/*&&  !(this.undoStack.length>0&&this.undoStack[0].undoItemMeta&&this.undoStack[0].editors.length == 0&&!this.undoStack[0].finished)  */) {
 
         this.createNewUndoStackItem()
 
         this.undoStack[0].editors.unshift(changeMeta.sectionId);
+        let articaleScrollPos = this.serviceShare.ProsemirrorEditorsService.getScrollPosition();
+        this.undoStack[0].scrollpositions.unshift(articaleScrollPos);
         if(this.undoStack.length>1&&this.undoStack[0].editors[0]&&this.undoStack[1].editors[0]&&this.undoStack[0].editors[0]==this.undoStack[1].editors[0]){
           Object.keys(this.mainProsemirrorUndoManagers).forEach((sectionId)=>{
             if(sectionId!==changeMeta.sectionId){
@@ -152,15 +160,15 @@ export class YjsHistoryService {
           })
         }
 
-        this.redoStack = []
-        this.clearRedoStacks()
     } else if (changeMeta.addToLastUndoItem || (this.capturingNewItem && this.undoStack.length > 0 && !this.undoStack[0].finished)) {
       if(!this.undoStack[0].editors.find((val)=>changeMeta.sectionId == val)){
+
         this.undoStack[0].editors.unshift(changeMeta.sectionId);
+        let articaleScrollPos = this.serviceShare.ProsemirrorEditorsService.getScrollPosition();
+        this.undoStack[0].scrollpositions.unshift(articaleScrollPos);
       }
-      this.clearRedoStacks()
     }
-    if(changeMeta.addNewUndoItem||changeMeta.addToLastUndoItem){
+    /* if(changeMeta.addNewUndoItem||changeMeta.addToLastUndoItem){
       let editorSel = this.serviceShare.ProsemirrorEditorsService.getEditorSelection(changeMeta.sectionId)
         if(changeMeta.addNewUndoItem){
           let sel = this.calcSel(item,editorSel)
@@ -169,7 +177,7 @@ export class YjsHistoryService {
         }else if (changeMeta.addToLastUndoItem){
           this.undoStack[0].endSel = editorSel
         }
-    }
+    } */
   }
 
   clearRedoStacks() {
@@ -285,17 +293,17 @@ export class YjsHistoryService {
   undoComplexItem(meta: any, action: 'undo' | 'redo') {
     if (meta.type == 'figure') {
       if (action == 'undo') {
-        this.serviceShare.FiguresControllerService.writeFiguresDataGlobalV2(meta.data.oldData.articleCitatsObj, meta.data.oldData.ArticleFiguresNumbers, meta.data.oldData.ArticleFigures)
+        this.serviceShare.CitableElementsService.writeElementDataGlobalV2(meta.data.oldData.cites, meta.data.oldData.elementNumbers, meta.data.oldData.elements,'citation')
       } else {
-        this.serviceShare.FiguresControllerService.writeFiguresDataGlobalV2(meta.data.newData.articleCitatsObj, meta.data.newData.ArticleFiguresNumbers, meta.data.newData.ArticleFigures)
+        this.serviceShare.CitableElementsService.writeElementDataGlobalV2(meta.data.newData.cites, meta.data.newData.elementNumbers, meta.data.newData.elements,'citation')
       }
     } else if (meta.type == 'table'){
       if (action == 'undo') {
-        this.serviceShare.CitableTablesService.writeTablesDataGlobalV2(meta.data.oldData.tableCitatsObj, meta.data.oldData.ArticleTablesNumbers, meta.data.oldData.ArticleTables)
+        this.serviceShare.CitableElementsService.writeElementDataGlobalV2(meta.data.oldData.cites, meta.data.oldData.elementNumbers, meta.data.oldData.elements,'table_citation')
       } else {
-        this.serviceShare.CitableTablesService.writeTablesDataGlobalV2(meta.data.newData.tableCitatsObj, meta.data.newData.ArticleTablesNumbers, meta.data.newData.ArticleTables)
+        this.serviceShare.CitableElementsService.writeElementDataGlobalV2(meta.data.newData.cites, meta.data.newData.elementNumbers, meta.data.newData.elements,'table_citation')
       }
-    }else if (meta.type == 'figure-citation') {
+    }else /* if (meta.type == 'figure-citation') {
       setTimeout(()=>{
         this.serviceShare.updateCitableElementsViews()
         //this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
@@ -305,7 +313,7 @@ export class YjsHistoryService {
         this.serviceShare.updateCitableElementsViews()
         //this.serviceShare.CitableTablesService.updateOnlyTablesView()
       },10)
-    }else if (meta.type == 'refs-yjs') {
+    }else if */ if(meta.type == 'refs-yjs') {
       /* let refsToReturn = action == 'undo' ? meta.data.oldRefs : meta.data.newRefs;
       this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsToReturn)
       let refs = Object.values(refsToReturn);
@@ -356,20 +364,23 @@ export class YjsHistoryService {
   undo = (state: EditorState) => {
     this.stopCapturingUndoItem()
     let undoitem = this.undoStack.shift();
-    let redoItem: undoServiceItem = { editors: [], finished: true,startSel:undoitem.startSel,endSel:undoitem.endSel }
+    let redoItem: undoServiceItem = { editors: [], finished: true,startSel:undoitem.startSel,endSel:undoitem.endSel ,scrollpositions:[]}
     if (undoitem.undoItemMeta) {
       redoItem.undoItemMeta = undoitem.undoItemMeta
       this.undoComplexItem(undoitem.undoItemMeta, 'undo');
     }
-    undoitem.editors.forEach((editor) => {
-
+    undoitem.editors.forEach((editor,i) => {
       this.mainProsemirrorUndoManagers[editor].undo();
-      redoItem.editors.unshift(editor)
+      redoItem.editors.unshift(editor);
+      redoItem.scrollpositions.unshift(undoitem.scrollpositions[i]);
+      if(i == undoitem.editors.length-1){
+        this.serviceShare.ProsemirrorEditorsService.applyLastScrollPosition(undoitem.scrollpositions[i]);
+      }
     })
     this.redoStack.unshift(redoItem);
     if (redoItem.editors[0] != 'endEditor'&&redoItem.editors[0]) {
-      this.serviceShare.ProsemirrorEditorsService!.scrollMainEditorIntoView(redoItem.editors[0])
-      this.serviceShare.ProsemirrorEditorsService.changeSelectionOfEditorAndFocus(redoItem.editors[0],redoItem.startSel)
+      //this.serviceShare.ProsemirrorEditorsService!.scrollMainEditorIntoView(redoItem.editors[0])
+     //this.serviceShare.ProsemirrorEditorsService.changeSelectionOfEditorAndFocus(redoItem.editors[0],redoItem.startSel)
     }
     this.serviceShare.ProsemirrorEditorsService!.dispatchEmptyTransaction()
     /* const undoManager = this.YjsHistoryKey.getState(state).undoManager
@@ -387,19 +398,23 @@ export class YjsHistoryService {
 
   redo = (state: EditorState) => {
     let redoItem = this.redoStack.shift();
-    let undoItem: undoServiceItem = { editors: [], finished: true,startSel:redoItem.startSel,endSel:redoItem.endSel }
+    let undoItem: undoServiceItem = { editors: [], finished: true,startSel:redoItem.startSel,endSel:redoItem.endSel ,scrollpositions:[]}
     if (redoItem.undoItemMeta) {
       undoItem.undoItemMeta = redoItem.undoItemMeta
       this.undoComplexItem(redoItem.undoItemMeta, 'redo');
     }
-    redoItem.editors.forEach((editor) => {
+    redoItem.editors.forEach((editor,i) => {
       this.mainProsemirrorUndoManagers[editor].redo();
       undoItem.editors.unshift(editor)
+      undoItem.scrollpositions.unshift(redoItem.scrollpositions[i]);
+      if(i == redoItem.editors.length-1){
+        this.serviceShare.ProsemirrorEditorsService.applyLastScrollPosition(redoItem.scrollpositions[i]);
+      }
     })
     this.undoStack.unshift(undoItem);
     if (undoItem.editors[0] != 'endEditor'&&undoItem.editors[0]) {
-      this.serviceShare.ProsemirrorEditorsService!.scrollMainEditorIntoView(undoItem.editors[0])
-      this.serviceShare.ProsemirrorEditorsService.changeSelectionOfEditorAndFocus(undoItem.editors[0],redoItem.endSel)
+      //this.serviceShare.ProsemirrorEditorsService!.scrollMainEditorIntoView(undoItem.editors[0])
+      //this.serviceShare.ProsemirrorEditorsService.changeSelectionOfEditorAndFocus(undoItem.editors[0],redoItem.endSel)
     }
     this.serviceShare.ProsemirrorEditorsService!.dispatchEmptyTransaction()
 
@@ -476,6 +491,18 @@ export class YjsHistoryService {
         undoManager.captureNewStackItem()
       })
 
+    }
+  }
+
+  capturingBigOperation = false;
+  captureBigOperation(){
+    this.capturingBigOperation = true;
+  }
+
+  endBigOperationCapture(){
+    this.capturingBigOperation = false;
+    if(this.undoStack[0]){
+      this.undoStack[0].finished;
     }
   }
 

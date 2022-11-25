@@ -7,8 +7,8 @@ const PROXY_CONFIG = {
       autoRewrite: true,
       "ws": true,
     },
-    "/proxy-pdf-print/*/pdf/export": {
-      "target": "https://ps-article-editor.dev.scalewest.com/api/articles/items",
+    "/proxy-pdf-print/*": {
+      "target": "https://ps-api.dev.scalewest.com/api/articles/items/",
       "secure": false,
       "changeOrigin": true,
       "logLevel": "debug",
@@ -17,7 +17,7 @@ const PROXY_CONFIG = {
       }
     },
     "/proxy123": {
-      "target": "https://123.com/123/123",
+      "target": "https://proxy.path.com/",
       "secure": false,
       "changeOrigin": true,
       "logLevel": "debug",

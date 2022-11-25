@@ -1,6 +1,7 @@
 export interface citableTable {
-  "components":string,
-  "description":string,
+  "content":string,
+  "footer":string,
+  "header":string,
   "tableID":string,
   "tableNumber":number,
   "tablePlace":string,

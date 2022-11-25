@@ -10,23 +10,24 @@ citation {
   white-space: pre;
 }
 
-table-descriptions-container{
-  border: 1px solid #E2E2DD;
+block-table {
+  border: 1px solid #e2e2dd;
   display: block;
   margin-top: 10px;
   padding: 5px;
   border-radius: 5px;
-  background-color: #FAFAF8;
+  background-color: #fafaf8;
   margin-right: 4px;
   margin-left: 4px;
 }
 
-table-content{
-  border: 1px solid #E2E2DD;
-    display: block;
-    padding: 5px;
-    border-radius: 5px;
-    margin-top: 2px;
+table-content {
+  border: 1px solid #e2e2dd;
+  display: block;
+  padding: 5px;
+  border-radius: 5px;
+  background: white;
+  margin-top: 2px;
 }
 
 table-citation {
@@ -34,7 +35,7 @@ table-citation {
   white-space: pre;
 }
 
-.normal-btn-cancel-graystyle{
+.normal-btn-cancel-graystyle {
   margin-right: 15px;
   background-color: white;
   border: 1px solid #979797;
@@ -51,7 +52,7 @@ table-citation {
   background-color: rgb(243, 242, 242);
 }
 
-.normal-btn-done-greenstyle:hover{
+.normal-btn-done-greenstyle:hover {
   background-color: rgb(243, 242, 242);
 }
 .normal-btn-done-greenstyle {
@@ -129,7 +130,7 @@ td {
         $any-child-in-the-last-row: ":nth-last-child(-n + 2)";
         $first-child-in-last-row: "&#{$any-child-in-the-last-row}";
         #{$first-child-in-last-row},
-        #{$first-child-in-last-row}~& {
+        #{$first-child-in-last-row} ~ & {
           border-bottom-right-radius: 0px;
           border-bottom-left-radius: 0px;
         }
@@ -181,7 +182,7 @@ block-figure {
       $any-child-in-the-last-row: ":nth-last-child(-n + 2)";
       $first-child-in-last-row: "&#{$any-child-in-the-last-row}";
       #{$first-child-in-last-row},
-      #{$first-child-in-last-row}~& {
+      #{$first-child-in-last-row} ~ & {
         border-bottom-right-radius: 0px;
         border-bottom-left-radius: 0px;
       }
@@ -211,8 +212,8 @@ p {
   background: color(attr(data-color));
 }
 
-.form-field-inline-view {}
-
+.form-field-inline-view {
+}
 
 /* .ins-from-popup{
   color: black;
@@ -242,11 +243,10 @@ form-field[invalid="true"] {
 }
 
 .ProseMirror__placeholder {
-  &+p {
+  & + p {
     min-width: 100px;
   }
 }
-
 
 /* .selected-format-change,
 .selected-block-change {
@@ -263,7 +263,6 @@ form-field[invalid="true"] {
   word-break: break-all !important;
 }
 
-
 /* app-edit-section-dialog {
   .insertion{
     .show-insertion{
@@ -277,7 +276,6 @@ form-field[invalid="true"] {
     display: none;
   }
 } */
-
 
 /* app-article:not(.display-changes-hover) .insertion{
   .show-insertion{
@@ -324,7 +322,7 @@ table-citation[nonexistingtable="true"] {
   padding: 1em;
   width: 100%;
   height: 100%;
-  overflow-y: hidden
+  overflow-y: hidden;
 }
 
 .reference-citation-pm-buttons {
@@ -364,7 +362,7 @@ reference-citation {
   display: none;
 }
 
-*:hover>.ychange-hover {
+*:hover > .ychange-hover {
   display: inline;
   position: absolute;
   top: -14px;
@@ -474,7 +472,6 @@ p[ychange_type="added"] {
   background: #b2e6bd;
 }
 
-
 /*
 p[ychange_type='removed'] > span > br {
   display: none;
@@ -496,7 +493,6 @@ img[ychange_type="removed"] {
   background-color: #ffd0d0;
   text-decoration: line-through black;
 }
-
 
 /* .del-from-popup{
   color: black;
@@ -551,7 +547,7 @@ img[ychange_type="removed"] {
 }
 
 .mt65px {
-  margin-top: 65px!important;
+  margin-top: 65px !important;
 }
 
 .mt50px {
@@ -604,8 +600,8 @@ img[ychange_type="removed"] {
 }
 
 .p0 {
-  padding: 0!important;
-  margin: 0!important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 
 .bold {
@@ -686,7 +682,7 @@ img[ychange_type="removed"] {
 }
 
 .text-primary-blue {
-  color: $light-blue!important;
+  color: $light-blue !important;
 }
 
 .text-primary {
@@ -699,8 +695,8 @@ img[ychange_type="removed"] {
 
 .text14px-primary {
   color: $primary-green;
-  font-size: 14px!important;
-  font-weight: normal!important;
+  font-size: 14px !important;
+  font-weight: normal !important;
 }
 
 .text14px-primary-dark-blue {
@@ -712,18 +708,18 @@ img[ychange_type="removed"] {
   background-color: transparent !important;
 }
 
-.comment-edit-dialog{
+.comment-edit-dialog {
   overflow: visible !important;
-  mat-dialog-container{
+  mat-dialog-container {
     overflow: visible !important;
   }
 }
 
-.disabled-ok-btn{
+.disabled-ok-btn {
   background-color: #dfdfdfcc;
   border-color: #017274;
   color: #017173;
-  cursor:not-allowed;
+  cursor: not-allowed;
 }
 
 /* .mat-form-field.mat-focused {
@@ -734,7 +730,6 @@ img[ychange_type="removed"] {
 .math-node .math-render {
   font-size: inherit !important;
 }
-
 
 /* math-inline {
   display: inline !important;
@@ -777,7 +772,6 @@ insert-image-dialog {
   }
 }
 
-
 /* form-field {
   min-height: 20px;
   display: block;
@@ -810,7 +804,6 @@ insert-image-dialog {
   }
 }
 
-
 /* [data-track] {
   position: relative;
 }
@@ -826,7 +819,6 @@ insert-image-dialog {
 .selected-deletion {
   background: indianred;
 }
-
 
 /* .selected-format-change,
 .selected-block-change {
@@ -978,7 +970,7 @@ li.commentText {
   margin: 0;
 }
 
-li.commentText+li.commentText {
+li.commentText + li.commentText {
   border-top: 1px solid silver;
 }
 
@@ -1025,7 +1017,7 @@ li.commentText+li.commentText {
   overflow-y: auto;
 }
 
-.ProseMirror>.ProseMirror-yjs-cursor:first-child {
+.ProseMirror > .ProseMirror-yjs-cursor:first-child {
   margin-top: 16px;
 }
 
@@ -1040,7 +1032,7 @@ li.commentText+li.commentText {
   pointer-events: none;
 }
 
-.ProseMirror-yjs-cursor>span {
+.ProseMirror-yjs-cursor > span {
   position: absolute;
   top: -1.05em;
   left: -1px;
@@ -1064,7 +1056,6 @@ reference-citation-end {
   background-color: #ebe5e5;
 }
 
-
 #y-functions {
   position: absolute;
   top: 20px;
@@ -1084,7 +1075,7 @@ placeholder:after {
   font-weight: bold;
 }
 
-#y-functions>* {
+#y-functions > * {
   display: inline-block;
 }
 
@@ -1377,8 +1368,8 @@ router-outlet {
 #avatar {
   app-avatar img {
     outline: 2px solid $primary-green;
-    width: 80px!important;
-    height: 80px!important;
+    width: 80px !important;
+    height: 80px !important;
   }
 }
 

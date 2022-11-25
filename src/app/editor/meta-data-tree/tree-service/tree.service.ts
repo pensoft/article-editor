@@ -105,6 +105,7 @@ export class TreeService implements OnDestroy {
         this.labelupdateLocalMeta[node.sectionID] = { time: 0, updatedFrom: 'treelist' }
       }
       formGroup.get('sectionTreeTitle')?.valueChanges.subscribe((change) => {
+        console.log('change',change);
         //@ts-ignore
         let updatemeta = this.sectionFormGroups[node.sectionID]!.titleUpdateMeta as { time: number, updatedFrom: string };
         let value = formGroup.get('sectionTreeTitle')?.value.trim()

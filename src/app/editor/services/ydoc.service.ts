@@ -59,6 +59,7 @@ export class YdocService {
   comments?: YMap<any>
   creatingANewArticle = false
   figuresMap?: YMap<any>
+  citableElementsMap?:YMap<any>
   tablesMap?: YMap<any>
   trackChangesMetadata?: YMap<any>
   usersDataMap?: YMap<any>
@@ -208,6 +209,7 @@ export class YdocService {
 
   buildEditor() {
     this.sectionFormGroupsStructures = this.ydoc.getMap('sectionFormGroupsStructures');
+    this.citableElementsMap = this.ydoc.getMap('citableElementsMap');
     this.figuresMap = this.ydoc.getMap('ArticleFiguresMap');
     this.tablesMap = this.ydoc.getMap('ArticleTablesMap');
     this.provider?.awareness.setLocalStateField('userInfo', this.userInfo);
@@ -230,6 +232,11 @@ export class YdocService {
     let externalRefs = this.referenceCitationsMap?.get('externalRefs');
     let localRefs = this.referenceCitationsMap?.get('localRefs');
     let customPropsObj = this.customSectionProps?.get('customPropsObj');
+    let elementsCitations = this.citableElementsMap?.get('elementsCitations');
+
+    if(!elementsCitations){
+      this.citableElementsMap.set('elementsCitations',{})
+    }
     if (!customPropsObj) {
       this.customSectionProps?.set('customPropsObj', {})
     }

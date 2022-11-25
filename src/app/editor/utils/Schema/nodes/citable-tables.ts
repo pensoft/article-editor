@@ -61,23 +61,45 @@ export const block_table = {
   }
 }
 
-export const table_description_container = {
+export const table_header_container = {
   group: 'block',
-  content: "block+",
+  content: "table_description+",
   isolating: true,
   inline: false,
   attrs: {
     ...getGenericAttributes(),
   },
   parseDOM: [{
-    tag: "table-descriptions-container", getAttrs(dom: any) {
+    tag: "table-header-container", getAttrs(dom: any) {
       return {
         ...parseGenericAttributes(dom)
       }
     }
   }],
   toDOM(node: Node) {
-    return ["table-descriptions-container", {
+    return ["table-header-container", {
+      ...genericAttributtesToDom(node)
+    }, 0]
+  }
+}
+
+export const table_footer_container = {
+  group: 'block',
+  content: "table_description+",
+  isolating: true,
+  inline: false,
+  attrs: {
+    ...getGenericAttributes(),
+  },
+  parseDOM: [{
+    tag: "table-footer-container", getAttrs(dom: any) {
+      return {
+        ...parseGenericAttributes(dom)
+      }
+    }
+  }],
+  toDOM(node: Node) {
+    return ["table-footer-container", {
       ...genericAttributtesToDom(node)
     }, 0]
   }
@@ -85,7 +107,7 @@ export const table_description_container = {
 
 export const table_description = {
   content: "block+",
-  group: "block",
+  group: "paragraph",
   isolating: true,
   inline: false,
   attrs: {
@@ -108,8 +130,33 @@ export const table_description = {
   }
 }
 
+export const table_container = {
+  content: "table*",
+  group: "block",
+  isolating: true,
+  inline: false,
+  attrs: {
+    ...getGenericAttributes()
+  },
+  parseDOM: [{
+    tag: "table-container", getAttrs(dom: any) {
+      return {
+        ...parseGenericAttributes(dom),
+      }
+    },
+  }],
+  toDOM(node: any) {
+    let attributesToDom: any = {
+      ...genericAttributtesToDom(node),
+      style: 'display:block;'
+
+    }
+    return ["table-container", attributesToDom, 0];
+  }
+}
+
 export const table_content = {
-  content: "block+",
+  content: "table_container",
   group: "block",
   isolating: true,
   inline: false,
@@ -188,9 +235,11 @@ export const table_content = {
 export const tableNodes = {
   tables_nodes_container,
   block_table,
-  table_description_container,
+  table_header_container,
+  table_footer_container,
   table_description,
   table_content,
+  table_container,
 }
 
 /* export const table_description = {

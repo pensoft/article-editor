@@ -116,7 +116,7 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
           }
         })
       })
-      if (dragDropCitation) {
+      /* if (dragDropCitation) {
         sharedService.YjsHistoryService.addUndoItemInformation({
           type: 'figure-citation',
           data: {}
@@ -127,7 +127,7 @@ export let changeNodesOnDragDrop = (sharedService: ServiceShare) => {
           type: 'table-citation',
           data: {}
         })
-      }
+      } */
       if(dragDropCitation||dragDropTableCitation){
         setTimeout(() => {
           //sharedService.FiguresControllerService.updateOnlyFiguresView()
@@ -189,19 +189,19 @@ export function handleDeleteOfRefsFigsCitationsAndComments(sharedService: Servic
       }
       if (deletingFigCitation) {
         setTimeout(()=>{
-          sharedService.YjsHistoryService.addUndoItemInformation({
+          /* sharedService.YjsHistoryService.addUndoItemInformation({
             type: 'figure-citation',
             data: {}
-          })
+          }) */
           updateViews()
         },10)
       }
       if(deletingTableCitation){
         setTimeout(()=>{
-          sharedService.YjsHistoryService.addUndoItemInformation({
+          /* sharedService.YjsHistoryService.addUndoItemInformation({
             type: 'table-citation',
             data: {}
-          })
+          }) */
           updateViews()
         },10)
       }

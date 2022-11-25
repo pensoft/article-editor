@@ -239,10 +239,10 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
             this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
               this.prosemirrorEditorsService.trackChangesMeta
             )
-            this.serviceShare.YjsHistoryService.addUndoItemInformation({
+            /* this.serviceShare.YjsHistoryService.addUndoItemInformation({
               type: 'figure-citation',
               data: {}
-            })
+            }) */
             setTimeout(()=>{
               this.serviceShare.updateCitableElementsViews()
               //this.serviceShare.FiguresControllerService.updateOnlyFiguresView()

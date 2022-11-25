@@ -7,6 +7,7 @@ import {SignupComponent} from '@app/layout/pages/signup/signup.component';
 import {HTTPReqResInterceptor} from '@core/services/http-req-res.interceptor';
 import {NgxSpinnerModule} from 'ngx-spinner';
 import {MaterialModule} from 'src/app/shared/material.module';
+import { ChangeDetectorRef } from '@angular/core';
 import {STORAGE_PROVIDERS} from 'src/app/shared/storage.service';
 import {ThemeToggleComponent} from 'src/app/layout/widgets/thema-toggle/theme-toggle.component';
 import {windowProvider, WindowToken} from 'src/app/shared/window';

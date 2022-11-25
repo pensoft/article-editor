@@ -1,7 +1,6 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
 import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
-import { FiguresControllerService } from '@app/editor/services/figures-controller.service';
 import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../../services/ydoc.service';
 import { figure } from '../../utils/interfaces/figureComponent';
@@ -28,13 +27,10 @@ export class FiguresDialogComponent implements AfterViewInit {
     public dialog: MatDialog,
     private dialogRef: MatDialogRef<FiguresDialogComponent>,
     private formioEventsService: FormioEventsService,
-    private figuresControllerService: FiguresControllerService,
     private serviceShare: ServiceShare
   ) {
     let figuresNumbersArray = ydocService.figuresMap!.get('ArticleFiguresNumbers')
     let figures = ydocService.figuresMap!.get('ArticleFigures')
-    figuresControllerService.figuresNumbers = figuresNumbersArray
-    figuresControllerService.figures = figures
     this.figuresNumbers = JSON.parse(JSON.stringify(figuresNumbersArray))
     this.figures = JSON.parse(JSON.stringify(figures));
   }
@@ -123,7 +119,7 @@ export class FiguresDialogComponent implements AfterViewInit {
   }
 
   saveFigures() {
-    this.figuresControllerService.writeFiguresDataGlobal(this.newFigureNodes, this.figures!, this.figuresNumbers!, this.editedFigures)
+    this.serviceShare.CitableElementsService.writeElementDataGlobal(this.newFigureNodes, this.figures!, this.figuresNumbers, 'citation');
     this.dialogRef.close(true)
   }
 

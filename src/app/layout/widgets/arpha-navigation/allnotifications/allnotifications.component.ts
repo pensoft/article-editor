@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 
 @Component({
@@ -7,14 +7,19 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
   styleUrls: ['./allnotifications.component.scss']
 })
 export class AllnotificationsComponent implements AfterViewInit {
-  displayedColumns: string[] = ['event', 'date',];
+  displayedColumns: string[] = ['status','event', 'date',];
   allNotifications = []
 
-  constructor(private serviceShare:ServiceShare) { }
+  constructor(
+    private serviceShare:ServiceShare,
+    private changeDetection:ChangeDetectorRef
+    ) { }
 
   ngAfterViewInit(): void {
     this.serviceShare.NotificationsService.notificationsBehaviorSubject.subscribe((notifications:any[])=>{
-      this.allNotifications = notifications.sort((a,b)=>b.date-a.date)
+      this.allNotifications = notifications.sort((a,b)=>b.date-a.date);
+      this.changeDetection.detectChanges()
+
     })
     this.serviceShare.NotificationsService.getAllNotifications();
   }

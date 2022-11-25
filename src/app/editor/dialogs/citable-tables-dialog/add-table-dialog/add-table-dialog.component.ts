@@ -16,7 +16,7 @@ import {
   ViewContainerRef
 } from '@angular/core';
 import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { citableTable } from '@app/editor/utils/interfaces/citableTables';
 import { tableJson } from '@app/editor/utils/section-templates/form-io-json/citableTableJSON';
 import { catchError } from 'rxjs/operators';
@@ -27,24 +27,28 @@ import { Subject } from 'rxjs';
 import { BrowserModule } from '@angular/platform-browser';
 import { MaterialModule } from '@app/shared/material.module';
 import { FormControlNameDirective } from '@app/editor/directives/form-control-name.directive';
-import { CitableTablesService } from '@app/editor/services/citable-tables.service';
 import { schema } from '@app/editor/utils/Schema';
 import { DOMParser } from 'prosemirror-model';
 import { uuidv4 } from 'lib0/random';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
-import { buildTableForm } from '@app/editor/services/citable-tables.service';
 import { FormioEventsService } from '@app/editor/formioComponents/formio-events.service';
+import { citationElementMap } from '@app/editor/services/citable-elements.service';
+import { TableSizePickerComponent } from '@app/editor/utils/table-size-picker/table-size-picker.component';
+
 
 let tablesHtmlTemplate = `
 <block-table [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.table_number]="data.tableNumber" [attr.table_id]="data.tableID">
-  <table-descriptions-container>
-    <h3 tagname="h3" contenteditablenode="false">Table: {{data.tableNumber+1}}</h3>
-    <table-description *ngIf="data.tableDescription" formControlName="tableDescription" style="display:block;">
+  <h3 tagname="h3" contenteditablenode="false">Table: {{data.tableNumber+1}}</h3>
+  <table-header-container>
+    <table-description *ngIf="data.tableHeader" formControlName="tableHeader" style="display:block;">
     </table-description>
-  </table-descriptions-container>
-  <table-content *ngIf="data.tableComponents" formControlName="tableComponents">
+  </table-header-container>
+  <table-content *ngIf="data.tableContent" formControlName="tableContent">
   </table-content>
-  <spacer></spacer>
+  <table-footer-container>
+    <table-description *ngIf="data.tableFooter" formControlName="tableFooter" style="display:block;">
+    </table-description>
+  </table-footer-container>
 </block-table>
 
 `
@@ -67,10 +71,10 @@ export class AddTableDialogComponent implements AfterViewInit {
   tableID?: string
   constructor(
     private prosemirrorEditorsService: ProsemirrorEditorsService,
+    public dialog: MatDialog,
     private compiler: Compiler,
     private changeDetectorRef: ChangeDetectorRef,
     private dialogRef: MatDialogRef<AddTableDialogComponent>,
-    private citableTablesService : CitableTablesService,
     private ydocService: YdocService,
     private formioEventsService: FormioEventsService,
     @Inject(MAT_DIALOG_DATA) public data: { table: citableTable | undefined, updateOnSave: boolean, index: number, tableID: string | undefined }
@@ -82,11 +86,46 @@ export class AddTableDialogComponent implements AfterViewInit {
     try {
       this.tableID = this.data.tableID || uuidv4();
       if (!this.data.table) {
-        this.renderForm = true
+        let rows, cols;
+        const tableSizePickerDialog = this.dialog.open(TableSizePickerComponent, {
+          width: '275px',
+          data: { rows: rows, cols: cols }
+        });
+
+        tableSizePickerDialog.afterClosed().subscribe(result => {
+          const { rows, cols } = result;
+          let tableData = ``;
+          for (let i = 0; i < rows; i++) {
+            let colums = ``;
+            for (let j = 0; j < cols; j++) {
+              colums = colums + `
+              <td>
+                <form-field>
+                  <p>
+                  </p>
+                </form-field>
+              </td>
+              `
+            }
+            tableData = tableData + `<tr>${colums}</tr>`
+          }
+          this.sectionContent.components[1].defaultValue = `
+            <table-container>
+              <table>
+                <tbody>
+                  ${tableData}
+                </tbody>
+              </table>
+            </table-container>
+            `
+
+          this.renderForm = true
+        });
       } else {
         //@ts-ignore
-        this.sectionContent.components[0].defaultValue = this.data.table.description
-        this.sectionContent.components[1].defaultValue = this.data.table.components;
+        this.sectionContent.components[0].defaultValue = this.data.table.header
+        this.sectionContent.components[1].defaultValue = this.data.table.content;
+        this.sectionContent.components[2].defaultValue = this.data.table.footer;
         this.renderForm = true
       }
       this.renderCodemMirrorEditors(this.tableID!)
@@ -125,17 +164,17 @@ export class AddTableDialogComponent implements AfterViewInit {
       submision.data.tableNumber = this.data.index
       let interpolated: any
 
+      let tableFormGroup = citationElementMap.table_citation.buildElementFormGroup(submision.data)
 
-      let tableFormGroup = buildTableForm(submision.data)
-
-      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data,tableFormGroup);
+      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, tableFormGroup);
       let templ = document.createElement('div')
       templ.innerHTML = interpolated
       let Slice = DOMParser.fromSchema(schema).parse(templ.firstChild!)
       let newTable: citableTable = {
         tableNumber: this.data.index,
-        description: submision.data.tableDescription,
-        components: submision.data.tableComponents,
+        content: submision.data.tableContent,
+        header: submision.data.tableHeader,
+        footer: submision.data.tableFooter,
         "tableID": submision.data.tableID,
         "tablePlace": this.data.tableID ? this.data.table?.tablePlace! : "endEditor",
         "viewed_by_citat": this.data.tableID ? this.data.table?.viewed_by_citat! : "endEditor",

@@ -4,7 +4,6 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../../services/ydoc.service';
 import { AddTableDialogComponent } from './add-table-dialog/add-table-dialog.component';
-import { CitableTablesService } from '@app/editor/services/citable-tables.service';
 import { Node } from 'prosemirror-model';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { citableTable } from '@app/editor/utils/interfaces/citableTables';
@@ -27,13 +26,10 @@ export class CitableTablesDialogComponent {
     private ydocService: YdocService,
     public dialog: MatDialog,
     private dialogRef: MatDialogRef<CitableTablesDialogComponent>,
-    private CitableTablesService: CitableTablesService,
     private serviceShare: ServiceShare
   ) {
     let tablesNumbersArray = this.ydocService.tablesMap!.get('ArticleTablesNumbers')
     let tables = ydocService.tablesMap!.get('ArticleTables')
-    CitableTablesService.tablesNumbers = tablesNumbersArray
-    CitableTablesService.tables = tables
     this.tablesNumbers = JSON.parse(JSON.stringify(tablesNumbersArray))
     this.tables = JSON.parse(JSON.stringify(tables));
   }
@@ -118,7 +114,8 @@ export class CitableTablesDialogComponent {
   }
 
   saveTables() {
-    this.CitableTablesService.writeTablesDataGlobal(this.newTableNodes, this.tables!, this.tablesNumbers!, this.editedTables)
+    this.serviceShare.CitableElementsService.writeElementDataGlobal(this.newTableNodes, this.tables!, this.tablesNumbers!,'table_citation');
+    //this.CitableTablesService.writeTablesDataGlobal(this.newTableNodes, this.tables!, this.tablesNumbers!, this.editedTables)
     this.dialogRef.close(true)
   }
 

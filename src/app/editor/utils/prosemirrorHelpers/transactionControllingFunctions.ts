@@ -78,16 +78,23 @@ export const updateControlsAndFigures = (
             if (node.type.name == "block_table") {
               let table = tables[node.attrs.table_id]
               node.content.forEach((node1, offset, index) => {
-                if (node1.type.name == 'table_description_container') {
+                if (node1.type.name == 'table_header_container') {
                   node1.content.forEach((node2) => {
                     if (node2.type.name == 'table_description') {
                       let tableDescriptionHtml = getHtmlFromFragment(node2.content!)
-                      table.description = tableDescriptionHtml
+                      table.header = tableDescriptionHtml
+                    }
+                  })
+                }else if (node1.type.name == 'table_footer_container') {
+                  node1.content.forEach((node2) => {
+                    if (node2.type.name == 'table_description') {
+                      let tableDescriptionHtml = getHtmlFromFragment(node2.content!)
+                      table.footer = tableDescriptionHtml
                     }
                   })
                 }else if(node1.type.name == 'table_content'){
                   let tableContentHtml = getHtmlFromFragment(node1.content!)
-                  table.components = tableContentHtml
+                  table.content = tableContentHtml
                 }
               })
               sharedService.YdocService.tablesMap.set('ArticleTables', JSON.parse(JSON.stringify(tables)));
@@ -359,19 +366,4 @@ export const handleClickOn = (citatContextPluginKey: PluginKey) => {
   }
 }
 
-export function buildFigureForm(submision:any):FormGroup{
-  let figureFormGroup =  new FormGroup({})
-  let figDesc = new FormControl(submision.figureDescription);
-  let formComponents :FormGroup[]= []
-  submision.figureComponents.forEach((comp:any)=>{
-    let compFormGroup = new FormGroup({});
-    let compDescription = new FormControl(comp.container.description);
-    compFormGroup.addControl('figureComponentDescription',compDescription);
-    formComponents.push(compFormGroup);
-  })
-  let figComponentArray = new FormArray(formComponents);
-  figureFormGroup.addControl('figureDescription',figDesc);
-  figureFormGroup.addControl('figureComponents',figComponentArray);
-  return figureFormGroup
-}
 

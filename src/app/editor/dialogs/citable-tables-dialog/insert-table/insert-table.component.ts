@@ -7,7 +7,7 @@ import { CommentsService } from '@app/editor/utils/commentsService/comments.serv
 import { citableTable } from '@app/editor/utils/interfaces/citableTables';
 import { Plugin, PluginKey } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
-import { CitableTablesService } from '@app/editor/services/citable-tables.service';
+import { CitableElementsService } from '@app/editor/services/citable-elements.service';
 
 @Component({
   selector: 'app-insert-table',
@@ -24,15 +24,15 @@ export class InsertTableComponent implements AfterViewInit {
 
   constructor(
     private ydocService: YdocService,
-    private citableTablesService: CitableTablesService,
     private dialogRef: MatDialogRef<InsertTableComponent>,
     private commentsPlugin: CommentsService,
+    private citableElementsService:CitableElementsService,
     private prosemirrorEditorsService: ProsemirrorEditorsService,
     @Inject(MAT_DIALOG_DATA) public data: { view: EditorView, citatData: any,sectionID:string }
   ) {
     this.tablesData = this.ydocService.tablesMap?.get('ArticleTablesNumbers')
     this.tables = this.ydocService.tablesMap?.get('ArticleTables')
-    this.citats = this.ydocService.tablesMap?.get('tableCitatsObj')
+    this.citats = this.ydocService.citableElementsMap?.get('elementsCitations')
     Object.keys(this.tables).forEach((tableID, i) => {
       this.selectedTables[i] = false;
     })
@@ -75,9 +75,9 @@ export class InsertTableComponent implements AfterViewInit {
         }
         //let sectionID = pluginData.sectionName
         let citat = this.citats[sectionID][this.data.citatData.citateid];
-        (citat.tableIDs as string[]).forEach((table)=>{
-          let figId = table;
-          let index = this.tablesData?.indexOf(figId)
+        (citat.citedElementsIDs as string[]).forEach((table)=>{
+          let tblId = table;
+          let index = this.tablesData?.indexOf(tblId)
           this.selectedTables[index!] = true
         })
       }
@@ -96,11 +96,11 @@ export class InsertTableComponent implements AfterViewInit {
       } else {
         let sectionID
         if(this.data.view){
-          sectionID = this.commentsPlugin.commentPluginKey.getState(this.data.view.state).sectionName
+          sectionID = this.commentsPlugin.commentPluginKey.getState(this.data.view.state).sectionName;
         }else if(this.data.sectionID){
-          sectionID = this.data.sectionID
+          sectionID = this.data.sectionID;
         }
-        this.citableTablesService.citateTables(this.selectedTables, sectionID,this.data.citatData)
+        this.citableElementsService.citateTables(this.selectedTables, sectionID,this.data.citatData);
         this.dialogRef.close()
       }
     }

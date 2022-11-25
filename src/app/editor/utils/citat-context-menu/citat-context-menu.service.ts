@@ -2,7 +2,6 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { InsertTableComponent } from '@app/editor/dialogs/citable-tables-dialog/insert-table/insert-table.component';
 import { InsertFigureComponent } from '@app/editor/dialogs/figures-dialog/insert-figure/insert-figure.component';
-import { FiguresControllerService } from '@app/editor/services/figures-controller.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { Fragment } from 'prosemirror-model';
@@ -300,11 +299,11 @@ export class CitatContextMenuService {
                   let end = +markActualData.position+view.state.doc.nodeAt(markActualData.position)?.nodeSize!
                   //citatsData[sectionID][mark.attrs.citateid] = undefined
                   //ydocServide.figuresMap?.set('articleCitatsObj',citatsData)
-                  serviceShare.YjsHistoryService.startCapturingNewUndoItem();
+                  /* serviceShare.YjsHistoryService.startCapturingNewUndoItem();
                   serviceShare.YjsHistoryService.addUndoItemInformation({
                     type: 'figure-citation',
                     data: {}
-                  })
+                  }) */
                   view.dispatch(view.state.tr.replaceWith(start,end,Fragment.empty))
                   setTimeout(()=>{
                     //serviceShare.FiguresControllerService.updateOnlyFiguresView()
@@ -320,11 +319,11 @@ export class CitatContextMenuService {
                   let end = +markActualData.position+view.state.doc.nodeAt(markActualData.position)?.nodeSize!
                   //citatsData[sectionID][mark.attrs.citateid] = undefined
                   //ydocServide.figuresMap?.set('articleCitatsObj',citatsData)
-                  serviceShare.YjsHistoryService.startCapturingNewUndoItem();
+                  /* serviceShare.YjsHistoryService.startCapturingNewUndoItem();
                   serviceShare.YjsHistoryService.addUndoItemInformation({
                     type: 'figure-citation',
                     data: {}
-                  })
+                  }) */
                   view.dispatch(view.state.tr.replaceWith(start,end,Fragment.empty))
                   setTimeout(()=>{
                     //serviceShare.CitableTablesService.updateOnlyTablesView()

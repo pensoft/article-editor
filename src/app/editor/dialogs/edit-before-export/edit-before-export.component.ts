@@ -400,20 +400,15 @@ export class EditBeforeExportComponent implements AfterViewInit {
     articleData.pdfSettings = pdfSettings;
     articleData.headerPmNodesJson = headerPmNodesJson;
     articleData.footerPmNodesJson = footerPmNodesJson;
-    this.http.post('/proxy123',articleData).subscribe((data)=>{
-      console.log('pdf',data);
+    /* this.http.post('/proxy123/asd',articleData).subscribe((data)=>{
       this.serviceShare.NotificationsService.newNotificationEvent({
         event:'A new pdf has been rendered. Click for view.',date:Date.now(),eventId:uuidv4(),
       })
-    })
-    this.http.post('https://ps-article-editor.dev.scalewest.com/api/articles/items'+articleId+'/pdf/export',articleData).subscribe((data)=>{
+    }) */
+    this.http.post('/proxy-pdf-print/'+articleId+'/pdf/export',articleData).subscribe((data)=>{
       console.log('pdf',data);
-      this.serviceShare.NotificationsService.newNotificationEvent({
-        event:'A new pdf has been rendered. Click for view.',date:Date.now(),eventId:uuidv4(),
-      })
     })
     /* this.http.post('http://127.0.0.1:3003/article/create',articleData).subscribe((data)=>{
-      console.log('pdf',data);
       this.serviceShare.NotificationsService.newNotificationEvent({
         event:'A new pdf has been rendered. Click for view.',date:Date.now(),eventId:uuidv4(),
       })

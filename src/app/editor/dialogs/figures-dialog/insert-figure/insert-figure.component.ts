@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
 import { ThemePalette } from '@angular/material/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { FiguresControllerService } from '@app/editor/services/figures-controller.service';
+import { CitableElementsService } from '@app/editor/services/citable-elements.service';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { CommentsService } from '@app/editor/utils/commentsService/comments.service';
@@ -32,15 +32,15 @@ export class InsertFigureComponent implements AfterViewInit {
 
   constructor(
     private ydocService: YdocService,
-    private figuresControllerService: FiguresControllerService,
     private dialogRef: MatDialogRef<InsertFigureComponent>,
+    private citableElementsService:CitableElementsService,
     private commentsPlugin: CommentsService,
     private prosemirrorEditorsService: ProsemirrorEditorsService,
     @Inject(MAT_DIALOG_DATA) public data: { view: EditorView, citatData: any,sectionID:string }
   ) {
     this.figuresData = this.ydocService.figuresMap?.get('ArticleFiguresNumbers')
     this.figures = this.ydocService.figuresMap?.get('ArticleFigures')
-    this.citats = this.ydocService.figuresMap?.get('articleCitatsObj')
+    this.citats = this.ydocService.citableElementsMap?.get('elementsCitations')
     Object.keys(this.figures).forEach((figID, i) => {
       this.figuresComponentsChecked[figID] = this.figures[figID].components.map(c => false);
       this.selectedFigures[i] = false;
@@ -90,7 +90,7 @@ export class InsertFigureComponent implements AfterViewInit {
         }
         //let sectionID = pluginData.sectionName
         let citat = this.citats[sectionID][this.data.citatData.citateid];
-        (citat.figureIDs as string[]).forEach((figure)=>{
+        (citat.citedElementsIDs as string[]).forEach((figure)=>{
           if(figure.includes('|')){
             let splitData = figure.split('|');
             let figId = splitData[0];
@@ -128,7 +128,7 @@ export class InsertFigureComponent implements AfterViewInit {
         }else if(this.data.sectionID){
           sectionID = this.data.sectionID
         }
-        this.figuresControllerService.citateFigures(this.selectedFigures, this.figuresComponentsChecked, sectionID,this.data.citatData)
+        this.citableElementsService.citateFigures(this.selectedFigures, this.figuresComponentsChecked, sectionID,this.data.citatData)
         this.dialogRef.close()
       }
     }

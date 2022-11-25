@@ -1,18 +1,17 @@
 export const tableJson = {
   "components": [
-
     {
-      "label": "Caption : ",
+      "label": "Header : ",
       "autoExpand": false,
       "tableView": true,
-      "defaultValue": `<p align="set-align-left" class="set-align-left">Caption basic example</p>`,
+      "defaultValue": `<p align="set-align-left" class="set-align-left">Header for the table.</p>`,
       "validate": {
         "required": true
       },
       "properties":{
         "addTableEditor":true
       },
-      "key": "tableDescription",
+      "key": "tableHeader",
       "type": "textarea",
       "input": true
     },
@@ -20,20 +19,35 @@ export const tableJson = {
       "label": "Table content : ",
       "autoExpand": false,
       "tableView": true,
-      "defaultValue": `<p align="set-align-left" class="set-align-left">Table content</p>`,
+      "defaultValue":
+      `<table-container>
+      </table-container>`,
       "validate": {
         "required": true
       },
       "properties": {
         "menuType":"fullMenu",
-        "addTableEditor":true
+        "addTableEditor":true,
+        "rawNodeContent":true
       },
-      "key": "tableComponents",
+      "key": "tableContent",
       "type": "textarea",
       "input": true
-    }
-    ,
-    {
+    },{
+      "label": "Footer : ",
+      "autoExpand": false,
+      "tableView": true,
+      "defaultValue": `<p align="set-align-left" class="set-align-left">Footer for the table.</p>`,
+      "validate": {
+        "required": true
+      },
+      "properties":{
+        "addTableEditor":true
+      },
+      "key": "tableFooter",
+      "type": "textarea",
+      "input": true
+    },{
       "type": "button",
       "label": "Submit",
       "key": "submit",

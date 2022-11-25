@@ -44,7 +44,7 @@ import { CommentsService } from './utils/commentsService/comments.service';
 import { articleSection } from './utils/interfaces/articleSection';
 import { treeNode } from './utils/interfaces/treeNode';
 import { TrackChangesService } from './utils/trachChangesService/track-changes.service';
-import { CitableTablesService } from './services/citable-tables.service';
+import { CitableElementsService } from './services/citable-elements.service';
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
@@ -92,7 +92,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     private editorsRefsManager:EditorsRefsManagerService,
     private articleSectionsService: ArticleSectionsService,
     private articlesService: ArticlesService,
-    private citableTablesService:CitableTablesService,
+    private citableElementsService:CitableElementsService,
     private refsAPI:RefsApiService,
     private changeDetection: ChangeDetectorRef,
     private referencePluginService:ReferencePluginService

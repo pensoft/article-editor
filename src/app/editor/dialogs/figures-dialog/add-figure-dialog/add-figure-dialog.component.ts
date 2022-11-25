@@ -19,7 +19,6 @@ import { FormArray, FormControl, FormGroup, FormsModule, ReactiveFormsModule } f
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { figure, figure_component } from 'src/app/editor/utils/interfaces/figureComponent';
 import { figureJson } from '@app/editor/utils/section-templates/form-io-json/FIGUREjson';
-import { FiguresControllerService } from '@app/editor/services/figures-controller.service';
 import { catchError } from 'rxjs/operators';
 import { basicSetup, EditorState, EditorView } from '@codemirror/basic-setup';
 import { html } from '@codemirror/lang-html';
@@ -33,7 +32,7 @@ import { DOMParser } from 'prosemirror-model';
 import { uuidv4 } from 'lib0/random';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
 import { FormioEventsService } from '@app/editor/formioComponents/formio-events.service';
-import { buildFigureForm } from '@app/editor/utils/prosemirrorHelpers';
+import { citationElementMap } from '@app/editor/services/citable-elements.service';
 
 let basicFigureHTML = '<block-figure figure_number="0"><figure-components-container contenteditablenode="false"><figure-component component_number="0" contenteditablenode="false"><img src="https://cdn.britannica.com/q:60/91/181391-050-1DA18304/cat-toes-paw-number-paws-tiger-tabby.jpg" alt="" title="default image" contenteditable="false" draggable="true"><img class="ProseMirror-separator"><br></figure-component><figure-component component_number="1" contenteditablenode="false"><img src="https://imjeffreyrex.files.wordpress.com/2014/06/linkin-park.png" alt="" title="default image" contenteditable="false" draggable="true"><img class="ProseMirror-separator"><br></figure-component><figure-component component_number="2" contenteditablenode="false"><img src="https://www.everythingreptiles.com/wp-content/uploads/2020/12/Bearded-dragon-fluffing-beard.jpg" alt="" title="default image" contenteditable="false" draggable="true"><img class="ProseMirror-separator"><br></figure-component><figure-component component_number="3" contenteditablenode="false"><img src="https://static.scientificamerican.com/sciam/cache/file/A4406EF9-FC62-42E4-9628F374B062AE07.jpg" alt="" title="default image" contenteditable="false" draggable="true"><img class="ProseMirror-separator"><br></figure-component></figure-components-container><figure-descriptions-container><h3 tagname="h3" contenteditablenode="false">Figure: 1</h3><figure-description style="display:block;"><p align="set-align-left" class="set-align-left">Caption basic example</p></figure-description><figure-component-description component_number="0" style="display:flex;"><form-field><p align="set-align-left" contenteditablenode="false" class="set-align-left">a:</p></form-field><form-field><p align="set-align-left" class="set-align-left"><br></p></form-field></figure-component-description><figure-component-description component_number="1" style="display:flex;"><form-field><p align="set-align-left" contenteditablenode="false" class="set-align-left">b:</p></form-field><form-field><p align="set-align-left" class="set-align-left"><br></p></form-field></figure-component-description><figure-component-description component_number="2" style="display:flex;"><form-field><p align="set-align-left" contenteditablenode="false" class="set-align-left">c:</p></form-field><form-field><p align="set-align-left" class="set-align-left">bearded dragon</p></form-field></figure-component-description><figure-component-description component_number="3" style="display:flex;"><form-field><p align="set-align-left" contenteditablenode="false" class="set-align-left">d:</p></form-field><form-field><p align="set-align-left" class="set-align-left">dog</p></form-field></figure-component-description></figure-descriptions-container></block-figure>'
 
@@ -92,7 +91,6 @@ export class AddFigureDialogComponent implements AfterViewInit {
     private compiler: Compiler,
     private changeDetectorRef: ChangeDetectorRef,
     private dialogRef: MatDialogRef<AddFigureDialogComponent>,
-    private figuresControllerService: FiguresControllerService,
     private ydocService: YdocService,
     private formioEventsService: FormioEventsService,
     @Inject(MAT_DIALOG_DATA) public data: { fig: figure | undefined, updateOnSave: boolean, index: number, figID: string | undefined }
@@ -159,7 +157,7 @@ export class AddFigureDialogComponent implements AfterViewInit {
       submision.data.figureNumber = this.data.index
       let interpolated: any
 
-      let figureFormGroup = buildFigureForm(submision.data)
+      let figureFormGroup = citationElementMap['citation'].buildElementFormGroup(submision.data)
 
       interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data,figureFormGroup);
       let templ = document.createElement('div')

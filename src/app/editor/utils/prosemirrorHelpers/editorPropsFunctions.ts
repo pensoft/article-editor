@@ -79,7 +79,7 @@ export function handlePaste(mathMap: YMap<any>, sectionID: string,sharedService:
     if (noneditableNodes) {
       return true
     }
-    if(newPastedCitation){
+   /*  if(newPastedCitation){
       sharedService.YjsHistoryService.addUndoItemInformation({
         type: 'figure-citation',
         data: {}
@@ -90,7 +90,7 @@ export function handlePaste(mathMap: YMap<any>, sectionID: string,sharedService:
         type: 'figure-citation',
         data: {}
       })
-    }
+    } */
     if(newPastedCitation||newPastedTableCitation){
       setTimeout(()=>{
         //sharedService.FiguresControllerService.updateOnlyFiguresView();
@@ -182,7 +182,6 @@ export function handleClick(hideshowPluginKEey: PluginKey, citatContextPluginkey
       if(event.detail == 1){
         //@ts-ignore
         let newSel = TextSelection.create(view.state.doc,pos)
-        console.log('setting new selection');
         view.dispatch(view.state.tr.setSelection(newSel));
       }
     if (((event.target as HTMLElement).className == 'changes-placeholder')) {

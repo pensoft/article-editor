@@ -5,7 +5,6 @@ import { YdocService } from '../services/ydoc.service';
 import { articleSection } from '../utils/interfaces/articleSection';
 import { ChangeDetectorRef } from '@angular/core';
 import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
-import { FiguresControllerService } from '../services/figures-controller.service';
 import { figure } from '../utils/interfaces/figureComponent';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 import { ServiceShare } from '../services/service-share.service';
@@ -28,7 +27,6 @@ export class ArticleComponent implements OnInit {
     private ydocService: YdocService,
     private ref: ChangeDetectorRef,
     public prosemirrorEditorsService: ProsemirrorEditorsService,
-    public figuresControllerService: FiguresControllerService,
     public detectFocusService: DetectFocusService,
     public serviceShare: ServiceShare,
     private refsAPI: RefsApiService,

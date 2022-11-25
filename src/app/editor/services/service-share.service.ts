@@ -18,7 +18,6 @@ import { articleSection } from '../utils/interfaces/articleSection';
 import { complexSectionFormIoSchema } from '../utils/section-templates/form-io-json/complexSection';
 import { TrackChangesService } from '../utils/trachChangesService/track-changes.service';
 import { YjsHistoryService } from '../utils/yjs-history.service';
-import { FiguresControllerService } from './figures-controller.service';
 import { FormBuilderService } from './form-builder.service';
 import { MenuService } from './menu.service';
 import { PmDialogSessionService } from './pm-dialog-session.service';
@@ -29,7 +28,7 @@ import { EnforcerService } from '@app/casbin/services/enforcer.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { CasbinGlobalObjectsService } from '@app/casbin/services/casbin-global-objects.service';
 import { NotificationsService } from '@app/layout/widgets/arpha-navigation/notifications/notifications.service';
-import { CitableTablesService } from './citable-tables.service';
+import { CitableElementsService } from './citable-elements.service';
 
 @Injectable({
   providedIn: 'root'
@@ -38,11 +37,11 @@ export class ServiceShare {
 
   articleLayouts:any
 
+  CitableElementsService?:CitableElementsService
   ReferencePluginService?:ReferencePluginService
   CslService?:CslService
   ProsemirrorEditorsService?:ProsemirrorEditorsService
   YdocService?:YdocService
-  FiguresControllerService?:FiguresControllerService
   TreeService?:TreeService
   CommentsService?:CommentsService
   DetectFocusService?:DetectFocusService
@@ -59,7 +58,6 @@ export class ServiceShare {
   EnforcerService?:EnforcerService
   CasbinGlobalObjectsService?:CasbinGlobalObjectsService
   NotificationsService?:NotificationsService
-  CitableTablesService?:CitableTablesService
 
   constructor(
     public dialog: MatDialog,
@@ -91,7 +89,6 @@ export class ServiceShare {
   resetServicesData (){
     this.ProsemirrorEditorsService?.resetProsemirrorEditors();
     this.YdocService?.resetYdoc();
-    this.FiguresControllerService?.resetFiguresControllerService();
     this.TreeService?.resetTreeData();
     this.CommentsService?.resetCommentsService();
     this.DetectFocusService?.resetDetectFocusService();
@@ -101,13 +98,39 @@ export class ServiceShare {
   }
 
   updateCitableElementsViews(){
-    this.FiguresControllerService.updateOnlyFiguresView()
-    this.CitableTablesService.updateOnlyTablesView()
+    let count = 0;
+    let allElementOfTypeAreRendered = ()=>{
+      count++;
+      if(count == 2){
+        //this.YjsHistoryService.stopBigNumberItemsCapturePrevention()
+      }
+    }
+    this.YjsHistoryService.captureBigOperation()
+    //this.FiguresControllerService.allFigsAreRendered = allElementOfTypeAreRendered
+    //this.CitableTablesService.allTablesAreRendered = allElementOfTypeAreRendered
+    //this.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
+    //this.FiguresControllerService.updateOnlyFiguresView()
+    //this.CitableTablesService.updateOnlyTablesView()
+    this.CitableElementsService.updateOnlyElementsViews();
+
   }
 
   updateCitableElementsViewsAndCites(figstToSet?:any,tblsToSet?:any){
-    this.FiguresControllerService.updateFiguresAndFiguresCitations(figstToSet)
-    this.CitableTablesService.updateTablesAndTablesCitations(tblsToSet)
+    let count = 0;
+    let allElementOfTypeAreRendered = ()=>{
+      count++;
+      if(count == 2){
+        //this.YjsHistoryService.stopBigNumberItemsCapturePrevention()
+      }
+    }
+    this.YjsHistoryService.captureBigOperation()
+
+    //this.FiguresControllerService.allFigsAreRendered = allElementOfTypeAreRendered
+    //this.CitableTablesService.allTablesAreRendered = allElementOfTypeAreRendered
+    //this.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
+    //this.FiguresControllerService.updateFiguresAndFiguresCitations(figstToSet)
+    //this.CitableTablesService.updateTablesAndTablesCitations(tblsToSet)
+      this.CitableElementsService.updateElementsAndElementsCitations();
   }
 
   createNewArticle(){
