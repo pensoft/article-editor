@@ -12,6 +12,7 @@ import {environment} from "@env";
 
 let figIdsG: any;
 let refIdsG: any;
+let tableIdsG: any;
 
 export function exportAsJatsXML(serviceShare: ServiceShare) {
 
@@ -37,7 +38,19 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
     }
   })
   refIdsG = refIds
-  let tableCount = countTablesInArticle(serviceShare)
+  /* let tableCount = countTablesInArticle(serviceShare) */
+
+  let tablesObj = serviceShare.YdocService.tablesMap?.get('ArticleTables')
+  let tableIds: { [key: string]: string } = {}
+  let tableCount = 0
+  Object.keys(tablesObj).forEach((tableId, i) => {
+    let val = tablesObj[tableId];
+    tableIds[tableId] = 'T' + i
+    if (val) {
+      tableCount++
+    }
+  })
+  tableIdsG = tableIds
 
   let lang = {'xml:lang': "en"}
   let article = create({version: '1.0', encoding: "UTF-8", standalone: false}).dtd({
@@ -405,6 +418,36 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
       }
     })
   })
+
+  Object.keys(tablesObj).forEach((tblid)=>{
+    let tableData = tablesObj[tblid];
+    let tableXmlId = tableIdsG[tblid]
+    let tableXML = floatsGroup.ele('table-wrap', {id: tableXmlId, position: "float", orientation: "portrait"});
+
+    console.log(tablesObj[tblid]);
+    let tableNumber = tableData.tableNumber + 1;
+    tableXML.ele('label').txt(`Table ${tableNumber}.`);
+
+    let dom = document.createElement('div');
+    dom.innerHTML = tableData.header;
+    let tableHeadingNodes = domPMParser.parse(dom).toJSON();
+
+    let captionEle = tableXML.ele('caption')
+    parseNode(tableHeadingNodes, captionEle, false, '--', 0);
+
+    let dom1 = document.createElement('div');
+    dom.innerHTML = tableData.content;
+    let tableContentNodes = domPMParser.parse(dom).toJSON();
+    console.log('table element',tableContentNodes);
+    parseNode(tableContentNodes, tableXML, false, '--', 0,{skipTableWrap:true});
+
+    let dom2 = document.createElement('div');
+    dom.innerHTML = tableData.footer;
+    let tableFooterNodes = domPMParser.parse(dom).toJSON();
+    let footerElement = tableXML.ele('table-wrap-foot');
+    parseNode(tableFooterNodes, footerElement, false, '--', 0);
+  })
+
   let xmlString = article.end({prettyPrint: true})
   var blob = new Blob([xmlString], {type: "text/xml"});
   /* let xmlUrl = URL.createObjectURL(blob);
@@ -644,7 +687,7 @@ function parseSection(view: EditorView | undefined, container: XMLBuilder, servi
 
 let mathCount = 1;
 
-let processPmNodeAsXML = (node: any, xmlPar: XMLBuilder, before: string, index: number) => {
+let processPmNodeAsXML = (node: any, xmlPar: XMLBuilder, before: string, index: number,options:any) => {
   let newParNode: XMLBuilder
   let shouldSkipNextBlockElements = false;
   if (node.type == 'heading') {
@@ -677,11 +720,20 @@ let processPmNodeAsXML = (node: any, xmlPar: XMLBuilder, before: string, index: 
   } else if (node.type == 'list_item') {
     newParNode = xmlPar.ele('list-item')
   } else if (node.type == 'table') {
-    newParNode = xmlPar.ele('table-wrap').ele('table', {
-      "rules": "all",
-      "frame": "box",
-      "cellpadding": "5"
-    }).ele("tbody");
+    if(options&&options.skipTableWrap){
+      console.log(options);
+      newParNode = xmlPar.ele('table', {
+        "rules": "all",
+        "frame": "box",
+        "cellpadding": "5"
+      }).ele("tbody");
+    }else{
+      newParNode = xmlPar.ele('table-wrap').ele('table', {
+        "rules": "all",
+        "frame": "box",
+        "cellpadding": "5"
+      }).ele("tbody");
+    }
   } else if (node.type == 'table_row') {
     newParNode = xmlPar.ele('tr');
   } else if (node.type == 'table_cell') {
@@ -715,14 +767,14 @@ let processPmNodeAsXML = (node: any, xmlPar: XMLBuilder, before: string, index: 
   } else {
     if (node.content && node.content.length > 0) {
       node.content.forEach((ch, i) => {
-        parseNode(ch, xmlPar, false, before + "|--", i)
+        parseNode(ch, xmlPar, false, before + "|--", i,options)
       })
     }
     return;
   }
   if (node.content && node.content.length > 0) {
     node.content.forEach((ch, i) => {
-      parseNode(ch, newParNode, shouldSkipNextBlockElements, before + "|--", i)
+      parseNode(ch, newParNode, shouldSkipNextBlockElements, before + "|--", i,options)
     })
   }
 }
@@ -731,7 +783,7 @@ let processPmMarkAsXML = (node: any, xmlPar: XMLBuilder, before: string) => {
   let xmlParent = xmlPar
   node.marks.forEach((mark, i: number) => {
     if (mark.type == 'citation') {
-      let citatedFigs = mark.attrs.citated_figures.map((fig: string) => fig.split('|')[0]);
+      let citatedFigs = mark.attrs.citated_elements.map((fig: string) => fig.split('|')[0]);
       citatedFigs.forEach((fig, i) => {
         if (i == 0) {
           xmlParent = xmlParent.ele('xref', {"ref-type": "fig", "rid": figIdsG[fig]});
@@ -739,6 +791,18 @@ let processPmMarkAsXML = (node: any, xmlPar: XMLBuilder, before: string) => {
           xmlParent = xmlParent.ele('named-content', {"content-type": 'xref'}).ele('xref', {
             "ref-type": "fig",
             "rid": figIdsG[fig]
+          });
+        }
+      })
+    } else if (mark.type == 'table_citation') {
+      let citatedFigs = mark.attrs.citated_elements.map((table: string) => table.split('|')[0]);
+      citatedFigs.forEach((table, i) => {
+        if (i == 0) {
+          xmlParent = xmlParent.ele('xref', {"ref-type": "table", "rid": tableIdsG[table]});
+        } else {
+          xmlParent = xmlParent.ele('named-content', {"content-type": 'xref'}).ele('xref', {
+            "ref-type": "table",
+            "rid": tableIdsG[table]
           });
         }
       })
@@ -763,7 +827,7 @@ let processPmMarkAsXML = (node: any, xmlPar: XMLBuilder, before: string) => {
 }
 
 let nodesToSkip = ['form_field', 'inline_block_container', 'form_field_inline_view', 'form_field_inline'];
-let nodesNotToLoop = ['figures_nodes_container', 'reference_container'];
+let nodesNotToLoop = ['figures_nodes_container', 'tables_nodes_container','reference_container'];
 let nodesThatShouldNotBeSkipped = [
   'ordered_list',
   'list_item', 'table',
@@ -782,7 +846,7 @@ function isBlockNode(name: string) {
   return false;
 }
 
-function parseNode(node: any, xmlPar: XMLBuilder, shouldSkipBlockElements: boolean, before: string, index: number) {
+function parseNode(node: any, xmlPar: XMLBuilder, shouldSkipBlockElements: boolean, before: string, index: number,options?:any) {
   if (nodesToSkip.includes(node.type) || (shouldSkipBlockElements && isBlockNode(node.type) && !nodesNotToLoop.includes(node.type) && !nodesThatShouldNotBeSkipped.includes(node.type))) { // nodes that should be skipped and looped through their children
     if (node.content && node.content.length > 0) {
       node.content.forEach((ch, i) => {
@@ -791,7 +855,7 @@ function parseNode(node: any, xmlPar: XMLBuilder, shouldSkipBlockElements: boole
     }
   } else if (nodesNotToLoop.includes(node.type)) { // nodes that should not be looped nor their children
   } else {
-    processPmNodeAsXML(node, xmlPar, before, index)
+    processPmNodeAsXML(node, xmlPar, before, index,options)
   }
 }
 

@@ -39,7 +39,9 @@ export const environment = {
    authUrl: '${process.env.AUTH_SERVICE}/api',
    apiUrl: '${process.env.API_GATEWAY_SERVICE}/api',
    passport_client_id: '${process.env.PKCE_CLIENT_ID}',
-   validate_jats:'${isProduction?process.env.JATS_VALIDATION_SERVICE:"/validate/xml"}'
+   validate_jats:'${isProduction?process.env.JATS_VALIDATION_SERVICE:"/validate/xml"}',
+   print_pdf:'${isProduction?process.env.API_GATEWAY_SERVICE+'/articles/items/':'/proxy-pdf-print'}'
+
 };
 `;
 // write the content to the respective file

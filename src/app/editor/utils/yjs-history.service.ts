@@ -373,9 +373,8 @@ export class YjsHistoryService {
       this.mainProsemirrorUndoManagers[editor].undo();
       redoItem.editors.unshift(editor);
       redoItem.scrollpositions.unshift(undoitem.scrollpositions[i]);
-      if(i == undoitem.editors.length-1){
-        this.serviceShare.ProsemirrorEditorsService.applyLastScrollPosition(undoitem.scrollpositions[i]);
-      }
+      this.allpyScrollPosition(undoitem,i)
+
     })
     this.redoStack.unshift(redoItem);
     if (redoItem.editors[0] != 'endEditor'&&redoItem.editors[0]) {
@@ -390,6 +389,13 @@ export class YjsHistoryService {
       return true
     } */
     return true
+  }
+
+  allpyScrollPosition(undoItem:undoServiceItem,i:number){
+    if(i == undoItem.editors.length-1){
+      console.log('lastCroll position',undoItem.scrollpositions[i]);
+      this.serviceShare.ProsemirrorEditorsService.applyLastScrollPosition(undoItem.scrollpositions[i]);
+    }
   }
 
   canUndo() {
@@ -407,9 +413,7 @@ export class YjsHistoryService {
       this.mainProsemirrorUndoManagers[editor].redo();
       undoItem.editors.unshift(editor)
       undoItem.scrollpositions.unshift(redoItem.scrollpositions[i]);
-      if(i == redoItem.editors.length-1){
-        this.serviceShare.ProsemirrorEditorsService.applyLastScrollPosition(redoItem.scrollpositions[i]);
-      }
+      this.allpyScrollPosition(redoItem,i)
     })
     this.undoStack.unshift(undoItem);
     if (undoItem.editors[0] != 'endEditor'&&undoItem.editors[0]) {

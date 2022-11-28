@@ -1117,7 +1117,6 @@ export class CitableElementsService {
           resolvedPositionOfCitat = data.edView.state.doc.resolve(citatNewPosition)
           //@ts-ignore
           let resolvedCitationPath: Array<Node | number> = resolvedPositionOfCitat.path
-
           let offsetOfwrappingParent: number
           let wrappingParent
           let nodeAfterWrappingParent

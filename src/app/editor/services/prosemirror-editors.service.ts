@@ -198,12 +198,13 @@ export class ProsemirrorEditorsService {
   }
 
   getScrollPosition() {
-    let articleProsemirrorsContainer = document.getElementById('app-article-element');
+    let articleProsemirrorsContainer = document.getElementsByClassName('editor-container')[0];
+    console.log();
     return articleProsemirrorsContainer!.scrollTop!;
   }
 
   applyLastScrollPosition(scrollPos:number) {
-    let articleProsemirrorsContainer = document.getElementById('app-article-element');
+    let articleProsemirrorsContainer = document.getElementsByClassName('editor-container')[0];
     articleProsemirrorsContainer!.scrollTop = scrollPos;
   }
 

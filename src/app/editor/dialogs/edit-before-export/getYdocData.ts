@@ -74,6 +74,18 @@ export let getYdocData = function (ydoc) {
   ydocData.figuresTemplates = figuresTemplates
   ydocData.ArticleFiguresNumbers = ArticleFiguresNumbers
 
+  let citableElementsMap = ydoc.getMap('citableElementsMap');// ------------
+  let elementsCitations = citableElementsMap.get('elementsCitations');
+  ydocData.elementsCitations = elementsCitations
+
+  let ArticleTablesMap = ydoc.getMap('ArticleTablesMap');// ------------
+  let ArticleTablesNumbers = ArticleTablesMap.get('ArticleTablesNumbers')
+  let tablesTemplates = ArticleTablesMap.get('tablesTemplates')
+  let ArticleTables = ArticleTablesMap.get('ArticleTables')
+  ydocData.ArticleTablesNumbers = ArticleTablesNumbers
+  ydocData.tablesTemplates = tablesTemplates
+  ydocData.ArticleTables = ArticleTables
+
   let mathMap = ydoc.getMap('mathDataURLMap');// ------------
   let dataURLObj = mathMap.get('dataURLObj');
   ydocData.dataURLObj = dataURLObj
