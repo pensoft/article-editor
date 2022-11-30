@@ -24,6 +24,8 @@ import { EditorView } from 'prosemirror-view';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { uuidv4 } from 'lib0/random';
 import { environment } from '@env';
+const API_URL = environment.apiUrl;
+
 pdfMake.vfs = vfs;
 
 pdfMake.fonts = {
@@ -409,13 +411,13 @@ export class EditBeforeExportComponent implements AfterViewInit {
     /* this.http.post(environment.print_pdf+'/'+articleId+'/pdf/export',articleData).subscribe((data)=>{
       console.log('pdf',data);
     }) */
-    /* this.http.post('https://ps-api.dev.scalewest.com/api/articles/items/'+articleId+'/pdf/export',articleData).subscribe((data)=>{
-      console.log('pdf',data);
-    }) */
-    /* http://127.0.0.1:3003 */
-    this.http.post('http://127.0.0.1:3003/article/pdf',articleData).subscribe((data)=>{
+     this.http.post(`${API_URL}/articles/items/`+articleId+'/pdf/export',articleData).subscribe((data)=>{
       console.log('pdf',data);
     })
+    /* http://127.0.0.1:3003 */
+    /*this.http.post('http://127.0.0.1:3003/article/pdf',articleData).subscribe((data)=>{
+      console.log('pdf',data);
+    })*/
     /* this.http.post('http://127.0.0.1:3003/article/create',articleData).subscribe((data)=>{
       this.serviceShare.NotificationsService.newNotificationEvent({
         event:'A new pdf has been rendered. Click for view.',date:Date.now(),eventId:uuidv4(),
