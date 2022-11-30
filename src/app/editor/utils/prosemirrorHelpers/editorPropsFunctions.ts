@@ -343,6 +343,28 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
           }
         }
       }
+      console.log(key,view.state.selection);
+      if(
+        sel.from == sel.to
+        ){
+          if(
+          sel.$anchor.nodeAfter &&
+          sel.$anchor.nodeAfter.type.name == 'text' &&
+          sel.$anchor.nodeBefore &&
+          sel.$anchor.nodeBefore.type.name == "reference_citation"
+          ){
+            setTimeout(()=>{
+              view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,sel.from+1)));
+            },20)
+          }else if(
+            sel.$anchor.nodeAfter &&
+          //@ts-ignore
+          sel.$anchor.nodeAfter.parent&&sel.$anchor.nodeAfter.parent.type.name == 'reference_citation' &&
+            !sel.$anchor.nodeBefore){
+              let newPos = view.state.doc.resolve(sel.from);
+              view.dispatch(view.state.tr.setSelection(TextSelection.between(newPos,newPos,1)));
+          }
+      }
       if(key == 'Delete'&&figNodeContToTheRight){
         canEdit = false
       }
