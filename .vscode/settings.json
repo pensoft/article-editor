@@ -1,4 +1,7 @@
 {
     "workbench.colorCustomizations": {
+      "editorBracketMatch.background": "#3344F0",
+      "editorBracketMatch.border": "#f39191",
+      "editorIndentGuide.activeBackground": "#ba3abe"
     }
 }
