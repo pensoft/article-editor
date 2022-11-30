@@ -339,6 +339,7 @@ export class YjsHistoryService {
       }) */
     }else if(meta.type == 'refs-yjs-delete'){
       let refsToSet = action == 'undo' ? meta.data.oldRefs : meta.data.newRefs;
+
       this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsToSet)
     } /* else if (meta.type == 'section-drag-drop'){
       let from : number
@@ -393,7 +394,6 @@ export class YjsHistoryService {
 
   allpyScrollPosition(undoItem:undoServiceItem,i:number){
     if(i == undoItem.editors.length-1){
-      console.log('lastCroll position',undoItem.scrollpositions[i]);
       this.serviceShare.ProsemirrorEditorsService.applyLastScrollPosition(undoItem.scrollpositions[i]);
     }
   }

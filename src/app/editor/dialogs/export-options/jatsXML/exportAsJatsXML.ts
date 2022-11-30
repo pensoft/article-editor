@@ -424,7 +424,6 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
     let tableXmlId = tableIdsG[tblid]
     let tableXML = floatsGroup.ele('table-wrap', {id: tableXmlId, position: "float", orientation: "portrait"});
 
-    console.log(tablesObj[tblid]);
     let tableNumber = tableData.tableNumber + 1;
     tableXML.ele('label').txt(`Table ${tableNumber}.`);
 
@@ -438,7 +437,6 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
     let dom1 = document.createElement('div');
     dom.innerHTML = tableData.content;
     let tableContentNodes = domPMParser.parse(dom).toJSON();
-    console.log('table element',tableContentNodes);
     parseNode(tableContentNodes, tableXML, false, '--', 0,{skipTableWrap:true});
 
     let dom2 = document.createElement('div');
@@ -463,7 +461,6 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   const formData = new FormData();
   formData.append("file", file);//https://ps-jats.dev.scalewest.com/validate/xml
   serviceShare.httpClient.post(environment.validate_jats, formData).subscribe((data) => {
-    console.log('validate_jats',data);
   })
 }
 
@@ -721,7 +718,6 @@ let processPmNodeAsXML = (node: any, xmlPar: XMLBuilder, before: string, index: 
     newParNode = xmlPar.ele('list-item')
   } else if (node.type == 'table') {
     if(options&&options.skipTableWrap){
-      console.log(options);
       newParNode = xmlPar.ele('table', {
         "rules": "all",
         "frame": "box",
