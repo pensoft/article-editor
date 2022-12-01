@@ -398,8 +398,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
     let pdfSettings: any = this.fillSettings()
     let articleId = this.ydocService.articleData.uuid;
     //https://ps-article-storage.dev.scalewest.com/api/article/dfc43b3b-4700-4234-b398-bd9bec17db0d
-    let articleData = getYdocData(this.ydocService.ydoc);
-    //let articleData:any = {};
+    //let articleData = getYdocData(this.ydocService.ydoc);
+    let articleData:any = {};
     articleData.pdfSettings = pdfSettings;
     articleData.headerPmNodesJson = headerPmNodesJson;
     articleData.footerPmNodesJson = footerPmNodesJson;

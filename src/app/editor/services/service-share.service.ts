@@ -137,7 +137,8 @@ export class ServiceShare {
     this.ArticleSectionsService!.getAllLayouts().subscribe((articleLayouts: any) => {
       this.articleLayouts = articleLayouts
       const dialogRef = this.dialog.open(ChooseManuscriptDialogComponent, {
-        width: '100%',
+        width: '563px',
+        height: '657px',
         panelClass:'choose-namuscript-dialog',
         data: { layouts: articleLayouts }
       });
