@@ -443,7 +443,6 @@ CanvasRenderer.prototype.prepare = function(node) {
             break;
           default:
             // TODO: should throw an exception here one day
-            //console.log("---Don't know how to handle style " + key);
         }
       }
     }
@@ -456,7 +455,6 @@ CanvasRenderer.prototype.prepare = function(node) {
             break;
           default:
             // TODO: should throw an exception here one day
-            //console.log("---Don't know how to handle attribute " + key);
         }
       }
     }

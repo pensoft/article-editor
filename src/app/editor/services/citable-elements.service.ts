@@ -303,7 +303,6 @@ export class CitableElementsService {
       let elMap = citationElementMap[citType];
       if(this.elementsFromPopupEdit[citType]){
         elementsObjs[elMap.type] = this.elementsFromPopupEdit[citType];
-        console.log(this.elementsFromPopupEdit[citType]);
       }else{
         let elementObjs = this.serviceShare.YdocService[elMap.yjsMap].get(elMap.elementsObj);
         elementsObjs[elMap.type] = elementObjs;
@@ -1004,7 +1003,6 @@ export class CitableElementsService {
   countRenderedViews() {
     this.renderedViews++;
     if (this.renderedViews == 2) {
-      console.log('allViewAreRendered');
       if(this.sub){
         this.sub?.unsubscribe()
         this.sub = undefined
@@ -1185,7 +1183,6 @@ export class CitableElementsService {
     this.updateCitatsText(citations);
     let elsDisplayedInObj = {};
     let elementsObj = this.getElementsObj();
-    console.log(elementsObj);
     Object.keys(elementsObj).forEach((elType) => {
       elsDisplayedInObj[elType] = {}
       Object.keys(elementsObj[elType]).forEach((elId) => {

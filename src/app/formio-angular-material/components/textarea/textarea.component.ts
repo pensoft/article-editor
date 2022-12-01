@@ -198,7 +198,6 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       let temp = document.createElement('div');
       temp.innerHTML = this.value!;
       let node = this.value! ? this.DOMPMParser.parseSlice(temp) : undefined;
-      console.log(node);
       this.editorContainer = this.prosemirrorService.renderEditorWithNoSync(this.ProsemirrorEditor?.nativeElement, this.instance, this.control, options, node);
       let containersCount = 0
       let edView = this.editorContainer.editorView;

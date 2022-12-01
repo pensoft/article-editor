@@ -27,7 +27,6 @@ export class CasbinGlobalObjectsService {
       let objId = reqObjData[reqObjData.length - 1];
       let ref = this.ReferenceItem.items[objId];
       let refOwnerId = ref.user.id;
-      //console.log('isOwner', objId, refOwnerId == currUserId);
       return refOwnerId == currUserId
     }
   }

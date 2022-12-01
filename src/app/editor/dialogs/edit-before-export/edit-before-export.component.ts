@@ -409,7 +409,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
       })
     }) */
     /* this.http.post(environment.print_pdf+'/'+articleId+'/pdf/export',articleData).subscribe((data)=>{
-      console.log('pdf',data);
+      console.log('response for pdf render ',data);
     }) */
      this.http.post(`${API_URL}/articles/items/`+articleId+'/pdf/export',articleData).subscribe((data)=>{
       console.log('pdf',data);

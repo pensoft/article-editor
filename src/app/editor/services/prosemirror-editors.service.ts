@@ -199,7 +199,6 @@ export class ProsemirrorEditorsService {
 
   getScrollPosition() {
     let articleProsemirrorsContainer = document.getElementsByClassName('editor-container')[0];
-    console.log();
     return articleProsemirrorsContainer!.scrollTop!;
   }
 

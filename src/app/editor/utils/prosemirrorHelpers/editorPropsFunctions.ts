@@ -343,7 +343,6 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
           }
         }
       }
-      console.log(key,view.state.selection);
       if(
         sel.from == sel.to
         ){
