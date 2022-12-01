@@ -4971,11 +4971,6 @@
     "d" "1"
     "es5-ext" "~0.10.14"
 
-"esbuild-darwin-64@0.13.8":
-  "integrity" "sha512-b6sdiT84zV5LVaoF+UoMVGJzR/iE2vNUfUDfFQGrm4LBwM/PWXweKpuu6RD9mcyCq18cLxkP6w/LD/w9DtX3ng=="
-  "resolved" "https://registry.npmjs.org/esbuild-darwin-64/-/esbuild-darwin-64-0.13.8.tgz"
-  "version" "0.13.8"
-
 "esbuild-darwin-arm64@0.13.8":
   "integrity" "sha512-R8YuPiiJayuJJRUBG4H0VwkEKo6AvhJs2m7Tl0JaIer3u1FHHXwGhMxjJDmK+kXwTFPriSysPvcobXC/UrrZCQ=="
   "resolved" "https://registry.npmjs.org/esbuild-darwin-arm64/-/esbuild-darwin-arm64-0.13.8.tgz"

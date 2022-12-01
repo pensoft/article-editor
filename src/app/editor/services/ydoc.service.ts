@@ -113,6 +113,18 @@ export class YdocService {
     this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
   }
 
+  getLocation(href) {
+    let location = document.createElement("a");
+    location.href = href;
+    // IE doesn't populate all link properties when setting .href with a relative URL,
+    // however .href will return an absolute URL which then can be used on itself
+    // to populate these additional fields.
+    if (location.host == "") {
+      location.href = location.href;
+    }
+    return location;
+  };
+
   applySectionChange(value: { contentData: editorData | string | editorData | taxonomicCoverageContentData, sectionData: articleSection, type: string }) {
     let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
     let nodeRef: any
@@ -449,7 +461,7 @@ export class YdocService {
     })
     this.providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
     let buildApp = () => {
-      this.provider = new WebsocketProvider(`wss://${environment.WEBSOCKET_HOST}:${environment.WEBSOCKET_PORT}`, this.roomName, this.ydoc, {
+      this.provider = new WebsocketProvider(`wss://${this.getLocation(environment.WEBSOCKET_HOST)}:${environment.WEBSOCKET_PORT}`, this.roomName, this.ydoc, {
         connect: true,
         params: {},
         WebSocketPolyfill: WebSocket,
