@@ -10,6 +10,25 @@ citation {
   white-space: pre;
 }
 
+.data-tree,app-meta-data-tree {
+
+  &::-webkit-scrollbar {
+   width: 0;
+   height: 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+   background-color: transparent !important;
+   border-radius: 3px;
+
+
+  }
+  ::-webkit-scrollbar-track{
+    background-color: transparent !important;
+    color: transparent;
+  }
+}
+
 block-table {
   border: 1px solid #e2e2dd;
   display: block;

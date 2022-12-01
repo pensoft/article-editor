@@ -267,7 +267,8 @@ $treeSpace: 290px;
   width: 22px;
   height: 100px;
   margin: 12px 12px 12px 4px;
-  position: relative;
+  position: absolute;
+  right: 10px;
   align-self: flex-end;
   .editor_buttons_wrapper {
     display: none;
@@ -296,13 +297,7 @@ $treeSpace: 290px;
   display: inline-flex;
 }
 
-::-webkit-scrollbar-thumb {
-  background: none !important;
-}
 
-::-webkit-scrollbar-track {
-  background: none !important;
-}
 
 .floating-button {
   display: none;
