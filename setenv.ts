@@ -13,7 +13,7 @@ const targetPath = isProduction
   ? `./src/environments/environment.prod.ts`
   : `./src/environments/environment.ts`;
 const websocket = {
-  host: process.env.WEBSOCKET_HOST || process.env.ARTICLE_STORAGE_WEBSOCKET_HOST,
+  host: new URL(process.env.WEBSOCKET_HOST || process.env.ARTICLE_STORAGE_WEBSOCKET_HOST).hostname,
   port: process.env.WEBSOCKET_PORT || process.env.ARTICLE_STORAGE_WEBSOCKET_PORT,
 }
 // we have access to our environment variables
@@ -27,6 +27,7 @@ writeFile(packageFile, JSON.stringify(packageContent, null, 4), (err: any) => {
     console.log(`BUILD_NUMBER=${process.env.BUILD_NUMBER}`);
   }
 });
+
 const environmentFileContent = `
 export const environment = {
    production: ${isProduction},
