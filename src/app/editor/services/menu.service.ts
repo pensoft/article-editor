@@ -232,8 +232,10 @@ export class MenuService {
       })
     }
     if(editorType == 'addTableEditor'){
+      console.log('remove');
       removeItemFormMenu('insertTable')
     }if(editorType == 'addFigureEditor'){
+      console.log('remove');
       removeItemFormMenu('insertFigure')
     }
     menuTypes.SimpleMenu = this.attachMenuItems('SimpleMenu');

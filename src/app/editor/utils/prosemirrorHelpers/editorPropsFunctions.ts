@@ -12,8 +12,18 @@ import { EditorView } from "prosemirror-view";
 import { YMap } from "yjs/dist/src/internals";
 import { articleSection } from "../interfaces/articleSection";
 
+function removeStyling(slice:Slice){
+  slice.content.nodesBetween(0,slice.content.size,(node,pos,par,indx)=>{
+    if(node.attrs.styling&&node.attrs.styling.length>0){
+      //@ts-ignore
+      node.attrs.styling = ""
+    }
+  })
+}
+
 export function handlePaste(mathMap: YMap<any>, sectionID: string,sharedService:ServiceShare) {
   return function handlePaste(view: EditorView, event: Event, slice: Slice) {
+    removeStyling(slice)
     let newPastedCitation = false;
     let newPastedTableCitation = false;
     slice.content.nodesBetween(0, slice.size - 2, (node:any, pos, parent) => {

@@ -148,6 +148,7 @@ import { CitableTableComponent } from './editor/dialogs/citable-tables-dialog/ci
 import { InsertTableComponent } from './editor/dialogs/citable-tables-dialog/insert-table/insert-table.component';
 import { JwtModule } from '@auth0/angular-jwt';
 import { NgxLaravelEchoModule } from 'ngx-laravel-echo';
+import { EditorContainerComponent } from './editor/editor-container/editor-container.component';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -261,6 +262,7 @@ const gravatarConfig: GravatarConfig = {
     AddTableDialogComponent,
     CitableTableComponent,
     InsertTableComponent,
+    EditorContainerComponent,
   ],
   imports: [
     HttpClientJsonpModule,

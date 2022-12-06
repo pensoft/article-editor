@@ -18,6 +18,7 @@ import { FormControl } from '@angular/forms';
 import { fakeUser } from '@app/core/services/comments/comments-interceptor.service';
 import { ContributorsApiService } from '@app/core/services/comments/contributors-api.service';
 import { EditCommentDialogComponent } from '../edit-comment-dialog/edit-comment-dialog.component';
+import { Router } from '@angular/router';
 
 export function getDate(date: number) {
   let timeOffset = (new Date()).getTimezoneOffset() * 60 * 1000;
@@ -64,8 +65,11 @@ export class CommentComponent implements OnInit, AfterViewInit {
     public sharedDialog: MatDialog,
     private prosemirrorEditorService: ProsemirrorEditorsService,
     private contributorsApiService:ContributorsApiService,
-    private sharedService: ServiceShare
+    private sharedService: ServiceShare,
+    private router:Router
   ) {
+    this.router.routeReuseStrategy.shouldReuseRoute = () => false;
+    this.router.onSameUrlNavigation = 'reload';
     if (this.ydocService.editorIsBuild) {
       this.commentsMap = this.ydocService.getCommentsMap()
     }

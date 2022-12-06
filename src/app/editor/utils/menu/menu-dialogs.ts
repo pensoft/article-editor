@@ -18,6 +18,7 @@ import { InsertSpecialSymbolDialogComponent } from "../../dialogs/insert-special
 import { TableSizePickerComponent } from "../table-size-picker/table-size-picker.component";
 import { canInsert, createCustomIcon, videoPlayerIcon } from "./common-methods";
 import { InsertTableComponent } from "@app/editor/dialogs/citable-tables-dialog/insert-table/insert-table.component";
+import { StateEffectType } from "@codemirror/state";
 
 let sharedDialog: MatDialog;
 
@@ -66,6 +67,7 @@ let citateRef = (sharedService: ServiceShare) => {
 }
 let canCitate = (state: EditorState) => {
   let sel = state.selection;
+  if(!state.schema.nodes.reference_citation) return false;
   if(sel.from !== sel.to) return false;
   //@ts-ignore
   if(sel.$anchor.path){
@@ -114,7 +116,7 @@ export const insertImageItem = new MenuItem({
     }
     return true;
   },
-  enable(state:EditorState) { return canInsert(state, state.schema.nodes.video) },
+  enable(state:EditorState) { return state.schema.nodes.image&&canInsert(state, state.schema.nodes.image) },
   icon: createCustomIcon('photo.svg', 17)
 });
 
@@ -140,7 +142,7 @@ export const insertFigure = new MenuItem({
     return true;
   },
   //@ts-ignore
-  enable(state) { return state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'figures_nodes_container', 'block_figure' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
+  enable(state) { return state.schema.marks.citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'figures_nodes_container', 'block_figure' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
   icon: createCustomIcon('addfigure.svg', 18)
 })
 
@@ -166,7 +168,7 @@ export const insertTable = new MenuItem({
     return true;
   },
   //@ts-ignore
-  enable(state) { return state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'tables_nodes_container', 'block_table' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
+  enable(state) { return state.schema.marks.table_citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'tables_nodes_container', 'block_table' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
   icon: createCustomIcon('citeTable.svg', 18,18,0,2,1.2)
 })
 
@@ -252,7 +254,7 @@ export let insertVideoItem = (serviceShare:ServiceShare)=>{
       }
       return true
     },
-    enable(state:EditorState) { return canInsert(state, state.schema.nodes.video) },
+    enable(state:EditorState) { return state.schema.nodes.video&&canInsert(state, state.schema.nodes.video) },
     icon: videoPlayerIcon
   });
 }
@@ -262,7 +264,7 @@ export const addMathInlineMenuItem = new MenuItem({
   label: 'Math',
   // @ts-ignore
   run: addMathInline('math_inline'),
-  enable(state:EditorState) { return state.tr.selection.empty },
+  enable(state:EditorState) { return state.schema.nodes.math_inline&&state.tr.selection.empty },
 });
 
 export const addMathBlockMenuItem = new MenuItem({
@@ -270,7 +272,7 @@ export const addMathBlockMenuItem = new MenuItem({
   label: 'BlockMath',
   // @ts-ignore
   run: addMathInline('math_display'),
-  enable(state:EditorState) { return state.tr.selection.empty }
+  enable(state:EditorState) { return state.schema.nodes.math_display&&state.tr.selection.empty }
 });
 
 export const insertLinkItem = new MenuItem({
@@ -292,7 +294,7 @@ export const insertLinkItem = new MenuItem({
       }
     })
   },
-  enable(state:EditorState) { return true },
+  enable(state:EditorState) { return state.schema.marks.link },
   icon: createCustomIcon('connect.svg', 18)
 })
 
@@ -320,7 +322,8 @@ export const insertTableItem = new MenuItem({
       });
     }
     return true
-  }
+  },
+  enable(state:EditorState) { return state.schema.nodes.table },
 });
 
 export const addAnchorTagItem = new MenuItem({
@@ -338,7 +341,7 @@ export const addAnchorTagItem = new MenuItem({
       toggleMark(state.schema.marks.anchorTag, { id: anchorid })(state, dispatch)
     });
   },
-  enable(state:EditorState) { return !state.tr.selection.empty },
+  enable(state:EditorState) { return state.schema.marks.anchorTag&&!state.tr.selection.empty },
   icon: createCustomIcon('anchortag.svg', 19)
 })
 

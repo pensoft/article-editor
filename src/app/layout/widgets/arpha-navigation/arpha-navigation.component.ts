@@ -16,7 +16,7 @@ import { UsersRoleIsChangedComponent } from './users-role-is-changed/users-role-
 export class ArphaNavigationComponent implements AfterViewInit {
   public icon = 'expand_more';
   changeText = false;
-
+  mobileVersion:boolean = false;
   constructor(
     private treeService: TreeService,
     public authService: AuthService,
@@ -24,7 +24,9 @@ export class ArphaNavigationComponent implements AfterViewInit {
     private serviceShare:ServiceShare,
     public sharedDialog: MatDialog,
     public enforcer:EnforcerService,
-  ) {}
+  ) {
+
+  }
 
   openNotAddedToEditorDialog=()=>{
     let cantOpenDialog = this.sharedDialog.open(CantOpenArticleDialogComponent)
@@ -32,8 +34,14 @@ export class ArphaNavigationComponent implements AfterViewInit {
       this.openDashBoard()
       this.serviceShare.resetServicesData()
     })
+    this.serviceShare.ProsemirrorEditorsService.mobileVersionSubject.subscribe((data) => {
+      // data == true => mobule version
+      this.mobileVersion = data
+    })
   }
-
+  openchooseDialog() {
+    this.serviceShare.createNewArticle(true);
+  }
   openNotifyUserRoleChangeDialog = (oldrole:string,newrole:string)=>{
     let cantOpenDialog = this.sharedDialog.open(UsersRoleIsChangedComponent,{data:{oldrole,newrole}})
   }
@@ -46,6 +54,7 @@ export class ArphaNavigationComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.serviceShare.openNotAddedToEditorDialog = this.openNotAddedToEditorDialog
     this.serviceShare.openNotifyUserRoleChangeDialog = this.openNotifyUserRoleChangeDialog
+    this.mobileVersion = this.serviceShare.ProsemirrorEditorsService.mobileVersion;
   }
 
   toggleTreeDrawer() {

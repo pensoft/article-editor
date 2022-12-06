@@ -50,7 +50,8 @@ export const articleBasicStructure: articleSection[] = [
     sectionVersionId: 0,
     sectionTypeVersion: 1,
     sectionTypeID: 1,
-    sectionMeta: {main: false}
+    sectionMeta: {main: false},
+    customSchema:{isCustom:false}
   },
   {
     title: {label: 'Collection Data', name: 'Collection Data', template: 'Collection Data', editable: true},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
@@ -68,7 +69,8 @@ export const articleBasicStructure: articleSection[] = [
     type: 'simple',
     sectionTypeID: 2,
     sectionTypeVersion: 1,
-    sectionMeta: {main: false}
+    sectionMeta: {main: false},
+    customSchema:{isCustom:false}
   }];
 
 export const customSectionEnums = {
@@ -127,6 +129,7 @@ export const renderSectionFunc:
   let newArticleSection: articleSection
 
   let sectionLabel = (sectionFromBackend.settings && sectionFromBackend.settings.label && sectionFromBackend.settings.label != "") ? sectionFromBackend.settings.label : sectionFromBackend.label
+
   if (sectionFromBackend.type == 0) {
     newArticleSection = {
       title: {
@@ -152,7 +155,8 @@ export const renderSectionFunc:
       custom:sectionFromBackend.customSection?true:undefined,
       sectionTypeID: sectionFromBackend.id,
       sectionTypeVersion: sectionFromBackend.version,
-      sectionMeta: {main: false}
+      sectionMeta: {main: false},
+      customSchema:{isCustom:false}
     }
   } else if (sectionFromBackend.type == 1) {
     newArticleSection = {
@@ -180,6 +184,7 @@ export const renderSectionFunc:
       sectionTypeID: sectionFromBackend.id,
       sectionTypeVersion: sectionFromBackend.version,
       sectionMeta: {main: false},
+      customSchema:{isCustom:false},
       compatibility: sectionFromBackend.compatibility ? sectionFromBackend.compatibility : undefined
     }
     if (sectionFromBackend.complex_section_settings) {
@@ -227,6 +232,7 @@ export const renderSectionFunc:
       sectionTypeID: sectionFromBackend.id,
       sectionTypeVersion: sectionFromBackend.version,
       sectionMeta: {main: false},
+      customSchema:{isCustom:false},
       compatibility: taxonTreatmentSection.compatibility ? taxonTreatmentSection.compatibility : undefined
     }
     if (sectionFromBackend.complex_section_settings) {
@@ -241,6 +247,124 @@ export const renderSectionFunc:
       newArticleSection.subsectionValidations = minmaxValds;
     }
   }
+  let checkIfSecionHasCustomSchema = (secFromBackend:any,newMappedSection:articleSection)=>{
+    if(secFromBackend.name == "Section with Schema1"){
+      newMappedSection.customSchema.isCustom = true;
+      newMappedSection.customSchema.schema = {
+        nodes:[
+          "doc",
+          "form_field",
+          "inline_block_container",
+          "paragraph",
+          "form_field_inline",
+          "form_field_inline_view",
+          "reference_citation",
+          "reference_citation_end",
+          "reference_container",
+          "reference_block_container",
+          "image",
+          "video",
+          "text",
+          "blockquote",
+          "horizontal_rule",
+          "heading",
+          "code_block",
+          "hard_break",
+          "page_break",
+          "spacer",
+          "math_inline",
+          "math_display",
+          "list_item",
+          "bullet_list",
+          "ordered_list"
+      ],
+        marks:[
+          "math_select",
+          "subscript",
+          "superscript",
+          "comment",
+          "format_change",
+          "insertion",
+          "deletion",
+          "delFromPopup",
+          "insFromPopup",
+          "link",
+          "em",
+          "strong",
+          "code",
+          "invalid",
+          "anchorTag",
+          "underline",
+          "ychange"
+      ]
+      }
+    }else if(secFromBackend.name == "Section with Schema2"){
+      newMappedSection.customSchema.isCustom = true;
+      newMappedSection.customSchema.schema = {
+        nodes:[
+          "doc",
+          "form_field",
+          "inline_block_container",
+          "paragraph",
+          "form_field_inline",
+          "form_field_inline_view",
+          "reference_citation",
+          "reference_citation_end",
+          "reference_container",
+          "reference_block_container",
+          "table",
+          "table_row",
+          "table_cell",
+          "table_header",
+          "image",
+          "video",
+          "block_figure",
+          "figure_components_container",
+          "figure_component",
+          "figures_nodes_container",
+          "figure_descriptions_container",
+          "figure_component_description",
+          "figure_description",
+          "tables_nodes_container",
+          "block_table",
+          "table_header_container",
+          "table_footer_container",
+          "table_description",
+          "table_content",
+          "table_container",
+          "text",
+          "blockquote",
+          "horizontal_rule",
+          "heading",
+          "code_block",
+          "hard_break",
+          "page_break",
+          "spacer",
+          "list_item",
+          "bullet_list",
+          "ordered_list"
+      ],
+        marks:[
+          "math_select",
+          "comment",
+          "format_change",
+          "insertion",
+          "deletion",
+          "delFromPopup",
+          "insFromPopup",
+          "table_citation",
+          "citation",
+          "link",
+          "code",
+          "invalid",
+          "anchorTag",
+          "underline",
+          "ychange"
+      ]
+      }
+    }
+  }
+  checkIfSecionHasCustomSchema(sectionFromBackend,newArticleSection)
   //@ts-ignore
   newArticleSection.initialRender = ydoc.guid
   //@ts-ignore

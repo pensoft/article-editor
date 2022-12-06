@@ -25,6 +25,8 @@ import * as Y from 'yjs'
 import { D } from '@angular/cdk/keycodes';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { EditSectionService } from '@app/editor/dialogs/edit-section-dialog/edit-section.service.js';
+import { includes } from 'lodash';
+import { state } from '@angular/animations';
 
 export const undoIcon = {
   width: 1024, height: 1024,
@@ -46,23 +48,25 @@ function getLinkMenuItemRun(state: EditorState, dispatch: any, view: EditorView)
 
 }
 
-function markItem(markType: MarkType, options: any) {
+function markItem(markType: MarkType,markKey:string, options: any) {
   let passedOptions: any = {
     active(state: EditorState) { return markActive(state, markType) },
-    enable: true
+    enable:(state:EditorState)=>{return state.schema.marks[markKey]}
   }
   for (let prop in options) passedOptions[prop] = options[prop]
   return cmdItem(toggleMark(markType), passedOptions)
 }
 
-function wrapListItem(nodeType: NodeType, options: any) {
-  return cmdItem(wrapInList(nodeType, options.attrs), options)
+function wrapListItem(nodeType: NodeType,nodeItem:string, options: any) {
+  let wrapListMenuItem = cmdItem(wrapInList(nodeType, options.attrs), options)
+  wrapListMenuItem.enable = (state:EditorState)=>{return state.schema.nodes[nodeItem]}
+  return wrapListMenuItem
 }
 
 function cmdItem(cmd: any, options: any) {
   let passedOptions: any = {
     label: options.title,
-    run: cmd
+    run: cmd,
   }
   for (let prop in options) passedOptions[prop] = options[prop]
   if ((!options.enable || options.enable === true) && !options.select)
@@ -132,6 +136,7 @@ const createComment = (commentsMap: YMap<any>, addCommentSubject: Subject<any>, 
 }
 
 export const isCommentAllowed = (state: EditorState): boolean => {
+  if(!state.schema.marks.comment)return false
   const commentMark = state.schema.marks.comment;
   const mark = DocumentHelpers.findMark(state, commentMark, true);
 
@@ -158,37 +163,40 @@ export const isCommentAllowed = (state: EditorState): boolean => {
   return allowed;
 };
 
-const toggleUnderline = markItem(schema.marks.underline, { title: "Toggle underline", icon: createCustomIcon('underline.svg', 14) })
+const toggleUnderline = markItem(schema.marks.underline,'underline', { title: "Toggle underline", icon: createCustomIcon('underline.svg', 14) })
 
-const toggleStrong = markItem(schema.marks.strong, { title: "Toggle strong style", icon: createCustomIcon('Text2.svg', 12) })
+const toggleStrong = markItem(schema.marks.strong,'strong', { title: "Toggle strong style", icon: createCustomIcon('Text2.svg', 12) })
 
-const toggleEm = markItem(schema.marks.em, { title: "Toggle emphasis", icon: createCustomIcon('italic.svg') })
+const toggleEm = markItem(schema.marks.em,'em', { title: "Toggle emphasis", icon: createCustomIcon('italic.svg') })
 
-const toggleCode = markItem(schema.marks.code, { title: "Toggle code font", icon: icons.code })
+const toggleCode = markItem(schema.marks.code,'code', { title: "Toggle code font", icon: icons.code })
 
-const wrapBulletList = wrapListItem(schema.nodes.bullet_list, {
+const wrapBulletList = wrapListItem(schema.nodes.bullet_list,'bullet_list', {
   title: "Wrap in bullet list",
   icon: createCustomIcon('bullets.svg', 25, 25)
 })
 
-const wrapOrderedList = wrapListItem(schema.nodes.ordered_list, {
+const wrapOrderedList = wrapListItem(schema.nodes.ordered_list,'ordered_list', {
   title: "Wrap in ordered list",
   icon: createCustomIcon('numbering.svg', 16)
 })
 
 const wrapBlockQuote = wrapItem(schema.nodes.blockquote, {
   title: "Wrap in block quote",
-  icon: icons.blockquote
+  icon: icons.blockquote,
+  enable:(state:EditorState)=>{return !!state.schema.nodes.blockquote}
 })
 
 const makeParagraph = blockTypeItem(schema.nodes.paragraph, {
   title: "Change to paragraph",
-  label: "Plain"
+  label: "Plain",
+  enable:(state:EditorState)=>{return !!state.schema.nodes.paragraph}
 })
 
 const makeCodeBlock = blockTypeItem(schema.nodes.code_block, {
   title: "Change to code block",
-  label: "Code"
+  label: "Code",
+  enable:(state:EditorState)=>{return !!state.schema.nodes.code_block}
 })
 
 let headingsObj: any = {};
@@ -247,36 +255,21 @@ for (let i = 1; i <= 6; i++)
   headingsObj["makeHead" + i] = wrapParagraphIn(schema.nodes.heading, {
     title: "Change to heading " + i,
     label: "Level " + i,
-    attrs: { tagName: 'h' + i }
+    attrs: { tagName: 'h' + i },
+    enable:(state:EditorState)=>{return !!state.schema.nodes.heading}
   })
 const headings = Object.values(headingsObj);
 
 const insertHorizontalRule = new MenuItem({
   title: "Insert horizontal rule",
   label: "Horizontal rule",
-  enable(state: EditorState) { return canInsert(state, schema.nodes.horizontal_rule) },
+  enable(state: EditorState) { return state.schema.nodes.horizontal_rule&&canInsert(state, schema.nodes.horizontal_rule) },
   run(state: EditorState, dispatch: any) { dispatch(state.tr.replaceSelectionWith(schema.nodes.horizontal_rule.create())) }
 })
 
-const undoYJS = new MenuItem({
-  icon: undoIcon,
-  label: "undo",
-  enable(state: EditorState) { return true },
-  //@ts-ignore
-  run: undo
-})
+const toggleSuperscriptItem = markItem(schema.marks.superscript,'superscript', { title: 'Toggle superscript', icon: createCustomIcon('superscript.svg', 20) })
 
-const redoYJS = new MenuItem({
-  icon: redoIcon,
-  label: "redo",
-  enable(state: EditorState) { return true },
-  //@ts-ignore
-  run: redo
-})
-
-const toggleSuperscriptItem = markItem(schema.marks.superscript, { title: 'Toggle superscript', icon: createCustomIcon('superscript.svg', 20) })
-
-const toggleSubscriptItem = markItem(schema.marks.subscript, { title: 'Toggle subscript', icon: createCustomIcon('subscript.svg', 20) })
+const toggleSubscriptItem = markItem(schema.marks.subscript,'subscript', { title: 'Toggle subscript', icon: createCustomIcon('subscript.svg', 20) })
 
 const setAlignLeft = new MenuItem({
   title: 'Align element to left',
@@ -372,7 +365,7 @@ function insertPB(state: EditorState, dispatch: (p: Transaction) => void, view: 
 }
 
 function canInsertPB(state: EditorState) {
-  return true;
+  return !!state.schema.nodes.page_break;
 }
 
 const insertPageBreak = new MenuItem({
@@ -483,8 +476,6 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
   'headings': headings,
   'insertPageBreak': insertPageBreak,
   'insertHorizontalRule': insertHorizontalRule,
-  /* 'undoItem': undoYJS,
-  'redoItem': redoYJS, */
   'undoItem': undoItemPM,
   'redoItem': redoItemPM,
   'undoItemPM': undoItemPM,
