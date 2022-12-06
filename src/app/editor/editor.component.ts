@@ -97,6 +97,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     private changeDetection: ChangeDetectorRef,
     private referencePluginService:ReferencePluginService
   ) {
+    console.log('CONTRUCTION THE EDITOR COMPONENT');
     this.previewMode = this.prosemirrorEditorServie.previewArticleMode
     this.titleControl.valueChanges
       .pipe(

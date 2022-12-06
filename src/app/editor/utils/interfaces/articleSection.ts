@@ -66,7 +66,8 @@ export interface articleSection {
   sectionMeta: { main: boolean },
   subsectionValidations?: { [version_id: number]: { min: number, max: number } },
   compatibility?: { allow: { all: boolean, values: number[] }, deny: { all: boolean, values: number[] } }
-  custom?:true
+  custom?:true,
+  customSchema:{isCustom:boolean,schema?:{nodes:string[],marks:string[]}};
 }
 
 export interface flatArticleSection {

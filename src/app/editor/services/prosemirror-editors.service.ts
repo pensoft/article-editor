@@ -10,7 +10,7 @@ import * as userSpec from '../utils/userSpec';
 import { sherePreviewModeState } from '../utils/prosemirror-menu-master/src/menu.js';
 //@ts-ignore
 import { buildMenuItems, exampleSetup } from '../utils/prosemirror-example-setup-master/src/index.js';
-import { /* endEditorSchema, */schema } from '../utils/Schema';
+import { /* endEditorSchema, */schema,nodes as nodesDefinitions,marks as marksDefinitions, PMDOMSerializer } from '../utils/Schema';
 import {
   insertMathCmd,
   makeInlineMathInputRule,
@@ -21,7 +21,7 @@ import {
   REGEX_BLOCK_MATH_DOLLARS,
   REGEX_INLINE_MATH_DOLLARS
 } from '@benrbray/prosemirror-math';
-import { DOMSerializer, Node, NodeType, Slice } from 'prosemirror-model';
+import { DOMSerializer, Node, NodeType, Schema, Slice } from 'prosemirror-model';
 //@ts-ignore
 import { EditorView } from 'prosemirror-view';
 import { EditorState, Plugin, PluginKey, Transaction, TextSelection, Selection, NodeSelection } from 'prosemirror-state';
@@ -114,7 +114,7 @@ export class ProsemirrorEditorsService {
   interpolateTemplate: any
   userInfo: any;
 
-  DOMPMSerializer = DOMSerializer.fromSchema(schema);
+  FullSchemaDOMPMSerializer = DOMSerializer.fromSchema(schema);
 
   color = random.oneOf(userSpec.colors);
   user = random.oneOf(userSpec.testUsers);
@@ -135,8 +135,6 @@ export class ProsemirrorEditorsService {
     })
   }
 
-  inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, schema.nodes.math_inline, (match: any) => { return { math_id: uuidv4() } });
-  blockMathInputRule = this.makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, schema.nodes.math_display, (match: any) => { return { math_id: uuidv4() } });
 
   OnOffTrackingChangesShowTrackingSubject = new Subject<{ trackTransactions: boolean }>()
   trackChangesMeta: any
@@ -176,7 +174,6 @@ export class ProsemirrorEditorsService {
     private trackChangesService: TrackChangesService,
     private yjsHistory: YjsHistoryService,
     private serviceShare: ServiceShare) {
-
 
     // change the mathBlock input rule
     sherePreviewModeState(this.previewArticleMode)
@@ -303,6 +300,9 @@ export class ProsemirrorEditorsService {
     //view.focus()
   }
 
+  inlineMathInputRuleGlobal = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, schema.nodes.math_inline, (match: any) => { return { math_id: uuidv4() } });
+  blockMathInputRuleGlobal = this.makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, schema.nodes.math_display, (match: any) => { return { math_id: uuidv4() } });
+
   scrollMainEditorIntoView(id: string) {
     try {
       let container = this.editorContainers[id];
@@ -315,6 +315,23 @@ export class ProsemirrorEditorsService {
     }
   }
 
+  renderCustomSchemaIfAny(section:articleSection){
+    if(section&&section.customSchema.isCustom){
+      let nodes = {}
+      let marks = {}
+      section.customSchema.schema.nodes.forEach((nodeName)=>{
+        nodes[nodeName] = nodesDefinitions[nodeName]
+      })
+      section.customSchema.schema.marks.forEach((nodeMark)=>{
+        marks[nodeMark] = marksDefinitions[nodeMark]
+      })
+      let custumSchema = new Schema({nodes,marks});
+      console.log(custumSchema);
+      return custumSchema;
+    }
+    return schema
+  }
+
   renderEditorInWithId(EditorContainer: HTMLDivElement, editorId: string, section: articleSection): editorContainer {
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
 
@@ -322,7 +339,16 @@ export class ProsemirrorEditorsService {
       EditorContainer.appendChild(this.editorContainers[editorId].containerDiv);
       return this.editorContainers[editorId]
     }
+    let editorSchema = this.renderCustomSchemaIfAny(section);
 
+    let inlineMathInputRule
+    let blockMathInputRule
+    if(editorSchema.nodes.math_inline&&editorSchema.nodes.math_display){
+      inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, editorSchema.nodes.math_inline, (match: any) => { return { math_id: uuidv4() } });
+      blockMathInputRule = this.makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, editorSchema.nodes.math_display, (match: any) => { return { math_id: uuidv4() } });
+    }
+
+    console.log(this.menuTypes);
     let container = document.createElement('div');
     let editorView: EditorView;
     let colors = this.colors
@@ -343,7 +369,7 @@ export class ProsemirrorEditorsService {
     let GroupControl = this.treeService.sectionFormGroups;
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
-      appendTransaction: updateControlsAndFigures(schema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.yjsHistory.YjsHistoryKey, this.interpolateTemplate, this.serviceShare, GroupControl, section),
+      appendTransaction: updateControlsAndFigures(editorSchema, this.ydocService.figuresMap!, this.ydocService.mathMap!, this.editorContainers, this.rerenderFigures, this.yjsHistory.YjsHistoryKey, this.interpolateTemplate, this.serviceShare, GroupControl, section),
       filterTransaction: preventDragDropCutOnNoneditablenodes(this.ydocService.figuresMap!, this.ydocService.mathMap!, this.rerenderFigures, editorID, this.serviceShare),
       //@ts-ignore
       historyPreserveItems: true,
@@ -474,23 +500,25 @@ export class ProsemirrorEditorsService {
 
     this.editorsEditableObj[editorID] = true
 
-    let edState = EditorState.create({
-      schema: schema,
+    let keymapObj = {
+      'Mod-z': this.yjsHistory.undo,
+      'Mod-y': this.yjsHistory.redo,
+      'Mod-Shift-z': this.yjsHistory.redo,
+      'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
+      'Shift-Tab': goToNextCell(-1)
+    }
+
+    let inputRulesObj = { rules: [] }
+    if(editorSchema.nodes.math_inline&&editorSchema.nodes.math_display){
+      inputRulesObj.rules.push(inlineMathInputRule, blockMathInputRule)
+    }
+
+    let stateConfObj = {
+      schema: editorSchema,
       plugins: [
         ...yjsPlugins,
         mathPlugin,
-
-        keymap({
-          'Mod-z': this.yjsHistory.undo,
-          'Mod-y': this.yjsHistory.redo,
-          'Mod-Shift-z': this.yjsHistory.redo,
-          'Mod-Space': insertMathCmd(schema.nodes.math_inline),
-          'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
-          'Tab': goToNextCell(1),
-          'Shift-Tab': goToNextCell(-1)
-        }),
-        columnResizing({}),
-        tableEditing(),
+        keymap(keymapObj),
         //history({renderFiguresFunc:this.rerenderFigures}),
         this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
@@ -505,19 +533,28 @@ export class ProsemirrorEditorsService {
         this.trackChangesService.getHideShowPlugin(),
         this.citatContextPluginService.citatContextPlugin,
         this.linkPopUpPluginService.linkPopUpPlugin,
-        inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
+        inputRules(inputRulesObj),
         ...menuBar({
           floating: true,
           content: this.menuTypes, containerClass: menuContainerClass
         })
-      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */history: false, containerClass: menuContainerClass }))
+      ].concat(exampleSetup({ schema:editorSchema, /* menuContent: fullMenuWithLog, */history: false, containerClass: menuContainerClass }))
       ,
       // @ts-ignore
       sectionName: editorID,
       // @ts-ignore
       sectionID: editorID,
       // @ts-ignore
-    });
+    }
+
+    if(editorSchema.nodes.math_inline){
+      keymapObj['Mod-Space'] = insertMathCmd(editorSchema.nodes.math_inline)
+    }
+    if(editorSchema.nodes.table){
+      keymapObj['Tab'] = goToNextCell(1)
+      stateConfObj.plugins.push(columnResizing({}),tableEditing());
+    }
+    let edState = EditorState.create(stateConfObj);
 
     let mapping = new Mapping();
     let nodeType = 1;
@@ -643,10 +680,10 @@ export class ProsemirrorEditorsService {
           setTimeout(()=>{
             if(insNodeStartpos<from&&from<insNodeEndpos){ //  the start of the selection in insertion node
               //should set new sel from=from to=insNodeEndpos
-              view.dispatch(view.state.tr.setSelection(TextSelection.between(view.state.tr.doc.resolve(from),view.state.tr.doc.resolve(insNodeEndpos),-1)).replaceSelectionWith(schema.text(text,[actualInsMark])))
+              view.dispatch(view.state.tr.setSelection(TextSelection.between(view.state.tr.doc.resolve(from),view.state.tr.doc.resolve(insNodeEndpos),-1)).replaceSelectionWith(editorSchema.text(text,[actualInsMark])))
             }else if(insNodeStartpos<to&&to<insNodeEndpos){//  the end of the selection in insertion node
               //should set new sel from=insNodeStartpos to=to
-              view.dispatch(view.state.tr.setSelection(TextSelection.between(view.state.tr.doc.resolve(insNodeStartpos),view.state.tr.doc.resolve(to),1)).replaceSelectionWith(schema.text(text,[actualInsMark])))
+              view.dispatch(view.state.tr.setSelection(TextSelection.between(view.state.tr.doc.resolve(insNodeStartpos),view.state.tr.doc.resolve(to),1)).replaceSelectionWith(editorSchema.text(text,[actualInsMark])))
             }
           },10)
           return true;
@@ -733,6 +770,7 @@ export class ProsemirrorEditorsService {
   renderDocumentEndEditor(EditorContainer: HTMLDivElement, figures: figure[]): editorContainer {
     let editorId = 'endEditor'
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
+
 
     if (this.editorContainers[editorId]) {
       EditorContainer.appendChild(this.editorContainers[editorId].containerDiv);
@@ -922,7 +960,9 @@ export class ProsemirrorEditorsService {
   }
 
   renderEditorWithNoSync(EditorContainer: HTMLDivElement, formIOComponentInstance: any, control: FormioControl, options: any, nodesArray?: Slice): editorContainer {
-
+    let section = options.containerSection
+    let editorSchema = this.renderCustomSchemaIfAny(section);
+    let CustomDOMPMSerializer = DOMSerializer.fromSchema(editorSchema)
     let placeholder = (formIOComponentInstance.component.placeholder && formIOComponentInstance.component.placeholder !== '') ? formIOComponentInstance.component.placeholder : undefined
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
     EditorContainer.innerHTML = ''
@@ -930,6 +970,15 @@ export class ProsemirrorEditorsService {
     let container = document.createElement('div');
     let editorView: EditorView;
     let doc: Node;
+
+    let inlineMathInputRule
+    let blockMathInputRule
+    if(editorSchema.nodes.math_inline&&editorSchema.nodes.math_display){
+      inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, editorSchema.nodes.math_inline, (match: any) => { return { math_id: uuidv4() } });
+      blockMathInputRule = this.makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, editorSchema.nodes.math_display, (match: any) => { return { math_id: uuidv4() } });
+    }
+
+
     if (!options.noLabel) {
       let componentLabel = formIOComponentInstance.component.label;
       let labelTag = document.createElement('div');
@@ -939,12 +988,12 @@ export class ProsemirrorEditorsService {
     }
     let sectionID = options.sectionID
     if (!nodesArray || nodesArray.size == 0) {
-      doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, schema.nodes.paragraph.create({})))
+      doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({}, editorSchema.nodes.paragraph.create({})))
     } else {
-      doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, nodesArray.content))
+      doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({}, nodesArray.content))
     }
     if(options.rawNodeContent){
-      doc = schema.nodes.doc.create({},nodesArray.content);
+      doc = editorSchema.nodes.doc.create({},nodesArray.content);
     }
     let menuContainerClass = "popup-menu-container";
 
@@ -970,9 +1019,9 @@ export class ProsemirrorEditorsService {
         let containerElement = document.createElement('div');
         let htmlNOdeRepresentation
         if(options.rawNodeContent){
-          htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(newState.doc.content)
+          htmlNOdeRepresentation = CustomDOMPMSerializer.serializeFragment(newState.doc.content)
         }else{
-          htmlNOdeRepresentation = this.DOMPMSerializer.serializeFragment(newState.doc.content.firstChild!.content)
+          htmlNOdeRepresentation = CustomDOMPMSerializer.serializeFragment(newState.doc.content.firstChild!.content)
         }
         containerElement.appendChild(htmlNOdeRepresentation);
         options.onChange(true, containerElement.innerHTML)
@@ -1004,32 +1053,33 @@ export class ProsemirrorEditorsService {
     if (options.menuType) {
       menu = { main: menuTypes[options.menuType] }
     }
-
-    let edState = EditorState.create({
+    let keymapObj = {
+      'Mod-z': undo,
+      'Mod-y': redo,
+      'Mod-Shift-z': undo,
+      'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
+      'Shift-Tab': goToNextCell(-1)
+    }
+    let inputRulesObj = { rules: [] }
+    if(editorSchema.nodes.math_inline&&editorSchema.nodes.math_display){
+      inputRulesObj.rules.push(inlineMathInputRule, blockMathInputRule)
+    }
+    let stateConfObj = {
       doc,
-      schema: schema,
+      schema: editorSchema,
       plugins: [
         mathPlugin,
-        keymap({
-          'Mod-z': undo,
-          'Mod-y': redo,
-          'Mod-Shift-z': undo,
-          'Mod-Space': insertMathCmd(schema.nodes.math_inline),
-          'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
-          'Tab': goToNextCell(1),
-          'Shift-Tab': goToNextCell(-1)
-        }),
-        columnResizing({}),
-        tableEditing(),
+        keymap(keymapObj),
+
         this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         this.trackChangesService.getHideShowPlugin(),
-        inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
+        inputRules(inputRulesObj),
         ...menuBar({
           floating: true,
           content: menu ? menu : menuTypes, containerClass: menuContainerClass
         })
-      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
+      ].concat(exampleSetup({ schema:editorSchema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
       ,
       // @ts-ignore
       data: { placeHolder: placeholder },
@@ -1037,7 +1087,18 @@ export class ProsemirrorEditorsService {
       sectionName: editorID,
       sectionID: sectionID,
       editorType: 'popupEditor'
-    });
+    }
+    if(editorSchema.nodes.math_inline){
+      keymapObj['Mod-Space'] = insertMathCmd(editorSchema.nodes.math_inline)
+    }
+    if(editorSchema.nodes.table){
+      keymapObj['Tab'] = goToNextCell(1)
+      stateConfObj.plugins.push(columnResizing({}),tableEditing());
+    }
+
+
+
+    let edState = EditorState.create(stateConfObj);
     setTimeout(() => {
       this.initDocumentReplace[editorID] = false;
     }, 600);
@@ -1181,7 +1242,7 @@ export class ProsemirrorEditorsService {
         columnResizing({}),
         tableEditing(),
         this.placeholderPluginService.getPlugin(),
-        inputRules({ rules: [this.inlineMathInputRule, this.blockMathInputRule] }),
+        inputRules({ rules: [this.inlineMathInputRuleGlobal, this.blockMathInputRuleGlobal] }),
         ...menuBar({
           floating: true,
           content: menu ? menu : this.menuTypes, containerClass: menuContainerClass

@@ -190,10 +190,7 @@ export class RefsApiService {
         return {data: this.mapRefItems({data: [data.data]})}
       }))
     }
-    return this._http.post('https://something/references', {ref}).pipe(map((data) => {
-      return data
-    }));
-    ;
+    console.error('Nothing passed')
   }
 
   editReference(ref: any, global: boolean, formIOData: any, refType: any,useOldTime?:true) {

@@ -207,7 +207,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
           let xmlFragment = this.ydocService.ydoc.getXmlFragment(node.sectionID);
           let templDiv = document.createElement('div');
           templDiv.innerHTML = result.compiledHtml
-          let node1 = DOMParser.fromSchema(schema).parse(templDiv.firstChild!);
+          let node1 = DOMParser.fromSchema(this.prosemirrorEditorsService.editorContainers[node.sectionID].editorView.state.schema).parse(templDiv.firstChild!);
           if (trackStatus) {
             //const snapshotFromBackGround = Y.snapshot(this.ydocService.ydoc);
             updateYFragment(updateYdoc, updateXmlFragment, node1, new Map());

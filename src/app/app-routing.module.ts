@@ -31,6 +31,7 @@ import { CasbinGuard } from './casbin/guard/casbin.guard';
 import { CasbinResolver } from './casbin/resolver/casbin.resolver';
 import { DashboardResolver } from './casbin/resolver/dashboard.resolver';
 import { AllnotificationsComponent } from './layout/widgets/arpha-navigation/allnotifications/allnotifications.component';
+import { EditorContainerComponent } from './editor/editor-container/editor-container.component';
 
 const routes: Routes = [
   { path: 'profile-info', component: ProfileInfoComponent },
@@ -73,7 +74,7 @@ const routes: Routes = [
       { path: 'casbin-tes', canActivate: [AuthGuard, AnyProjectsGuard], component:  TestPageComponent},
       { path: ':id', canActivate: [AuthGuard] ,children:[
         {path:'',canActivate:[LoadedCasbinGuard],children:[
-          {path:'',canActivate:[CasbinGuard],component:EditorComponent,resolve:{product:CasbinResolver}}
+          {path:'',canActivate:[CasbinGuard],component:EditorContainerComponent,resolve:{product:CasbinResolver}}
         ]}
       ]},
     ],

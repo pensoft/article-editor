@@ -13,6 +13,7 @@ import { YdocService } from 'src/app/editor/services/ydoc.service';
 //@ts-ignore
 import Validator from 'formiojs/validator/Validator.js';
 import { ClientRequest } from 'http';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 
 @Component({
   selector: 'mat-formio-textarea',
@@ -50,7 +51,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     private prosemirrorService: ProsemirrorEditorsService,
     private ydocService: YdocService,
     public element: ElementRef,
-
+    private serviceShare:ServiceShare,
 
     public ref: ChangeDetectorRef) {
     super(element, ref)
@@ -195,6 +196,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       })
       options.path = this.instance.path
       options.onChange = this.onChange1
+      options.containerSection = this.serviceShare.TreeService.findNodeById(options.sectionID);
       let temp = document.createElement('div');
       temp.innerHTML = this.value!;
       let node = this.value! ? this.DOMPMParser.parseSlice(temp) : undefined;

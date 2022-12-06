@@ -205,7 +205,7 @@ export class CitableElementsService {
                     if (citationMark.attrs.nonexistingtable !== 'true') {
                       let citateNodeText = elementMaping.deletedElTxt;
                       let newNode = (edView.state.schema as Schema).text(citateNodeText) as Node
-                      newNode = newNode.mark([schema.mark(citationMark.type.name, { ...citationMark.attrs, nonexistingtable: 'true' })])
+                      newNode = newNode.mark([edView.state.schema.mark(citationMark.type.name, { ...citationMark.attrs, nonexistingtable: 'true' })])
                       edView.dispatch(edView.state.tr.replaceWith(pos,
                         pos + node.nodeSize
                         , newNode).setMeta('citatsTextChange', true)
@@ -247,7 +247,7 @@ export class CitableElementsService {
                     citatString += elsArr.join(', ')
                     citatString += ' '
                     let newNode = (edView.state.schema as Schema).text(citatString) as Node
-                    newNode = newNode.mark([schema.mark(citationMark.type.name, { ...citationMark.attrs, citated_elements: citatedElements, nonexistingtable: 'false' })])
+                    newNode = newNode.mark([edView.state.schema.mark(citationMark.type.name, { ...citationMark.attrs, citated_elements: citatedElements, nonexistingtable: 'false' })])
                     edView.dispatch(edView.state.tr.replaceWith(pos,
                       pos + node.nodeSize
                       , newNode).setMeta('citatsTextChange', true)
@@ -686,10 +686,10 @@ export class CitableElementsService {
     let elementsTemplates = this.getElementsTemplates()
     let renderedViewsMetaData: any = []
     let renderedViews = 0;
-    let DOMPMParser = DOMParser.fromSchema(schema)
+    let view = this.serviceShare.ProsemirrorEditorsService.editorContainers['endEditor'].editorView
+    let DOMPMParser = DOMParser.fromSchema(view.state.schema)
 
     let displayViews = (data: any) => {
-      let view = this.serviceShare.ProsemirrorEditorsService.editorContainers['endEditor'].editorView
       let nodeStart: number = view.state.doc.nodeSize - 2
       let nodeEnd: number = view.state.doc.nodeSize - 2
 
@@ -1018,7 +1018,6 @@ export class CitableElementsService {
     }
     let elementObjs = this.getElementsObj()
     let elementsTemplates = this.getElementsTemplates();
-    let DOMPMParser = DOMParser.fromSchema(schema)
     let numberOfElsObj: number = 0;
     Object.keys(elementObjs).forEach((type: any) => {
       let elsOfType = elementObjs[type];
@@ -1058,7 +1057,8 @@ export class CitableElementsService {
             this.serviceShare.ProsemirrorEditorsService.interpolateTemplate(elementTemplate.html, serializedElementToFormIOsubmission, elementFormGroup).then((data: any) => {
               let templ = document.createElement('div')
               templ.innerHTML = data
-              let Slice = DOMPMParser.parse(templ.firstChild!)
+              let DOMParserFormCurrSection  = DOMParser.fromSchema(view.state.schema)
+              let Slice = DOMParserFormCurrSection.parse(templ.firstChild!)
               renderedViews++;
               renderedViewsMetaData[i] = {
                 renderedData: Slice.content.firstChild,
@@ -1162,7 +1162,7 @@ export class CitableElementsService {
           let type = renderedViewData.elType;
           let node = renderedViewData.renderedData
           let containerNodeName = citationElementMap[elTypeToCitMap[type]].containerNodeName;
-          let containerNode = schema.nodes[containerNodeName].create({}, node);
+          let containerNode = data.edView.state.schema.nodes[containerNodeName].create({}, node);
           viesNodes.push(containerNode)
         })
         let viesNodesFragment = Fragment.from(viesNodes);
