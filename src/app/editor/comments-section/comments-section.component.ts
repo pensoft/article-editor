@@ -1,19 +1,15 @@
-import { ThrowStmt } from '@angular/compiler';
 import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
-import { EditorChange } from 'codemirror';
+import { FormControl } from '@angular/forms';
 import { uuidv4 } from 'lib0/random';
 import { toggleMark } from 'prosemirror-commands';
-import { closeSingleQuote } from 'prosemirror-inputrules';
 import { TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
-import { interval, Subject, Subscriber, Subscription } from 'rxjs';
+import { interval, Subject, Subscription } from 'rxjs';
 import { debounce } from 'rxjs/operators';
 import { YMap } from 'yjs/dist/src/internals';
 import { MenuService } from '../services/menu.service';
 import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
 import { YdocService } from '../services/ydoc.service';
-import { filterSectionsFromBackendWithComplexMinMaxValidations } from '../utils/articleBasicStructure';
 import { commentData, CommentsService, commentYdocSave } from '../utils/commentsService/comments.service';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 import { isCommentAllowed } from '../utils/menu/menuItems';
@@ -398,6 +394,8 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
       this.addCommentBoxH = boxH;
       addCommentBoxEl.style.top = boxTop + 'px';
       addCommentBoxEl.style.opacity = '1';
+      let inputElement = document.getElementsByClassName('comment-input')[0] as HTMLInputElement;
+      inputElement.focus()
       let positionsArr: { id: string, displayedTop: number, height: number }[] = []
       Object.keys(this.displayedCommentsPositions).forEach((key) => {
         let val = this.displayedCommentsPositions[key];
