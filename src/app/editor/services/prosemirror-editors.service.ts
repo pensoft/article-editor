@@ -60,7 +60,7 @@ import { history } from '../utils/prosemirror-history/history.js';
 import { menuBar } from '../utils/prosemirror-menu-master/src/menubar.js'
 import { Form } from 'formiojs';
 import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
-import { E, I } from '@angular/cdk/keycodes';
+import { C, E, G, I } from '@angular/cdk/keycodes';
 import { AddMarkStep, Mapping, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform';
 import { ViewFlags } from '@angular/compiler/src/core';
 import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn, selectWholeCitatMarksAndRefCitatNode, handleScrollToSelection } from '../utils/prosemirrorHelpers';
@@ -326,7 +326,6 @@ export class ProsemirrorEditorsService {
         marks[nodeMark] = marksDefinitions[nodeMark]
       })
       let custumSchema = new Schema({nodes,marks});
-      console.log(custumSchema);
       return custumSchema;
     }
     return schema
@@ -348,7 +347,6 @@ export class ProsemirrorEditorsService {
       blockMathInputRule = this.makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, editorSchema.nodes.math_display, (match: any) => { return { math_id: uuidv4() } });
     }
 
-    console.log(this.menuTypes);
     let container = document.createElement('div');
     let editorView: EditorView;
     let colors = this.colors
@@ -505,12 +503,19 @@ export class ProsemirrorEditorsService {
       'Mod-y': this.yjsHistory.redo,
       'Mod-Shift-z': this.yjsHistory.redo,
       'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
-      'Shift-Tab': goToNextCell(-1)
     }
 
     let inputRulesObj = { rules: [] }
     if(editorSchema.nodes.math_inline&&editorSchema.nodes.math_display){
       inputRulesObj.rules.push(inlineMathInputRule, blockMathInputRule)
+    }
+    if(editorSchema.nodes.table){
+      keymapObj['Tab'] = goToNextCell(1)
+      keymapObj['Shift-Tab'] = goToNextCell(-1)
+    }
+
+    if(editorSchema.nodes.math_inline){
+      keymapObj['Mod-Space'] = insertMathCmd(editorSchema.nodes.math_inline)
     }
 
     let stateConfObj = {
@@ -547,11 +552,7 @@ export class ProsemirrorEditorsService {
       // @ts-ignore
     }
 
-    if(editorSchema.nodes.math_inline){
-      keymapObj['Mod-Space'] = insertMathCmd(editorSchema.nodes.math_inline)
-    }
     if(editorSchema.nodes.table){
-      keymapObj['Tab'] = goToNextCell(1)
       stateConfObj.plugins.push(columnResizing({}),tableEditing());
     }
     let edState = EditorState.create(stateConfObj);
@@ -1058,12 +1059,21 @@ export class ProsemirrorEditorsService {
       'Mod-y': redo,
       'Mod-Shift-z': undo,
       'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
-      'Shift-Tab': goToNextCell(-1)
+
     }
     let inputRulesObj = { rules: [] }
     if(editorSchema.nodes.math_inline&&editorSchema.nodes.math_display){
       inputRulesObj.rules.push(inlineMathInputRule, blockMathInputRule)
     }
+    if(editorSchema.nodes.table){
+      keymapObj['Tab'] = goToNextCell(1)
+      keymapObj['Shift-Tab'] = goToNextCell(-1)
+    }
+
+    if(editorSchema.nodes.math_inline){
+      keymapObj['Mod-Space'] = insertMathCmd(editorSchema.nodes.math_inline)
+    }
+
     let stateConfObj = {
       doc,
       schema: editorSchema,
@@ -1088,11 +1098,8 @@ export class ProsemirrorEditorsService {
       sectionID: sectionID,
       editorType: 'popupEditor'
     }
-    if(editorSchema.nodes.math_inline){
-      keymapObj['Mod-Space'] = insertMathCmd(editorSchema.nodes.math_inline)
-    }
+
     if(editorSchema.nodes.table){
-      keymapObj['Tab'] = goToNextCell(1)
       stateConfObj.plugins.push(columnResizing({}),tableEditing());
     }
 
