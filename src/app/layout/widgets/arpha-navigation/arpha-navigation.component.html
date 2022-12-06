@@ -8,7 +8,7 @@
     <a class="logo" href="/">
       <img src="./assets/logo/arpha.svg" width="150" height="40" title="Home" alt="Home">
     </a>
-    <!-- <div class="add-article-navigation">
+    <div class="add-article-navigation">
       <button mat-button *ngIf="
       enforcer.newBeahviorSubject| hasPermission:
       '/layouts':
@@ -16,7 +16,7 @@
       async" (click)="openchooseDialog()" class="btn-start-new-project">
         <mat-icon svgIcon="dasboardNewProject" class="icon-plus"></mat-icon>Start new project
       </button>
-    </div> -->
+    </div>
     <div class="profile-details">
       <div (mouseover)="changeText=true" (mouseout)="changeText=false">
         <div *ngIf="!changeText&&mobileVersion" class="eye-icon" (click)="openDashBoard()">

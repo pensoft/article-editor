@@ -186,6 +186,10 @@ export class DashboardComponent implements AfterViewInit {
         this.data = dataToDisplay
         this.resultsLength = itemsCount;
       });
+      if(this.serviceShare.shouldOpenNewArticleDialog){
+        this.openchooseDialog();
+        this.serviceShare.shouldOpenNewArticleDialog = false;
+      }
   }
 
   timer: any

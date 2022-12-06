@@ -133,6 +133,8 @@ export class ServiceShare {
       this.CitableElementsService.updateElementsAndElementsCitations();
   }
 
+  shouldOpenNewArticleDialog = false;
+
   createNewArticle(fromToolBar?:boolean){
     this.ArticleSectionsService!.getAllLayouts().subscribe((articleLayouts: any) => {
       this.articleLayouts = articleLayouts
@@ -153,13 +155,7 @@ export class ServiceShare {
           this.ArticlesService!.createArticle('Untitled',+result).subscribe((createArticleRes:any)=>{
             this.resetServicesData();
             this.YdocService!.setArticleData(createArticleRes.data)
-            if(fromToolBar){
-              this.router.navigate([createArticleRes.data.uuid]).then(()=>{
-                window.location.reload()
-              })
-            }else{
-              this.router.navigate([createArticleRes.data.uuid])
-            }
+            this.router.navigate([createArticleRes.data.uuid])
             this.YdocService.newArticleIsCreated(userData,createArticleRes.data.uuid)
 
             selectedLayout.sections.forEach((section: any) => {

@@ -40,7 +40,8 @@ export class ArphaNavigationComponent implements AfterViewInit {
     })
   }
   openchooseDialog() {
-    this.serviceShare.createNewArticle(true);
+    this.router.navigate(['dashboard']);
+    this.serviceShare.shouldOpenNewArticleDialog = true;
   }
   openNotifyUserRoleChangeDialog = (oldrole:string,newrole:string)=>{
     let cantOpenDialog = this.sharedDialog.open(UsersRoleIsChangedComponent,{data:{oldrole,newrole}})
