@@ -2,14 +2,11 @@ import {uuidv4} from "lib0/random";
 import {articleSection, editorData, editorMeta} from "./interfaces/articleSection";
 import {formIODefaultValues, formIOTemplates, htmlNodeTemplates} from "./section-templates";
 
-import {complexSectionFormIoSchema} from '@app/editor/utils/section-templates/form-io-json/complexSection';
-import {ViewPlugin} from "@codemirror/view";
-import {ArticlesService} from "@app/core/services/articles.service";
 import * as Y from 'yjs'
-import {testingFormIOJSON} from "../services/form-builder.service";
 import {taxonTreatmentSection} from "@core/services/custom_sections/taxon_treatment_section";
 import {taxonSection} from "@core/services/custom_sections/taxon";
 import {material} from "@core/services/custom_sections/material";
+import { parseSecFormIOJSONMenuAndSchemaDefs, parseSecHTMLMenuAndSchemaDefs } from "./fieldsMenusAndScemasFns";
 
 export function editorFactory(data?: editorMeta): editorData {
   return {editorId: uuidv4(), menuType: 'fullMenu', editorMeta: data}
@@ -48,7 +45,8 @@ export const articleBasicStructure: articleSection[] = [
     children: [],
     type: 'simple',
     sectionVersionId: 0,
-    sectionTypeVersion: 1,
+      menusAndSchemasDefs:{menus:{},schemas:{}},
+      sectionTypeVersion: 1,
     sectionTypeID: 1,
     sectionMeta: {main: false},
     customSchema:{isCustom:false}
@@ -66,6 +64,7 @@ export const articleBasicStructure: articleSection[] = [
     defaultFormIOValues: formIODefaultValues['collectionData'],
     prosemirrorHTMLNodesTempl: htmlNodeTemplates['collectionData'],
     children: [],
+    menusAndSchemasDefs:{menus:{},schemas:{}},
     type: 'simple',
     sectionTypeID: 2,
     sectionTypeVersion: 1,
@@ -80,8 +79,21 @@ export const customSectionEnums = {
 export const renderSectionFunc:
   /*  */(sectionFromBackend: any, parentContainer: articleSection[], ydoc: Y.Doc, index?: number | string) => articleSection
   = /**/(sectionFromBackend: any, parentContainer: articleSection[], ydoc: Y.Doc, index?: number | string) => {
+    let sectionTemplateRaw = sectionFromBackend.template || taxonTreatmentSection.template;
+    let {sectionMenusAndSchemaHTMLDefs,sectionTemplate} = parseSecHTMLMenuAndSchemaDefs(sectionTemplateRaw);
+    let sectionJSON;
+    if(sectionFromBackend.type == 0 || sectionFromBackend.type == 1){
+      sectionJSON = sectionFromBackend.schema;
+    }else if(sectionFromBackend.type == 2){
+      sectionJSON = sectionFromBackend.schema?.schema ? sectionFromBackend.schema?.schema : taxonTreatmentSection.schema;
+    }
+    let {sectionMenusAndSchemaDefsFromJSON,formIOJSON,sectionMenusAndSchemasDefsfromJSONByfieldsTags} = parseSecFormIOJSONMenuAndSchemaDefs(sectionJSON);
 
-   let deepIterator = (target, override) => {
+    let sectionMenusAndSchemaDefs = {
+      menus:{...sectionMenusAndSchemaHTMLDefs.menus,...sectionMenusAndSchemaDefsFromJSON.menus},
+      schemas:{...sectionMenusAndSchemaHTMLDefs.schemas,...sectionMenusAndSchemaDefsFromJSON.schemas},
+    }
+    let deepIterator = (target, override) => {
     if (typeof target === 'object') {
       if(target.sections) {
         target.sections.forEach(child => {
@@ -145,10 +157,11 @@ export const renderSectionFunc:
       delete: sectionFromBackend.delete || {active: true, main: false},
       addSubSection: sectionFromBackend.addSubSection ||  {active: false, main: false},
       mode: 'documentMode',
+      menusAndSchemasDefs:sectionMenusAndSchemaDefs,
       initialRender: sectionFromBackend.initialRender ? sectionFromBackend.initialRender : undefined,
-      formIOSchema: sectionFromBackend.schema,
+      formIOSchema: formIOJSON,
       defaultFormIOValues: sectionFromBackend.defaultFormIOValues ? sectionFromBackend.defaultFormIOValues : undefined,
-      prosemirrorHTMLNodesTempl: sectionFromBackend.template,
+      prosemirrorHTMLNodesTempl: sectionTemplate,
       children: children,
       sectionVersionId: sectionFromBackend.version_id,
       type: 'simple',
@@ -172,11 +185,12 @@ export const renderSectionFunc:
       delete: sectionFromBackend.delete ||{active: true, main: false},
       addSubSection: sectionFromBackend.addSubSection ||{active: true, main: true},
       mode: 'documentMode',
-      formIOSchema: sectionFromBackend.schema,
+      formIOSchema: formIOJSON,
+      menusAndSchemasDefs:sectionMenusAndSchemaDefs,
       initialRender: sectionFromBackend.initialRender ? sectionFromBackend.initialRender : undefined,
       active: sectionFromBackend.active ? sectionFromBackend.active : false,
       defaultFormIOValues: sectionFromBackend.defaultFormIOValues ? sectionFromBackend.defaultFormIOValues : undefined,
-      prosemirrorHTMLNodesTempl: sectionFromBackend.template,
+      prosemirrorHTMLNodesTempl: sectionTemplate,
       children: children,
       type:  'complex' ,
       custom:sectionFromBackend.customSection?true:undefined,
@@ -217,13 +231,14 @@ export const renderSectionFunc:
       edit: {active: true, main: true},
       add: {active: false, main: false},
       delete: {active: true, main: false},
+      menusAndSchemasDefs:sectionMenusAndSchemaDefs,
       addSubSection: {active: true, main: true},
       mode: 'documentMode',
-      formIOSchema: sectionFromBackend.schema?.schema ? sectionFromBackend.schema?.schema : taxonTreatmentSection.schema,
+      formIOSchema: formIOJSON,
       initialRender: sectionFromBackend.initialRender ? sectionFromBackend.initialRender : (taxonTreatmentSection['initialRender'] ? taxonTreatmentSection['initialRender'] : (undefined)),
       active: sectionFromBackend.active ? sectionFromBackend.active : false,
       defaultFormIOValues: sectionFromBackend.defaultFormIOValues ? sectionFromBackend.defaultFormIOValues : undefined,
-      prosemirrorHTMLNodesTempl: sectionFromBackend.template || taxonTreatmentSection.template,
+      prosemirrorHTMLNodesTempl: sectionTemplate,
       children: children,
       override: sectionFromBackend.schema.override,
       type: 'complex',
@@ -247,6 +262,7 @@ export const renderSectionFunc:
       newArticleSection.subsectionValidations = minmaxValds;
     }
   }
+  newArticleSection.sectionMenusAndSchemasDefsfromJSONByfieldsTags = sectionMenusAndSchemasDefsfromJSONByfieldsTags
   let checkIfSecionHasCustomSchema = (secFromBackend:any,newMappedSection:articleSection)=>{
     if(secFromBackend.name == "Section with Schema1"){
       newMappedSection.customSchema.isCustom = true;

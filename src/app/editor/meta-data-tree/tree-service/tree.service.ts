@@ -23,6 +23,7 @@ import { complexSectionFormIoSchema } from '@app/editor/utils/section-templates/
 import { ReturnStatement } from '@angular/compiler';
 import { installPatch } from '../cdk-list-recursive/patchCdk';
 import { CdkDropList, DropListRef, transferArrayItem } from '@angular/cdk/drag-drop';
+import { parseSecFormIOJSONMenuAndSchemaDefs } from '@app/editor/utils/fieldsMenusAndScemasFns';
 
 @Injectable({
   providedIn: 'root'
@@ -58,6 +59,7 @@ export class TreeService implements OnDestroy {
         this.applyNodeDrag(metadatachange.from, metadatachange.to, metadatachange.prevContainerId, metadatachange.newContainerId)
       } else if (metadatachange.action == 'editNode') {
         this.applyEditChange(metadatachange.nodeId)
+        this.applyEditChangeV2(metadatachange.nodeId)
       } else if (metadatachange.action == "addNode") {
         this.attachChildToNode(metadatachange.parentId, metadatachange.newChild);
       } else if (metadatachange.action == "deleteNode") {
@@ -310,19 +312,14 @@ export class TreeService implements OnDestroy {
   }
 
   editNodeChange(nodeId: string) {
-    let node = this.findNodeById(nodeId)
-    if (!node?.active) {
-      try {
-        this.applyEditChange(nodeId)
-      } catch (e) {
-        console.error(e);
-      }
-      this.treeVisibilityChange.next({ action: 'editNode', nodeId });
-    }
+    this.applyEditChangeV2(nodeId)
+    this.applyEditChange(nodeId)
+    this.treeVisibilityChange.next({ action: 'editNode', nodeId });
   }
 
   async addNodeChange(nodeId: string) {
     let newChild = await this.attachChildToNode(nodeId, undefined);
+    this.ydocService.saveSectionMenusAndSchemasDefs([newChild])
     this.treeVisibilityChange.next({ action: 'addNode', parentId: nodeId, newChild });
   }
 
@@ -349,6 +346,7 @@ export class TreeService implements OnDestroy {
 
   addNodeAtPlaceChange(parentContainerID: string, newSection: any, place: any) {
     let newNode = this.addNodeAtPlace(parentContainerID, newSection, place);
+    this.ydocService.saveSectionMenusAndSchemasDefs([newNode])
     this.treeVisibilityChange.next({ action: 'addNodeAtPlace', parentContainerID, newSection, place, newNode });
   }
 
@@ -644,8 +642,16 @@ export class TreeService implements OnDestroy {
     return Promise.resolve(newChild)
   }
 
+  applyEditChangeV2(id:string){
+    let nodeRef = this.findNodeById(id)!;
+    let {sectionMenusAndSchemaDefsFromJSON,formIOJSON,sectionMenusAndSchemasDefsfromJSONByfieldsTags} = parseSecFormIOJSONMenuAndSchemaDefs(nodeRef.formIOSchema);
+    this.serviceShare.ProsemirrorEditorsService.globalMenusAndSchemasSectionsDefs[id] = sectionMenusAndSchemasDefsfromJSONByfieldsTags;
+  }
+
   applyEditChange(id: string) {
     let nodeRef = this.findNodeById(id)!;
-    nodeRef.active = true
+    if(nodeRef&&!nodeRef.active){
+      nodeRef.active = true
+    }
   }
 }

@@ -14,6 +14,8 @@ import { createCustomIcon } from '../utils/menu/common-methods';
 import { YjsHistoryService } from '../utils/yjs-history.service';
 import { ServiceShare } from './service-share.service';
 
+interface menuTypes { [key: string]: (string | { dropdownName?: string, dropdownIcon?: string, label?: string, content: (string | { dropdownSubmenuName?: string, dropdownSubmenuIcon?: string, label?: string, content: any })[] })[][] }
+
 @Injectable({
   providedIn: 'root'
 })
@@ -32,7 +34,7 @@ export class MenuService {
     this.serviceShare.shareSelf('MenuService',this)
   }
 
-  sectionMenus: { [key: string]: (string | { dropdownName?: string, dropdownIcon?: string, label?: string, content: (string | { dropdownSubmenuName?: string, dropdownSubmenuIcon?: string, label?: string, content: any })[] })[][] } = {
+  sectionMenus: menuTypes = {
     'Title':
       [
         ['toggleStrong', 'toggleEm', 'toggleCode'],
@@ -129,12 +131,16 @@ export class MenuService {
     menu.fullMenu[8].push(menuItems.insertLink);
   }
 
-  attachMenuItems(sectionName: string,) {
+  attachMenuItems(menuName: string,passedMenuData?:any) {
     let menuItemsData
-    if (!this.sectionMenus[sectionName]) {
+    if (!this.sectionMenus[menuName]) {
       menuItemsData = [...this.sectionMenus['fullMenu1']]
     } else {
-      menuItemsData = [...this.sectionMenus[sectionName]]
+      menuItemsData = [...this.sectionMenus[menuName]]
+    }
+
+    if(passedMenuData&&passedMenuData[menuName]){
+      menuItemsData = passedMenuData[menuName]
     }
     // build Menu
     let menuBuild: any[] = []
@@ -209,6 +215,19 @@ export class MenuService {
     return menuBuild;
   }
 
+  buildPassedMenuTypes(passedTypes:menuTypes){
+    let menuTypes: any = {}
+    /* menuTypes.SimpleMenu = this.attachMenuItems('SimpleMenu');*/
+    menuTypes.main = this.attachMenuItems('SimpleMenu');
+    menuTypes.SimpleMenu = this.attachMenuItems('SimpleMenu');
+    Object.keys(passedTypes).forEach((key) => {
+      if (key !== 'SimpleMenu') {
+        menuTypes[key] = this.attachMenuItems(key,passedTypes);
+      }
+    })
+    return menuTypes;
+  }
+
   buildMenuTypes(editorType?:string) {
     let menuTypes: any = {}
     let removeItemFormMenu = (itemToRemove:string) => {
@@ -232,10 +251,8 @@ export class MenuService {
       })
     }
     if(editorType == 'addTableEditor'){
-      console.log('remove');
       removeItemFormMenu('insertTable')
     }if(editorType == 'addFigureEditor'){
-      console.log('remove');
       removeItemFormMenu('insertFigure')
     }
     menuTypes.SimpleMenu = this.attachMenuItems('SimpleMenu');
