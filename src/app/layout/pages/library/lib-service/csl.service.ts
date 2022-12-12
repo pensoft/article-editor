@@ -10,7 +10,6 @@ import { HttpClient } from '@angular/common/http';
 import { RefsApiService } from './refs-api.service';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
-import { schema } from '@app/editor/utils/Schema';
 import { Node } from 'prosemirror-model';
 import { MatDialog } from '@angular/material/dialog';
 import { ReferenceEditComponent } from '../reference-edit/reference-edit.component';
@@ -275,7 +274,7 @@ export class CslService {
       newAttrs.referenceStyle = { name: ref.refStyle.name, last_modified: ref.refStyle.last_modified }
       newAttrs.referenceData = { refId: node.attrs.referenceData.refId, last_modified: ref.refData.last_modified }
       newAttrs.referenceType = { name: ref.refType.name, last_modified: ref.refType.last_modified }
-      let newReferenceCitation = schema.nodes.reference_citation_end.create(newAttrs, schema.text(refInYdoc.bibliography || 'd'))
+      let newReferenceCitation = container.editorView.state.schema.nodes.reference_citation_end.create(newAttrs, container.editorView.state.schema.text(refInYdoc.bibliography || 'd'))
       container.editorView.dispatch(st.tr.replaceWith(from, to, newReferenceCitation));
     }
   }
@@ -343,7 +342,7 @@ export class CslService {
     newAttrs.referenceStyle = { name: actRef.refStyle.name, last_modified: actRef.refStyle.last_modified }
     newAttrs.referenceData = { refId: refNode.attrs.referenceData.refId, last_modified: actRef.refData.last_modified }
     newAttrs.referenceType = { name: actRef.refType.name, last_modified: actRef.refType.last_modified }
-    let newReferenceCitation = schema.nodes.reference_citation_end.create(newAttrs, schema.text(refInYdoc.bibliography || 'd'))
+    let newReferenceCitation = container.editorView.state.schema.nodes.reference_citation_end.create(newAttrs, container.editorView.state.schema.text(refInYdoc.bibliography || 'd'))
     container.editorView.dispatch(state.tr.replaceWith(start, end, newReferenceCitation)/* .setNodeMarkup(start,undefined,newAttrs) */);
     /* setTimeout(()=>{
       let node = container.editorView.state.doc.nodeAt(start)

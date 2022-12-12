@@ -1,6 +1,4 @@
-import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import {
-  AfterContentInit,
   AfterViewInit,
   Component,
   ElementRef,
@@ -21,27 +19,19 @@ import {TreeService} from '../../tree-service/tree.service';
 import {DOMParser} from 'prosemirror-model';
 //@ts-ignore
 import {updateYFragment} from '../../../../y-prosemirror-src/plugins/sync-plugin.js'
-import {schema} from '../../../utils/Schema/index';
 import {FormBuilderService} from '../../../services/form-builder.service';
 import {FormGroup} from '@angular/forms';
-import {YMap} from 'yjs/dist/src/internals';
 import { map } from 'rxjs/operators';
 
 //@ts-ignore
 import * as Y from 'yjs'
 //@ts-ignore
-import {ySyncPluginKey} from '../../../../y-prosemirror-src/plugins/keys.js';
-import {E, I} from '@angular/cdk/keycodes';
 import {AskBeforeDeleteComponent} from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
-import {ArticlesService} from '@app/core/services/articles.service';
 import {ServiceShare} from '@app/editor/services/service-share.service';
 import {
-  checkIfSectionsAreAboveOrAtMax,
-  checkIfSectionsAreUnderOrAtMin,
   countSectionFromBackendLevel,
   filterChooseSectionsFromBackend,
   filterSectionsFromBackendWithComplexMinMaxValidations,
-  renderSectionFunc
 } from '@app/editor/utils/articleBasicStructure';
 import {PmDialogSessionService} from '@app/editor/services/pm-dialog-session.service';
 import {ChooseSectionComponent} from '@app/editor/dialogs/choose-section/choose-section.component';
@@ -187,76 +177,76 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       //this.PmDialogSessionService.createSession();
 
       node.formIOSchema = sectionContent
-      this.dialog.open(EditSectionDialogComponent, {
-        width: '95%',
-        height: '90%',
-        data: {node: node, form: formGroup, sectionContent},
-        disableClose: false
-      }).afterClosed().subscribe(result => {
+        this.dialog.open(EditSectionDialogComponent, {
+          width: '95%',
+          height: '90%',
+          data: {node: node, form: formGroup, sectionContent},
+          disableClose: false
+        }).afterClosed().subscribe(result => {
 
-        if (result && result.compiledHtml) {
-          //this.PmDialogSessionService.endSession(true);
-          this.treeService.editNodeChange(node.sectionID)
+          if (result && result.compiledHtml) {
+            //this.PmDialogSessionService.endSession(true);
+            this.treeService.editNodeChange(node.sectionID)
 
-          let copyOriginUpdatesBeforeReplace = [...originUpdates]
-          let trackStatus = this.prosemirrorEditorsService.trackChangesMeta.trackTransactions
-          this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = false
-          this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
-            this.prosemirrorEditorsService.trackChangesMeta
-          )
-          let xmlFragment = this.ydocService.ydoc.getXmlFragment(node.sectionID);
-          let templDiv = document.createElement('div');
-          templDiv.innerHTML = result.compiledHtml
-          let node1 = DOMParser.fromSchema(this.prosemirrorEditorsService.editorContainers[node.sectionID].editorView.state.schema).parse(templDiv.firstChild!);
-          if (trackStatus) {
-            //const snapshotFromBackGround = Y.snapshot(this.ydocService.ydoc);
-            updateYFragment(updateYdoc, updateXmlFragment, node1, new Map());
-            //const updatedSnapshot = Y.snapshot(this.ydocService.ydoc)
-            //let editorView = this.prosemirrorEditorsService.editorContainers[node.sectionID].editorView
-            copyOriginUpdatesBeforeReplace.forEach((update) => {
-              Y.applyUpdate(updateYdoc, update);
-            })
-            let xmlElements = xmlToCopyFrom.toArray().length
-
-            let maindocstate = Y.encodeStateAsUpdate(updateYdoc)
-            Y.applyUpdate(this.ydocService.ydoc, maindocstate)
-            //xmlToCopyFrom.delete(0,xmlElements)
-            //xmlToCopyFrom.insert(0, updateXmlFragment.toArray().map((item: any) => item instanceof Y.AbstractType ? item.clone() : item));
-
-            /* editorView.dispatch(editorView.state.tr.setMeta(ySyncPluginKey, {
-              snapshot: Y.decodeSnapshot(Y.encodeSnapshot(updatedSnapshot)),
-              prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(snapshotFromBackGround)),
-              renderingFromPopUp: true,
-              trackStatus: true,
-              userInfo: this.prosemirrorEditorsService.userInfo,
-            })) */
-          } else {
-            updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
-          }
-          //editorview
-          setTimeout(() => {
-            this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = trackStatus
+            let copyOriginUpdatesBeforeReplace = [...originUpdates]
+            let trackStatus = this.prosemirrorEditorsService.trackChangesMeta.trackTransactions
+            this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = false
             this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
               this.prosemirrorEditorsService.trackChangesMeta
             )
-            /* this.serviceShare.YjsHistoryService.addUndoItemInformation({
-              type: 'figure-citation',
-              data: {}
-            }) */
-            setTimeout(()=>{
-              this.serviceShare.updateCitableElementsViews()
-              //this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
-            },10)
-          }, 30)
+            let xmlFragment = this.ydocService.ydoc.getXmlFragment(node.sectionID);
+            let templDiv = document.createElement('div');
+            templDiv.innerHTML = result.compiledHtml
+            let node1 = DOMParser.fromSchema(this.prosemirrorEditorsService.editorContainers[node.sectionID].editorView.state.schema).parse(templDiv.firstChild!);
+            if (trackStatus) {
+              //const snapshotFromBackGround = Y.snapshot(this.ydocService.ydoc);
+              updateYFragment(updateYdoc, updateXmlFragment, node1, new Map());
+              //const updatedSnapshot = Y.snapshot(this.ydocService.ydoc)
+              //let editorView = this.prosemirrorEditorsService.editorContainers[node.sectionID].editorView
+              copyOriginUpdatesBeforeReplace.forEach((update) => {
+                Y.applyUpdate(updateYdoc, update);
+              })
+              let xmlElements = xmlToCopyFrom.toArray().length
 
-        } else {
-          setTimeout(() => {
-            //this.serviceShare.PmDialogSessionService!.endSession(false);
-          }, 30)
-        }
-        this.ydocService.ydoc.off('update', registerUpdateFunc)
+              let maindocstate = Y.encodeStateAsUpdate(updateYdoc)
+              Y.applyUpdate(this.ydocService.ydoc, maindocstate)
+              //xmlToCopyFrom.delete(0,xmlElements)
+              //xmlToCopyFrom.insert(0, updateXmlFragment.toArray().map((item: any) => item instanceof Y.AbstractType ? item.clone() : item));
 
-      });
+              /* editorView.dispatch(editorView.state.tr.setMeta(ySyncPluginKey, {
+                snapshot: Y.decodeSnapshot(Y.encodeSnapshot(updatedSnapshot)),
+                prevSnapshot: Y.decodeSnapshot(Y.encodeSnapshot(snapshotFromBackGround)),
+                renderingFromPopUp: true,
+                trackStatus: true,
+                userInfo: this.prosemirrorEditorsService.userInfo,
+              })) */
+            } else {
+              updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
+            }
+            //editorview
+            setTimeout(() => {
+              this.prosemirrorEditorsService.trackChangesMeta.trackTransactions = trackStatus
+              this.prosemirrorEditorsService.OnOffTrackingChangesShowTrackingSubject.next(
+                this.prosemirrorEditorsService.trackChangesMeta
+              )
+              /* this.serviceShare.YjsHistoryService.addUndoItemInformation({
+                type: 'figure-citation',
+                data: {}
+              }) */
+              setTimeout(()=>{
+                this.serviceShare.updateCitableElementsViews()
+                //this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
+              },10)
+            }, 30)
+
+          } else {
+            setTimeout(() => {
+              //this.serviceShare.PmDialogSessionService!.endSession(false);
+            }, 30)
+          }
+          this.ydocService.ydoc.off('update', registerUpdateFunc)
+
+        });
     } catch (e) {
       console.error(e);
     }

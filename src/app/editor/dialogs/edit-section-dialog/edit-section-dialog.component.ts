@@ -7,7 +7,6 @@ import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.se
 import { Node as prosemirrorNode } from 'prosemirror-model';
 //@ts-ignore
 import { updateYFragment } from '../../../y-prosemirror-src/plugins/sync-plugin.js';
-import { schema } from '../../utils/Schema';
 import { Subscription } from 'rxjs';
 import { FormGroup } from '@angular/forms';
 @Component({
@@ -26,9 +25,9 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
   editOnAddFromParent?:true
   data1: articleSection;
   sectionForm: FormGroup;
-  formIOJson: any;
   prityJson:string;
   component: any;
+  sectionContent:any
 
   EditSubmitsubscription?:Subscription;
   constructor(
@@ -42,7 +41,7 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
       this.component = sectionData.component;
       this.data1 = sectionData.node;
       this.sectionForm = sectionData.form;
-      this.formIOJson = sectionData.formIOJson;
+      this.sectionContent = sectionData.sectionContent;
       this.prityJson = JSON.stringify(sectionData.formIOJson,null,"\t")
       this.editOnAddFromParent = sectionData.editOnAddFromParent
 

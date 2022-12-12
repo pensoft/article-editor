@@ -9,7 +9,6 @@ import { TreeService } from '../tree-service/tree.service';
 import { DOMParser } from 'prosemirror-model';
 //@ts-ignore
 import { updateYFragment } from '../../../y-prosemirror-src/plugins/sync-plugin.js'
-import { schema } from '../../utils/Schema/index';
 import { FormBuilderService } from '../../services/form-builder.service';
 import { FormGroup } from '@angular/forms';
 import { YMap } from 'yjs/dist/src/internals';

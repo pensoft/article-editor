@@ -4,7 +4,6 @@ import { Fragment, Mark, Node, Schema } from 'prosemirror-model';
 import { Transaction } from 'prosemirror-state';
 import { citationShouldBeIgnored, getCitationIfAny } from '../utils/citableElementsHelpers';
 import { articleSection } from '../utils/interfaces/articleSection';
-import { schema } from '../utils/Schema';
 import { ServiceShare } from './service-share.service';
 import { DOMParser } from 'prosemirror-model';
 import { Subject } from 'rxjs';

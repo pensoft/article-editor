@@ -89,11 +89,30 @@ class MenuBarView {
             let { from, to } = editorView.state.selection
             let menuKey = this.options.menuKey
             let menuTypeOnNode = 'main';
+            let menuItAttrs = false;
+            let lastFormControlName
             editorView.state.doc.nodesBetween(from, to, (node, pos, parent, index) => {
                 if (node.attrs.menuType && node.attrs.menuType !== '') {
-                    menuTypeOnNode = node.attrs.menuType
+                  menuTypeOnNode = node.attrs.menuType;
+                  menuItAttrs = true;
+                }
+                if(node.attrs.formControlName&&node.attrs.formControlName.length>0){
+                  lastFormControlName = node.attrs.formControlName;
                 }
             })
+            if(!menuItAttrs&&this.editorView.editorType&&this.editorView.editorType == 'mainEditor'){
+              if(
+                lastFormControlName &&
+                this.editorView.globalMenusAndSchemasSectionsDefs[this.editorView.sectionID]&&
+                this.editorView.globalMenusAndSchemasSectionsDefs[this.editorView.sectionID][lastFormControlName]
+                ){
+                  let formIOJsonMenuAndSchemaDefForField = this.editorView.globalMenusAndSchemasSectionsDefs[this.editorView.sectionID][lastFormControlName];
+                  if(formIOJsonMenuAndSchemaDefForField.menu){
+                    menuTypeOnNode = formIOJsonMenuAndSchemaDefForField.menu;
+                  }
+              }
+
+            }
             if (menuTypeOnNode == menuKey && editorView.hasFocus()) {
                 Array.from(this.menuContainer.children).forEach((child) => {
                     child.style.display = 'none';

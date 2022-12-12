@@ -30,6 +30,8 @@ import { ServiceShare } from './service-share.service';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
 import { Transaction as YTransaction } from 'yjs';
+import { layoutMenuAndSchemaSettings, mapSchemaDef } from '../utils/fieldsMenusAndScemasFns';
+import { fn } from '@angular/compiler/src/output/output_ast.js';
 
 @Injectable({
   providedIn: 'root'
@@ -68,6 +70,7 @@ export class YdocService {
   printMap?: YMap<any>
   customSectionProps?: YMap<any>
   collaborators?: YMap<any>
+  PMMenusAndSchemasDefsMap?: YMap<any>
   userInfo: any
   getCommentsMap(): YMap<any> {
     return this.comments!
@@ -145,6 +148,28 @@ export class YdocService {
     this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
   }
 
+  saveSectionMenusAndSchemasDefs(sectionStructure:articleSection[]){
+    let menusAndSchemasDefs = this.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
+    let loopSection = (section:articleSection,fn:any)=>{
+      if(section.children&&section.children.length>0){
+        section.children.forEach((child)=>{
+          loopSection(child,fn);
+        })
+      }
+      fn(section)
+    }
+    sectionStructure.forEach(section => loopSection(section,(section:articleSection)=>{
+      if(
+        section.menusAndSchemasDefs&&
+        (section.menusAndSchemasDefs.menus||section.menusAndSchemasDefs.schemas)&&
+        (Object.keys(section.menusAndSchemasDefs.menus).length>0||Object.keys(section.menusAndSchemasDefs.schemas).length>0)
+      ){
+        menusAndSchemasDefs[section.sectionID] = section.menusAndSchemasDefs;
+      }
+    }))
+    this.PMMenusAndSchemasDefsMap?.set('menusAndSchemasDefs',menusAndSchemasDefs);
+  }
+
   getData(): ydocData {
     let articleSectionsStructure: articleSection[] = this.articleStructure?.get('articleSectionsStructure')
     let articleSectionsStructureFlat: articleSection[] = this.articleStructure?.get('articleSectionsStructureFlat');
@@ -170,7 +195,7 @@ export class YdocService {
           })
         }
         makeFlat(articleSectionsStructure)
-
+        this.saveSectionMenusAndSchemasDefs(articleSectionsStructure)
         this.articleStructure?.set('articleSectionsStructure', articleSectionsStructure);
         this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
 
@@ -207,6 +232,26 @@ export class YdocService {
 
   turnOnOffPreviewModeEditorFn: () => void
 
+  buildLayoutMenusAndSchemasDefs(){
+    /* adding layout menu and schema definitios should be removed when backend is done  */
+    this.articleData.layout.menusAndSchemasSettings = layoutMenuAndSchemaSettings
+    let defs = this.articleData.layout.menusAndSchemasSettings
+    let layoutMapedDefs = {menus:{},schemas:{}};
+    if(defs&&(defs.menus||defs.schemas)){
+      if(defs.menus){
+        Object.keys(defs.menus).forEach((menuKey)=>{
+          layoutMapedDefs.menus[menuKey] = defs.menus[menuKey]
+        })
+      }
+      if(defs.schemas){
+        Object.keys(defs.schemas).forEach((schemaKey)=>{
+          layoutMapedDefs.schemas[schemaKey] = mapSchemaDef(defs.schemas[schemaKey])
+        })
+      }
+    }
+    return {layoutDefinitions:layoutMapedDefs}
+  }
+
   buildEditor() {
     this.sectionFormGroupsStructures = this.ydoc.getMap('sectionFormGroupsStructures');
     this.citableElementsMap = this.ydoc.getMap('citableElementsMap');
@@ -234,6 +279,13 @@ export class YdocService {
     let customPropsObj = this.customSectionProps?.get('customPropsObj');
     let elementsCitations = this.citableElementsMap?.get('elementsCitations');
 
+    this.PMMenusAndSchemasDefsMap = this.ydoc.getMap('PMMenusAndSchemasDefsMap');
+    let menusAndSchemasDefs = this.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
+
+
+    if(!menusAndSchemasDefs){
+      this.PMMenusAndSchemasDefsMap.set('menusAndSchemasDefs',this.buildLayoutMenusAndSchemasDefs())
+    }
     if(!elementsCitations){
       this.citableElementsMap.set('elementsCitations',{})
     }
@@ -377,6 +429,7 @@ export class YdocService {
     this.articleData = undefined;
     this.sectionFormGroupsStructures = undefined;
     this.comments = undefined;
+    this.PMMenusAndSchemasDefsMap = undefined
     this.figuresMap = undefined;
     this.tablesMap = undefined;
     this.trackChangesMetadata = undefined;

@@ -6,9 +6,11 @@
     <div class="template-buttons">
       <button mat-raised-button (click)="hidehtml=!hidehtml">Edit Html Template</button>
       <button mat-raised-button (click)="hidejson=!hidejson">Show Json Template</button>
+      <button mat-raised-button (click)="hideDefsjson=!hideDefsjson">Show Menus And Schema Defs</button>
     </div>
     <div #codemirrorHtmlTemplate class='codemirror-editor' [ngStyle]="{'display': hidehtml ? 'none' : 'block'}"></div>
     <div #codemirrorJsonTemplate class='codemirror-editor' [ngStyle]="{'display': hidejson ? 'none' : 'block'}"></div>
+    <div #codemirrorMenusAndSchemasDefs class='codemirror-editor' [ngStyle]="{'display': hideDefsjson ? 'none' : 'block'}"></div>
     <div *ngIf="error"><pre class="errors-container">{{errorMessage}}</pre></div>
     <div *ngIf='section.mode == "editMode"' class="popup-menu-container"></div>
     <ng-container *ngIf='renderForm'>

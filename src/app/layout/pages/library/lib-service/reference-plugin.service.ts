@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { createCustomIcon } from '@app/editor/utils/menu/common-methods';
-import { schema } from '@app/editor/utils/Schema';
 import { EditorView } from '@codemirror/basic-setup';
 import { timeStamp } from 'console';
 import { PluginKey, Plugin } from 'prosemirror-state';
@@ -169,7 +168,7 @@ export class ReferencePluginService {
       let newAttrs = JSON.parse(JSON.stringify(refNode?.attrs))
       newAttrs.referenceData.last_modified = actualRef.refData.last_modified;
       //newAttrs.referenceData = {refId:actualRef.refData.referenceData.id,last_modified:actualRef.refData.last_modified}
-      let newNode = schema.nodes.reference_citation_end.create(newAttrs, schema.text(refInYdoc.bibliography))
+      let newNode = view.state.schema.nodes.reference_citation_end.create(newAttrs, view.state.schema.text(refInYdoc.bibliography))
       view?.dispatch(view.state.tr.replaceWith(refPos, refPos + refSize, newNode))
       setTimeout(() => {
         this.serviceShare.ProsemirrorEditorsService?.dispatchEmptyTransaction()

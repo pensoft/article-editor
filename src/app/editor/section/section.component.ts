@@ -33,10 +33,11 @@ import {DetectFocusService} from '../utils/detectFocusPlugin/detect-focus.servic
 //@ts-ignore
 import {updateYFragment} from '../../y-prosemirror-src/plugins/sync-plugin.js';
 import {DOMParser as DOMParserPM} from 'prosemirror-model';
-import {schema} from '../utils/Schema';
 import {HelperService} from "@app/editor/section/helpers/helper.service";
-import { ThisReceiver } from '@angular/compiler';
+import { ThisReceiver, ThrowStmt } from '@angular/compiler';
 import { ServiceShare } from '../services/service-share.service';
+import { parseSecFormIOJSONMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
+import { schema } from '../utils/Schema';
 
 @Component({
   selector: 'app-section',
@@ -49,12 +50,14 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
   hidehtml = true;
   hidejson = true;
+  hideDefsjson = true;
   error = false;
   errorMessage = '';
   newValue?: { contentData: editorData, sectionData: articleSection };
   value?: string;
   codemirrorHTMLEditor?: EditorView
   codemirrorJsonEditor?: EditorView
+  codemirrorMenusAndSchemasDefsEditor?: EditorView
   editorData?: editorData;
   FormStructure: any
   renderSection = false;
@@ -68,7 +71,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
   @Input() section!: articleSection;
   @Output() sectionChange = new EventEmitter<articleSection>();
   @Input() editOnAddFromParent?: true;
-
+  @Input() sectionContent: any = undefined;
 
   _sectionForm!: FormGroup;
   sectionFormClone!: FormGroup;
@@ -82,11 +85,11 @@ export class SectionComponent implements AfterViewInit, OnInit {
     return this._sectionForm;
   }
 
-  @Input() sectionContent: any;
 
 
   @ViewChild('codemirrorHtmlTemplate', {read: ElementRef}) codemirrorHtmlTemplate?: ElementRef;
   @ViewChild('codemirrorJsonTemplate', {read: ElementRef}) codemirrorJsonTemplate?: ElementRef;
+  @ViewChild('codemirrorMenusAndSchemasDefs', {read: ElementRef}) codemirrorMenusAndSchemasDefs?: ElementRef;
   @ViewChild('ProsemirrorEditor', {read: ElementRef}) ProsemirrorEditor?: ElementRef;
   @ViewChild('container', {read: ViewContainerRef}) container?: ViewContainerRef;
   @ViewChild('formio', {read: ViewContainerRef}) formio?: ViewContainerRef;
@@ -197,6 +200,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
         interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!,submision.data, this.sectionForm);
       }
       submision.compiledHtml = interpolated
+      this.prosemirrorEditorsService
       this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
       this.editSectionService.editChangeSubject.next(submision);
 
@@ -245,6 +249,24 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
         }, */
       })
+      let {importantMenusDefsForSection,importantScehmasDefsForSection} = this.prosemirrorEditorsService.getMenusAndSchemaDefsImportantForSection(this.section.sectionID)
+      this.codemirrorMenusAndSchemasDefsEditor = new EditorView({
+        state: EditorState.create({
+          doc:
+            `${JSON.stringify({importantMenusDefsForSection,importantScehmasDefsForSection}, null, "\t")}`,
+          extensions: [basicSetup, javascript()],
+        }),
+
+        parent: this.codemirrorMenusAndSchemasDefs?.nativeElement,
+        dispatch:()=>{
+
+        },
+      })
+      if (!this.section.prosemirrorHTMLNodesTempl) {
+        console.error(`prosemirrorHTMLNodesTempl is ${this.section.prosemirrorHTMLNodesTempl}.Should provide such a property in the article sections structure.`)
+        return
+      }
+
       if (!this.section.prosemirrorHTMLNodesTempl) {
         console.error(`prosemirrorHTMLNodesTempl is ${this.section.prosemirrorHTMLNodesTempl}.Should provide such a property in the article sections structure.`)
         return
@@ -322,7 +344,8 @@ export class SectionComponent implements AfterViewInit, OnInit {
     let xmlFragment = this.ydocService.ydoc.getXmlFragment(this.section.sectionID);
     let templDiv = document.createElement('div');
     templDiv.innerHTML = submision.compiledHtml
-    let node1 = DOMParserPM.fromSchema(schema).parse(templDiv.firstChild!);
+    let editorSchema = schema
+    let node1 = DOMParserPM.fromSchema(editorSchema).parse(templDiv.firstChild!);
 
     updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
     this.prosemirrorEditorsService.renderEditorInWithId(this.ProsemirrorEditor?.nativeElement, this.section.sectionID, this.section)
@@ -331,8 +354,15 @@ export class SectionComponent implements AfterViewInit, OnInit {
   }
 
   ngAfterViewInit(): void {
-    // const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
-    this.sectionContent = this.section.formIOSchema;
+    //const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
+
+    //let newSchema = this.formBuilderService.populateDefaultValues(this.treeService.sectionFormGroups[this.section.sectionID].getRawValue(), this.section.formIOSchema, this.section.sectionID, this.sectionForm);
+
+    //this.sectionContent = newSchema;
+    if(!this.sectionForm){
+      this.sectionContent = this.formBuilderService.populateDefaultValues(this.treeService.sectionFormGroups[this.section.sectionID].getRawValue(), this.section.formIOSchema, this.section.sectionID, this.sectionForm);
+    }
+
     this.renderSection = true
     if (this.section.mode == 'documentMode' && this.section.active) {
       if (this.section.initialRender == this.ydocService.ydoc.guid) {

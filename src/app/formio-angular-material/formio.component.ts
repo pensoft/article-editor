@@ -71,9 +71,10 @@ export class FormioComponent extends FormioBaseComponent {
     form._form = this.form;
     form.options = options;
     form.options.events = form.events;
-    form.instance = form.create(this.form?.display); 
+    form.instance = form.create(this.form?.display);
     form.instance.formGroup = this.controlContainer.control;
     form.instance.viewContainer = () => this.formioViewContainer;
+
     if (this.submission && this.submission.data) {
       form.instance.data = this.submission.data;
     }

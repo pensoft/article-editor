@@ -262,6 +262,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     }
     let selectedComment = this.commentsService.lastCommentSelected
     if (this.notRendered) {
+      console.log('initial render');
       this.initialRenderComments(sortedComments, comments)
     } else if (!this.notRendered && sortedComments.length > 0) {
       if (this.shouldScrollSelected && (!selectedComment.commentId || !selectedComment.commentMarkId || !selectedComment.sectionId)) {
@@ -395,7 +396,10 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
       addCommentBoxEl.style.top = boxTop + 'px';
       addCommentBoxEl.style.opacity = '1';
       let inputElement = document.getElementsByClassName('comment-input')[0] as HTMLInputElement;
-      inputElement.focus()
+      setTimeout(()=>{
+        console.log('FOCUSING COMMENTS INPUT');
+        inputElement.focus()
+      },100)
       let positionsArr: { id: string, displayedTop: number, height: number }[] = []
       Object.keys(this.displayedCommentsPositions).forEach((key) => {
         let val = this.displayedCommentsPositions[key];
@@ -793,8 +797,10 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
   }
 
   lastSelSub: Subscription
-
+  initialRender = false;
   ngAfterViewInit(): void {
+    console.log(this.showAddCommentBox);
+    this.initialRender = true;
     this.setFromControlChangeListener()
     this.setContainerHeight()
     this.setScrollListener()
@@ -902,6 +908,13 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
       if (editedComments /* && commentsToAdd.length == 0 */) {
         setTimeout(() => {
           this.doneRendering()
+        }, 50)
+      }
+      if(!editedComments&&this.initialRender){
+        this.initialRender = false;
+        setTimeout(() => {
+          this.doneRendering('show_comment_box')
+          console.log('done rendering');
         }, 50)
       }
       if (editedComments) {

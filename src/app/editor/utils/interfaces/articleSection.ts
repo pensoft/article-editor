@@ -53,6 +53,7 @@ export interface articleSection {
   edit: { active: boolean, main: boolean },
   delete: { active: boolean, main: boolean },
   addSubSection?: { active: boolean, main: boolean },
+  menusAndSchemasDefs:{ menus:{[key:string]:any[]},schemas:{[key:string]:{nodes:string[],marks:string[]}}}
   mode: 'documentMode' | 'editMode',
   title: titleContent,
   override?: any,
@@ -68,6 +69,7 @@ export interface articleSection {
   compatibility?: { allow: { all: boolean, values: number[] }, deny: { all: boolean, values: number[] } }
   custom?:true,
   customSchema:{isCustom:boolean,schema?:{nodes:string[],marks:string[]}};
+  sectionMenusAndSchemasDefsfromJSONByfieldsTags?:{[key:string]:{menu:any,schema:any}}
 }
 
 export interface flatArticleSection {

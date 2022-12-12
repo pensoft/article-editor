@@ -14,8 +14,11 @@ export class FormBuilderService {
   }
 
   populateDefaultValues(savedForm: any, schema: any, sectionID: string, formGroup?: FormGroup) {
+    let copySchema = JSON.parse(JSON.stringify(schema))
+    let props = {sectionID}
     let attachSectionId = (componentArray: any[]) => {
-      componentArray.forEach((component) => {
+      for(let i = 0 ; i < componentArray.length;i++){
+        let component = componentArray[i]
         if (component["properties"]) {
           component["properties"]["sectionID"] = sectionID
         } else {
@@ -25,19 +28,20 @@ export class FormBuilderService {
         if (component.components && component.components instanceof Array && component.components.length > 0) {
           attachSectionId(component.components)
         }
-      })
+      }
     }
-    if (schema.components && schema.components.length > 0) {
+    for (let index = 0; index < copySchema.components.length; index++) {
+      let component: any = copySchema.components[index];
+      this.updateDefaultValue(component,savedForm,props,formGroup)
+    }
+    if (copySchema.components && copySchema.components.length > 0) {
       attachSectionId(schema.components)
     }
-    for (let index = 0; index < schema.components.length; index++) {
-      const component: any = schema.components[index];
-      this.updateDefaultValue(component,savedForm,formGroup)
-    }
-    return schema;
+    copySchema.props = props
+    return copySchema;
   }
 
-  updateValue(component: any, submission: any, formGroup?: FormGroup) {
+  updateValue(component: any, submission: any,propsObj:any, formGroup?: FormGroup) {
     let key = component.key
     let type = component.type
     //component.clearOnHide = false;
@@ -54,47 +58,73 @@ export class FormBuilderService {
         let form = formGroup!.controls[key]
         //@ts-ignore
         if (form && form.componentProps) {
-          //@ts-ignore
-          Object.keys(form.componentProps).forEach(key => { component["properties"][key] = form.componentProps[key] });
+            //@ts-ignore
+            propsObj[key] = {...form.componentProps}
+            //@ts-ignore
+          let props = Object.keys(form.componentProps)
+          for(let i =0;i<props.length;i++){
+            let key = props[i]
+            if(key == "menuType"){
+            //@ts-ignore
+              //component["properties"][key] = form.componentProps[key]
+            }else if(key == "schemaType"){
+            //@ts-ignore
+              //component["properties"][key] = form.componentProps[key]
+            }else{
+            //@ts-ignore
+              component["properties"][key] = form.componentProps[key]
+            }
+          }
         }
       }
     }
   }
 
-  updateDefaultValue(component: any, submission: any, formGroup?: FormGroup) {
+  updateDefaultValue(component: any, submission: any,props:any, formGroup?: FormGroup) {
     let type = component.type
     let key = component.key
     if (type == 'datagrid') {
-      this.updateValue(component, submission, formGroup)
+      this.updateValue(component, submission,props, formGroup)
     } else if (component.type == 'columns') {
-      component.columns.forEach((col:any,i:number)=>{
-        col.components.forEach((comp:any,j:number)=>{
-          //@ts-ignore
-          //@ts-ignore
-          this.updateValue(comp, /* formGroup?.get(component.key+'.'+i).value */submission, formGroup)
-        })
-      })
-      this.updateValue(component, submission, formGroup)
+      for(let i = 0 ; i < component.columns.length;i++){
+        let col = component.columns[i]
+        for(let j = 0 ; j < col.components.length;j++){
+          let comp = col.components[j]
+          this.updateValue(comp, /* formGroup?.get(component.key+'.'+i).value */submission,props, formGroup)
+        }
+      }
+      this.updateValue(component, submission,props, formGroup)
     } else if (type == "select") {
-      this.updateValue(component, submission, formGroup)
+      this.updateValue(component, submission,props, formGroup)
     } else if (type == "container") {
-      this.updateValue(component, submission, formGroup)
+      this.updateValue(component, submission,props, formGroup)
     } else if(type == "radio"){
-      this.updateValue(component, submission, formGroup)
+      this.updateValue(component, submission,props, formGroup)
     }else if (type == 'panel') {
       component.components.forEach((subcomp: any) => {
-        this.updateDefaultValue(subcomp, submission, formGroup)
+        this.updateDefaultValue(subcomp, submission,props, formGroup)
       })
     } else if (type == 'table') {
-      component.rows.forEach((row: any[]) => {
+      for(let i = 0 ; i < component.rows.length;i++){
+        let row = component.rows[i];
+        for(let j = 0 ; j < row.length;j++){
+          let cell = row[j]
+          for(let k = 0 ; k < cell.components.length;k++){
+            let cellSubComp = cell.components[k]
+            this.updateDefaultValue(cellSubComp, submission,props, formGroup)
+
+          }
+        }
+      }
+      /* component.rows.forEach((row: any[]) => {
         row.forEach((cell) => {
           cell.components.forEach((cellSubComp: any) => {
             this.updateDefaultValue(cellSubComp, submission, formGroup)
           })
         })
-      })
+      }) */
     } else {
-      this.updateValue(component, submission, formGroup)
+      this.updateValue(component, submission,props, formGroup)
     }
 
   }

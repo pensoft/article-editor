@@ -38,10 +38,10 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   pmControl?: FormControl;
   pmControl1: FormControl = new FormControl(null, [Validators.required])
   placeholder = 'asd'
-  DOMPMSerializer = DOMSerializer.fromSchema(schema);
+  DOMPMSerializer ?: DOMSerializer
+  DOMPMParser ?: DOMParser
 
   editorContainer?:editorContainer;
-  DOMPMParser = DOMParser.fromSchema(schema)
   value: any
   instanceValidations: any
   rerender = false;
@@ -194,9 +194,25 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       Object.keys(this.instance.component.properties).forEach((key) => {
         options[key] = this.instance.component.properties[key]
       })
+      let sectionProps = this.instance.root._form.props
       options.path = this.instance.path
       options.onChange = this.onChange1
-      options.containerSection = this.serviceShare.TreeService.findNodeById(options.sectionID);
+      options.containerSection = (sectionProps&&sectionProps.sectionID)?this.serviceShare.TreeService.findNodeById(sectionProps.sectionID):undefined
+      let componentProps = sectionProps?sectionProps[this.instance.path]:{}
+      Object.keys(componentProps).forEach((key) => {
+        if(key == "menuType"/* &&!options[key] */){
+          //options[key] = componentProps[key]
+        }else if(key == "schemaType"/* &&!options[key] */){
+          //options[key] = componentProps[key]
+        }else{
+          options[key] = componentProps[key]
+        }
+      })
+      let sectionView = sectionProps?this.prosemirrorService.editorContainers[sectionProps.sectionID]?this.prosemirrorService.editorContainers[sectionProps.sectionID].editorView:undefined:undefined
+      let viewSchema = sectionView?sectionView.state.schema:schema
+      this.DOMPMSerializer = DOMSerializer.fromSchema(viewSchema);
+      this.DOMPMParser = DOMParser.fromSchema(viewSchema)
+      options.sectionID = sectionProps?sectionProps.sectionID:undefined
       let temp = document.createElement('div');
       temp.innerHTML = this.value!;
       let node = this.value! ? this.DOMPMParser.parseSlice(temp) : undefined;
