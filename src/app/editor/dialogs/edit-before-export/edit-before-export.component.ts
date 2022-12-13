@@ -398,7 +398,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     let pdfSettings: any = this.fillSettings()
     let articleId = this.ydocService.articleData.uuid;
     //https://ps-article-storage.dev.scalewest.com/api/article/dfc43b3b-4700-4234-b398-bd9bec17db0d
-    //let articleData = getYdocData(this.ydocService.ydoc);
+    //et articleData = getYdocData(this.ydocService.ydoc);
     let articleData:any = {};
     articleData.pdfSettings = pdfSettings;
     articleData.headerPmNodesJson = headerPmNodesJson;
@@ -411,13 +411,13 @@ export class EditBeforeExportComponent implements AfterViewInit {
     /* this.http.post(environment.print_pdf+'/'+articleId+'/pdf/export',articleData).subscribe((data)=>{
       console.log('response for pdf render ',data);
     }) */
-     this.http.post(`${API_URL}/articles/items/`+articleId+'/pdf/export',articleData).subscribe((data)=>{
+    this.http.post(`${API_URL}/articles/items/`+articleId+'/pdf/export',articleData).subscribe((data)=>{
       console.log('pdf',data);
     })
     /* http://127.0.0.1:3003 */
-    /*this.http.post('http://127.0.0.1:3003/article/pdf',articleData).subscribe((data)=>{
+    /* this.http.post('http://127.0.0.1:3003/article/pdf',articleData).subscribe((data)=>{
       console.log('pdf',data);
-    })*/
+    }) */
     /* this.http.post('http://127.0.0.1:3003/article/create',articleData).subscribe((data)=>{
       this.serviceShare.NotificationsService.newNotificationEvent({
         event:'A new pdf has been rendered. Click for view.',date:Date.now(),eventId:uuidv4(),

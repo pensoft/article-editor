@@ -100,7 +100,7 @@ class MenuBarView {
                   lastFormControlName = node.attrs.formControlName;
                 }
             })
-            if(!menuItAttrs&&this.editorView.editorType&&this.editorView.editorType == 'mainEditor'){
+            if(!menuItAttrs&&this.editorView.editorType&&this.editorView.editorType == 'editorWithCustomSchema'){
               if(
                 lastFormControlName &&
                 this.editorView.globalMenusAndSchemasSectionsDefs[this.editorView.sectionID]&&

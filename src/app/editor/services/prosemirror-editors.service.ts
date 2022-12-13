@@ -329,8 +329,8 @@ export class ProsemirrorEditorsService {
     let menuAndSchemasDefsObj = this.ydocService.PMMenusAndSchemasDefsMap.get('menusAndSchemasDefs');
     let layoutMenusAndSchamasDefs = menuAndSchemasDefsObj['layoutDefinitions'];
     let editorMenusAndSchemasDefs = menuAndSchemasDefsObj[sectionID];
-    let importantMenusDefsForSection = {...(layoutMenusAndSchamasDefs||{}).menus,...(editorMenusAndSchemasDefs||{}).menus}
-    let importantScehmasDefsForSection = {...(layoutMenusAndSchamasDefs||{}).schemas,...(editorMenusAndSchemasDefs||{}).schemas}
+    let importantMenusDefsForSection = {...(layoutMenusAndSchamasDefs||{menus:{},schemas:{}}).menus,...(editorMenusAndSchemasDefs||{menus:{},schemas:{}}).menus}
+    let importantScehmasDefsForSection = {...(layoutMenusAndSchamasDefs||{menus:{},schemas:{}}).schemas,...(editorMenusAndSchemasDefs||{menus:{},schemas:{}}).schemas}
     return {importantMenusDefsForSection,importantScehmasDefsForSection}
   }
 
@@ -657,7 +657,6 @@ export class ProsemirrorEditorsService {
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       handleTextInput(this, view, from, to, text) {
-
         let delNode:any
         let delNodeStartpos:any
         let delNodeEndpos:any
@@ -739,7 +738,7 @@ export class ProsemirrorEditorsService {
         }
       },
       dispatchTransaction,
-      handlePaste: handlePaste(mathMap!, editorID, this.serviceShare),
+      handlePaste: handlePaste(this.serviceShare),
       handleClick: handleClick(hideshowPluginKEey, this.citatContextPluginService.citatContextPluginKey),
       handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
       handleTripleClickOn,
@@ -947,7 +946,6 @@ export class ProsemirrorEditorsService {
         }
       } catch (err) { console.error(err); }
     };
-    let mathMap = this.ydocService.mathMap
     editorView = new EditorView(container, {
       state: edState,
       clipboardTextSerializer: (slice: Slice) => {
@@ -961,7 +959,7 @@ export class ProsemirrorEditorsService {
       dispatchTransaction,
       handleClick: handleClick(hideshowPluginKEey, this.citatContextPluginService.citatContextPluginKey),
       handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
-      handlePaste: handlePaste(mathMap!, editorID, this.serviceShare),
+      handlePaste: handlePaste(this.serviceShare),
       handleTripleClickOn,
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
       //handleKeyDown,
@@ -1205,7 +1203,7 @@ export class ProsemirrorEditorsService {
       },
       dispatchTransaction,
       handleClick: handleClick(hideshowPluginKEey),
-
+      handlePaste: handlePaste(this.serviceShare),
       handleTripleClickOn,
       handleDoubleClick:
         handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
@@ -1326,8 +1324,10 @@ export class ProsemirrorEditorsService {
 
       } catch (err) { console.error(err); }
     };
+    let mathMap = this.ydocService.mathMap
     editorView = new EditorView(container, {
       state: edState,
+      handlePaste: handlePaste(this.serviceShare),
       clipboardTextSerializer: (slice: Slice) => {
         return mathSerializer.serializeSlice(slice);
       },

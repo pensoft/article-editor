@@ -1,3 +1,7 @@
+import { DOMParser, DOMSerializer } from "prosemirror-model"
+import { ServiceShare } from "../services/service-share.service"
+import { FullSchemaDOMPMSerializer } from "./Schema/filterNodesIfSchemaDefPlugin"
+
 let allNodes = [
   "doc",                                // must
   "form_field",                         // must
@@ -307,6 +311,100 @@ export let mapSchemaDef = (def:{nodes?:string[],marks?:string[]})=>{
   return mappedSchema;
 }
 
+export let filterFieldsValues = (formIOJSON:any,submission:any,serviceShare:ServiceShare,sectionID:string,withDefsOnlyInFORMioSCHEMA:boolean,htmlTemplate:string)=>{
+  let menusAndSchemasDefs = serviceShare.YdocService.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
+  let importantSchemaDefsForSection = {
+    ...(menusAndSchemasDefs['layoutDefinitions']||{schemas:{}}).schemas,
+    ...(menusAndSchemasDefs[sectionID]||{schemas:{}}).schemas
+  }
+  let {sectionMenusAndSchemasDefsfromJSONByfieldsTags} = parseSecFormIOJSONMenuAndSchemaDefs(formIOJSON);
+  let defsOnFieldsInHTML:any = {}
+
+  if(!withDefsOnlyInFORMioSCHEMA){
+    let allFormFieldsStings = htmlTemplate.match(/<form-field[\s\S]*?(?=>)>/gm)
+    allFormFieldsStings?allFormFieldsStings.forEach((formField)=>{
+      let fieldKey = formField.match(/formControlName="([\S]*)"/);
+      let menuType = formField.match(/menuType="([\S]*)"/)
+      let schemaType = formField.match(/schemaType="([\S]*)"/)
+      defsOnFieldsInHTML[fieldKey[1]] = {
+        menuType:menuType?menuType[1]:undefined,
+        schemaType:schemaType?schemaType[1]:undefined
+      }
+    }):undefined
+  }
+
+  Object.keys(submission.data).forEach((fieldKey)=>{
+    let customDefsForField  = sectionMenusAndSchemasDefsfromJSONByfieldsTags[fieldKey] // only used when there is no shcema in the HTML template
+    if(!withDefsOnlyInFORMioSCHEMA&&defsOnFieldsInHTML[fieldKey]&&defsOnFieldsInHTML[fieldKey].schemaType){ // customDefsForField is ised from the html definitions if there is any
+      console.log('shcema from html',defsOnFieldsInHTML[fieldKey].schemaType);
+      customDefsForField = {schema:defsOnFieldsInHTML[fieldKey].schemaType}
+    }
+    if(customDefsForField&&customDefsForField.schema){
+      let nodeSchema = serviceShare.ProsemirrorEditorsService.buildSchemaFromKeysDef(importantSchemaDefsForSection[customDefsForField.schema]);
+      let nodeSchemaParser = DOMParser.fromSchema(nodeSchema);
+      let nodeSchemaSerializer = DOMSerializer.fromSchema(nodeSchema);
+
+      let containerOriginalCOntent = document.createElement('div')
+      containerOriginalCOntent.innerHTML = submission.data[fieldKey];
+
+      let cleanedSlice = nodeSchemaParser.parseSlice(containerOriginalCOntent)
+      let serializedCleanStruct = nodeSchemaSerializer.serializeFragment(cleanedSlice.content);
+      let containerFilteredContent = document.createElement('div')
+
+      if(serializedCleanStruct instanceof DocumentFragment){
+        containerFilteredContent.append(...Array.from(serializedCleanStruct.children))
+      }else{
+        containerFilteredContent.append(serializedCleanStruct);
+      }
+      console.log(nodeSchema);
+      console.log(customDefsForField);
+
+      submission.data[fieldKey] = containerFilteredContent.innerHTML
+    }
+  })
+}
+
+let loopComponents = (component: any,fnc:any)=> {
+  let type = component.type
+  if (type == 'datagrid') {
+    fnc(component)
+  } else if (component.type == 'columns') {
+    for(let i = 0 ; i < component.columns.length;i++){
+      let col = component.columns[i]
+      for(let j = 0 ; j < col.components.length;j++){
+        let comp = col.components[j]
+        fnc(comp)
+      }
+    }
+    fnc(component)
+  } else if (type == "select") {
+    fnc(component)
+  } else if (type == "container") {
+    fnc(component)
+  } else if(type == "radio"){
+    fnc(component)
+  }else if (type == 'panel') {
+    component.components.forEach((subcomp: any) => {
+      loopComponents(subcomp,fnc)
+    })
+  } else if (type == 'table') {
+    for(let i = 0 ; i < component.rows.length;i++){
+      let row = component.rows[i];
+      for(let j = 0 ; j < row.length;j++){
+        let cell = row[j]
+        for(let k = 0 ; k < cell.components.length;k++){
+          let cellSubComp = cell.components[k]
+          loopComponents(cellSubComp,fnc)
+
+        }
+      }
+    }
+  } else {
+    fnc(component)
+  }
+
+}
+
 export let parseSecFormIOJSONMenuAndSchemaDefs = (formIOJSON:any)=>{
   let sectionMenusAndSchemaDefsFromJSON = {
     menus:{},
@@ -357,49 +455,10 @@ export let parseSecFormIOJSONMenuAndSchemaDefs = (formIOJSON:any)=>{
       }
     }
   }
-  let updateDefaultValue = (component: any)=> {
-    let type = component.type
-    if (type == 'datagrid') {
-      checkComponent(component)
-    } else if (component.type == 'columns') {
-      for(let i = 0 ; i < component.columns.length;i++){
-        let col = component.columns[i]
-        for(let j = 0 ; j < col.components.length;j++){
-          let comp = col.components[j]
-          checkComponent(comp)
-        }
-      }
-      checkComponent(component)
-    } else if (type == "select") {
-      checkComponent(component)
-    } else if (type == "container") {
-      checkComponent(component)
-    } else if(type == "radio"){
-      checkComponent(component)
-    }else if (type == 'panel') {
-      component.components.forEach((subcomp: any) => {
-        updateDefaultValue(subcomp)
-      })
-    } else if (type == 'table') {
-      for(let i = 0 ; i < component.rows.length;i++){
-        let row = component.rows[i];
-        for(let j = 0 ; j < row.length;j++){
-          let cell = row[j]
-          for(let k = 0 ; k < cell.components.length;k++){
-            let cellSubComp = cell.components[k]
-            updateDefaultValue(cellSubComp)
 
-          }
-        }
-      }
-    } else {
-      checkComponent(component)
-    }
-
-  }
   for (let index = 0; index < formIOJSON.components.length; index++) {
     let component: any = formIOJSON.components[index];
-    updateDefaultValue(component)
+    loopComponents(component,checkComponent)
   }
   return {sectionMenusAndSchemaDefsFromJSON,formIOJSON,sectionMenusAndSchemasDefsfromJSONByfieldsTags}
 }
