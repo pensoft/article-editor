@@ -40,6 +40,7 @@ import {treatmentSectionsSubsection} from "@core/services/custom_sections/tratme
 import {treatmentSectionsCustom} from "@core/services/custom_sections/treatment_sections_description";
 import {taxonSection} from "@core/services/custom_sections/taxon";
 import { EnforcerService } from '@app/casbin/services/enforcer.service';
+import { filterFieldsValues } from '@app/editor/utils/fieldsMenusAndScemasFns';
 
 @Component({
   selector: 'app-section-leaf',
@@ -158,6 +159,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   editNodeHandle(node: articleSection, formGroup: FormGroup) {
     try {
       let defaultValues = formGroup.value;
+      filterFieldsValues( node.formIOSchema,{data:defaultValues},this.serviceShare,node.sectionID,true,'')
       let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID, formGroup);
 
       let updateYdoc = new Y.Doc();

@@ -36,7 +36,7 @@ import {DOMParser as DOMParserPM} from 'prosemirror-model';
 import {HelperService} from "@app/editor/section/helpers/helper.service";
 import { ThisReceiver, ThrowStmt } from '@angular/compiler';
 import { ServiceShare } from '../services/service-share.service';
-import { parseSecFormIOJSONMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
+import { filterFieldsValues, parseSecFormIOJSONMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
 import { schema } from '../utils/Schema';
 
 @Component({
@@ -155,6 +155,12 @@ export class SectionComponent implements AfterViewInit, OnInit {
 
   onSubmit = async (submision?: any) => {
     try {
+      let prosemirrorNewNodeContent: any
+
+      prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
+
+      filterFieldsValues(this.sectionContent,submision,this.serviceShare,this.section.sectionID,false,prosemirrorNewNodeContent)
+
       if (this.section.type == 'complex') {
         this.submitComplexSectionEdit()
       }
@@ -183,13 +189,11 @@ export class SectionComponent implements AfterViewInit, OnInit {
       this.sectionForm.updateValueAndValidity()
 
       let interpolated: any
-      let prosemirrorNewNodeContent: any
       this.error = false;
       this.errorMessage = '';
       // get the text content from the codemirror editor which after compiling will be used as the new node structure for sections's Prosemirror
       let tr = this.codemirrorHTMLEditor?.state.update()
       this.codemirrorHTMLEditor?.dispatch(tr!);
-      prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
       if (prosemirrorNewNodeContent.indexOf(`<ng-template #${this.section.title.name.replace(/[\W_]+/g,'')}`) > -1) {
         if (this.section.title.name === 'Material') {
           interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));

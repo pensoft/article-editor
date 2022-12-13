@@ -1,5 +1,4 @@
 import {yDocToProsemirrorJSON} from "src/app/y-prosemirror-src/y-prosemirror.js"
-import  {schema, PMDOMSerializer} from "../../utils/Schema/index"
 
 export let getYdocData = function (ydoc) {
 
@@ -29,39 +28,17 @@ export let getYdocData = function (ydoc) {
   })
   ydocData.sectionFromGroupsData = sectionFromGroupsData
 
-  let sectionPMNodesJson = {}
-  let sectionPMNodesDomEls = {}
+  let sectionPMNodesJson:any = {}
   articleSectionsStructure.forEach((section) => {
     loopSection(section, (section) => {
       let sectionid = section.sectionID;
       let pmJson = yDocToProsemirrorJSON(ydoc, sectionid)
-      let node = schema.nodeFromJSON(pmJson);
-      let editorDom = document.createElement('div')
-      editorDom.className = 'ProseMirror-example-setup-style';
-      editorDom.setAttribute('section-name', section.title.name)
-      //@ts-ignore
-      node.content.content.forEach(ch => {
-        let chdom = PMDOMSerializer.serializeNode(ch);
-        editorDom.appendChild(chdom);
-      })
       sectionPMNodesJson[sectionid] = pmJson
-      sectionPMNodesDomEls[sectionid] = editorDom
     })
   })
   let endEditorJSON = yDocToProsemirrorJSON(ydoc, 'endEditor')
-  let node = schema.nodeFromJSON(endEditorJSON);
-  let editorDom = document.createElement('div')
-  editorDom.className = 'ProseMirror-example-setup-style';
-  editorDom.setAttribute('section-name', 'endEditor')
-      //@ts-ignore
-  node.content.content.forEach(ch => {
-    let chdom = PMDOMSerializer.serializeNode(ch);
-    editorDom.appendChild(chdom);
-  })
   sectionPMNodesJson['endEditor'] = endEditorJSON
-  sectionPMNodesDomEls['endEditor'] = editorDom
   ydocData.sectionPMNodesJson = sectionPMNodesJson
-  ydocData.sectionPMNodesDomEls = sectionPMNodesDomEls;
 
 
   let figuresMap = ydoc.getMap('ArticleFiguresMap');// ------------
@@ -114,7 +91,7 @@ export let getYdocData = function (ydoc) {
 
   let comments = ydoc.getMap('comments'); // ------------
   let articleComments:any = {}
-  Array.from(comments.keys()).forEach((commentid:string) => {
+  Array.from(comments.keys()).forEach((commentid:any) => {
     let comment = comments.get(commentid)
     if (comment) {
       articleComments[commentid] = comment

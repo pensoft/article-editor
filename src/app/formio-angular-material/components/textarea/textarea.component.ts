@@ -197,8 +197,8 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       let sectionProps = this.instance.root._form.props
       options.path = this.instance.path
       options.onChange = this.onChange1
-      options.containerSection = (sectionProps&&sectionProps.sectionID)?this.serviceShare.TreeService.findNodeById(sectionProps.sectionID):undefined
-      let componentProps = sectionProps?sectionProps[this.instance.path]:{}
+      options.containerSection = (sectionProps&&sectionProps.sectionID)?this.serviceShare.TreeService.findNodeById(sectionProps.sectionID):undefined;
+      let componentProps = (sectionProps&&sectionProps[this.instance.path])?sectionProps[this.instance.path]:{}
       Object.keys(componentProps).forEach((key) => {
         if(key == "menuType"/* &&!options[key] */){
           //options[key] = componentProps[key]

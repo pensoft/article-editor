@@ -19,11 +19,11 @@ let getAttrValueIfAnyAtPos = (resolvedPos:ResolvedPos,attrName : string) => {
   return attr
 }
 
+export let FullSchemaDOMPMSerializer = DOMSerializer.fromSchema(schema)
+export let FullSchemaDOMPMParser = DOMParser.fromSchema(schema)
 
 export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDefs:{nodes:any,marks:any})=>{
 
-    let FullSchemaDOMPMSerializer = DOMSerializer.fromSchema(schema)
-    let FullSchemaDOMPMParser = DOMParser.fromSchema(schema)
 
     let menusAndSchemasDefs = serviceShare.YdocService.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
 
@@ -37,7 +37,10 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
         nodeSchemaSerializer = DOMParsersAndSerializersBySchemaKeys[editorSchemaDEFKey].domSerializer
       }else{
         //@ts-ignore
-        let importantSchemaDefsForSection = {...menusAndSchemasDefs['layoutDefinitions'].schemas,...menusAndSchemasDefs[sectionID].schemas}
+        let importantSchemaDefsForSection =  {
+          ...(menusAndSchemasDefs['layoutDefinitions']||{schemas:{}}).schemas,
+          ...(menusAndSchemasDefs[sectionID]||{schemas:{}}).schemas
+        }
         let schemaDefForNode = importantSchemaDefsForSection[editorSchemaDEFKey];
         let nodeSchema = serviceShare.ProsemirrorEditorsService.buildSchemaFromKeysDef(schemaDefForNode);
         nodeSchemaParser = DOMParser.fromSchema(nodeSchema);
@@ -63,8 +66,6 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
 
       return newSlice
     }
-
-
 
     let filterNodesBySchemaDefPlugin = new Plugin({
       key:filterNodesBySchemaDefPluginKey,

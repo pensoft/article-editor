@@ -21,7 +21,7 @@ function removeStyling(slice:Slice){
   })
 }
 
-export function handlePaste(mathMap: YMap<any>, sectionID: string,sharedService:ServiceShare) {
+export function handlePaste(sharedService:ServiceShare) {
   return function handlePaste(view: EditorView, event: Event, slice: Slice) {
     removeStyling(slice)
     let newPastedCitation = false;

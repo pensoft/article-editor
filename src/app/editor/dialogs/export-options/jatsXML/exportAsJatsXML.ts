@@ -76,7 +76,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   /*          */
   let journalidIndex = journal_meta.ele('journal-id', {"journal-id-type": "index"}).txt('urn:lsid:arphahub.com:pub:F9B2E808-C883-5F47-B276-6D62129E4FF4') // should probably come from the article layout
   /*          */
-  let journalidAggregator = journal_meta.ele('journal-id', {"journal-id-type": "aggregatorid"}).txt('urn:lsid:zoobank.org:pub:245B00E9-BFE5-4B4F-B76E-15C30BA74C02') // should probably come from the article layout
+  let journalidAggregator = journal_meta.ele('journal-id', {"journal-id-type": "aggregator"}).txt('urn:lsid:zoobank.org:pub:245B00E9-BFE5-4B4F-B76E-15C30BA74C02') // should probably come from the article layout
   /*          */
   let journal_title_group = journal_meta.ele('journal-title-group')
   /*               */
@@ -227,7 +227,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   /*                  */
   let licenseP = license.ele('license-p').txt('This is an open access article distributed under the terms of the Creative Commons Attribution License (CC BY 4.0), which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.')
   /*          */
-  let abstract = article_meta.ele('abstract').ele('sec', {'sec-type': 'Abstract content'})
+  let abstract = article_meta.ele('abstract')
   /*              */
   let abstractLabel = abstract.ele('title').txt('Abstract')
   /*              */
@@ -375,7 +375,10 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
     }
   })
   /**/
-  let floatsGroup = article.ele('floats-group') // figs
+  let floatsGroup
+  if(Object.keys(figObj).length>0||Object.keys(tablesObj).length>0){
+    floatsGroup = article.ele('floats-group') // figs & citable-tables
+  }
   let domPMParser = DOMParser.fromSchema(schema);
   Object.keys(figObj).forEach((figid) => {
     let fig = figObj[figid];
@@ -461,6 +464,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   const formData = new FormData();
   formData.append("file", file);//https://ps-jats.dev.scalewest.com/validate/xml
   serviceShare.httpClient.post(environment.validate_jats, formData).subscribe((data) => {
+    console.log('validation',data);
   })
 }
 
@@ -684,7 +688,7 @@ function parseSection(view: EditorView | undefined, container: XMLBuilder, servi
 
 let mathCount = 1;
 
-let processPmNodeAsXML = (node: any, xmlPar: XMLBuilder, before: string, index: number,options:any) => {
+let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string, index: number,options:any) {
   let newParNode: XMLBuilder
   let shouldSkipNextBlockElements = false;
   if (node.type == 'heading') {
@@ -762,15 +766,15 @@ let processPmNodeAsXML = (node: any, xmlPar: XMLBuilder, before: string, index: 
     return
   } else {
     if (node.content && node.content.length > 0) {
-      node.content.forEach((ch, i) => {
-        parseNode(ch, xmlPar, false, before + "|--", i,options)
+      node.content.forEach((ch:any, indx:number) => {
+        parseNode(ch, xmlPar, false, before + "|--", indx,options)
       })
     }
     return;
   }
   if (node.content && node.content.length > 0) {
-    node.content.forEach((ch, i) => {
-      parseNode(ch, newParNode, shouldSkipNextBlockElements, before + "|--", i,options)
+    node.content.forEach((ch:any, indx:number) => {
+      parseNode(ch, newParNode, shouldSkipNextBlockElements, before + "|--", indx,options)
     })
   }
 }
@@ -846,7 +850,7 @@ function parseNode(node: any, xmlPar: XMLBuilder, shouldSkipBlockElements: boole
   if (nodesToSkip.includes(node.type) || (shouldSkipBlockElements && isBlockNode(node.type) && !nodesNotToLoop.includes(node.type) && !nodesThatShouldNotBeSkipped.includes(node.type))) { // nodes that should be skipped and looped through their children
     if (node.content && node.content.length > 0) {
       node.content.forEach((ch, i) => {
-        parseNode(ch, xmlPar, shouldSkipBlockElements, before, i)
+        parseNode(ch, xmlPar, shouldSkipBlockElements, before, index)
       })
     }
   } else if (nodesNotToLoop.includes(node.type)) { // nodes that should not be looped nor their children
