@@ -93,7 +93,8 @@ export class MenuService {
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItem', 'redoItem', 'insertVideoItem'],
-      ['logNodesMenuItem', 'insertFigure','insertTable', 'insertPageBreak', 'headings'],
+      ['insertSupplementaryFile','insertFigure','insertTable'],
+      ['logNodesMenuItem',  'insertPageBreak', 'headings'],
       ['citateReference','tableMenu']
     ],
     'SimpleMenuPMundoRedo': [

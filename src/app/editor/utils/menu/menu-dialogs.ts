@@ -19,6 +19,7 @@ import { TableSizePickerComponent } from "../table-size-picker/table-size-picker
 import { canInsert, createCustomIcon, videoPlayerIcon } from "./common-methods";
 import { InsertTableComponent } from "@app/editor/dialogs/citable-tables-dialog/insert-table/insert-table.component";
 import { StateEffectType } from "@codemirror/state";
+import { InsertSupplementaryFileComponent } from "@app/editor/dialogs/supplementary-files/insert-supplementary-file/insert-supplementary-file.component";
 
 let sharedDialog: MatDialog;
 
@@ -119,6 +120,32 @@ export const insertImageItem = new MenuItem({
   enable(state:EditorState) { return state.schema.nodes.image&&canInsert(state, state.schema.nodes.image) },
   icon: createCustomIcon('photo.svg', 17)
 });
+
+export const insertSupplementaryFile = new MenuItem({
+  title: 'Insert supplementary file citation.',
+  // @ts-ignore
+  run: (state: EditorState, dispatch?: (tr: Transaction) => boolean, view?: EditorView) => {
+    let nodeAtCursor = state.selection.$from.parent
+    let nodeAt = state.doc.nodeAt(state.selection.from)
+    let data
+    let citatmark = nodeAt?.marks.filter((mark) => { return mark.type.name == 'supplementary_file_citation' })
+    if (citatmark?.length! > 0) {
+      data = JSON.parse(JSON.stringify(citatmark![0].attrs));
+    }
+    const dialogRef = sharedDialog.open(InsertSupplementaryFileComponent, {
+      width: '80%',
+      height: '90%',
+      panelClass: 'insert-figure-in-editor',
+      data: { view, citatData: data }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+    });
+    return true;
+  },
+  //@ts-ignore
+  enable(state) { return state.schema.marks.citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'figures_nodes_container', 'block_figure' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
+  icon: createCustomIcon('supplementary-file.svg', 22,22,3,0)
+})
 
 export const insertFigure = new MenuItem({
   title: 'Insert smart figure citation',

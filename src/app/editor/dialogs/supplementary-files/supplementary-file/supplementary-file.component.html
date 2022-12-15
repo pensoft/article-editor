@@ -1,0 +1,22 @@
+<div *ngIf="supplementaryFile" class="supplementary-file">
+  <div class="supplementary-file-index">Supplementary File №{{supplementaryFileIndex!+1}}.</div>
+  <div class="supplementary-file-content">
+    Title : <span [innerHTML]="supplementaryFile.title">
+        </span>
+  </div>
+  <div class="supplementary-file-content">
+      Authors : <span [innerHTML]="supplementaryFile.authors">
+          </span>
+  </div>
+  <div class="supplementary-file-content">
+      Data type : <span [innerHTML]="supplementaryFile.data_type">
+          </span>
+  </div>
+  <div class="supplementary-file-content">
+      Brief description : <span [innerHTML]="supplementaryFile.brief_description">
+          </span>
+  </div>
+  <div class="supplementary-file-content">
+      <a href="{{supplementaryFile.url}}">Download file</a>
+  </div>
+</div>

@@ -1,4 +1,4 @@
-import { AfterViewInit, ApplicationRef, ChangeDetectorRef, Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ApplicationRef, ChangeDetectorRef, Component, EventEmitter, Inject, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { YdocService } from '../../services/ydoc.service';
 import { articleSection } from '../../utils/interfaces/articleSection';
@@ -14,7 +14,7 @@ import { FormGroup } from '@angular/forms';
   templateUrl: './edit-section-dialog.component.html',
   styleUrls: ['./edit-section-dialog.component.scss']
 })
-export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
+export class EditSectionDialogComponent implements AfterViewInit,OnDestroy,AfterViewChecked {
 
 
   //@Input() section!: articleSection;
@@ -45,6 +45,10 @@ export class EditSectionDialogComponent implements AfterViewInit,OnDestroy {
       this.prityJson = JSON.stringify(sectionData.formIOJson,null,"\t")
       this.editOnAddFromParent = sectionData.editOnAddFromParent
 
+  }
+
+  ngAfterViewChecked(): void {
+    this.changeDector.detectChanges();
   }
 
   cancelEdit() {

@@ -11,14 +11,24 @@ import { CellSelection } from "../../../../../prosemirror-tables/src/index";
 import { EditorView } from "prosemirror-view";
 import { YMap } from "yjs/dist/src/internals";
 import { articleSection } from "../interfaces/articleSection";
+import { FullSchemaDOMPMSerializer , FullSchemaDOMPMParser} from "../Schema/filterNodesIfSchemaDefPlugin"
 
 function removeStyling(slice:Slice){
-  slice.content.nodesBetween(0,slice.content.size,(node,pos,par,indx)=>{
-    if(node.attrs.styling&&node.attrs.styling.length>0){
-      //@ts-ignore
-      node.attrs.styling = ""
-    }
-  })
+  let dom = FullSchemaDOMPMSerializer.serializeFragment(slice.content);
+  let container = document.createElement('div');
+  let container1 = document.createElement('div');
+  if(dom instanceof DocumentFragment){
+    container.append(...Array.from(dom.children))
+  }else{
+    container.append(dom);
+  }
+  let htmlWithNoStyle = container.innerHTML
+  htmlWithNoStyle = htmlWithNoStyle.replace(/style="[^"]+"/gm,'style=""');
+  htmlWithNoStyle = htmlWithNoStyle.replace(/class="[^"]+"/gm,'class=""');
+  container1.innerHTML = "<form-field>"+htmlWithNoStyle+"</form-field>"
+  let newSlice = FullSchemaDOMPMParser.parse(container1);
+  //@ts-ignore
+  slice.content = newSlice.content.content[0].content
 }
 
 export function handlePaste(sharedService:ServiceShare) {

@@ -326,17 +326,16 @@ export let filterFieldsValues = (formIOJSON:any,submission:any,serviceShare:Serv
       let fieldKey = formField.match(/formControlName="([\S]*)"/);
       let menuType = formField.match(/menuType="([\S]*)"/)
       let schemaType = formField.match(/schemaType="([\S]*)"/)
-      defsOnFieldsInHTML[fieldKey[1]] = {
+      fieldKey?defsOnFieldsInHTML[fieldKey[1]] = {
         menuType:menuType?menuType[1]:undefined,
         schemaType:schemaType?schemaType[1]:undefined
-      }
+      }:undefined
     }):undefined
   }
 
   Object.keys(submission.data).forEach((fieldKey)=>{
     let customDefsForField  = sectionMenusAndSchemasDefsfromJSONByfieldsTags[fieldKey] // only used when there is no shcema in the HTML template
     if(!withDefsOnlyInFORMioSCHEMA&&defsOnFieldsInHTML[fieldKey]&&defsOnFieldsInHTML[fieldKey].schemaType){ // customDefsForField is ised from the html definitions if there is any
-      console.log('shcema from html',defsOnFieldsInHTML[fieldKey].schemaType);
       customDefsForField = {schema:defsOnFieldsInHTML[fieldKey].schemaType}
     }
     if(customDefsForField&&customDefsForField.schema){
@@ -356,8 +355,6 @@ export let filterFieldsValues = (formIOJSON:any,submission:any,serviceShare:Serv
       }else{
         containerFilteredContent.append(serializedCleanStruct);
       }
-      console.log(nodeSchema);
-      console.log(customDefsForField);
 
       submission.data[fieldKey] = containerFilteredContent.innerHTML
     }

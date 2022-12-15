@@ -16,7 +16,7 @@ import { YMap } from "yjs/dist/src/internals";
 import { wrapInList } from "prosemirror-schema-list";
 import { Subject } from 'rxjs';
 import { canInsert, createCustomIcon } from './common-methods';
-import { insertFigure, insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem, citateReference, insertTable } from './menu-dialogs';
+import { insertFigure,insertSupplementaryFile, insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem, citateReference, insertTable } from './menu-dialogs';
 import { MarkType, Node, NodeType, DOMParser, DOMSerializer, Mark, Fragment } from 'prosemirror-model';
 //@ts-ignore
 import { undo as undoLocalHistory, redo as redoLocalHistory } from '../prosemirror-history/history.js'
@@ -476,6 +476,7 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
   'headings': headings,
   'insertPageBreak': insertPageBreak,
   'insertHorizontalRule': insertHorizontalRule,
+  'insertSupplementaryFile':insertSupplementaryFile,
   'undoItem': undoItemPM,
   'redoItem': redoItemPM,
   'undoItemPM': undoItemPM,

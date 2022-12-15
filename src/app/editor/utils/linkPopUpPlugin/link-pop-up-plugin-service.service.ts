@@ -6,25 +6,43 @@ import { DetectFocusService } from '../detectFocusPlugin/detect-focus.service';
 import { CsvServiceService } from "@app/editor/csv-service/csv-service.service";
 import Papa from 'papaparse';
 import { normalize } from 'path';
+import { ViewportScroller } from '@angular/common';
+import { saveAs } from 'file-saver'
 
 @Injectable({
   providedIn: 'root'
 })
 export class LinkPopUpPluginServiceService {
+
   linkPopUpPluginKey
   linkPopUpPlugin: Plugin;
-  download(filename, text) {
-    var pom = document.createElement('a');
-    pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
-    pom.setAttribute('download', filename);
 
-    if (document.createEvent) {
-      var event = document.createEvent('MouseEvents');
-      event.initEvent('click', true, true);
-      pom.dispatchEvent(event);
-    }
-    else {
-      pom.click();
+  download(filename, text,url:boolean) {
+    if(url){
+      fetch(text).then((res:any) => {console.log(...res.headers);return res.blob()}).then(file => {
+        let tempUrl = URL.createObjectURL(file);
+        const aTag = document.createElement("a");
+        aTag.href = tempUrl;
+        aTag.download = text.split('?')[0].split('/').pop()
+        document.body.appendChild(aTag);
+        aTag.click();
+        URL.revokeObjectURL(tempUrl);
+        aTag.remove();
+    }).catch(() => {
+    });
+    }else{
+      var pom = document.createElement('a');
+      pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+      pom.setAttribute('download', filename);
+
+      if (document.createEvent) {
+        var event = document.createEvent('MouseEvents');
+        event.initEvent('click', true, true);
+        pom.dispatchEvent(event);
+      }
+      else {
+        pom.click();
+      }
     }
   }
 
@@ -91,13 +109,27 @@ export class LinkPopUpPluginServiceService {
 
         },
         handleClick(this: Plugin, view: EditorView, pos: number, event: MouseEvent) {
+          event.preventDefault();
+          console.log('click');
+          let {from,to} = view.state.selection
+          let linkNere = false;
+          view.state.doc.nodesBetween(from,to,(node)=>{
+            if(node.type.name == 'supplementary_file_url'){
+              console.log(node);
+              //@ts-ignore
+              let link = node.content.content[0].content.content[0].marks[0].attrs.href;
+              self.download('file.pdf',link,true);
+              linkNere = true;
+              lastFocusedEditor = null;
+            }
+          })
           let sectionId = linkPopUpPluginKey.getState(view.state).sectionName
           let node = view.state.doc.nodeAt(pos);
-          if (node&&node.marks.filter((mark) => mark.attrs.download && mark.attrs.download != "").length > 0) {
+          if (!linkNere&&node&&node.marks.filter((mark) => mark.attrs.download && mark.attrs.download != "").length > 0) {
             let mark = node.marks.find((mark) => mark.attrs.download && mark.attrs.download != "");
             const text = csvServiceService.arrayToCSV(sectionId);
             const fileName = mark?.attrs.download;
-            self.download(fileName, text);
+            self.download(fileName, text,false);
             lastFocusedEditor = null;
           }
           return false

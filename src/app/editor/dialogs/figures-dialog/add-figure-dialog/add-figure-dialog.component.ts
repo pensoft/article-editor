@@ -1,4 +1,5 @@
 import {
+  AfterViewChecked,
   AfterViewInit,
   ChangeDetectorRef,
   Compiler,
@@ -74,7 +75,7 @@ let figuresHtmlTemplate = `
   templateUrl: './add-figure-dialog.component.html',
   styleUrls: ['./add-figure-dialog.component.scss']
 })
-export class AddFigureDialogComponent implements AfterViewInit {
+export class AddFigureDialogComponent implements AfterViewInit,AfterViewChecked {
   renderForm = false;
   hidehtml = true;
   sectionContent = JSON.parse(JSON.stringify(figureJson));
@@ -96,6 +97,12 @@ export class AddFigureDialogComponent implements AfterViewInit {
     @Inject(MAT_DIALOG_DATA) public data: { fig: figure | undefined, updateOnSave: boolean, index: number, figID: string | undefined }
   ) {
 
+  }
+
+
+
+  ngAfterViewChecked(): void {
+    this.changeDetectorRef.detectChanges()
   }
 
   ngAfterViewInit(): void {

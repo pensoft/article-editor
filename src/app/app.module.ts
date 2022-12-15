@@ -149,6 +149,14 @@ import { InsertTableComponent } from './editor/dialogs/citable-tables-dialog/ins
 import { JwtModule } from '@auth0/angular-jwt';
 import { NgxLaravelEchoModule } from 'ngx-laravel-echo';
 import { EditorContainerComponent } from './editor/editor-container/editor-container.component';
+import { SupplementaryFilesDialogComponent } from './editor/dialogs/supplementary-files/supplementary-files.component';
+import { EndNotesComponent } from './editor/dialogs/end-notes/end-notes.component';
+import { AddSupplementaryFileComponent } from './editor/dialogs/supplementary-files/add-supplementary-file/add-supplementary-file.component';
+import { SupplementaryFileComponent } from './editor/dialogs/supplementary-files/supplementary-file/supplementary-file.component';
+import { InsertSupplementaryFileComponent } from './editor/dialogs/supplementary-files/insert-supplementary-file/insert-supplementary-file.component';
+import { AddEndNoteComponent } from './editor/dialogs/end-notes/add-end-note/add-end-note.component';
+import { EndNoteComponent } from './editor/dialogs/end-notes/end-note/end-note.component';
+import { InsertEndNoteComponent } from './editor/dialogs/end-notes/insert-end-note/insert-end-note.component';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -263,6 +271,15 @@ const gravatarConfig: GravatarConfig = {
     CitableTableComponent,
     InsertTableComponent,
     EditorContainerComponent,
+    SupplementaryFilesDialogComponent,
+    EndNotesComponent,
+    SupplementaryFileComponent,
+    AddSupplementaryFileComponent,
+    SupplementaryFileComponent,
+    InsertSupplementaryFileComponent,
+    AddEndNoteComponent,
+    EndNoteComponent,
+    InsertEndNoteComponent,
   ],
   imports: [
     HttpClientJsonpModule,

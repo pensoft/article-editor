@@ -45,7 +45,7 @@ export const updateControlsAndFigures = (
     try {
 
       let figures = figuresMap.get('ArticleFigures');
-      let tables = sharedService.YdocService.tablesMap.get('ArticleTables')
+      let tables = sharedService.YdocService.tablesMap?sharedService.YdocService.tablesMap.get('ArticleTables'):undefined
       let figuresCitats = figuresMap.get('articleCitatsObj');
       let figuresTemplates = figuresMap!.get('figuresTemplates');
       let customPropsObj = sharedService.YdocService!.customSectionProps?.get('customPropsObj')

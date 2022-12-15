@@ -953,7 +953,7 @@ export class ProsemirrorEditorsService {
       },
       editable: (state: EditorState) => {
         /*return !this.mobileVersion  && this.editorsEditableObj[editorID] */
-        return false
+        return true
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,

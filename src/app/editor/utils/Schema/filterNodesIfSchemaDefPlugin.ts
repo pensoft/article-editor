@@ -43,7 +43,7 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
         }
         let schemaDefForNode = importantSchemaDefsForSection[editorSchemaDEFKey];
         let nodeSchema = serviceShare.ProsemirrorEditorsService.buildSchemaFromKeysDef(schemaDefForNode);
-        nodeSchemaParser = DOMParser.fromSchema(nodeSchema);
+        nodeSchemaParser = DOMParser.fromSchema(nodeSchema)
         nodeSchemaSerializer = DOMSerializer.fromSchema(nodeSchema);
         DOMParsersAndSerializersBySchemaKeys[editorSchemaDEFKey] = {
           domParser:nodeSchemaParser,
@@ -55,7 +55,6 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
 
     let getFilteredSlice = (slice:Slice,editorSchemaDEFKey,sectionID:string) => {
       let pastedSliceDOM = FullSchemaDOMPMSerializer.serializeFragment(slice.content);
-
       //@ts-ignore
       let {nodeSchemaParser,nodeSchemaSerializer} = getDOMParserAndSerializerForSchema(editorSchemaDEFKey,sectionID);
 

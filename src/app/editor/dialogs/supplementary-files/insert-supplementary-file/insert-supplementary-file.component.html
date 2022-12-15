@@ -1,0 +1,22 @@
+<div class='suplementary-files-selection'>
+  <div class="dialog-content">
+      <div class="title">
+          Citation Properties
+      </div>
+      <div #noselectionError [ngStyle]="{'display':error?'block':'none'}" class="selection-error">
+          You have not selected any supplementary files.
+      </div>
+      <div *ngFor="let supplementaryFileId of supplementaryFilesNumbers;let i = index">
+          <div class='suplementary-files-number'>Supplementary File {{i+1}}
+              <div class="checkbox-wrapper">
+                  <mat-checkbox class="example-margin" [checked]="selectedSupplementaryFiles[i]" [color]='"primary"' (change)="setSelection($event.checked,supplementaryFileId,i)">
+                  </mat-checkbox>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div class="buttons" fxLayoutGap="15px">
+      <button mat-raised-button (click)="citateSupplementaryFiles()">Citate selected supplementary files(s)</button>
+      <button mat-raised-button (click)="cancel()">Cancel</button>
+  </div>
+</div>

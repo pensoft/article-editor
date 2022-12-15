@@ -25,8 +25,6 @@ export const getGenericAttributes = (defaults?:{[key:string]:any}) => {
 }
 
 export const parseGenericAttributes = (dom: any) => {
-
-
     return {
         controlPath: dom.getAttribute('controlPath'),
         customPropPath: dom.getAttribute('customPropPath'),
