@@ -7,6 +7,7 @@ import { parseGenericAttributes, getGenericAttributes, genericAttributtesToDom, 
 import { nodes as basicNodes } from './basic-nodes'
 import { figureNodes } from './figure-nodes';
 import { tableNodes as citableTableNodes } from './citable-tables';
+import { supplementaryFileNodes } from './supplementary-files';
 
 export const paragraph = {
   content: "inline*",
@@ -299,6 +300,7 @@ export const nodes: NodeSpec = {
   }),
   ...figureNodes,
   ...citableTableNodes,
+  ...supplementaryFileNodes,
   text: {
     inline: true,
     group: "inline"

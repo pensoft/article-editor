@@ -63,6 +63,8 @@ export class YdocService {
   figuresMap?: YMap<any>
   citableElementsMap?:YMap<any>
   tablesMap?: YMap<any>
+  supplementaryFilesMap?:YMap<any>
+  endNotesMap?:YMap<any>
   trackChangesMetadata?: YMap<any>
   usersDataMap?: YMap<any>
   mathMap?: YMap<any>
@@ -255,15 +257,30 @@ export class YdocService {
   buildEditor() {
     this.sectionFormGroupsStructures = this.ydoc.getMap('sectionFormGroupsStructures');
     this.citableElementsMap = this.ydoc.getMap('citableElementsMap');
+
     this.figuresMap = this.ydoc.getMap('ArticleFiguresMap');
     this.tablesMap = this.ydoc.getMap('ArticleTablesMap');
+    this.supplementaryFilesMap = this.ydoc.getMap('supplementaryFilesMap');
+    this.endNotesMap = this.ydoc.getMap('endNotesMap');
+
     this.provider?.awareness.setLocalStateField('userInfo', this.userInfo);
+
     let figuresNumbers = this.figuresMap!.get('ArticleFiguresNumbers');
     let figuresTemplates = this.figuresMap!.get('figuresTemplates');
     let figures = this.figuresMap!.get('ArticleFigures');
+
     let tablesNumbers = this.tablesMap!.get('ArticleTablesNumbers');
     let tablesTemplates = this.tablesMap!.get('tablesTemplates');
     let tables = this.tablesMap!.get('ArticleTables');
+
+    let supplementaryFiles = this.supplementaryFilesMap.get('supplementaryFiles');
+    let supplementaryFilesTemplates = this.supplementaryFilesMap.get('supplementaryFilesTemplates');
+    let supplementaryFilesNumbers = this.supplementaryFilesMap.get('supplementaryFilesNumbers');
+
+    let endNotes = this.endNotesMap.get('endNotes');
+    let endNotesNumbers = this.endNotesMap.get('endNotesNumbers');
+    let endNotesTemplates = this.supplementaryFilesMap.get('endNotesTemplates');
+
     this.usersDataMap = this.ydoc.getMap('userDataMap')
     this.mathMap = this.ydoc.getMap('mathDataURLMap');
     this.printMap = this.ydoc.getMap('print');
@@ -282,7 +299,24 @@ export class YdocService {
     this.PMMenusAndSchemasDefsMap = this.ydoc.getMap('PMMenusAndSchemasDefsMap');
     let menusAndSchemasDefs = this.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
 
-
+    if(!endNotesTemplates){
+      this.endNotesMap.set('endNotesTemplates',{})
+    }
+    if(!supplementaryFilesTemplates){
+      this.supplementaryFilesMap.set('supplementaryFilesTemplates',{})
+    }
+    if(!endNotes){
+      this.endNotesMap.set('endNotes',{})
+    }
+    if (!endNotesNumbers) {
+      this.endNotesMap?.set('endNotesNumbers', [])
+    }
+    if(!supplementaryFiles){
+      this.supplementaryFilesMap.set('supplementaryFiles',{})
+    }
+    if (!supplementaryFilesNumbers) {
+      this.supplementaryFilesMap?.set('supplementaryFilesNumbers', [])
+    }
     if(!menusAndSchemasDefs){
       this.PMMenusAndSchemasDefsMap.set('menusAndSchemasDefs',this.buildLayoutMenusAndSchemasDefs())
     }

@@ -398,7 +398,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
     let pdfSettings: any = this.fillSettings()
     let articleId = this.ydocService.articleData.uuid;
     //https://ps-article-storage.dev.scalewest.com/api/article/dfc43b3b-4700-4234-b398-bd9bec17db0d
-    //et articleData = getYdocData(this.ydocService.ydoc);
+    //let articleData = getYdocData(this.ydocService.ydoc);
+
     let articleData:any = {};
     articleData.pdfSettings = pdfSettings;
     articleData.headerPmNodesJson = headerPmNodesJson;
@@ -415,6 +416,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
       console.log('pdf',data);
     })
     /* http://127.0.0.1:3003 */
+    console.log(articleData);
     /* this.http.post('http://127.0.0.1:3003/article/pdf',articleData).subscribe((data)=>{
       console.log('pdf',data);
     }) */

@@ -19,6 +19,8 @@ import { TestingComponent } from '../dialogs/testing/testing.component';
 import { EnforcerService } from '@app/casbin/services/enforcer.service';
 import { CitableTableComponent } from '../dialogs/citable-tables-dialog/citable-table/citable-table.component';
 import { CitableTablesDialogComponent } from '../dialogs/citable-tables-dialog/citable-tables-dialog.component';
+import { SupplementaryFileComponent } from '../dialogs/supplementary-files/supplementary-file/supplementary-file.component';
+import { SupplementaryFilesDialogComponent } from '../dialogs/supplementary-files/supplementary-files.component';
 
 @Component({
   selector: 'app-article-metadata',
@@ -60,6 +62,21 @@ export class ArticleMetadataComponent implements OnInit {
   openFiguresDialog() {
     //this.serviceShare.PmDialogSessionService!.createSession()
     this.dialog.open(FiguresDialogComponent, {
+      width: '100%',
+      height: '90%',
+      data: {},
+      disableClose: false
+    }).afterClosed().subscribe(result => {
+      /* if(result){
+        this.serviceShare.PmDialogSessionService!.endSession(true)
+      }else{
+        this.serviceShare.PmDialogSessionService!.endSession(false)
+      } */
+    })
+  }
+
+  openSupplementaryFilesDialog(){
+    this.dialog.open(SupplementaryFilesDialogComponent, {
       width: '100%',
       height: '90%',
       data: {},

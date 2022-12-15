@@ -115,22 +115,9 @@ export class ServiceShare {
 
   }
 
-  updateCitableElementsViewsAndCites(figstToSet?:any,tblsToSet?:any){
-    let count = 0;
-    let allElementOfTypeAreRendered = ()=>{
-      count++;
-      if(count == 2){
-        //this.YjsHistoryService.stopBigNumberItemsCapturePrevention()
-      }
-    }
+  updateCitableElementsViewsAndCites(){
     this.YjsHistoryService.captureBigOperation()
-
-    //this.FiguresControllerService.allFigsAreRendered = allElementOfTypeAreRendered
-    //this.CitableTablesService.allTablesAreRendered = allElementOfTypeAreRendered
-    //this.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
-    //this.FiguresControllerService.updateFiguresAndFiguresCitations(figstToSet)
-    //this.CitableTablesService.updateTablesAndTablesCitations(tblsToSet)
-      this.CitableElementsService.updateElementsAndElementsCitations();
+    this.CitableElementsService.updateElementsAndElementsCitations();
   }
 
   shouldOpenNewArticleDialog = false;

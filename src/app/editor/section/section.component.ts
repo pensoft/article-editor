@@ -1,5 +1,7 @@
 import {
+  AfterViewChecked,
   AfterViewInit,
+  ChangeDetectorRef,
   Compiler,
   Component,
   CUSTOM_ELEMENTS_SCHEMA,
@@ -44,7 +46,7 @@ import { schema } from '../utils/Schema';
   templateUrl: './section.component.html',
   styleUrls: ['./section.component.scss']
 })
-export class SectionComponent implements AfterViewInit, OnInit {
+export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked {
 
   renderForm = false;
 
@@ -104,6 +106,7 @@ export class SectionComponent implements AfterViewInit, OnInit {
     public detectFocusService: DetectFocusService,
     public helperService: HelperService,
     private serviceShare:ServiceShare,
+    private changeDetectionRef:ChangeDetectorRef
     ) {
 
     /* if(this.formControlService.popUpSectionConteiners[this.section.sectionID]){
@@ -112,6 +115,10 @@ export class SectionComponent implements AfterViewInit, OnInit {
       this.formControlService.popUpSectionConteiners[this.section.sectionID] = document.createElement('div');
       this.popUpContainer = this.formControlService.popUpSectionConteiners[this.section.sectionID]
     } */
+  }
+
+  ngAfterViewChecked(): void {
+    this.changeDetectionRef.detectChanges()
   }
 
   ngOnInit() {

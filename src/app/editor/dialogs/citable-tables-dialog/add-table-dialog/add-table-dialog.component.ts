@@ -1,4 +1,5 @@
 import {
+  AfterViewChecked,
   AfterViewInit,
   ChangeDetectorRef,
   Compiler,
@@ -57,7 +58,7 @@ let tablesHtmlTemplate = `
   templateUrl: './add-table-dialog.component.html',
   styleUrls: ['./add-table-dialog.component.scss']
 })
-export class AddTableDialogComponent implements AfterViewInit {
+export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
   renderForm = false;
   hidehtml = true;
   sectionContent = JSON.parse(JSON.stringify(tableJson));
@@ -132,6 +133,10 @@ export class AddTableDialogComponent implements AfterViewInit {
     } catch (e) {
       console.error(e);
     }
+  }
+
+  ngAfterViewChecked(): void {
+    this.changeDetectorRef.detectChanges();
   }
 
   async onSubmit(submision?: any) {

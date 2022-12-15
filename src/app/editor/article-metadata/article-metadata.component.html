@@ -1,5 +1,6 @@
 <button mat-raised-button [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="figures-button" (click)="!previewMode.mode?openFiguresDialog():undefined">Figures</button>
 <button mat-raised-button [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="figures-button" (click)="!previewMode.mode?openTablesDialog():undefined">Tables</button>
+<button mat-raised-button [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="figures-button" (click)="!previewMode.mode?openSupplementaryFilesDialog():undefined">Suppl. Files</button>
 <button *ngIf="
       enforcer.newBeahviorSubject |
       hasPermission:'/articles/sections':

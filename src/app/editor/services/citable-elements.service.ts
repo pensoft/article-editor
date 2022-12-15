@@ -10,6 +10,7 @@ import { Subject } from 'rxjs';
 import { EditorView } from 'prosemirror-view';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { E } from '@angular/cdk/keycodes';
+import { schema } from '../utils/Schema';
 
 export interface citations {
   [key: string]: { // section keys
@@ -22,14 +23,67 @@ export interface citations {
   }
 }
 
-export let citationsPMNodeNames = ['table_citation', 'citation']
+export let citationsPMNodeNames = ['table_citation', 'citation','supplementary_file_citation']
 export let citationsHTMLNodeNames = []
-export let elementsTypes = ['figure', 'table']
+export let elementsTypes = ['figure', 'table','supplementary-file']
 export let elTypeToCitMap = {
   'figure': 'citation',
-  'table': 'table_citation'
+  'table': 'table_citation',
+  'supplementary-file':'supplementary_file_citation'
 }
+
+// means that views of this type of element should stay only in the end editor
+export let citableElementWithStaticViews = ['supplementary_file_citation']
+
 export let citationElementMap = {
+  'supplementary_file_citation':{
+    htmlTag: 'supplementary-file-citation',
+    type: 'supplementary-file',
+    yjsMap: 'supplementaryFilesMap',
+    elementNumberProp : 'supplementary_file_number',
+    elementNumbersObj: 'supplementaryFilesNumbers',
+    templatesObj: 'supplementaryFilesTemplates',
+    containerNodeName: 'supplementary_files_nodes_container',
+    elementsObj: 'supplementaryFiles',
+    singleElTxt: ' Suppl. material  ',
+    multipleElTxt: ' Suppl. materials  ',
+    deletedElTxt: ' Cited item deleted ',
+    getElsStrings: function (elementData) {
+      let elStrings = '';
+      elStrings = elStrings.concat(elementData.brief_description)
+      return elStrings
+    },
+    setSectionData: function (elementData, sectionId, citeId) {
+    },
+    getElFormIOSubmission: function (elementData, citatID) {
+      let serializedSupplementaryFileToFormIOsubmission: any = {}
+      serializedSupplementaryFileToFormIOsubmission.supplementaryFileTitle = elementData.title
+      serializedSupplementaryFileToFormIOsubmission.supplementaryFileAuthors = elementData.authors
+      serializedSupplementaryFileToFormIOsubmission.supplementaryFileDataType = elementData.data_type
+      serializedSupplementaryFileToFormIOsubmission.supplementaryFileBriefDescription = elementData.brief_description
+      serializedSupplementaryFileToFormIOsubmission.supplementaryFileURL = elementData.url
+      serializedSupplementaryFileToFormIOsubmission.supplementary_file_ID = elementData.supplementary_file_ID
+      serializedSupplementaryFileToFormIOsubmission.supplementary_file_number = elementData.supplementary_file_number
+      return serializedSupplementaryFileToFormIOsubmission;
+    },
+    getEndEditorPrefixNodes:function():Node[]{
+      return [schema.nodes.heading.create({},schema.nodes.paragraph.create({},schema.text('Supplementary materials:')))];
+    },
+    buildElementFormGroup: function (submision: any): FormGroup {
+      let supplementaryFileFormGroup = new FormGroup({})
+      let supplementaryFileTitle = new FormControl(submision.supplementaryFileTitle);
+      let supplementaryFileAuthors = new FormControl(submision.supplementaryFileAuthors);
+      let supplementaryFileDataType = new FormControl(submision.supplementaryFileDataType);
+      let supplementaryFileBriefDescription = new FormControl(submision.supplementaryFileBriefDescription);
+      let supplementaryFileURL = new FormControl(submision.supplementaryFileURL);
+      supplementaryFileFormGroup.addControl('supplementaryFileTitle', supplementaryFileTitle);
+      supplementaryFileFormGroup.addControl('supplementaryFileAuthors', supplementaryFileAuthors);
+      supplementaryFileFormGroup.addControl('supplementaryFileDataType', supplementaryFileDataType);
+      supplementaryFileFormGroup.addControl('supplementaryFileBriefDescription', supplementaryFileBriefDescription);
+      supplementaryFileFormGroup.addControl('supplementaryFileURL', supplementaryFileURL);
+      return supplementaryFileFormGroup
+    }
+  },
   'table_citation': {
     htmlTag: 'table-citation',
     type: 'table',
@@ -126,7 +180,7 @@ export let citationElementMap = {
     }
   }
 }
-export let elementsContainersPMNodesNames = ['figures_nodes_container', 'tables_nodes_container']
+export let elementsContainersPMNodesNames = ['figures_nodes_container', 'tables_nodes_container','supplementary_files_nodes_container']
 
 @Injectable({
   providedIn: 'root'
@@ -171,7 +225,6 @@ export class CitableElementsService {
             citats[sectionID] = undefined
           } else {
             let edView = this.serviceShare.ProsemirrorEditorsService.editorContainers[sectionID].editorView;
-
             edView.state.doc.nodesBetween(0, edView.state.doc.nodeSize - 2, (node, pos, parent) => {
               let citatMark = getCitationIfAny(node);
               if (citatMark.length > 0) {
@@ -201,10 +254,10 @@ export class CitableElementsService {
                   })
                   if (((citElClearFromComponents.length == 1 && elementNumbers?.indexOf(citElClearFromComponents[0]) == -1) ||
                     (citElClearFromComponents.length > 1 && citElClearFromComponents.filter((table) => { return elementNumbers?.indexOf(table) !== -1 }).length == 0))) {
-                    if (citationMark.attrs.nonexistingtable !== 'true') {
+                    if (citationMark.attrs.nonexistingelement !== 'true') {
                       let citateNodeText = elementMaping.deletedElTxt;
                       let newNode = (edView.state.schema as Schema).text(citateNodeText) as Node
-                      newNode = newNode.mark([edView.state.schema.mark(citationMark.type.name, { ...citationMark.attrs, nonexistingtable: 'true' })])
+                      newNode = newNode.mark([edView.state.schema.mark(citationMark.type.name, { ...citationMark.attrs, nonexistingelement: 'true' })])
                       edView.dispatch(edView.state.tr.replaceWith(pos,
                         pos + node.nodeSize
                         , newNode).setMeta('citatsTextChange', true)
@@ -348,7 +401,6 @@ export class CitableElementsService {
       let citationName = elTypeToCitMap[type];
       elMaps[type] = citationElementMap[citationName]
     })
-
     let citationsInElements = {} //
 
     elTypes.forEach((elType) => {
@@ -504,7 +556,7 @@ export class CitableElementsService {
     //this.updateTablesAndTablesCitations(JSON.parse(JSON.stringify(newTables)))
     this.elementsFromPopupEdit[type] = newElsCopy;
     this.serviceShare.YdocService.citableElementsMap?.set('elementsCitations', citats);
-      this.serviceShare.updateCitableElementsViewsAndCites(undefined, JSON.parse(JSON.stringify(newElements)))
+    this.serviceShare.updateCitableElementsViewsAndCites()
   }
 
   elementsFromPopupEdit:{
@@ -644,10 +696,10 @@ export class CitableElementsService {
         this.getViewsOnCitation(citedElements, citationType, elementsNumbersObjs, elementsDysplayedViews, citationsInElementsObj, displayedElementViewsHere);
         citatsBySection[sectionID][citatData[0]].displayedViewsHere = displayedElementViewsHere;
         displayedElementViewsHere.forEach((el) => {
-          elsDisplayedInObj[el.type][el.elId] = sectionID;
-
+          if(!citableElementWithStaticViews.includes(elTypeToCitMap[el.type])){
+            elsDisplayedInObj[el.type][el.elId] = sectionID;
+          }
         })
-
       })
     })
     let nonDisplayedViewsWithIndexes = {};
@@ -681,6 +733,9 @@ export class CitableElementsService {
   }
 
   addElementsInEndEditor(type: string, nonDisplayedEditors: any[], countRendered: any) {
+    let elType = type;
+    let typeMapping = citationElementMap[elTypeToCitMap[elType]]
+
     let elementObjs = this.getElementsObj()
     let elementsTemplates = this.getElementsTemplates()
     let renderedViewsMetaData: any = []
@@ -696,8 +751,10 @@ export class CitableElementsService {
         return el.renderedData
       })
 
-      let schema = view.state.schema as Schema
-      let container = schema.nodes.figures_nodes_container.create({}, elementNodes);
+      let endEditorPrefixNodes = typeMapping.getEndEditorPrefixNodes?typeMapping.getEndEditorPrefixNodes():[]
+
+      let schema = view.state.schema as Schema;
+      let container = schema.nodes[typeMapping.containerNodeName].create({}, [...endEditorPrefixNodes,...elementNodes]);
       view.dispatch(view.state.tr.replaceWith(nodeStart!, nodeEnd!, container).setMeta('citable-elements-rerender', true))
       setTimeout(() => {
         countRendered()
@@ -705,11 +762,9 @@ export class CitableElementsService {
     }
 
     nonDisplayedEditors.forEach((el, i) => {
-      let elType = type;
       let elId = el.elId;
       let elementData = elementObjs[elType][elId];
       let elementTemplate = elementsTemplates[elType][elId];
-      let typeMapping = citationElementMap[elTypeToCitMap[elType]]
       typeMapping.setSectionData(elementData, 'endEditor', 'endEditor');
       let serializedElementToFormIOsubmission = typeMapping.getElFormIOSubmission(elementData, 'endEditor');
       let elementFormGroup = typeMapping.buildElementFormGroup(serializedElementToFormIOsubmission);
@@ -732,6 +787,99 @@ export class CitableElementsService {
         }
       });
     });
+  }
+
+  citateSupplementaryFile(selectedSupplementaryFiles: boolean[], sectionID: string, citatAttrs: any) {
+    try {
+      this.serviceShare.YjsHistoryService.startCapturingNewUndoItem();
+
+      let matkType = 'supplementary_file_citation';
+
+      let supplementaryFileMaping = citationElementMap[matkType];
+
+      let supplementaryFileNumbers = this.serviceShare.YdocService[supplementaryFileMaping.yjsMap].get(supplementaryFileMaping.elementNumbersObj);
+
+      //check selections
+      let insertionView = this.serviceShare.ProsemirrorEditorsService.editorContainers[sectionID].editorView
+      let citatStartPos: number
+      let citatEndPos: number
+
+      if (citatAttrs) {
+        let citatId = citatAttrs.citateid
+        insertionView.state.doc.nodesBetween(0, insertionView.state.doc.nodeSize - 2, (node, pos, parent) => {
+          if (node.marks.filter((mark) => { return mark.type.name == matkType }).length > 0) {
+            let citationMark = node.marks.filter((mark) => { return mark.type.name == matkType })[0];
+            if (citationMark.attrs.citateid == citatId) {
+              citatStartPos = pos
+              citatEndPos = pos + node.nodeSize
+            }
+          }
+        })
+      }
+
+      let citateId
+      if (citatAttrs) {
+        citateId = citatAttrs.citateid
+      } else {
+        citateId = uuidv4();
+      }
+      if (selectedSupplementaryFiles.filter(e => e).length == 0 && !citatAttrs) {
+        return
+      } else if (selectedSupplementaryFiles.filter(e => e).length == 0 && citatAttrs) {
+        insertionView.dispatch(insertionView.state.tr.replaceWith(
+          citatStartPos,
+          citatEndPos,
+          Fragment.empty)
+        )
+        this.serviceShare.updateCitableElementsViews();
+        return
+      }
+
+      let citatString = selectedSupplementaryFiles.filter(e => e).length > 1 ? supplementaryFileMaping.multipleElTxt : supplementaryFileMaping.singleElTxt;
+      let citated: any = []
+      selectedSupplementaryFiles.forEach((fig, index) => {
+        if (fig) {
+          citated.push(index + 1)
+        }
+      })
+      citatString += citated.join(',  ')
+      citatString += ' '
+      let citatedSupplementaryFilesIds = selectedSupplementaryFiles.reduce<any>((prev, curr, index) => {
+        if (curr) {
+          return prev.concat(curr ? [supplementaryFileNumbers![index]] : []);
+        } else {
+          return prev;
+        }
+      }, [])
+
+
+      let citateNodeText = citatString
+      let node = (insertionView.state.schema as Schema).text(citateNodeText) as Node
+      let mark = (insertionView.state.schema as Schema).mark(matkType, {
+        "citated_elements": citatedSupplementaryFilesIds,
+        "citateid": citateId
+      })
+      node = node.mark([mark])
+      if (citatAttrs) {
+        insertionView.dispatch(insertionView.state.tr.replaceWith(citatStartPos,
+          citatEndPos
+          , node).setMeta('citatsTextChange', true)
+        )
+      } else {
+        insertionView.dispatch(insertionView.state.tr.replaceWith(insertionView.state.selection.from,
+          insertionView.state.selection.to
+          , node)
+        )
+      }
+      /* this.serviceShare.YjsHistoryService.addUndoItemInformation({
+        type: 'table-citation',
+        data: {}
+      }) */
+      //this.updateOnlyTablesView()
+      this.serviceShare.updateCitableElementsViews();
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   citateTables(selectedTables: boolean[], sectionID: string, citatAttrs: any) {
@@ -1011,7 +1159,7 @@ export class CitableElementsService {
     }
   }
 
-  displayElements(citats: citations, elsDisplayedInObj, newFigures?: any) {
+  displayElements(citats: citations, elsDisplayedInObj) {
     if (this.sub) {
       return
     }
@@ -1133,11 +1281,6 @@ export class CitableElementsService {
           posAtParentBorder = offsetOfwrappingParent! + wrappingParent?.nodeSize!
           resolvedPositionATparentNodeBorder = data.edView.state.doc.resolve(posAtParentBorder)
           contAfter = data.edView.state.doc.nodeAt(posAtParentBorder)!;
-          //@ts-ignore
-          //parentIndexAndOffset = data.edView.state.doc.content.findIndex(citatNewPosition)
-          /* parentNode = data.edView.state.doc.content.child(parentIndexAndOffset.index)
-          posAtParentBorder = parentIndexAndOffset.offset + parentNode.nodeSize
-          resolvedPositionATparentNodeBorder = data.edView.state.doc.resolve(posAtParentBorder) */
 
           contAfter = resolvedPositionATparentNodeBorder.nodeAfter!
           while (contAfter && elementsContainersPMNodesNames.includes(contAfter.type.name)) {
@@ -1145,9 +1288,6 @@ export class CitableElementsService {
             resolvedPositionATparentNodeBorder = data.edView.state.doc.resolve(posAtParentBorder)
             contAfter = resolvedPositionATparentNodeBorder.nodeAfter!
           }
-          /* while(elementsContainersPMNodesNames.includes(contAfter.typ.name)){
-            contAfter
-          } */
         }
 
         updateMetaInfo()
@@ -1155,7 +1295,6 @@ export class CitableElementsService {
         if (!resolvedPositionATparentNodeBorder) {
           return
         }
-        //let container = schema.nodes.figures_nodes_container.create({}, data.renderedData);
         let viesNodes: Node[] = [];
         data.renderedViewsMetaData.forEach((renderedViewData) => {
           let type = renderedViewData.elType;
@@ -1176,7 +1315,7 @@ export class CitableElementsService {
   }
 
   updatingElementsAndElementsCitations = false
-  updateElementsAndElementsCitations(newTables?: any) {
+  updateElementsAndElementsCitations() {
     this.updatingElementsAndElementsCitations = true;
     let citations = this.getElementsCitations();
     this.updateCitatsText(citations);
@@ -1190,7 +1329,7 @@ export class CitableElementsService {
     })
     let newCitatsObj = this.markElementsCitatsViews(citations, elsDisplayedInObj);
     this.serviceShare.YdocService.citableElementsMap?.set('elementsCitations', newCitatsObj);
-    this.displayElements(newCitatsObj, elsDisplayedInObj, newTables);
+    this.displayElements(newCitatsObj, elsDisplayedInObj);
   }
 
   updatingOnlyElementsView = false;

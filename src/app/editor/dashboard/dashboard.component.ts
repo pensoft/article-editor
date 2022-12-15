@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { from, merge, Observable, of, Subject } from 'rxjs';
 import { MatPaginator } from '@angular/material/paginator';
@@ -23,7 +23,7 @@ import { I } from '@angular/cdk/keycodes';
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss']
 })
-export class DashboardComponent implements AfterViewInit {
+export class DashboardComponent implements AfterViewInit, AfterViewChecked {
 
   displayedColumns: string[] = ['id', 'title', 'date', 'lastupdated', 'layout-type', 'template-type', 'autor', 'buttons'];
   data: any[] = [];
@@ -56,7 +56,13 @@ export class DashboardComponent implements AfterViewInit {
     private articleSectionsService: ArticleSectionsService,
     private prosemirrorEditorsService: ProsemirrorEditorsService,
     private serviceShare: ServiceShare,
+    private chDetectionRef:ChangeDetectorRef
   ) { }
+
+  ngAfterViewChecked(): void {
+    this.chDetectionRef.detectChanges()
+  }
+
   ngAfterViewInit() {
     let articlesDataFromResolver = this.route.snapshot.data['product'];
     /* this.articleSectionsService.getAllLayouts().subscribe((articleLayouts: any) => {

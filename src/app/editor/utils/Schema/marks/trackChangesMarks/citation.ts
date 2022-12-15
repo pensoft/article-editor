@@ -1,6 +1,5 @@
 /* eslint-disable no-param-reassign */
 /* eslint-disable radix */
-import { Node } from "prosemirror-model";
 import { getGenericAttributes,parseGenericAttributes,genericAttributtesToDom } from "../../helpers";
 const citation = {
     group: 'inline',

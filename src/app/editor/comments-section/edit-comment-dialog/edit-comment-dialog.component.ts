@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
@@ -7,18 +7,23 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
   templateUrl: './edit-comment-dialog.component.html',
   styleUrls: ['./edit-comment-dialog.component.scss']
 })
-export class EditCommentDialogComponent implements AfterViewInit {
+export class EditCommentDialogComponent implements AfterViewInit , AfterViewChecked{
 
   editCommentControl = new FormControl()
   commentmarkId:string;
   constructor(
     public dialogRef: MatDialogRef<EditCommentDialogComponent>,
+    private ref:ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) { }
 
   ngAfterViewInit(): void {
     this.commentmarkId = this.data.actualCommentId.commentMarkId
     this.editCommentControl.setValue(this.data.comment)
+  }
+
+  ngAfterViewChecked(): void {
+    this.ref.detectChanges()
   }
 
   cancelEdit(){

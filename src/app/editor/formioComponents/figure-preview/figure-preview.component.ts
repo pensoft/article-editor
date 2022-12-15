@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Pipe, PipeTransform } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, ElementRef, Pipe, PipeTransform } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { DomSanitizer } from '@angular/platform-browser';
 import { pageDimensionsInPT } from '@app/editor/dialogs/edit-before-export/edit-before-export.component';
@@ -11,7 +11,7 @@ import { FormioEventsService } from '../formio-events.service';
   templateUrl: './figure-preview.component.html',
   styleUrls: ['./figure-preview.component.scss']
 })
-export class FigurePreviewComponent extends MaterialComponent implements AfterViewInit {
+export class FigurePreviewComponent extends MaterialComponent implements AfterViewInit,AfterViewChecked {
 
   figureComponents?: any
   displayComponents = false
@@ -29,6 +29,10 @@ export class FigurePreviewComponent extends MaterialComponent implements AfterVi
     private formioEventsService:FormioEventsService,
     public ref: ChangeDetectorRef) {
       super(element, ref)
+  }
+
+  ngAfterViewChecked(): void {
+    this.ref.detectChanges()
   }
 
   getHTMLContent(html:string){

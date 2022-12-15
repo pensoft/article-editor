@@ -54,6 +54,11 @@ table-citation {
   white-space: pre;
 }
 
+supplementary-file-citation {
+  background: #b2f0f0;
+  white-space: pre;
+}
+
 .normal-btn-cancel-graystyle {
   margin-right: 15px;
   background-color: white;
@@ -225,6 +230,21 @@ p {
   word-break: break-word;
 }
 
+supplementary-file-title,
+supplementary-file-authors,
+supplementary-file-data-type,
+supplementary-file-brief-description,
+supplementary-file-url{
+  display: block;
+}
+supplementary-file-brief-description{
+  form-field{
+    display: inline;
+    p{
+      display: inline;
+    }
+  }
+}
 .insertion,
 .ins-from-popup {
   color: black;
@@ -327,12 +347,17 @@ app-article:not(.display-changes-hover) .deletion{
   }
 }
 
-citation[nonexistingfigure="true"] {
+citation[nonexistingelement="true"] {
   background-color: rgb(194, 54, 54);
   color: white;
 }
 
-table-citation[nonexistingtable="true"] {
+table-citation[nonexistingelement="true"] {
+  background-color: rgb(194, 54, 54);
+  color: white;
+}
+
+supplementary-file-citation[nonexistingelement="true"] {
   background-color: rgb(194, 54, 54);
   color: white;
 }
@@ -767,6 +792,7 @@ img[ychange_type="removed"] {
 
 app-edit-section-dialog,
 app-add-figure-dialog,
+app-add-supplementary-file,
 app-add-link-dialog,
 insert-image-dialog {
   .mat-form-field.mat-focused {
@@ -780,7 +806,7 @@ insert-image-dialog {
     display: none !important;
   }
   .mat-form-field-empty {
-    margin-left: -22px;
+    //margin-left: -22px;
     display: initial !important;
   }
 }
@@ -1352,7 +1378,7 @@ router-outlet {
   top: 15px !important;
   display: initial !important;
   padding-top: 13px !important;
-  padding-left: 26px !important;
+  padding-left: 5px !important;
 }
 
 .border-bottom-grye {
