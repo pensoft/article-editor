@@ -19,7 +19,7 @@ export class LinkPopUpPluginServiceService {
 
   download(filename, text,url:boolean) {
     if(url){
-      fetch(text).then((res:any) => {console.log(...res.headers);return res.blob()}).then(file => {
+      fetch(text).then((res:any) => {return res.blob()}).then(file => {
         let tempUrl = URL.createObjectURL(file);
         const aTag = document.createElement("a");
         aTag.href = tempUrl;
@@ -110,12 +110,10 @@ export class LinkPopUpPluginServiceService {
         },
         handleClick(this: Plugin, view: EditorView, pos: number, event: MouseEvent) {
           event.preventDefault();
-          console.log('click');
           let {from,to} = view.state.selection
           let linkNere = false;
           view.state.doc.nodesBetween(from,to,(node)=>{
             if(node.type.name == 'supplementary_file_url'){
-              console.log(node);
               //@ts-ignore
               let link = node.content.content[0].content.content[0].marks[0].attrs.href;
               self.download('file.pdf',link,true);

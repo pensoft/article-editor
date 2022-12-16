@@ -279,7 +279,7 @@ export class YdocService {
 
     let endNotes = this.endNotesMap.get('endNotes');
     let endNotesNumbers = this.endNotesMap.get('endNotesNumbers');
-    let endNotesTemplates = this.supplementaryFilesMap.get('endNotesTemplates');
+    let endNotesTemplates = this.endNotesMap.get('endNotesTemplates');
 
     this.usersDataMap = this.ydoc.getMap('userDataMap')
     this.mathMap = this.ydoc.getMap('mathDataURLMap');

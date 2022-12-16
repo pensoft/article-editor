@@ -8,6 +8,7 @@ import insFromPopup from "./trackChangesMarks/insFromPopup";
 import citation from "./trackChangesMarks/citation";
 import  table_citation  from "./trackChangesMarks/table-citation";
 import supplementary_file_citation from "./trackChangesMarks/supplementary-file-citation";
+import end_note_citation from "./trackChangesMarks/end-note-citation";
 
 const calcYChangeStyle = (ychange: any) => {
     switch (ychange.type) {
@@ -61,6 +62,7 @@ export const marks: MarkSpec = {
     delFromPopup,
     insFromPopup,
     table_citation,
+    end_note_citation,
     citation,
     supplementary_file_citation,
     ...basicmarks,

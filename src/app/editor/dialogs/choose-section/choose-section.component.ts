@@ -38,6 +38,7 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked {
       taxonTreatmentSection
     )*/
     this.sectionTemplates = this.data.templates
+    this.ref.detectChanges()
   }
 
   chooseSection(val: any) {

@@ -10,6 +10,13 @@ citation {
   white-space: pre;
 }
 
+end-note-citation {
+  background: #b2f0f0;
+  white-space: pre;
+  font-size: 0.85em !important;
+  vertical-align: super;
+}
+
 .data-tree,app-meta-data-tree {
 
   &::-webkit-scrollbar {
@@ -230,6 +237,12 @@ p {
   word-break: break-word;
 }
 
+block-end-note,
+end-notes-nodes-container,
+end-note{
+  display: block;
+}
+
 supplementary-file-title,
 supplementary-file-authors,
 supplementary-file-data-type,
@@ -237,7 +250,7 @@ supplementary-file-brief-description,
 supplementary-file-url{
   display: block;
 }
-supplementary-file-brief-description{
+supplementary-file-brief-description,end-note{
   form-field{
     display: inline;
     p{
@@ -352,6 +365,11 @@ citation[nonexistingelement="true"] {
   color: white;
 }
 
+end-note-citation[nonexistingelement="true"] {
+  background-color: rgb(194, 54, 54);
+  color: white;
+}
+
 table-citation[nonexistingelement="true"] {
   background-color: rgb(194, 54, 54);
   color: white;
@@ -389,6 +407,8 @@ supplementary-file-citation[nonexistingelement="true"] {
 [ychange_type] {
   position: relative;
 }
+
+
 
 reference-citation {
   display: inline-block;
@@ -793,6 +813,7 @@ img[ychange_type="removed"] {
 app-edit-section-dialog,
 app-add-figure-dialog,
 app-add-supplementary-file,
+app-add-end-note,
 app-add-link-dialog,
 insert-image-dialog {
   .mat-form-field.mat-focused {

@@ -8,6 +8,7 @@ import { nodes as basicNodes } from './basic-nodes'
 import { figureNodes } from './figure-nodes';
 import { tableNodes as citableTableNodes } from './citable-tables';
 import { supplementaryFileNodes } from './supplementary-files';
+import { endNotesNodes } from './end-notes';
 
 export const paragraph = {
   content: "inline*",
@@ -301,6 +302,7 @@ export const nodes: NodeSpec = {
   ...figureNodes,
   ...citableTableNodes,
   ...supplementaryFileNodes,
+  ...endNotesNodes,
   text: {
     inline: true,
     group: "inline"

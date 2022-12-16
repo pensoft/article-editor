@@ -20,6 +20,7 @@ import { canInsert, createCustomIcon, videoPlayerIcon } from "./common-methods";
 import { InsertTableComponent } from "@app/editor/dialogs/citable-tables-dialog/insert-table/insert-table.component";
 import { StateEffectType } from "@codemirror/state";
 import { InsertSupplementaryFileComponent } from "@app/editor/dialogs/supplementary-files/insert-supplementary-file/insert-supplementary-file.component";
+import { InsertEndNoteComponent } from "@app/editor/dialogs/end-notes/insert-end-note/insert-end-note.component";
 
 let sharedDialog: MatDialog;
 
@@ -120,6 +121,32 @@ export const insertImageItem = new MenuItem({
   enable(state:EditorState) { return state.schema.nodes.image&&canInsert(state, state.schema.nodes.image) },
   icon: createCustomIcon('photo.svg', 17)
 });
+
+export const insertEndNote = new MenuItem({
+  title: 'Insert end note citation.',
+  // @ts-ignore
+  run: (state: EditorState, dispatch?: (tr: Transaction) => boolean, view?: EditorView) => {
+    let nodeAtCursor = state.selection.$from.parent
+    let nodeAt = state.doc.nodeAt(state.selection.from)
+    let data
+    let citatmark = nodeAt?.marks.filter((mark) => { return mark.type.name == 'end_note_citation' })
+    if (citatmark?.length! > 0) {
+      data = JSON.parse(JSON.stringify(citatmark![0].attrs));
+    }
+    const dialogRef = sharedDialog.open(InsertEndNoteComponent, {
+      width: '80%',
+      height: '90%',
+      panelClass: 'insert-figure-in-editor',
+      data: { view, citatData: data }
+    });
+    dialogRef.afterClosed().subscribe(result => {
+    });
+    return true;
+  },
+  //@ts-ignore
+  enable(state) { return state.schema.marks.citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'figures_nodes_container', 'block_figure' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
+  icon: createCustomIcon('end-note.svg', 20,20,3,0)
+})
 
 export const insertSupplementaryFile = new MenuItem({
   title: 'Insert supplementary file citation.',
