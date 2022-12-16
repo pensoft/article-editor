@@ -1,1 +1,7 @@
-<p>end-note works!</p>
+<div *ngIf="endNote" class="end-note">
+  <div class="end-note-index">End note №{{endNoteIndex!+1}}.</div>
+  <div class="end-note-content">
+    <span [innerHTML]="endNote.end_note">
+        </span>
+  </div>
+</div>

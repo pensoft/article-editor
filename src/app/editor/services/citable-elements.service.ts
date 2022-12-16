@@ -11,6 +11,7 @@ import { EditorView } from 'prosemirror-view';
 import { FormArray, FormControl, FormGroup } from '@angular/forms';
 import { E } from '@angular/cdk/keycodes';
 import { schema } from '../utils/Schema';
+import { endNote } from '../utils/interfaces/endNotes';
 
 export interface citations {
   [key: string]: { // section keys
@@ -23,17 +24,18 @@ export interface citations {
   }
 }
 
-export let citationsPMNodeNames = ['table_citation', 'citation','supplementary_file_citation']
+export let citationsPMNodeNames = ['table_citation', 'citation','supplementary_file_citation','end_note_citation']
 export let citationsHTMLNodeNames = []
-export let elementsTypes = ['figure', 'table','supplementary-file']
+export let elementsTypes = ['figure', 'table','supplementary-file','end-note']
 export let elTypeToCitMap = {
   'figure': 'citation',
   'table': 'table_citation',
-  'supplementary-file':'supplementary_file_citation'
+  'supplementary-file':'supplementary_file_citation',
+  'end-note':'end_note_citation'
 }
 
 // means that views of this type of element should stay only in the end editor
-export let citableElementWithStaticViews = ['supplementary_file_citation']
+export let citableElementWithStaticViews = ['supplementary_file_citation','end_note_citation']
 
 export let citationElementMap = {
   'supplementary_file_citation':{
@@ -45,8 +47,8 @@ export let citationElementMap = {
     templatesObj: 'supplementaryFilesTemplates',
     containerNodeName: 'supplementary_files_nodes_container',
     elementsObj: 'supplementaryFiles',
-    singleElTxt: ' Suppl. material  ',
-    multipleElTxt: ' Suppl. materials  ',
+    singleElTxt: ' Suppl. material ',
+    multipleElTxt: ' Suppl. materials ',
     deletedElTxt: ' Cited item deleted ',
     getElsStrings: function (elementData) {
       let elStrings = '';
@@ -93,8 +95,8 @@ export let citationElementMap = {
     templatesObj: 'tablesTemplates',
     containerNodeName: 'tables_nodes_container',
     elementsObj: 'ArticleTables',
-    singleElTxt: ' Table  ',
-    multipleElTxt: ' Tables.  ',
+    singleElTxt: ' Table ',
+    multipleElTxt: ' Tables. ',
     deletedElTxt: ' Cited item deleted ',
     getElsStrings: function (elementData) {
       let elStrings = '';
@@ -137,8 +139,8 @@ export let citationElementMap = {
     elementNumbersObj: 'ArticleFiguresNumbers',
     templatesObj: 'figuresTemplates',
     elementsObj: 'ArticleFigures',
-    singleElTxt: ' Fig.  ',
-    multipleElTxt: ' Figs.  ',
+    singleElTxt: ' Fig. ',
+    multipleElTxt: ' Figs. ',
     deletedElTxt: ' Cited item deleted ',
     getElsStrings: function (elementData) {
       let elStrings = '';
@@ -178,9 +180,54 @@ export let citationElementMap = {
       figureFormGroup.addControl('figureComponents', figComponentArray);
       return figureFormGroup
     }
+  },
+  'end_note_citation':{
+    htmlTag: 'end-note-citation',
+    type: 'end-note',
+    yjsMap: 'endNotesMap',
+    elementNumberProp : 'end_note_number',
+    elementNumbersObj: 'endNotesNumbers',
+    templatesObj: 'endNotesTemplates',
+    containerNodeName: 'end_notes_nodes_container',
+    elementsObj: 'endNotes',
+    singleElTxt: '*',
+    multipleElTxt: '*',
+    deletedElTxt: ' Cited item deleted ',
+    getElsStrings: function (elementData:endNote) {
+      let elStrings = '';
+      elStrings = elStrings.concat(elementData.end_note)
+      return elStrings
+    },
+    getCitationNode:function(citedEls:string[],attrs:any,citatedElements:any,edView:EditorView){
+      let schema = edView.state.schema as Schema
+      let citatMark = schema.mark('end_note_citation', { ...attrs, citated_elements: citatedElements, nonexistingtable: 'false' })
+      let superscriptMark = schema.mark('superscript', { ...attrs, citated_elements: citatedElements, nonexistingtable: 'false' })
+      let newNodePrefix = schema.text("*",[citatMark]) as Node;
+      let newNodeCitedEls = schema.text(citedEls.join(', '),[citatMark/* ,superscriptMark */]) as Node;
+
+      return Fragment.from([newNodePrefix,newNodeCitedEls])
+    },
+    setSectionData: function (elementData:endNote, sectionId, citeId) {
+    },
+    getElFormIOSubmission: function (elementData:endNote, citatID) {
+      let serializedEndNoteToFormIOsubmission: any = {}
+      serializedEndNoteToFormIOsubmission.endNote = elementData.end_note
+      serializedEndNoteToFormIOsubmission.end_note_ID = elementData.end_note_ID
+      serializedEndNoteToFormIOsubmission.end_note_number = elementData.end_note_number
+      return serializedEndNoteToFormIOsubmission;
+    },
+    getEndEditorPrefixNodes:function():Node[]{
+      return [schema.nodes.heading.create({},schema.nodes.paragraph.create({},schema.text('Endnotes:')))];
+    },
+    buildElementFormGroup: function (submision: any): FormGroup {
+      let endNoteFormGroup = new FormGroup({})
+      let endNote = new FormControl(submision.endNote);
+      endNoteFormGroup.addControl('endNote', endNote);
+      return endNoteFormGroup
+    }
   }
 }
-export let elementsContainersPMNodesNames = ['figures_nodes_container', 'tables_nodes_container','supplementary_files_nodes_container']
+export let elementsContainersPMNodesNames = ['figures_nodes_container', 'tables_nodes_container','supplementary_files_nodes_container','end_notes_nodes_container']
 
 @Injectable({
   providedIn: 'root'
@@ -295,11 +342,15 @@ export class CitableElementsService {
                         }
                       }
                     })
-
-                    citatString += elsArr.join(', ')
-                    citatString += ' '
-                    let newNode = (edView.state.schema as Schema).text(citatString) as Node
-                    newNode = newNode.mark([edView.state.schema.mark(citationMark.type.name, { ...citationMark.attrs, citated_elements: citatedElements, nonexistingtable: 'false' })])
+                    let newNode
+                    if(elementMaping.getCitationNode){
+                      newNode = elementMaping.getCitationNode(elsArr,citationMark.attrs,citatedElements,edView);
+                    }else{
+                      citatString += elsArr.join(', ')
+                      citatString += ' '
+                      newNode = (edView.state.schema as Schema).text(citatString) as Node
+                      newNode = newNode.mark([edView.state.schema.mark(citationMark.type.name, { ...citationMark.attrs, citated_elements: citatedElements, nonexistingtable: 'false' })])
+                    }
                     edView.dispatch(edView.state.tr.replaceWith(pos,
                       pos + node.nodeSize
                       , newNode).setMeta('citatsTextChange', true)
@@ -768,7 +819,6 @@ export class CitableElementsService {
       typeMapping.setSectionData(elementData, 'endEditor', 'endEditor');
       let serializedElementToFormIOsubmission = typeMapping.getElFormIOSubmission(elementData, 'endEditor');
       let elementFormGroup = typeMapping.buildElementFormGroup(serializedElementToFormIOsubmission);
-
       this.serviceShare.ProsemirrorEditorsService.interpolateTemplate(elementTemplate.html, serializedElementToFormIOsubmission, elementFormGroup).then((data: any) => {
         let templ = document.createElement('div')
         templ.innerHTML = data
@@ -781,12 +831,100 @@ export class CitableElementsService {
         }
         if (renderedViews == nonDisplayedEditors.length) {
           displayViews({
-            renderedViewsMetaData,
+            renderedViewsMetaData:renderedViewsMetaData.sort((a,b)=>a.elementData[typeMapping.elementNumberProp]-b.elementData[typeMapping.elementNumberProp]),
             citationType: type,
           })
         }
       });
     });
+  }
+
+  citateEndNote(selectedEndNotes: boolean[], sectionID: string, citatAttrs: any) {
+    try {
+      this.serviceShare.YjsHistoryService.startCapturingNewUndoItem();
+
+      let matkType = 'end_note_citation';
+
+      let endNotesMaping = citationElementMap[matkType];
+
+      let endNotesNumbers = this.serviceShare.YdocService[endNotesMaping.yjsMap].get(endNotesMaping.elementNumbersObj);
+
+      //check selections
+      let insertionView = this.serviceShare.ProsemirrorEditorsService.editorContainers[sectionID].editorView
+      let citatStartPos: number
+      let citatEndPos: number
+
+      if (citatAttrs) {
+        let citatId = citatAttrs.citateid
+        insertionView.state.doc.nodesBetween(0, insertionView.state.doc.nodeSize - 2, (node, pos, parent) => {
+          if (node.marks.filter((mark) => { return mark.type.name == matkType }).length > 0) {
+            let citationMark = node.marks.filter((mark) => { return mark.type.name == matkType })[0];
+            if (citationMark.attrs.citateid == citatId) {
+              citatStartPos = pos
+              citatEndPos = pos + node.nodeSize
+            }
+          }
+        })
+      }
+
+      let citateId
+      if (citatAttrs) {
+        citateId = citatAttrs.citateid
+      } else {
+        citateId = uuidv4();
+      }
+      if (selectedEndNotes.filter(e => e).length == 0 && !citatAttrs) {
+        return
+      } else if (selectedEndNotes.filter(e => e).length == 0 && citatAttrs) {
+        insertionView.dispatch(insertionView.state.tr.replaceWith(
+          citatStartPos,
+          citatEndPos,
+          Fragment.empty)
+        )
+        this.serviceShare.updateCitableElementsViews();
+        return
+      }
+
+      let citatString = selectedEndNotes.filter(e => e).length > 1 ? endNotesMaping.multipleElTxt : endNotesMaping.singleElTxt;
+      let citated: any = []
+      selectedEndNotes.forEach((fig, index) => {
+        if (fig) {
+          citated.push(index + 1)
+        }
+      })
+      citatString += citated.join(',  ')
+      citatString += ' '
+      let citatedEndNotesIds = selectedEndNotes.reduce<any>((prev, curr, index) => {
+        if (curr) {
+          return prev.concat(curr ? [endNotesNumbers![index]] : []);
+        } else {
+          return prev;
+        }
+      }, [])
+
+
+      let citateNodeText = citatString
+      let node = (insertionView.state.schema as Schema).text(citateNodeText) as Node
+      let mark = (insertionView.state.schema as Schema).mark(matkType, {
+        "citated_elements": citatedEndNotesIds,
+        "citateid": citateId
+      })
+      node = node.mark([mark])
+      if (citatAttrs) {
+        insertionView.dispatch(insertionView.state.tr.replaceWith(citatStartPos,
+          citatEndPos
+          , node).setMeta('citatsTextChange', true)
+        )
+      } else {
+        insertionView.dispatch(insertionView.state.tr.replaceWith(insertionView.state.selection.from,
+          insertionView.state.selection.to
+          , node)
+        )
+      }
+      this.serviceShare.updateCitableElementsViews();
+    } catch (e) {
+      console.error(e);
+    }
   }
 
   citateSupplementaryFile(selectedSupplementaryFiles: boolean[], sectionID: string, citatAttrs: any) {

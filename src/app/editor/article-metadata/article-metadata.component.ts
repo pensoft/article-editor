@@ -21,6 +21,7 @@ import { CitableTableComponent } from '../dialogs/citable-tables-dialog/citable-
 import { CitableTablesDialogComponent } from '../dialogs/citable-tables-dialog/citable-tables-dialog.component';
 import { SupplementaryFileComponent } from '../dialogs/supplementary-files/supplementary-file/supplementary-file.component';
 import { SupplementaryFilesDialogComponent } from '../dialogs/supplementary-files/supplementary-files.component';
+import { EndNotesDialogComponent } from '../dialogs/end-notes/end-notes.component';
 
 @Component({
   selector: 'app-article-metadata',
@@ -77,6 +78,21 @@ export class ArticleMetadataComponent implements OnInit {
 
   openSupplementaryFilesDialog(){
     this.dialog.open(SupplementaryFilesDialogComponent, {
+      width: '100%',
+      height: '90%',
+      data: {},
+      disableClose: false
+    }).afterClosed().subscribe(result => {
+      /* if(result){
+        this.serviceShare.PmDialogSessionService!.endSession(true)
+      }else{
+        this.serviceShare.PmDialogSessionService!.endSession(false)
+      } */
+    })
+  }
+
+  openEndNotesDialog(){
+    this.dialog.open(EndNotesDialogComponent, {
       width: '100%',
       height: '90%',
       data: {},

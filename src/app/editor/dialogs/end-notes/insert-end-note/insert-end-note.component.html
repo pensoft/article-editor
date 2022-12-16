@@ -1,1 +1,22 @@
-<p>insert-end-note works!</p>
+<div class='end-notes-selection'>
+  <div class="dialog-content">
+      <div class="title">
+          Citation Properties
+      </div>
+      <div #noselectionError [ngStyle]="{'display':error?'block':'none'}" class="selection-error">
+          You have not selected any end notes.
+      </div>
+      <div *ngFor="let endNoteId of endNotesNumbers;let i = index">
+          <div class='end-notes-number'>End Note {{i+1}}
+              <div class="checkbox-wrapper">
+                  <mat-checkbox class="example-margin" [checked]="selectedEndNotes[i]" [color]='"primary"' (change)="setSelection($event.checked,endNoteId,i)">
+                  </mat-checkbox>
+              </div>
+          </div>
+      </div>
+  </div>
+  <div class="buttons" fxLayoutGap="15px">
+      <button mat-raised-button (click)="citateEndNotes()">Citate selected end notes(s)</button>
+      <button mat-raised-button (click)="cancel()">Cancel</button>
+  </div>
+</div>

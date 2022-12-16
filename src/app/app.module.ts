@@ -150,7 +150,7 @@ import { JwtModule } from '@auth0/angular-jwt';
 import { NgxLaravelEchoModule } from 'ngx-laravel-echo';
 import { EditorContainerComponent } from './editor/editor-container/editor-container.component';
 import { SupplementaryFilesDialogComponent } from './editor/dialogs/supplementary-files/supplementary-files.component';
-import { EndNotesComponent } from './editor/dialogs/end-notes/end-notes.component';
+import { EndNotesDialogComponent } from './editor/dialogs/end-notes/end-notes.component';
 import { AddSupplementaryFileComponent } from './editor/dialogs/supplementary-files/add-supplementary-file/add-supplementary-file.component';
 import { SupplementaryFileComponent } from './editor/dialogs/supplementary-files/supplementary-file/supplementary-file.component';
 import { InsertSupplementaryFileComponent } from './editor/dialogs/supplementary-files/insert-supplementary-file/insert-supplementary-file.component';
@@ -272,7 +272,7 @@ const gravatarConfig: GravatarConfig = {
     InsertTableComponent,
     EditorContainerComponent,
     SupplementaryFilesDialogComponent,
-    EndNotesComponent,
+    EndNotesDialogComponent,
     SupplementaryFileComponent,
     AddSupplementaryFileComponent,
     SupplementaryFileComponent,
