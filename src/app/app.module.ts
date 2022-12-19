@@ -157,6 +157,7 @@ import { InsertSupplementaryFileComponent } from './editor/dialogs/supplementary
 import { AddEndNoteComponent } from './editor/dialogs/end-notes/add-end-note/add-end-note.component';
 import { EndNoteComponent } from './editor/dialogs/end-notes/end-note/end-note.component';
 import { InsertEndNoteComponent } from './editor/dialogs/end-notes/insert-end-note/insert-end-note.component';
+import { JatsErrorsDialogComponent } from './editor/dialogs/jats-errors-dialog/jats-errors-dialog.component';
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -280,6 +281,7 @@ const gravatarConfig: GravatarConfig = {
     AddEndNoteComponent,
     EndNoteComponent,
     InsertEndNoteComponent,
+    JatsErrorsDialogComponent,
   ],
   imports: [
     HttpClientJsonpModule,

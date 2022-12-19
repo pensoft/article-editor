@@ -15,7 +15,7 @@ let refIdsG: any;
 let tableIdsG: any;
 
 export function exportAsJatsXML(serviceShare: ServiceShare) {
-
+  serviceShare.ProsemirrorEditorsService.spinSpinner()
   let figObj = serviceShare.YdocService.figuresMap.get('ArticleFigures')
   let figIds: { [key: string]: string } = {}
   let figCount = 0
@@ -460,10 +460,20 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   formdata.append("file", file);
   formdata.append("file222", "qwaeqwe");
 
-  saveAs(blob, "save.xml");
   const formData = new FormData();
   formData.append("file", file);//https://ps-jats.dev.scalewest.com/validate/xml
-  serviceShare.httpClient.post(environment.validate_jats, formData).subscribe((data) => {
+  serviceShare.httpClient.post(environment.validate_jats, formData).subscribe((data:{valid:boolean,errors:any[]}) => {
+    serviceShare.ProsemirrorEditorsService.stopSpinner()
+    if(data.valid){
+      serviceShare.openSnackBar('Valid JATS xml has been generated.','Save JATS xml',()=>{
+        saveAs(blob, "save.xml");
+      },5);
+    }else{
+      serviceShare.openSnackBar('The generated JATS xml is not valid.','View errors',()=>{
+        serviceShare.openJatsErrorsDialog(data.errors)
+      },5);
+    }
+
     console.log('validation',data);
   })
 }

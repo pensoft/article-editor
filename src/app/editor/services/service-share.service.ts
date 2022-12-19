@@ -25,11 +25,11 @@ import { ProsemirrorEditorsService } from './prosemirror-editors.service';
 import { YdocService } from './ydoc.service';
 import { AuthService } from '@app/core/services/auth.service'
 import { EnforcerService } from '@app/casbin/services/enforcer.service';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { CasbinGlobalObjectsService } from '@app/casbin/services/casbin-global-objects.service';
 import { NotificationsService } from '@app/layout/widgets/arpha-navigation/notifications/notifications.service';
 import { CitableElementsService } from './citable-elements.service';
-
+import {MatSnackBar, MatSnackBarRef} from '@angular/material/snack-bar';
+import { JatsErrorsDialogComponent } from '../dialogs/jats-errors-dialog/jats-errors-dialog.component';
 @Injectable({
   providedIn: 'root'
 })
@@ -63,6 +63,7 @@ export class ServiceShare {
     public dialog: MatDialog,
     private router: Router,
     public httpClient:HttpClient,
+    private _snackBar: MatSnackBar
     ) {
 
   }
@@ -98,21 +99,8 @@ export class ServiceShare {
   }
 
   updateCitableElementsViews(){
-    let count = 0;
-    let allElementOfTypeAreRendered = ()=>{
-      count++;
-      if(count == 2){
-        //this.YjsHistoryService.stopBigNumberItemsCapturePrevention()
-      }
-    }
-    this.YjsHistoryService.captureBigOperation()
-    //this.FiguresControllerService.allFigsAreRendered = allElementOfTypeAreRendered
-    //this.CitableTablesService.allTablesAreRendered = allElementOfTypeAreRendered
-    //this.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
-    //this.FiguresControllerService.updateOnlyFiguresView()
-    //this.CitableTablesService.updateOnlyTablesView()
+    this.YjsHistoryService.captureBigOperation();
     this.CitableElementsService.updateOnlyElementsViews();
-
   }
 
   updateCitableElementsViewsAndCites(){
@@ -123,6 +111,7 @@ export class ServiceShare {
   shouldOpenNewArticleDialog = false;
 
   createNewArticle(fromToolBar?:boolean){
+    this.ProsemirrorEditorsService.spinSpinner()
     this.ArticleSectionsService!.getAllLayouts().subscribe((articleLayouts: any) => {
       this.articleLayouts = articleLayouts
       const dialogRef = this.dialog.open(ChooseManuscriptDialogComponent, {
@@ -131,7 +120,9 @@ export class ServiceShare {
         panelClass:'choose-namuscript-dialog',
         data: { layouts: articleLayouts }
       });
+      this.ProsemirrorEditorsService.stopSpinner()
       dialogRef.afterClosed().subscribe(result => {
+        if(!result) return ;
         this.AuthService.getUserInfo().subscribe((userData)=>{
           let selectedLayout = (this.articleLayouts.data as Array<any>).find((layout: any) => {
             return layout.id == result
@@ -162,5 +153,18 @@ export class ServiceShare {
   shareSelf(serviceName:string,serviceInstance:any){
     //@ts-ignore
     this[serviceName] = serviceInstance
+  }
+
+  openSnackBar(message:string,action:string,obsFnc:()=>void,durationInSec:number){
+    let snackBarRef = this._snackBar.open(message, action,{
+      duration: durationInSec * 1000,
+    });
+    snackBarRef.onAction().subscribe(obsFnc);
+  }
+
+  openJatsErrorsDialog(errors:any[]){
+    this.dialog.open(JatsErrorsDialogComponent,{
+      data: {errors},
+    })
   }
 }

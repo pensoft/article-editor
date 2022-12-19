@@ -109,7 +109,6 @@ export class LinkPopUpPluginServiceService {
 
         },
         handleClick(this: Plugin, view: EditorView, pos: number, event: MouseEvent) {
-          event.preventDefault();
           let {from,to} = view.state.selection
           let linkNere = false;
           view.state.doc.nodesBetween(from,to,(node)=>{
