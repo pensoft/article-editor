@@ -507,7 +507,7 @@ export class CitableElementsService {
     elementsNumbersObj: any,
     displayedElementsObj: any,
     citationsInElementsObj: any,
-    displayedElsOnCurrCitation: any[],
+    displayedElsOnCurrCitation: any[]
   ) {
     let filteredElementIDs = []
     // filter elements ids that repeat
@@ -622,6 +622,10 @@ export class CitableElementsService {
     citationsInElementsObj: any,
     displayedElsOnCurrCitation: any[]
   ) {
+    // dont display view of elements that should be shown only in the end editor
+    if(citableElementWithStaticViews.includes(elTypeToCitMap[citationType])){
+      return;
+    }
     // loops all the view that are cited on the passed citation but are not displayed and add these views in displayedElsOnCurrCitation
     // calcs the views nested in one another in order
     let elsOfCurrTypeNumbers = elementsNumbersObj[citationType] as string[]
@@ -747,9 +751,7 @@ export class CitableElementsService {
         this.getViewsOnCitation(citedElements, citationType, elementsNumbersObjs, elementsDysplayedViews, citationsInElementsObj, displayedElementViewsHere);
         citatsBySection[sectionID][citatData[0]].displayedViewsHere = displayedElementViewsHere;
         displayedElementViewsHere.forEach((el) => {
-          if(!citableElementWithStaticViews.includes(elTypeToCitMap[el.type])){
-            elsDisplayedInObj[el.type][el.elId] = sectionID;
-          }
+          elsDisplayedInObj[el.type][el.elId] = sectionID;
         })
       })
     })

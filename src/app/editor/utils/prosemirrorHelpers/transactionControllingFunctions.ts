@@ -45,10 +45,10 @@ export const updateControlsAndFigures = (
     try {
 
       let figures = figuresMap.get('ArticleFigures');
-      let tables = sharedService.YdocService.tablesMap?sharedService.YdocService.tablesMap.get('ArticleTables'):undefined
-      let figuresCitats = figuresMap.get('articleCitatsObj');
-      let figuresTemplates = figuresMap!.get('figuresTemplates');
-      let customPropsObj = sharedService.YdocService!.customSectionProps?.get('customPropsObj')
+      let tables = sharedService.YdocService.tablesMap?sharedService.YdocService.tablesMap.get('ArticleTables'):undefined;
+      let supplementaryFiles = sharedService.YdocService.supplementaryFilesMap?sharedService.YdocService.supplementaryFilesMap.get('supplementaryFiles'):undefined;
+      let endNotes = sharedService.YdocService.endNotesMap?sharedService.YdocService.endNotesMap.get('endNotes'):undefined;
+      let customPropsObj = sharedService.YdocService!.customSectionProps?.get('customPropsObj');
       let setcustomProp = false
       let tr1 = newState.tr
       // return value whe r = false the transaction is canseled
@@ -74,8 +74,7 @@ export const updateControlsAndFigures = (
                 }
               })
               figuresMap.set('ArticleFigures', JSON.parse(JSON.stringify(figures)))
-            }
-            if (node.type.name == "block_table") {
+            }else if (node.type.name == "block_table") {
               let table = tables[node.attrs.table_id]
               node.content.forEach((node1, offset, index) => {
                 if (node1.type.name == 'table_header_container') {
@@ -98,6 +97,43 @@ export const updateControlsAndFigures = (
                 }
               })
               sharedService.YdocService.tablesMap.set('ArticleTables', JSON.parse(JSON.stringify(tables)));
+            }else if(node.type.name == 'block_end_note'){
+              let endNote = endNotes[node.attrs.end_note_id];
+              let noteContent
+              node.nodesBetween(0,node.content.size,(node,pos,par,i)=>{
+                if(node.attrs.formControlName == "endNote"){
+                  noteContent = getHtmlFromFragment(node.content!)
+                }
+              })
+              endNote.end_note = noteContent
+              sharedService.YdocService.endNotesMap.set('endNotes',JSON.parse(JSON.stringify(endNotes)));
+            }else if(node.type.name == 'block_supplementary_file'){
+              let supplementaryFile = supplementaryFiles[node.attrs.supplementary_file_id];
+              let supplFileTitle
+              let supplFileAuthors
+              let supplFileDataType
+              let supplFileDescription
+              let supplFileLink
+              node.nodesBetween(0,node.content.size,(node,pos,par,i)=>{
+                if(node.attrs.formControlName == "supplementaryFileTitle"){
+                  supplFileTitle = node.textContent;
+                }else if(node.attrs.formControlName == 'supplementaryFileAuthors'){
+                  supplFileAuthors = node.textContent;
+                }else if(node.attrs.formControlName == 'supplementaryFileDataType'){
+                  supplFileDataType = node.textContent;
+                }else if(node.attrs.formControlName == 'supplementaryFileBriefDescription'){
+                  supplFileDescription = getHtmlFromFragment(node.content!)
+                }else if(node.marks.length>0&&node.marks.some((mark)=>mark.type.name == 'link')){
+                  supplFileLink = node.marks.find(mark=>mark.type.name == 'link').attrs.href;
+                }
+              })
+
+              supplementaryFile.title = supplFileTitle
+              supplementaryFile.authors = supplFileAuthors
+              supplementaryFile.data_type = supplFileDataType
+              supplementaryFile.brief_description = supplFileDescription
+              supplementaryFile.url = supplFileLink
+              sharedService.YdocService.supplementaryFilesMap.set('supplementaryFiles',JSON.parse(JSON.stringify(supplementaryFiles)))
             }
             if((node.attrs.customPropPath&&node.attrs.customPropPath!='')||(node.marks.filter((mark)=>mark.attrs.customPropPath != ''&&mark.attrs.customPropPath).length>0)){
               if(!customPropsObj[section!.sectionID]){
