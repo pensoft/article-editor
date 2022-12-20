@@ -20,6 +20,12 @@ export class CitableElementsEditButtonsService {
       },
       props: {
         decorations:(state: EditorState) => {
+          let pluginState = this.citableElementsEditButtonsPluginKey.getState(state);
+
+          let {from,to,$from,$to} = state.selection;
+          if(from!=to) return DecorationSet.empty;
+          //console.log(state,pluginState);
+          //console.log($from);
           return  DecorationSet.empty
         }
       },

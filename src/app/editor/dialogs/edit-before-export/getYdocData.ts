@@ -40,6 +40,21 @@ export let getYdocData = function (ydoc) {
   sectionPMNodesJson['endEditor'] = endEditorJSON
   ydocData.sectionPMNodesJson = sectionPMNodesJson
 
+  let supplementaryFilesMap = ydoc.getMap('supplementaryFilesMap');
+  let supplementaryFiles = supplementaryFilesMap.get('supplementaryFiles');
+  let supplementaryFilesTemplates = supplementaryFilesMap.get('supplementaryFilesTemplates');
+  let supplementaryFilesNumbers = supplementaryFilesMap.get('supplementaryFilesNumbers');
+  ydocData.supplementaryFiles = supplementaryFiles
+  ydocData.supplementaryFilesTemplates = supplementaryFilesTemplates
+  ydocData.supplementaryFilesNumbers = supplementaryFilesNumbers
+
+  let endNotesMap = ydoc.getMap('endNotesMap');
+  let endNotes = endNotesMap.get('endNotes');
+  let endNotesNumbers = endNotesMap.get('endNotesNumbers');
+  let endNotesTemplates = endNotesMap.get('endNotesTemplates');
+  ydocData.endNotes = endNotes
+  ydocData.endNotesNumbers = endNotesNumbers
+  ydocData.endNotesTemplates = endNotesTemplates
 
   let figuresMap = ydoc.getMap('ArticleFiguresMap');// ------------
   let ArticleFigures = figuresMap.get('ArticleFigures')

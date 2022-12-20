@@ -66,6 +66,7 @@ import { YjsHistoryService } from '../utils/yjs-history.service';
 import { uuidv4 } from 'lib0/random.js';
 import { changeNodesOnDragDrop, handleDeleteOfRefsFigsCitationsAndComments } from '../utils/prosemirrorHelpers/drag-drop-append';
 import { getFilterNodesBySchemaDefPlugin } from '../utils/Schema/filterNodesIfSchemaDefPlugin';
+import { CitableElementsEditButtonsService } from '../utils/citable-elements-edit-buttons/citable-elements-edit-buttons.service';
 export interface editorContainersObj { [key: string]: editorContainer }
 export interface editorContainer {
   editorID: string,
@@ -162,6 +163,7 @@ export class ProsemirrorEditorsService {
     private citatContextPluginService: CitatContextMenuService,
     private trackChangesService: TrackChangesService,
     private yjsHistory: YjsHistoryService,
+    private citableElementEditButtonsPluginService:CitableElementsEditButtonsService,
     private serviceShare: ServiceShare) {
 
     // change the mathBlock input rule
@@ -540,6 +542,7 @@ export class ProsemirrorEditorsService {
         //history({renderFiguresFunc:this.rerenderFigures}),
         this.placeholderPluginService.getPlugin(),
         getFilterNodesBySchemaDefPlugin(this.serviceShare,{nodes:nodesDefinitions,marks:marksDefinitions}),
+        this.citableElementEditButtonsPluginService.citableElementsEditButtonsPlugin,
         transactionControllerPlugin,
         handleRefDelete,
         changeNodes,
@@ -1114,6 +1117,7 @@ export class ProsemirrorEditorsService {
         this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         this.trackChangesService.getHideShowPlugin(),
+        this.citableElementEditButtonsPluginService.citableElementsEditButtonsPlugin,
         inputRules(inputRulesObj),
         ...menuBar({
           floating: true,

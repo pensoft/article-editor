@@ -13,6 +13,8 @@ import {environment} from "@env";
 let figIdsG: any;
 let refIdsG: any;
 let tableIdsG: any;
+let supplFilesIdsG: any;
+let endNotesIdsG: any;
 
 export function exportAsJatsXML(serviceShare: ServiceShare) {
   serviceShare.ProsemirrorEditorsService.spinSpinner()
@@ -51,6 +53,30 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
     }
   })
   tableIdsG = tableIds
+
+  let suppleFilesObj = serviceShare.YdocService.supplementaryFilesMap.get('supplementaryFiles');
+  let supplFilesIds:{ [key: string]: string } = {}
+  let supplFilesCount = 0
+  Object.keys(suppleFilesObj).forEach((supplFileId, i) => {
+    let val = suppleFilesObj[supplFileId];
+    supplFilesIds[supplFileId] = 'S' + i
+    if (val) {
+      supplFilesCount++
+    }
+  })
+  supplFilesIdsG = supplFilesIds
+
+  let endNotesObj = serviceShare.YdocService.endNotesMap.get('endNotes');
+  let endNotesIds:{ [key: string]: string } = {}
+  let endNotesCount = 0
+  Object.keys(endNotesObj).forEach((endNoteId, i) => {
+    let val = endNotesObj[endNoteId];
+    endNotesIds[endNoteId] = 'E' + i
+    if (val) {
+      endNotesCount++
+    }
+  })
+  endNotesIdsG = endNotesIds
 
   let lang = {'xml:lang': "en"}
   let article = create({version: '1.0', encoding: "UTF-8", standalone: false}).dtd({
@@ -376,10 +402,34 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   })
   /**/
   let floatsGroup
-  if(Object.keys(figObj).length>0||Object.keys(tablesObj).length>0){
-    floatsGroup = article.ele('floats-group') // figs & citable-tables
+  if(
+    Object.values(figObj).filter(x=>x).length>0||
+    Object.values(tablesObj).filter(x=>x).length>0||
+    Object.values(suppleFilesObj).filter(x=>x).length>0
+    ){
+    floatsGroup = article.ele('floats-group') // figs & citable-tables & supplementary files
   }
   let domPMParser = DOMParser.fromSchema(schema);
+
+  if(Object.values(endNotesObj).filter(x=>x).length>0){
+    let footNotesGroup = back.ele('fn-group');
+    footNotesGroup.ele('label').txt('Foot Notes.');
+    Object.keys(endNotesObj).forEach((endNoteId)=>{
+      let endNote = endNotesObj[endNoteId]
+      let footNotexmlId = endNotesIdsG[endNoteId]
+      if(!endNote) return;
+
+      let footNoteXML = footNotesGroup.ele('fn',{id:footNotexmlId});
+      footNoteXML.ele('label').txt('Foot Note '+(endNote.end_note_number+1)+'.');
+
+      let footNoteContentXML = footNoteXML.ele('p')
+      let dom = document.createElement('div');
+      dom.innerHTML = endNote.end_note;
+      let fnContentJSON = domPMParser.parse(dom).toJSON();
+      parseNode(fnContentJSON, footNoteContentXML, true, '--', 1,{skipTableWrap:true});
+    })
+  }
+
   Object.keys(figObj).forEach((figid) => {
     let fig = figObj[figid];
     let figXML = floatsGroup.ele('fig-group', {id: figIdsG[figid], position: "float", orientation: "portrait"})
@@ -424,7 +474,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
 
   Object.keys(tablesObj).forEach((tblid)=>{
     let tableData = tablesObj[tblid];
-    let tableXmlId = tableIdsG[tblid]
+    let tableXmlId = tableIdsG[tblid];
     let tableXML = floatsGroup.ele('table-wrap', {id: tableXmlId, position: "float", orientation: "portrait"});
 
     let tableNumber = tableData.tableNumber + 1;
@@ -438,15 +488,40 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
     parseNode(tableHeadingNodes, captionEle, false, '--', 0);
 
     let dom1 = document.createElement('div');
-    dom.innerHTML = tableData.content;
+    dom1.innerHTML = tableData.content;
     let tableContentNodes = domPMParser.parse(dom).toJSON();
     parseNode(tableContentNodes, tableXML, false, '--', 0,{skipTableWrap:true});
 
     let dom2 = document.createElement('div');
-    dom.innerHTML = tableData.footer;
+    dom2.innerHTML = tableData.footer;
     let tableFooterNodes = domPMParser.parse(dom).toJSON();
     let footerElement = tableXML.ele('table-wrap-foot');
     parseNode(tableFooterNodes, footerElement, false, '--', 0);
+  })
+
+  Object.keys(suppleFilesObj).forEach((supplFileId)=>{
+    let supplFileData = suppleFilesObj[supplFileId];
+    let supplFileXmlId = supplFilesIdsG[supplFileId];
+    let supplFileXML = floatsGroup.ele('supplementary-material',{
+      id:supplFileXmlId,
+      orientation:"portrait",
+      position:"float",
+      "xlink:type":"simple",
+      "xlink:href":supplFileData.url,
+      'mimetype':supplFileData.data_type
+    });
+
+    let labelEl = supplFileXML.ele('label').txt('Supplementary material '+(supplFileData.supplementary_file_number+1));
+    let caption = supplFileXML.ele('caption')
+    let dom = document.createElement('div');
+    dom.innerHTML = supplFileData.brief_description;
+    let supplFileDescNodes = domPMParser.parse(dom).toJSON();
+    caption.ele('title').txt(supplFileData.title)
+    parseNode(supplFileDescNodes, caption, false, '--', 1,{skipTableWrap:true});
+
+    let authorAttrb = supplFileXML.ele('attrib',{
+      'specific-use':"authors"
+    }).txt(supplFileData.authors);
   })
 
   let xmlString = article.end({prettyPrint: true})
@@ -805,14 +880,38 @@ let processPmMarkAsXML = (node: any, xmlPar: XMLBuilder, before: string) => {
         }
       })
     } else if (mark.type == 'table_citation') {
-      let citatedFigs = mark.attrs.citated_elements.map((table: string) => table.split('|')[0]);
-      citatedFigs.forEach((table, i) => {
+      let citatedTbls = mark.attrs.citated_elements.map((table: string) => table.split('|')[0]);
+      citatedTbls.forEach((table, i) => {
         if (i == 0) {
           xmlParent = xmlParent.ele('xref', {"ref-type": "table", "rid": tableIdsG[table]});
         } else {
           xmlParent = xmlParent.ele('named-content', {"content-type": 'xref'}).ele('xref', {
             "ref-type": "table",
             "rid": tableIdsG[table]
+          });
+        }
+      })
+    } else if (mark.type == 'supplementary_file_citation'){
+      let citatedSupplFiles = mark.attrs.citated_elements.map((table: string) => table.split('|')[0]);
+      citatedSupplFiles.forEach((supplFile, i) => {
+        if (i == 0) {
+          xmlParent = xmlParent.ele('xref', {"ref-type": "supplementary-material", "rid": supplFilesIdsG[supplFile]});
+        } else {
+          xmlParent = xmlParent.ele('named-content', {"content-type": 'xref'}).ele('xref', {
+            "ref-type": "supplementary-material",
+            "rid": supplFilesIdsG[supplFile]
+          });
+        }
+      })
+    } else if (mark.type == 'end_note_citation'){
+      let citatedEndNotes = mark.attrs.citated_elements.map((table: string) => table.split('|')[0]);
+      citatedEndNotes.forEach((endNote, i) => {
+        if (i == 0) {
+          xmlParent = xmlParent.ele('xref', {"ref-type": "fn", "rid": endNotesIdsG[endNote]});
+        } else {
+          xmlParent = xmlParent.ele('named-content', {"content-type": 'xref'}).ele('xref', {
+            "ref-type": "fn",
+            "rid": endNotesIdsG[endNote]
           });
         }
       })
@@ -856,7 +955,24 @@ function isBlockNode(name: string) {
   return false;
 }
 
+let isEmpty = (node:any) => {
+  let empty = true;
+  let checkNode = (n:any) => {
+    if(n.type == 'text'&&n.text&&n.text.length>0){
+      empty = false;
+    }else if(n.type!='text'&&n.content){
+      n.content.forEach((ch)=>{
+        checkNode(ch)
+      })
+    }
+  }
+  checkNode(node)
+  return empty
+}
+
 function parseNode(node: any, xmlPar: XMLBuilder, shouldSkipBlockElements: boolean, before: string, index: number,options?:any) {
+  // prevent render of empty(with no text content) nested elements
+  if(isEmpty(node)) return;
   if (nodesToSkip.includes(node.type) || (shouldSkipBlockElements && isBlockNode(node.type) && !nodesNotToLoop.includes(node.type) && !nodesThatShouldNotBeSkipped.includes(node.type))) { // nodes that should be skipped and looped through their children
     if (node.content && node.content.length > 0) {
       node.content.forEach((ch, i) => {
