@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
 @Component({
@@ -10,6 +10,7 @@ export class JatsErrorsDialogComponent implements AfterViewInit {
 
   constructor(
     public dialogRef: MatDialogRef<JatsErrorsDialogComponent>,
+    private ref:ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public data: {errors:any[]}
     ) {
 
@@ -17,6 +18,7 @@ export class JatsErrorsDialogComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.data.errors = this.data.errors.map(x=>[x]);
+    this.ref.detectChanges()
   }
 
 }

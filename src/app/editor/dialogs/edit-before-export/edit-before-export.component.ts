@@ -416,8 +416,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
       console.log('pdf',data);
     })
     /* http://127.0.0.1:3003 */
-    console.log(articleData);
-    /* this.http.post('http://127.0.0.1:3003/article/pdf',articleData).subscribe((data)=>{
+    /* console.log(Object.keys(articleData));
+    this.http.post('http://127.0.0.1:3003/article/pdf',articleData).subscribe((data)=>{
       console.log('pdf',data);
     }) */
     /* this.http.post('http://127.0.0.1:3003/article/create',articleData).subscribe((data)=>{
