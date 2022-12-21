@@ -114,7 +114,7 @@ export class CitableTablesDialogComponent {
   }
 
   saveTables() {
-    this.serviceShare.CitableElementsService.writeElementDataGlobal(this.newTableNodes, this.tables!, this.tablesNumbers!,'table_citation');
+    this.serviceShare.CitableElementsService.writeElementDataGlobal( this.tables!, this.tablesNumbers!,'table_citation');
     //this.CitableTablesService.writeTablesDataGlobal(this.newTableNodes, this.tables!, this.tablesNumbers!, this.editedTables)
     this.dialogRef.close(true)
   }

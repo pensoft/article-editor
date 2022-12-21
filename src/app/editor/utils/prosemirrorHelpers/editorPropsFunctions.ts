@@ -12,6 +12,7 @@ import { EditorView } from "prosemirror-view";
 import { YMap } from "yjs/dist/src/internals";
 import { articleSection } from "../interfaces/articleSection";
 import { FullSchemaDOMPMSerializer , FullSchemaDOMPMParser} from "../Schema/filterNodesIfSchemaDefPlugin"
+import { elementOnWhichClickShouldNoteBeHandled } from "./transactionControllingFunctions";
 
 function removeStyling(slice:Slice){
   let dom = FullSchemaDOMPMSerializer.serializeFragment(slice.content);
@@ -190,14 +191,6 @@ export function selectWholeCitatMarksAndRefCitatNode(view: EditorView, anchor: R
 
 export function handleClick(hideshowPluginKEey: PluginKey, citatContextPluginkey?: PluginKey) {
   return (view: EditorView, pos: number, event: Event) => {
-    /* if((event.target&&event.target instanceof HTMLElement&&(event.target.className.includes('update-data-reference-button')||
-    event.target.className.includes('reference-citation-pm-buttons')||
-    event.target.className.includes('update-data-reference-img')))){
-      setTimeout(() => {
-        view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup',true))
-      }, 0)
-      return true
-    }else  */
     //@ts-ignore
       if(event.detail == 1){
         //@ts-ignore
@@ -215,11 +208,11 @@ export function handleClick(hideshowPluginKEey: PluginKey, citatContextPluginkey
       setTimeout(() => { view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup', true)) }, 0)
       return true
     }
-    let tr1 = view.state.tr.setMeta(hideshowPluginKEey, {})
     if (citatContextPluginkey) {
+      let tr1 = view.state.tr.setMeta(hideshowPluginKEey, {})
       tr1 = tr1.setMeta('citatContextPlugin', { clickOutside: true }).setMeta('addToLastHistoryGroup', true)
+      view.dispatch(tr1)
     }
-    view.dispatch(tr1)
     return false
   }
 }

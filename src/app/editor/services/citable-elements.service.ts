@@ -42,11 +42,11 @@ export let citationElementMap = {
     htmlTag: 'supplementary-file-citation',
     type: 'supplementary-file',
     yjsMap: 'supplementaryFilesMap',
+    elementsObj: 'supplementaryFiles',
     elementNumberProp : 'supplementary_file_number',
     elementNumbersObj: 'supplementaryFilesNumbers',
     templatesObj: 'supplementaryFilesTemplates',
     containerNodeName: 'supplementary_files_nodes_container',
-    elementsObj: 'supplementaryFiles',
     singleElTxt: ' Suppl. material ',
     multipleElTxt: ' Suppl. materials ',
     deletedElTxt: ' Cited item deleted ',
@@ -90,11 +90,11 @@ export let citationElementMap = {
     htmlTag: 'table-citation',
     type: 'table',
     yjsMap: 'tablesMap',
+    elementsObj: 'ArticleTables',
     elementNumberProp : 'tableNumber',
     elementNumbersObj: 'ArticleTablesNumbers',
     templatesObj: 'tablesTemplates',
     containerNodeName: 'tables_nodes_container',
-    elementsObj: 'ArticleTables',
     singleElTxt: ' Table ',
     multipleElTxt: ' Tables. ',
     deletedElTxt: ' Cited item deleted ',
@@ -135,10 +135,10 @@ export let citationElementMap = {
     type: 'figure',
     containerNodeName: 'figures_nodes_container',
     yjsMap: 'figuresMap',
+    elementsObj: 'ArticleFigures',
     elementNumberProp : 'figureNumber',
     elementNumbersObj: 'ArticleFiguresNumbers',
     templatesObj: 'figuresTemplates',
-    elementsObj: 'ArticleFigures',
     singleElTxt: ' Fig. ',
     multipleElTxt: ' Figs. ',
     deletedElTxt: ' Cited item deleted ',
@@ -185,11 +185,11 @@ export let citationElementMap = {
     htmlTag: 'end-note-citation',
     type: 'end-note',
     yjsMap: 'endNotesMap',
+    elementsObj: 'endNotes',
     elementNumberProp : 'end_note_number',
     elementNumbersObj: 'endNotesNumbers',
     templatesObj: 'endNotesTemplates',
     containerNodeName: 'end_notes_nodes_container',
-    elementsObj: 'endNotes',
     singleElTxt: '*',
     multipleElTxt: '*',
     deletedElTxt: ' Cited item deleted ',
@@ -575,7 +575,7 @@ export class CitableElementsService {
     }) */
   }
 
-  writeElementDataGlobal(newElsNodes: { [key: string]: Node }, newElements: { [key: string]: any }, elementsNumbers: string[],type:string) {
+  writeElementDataGlobal( newElements: { [key: string]: any }, elementsNumbers: string[],type:string) {
     let elementMapping = citationElementMap[type];
     let oldCitats = JSON.parse(JSON.stringify(this.serviceShare.YdocService.citableElementsMap?.get('elementsCitations')));
     let oldElNums = JSON.parse(JSON.stringify(this.serviceShare.YdocService[elementMapping.yjsMap].get(elementMapping.elementNumbersObj)))
@@ -585,8 +585,8 @@ export class CitableElementsService {
     let newElsCopy = JSON.parse(JSON.stringify(newElements))
     let newElsNumsCopy = JSON.parse(JSON.stringify(elementsNumbers))
 
-    this.updateElementsNumbers(newElements, elementsNumbers,elementMapping.elementNumberProp)
-    this.serviceShare.YdocService[elementMapping.yjsMap].set(elementMapping.elementNumbersObj, elementsNumbers)
+    this.updateElementsNumbers(newElsCopy, newElsNumsCopy,elementMapping.elementNumberProp)
+    this.serviceShare.YdocService[elementMapping.yjsMap].set(elementMapping.elementNumbersObj, newElsNumsCopy)
     this.serviceShare.YdocService[elementMapping.yjsMap].set(elementMapping.elementsObj, newElements)
 
     let citats = this.serviceShare.YdocService.citableElementsMap?.get('elementsCitations');

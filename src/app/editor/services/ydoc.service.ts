@@ -1,37 +1,22 @@
 import { Component, Injectable, OnDestroy, OnInit } from '@angular/core';
 //@ts-ignore
 import * as Y from 'yjs'
-import { WebrtcConn, WebrtcProvider as OriginalWebRtc, } from 'y-webrtc';
 import { IndexeddbPersistence } from 'y-indexeddb';
-import { YXmlFragment } from 'yjs/dist/src/types/YXmlFragment';
-import { EditorState, Transaction } from 'prosemirror-state';
-import { EditorView } from 'prosemirror-view';
 import * as awarenessProtocol from 'y-protocols/awareness.js';
-import * as random from 'lib0/random.js';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { fromEvent, race } from 'rxjs';
 import { catchError, delay } from 'rxjs/operators';
 import { WebsocketProvider } from 'y-websocket'
 import { environment } from 'src/environments/environment'
-//@ts-ignore
-import { WebrtcProvider } from '../utils/y-webrtc/index.js';
-import { sectionNode } from '../utils/interfaces/section-node'
-import { editorContainer } from '../utils/interfaces/editor-container'
 import { Subject } from 'rxjs';
 import { ydocData } from '../utils/interfaces/ydocData';
 import { YMap, YMapEvent } from 'yjs/dist/src/internals';
-import { treeNode } from '../utils/interfaces/treeNode';
-import { uuidv4 } from "lib0/random";
 import { articleSection, editorData, taxonomicCoverageContentData } from '../utils/interfaces/articleSection';
 import { articleBasicStructure } from '../utils/articleBasicStructure';
-import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
-import { threadId } from 'worker_threads';
 import { ServiceShare } from './service-share.service';
 import { ArticlesService } from '@app/core/services/articles.service';
-import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
 import { Transaction as YTransaction } from 'yjs';
 import { layoutMenuAndSchemaSettings, mapSchemaDef } from '../utils/fieldsMenusAndScemasFns';
-import { fn } from '@angular/compiler/src/output/output_ast.js';
 
 @Injectable({
   providedIn: 'root'

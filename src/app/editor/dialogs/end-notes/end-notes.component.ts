@@ -79,7 +79,7 @@ export class EndNotesDialogComponent {
   }
 
   saveEndNotes() {
-    this.serviceShare.CitableElementsService.writeElementDataGlobal(this.newEndNotesNodes, this.endNotes!, this.endNotesNumbers!,'end_note_citation');
+    this.serviceShare.CitableElementsService.writeElementDataGlobal(this.endNotes!, this.endNotesNumbers!,'end_note_citation');
     this.dialogRef.close(true)
   }
 
