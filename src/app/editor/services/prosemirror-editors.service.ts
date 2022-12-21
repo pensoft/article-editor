@@ -868,6 +868,7 @@ export class ProsemirrorEditorsService {
         divideEndEditorFromTopPlugin,
         this.serviceShare.ReferencePluginService?.referencePlugin,
         this.commentsService.getPlugin(),
+        this.citableElementEditButtonsPluginService.citableElementsEditButtonsPlugin,
         this.trackChangesService.getHideShowPlugin(),
         this.linkPopUpPluginService.linkPopUpPlugin,
         //inputRules({ rules: [inlineMathInputRule, blockMathInputRule] }),
@@ -1117,7 +1118,6 @@ export class ProsemirrorEditorsService {
         this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         this.trackChangesService.getHideShowPlugin(),
-        this.citableElementEditButtonsPluginService.citableElementsEditButtonsPlugin,
         inputRules(inputRulesObj),
         ...menuBar({
           floating: true,

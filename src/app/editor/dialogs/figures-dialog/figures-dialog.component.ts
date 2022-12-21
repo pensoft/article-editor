@@ -119,7 +119,7 @@ export class FiguresDialogComponent implements AfterViewInit {
   }
 
   saveFigures() {
-    this.serviceShare.CitableElementsService.writeElementDataGlobal(this.newFigureNodes, this.figures!, this.figuresNumbers, 'citation');
+    this.serviceShare.CitableElementsService.writeElementDataGlobal(this.figures!, this.figuresNumbers, 'citation');
     this.dialogRef.close(true)
   }
 

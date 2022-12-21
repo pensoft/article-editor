@@ -365,15 +365,32 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathM
   }
 }
 
+export let elementOnWhichClickShouldNoteBeHandled = [
+  'update-data-reference-button',
+  'move-citable-item-up-button',
+  'move-citable-item-down-button',
+  'edit-citable-item-button',
+  'delete-citable-item-button',
+  'reference-citation-pm-buttons',
+  'update-data-reference-img',
+  'move-citable-item-up-img',
+  'move-citable-item-down-img',
+  'edit-citable-item-img',
+  'delete-citable-item-img',
+]
+
 //handle right click on citats
 export const handleClickOn = (citatContextPluginKey: PluginKey) => {
 
   return (view: EditorView, pos: number, node: Node, nodePos: number, e: MouseEvent, direct: boolean) => {
-    if(e.target&&e.target instanceof HTMLElement&&(
-      e.target.className.includes('update-data-reference-button')||
-      e.target.className.includes('reference-citation-pm-buttons')||
-      e.target.className.includes('update-data-reference-img')
-      )){
+    console.log(view.hasFocus());
+
+    if(
+      e.target &&
+      e.target instanceof HTMLElement &&
+      e.target.className&&
+      e.target.className.split(' ').some((cls)=>elementOnWhichClickShouldNoteBeHandled.includes(cls))
+      ){
       return true;
     }
     if (node.marks.filter((mark) => { return (mark.type.name == 'citation'||mark.type.name == 'table_citation') }).length > 0 &&

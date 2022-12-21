@@ -86,7 +86,7 @@ export class SupplementaryFilesDialogComponent {
   }
 
   saveSupplementaryFiles() {
-    this.serviceShare.CitableElementsService.writeElementDataGlobal(this.newSupplementaryFilesNodes, this.supplementaryFiles!, this.supplementaryFilesNumbers!,'supplementary_file_citation');
+    this.serviceShare.CitableElementsService.writeElementDataGlobal(this.supplementaryFiles!, this.supplementaryFilesNumbers!,'supplementary_file_citation');
     this.dialogRef.close(true)
   }
 
