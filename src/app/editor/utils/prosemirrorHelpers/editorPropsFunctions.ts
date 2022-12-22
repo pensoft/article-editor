@@ -126,6 +126,8 @@ export function handlePaste(sharedService:ServiceShare) {
   }
 }
 
+let marksThatShouldBeDeleteWhole = ['citation','end_note_citation','supplementary_file_citation','table_citation'];
+
 export function selectWholeCitatMarksAndRefCitatNode(view: EditorView, anchor: ResolvedPos, head: ResolvedPos) {
 
   let newSelection = false;
@@ -332,22 +334,6 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
         figNodeContToTheRight = true
       }
 
-      /* if(from!=to&&(key == 'Delete'||key == 'Backspace')){
-        let noneditableNodeInSel = false;
-        let nodeStart:number;
-        let nodeEnd:number;
-        view.state.doc.nodesBetween(from,to,(node,pos,parent,i)=>{
-          if(node.attrs.contenteditableNode == 'false' || node.attrs.contenteditableNode === false){
-            noneditableNodeInSel = true;
-            nodeStart = pos;
-            nodeEnd = pos+=node.nodeSize;
-          }
-        })
-        if(){
-
-        }
-      } */
-
       if (onNoneditableMarkBorder) {
         if (onNoneditableMarkBorder == 'left') {
           if (key == 'Delete') {
@@ -380,6 +366,7 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
               view.dispatch(view.state.tr.setSelection(TextSelection.between(newPos,newPos,1)));
           }
       }
+
       if(key == 'Delete'&&figNodeContToTheRight){
         canEdit = false
       }
@@ -400,7 +387,10 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
       let noneditableMarkBeforeTo = check($to.nodeBefore!)
 
 
-
+      console.log('noneditableMarkAfterFrom',noneditableMarkAfterFrom);
+      console.log('noneditableMarkBeforeFrom',noneditableMarkBeforeFrom);
+      console.log('noneditableMarkAfterTo',noneditableMarkAfterTo);
+      console.log('noneditableMarkBeforeTo',noneditableMarkBeforeTo);
       if (noneditableMarkAfterFrom && noneditableMarkBeforeFrom && noneditableMarkAfterTo && noneditableMarkBeforeTo) {
         canEdit = false
       } else if (noneditableMarkAfterFrom && noneditableMarkBeforeFrom) {
@@ -409,6 +399,26 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
         canEdit = false
       }
 
+      if(to == from ){
+        if(noneditableMarkAfterFrom && noneditableMarkAfterTo && !noneditableMarkBeforeFrom && !noneditableMarkBeforeTo){
+          if(key == 'Delete'){
+            view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,from, from+$from.nodeAfter.nodeSize)));
+            canEdit = true;
+          }else if(key == 'Backspace'){
+            view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,from)));
+            canEdit = true;
+          }
+        }else if(!noneditableMarkAfterFrom && !noneditableMarkAfterTo && noneditableMarkBeforeFrom && noneditableMarkBeforeTo){
+          if(key == 'Delete'){
+            view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,from)));
+            canEdit = true;
+          }else if(key == 'Backspace'){
+            view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,from,from-$from.nodeBefore.nodeSize)));
+            canEdit = true;
+          }
+        }
+        console.log('deleting at start of noneditable mark');
+      }
 
       if (to == from && $from.nodeAfter == null && canEdit == false) {
         let nodeAfterPlusOne = view.state.doc.nodeAt(from + 1);
