@@ -318,15 +318,6 @@ export class ProsemirrorEditorsService {
     return new Schema({nodes,marks});
   }
 
-  renderCustomSchemaIfAny(section?:articleSection){
-    if(section&&section.customSchema.isCustom){
-      return this.buildSchemaFromKeysDef(section.customSchema.schema)
-    }
-    return schema
-  }
-
-
-
   getMenusAndSchemaDefsImportantForSection(sectionID){
     let menuAndSchemasDefsObj = this.ydocService.PMMenusAndSchemasDefsMap.get('menusAndSchemasDefs');
     let layoutMenusAndSchamasDefs = menuAndSchemasDefsObj['layoutDefinitions'];

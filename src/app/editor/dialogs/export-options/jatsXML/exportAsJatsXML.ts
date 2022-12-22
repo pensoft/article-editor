@@ -9,6 +9,7 @@ import {articleSection} from "@app/editor/utils/interfaces/articleSection";
 import {EditorView} from "prosemirror-view";
 import {schema} from "@app/editor/utils/Schema";
 import {environment} from "@env";
+import { uuidv4 } from "lib0/random";
 
 let figIdsG: any;
 let refIdsG: any;
@@ -544,9 +545,17 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
         saveAs(blob, "save.xml");
       },5);
     }else{
-      serviceShare.openSnackBar('The generated JATS xml is not valid.','View errors',()=>{
-        serviceShare.openJatsErrorsDialog(data.errors)
-      },5);
+      serviceShare.openSnackBar('The generated JATS xml is not valid. You can view errors in notifications','',()=>{},5);
+        //serviceShare.openJatsErrorsDialog(data.errors)
+      serviceShare.NotificationsService.addLocalNotification({
+        date: Date.now(),
+        event: 'JATS errors',
+        status: 'DONE',
+        eventId: uuidv4(),
+        new: true,
+        link: 'open jats render errors',
+        metaData:data.errors||['Dummy error only for JATS error dialog.']
+      })
     }
 
     console.log('validation',data);

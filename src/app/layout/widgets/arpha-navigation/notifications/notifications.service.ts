@@ -9,7 +9,7 @@ import { map } from 'rxjs/operators';
 const EVENTSURL = environment.apiUrl + '/event-dispatcher'
 
 export interface notificationEvent {
-  date: number, event: string, status: string, eventId: string, new: boolean, link?: string
+  date: number, event: string, status: string, eventId: string, new: boolean, link?: string ,metaData?:any
 }
 
 @Injectable({
@@ -19,15 +19,21 @@ export class NotificationsService {
 
   notificationsBehaviorSubject = new ReplaySubject<notificationEvent[]>();
 
+  localNotifications: notificationEvent[] = []
   allNotifications: notificationEvent[] = []
 
   getOldNotificationsIds(): string[] {
     let oldNotifications = sessionStorage.getItem('oldevents');
     if (oldNotifications) {
-      return JSON.parse(oldNotifications)
+    return JSON.parse(oldNotifications)
     } else {
       return []
     }
+  }
+
+  addLocalNotification(event:notificationEvent){
+    this.localNotifications.push(event);
+    this.passNotifications();
   }
 
   setEventAsOld(eventid: string) {
@@ -112,7 +118,11 @@ export class NotificationsService {
   }
   viewNotification(event: notificationEvent) {
     if (event.link) {
-      window.open(event.link)
+      if(event.link == 'open jats render errors'){
+        this.ServiceShare.openJatsErrorsDialog(event.metaData);
+      }else{
+        window.open(event.link)
+      }
       /* this.http.get(event.downloadlink,{
         responseType:'arraybuffer',
       }).subscribe((data)=>{
@@ -133,7 +143,15 @@ export class NotificationsService {
         notification.new = true;
       }
     })
-    this.notificationsBehaviorSubject.next(this.allNotifications);
+    this.localNotifications.forEach((notification) => {
+      if (oldNotifications.includes(notification.eventId)) {
+        notification.new = false;
+      } else {
+        notification.new = true;
+      }
+    })
+    let allNotificationArr = [...this.allNotifications,...this.localNotifications];
+    this.notificationsBehaviorSubject.next(allNotificationArr);
   }
 
   updateEventData(event: notificationEvent) {
