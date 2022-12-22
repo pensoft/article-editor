@@ -54,11 +54,11 @@ export class NotificationsService {
   ) {
     this.echoService.join('task_manager:tasks', 'public')
       .listen('task_manager:tasks', '.TaskCreatedEvent')
-      .subscribe(data => { console.log('TaskCreatedEvent', data); this.handleTaskUpdatesEvents(data) })
+      .subscribe(data => { this.handleTaskUpdatesEvents(data) })
 
     this.echoService.join('task_manager:tasks', 'public')
       .listen('task_manager:tasks', '.TaskUpdateEvent')
-      .subscribe(data => { console.log('TaskUpdateEvent', data); this.handleTaskUpdatesEvents(data) })
+      .subscribe(data => { this.handleTaskUpdatesEvents(data) })
 
     ServiceShare.shareSelf('NotificationsService', this)
   }

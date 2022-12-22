@@ -136,7 +136,8 @@ export class ArticleMetadataComponent implements OnInit {
   }
 
   logData() {
-    this.ydocService.checkLastTimeUpdated()
+    //this.ydocService.checkLastTimeUpdated();
+    console.log(this.ydocService.articleData);
   }
 
   /* updateFigures(){

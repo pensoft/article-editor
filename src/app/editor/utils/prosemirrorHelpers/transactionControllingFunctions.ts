@@ -383,8 +383,6 @@ export let elementOnWhichClickShouldNoteBeHandled = [
 export const handleClickOn = (citatContextPluginKey: PluginKey) => {
 
   return (view: EditorView, pos: number, node: Node, nodePos: number, e: MouseEvent, direct: boolean) => {
-    console.log(view.hasFocus());
-
     if(
       e.target &&
       e.target instanceof HTMLElement &&

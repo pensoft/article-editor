@@ -250,6 +250,7 @@ export const renderSectionFunc:
       customSchema:{isCustom:false},
       compatibility: taxonTreatmentSection.compatibility ? taxonTreatmentSection.compatibility : undefined
     }
+
     if (sectionFromBackend.complex_section_settings) {
       let minmaxValds: any = {};
       sectionFromBackend.complex_section_settings.forEach((secMinMax: {
