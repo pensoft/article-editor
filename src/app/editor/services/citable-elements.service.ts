@@ -305,6 +305,7 @@ export class CitableElementsService {
                       let citateNodeText = elementMaping.deletedElTxt;
                       let newNode = (edView.state.schema as Schema).text(citateNodeText) as Node
                       newNode = newNode.mark([edView.state.schema.mark(citationMark.type.name, { ...citationMark.attrs, nonexistingelement: 'true' })])
+                      console.log('update citat text');
                       edView.dispatch(edView.state.tr.replaceWith(pos,
                         pos + node.nodeSize
                         , newNode).setMeta('citatsTextChange', true)
