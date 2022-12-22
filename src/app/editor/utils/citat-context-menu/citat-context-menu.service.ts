@@ -136,7 +136,9 @@ export class CitatContextMenuService {
                 deleteCitationButton.addEventListener('click', () => {
                   if (citationMark) {
                     deleteData = {mark:citationMark,sectionID:prev.sectionName,type}
-                    shouldCloseContextMenu = true
+                    shouldCloseContextMenu = true;
+                    let view = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName].editorView;
+                    view.dispatch(view.state.tr);
                   }
                 })
 
@@ -285,13 +287,11 @@ export class CitatContextMenuService {
               editorCenter.top = (elemRect.top + elemRect.bottom) / 2
               editorCenter.left = (elemRect.left + elemRect.right) / 2
             }
-
             if(deleteData){
               let mark = deleteData.mark
               let sectionID = deleteData.sectionID
-
               if(pluginState.sectionName == sectionID && deleteData.type == 'figure'){
-                let citatsData = ydocServide.figuresMap?.get('articleCitatsObj');
+                let citatsData = ydocServide.citableElementsMap?.get('elementsCitations')
                 let markActualData = citatsData[sectionID][mark.attrs.citateid]
                 if(markActualData){
                   deleteData = undefined

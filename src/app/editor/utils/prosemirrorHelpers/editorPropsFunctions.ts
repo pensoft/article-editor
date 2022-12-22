@@ -17,13 +17,16 @@ import { elementOnWhichClickShouldNoteBeHandled } from "./transactionControlling
 function removeStyling(slice:Slice){
   let dom = FullSchemaDOMPMSerializer.serializeFragment(slice.content);
   let container = document.createElement('div');
+  container.style.whiteSpace = 'pre-wrap'
   let container1 = document.createElement('div');
+  container1.style.whiteSpace = 'pre-wrap'
+
   if(dom instanceof DocumentFragment){
     container.append(...Array.from(dom.children))
   }else{
     container.append(dom);
   }
-  let htmlWithNoStyle = container.innerHTML
+  let htmlWithNoStyle = container.innerHTML.replace(/ /gm,'&nbsp;')
   htmlWithNoStyle = htmlWithNoStyle.replace(/style="[^"]+"/gm,'style=""');
   htmlWithNoStyle = htmlWithNoStyle.replace(/class="[^"]+"/gm,'class=""');
   container1.innerHTML = "<form-field>"+htmlWithNoStyle+"</form-field>"

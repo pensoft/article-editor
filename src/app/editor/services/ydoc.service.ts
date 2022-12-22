@@ -219,10 +219,7 @@ export class YdocService {
 
   turnOnOffPreviewModeEditorFn: () => void
 
-  buildLayoutMenusAndSchemasDefs(){
-    /* adding layout menu and schema definitios should be removed when backend is done  */
-    this.articleData.layout.menusAndSchemasSettings = layoutMenuAndSchemaSettings
-    let defs = this.articleData.layout.menusAndSchemasSettings
+  buildLayoutMenusAndSchemasDefs(defs:{menus:{},schemas:{}}){
     let layoutMapedDefs = {menus:{},schemas:{}};
     if(defs&&(defs.menus||defs.schemas)){
       if(defs.menus){
@@ -303,7 +300,17 @@ export class YdocService {
       this.supplementaryFilesMap?.set('supplementaryFilesNumbers', [])
     }
     if(!menusAndSchemasDefs){
-      this.PMMenusAndSchemasDefsMap.set('menusAndSchemasDefs',this.buildLayoutMenusAndSchemasDefs())
+      let layoutMenusAndAllowedTagsSettings:any = {menus:{},schemas:{}}
+      if(this.articleData.layout.settings){
+        let settings = this.articleData.layout.settings
+        if(settings.allowed_tags&&Object.values(settings.allowed_tags).length>0){
+          layoutMenusAndAllowedTagsSettings.schemas = settings.allowed_tags;
+        }
+        if(settings.menus&&Object.values(settings.menus).length>0){
+          layoutMenusAndAllowedTagsSettings.menus = settings.menus;
+        }
+      }
+      this.PMMenusAndSchemasDefsMap.set('menusAndSchemasDefs',this.buildLayoutMenusAndSchemasDefs(layoutMenusAndAllowedTagsSettings))
     }
     if(!elementsCitations){
       this.citableElementsMap.set('elementsCitations',{})
@@ -505,6 +512,7 @@ export class YdocService {
   }
 
   init(roomName: string, userInfo: any,articleData:any) {
+    console.log(articleData);
     if (!this.articleData) {
       this.articleData = articleData
     }

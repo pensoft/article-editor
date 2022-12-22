@@ -377,6 +377,8 @@ export let elementOnWhichClickShouldNoteBeHandled = [
   'move-citable-item-down-img',
   'edit-citable-item-img',
   'delete-citable-item-img',
+  'citat-menu-context-delete-citat-btn',
+  'citat-menu-context',
 ]
 
 //handle right click on citats

@@ -182,6 +182,7 @@ let nodesConnections:{[key:string]:{nodes?:string[],marks?:string[]}} = {
   "ordered_list": { nodes: ['ordered_list', 'list_item'] },
 }
 
+
 let marksConnections = {
   "subscript": { marks: ["subscript"] },
   "superscript": { marks: ["superscript"] },
@@ -226,6 +227,7 @@ let marksConnections = {
   "anchorTag": { marks: ["anchorTag"] },
   "underline": { marks: ["underline"] },
 }
+
 
 let sectionMenuAndScemaMapping = {
   'Section with Schema1':{
@@ -526,19 +528,19 @@ export let parseSecHTMLMenuAndSchemaDefs = (html:string)=>{
 
 export let layoutMenuAndSchemaSettings = { // layout menu and schema definitions
   menus:{
-    'OnlyMarksAndHeadingsMenu':[
-      ['headings','alignMenu'],
-      ['toggleStrong', 'toggleEm', 'toggleUnderline','toggleCode','toggleSubscriptItem', 'toggleSuperscriptItem'],
+    "OnlyMarksAndHeadingsMenu":[
+      ["headings","alignMenu"],
+      ["toggleStrong", "toggleEm", "toggleUnderline","toggleCode","toggleSubscriptItem", "toggleSuperscriptItem"],
     ],
-    'OnlyCitableElementsAndCommentsMenu':[
-      ['insertFigure','insertTable','citateReference']
+    "OnlyCitableElementsAndCommentsMenu":[
+      ["insertFigure","insertTable","citateReference"]
     ]
   },
   schemas:{
-    'OnlyMarksAndHeadingsSchema':{                          // OnlyMarksAndHeadingsSchema (schema by key - from article layout)
-      nodes:[
+    "OnlyMarksAndHeadingsSchema":{                          // OnlyMarksAndHeadingsSchema (schema by key - from article layout)
+      "nodes":[
         "headings",
-      ],marks:[
+      ],"marks":[
         "em",
         "strong",
         "code",
@@ -548,15 +550,52 @@ export let layoutMenuAndSchemaSettings = { // layout menu and schema definitions
         "comment"
       ]
     },
-    'OnlyCitableElementsAndCommentsSchema':{                                    // OnlyCitableElementsAndCommentsSchema (schema by key - from article layout)
-      nodes:[
-        'citable-figures',
-        'citable-tables',
-        'reference-citation'
-      ],marks:[
+    "OnlyCitableElementsAndCommentsSchema":{                                    // OnlyCitableElementsAndCommentsSchema (schema by key - from article layout)
+      "nodes":[
+        "citable-figures",
+        "citable-tables",
+        "reference-citation"
+      ],"marks":[
         "comment"
       ]
     }
   }
 }
 
+let ad ={
+  "menus": {
+    "OnlyMarksAndHeadingsMenu":[
+      ["headings","alignMenu"],
+      ["toggleStrong", "toggleEm", "toggleUnderline","toggleCode","toggleSubscriptItem", "toggleSuperscriptItem"]
+    ],
+    "OnlyCitableElementsAndCommentsMenu":[
+      ["insertFigure","insertTable","citateReference"]
+    ]
+  },
+  "allowed_tags": {
+    "OnlyMarksAndHeadingsSchema":{
+      "nodes":[
+        "headings"
+      ],
+      "marks":[
+        "em",
+        "strong",
+        "code",
+        "underline",
+        "subscript",
+        "superscript",
+        "comment"
+      ]
+    },
+    "OnlyCitableElementsAndCommentsSchema":{
+      "nodes":[
+        "citable-figures",
+        "citable-tables",
+        "reference-citation"
+      ],
+      "marks":[
+        "comment"
+      ]
+    }
+  }
+}
