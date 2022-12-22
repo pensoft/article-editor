@@ -102,6 +102,7 @@ export class CitableElementsEditButtonsService {
     let moveUpImg = createCustomIcon('arrow_up.svg', 12, 12, 0, 1.5, 1.3)
     moveUpImg.dom.className = 'move-citable-item-up-img'
     moveUpImg.dom.style.cursor = 'pointer'
+    moveUpImg.dom.style.pointerEvents = 'all'
     moveUpButton.append(moveUpImg.dom)
     moveUpButton.addEventListener('click',()=>{
       this.elementActions.moveElementUpFnc()
@@ -115,6 +116,7 @@ export class CitableElementsEditButtonsService {
     let moveDownImg = createCustomIcon('arrow_down.svg', 12, 12, 0, 1.5, 1.3)
     moveDownImg.dom.className = 'move-citable-item-down-img'
     moveDownImg.dom.style.cursor = 'pointer'
+    moveDownImg.dom.style.pointerEvents = 'all'
     moveDownButton.append(moveDownImg.dom)
     moveDownButton.addEventListener('click',()=>{
       this.elementActions.moveElementDownFnc()
@@ -127,6 +129,7 @@ export class CitableElementsEditButtonsService {
     editButton.title = 'Edit item.'
     let editImg = createCustomIcon('edit2.svg', 12, 12, 0, 1.5, 1.3)
     editImg.dom.className = 'edit-citable-item-img'
+    editImg.dom.style.pointerEvents = 'all'
     editImg.dom.style.cursor = 'pointer'
     editButton.append(editImg.dom)
     editButton.addEventListener('click',()=>{
@@ -141,6 +144,7 @@ export class CitableElementsEditButtonsService {
     let deleteImg = createCustomIcon('delete_forever.svg', 12, 12, 0, 1.5, 1.3)
     deleteImg.dom.className = 'delete-citable-item-img'
     deleteImg.dom.style.cursor = 'pointer'
+    deleteImg.dom.style.pointerEvents = 'all'
     deleteButton.append(deleteImg.dom)
     deleteButton.addEventListener('click',()=>{
       this.elementActions.deleteElementFnc()
@@ -154,6 +158,7 @@ export class CitableElementsEditButtonsService {
     fnsObj:buttonsActions,
     ){
     let editButtonsContainer = document.createElement('div');
+    editButtonsContainer.style.pointerEvents = 'all'
     editButtonsContainer.className = 'citable-items-edit-buttons';
 
     editButtonsContainer.appendChild(this.editButton)
@@ -275,6 +280,7 @@ export class CitableElementsEditButtonsService {
           let top = coordsInCursorPos.top-editorViewRectangle.top
           let left = editorViewRectangle.width
           html.setAttribute('style', `position:absolute;
+          pointer-events:all;
           top:${top}px;left:${left}px`)
 
           return  DecorationSet.create(state.doc,[Decoration.widget(elPos, (view) => {

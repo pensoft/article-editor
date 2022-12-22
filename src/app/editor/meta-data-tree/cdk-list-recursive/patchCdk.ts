@@ -52,7 +52,6 @@ export function installPatch(treeService: TreeService) {
     if (matchingTarget === this) {
       return undefined;
     }
-
     canReceive(matchingTarget, item, treeService)
     canMoveOut(matchingTarget, item, treeService)
     canMoveIn(matchingTarget, item, treeService)
