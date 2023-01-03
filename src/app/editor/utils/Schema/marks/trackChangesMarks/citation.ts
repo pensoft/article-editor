@@ -10,7 +10,7 @@ const citation = {
       nonexistingelement:{ default:'false' },
       citateid: { default: '' },
       last_time_updated: { default: '' },
-      elements_display_view: { default: [] },
+      elements_display_view: { default: [''] },
         ...getGenericAttributes(),
     },
     parseDOM: [{

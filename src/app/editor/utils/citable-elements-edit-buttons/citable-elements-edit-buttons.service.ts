@@ -207,8 +207,6 @@ export class CitableElementsEditButtonsService {
           return { sectionName: _.sectionName };
         },
         apply(tr, prev, _, newState) {
-          console.trace(tr)
-          console.log(tr);
           return prev
         },
       },
