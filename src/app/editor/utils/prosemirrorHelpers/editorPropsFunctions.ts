@@ -371,26 +371,19 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
         canEdit = false
       }
       // check both sides for noneditable marks
-
       let check = (node: Node) => {
         let returnValue = false
         if (node) {
-          returnValue = node.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false' || mark.attrs.contenteditableNode === false }).length > 0
+          let noneditableMarks = node.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false' || mark.attrs.contenteditableNode === false })
+          returnValue = noneditableMarks.length > 0;
         }
         return returnValue
       }
-
       let noneditableMarkAfterFrom = check($from.nodeAfter!)
       let noneditableMarkBeforeFrom = check($from.nodeBefore!)
-
       let noneditableMarkAfterTo = check($to.nodeAfter!)
       let noneditableMarkBeforeTo = check($to.nodeBefore!)
 
-
-      console.log('noneditableMarkAfterFrom',noneditableMarkAfterFrom);
-      console.log('noneditableMarkBeforeFrom',noneditableMarkBeforeFrom);
-      console.log('noneditableMarkAfterTo',noneditableMarkAfterTo);
-      console.log('noneditableMarkBeforeTo',noneditableMarkBeforeTo);
       if (noneditableMarkAfterFrom && noneditableMarkBeforeFrom && noneditableMarkAfterTo && noneditableMarkBeforeTo) {
         canEdit = false
       } else if (noneditableMarkAfterFrom && noneditableMarkBeforeFrom) {
@@ -417,7 +410,6 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
             canEdit = true;
           }
         }
-        console.log('deleting at start of noneditable mark');
       }
 
       if (to == from && $from.nodeAfter == null && canEdit == false) {
