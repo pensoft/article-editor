@@ -135,7 +135,7 @@ export class ServiceShare {
             this.YdocService!.setArticleData(createArticleRes.data)
             this.router.navigate([createArticleRes.data.uuid])
             this.YdocService.newArticleIsCreated(userData,createArticleRes.data.uuid)
-
+            selectedLayout.sections = selectedLayout.sections.filter(x=>x.name!='Citable Elements Schemas');
             selectedLayout.sections.forEach((section: any) => {
               if(section.settings&&section.settings.main_section == true){
                 let newSection = renderSectionFunc(section,articleStructure,this.YdocService!.ydoc,'end');

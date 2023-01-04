@@ -253,14 +253,20 @@ export class YdocService {
 
     let tablesNumbers = this.tablesMap!.get('ArticleTablesNumbers');
     let tablesTemplates = this.tablesMap!.get('tablesTemplates');
+    let tablesInitialTemplate = this.tablesMap!.get('tablesInitialTemplate');
+    let tablesInitialFormIOJson = this.tablesMap!.get('tablesInitialFormIOJson');
     let tables = this.tablesMap!.get('ArticleTables');
 
     let supplementaryFiles = this.supplementaryFilesMap.get('supplementaryFiles');
     let supplementaryFilesTemplates = this.supplementaryFilesMap.get('supplementaryFilesTemplates');
+    let supplementaryFilesInitialTemplate = this.supplementaryFilesMap!.get('supplementaryFilesInitialTemplate');
+    let supplementaryFilesInitialFormIOJson = this.supplementaryFilesMap!.get('supplementaryFilesInitialFormIOJson');
     let supplementaryFilesNumbers = this.supplementaryFilesMap.get('supplementaryFilesNumbers');
 
     let endNotes = this.endNotesMap.get('endNotes');
     let endNotesNumbers = this.endNotesMap.get('endNotesNumbers');
+    let endNotesInitialTemplate = this.endNotesMap!.get('endNotesInitialTemplate');
+    let endNotesInitialFormIOJson = this.endNotesMap!.get('endNotesInitialFormIOJson');
     let endNotesTemplates = this.endNotesMap.get('endNotesTemplates');
 
     this.usersDataMap = this.ydoc.getMap('userDataMap')
@@ -280,6 +286,48 @@ export class YdocService {
 
     this.PMMenusAndSchemasDefsMap = this.ydoc.getMap('PMMenusAndSchemasDefsMap');
     let menusAndSchemasDefs = this.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
+
+    if(this.citableElementsSchemasSection){
+      let tablesInitialTemplateRegex = /<ng-template #Tables>([\s\S]+?(?=<\/ng-template>))<\/ng-template>/gm;
+      let supplementaryFilesInitialTemplateRegex = /<ng-template #SupplementaryMaterials>([\s\S]+?(?=<\/ng-template>))<\/ng-template>/gm;
+      let endNotesInitialTemplateRegex = /<ng-template #Footnotes>([\s\S]+?(?=<\/ng-template>))<\/ng-template>/gm;
+
+      let citableElementsSchemasHtmlTemplate = this.citableElementsSchemasSection.template;
+
+      let tablesSchemaResult = tablesInitialTemplateRegex.exec(citableElementsSchemasHtmlTemplate);
+      let supplementaryFilesSchemaResult = supplementaryFilesInitialTemplateRegex.exec(citableElementsSchemasHtmlTemplate);
+      let endNotesSchemaResult = endNotesInitialTemplateRegex.exec(citableElementsSchemasHtmlTemplate);
+
+      let formIOSchemas = this.citableElementsSchemasSection.schema.override.categories
+
+      let tablesFormIoJson = formIOSchemas.Tables
+      let supplementaryFilesFormIoJson = formIOSchemas.SupplementaryMaterials
+      let endNotesFormIoJson = formIOSchemas.Footnotes
+
+      if(tablesSchemaResult&&!tablesInitialTemplate){
+        this.tablesMap!.set('tablesInitialTemplate',tablesSchemaResult[1]);
+      }
+
+      if(tablesFormIoJson&&!tablesInitialFormIOJson){
+        this.tablesMap!.set('tablesInitialFormIOJson',tablesFormIoJson);
+      }
+
+      if(supplementaryFilesSchemaResult&&!supplementaryFilesInitialTemplate){
+        this.supplementaryFilesMap!.set('supplementaryFilesInitialTemplate',supplementaryFilesSchemaResult[1]);
+      }
+
+      if(supplementaryFilesFormIoJson&&!supplementaryFilesInitialFormIOJson){
+        this.supplementaryFilesMap!.set('supplementaryFilesInitialFormIOJson',supplementaryFilesFormIoJson);
+      }
+
+      if(endNotesSchemaResult&&!endNotesInitialTemplate){
+        this.endNotesMap!.set('endNotesInitialTemplate',endNotesSchemaResult);
+      }
+
+      if(endNotesFormIoJson&&!endNotesInitialFormIOJson){
+        this.endNotesMap!.set('endNotesInitialFormIOJson',endNotesFormIoJson);
+      }
+    }
 
     if(!endNotesTemplates){
       this.endNotesMap.set('endNotesTemplates',{})
@@ -419,8 +467,23 @@ export class YdocService {
     this.collaboratorsSubject.next(collaboratorsData)
   }
 
+  citableElementsSchemasSection
+  saveCitableElementsSchemas(citableElementsSchemasSection:any){
+    this.citableElementsSchemasSection = citableElementsSchemasSection
+  }
+
+  saveArticleData(data){
+    let artilceCitableElementsSchemas = data.layout.template.sections.find(x=>x.name == "Citable Elements Schemas");
+    if(artilceCitableElementsSchemas){
+      // filter sections from ctable elements schemas section
+      data.layout.template.sections = data.layout.template.sections.filter(x => x.name != 'Citable Elements Schemas');
+      this.saveCitableElementsSchemas(artilceCitableElementsSchemas);
+    }
+    this.articleData = data;
+  }
+
   setArticleData(articleData: any) {
-    this.articleData = articleData;
+    this.saveArticleData(articleData)
     //this.articleData.layout.citation_style.style_updated = Date.now()
     this.creatingANewArticle = true;
     this.checkLastTimeUpdated();
@@ -456,6 +519,7 @@ export class YdocService {
     this.sectionFormGroupsStructures = undefined;
     this.comments = undefined;
     this.PMMenusAndSchemasDefsMap = undefined
+    this.citableElementsSchemasSection = undefined
     this.figuresMap = undefined;
     this.tablesMap = undefined;
     this.trackChangesMetadata = undefined;
@@ -512,9 +576,8 @@ export class YdocService {
   }
 
   init(roomName: string, userInfo: any,articleData:any) {
-    console.log(articleData);
     if (!this.articleData) {
-      this.articleData = articleData
+      this.saveArticleData(articleData)
     }
     this.roomName = roomName
     this.userInfo = userInfo;
