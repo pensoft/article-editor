@@ -115,6 +115,7 @@ export const renderSectionFunc:
       }
     })
   }
+
   if (sectionFromBackend.type == 2) {
     sectionFromBackend.schema.sections.forEach((child: any, indexOfChild: number) => {
       const childSection = JSON.parse(JSON.stringify(customSectionEnums[child]));
@@ -173,6 +174,9 @@ export const renderSectionFunc:
       sectionMeta: {main: false},
       customSchema:{isCustom:false}
     }
+    if(!sectionFromBackend.schema||!sectionFromBackend.schema.components||sectionFromBackend.schema.components.length == 0){
+      newArticleSection.edit.active = false;
+    }
   } else if (sectionFromBackend.type == 1) {
     newArticleSection = {
       title: {
@@ -185,7 +189,7 @@ export const renderSectionFunc:
       edit: sectionFromBackend.edit || {active: true, main: true},
       add: sectionFromBackend.add || {active: true, main: false},
       delete: sectionFromBackend.delete ||{active: true, main: false},
-      addSubSection: sectionFromBackend.addSubSection ||{active: true, main: true},
+      addSubSection: sectionFromBackend.addSubSection ||{active: true, main: false},
       mode: 'documentMode',
       formIOSchema: formIOJSON,
       menusAndSchemasDefs:sectionMenusAndSchemaDefs,
@@ -213,6 +217,9 @@ export const renderSectionFunc:
         minmaxValds[secMinMax.version_id] = {min: secMinMax.min_instances, max: secMinMax.max_instances};
       })
       newArticleSection.subsectionValidations = minmaxValds;
+    }
+    if(!sectionFromBackend.schema||!sectionFromBackend.schema.components||sectionFromBackend.schema.components.length == 0){
+      newArticleSection.edit.active = false;
     }
   } else if (sectionFromBackend.type == 2) {
     // newArticleSection = taxonTreatmentSection as any;
