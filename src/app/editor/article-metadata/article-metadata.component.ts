@@ -166,10 +166,12 @@ export class ArticleMetadataComponent implements OnInit {
       data: { templates: this.sectionTemplates }
     });
     dialogRef.afterClosed().subscribe(result => {
-      this.sectionsService.getSectionById(result).subscribe((res: any) => {
-        let sectionTemplate = res.data
-        this.treeService.addNodeAtPlaceChange('parentList', sectionTemplate, 'end');
-      })
+      if(result){
+        this.sectionsService.getSectionById(result).subscribe((res: any) => {
+          let sectionTemplate = res.data
+          this.treeService.addNodeAtPlaceChange('parentList', sectionTemplate, 'end');
+        })
+      }
     });
     return
     this.sectionsService.getAllSections({ page: 1, pageSize: 999 }).subscribe((response: any) => {
@@ -208,8 +210,8 @@ export class ArticleMetadataComponent implements OnInit {
       }
     });
     dialogRef.afterClosed().subscribe(result => {
-      this.sectionsService.getSectionById(result).subscribe((res: any) => {
-      })
+      /* this.sectionsService.getSectionById(result).subscribe((res: any) => {
+      }) */
     });
 
   }

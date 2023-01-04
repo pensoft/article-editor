@@ -354,7 +354,6 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       treatmentSectionsCustomData.parent = node;
       this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, treatmentSectionsCustom, 'end');
     } else {
-      const taxonSectionData = JSON.parse(JSON.stringify(taxonSection));
       taxonSection.parent = node;
       this.serviceShare.ArticleSectionsService!.getAllSections({page: 1, pageSize: 999}).pipe(map((res: any) => {
         //res.data.push(taxonSectionData);

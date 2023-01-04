@@ -85,6 +85,11 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
 
   ngAfterViewInit(): void {
     try {
+      let tableInitioalFormIOJSON = this.ydocService.tablesMap.get('tablesInitialFormIOJson')
+      if(tableInitioalFormIOJSON){
+        console.log('using Table formIO json from config',tableInitioalFormIOJSON);
+        this.sectionContent = JSON.parse(JSON.stringify(tableInitioalFormIOJSON));
+      }
       this.tableID = this.data.tableID || uuidv4();
       if (!this.data.table) {
         let rows, cols;
@@ -196,10 +201,14 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
 
   renderCodemMirrorEditors(tableID: string) {
     try {
-      this.tablesTemplatesObj = this.ydocService.tablesMap?.get('tablesTemplates')
+      this.tablesTemplatesObj = this.ydocService.tablesMap?.get('tablesTemplates');
+      let initialTableTemplate = this.ydocService.tablesMap!.get('tablesInitialTemplate');
       let currFigTemplates
       if (!this.tablesTemplatesObj[tableID]) {
-        this.tablesTemplatesObj[tableID] = { html: tablesHtmlTemplate }
+        if(initialTableTemplate){
+          console.log('using table template from config',initialTableTemplate);
+        }
+        this.tablesTemplatesObj[tableID] = { html: initialTableTemplate?initialTableTemplate:tablesHtmlTemplate }
         currFigTemplates = this.tablesTemplatesObj[tableID]
       } else {
         currFigTemplates = this.tablesTemplatesObj[tableID]

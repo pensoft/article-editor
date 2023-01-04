@@ -73,6 +73,11 @@ export class AddEndNoteComponent implements AfterViewInit,AfterViewChecked {
 
   ngAfterViewInit(): void {
     try {
+      let endNotesInitialFormIOJson = this.ydocService.endNotesMap!.get('endNotesInitialFormIOJson');
+      if(endNotesInitialFormIOJson){
+        console.log('using end note formio json from config',endNotesInitialFormIOJson);
+        this.sectionContent = JSON.parse(JSON.stringify(endNotesInitialFormIOJson))
+      }
       this.endNoteID = this.data.endNoteID || uuidv4();
       if (this.data.endNote) {
         this.sectionContent.components[0].defaultValue = this.data.endNote.end_note;
@@ -137,9 +142,14 @@ export class AddEndNoteComponent implements AfterViewInit,AfterViewChecked {
   renderCodemMirrorEditors(endNoteID: string) {
     try {
       this.endNotesTemplatesObj = this.ydocService.endNotesMap?.get('endNotesTemplates');
+      let endNotesInitialTemplate = this.ydocService.endNotesMap!.get('endNotesInitialTemplate');
+
       let currEndNoteTemplate
       if (!this.endNotesTemplatesObj[endNoteID]) {
-        this.endNotesTemplatesObj[endNoteID] = { html: endNoteHtmlTemplate }
+        if(endNotesInitialTemplate){
+          console.log('using end note html template from config',endNotesInitialTemplate);
+        }
+        this.endNotesTemplatesObj[endNoteID] = { html: endNotesInitialTemplate?endNotesInitialTemplate:endNoteHtmlTemplate }
         currEndNoteTemplate = this.endNotesTemplatesObj[endNoteID]
       } else {
         currEndNoteTemplate = this.endNotesTemplatesObj[endNoteID]

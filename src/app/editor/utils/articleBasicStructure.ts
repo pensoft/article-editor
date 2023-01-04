@@ -110,7 +110,9 @@ export const renderSectionFunc:
   if (sectionFromBackend.type == 1) {
     sectionFromBackend.sections.forEach((childSection: any, indexOfChild: number) => {
       childSection.settings = sectionFromBackend.complex_section_settings[indexOfChild]
-      renderSectionFunc(childSection, children, ydoc)
+      if(childSection.name != 'Citable Elements Schemas'){
+        renderSectionFunc(childSection, children, ydoc)
+      }
     })
   }
   if (sectionFromBackend.type == 2) {

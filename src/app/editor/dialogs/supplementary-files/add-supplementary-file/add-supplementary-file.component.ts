@@ -103,6 +103,11 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
   }
 
   ngAfterViewInit(): void {
+    let supplementaryFilesInitialFormIOJson = this.ydocService.supplementaryFilesMap!.get('supplementaryFilesInitialFormIOJson');
+    if(supplementaryFilesInitialFormIOJson){
+      console.log('using supplementary file formio json from config',supplementaryFilesInitialFormIOJson);
+      this.sectionContent = JSON.parse(JSON.stringify(supplementaryFilesInitialFormIOJson));
+    }
     try {
       this.supplementaryFileID = this.data.supplementaryFileID || uuidv4();
       if (this.data.supplementaryFile) {
@@ -187,9 +192,14 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
   renderCodemMirrorEditors(supplementaryFileID: string) {
     try {
       this.supplementaryFilesTemplatesObj = this.ydocService.supplementaryFilesMap?.get('supplementaryFilesTemplates');
+      let supplementaryFilesInitialTemplate = this.ydocService.supplementaryFilesMap!.get('supplementaryFilesInitialTemplate');
+
       let currSupplementalFileTemplates
       if (!this.supplementaryFilesTemplatesObj[supplementaryFileID]) {
-        this.supplementaryFilesTemplatesObj[supplementaryFileID] = { html: supplementaryFileHtmlTemplate }
+        if(supplementaryFilesInitialTemplate){
+          console.log('using supplementary file html template from config',supplementaryFilesInitialTemplate);
+        }
+        this.supplementaryFilesTemplatesObj[supplementaryFileID] = { html: supplementaryFilesInitialTemplate?supplementaryFilesInitialTemplate:supplementaryFileHtmlTemplate }
         currSupplementalFileTemplates = this.supplementaryFilesTemplatesObj[supplementaryFileID]
       } else {
         currSupplementalFileTemplates = this.supplementaryFilesTemplatesObj[supplementaryFileID]
