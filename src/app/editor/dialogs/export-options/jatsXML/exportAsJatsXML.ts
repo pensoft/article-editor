@@ -490,12 +490,12 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
 
     let dom1 = document.createElement('div');
     dom1.innerHTML = tableData.content;
-    let tableContentNodes = domPMParser.parse(dom).toJSON();
+    let tableContentNodes = domPMParser.parse(dom1).toJSON();
     parseNode(tableContentNodes, tableXML, false, '--', 0,{skipTableWrap:true});
 
     let dom2 = document.createElement('div');
     dom2.innerHTML = tableData.footer;
-    let tableFooterNodes = domPMParser.parse(dom).toJSON();
+    let tableFooterNodes = domPMParser.parse(dom2).toJSON();
     let footerElement = tableXML.ele('table-wrap-foot');
     parseNode(tableFooterNodes, footerElement, false, '--', 0);
   })
