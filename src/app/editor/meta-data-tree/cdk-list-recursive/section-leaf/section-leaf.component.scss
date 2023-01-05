@@ -472,6 +472,7 @@ $itemHeight: 30px;
     border: #8dc5c6 2px solid;
     border-radius: 4px;
     position: absolute;
+    line-break: anywhere;
   }
 }
 
@@ -523,6 +524,7 @@ $itemHeight: 30px;
     white-space: pre-line;
     position: absolute;
     margin-left: 0px;
+    line-break: anywhere;
   }
 }
 

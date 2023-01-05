@@ -269,8 +269,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       }
     })
   }
-
-  oldZIndex?: string
+  oldIndex?:string
   scrolledToView?: boolean
 
   makeEditable(element: HTMLDivElement, event: Event, parentNode: any, node: articleSection) {
@@ -280,14 +279,17 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     }
     if (event.type == 'blur') {
       element.setAttribute('contenteditable', 'false');
-      (parentNode as HTMLDivElement).style.zIndex = this.oldZIndex!;
+      (parentNode as HTMLDivElement).style.zIndex = this.oldIndex;
+      this.oldIndex = undefined
       this.treeService.saveNewTitleChange(node, element.textContent!);
       this.scrolledToView = false;
     } else if (event.type == 'click') {
-      this.oldZIndex = (parentNode as HTMLDivElement).style.zIndex!
       element.setAttribute('contenteditable', 'true');
-      (parentNode as HTMLDivElement).style.zIndex = '5';
-
+      let elementZIndex = window.getComputedStyle(element).zIndex;
+      if(this.oldIndex!=elementZIndex){
+        this.oldIndex = elementZIndex
+      }
+      (parentNode as HTMLDivElement).style.zIndex = '11';
       element.focus()
     }
   }
@@ -388,6 +390,12 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   }
 
   showButtons(div: HTMLDivElement, mouseOn: boolean, borderClass: string, focusClass: string, node: articleSection) {
+    /* if(mouseOn){
+      div.style.zIndex = '4';
+    }else{
+      div.style.zIndex = '5';
+    } */
+
     if (mouseOn) {
       this.mouseOn = node.sectionID;
     } else {
