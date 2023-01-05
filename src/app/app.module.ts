@@ -7,7 +7,6 @@ import {SignupComponent} from '@app/layout/pages/signup/signup.component';
 import {HTTPReqResInterceptor} from '@core/services/http-req-res.interceptor';
 import {NgxSpinnerModule} from 'ngx-spinner';
 import {MaterialModule} from 'src/app/shared/material.module';
-import { ChangeDetectorRef } from '@angular/core';
 import {STORAGE_PROVIDERS} from 'src/app/shared/storage.service';
 import {ThemeToggleComponent} from 'src/app/layout/widgets/thema-toggle/theme-toggle.component';
 import {windowProvider, WindowToken} from 'src/app/shared/window';
@@ -23,7 +22,6 @@ import {CommentComponent} from './editor/comments-section/comment/comment.compon
 import {AddCommentDialogComponent} from './editor/add-comment-dialog/add-comment-dialog.component';
 import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {MainComponent} from './layout/pages/main/main.component';
-import {MAT_RIPPLE_GLOBAL_OPTIONS, RippleGlobalOptions} from '@angular/material/core';
 import {IconsRegisterService} from './shared/icons-register.service';
 import {TableSizePickerComponent} from './editor/utils/table-size-picker/table-size-picker.component';
 import {DragDropModule} from '@angular/cdk/drag-drop';
@@ -122,7 +120,6 @@ import {CurrentColorPipe} from './current-color.pipe';
 import {TaxonSectionComponent} from './editor/section/taxon-section/taxon-section.component';
 import {MaterialsSectionComponent} from "@app/editor/section/materials-section/materials-section.component";
 import {MaterialSectionComponent} from "@app/editor/section/material-section/material-section.component";
-import {Observable} from "rxjs";
 import {RefsApiService} from "@app/layout/pages/library/lib-service/refs-api.service";
 import {OauthCallbackComponent} from "@app/layout/pages/oauth-callback/oauth-callback.component";
 import {CookieService} from "ngx-cookie-service";
@@ -295,7 +292,7 @@ const gravatarConfig: GravatarConfig = {
       notificationNamespace: 'App\\Notifications',
       options: {
         broadcaster: 'socket.io',
-        host: 'https://ps-event-dispatcher.dev.scalewest.com',
+        host: environment.EVENT_DISPATCHER_SERVICE,
       }
     }),
     JwtModule.forRoot({

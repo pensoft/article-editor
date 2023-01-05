@@ -30,6 +30,7 @@ import { NotificationsService } from '@app/layout/widgets/arpha-navigation/notif
 import { CitableElementsService } from './citable-elements.service';
 import {MatSnackBar, MatSnackBarRef} from '@angular/material/snack-bar';
 import { JatsErrorsDialogComponent } from '../dialogs/jats-errors-dialog/jats-errors-dialog.component';
+import { CitableElementsContextMenuService } from '../utils/citable-elements-context-menu/citable-elements-context-menu.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -38,6 +39,7 @@ export class ServiceShare {
   articleLayouts:any
 
   CitableElementsService?:CitableElementsService
+  CitableElementsContextMenuService?:CitableElementsContextMenuService
   ReferencePluginService?:ReferencePluginService
   CslService?:CslService
   ProsemirrorEditorsService?:ProsemirrorEditorsService

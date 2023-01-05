@@ -21,6 +21,7 @@ import { ReferencePluginService } from '@app/layout/pages/library/lib-service/re
 import { RefsApiService } from '@app/layout/pages/library/lib-service/refs-api.service';
 import { FormioAppConfig } from '@formio/angular';
 import { uuidv4 } from 'lib0/random';
+import { CitableElementsContextMenuService } from './utils/citable-elements-context-menu/citable-elements-context-menu.service';
 import { Subject } from 'rxjs';
 import {
   debounceTime,
@@ -95,6 +96,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     private articlesService: ArticlesService,
     private citableElementEditButonsServie:CitableElementsEditButtonsService,
     private citableElementsService:CitableElementsService,
+    private CitableElementsContextMenuService:CitableElementsContextMenuService,
     private refsAPI:RefsApiService,
     private changeDetection: ChangeDetectorRef,
     private referencePluginService:ReferencePluginService
