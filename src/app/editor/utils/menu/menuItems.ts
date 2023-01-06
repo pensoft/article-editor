@@ -297,26 +297,6 @@ const setAlignRight = new MenuItem({
   icon: createCustomIcon('align1.svg', 20)
 })
 
-const addCommentMenuItem = (ydoc: Y.Doc, addCommentSubject: Subject<any>, sectionId: string) => {
-  let commentsMap = ydoc.getMap('comments')
-  return new MenuItem({
-    title: 'Add an annotation',
-    // @ts-ignore
-    run: createComment(commentsMap, addCommentSubject, sectionId),
-    enable(state: EditorState) {
-      /* let {from,to,empty} = state.selection ;
-      let text = state.doc.textBetween(from,to)
-      if(!empty&&from!==to){
-          addCommentSubject.next({type:'commentAllownes',sectionId,allow:true,text})
-      }else{
-          addCommentSubject.next({type:'commentAllownes',sectionId,allow:false,text})
-      } */
-      return isCommentAllowed(state)
-    },
-    icon: addCommentIcon
-  });
-}
-
 const getLinkMenuItem = new MenuItem({
   title: 'Get link',
   // @ts-ignore
@@ -490,7 +470,6 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
   'setAlignRight': setAlignRight,
   'citateReference': citateReference,
   'insertVideoItem': insertVideoItem,
-  'addCommentMenuItem': addCommentMenuItem,
   'selectParentNodeItem': selectParentNodeItemPM,
   'tableMenu': tableMenu,
   'alignMenu': [setAlignLeft, setAlignCenter, setAlignRight],

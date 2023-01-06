@@ -321,7 +321,7 @@ export class YdocService {
       }
 
       if(endNotesSchemaResult&&!endNotesInitialTemplate){
-        this.endNotesMap!.set('endNotesInitialTemplate',endNotesSchemaResult);
+        this.endNotesMap!.set('endNotesInitialTemplate',endNotesSchemaResult[1]);
       }
 
       if(endNotesFormIoJson&&!endNotesInitialFormIOJson){

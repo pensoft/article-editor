@@ -158,6 +158,34 @@ let nodesConnections:{[key:string]:{nodes?:string[],marks?:string[]}} = {
       'code'
     ]
   },
+  'end-notes':{
+    nodes: [
+      "end_notes_nodes_container",
+      "block_end_note",
+      "end_note"
+    ],
+    marks:[
+      "strong",
+      "superscript",
+      "end_note_citation"
+    ]
+  },
+  'supplementary-files':{
+    nodes:[
+      "supplementary_files_nodes_container",
+      "block_supplementary_file",
+      "supplementary_file_title",
+      "supplementary_file_authors",
+      "supplementary_file_data_type",
+      "supplementary_file_brief_description",
+      "supplementary_file_url",
+      'heading',
+    ],
+    marks:[
+      "link",
+      "supplementary_file_citation"
+    ],
+  },
   'tables': {
     nodes: [
       "table",                          /* normal table nodes but has to be adde if tables are added  */
@@ -182,52 +210,17 @@ let nodesConnections:{[key:string]:{nodes?:string[],marks?:string[]}} = {
   "ordered_list": { nodes: ['ordered_list', 'list_item'] },
 }
 
-
 let marksConnections = {
   "subscript": { marks: ["subscript"] },
   "superscript": { marks: ["superscript"] },
   "comment": { nodes: [], marks: ["comment"] },
-  /* "table_citation":{nodes:[
-    "tables_nodes_container",
-    "block_table",
-    "table_header_container",
-    "table_footer_container",
-    "table_description",
-    "table_content",
-    "table_container",
-    "table",
-    "table_row",
-    "table_cell",
-    "table_header",
-    "spacer",
-    "heading",
-  ],marks:[
-    'table_citation'
-  ]},
-  "citation":{nodes:[
-    "spacer",
-    "block_figure",
-    "figure_components_container",
-    "figure_component",
-    "figures_nodes_container",
-    "figure_descriptions_container",
-    "figure_component_description",
-    "figure_description",
-    'heading',
-    'image',
-    'video',
-  ],marks:[
-    'citation',
-    'code'
-  ]}, */
-  "link": { marks: ["link"] },
+   "link": { marks: ["link"] },
   "em": { marks: ["em"] },
   "strong": { marks: ["strong"] },
   "code": { marks: ["code"] },
   "anchorTag": { marks: ["anchorTag"] },
   "underline": { marks: ["underline"] },
 }
-
 
 let sectionMenuAndScemaMapping = {
   'Section with Schema1':{
@@ -304,11 +297,21 @@ export let mapSchemaDef = (def:{nodes?:string[],marks?:string[]})=>{
   mappedSchema.marks.push(...importantMarks);
   def.nodes.forEach((nodedef)=>{
     let conns = nodesConnections[nodedef];
-    checkNodeMarkCon(mappedSchema,conns)
+    try{
+      checkNodeMarkCon(mappedSchema,conns)
+    }catch(e){
+      console.error(e);
+      console.error(nodedef + ' nodedef not found')
+    }
   })
   def.marks.forEach((markdef)=>{
     let conns = marksConnections[markdef];
-    checkNodeMarkCon(mappedSchema,conns)
+    try{
+      checkNodeMarkCon(mappedSchema,conns)
+    }catch(e){
+      console.error(e);
+      console.error(markdef + ' markdef not found')
+    }
   })
   return mappedSchema;
 }
@@ -327,18 +330,18 @@ export let filterFieldsValues = (formIOJSON:any,submission:any,serviceShare:Serv
     allFormFieldsStings?allFormFieldsStings.forEach((formField)=>{
       let fieldKey = formField.match(/formControlName="([\S]*)"/);
       let menuType = formField.match(/menuType="([\S]*)"/)
-      let schemaType = formField.match(/schemaType="([\S]*)"/)
+      let allowedTags = formField.match(/allowedTags="([\S]*)"/)
       fieldKey?defsOnFieldsInHTML[fieldKey[1]] = {
         menuType:menuType?menuType[1]:undefined,
-        schemaType:schemaType?schemaType[1]:undefined
+        allowedTags:allowedTags?allowedTags[1]:undefined
       }:undefined
     }):undefined
   }
 
   Object.keys(submission.data).forEach((fieldKey)=>{
     let customDefsForField  = sectionMenusAndSchemasDefsfromJSONByfieldsTags[fieldKey] // only used when there is no shcema in the HTML template
-    if(!withDefsOnlyInFORMioSCHEMA&&defsOnFieldsInHTML[fieldKey]&&defsOnFieldsInHTML[fieldKey].schemaType){ // customDefsForField is ised from the html definitions if there is any
-      customDefsForField = {schema:defsOnFieldsInHTML[fieldKey].schemaType}
+    if(!withDefsOnlyInFORMioSCHEMA&&defsOnFieldsInHTML[fieldKey]&&defsOnFieldsInHTML[fieldKey].allowedTags){ // customDefsForField is ised from the html definitions if there is any
+      customDefsForField = {schema:defsOnFieldsInHTML[fieldKey].allowedTags}
     }
     if(customDefsForField&&customDefsForField.schema){
       let nodeSchema = serviceShare.ProsemirrorEditorsService.buildSchemaFromKeysDef(importantSchemaDefsForSection[customDefsForField.schema]);
@@ -434,23 +437,23 @@ export let parseSecFormIOJSONMenuAndSchemaDefs = (formIOJSON:any)=>{
       if(component.properties.menuType&&component.properties.menuType.length>0){
         sectionMenusAndSchemasDefsfromJSONByfieldsTags[component.key].menu = component.properties.menuType;
       }
-      if(component.properties.schemaType && component.properties.schemaType.includes('{')){
-        let schemaDefStrRaw = component.properties.schemaType
+      if(component.properties.allowedTags && component.properties.allowedTags.includes('{')){
+        let schemaDefStrRaw = component.properties.allowedTags
         let schemaDefStr = schemaDefStrRaw.replaceAll("'",'"');
-        let schematype
+        let allowedtags
         if(schemaDefStr.includes('{')){
-          let schematypeObjJson = '{"schemaType":'+schemaDefStr+'}';
-          schematype = JSON.parse(schematypeObjJson);
+          let allowedtagsObjJson = '{"allowedTags":'+schemaDefStr+'}';
+          allowedtags = JSON.parse(allowedtagsObjJson);
         }
-        if(typeof schematype.schemaType == 'object'){
-          let customSectiomSchemaDefKey = 'customSectionJSONSchemaType'+sectionSchemaDefsCount;
-          sectionMenusAndSchemaDefsFromJSON.schemas[customSectiomSchemaDefKey] = mapSchemaDef(schematype.schemaType);
-          component.properties.schemaType = customSectiomSchemaDefKey
+        if(typeof allowedtags.allowedTags == 'object'){
+          let customSectiomSchemaDefKey = 'customSectionJSONAllowedTags'+sectionSchemaDefsCount;
+          sectionMenusAndSchemaDefsFromJSON.schemas[customSectiomSchemaDefKey] = mapSchemaDef(allowedtags.allowedTags);
+          component.properties.allowedTags = customSectiomSchemaDefKey
           sectionSchemaDefsCount++
         }
       }
-      if(component.properties.schemaType&&component.properties.schemaType.length>0){
-        sectionMenusAndSchemasDefsfromJSONByfieldsTags[component.key].schema = component.properties.schemaType;
+      if(component.properties.allowedTags&&component.properties.allowedTags.length>0){
+        sectionMenusAndSchemasDefsfromJSONByfieldsTags[component.key].schema = component.properties.allowedTags;
       }
     }
   }
@@ -465,9 +468,9 @@ export let parseSecFormIOJSONMenuAndSchemaDefs = (formIOJSON:any)=>{
 export let parseSecHTMLMenuAndSchemaDefs = (html:string)=>{
   let newHTML = html
   let menuStringRegex = /menuType="(.*?)"/gm
-  let schemaStringRegex = /schemaType="(.*?)"/gm
+  let schemaStringRegex = /allowedTags="(.*?)"/gm
   let menuTypesStrings = []
-  let schemaTypesStrings = []
+  let allowedTagssStrings = []
   let lastMenuResult
   let lastScehmaResult
 
@@ -484,7 +487,7 @@ export let parseSecHTMLMenuAndSchemaDefs = (html:string)=>{
   do {
     lastScehmaResult = schemaStringRegex.exec(html);
     if (lastScehmaResult) {
-      schemaTypesStrings.push(lastScehmaResult);
+      allowedTagssStrings.push(lastScehmaResult);
     }
   } while (lastScehmaResult);
   let sectionMenuDefsCount = 0;
@@ -505,18 +508,18 @@ export let parseSecHTMLMenuAndSchemaDefs = (html:string)=>{
     }
   })
   let sectionSchemaDefsCount = 0
-  schemaTypesStrings.forEach((result)=>{
-    let schemaTypeStr = result[1].replaceAll("'",'"');
-    let schematype
-    if(schemaTypeStr.includes('[')){
-      let schematypeObjJson = '{"schemaType":'+schemaTypeStr+'}';
-      schematype = JSON.parse(schematypeObjJson);
+  allowedTagssStrings.forEach((result)=>{
+    let allowedTagsStr = result[1].replaceAll("'",'"');
+    let allowedtags
+    if(allowedTagsStr.includes('[')){
+      let allowedtagsObjJson = '{"allowedTags":'+allowedTagsStr+'}';
+      allowedtags = JSON.parse(allowedtagsObjJson);
     }else{
-      schematype = schemaTypeStr
+      allowedtags = allowedTagsStr
     }
-    if(typeof schematype.schemaType == 'object'){
-      let customSectiomSchemaDefKey = 'customSectionHTMLSchemaType'+sectionSchemaDefsCount;
-      sectionMenusAndSchemaHTMLDefs.schemas[customSectiomSchemaDefKey] = mapSchemaDef(schematype.schemaType);
+    if(typeof allowedtags.allowedTags == 'object'){
+      let customSectiomSchemaDefKey = 'customSectionHTMLAllowedTags'+sectionSchemaDefsCount;
+      sectionMenusAndSchemaHTMLDefs.schemas[customSectiomSchemaDefKey] = mapSchemaDef(allowedtags.allowedTags);
       newHTML = newHTML.replace(result[1],customSectiomSchemaDefKey);
       sectionSchemaDefsCount++
     }
@@ -598,4 +601,91 @@ let ad ={
       ]
     }
   }
+}
+
+let all_Menus = ['addMathInlineMenuItem','addMathBlockMenuItem','insertSupplementaryFile','insertEndNote','toggleStrong','insertTable','toggleEm','toggleCode','insertImage','wrapBulletList','wrapOrderedList','wrapBlockQuote','makeParagraph','makeCodeBlock','headings','insertPageBreak','insertHorizontalRule','insertSupplementaryFile','undoItem','redoItem','undoItemPM','redoItemPM','insertEndNote','toggleSuperscriptItem','toggleSubscriptItem','insertLink','setAlignLeft','setAlignCenter','setAlignRight','citateReference','insertVideoItem','selectParentNodeItem','tableMenu','alignMenu','addAnchorTagMenuItem','insertSpecialSymbol','getLinkMenuItem','starMenuItem','highLightMenuItem','footnoteMenuItem','spellCheckMenuItem','toggleUnderline','logNodesMenuItem','insertFigure']
+let all_Nodes = ['citable-tables','citable-figures','tables','image','video','inline_block_container','reference-citation','blockquote','horizontal_rule','headings','code_block','hard_break','page_break','math_inline','math_display','bullet_list','ordered_list']
+let all_Marks = ['subscript','superscript','comment','link','em','strong','code','anchorTag','underline']
+
+let all_tags_schema = {
+  'nodes':['citable-tables','citable-figures','tables','image','video','inline_block_container','reference-citation','blockquote','horizontal_rule','headings','code_block','hard_break','page_break','math_inline','math_display','bullet_list','ordered_list'],
+  'marks':['subscript','superscript','comment','link','em','strong','code','anchorTag','underline']
+}
+let AllMenuItems = [
+  "addMathInlineMenuItem",
+  "addMathBlockMenuItem",
+  "insertSupplementaryFile",
+  "insertEndNote",
+  "toggleStrong",
+  "insertTable",
+  "toggleEm",
+  "toggleCode",
+  "insertImage",
+  "wrapBulletList",
+  "wrapOrderedList",
+  "wrapBlockQuote",
+  "makeParagraph",
+  "makeCodeBlock",
+  "headings",
+  "insertPageBreak",
+  "insertHorizontalRule",
+  "insertSupplementaryFile",
+  "undoItem",
+  "redoItem",
+  "undoItemPM",
+  "redoItemPM",
+  "insertEndNote",
+  "toggleSuperscriptItem",
+  "toggleSubscriptItem",
+  "insertLink",
+  "setAlignLeft",
+  "setAlignCenter",
+  "setAlignRight",
+  "citateReference",
+  "insertVideoItem",
+  "selectParentNodeItem",
+  "tableMenu",
+  "alignMenu",
+  "addAnchorTagMenuItem",
+  "insertSpecialSymbol",
+  "getLinkMenuItem",
+  "starMenuItem",
+  "highLightMenuItem",
+  "footnoteMenuItem",
+  "spellCheckMenuItem",
+  "toggleUnderline",
+  "logNodesMenuItem",
+  "insertFigure"
+]
+let AllTagsSchema = {
+  "nodes":[
+     "citable-tables",
+     "citable-figures",
+     "tables",
+     "image",
+     "video",
+     "inline_block_container",
+     "reference-citation",
+     "blockquote",
+     "horizontal_rule",
+     "headings",
+     "code_block",
+     "hard_break",
+     "page_break",
+     "math_inline",
+     "math_display",
+     "bullet_list",
+     "ordered_list"
+  ],
+  "marks":[
+     "subscript",
+     "superscript",
+     "comment",
+     "link",
+     "em",
+     "strong",
+     "code",
+     "anchorTag",
+     "underline"
+  ]
 }

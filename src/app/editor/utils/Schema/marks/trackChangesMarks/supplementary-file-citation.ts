@@ -4,7 +4,7 @@ const supplementary_file_citation = {
     inline: true,
     inclusive: false,
     attrs: {
-      citated_elements: { default: [] },
+      citated_elements: { default: [''] },
       nonexistingelement:{ default:'false' },
       citateid: { default: '' },
       last_time_updated: { default: '' },

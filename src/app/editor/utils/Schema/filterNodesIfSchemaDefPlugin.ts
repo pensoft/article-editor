@@ -53,16 +53,54 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
       return {nodeSchemaParser,nodeSchemaSerializer}
     }
 
+    /* function removeStyling(slice:Slice){
+      let dom = FullSchemaDOMPMSerializer.serializeFragment(slice.content);
+      let container = document.createElement('div');
+      container.style.whiteSpace = 'pre-wrap'
+      let container1 = document.createElement('div');
+      container1.style.whiteSpace = 'pre-wrap'
+
+      if(dom instanceof DocumentFragment){
+        container.append(...Array.from(dom.children))
+      }else{
+        container.append(dom);
+      }
+      let htmlWithNoStyle = container.innerHTML.replace(/ /gm,'&nbsp;')
+      htmlWithNoStyle = htmlWithNoStyle.replace(/style="[^"]+"/gm,'style=""');
+      htmlWithNoStyle = htmlWithNoStyle.replace(/class="[^"]+"/gm,'class=""');
+      container1.innerHTML = "<form-field>"+htmlWithNoStyle+"</form-field>"
+      let newSlice = FullSchemaDOMPMParser.parse(container1);
+      //@ts-ignore
+      slice.content = newSlice.content.content[0].content
+    } */
+
     let getFilteredSlice = (slice:Slice,editorSchemaDEFKey,sectionID:string) => {
-      let pastedSliceDOM = FullSchemaDOMPMSerializer.serializeFragment(slice.content);
+      let pastedSliceDOMInitial = FullSchemaDOMPMSerializer.serializeFragment(slice.content);
+      let container = document.createElement('div');
+      if(pastedSliceDOMInitial instanceof HTMLElement){
+        container.append(pastedSliceDOMInitial)
+      }else if(pastedSliceDOMInitial instanceof DocumentFragment){
+        container.append(...Array.from(pastedSliceDOMInitial.childNodes));
+      }
+      let pastedDomHTMLStr = container.innerHTML;
+      //let htmlWithNoStyle = pastedDomHTMLStr.replace(/ /gm,'&nbsp;')
+      let htmlWithNoStyle = pastedDomHTMLStr.replace(/style="[^"]+"/gm,'style=""');
+      htmlWithNoStyle = htmlWithNoStyle.replace(/class="[^"]+"/gm,'class=""');
+      htmlWithNoStyle.match(/>[^<]+</gm).forEach((val)=>{
+        htmlWithNoStyle = htmlWithNoStyle.replace(val,val.replace(/ /gm,'&nbsp;'));
+      })
+      let newDocFr = document.createDocumentFragment();
+      let container1= document.createElement('div');
+
+      container1.innerHTML = htmlWithNoStyle;
+      newDocFr.append(...Array.from(container1.childNodes));
       //@ts-ignore
       let {nodeSchemaParser,nodeSchemaSerializer} = getDOMParserAndSerializerForSchema(editorSchemaDEFKey,sectionID);
 
-      let cleanedSlice = nodeSchemaParser.parseSlice(pastedSliceDOM)
+      let cleanedSlice = nodeSchemaParser.parseSlice(newDocFr)
       let srializedCleanStruct = nodeSchemaSerializer.serializeFragment(cleanedSlice.content);
 
       let newSlice = FullSchemaDOMPMParser.parseSlice(srializedCleanStruct)
-
       return newSlice
     }
 
@@ -74,18 +112,18 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
           if(view.editorType == 'editorWithCustomSchema'){
             let { from, to } = view.state.selection
             let editorSchemaDEFKey
-            let schemaTypeOnNode
+            let allowedTagsOnNode
             let lastFormControlName
             view.state.doc.nodesBetween(from, to, (node, pos, parent, index) => {
-              if (node.attrs.schemaType && node.attrs.schemaType !== '') {
-                schemaTypeOnNode = node.attrs.schemaType;
+              if (node.attrs.allowedTags && node.attrs.allowedTags !== '') {
+                allowedTagsOnNode = node.attrs.allowedTags;
               }
               if(node.attrs.formControlName&&node.attrs.formControlName.length>0){
                 lastFormControlName = node.attrs.formControlName;
               }
             })
             if(
-              !schemaTypeOnNode&&
+              !allowedTagsOnNode&&
               lastFormControlName&&
               //@ts-ignore
               view.globalMenusAndSchemasSectionsDefs[view.sectionID]&&
@@ -95,8 +133,8 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
               //@ts-ignore
               let formIOJSONDefs = view.globalMenusAndSchemasSectionsDefs[view.sectionID][lastFormControlName];
               editorSchemaDEFKey = formIOJSONDefs.schema
-            }else if(schemaTypeOnNode){
-              editorSchemaDEFKey = schemaTypeOnNode
+            }else if(allowedTagsOnNode){
+              editorSchemaDEFKey = allowedTagsOnNode
             }
             if(editorSchemaDEFKey){
               //@ts-ignore
@@ -112,12 +150,12 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
           // when changing the transaction meta["uiEvent"] == 'drop' should be added to the meta
           let posOfDrop = view.posAtCoords({left:event.x,top:event.y});
           //@ts-ignore
-          let closestSchemaType = getAttrValueIfAnyAtPos(view.state.doc.resolve(posOfDrop.pos),'schemaType')
+          let closestAllowedTags = getAttrValueIfAnyAtPos(view.state.doc.resolve(posOfDrop.pos),'allowedTags')
           let closestFormControlNameType = getAttrValueIfAnyAtPos(view.state.doc.resolve(posOfDrop.pos),'formControlName')
 
           let editorSchemaDEFKey
-          if(closestSchemaType){ // if there is a parent node with schematype attr then we use that one
-            editorSchemaDEFKey = closestSchemaType
+          if(closestAllowedTags){ // if there is a parent node with allowedtags attr then we use that one
+            editorSchemaDEFKey = closestAllowedTags
           }else if(closestFormControlNameType){
             //@ts-ignore
             let formIOJSONDefs = view.globalMenusAndSchemasSectionsDefs[view.sectionID][closestFormControlNameType];
