@@ -359,7 +359,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
       elementCitation.ele('issue').txt(refData.issue + '')
     }
     if (refData.URL) {
-      elementCitation.ele('ext-link', {'xlink:href': refData.URL}).txt(refData.URL + '')
+      elementCitation.ele('ext-link', {'xlink:href': refData.URL,"ext-link-type":"uri"}).txt(refData.URL + '')
     }
     if (refData.page) {
       elementCitation.ele('page-range').txt(refData.page + '')
@@ -875,6 +875,12 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
 
 let processPmMarkAsXML = (node: any, xmlPar: XMLBuilder, before: string) => {
   let xmlParent = xmlPar
+  if((node.marks as any[]).some((mark)=>
+    ["citation","table_citation","supplementary_file_citation","end_note_citation"].includes(mark.type)&&
+    (mark.attrs.nonexistingelement == "true"||mark.attrs.nonexistingelement == true)
+  )){
+    return
+  }
   node.marks.forEach((mark, i: number) => {
     if (mark.type == 'citation') {
       let citatedFigs = mark.attrs.citated_elements.map((fig: string) => fig.split('|')[0]);

@@ -1010,14 +1010,14 @@ export class ProsemirrorEditorsService {
       labelTag.textContent = componentLabel
       EditorContainer.appendChild(labelTag);
     }
-    let schemaType = ''
-    if(options.schemaType && options.schemaType.length>0 ){
-      schemaType = options.schemaType
+    let allowedTags = ''
+    if(options.allowedTags && options.allowedTags.length>0 ){
+      allowedTags = options.allowedTags
     }
     if (!nodesArray || nodesArray.size == 0) {
-      doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({schemaType}, editorSchema.nodes.paragraph.create({})))
+      doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({allowedTags}, editorSchema.nodes.paragraph.create({})))
     } else {
-      doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({schemaType}, nodesArray.content))
+      doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({allowedTags}, nodesArray.content))
     }
     if(options.rawNodeContent){
       doc = editorSchema.nodes.doc.create({},nodesArray.content);

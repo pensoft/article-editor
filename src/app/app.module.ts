@@ -1,4 +1,4 @@
-import {HTTP_INTERCEPTORS, HttpClientModule, HttpClientJsonpModule, HttpClient} from '@angular/common/http';
+import {HTTP_INTERCEPTORS, HttpClientModule, HttpClientJsonpModule, HttpClient, HttpRequest, HttpHandler, HttpEvent} from '@angular/common/http';
 import {Compiler, CompilerFactory, COMPILER_OPTIONS, Injector, NgModule, APP_INITIALIZER} from '@angular/core';
 import {BrowserModule} from '@angular/platform-browser';
 import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
@@ -155,6 +155,23 @@ import { AddEndNoteComponent } from './editor/dialogs/end-notes/add-end-note/add
 import { EndNoteComponent } from './editor/dialogs/end-notes/end-note/end-note.component';
 import { InsertEndNoteComponent } from './editor/dialogs/end-notes/insert-end-note/insert-end-note.component';
 import { JatsErrorsDialogComponent } from './editor/dialogs/jats-errors-dialog/jats-errors-dialog.component';
+import {EchoInterceptor} from 'ngx-laravel-echo';
+import { Observable } from 'rxjs';
+
+//@ts-ignore
+EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE,'event-dispatcher']
+
+EchoInterceptor.prototype.intercept = function(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+
+  const socketId = this.echoService.socketId;
+  /* console.log(this.routesToIntercept.some(x => req.url.includes(x)),req.url);
+  console.log(this.routesToIntercept); */
+  if (this.routesToIntercept.some(x => req.url.includes(x))&&this.echoService.connected && socketId) {
+    req = req.clone({headers: req.headers.append('X-Socket-ID', socketId)});
+  }
+
+  return next.handle(req);
+}
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();

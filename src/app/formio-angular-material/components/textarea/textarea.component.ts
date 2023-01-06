@@ -202,7 +202,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       Object.keys(componentProps).forEach((key) => {
         if(key == "menuType"/* &&!options[key] */){
           //options[key] = componentProps[key]
-        }else if(key == "schemaType"/* &&!options[key] */){
+        }else if(key == "allowedTags"/* &&!options[key] */){
           //options[key] = componentProps[key]
         }else{
           options[key] = componentProps[key]

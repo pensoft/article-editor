@@ -67,7 +67,7 @@ export class FormBuilderService {
             if(key == "menuType"){
             //@ts-ignore
               //component["properties"][key] = form.componentProps[key]
-            }else if(key == "schemaType"){
+            }else if(key == "allowedTags"){
             //@ts-ignore
               //component["properties"][key] = form.componentProps[key]
             }else{
