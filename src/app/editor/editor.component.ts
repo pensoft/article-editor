@@ -310,7 +310,8 @@ export class EditorComponent implements OnInit, AfterViewInit {
     ); // set prosemirror editors to not be editable while in movile mod
   }
 
-  ngAfterViewInit(): void {}
+  ngAfterViewInit(): void {
+  }
 
   turnOnOffTrachChanges(bool?: boolean) {
     if (bool) {

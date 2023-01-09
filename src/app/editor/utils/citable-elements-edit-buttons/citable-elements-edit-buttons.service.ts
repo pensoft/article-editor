@@ -92,7 +92,12 @@ export class CitableElementsEditButtonsService {
     editElementFnc:()=>{},
     deleteElementFnc:()=>{},
   }
-
+  ctableElementButtonsClasses = [
+    'move-citable-item-up-button',
+    'move-citable-item-down-button',
+    'edit-citable-item-button',
+    'delete-citable-item-button',
+  ]
   generateEditButtons(){
     // move up button
     let moveUpButton = document.createElement('button')
@@ -211,6 +216,13 @@ export class CitableElementsEditButtonsService {
         },
       },
       props: {
+        handleDOMEvents:{
+          'blur':(view,event)=>{
+            if(event.relatedTarget && event.relatedTarget instanceof HTMLButtonElement && this.ctableElementButtonsClasses.includes(event.relatedTarget.className)){
+              event.relatedTarget.click();
+            }
+          }
+        },
         decorations:(state: EditorState) => {
           let pluginState = this.citableElementsEditButtonsPluginKey.getState(state);
           let focusedEditor = serviceShare.DetectFocusService.sectionName

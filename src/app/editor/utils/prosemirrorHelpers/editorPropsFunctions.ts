@@ -174,7 +174,7 @@ export function selectWholeCitatMarksAndRefCitatNode(view: EditorView, anchor: R
   }
 }
 
-export function handleClick(hideshowPluginKEey: PluginKey, citatContextPluginkey?: PluginKey) {
+export function handleClick() {
   return (view: EditorView, pos: number, event: Event) => {
     //@ts-ignore
       if(event.detail == 1){
@@ -187,16 +187,6 @@ export function handleClick(hideshowPluginKEey: PluginKey, citatContextPluginkey
         view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup', true))
       }, 0)
       return true
-    } else if (((event.target as HTMLElement).className == 'citat-menu-context') || (event.target as HTMLElement).tagName == 'CITATION') {
-      return true
-    } else if ((event.target as HTMLElement).className == 'citat-menu-context-delete-citat-btn') {
-      setTimeout(() => { view.dispatch(view.state.tr.setMeta('addToLastHistoryGroup', true)) }, 0)
-      return true
-    }
-    if (citatContextPluginkey) {
-      let tr1 = view.state.tr.setMeta(hideshowPluginKEey, {})
-      tr1 = tr1.setMeta('citatContextPlugin', { clickOutside: true }).setMeta('addToLastHistoryGroup', true)
-      view.dispatch(tr1)
     }
     return false
   }

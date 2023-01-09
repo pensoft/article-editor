@@ -263,7 +263,7 @@ export class CitatContextMenuService {
       },
       props: {
         decorations(state) {
-          return key.getState(state).decorations || DecorationSet.empty;
+          return /* key.getState(state).decorations || */ DecorationSet.empty;
         }
       },
       view: function () {
