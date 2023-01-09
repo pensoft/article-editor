@@ -369,7 +369,7 @@ export let elementOnWhichClickShouldNoteBeHandled = [
   'update-data-reference-button',
   'move-citable-item-up-button',
   'move-citable-item-down-button',
-  'edit-citable-item-button',
+  /* 'edit-citable-item-button', */
   'delete-citable-item-button',
   'reference-citation-pm-buttons',
   'update-data-reference-img',
@@ -382,8 +382,7 @@ export let elementOnWhichClickShouldNoteBeHandled = [
 ]
 
 //handle right click on citats
-export const handleClickOn = (citatContextPluginKey: PluginKey) => {
-
+export const handleClickOn = () => {
   return (view: EditorView, pos: number, node: Node, nodePos: number, e: MouseEvent, direct: boolean) => {
     if(
       e.target &&
@@ -392,27 +391,6 @@ export const handleClickOn = (citatContextPluginKey: PluginKey) => {
       e.target.className.split(' ').some((cls)=>elementOnWhichClickShouldNoteBeHandled.includes(cls))
       ){
       return true;
-    }
-    if (node.marks.filter((mark) => { return (mark.type.name == 'citation'||mark.type.name == 'table_citation') }).length > 0 &&
-      (("which" in e && e.which == 3) ||
-        ("button" in e && e.button == 2)
-      )) {
-      let cursurCoord = view.coordsAtPos(pos);
-      e.preventDefault();
-      e.stopPropagation();
-      setTimeout(() => {
-        view.dispatch(view.state.tr.setMeta('citatContextPlugin', {
-          clickPos: pos,
-          citatPos: nodePos,
-          clickEvent: e,
-          focus: view.hasFocus(),
-          direct,
-          coords: cursurCoord
-        }).setMeta('addToLastHistoryGroup', true))
-      }, 0)
-      return true
-    } else if (citatContextPluginKey.getState(view.state)&&citatContextPluginKey.getState(view.state).decorations !== undefined) {
-      return false
     } else {
       return false
     }

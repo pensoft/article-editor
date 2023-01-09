@@ -13,6 +13,7 @@ import { E } from '@angular/cdk/keycodes';
 import { schema } from '../utils/Schema';
 import { endNote } from '../utils/interfaces/endNotes';
 
+
 export interface citations {
   [key: string]: { // section keys
     [key: string]: { // citations in section
@@ -47,6 +48,11 @@ export let citationElementMap = {
     elementNumbersObj: 'supplementaryFilesNumbers',
     templatesObj: 'supplementaryFilesTemplates',
     containerNodeName: 'supplementary_files_nodes_container',
+    contextMenuTxt:'supplementary file',
+    contextMenuBoxWidth:'230px',
+    contextMenuArrowPosition:{
+      topright:{left:'208px'}
+    },
     singleElTxt: ' Suppl. material ',
     multipleElTxt: ' Suppl. materials ',
     deletedElTxt: ' Cited item deleted ',
@@ -95,8 +101,15 @@ export let citationElementMap = {
     elementNumbersObj: 'ArticleTablesNumbers',
     templatesObj: 'tablesTemplates',
     containerNodeName: 'tables_nodes_container',
+    contextMenuBoxWidth:'160px',
+    contextMenuArrowPosition:{
+      topright:{left:'143px'}
+    },
     singleElTxt: ' Table ',
+    contextMenuTxt:'tables',
     multipleElTxt: ' Tables. ',
+
+
     deletedElTxt: ' Cited item deleted ',
     getElsStrings: function (elementData) {
       let elStrings = '';
@@ -139,6 +152,11 @@ export let citationElementMap = {
     elementNumberProp : 'figureNumber',
     elementNumbersObj: 'ArticleFiguresNumbers',
     templatesObj: 'figuresTemplates',
+    contextMenuTxt:'figures',
+    contextMenuArrowPosition:{
+      topright:{left:'143px'}
+    },
+    contextMenuBoxWidth:'160px',
     singleElTxt: ' Fig. ',
     multipleElTxt: ' Figs. ',
     deletedElTxt: ' Cited item deleted ',
@@ -186,9 +204,14 @@ export let citationElementMap = {
     type: 'end-note',
     yjsMap: 'endNotesMap',
     elementsObj: 'endNotes',
+    contextMenuArrowPosition:{
+      topright:{left:'162px'}
+    },
     elementNumberProp : 'end_note_number',
     elementNumbersObj: 'endNotesNumbers',
     templatesObj: 'endNotesTemplates',
+    contextMenuTxt:'end notes',
+    contextMenuBoxWidth:'180px',
     containerNodeName: 'end_notes_nodes_container',
     singleElTxt: '*',
     multipleElTxt: '*',
@@ -305,7 +328,6 @@ export class CitableElementsService {
                       let citateNodeText = elementMaping.deletedElTxt;
                       let newNode = (edView.state.schema as Schema).text(citateNodeText) as Node
                       newNode = newNode.mark([edView.state.schema.mark(citationMark.type.name, { ...citationMark.attrs, nonexistingelement: 'true' })])
-                      console.log('update citat text');
                       edView.dispatch(edView.state.tr.replaceWith(pos,
                         pos + node.nodeSize
                         , newNode).setMeta('citatsTextChange', true)

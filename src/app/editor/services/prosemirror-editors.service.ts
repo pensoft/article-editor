@@ -702,7 +702,7 @@ export class ProsemirrorEditorsService {
       },
       handleDOMEvents: {
         contextmenu: (view, event) => {
-          let state = view.state;
+          /* let state = view.state;
           let sel = state.selection
           state.doc.nodesBetween(sel.from, sel.to, (node, pos, parent, index) => {
             if (!this.previewArticleMode.mode && node.marks.length > 0 && (
@@ -728,14 +728,14 @@ export class ProsemirrorEditorsService {
             event.preventDefault();
             event.stopPropagation();
             return true
-          }
+          } */
           return false
         }
       },
       dispatchTransaction,
       handlePaste: handlePaste(this.serviceShare),
-      handleClick: handleClick(hideshowPluginKEey, this.citatContextPluginService.citatContextPluginKey),
-      handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
+      handleClick: handleClick(),
+      handleClickOn: handleClickOn(),
       handleTripleClickOn,
       handleScrollToSelection: handleScrollToSelection(this.editorContainers, section),
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
@@ -954,8 +954,8 @@ export class ProsemirrorEditorsService {
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,
-      handleClick: handleClick(hideshowPluginKEey, this.citatContextPluginService.citatContextPluginKey),
-      handleClickOn: handleClickOn(this.citatContextPluginService.citatContextPluginKey),
+      handleClick: handleClick(),
+      handleClickOn: handleClickOn(),
       handlePaste: handlePaste(this.serviceShare),
       handleTripleClickOn,
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
@@ -1199,7 +1199,7 @@ export class ProsemirrorEditorsService {
         // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
       },
       dispatchTransaction,
-      handleClick: handleClick(hideshowPluginKEey),
+      handleClick: handleClick(),
       handlePaste: handlePaste(this.serviceShare),
       handleTripleClickOn,
       handleDoubleClick:
