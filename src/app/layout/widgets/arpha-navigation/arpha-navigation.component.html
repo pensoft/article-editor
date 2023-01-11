@@ -10,10 +10,11 @@
     </a>
     <div class="add-article-navigation">
       <button mat-button *ngIf="
+      !this.router.routerState.snapshot.url.endsWith('dashboard')&&(
       enforcer.newBeahviorSubject| hasPermission:
       '/layouts':
       'POST' |
-      async" (click)="openchooseDialog()" class="btn-start-new-project">
+      async)" (click)="openchooseDialog()" class="btn-start-new-project">
         <mat-icon svgIcon="dasboardNewProject" class="icon-plus"></mat-icon>Start new project
       </button>
     </div>

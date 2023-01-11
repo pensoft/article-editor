@@ -246,9 +246,6 @@ export const preventDragDropCutOnNoneditablenodes = (figuresMap: YMap<any>,mathM
 
   return (transaction: Transaction, state: EditorState) => {
     try {
-      if (sectionID == 'endEditor') {
-        return true
-      }
       let figures = figuresMap.get('ArticleFigures');
       let figuresCitats = figuresMap.get('articleCitatsObj');
       let figuresTemplates = figuresMap!.get('figuresTemplates');

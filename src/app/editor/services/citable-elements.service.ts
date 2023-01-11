@@ -75,7 +75,7 @@ export let citationElementMap = {
       return serializedSupplementaryFileToFormIOsubmission;
     },
     getEndEditorPrefixNodes:function():Node[]{
-      return [schema.nodes.heading.create({},schema.nodes.paragraph.create({},schema.text('Supplementary materials:')))];
+      return [schema.nodes.heading.create({'contenteditableNode':false},schema.nodes.paragraph.create({'contenteditableNode':false},schema.text('Supplementary materials:')))];
     },
     buildElementFormGroup: function (submision: any): FormGroup {
       let supplementaryFileFormGroup = new FormGroup({})
@@ -240,7 +240,7 @@ export let citationElementMap = {
       return serializedEndNoteToFormIOsubmission;
     },
     getEndEditorPrefixNodes:function():Node[]{
-      return [schema.nodes.heading.create({},schema.nodes.paragraph.create({},schema.text('Endnotes:')))];
+      return [schema.nodes.heading.create({'contenteditableNode':false},schema.nodes.paragraph.create({'contenteditableNode':false},schema.text('Endnotes:')))];
     },
     buildElementFormGroup: function (submision: any): FormGroup {
       let endNoteFormGroup = new FormGroup({})

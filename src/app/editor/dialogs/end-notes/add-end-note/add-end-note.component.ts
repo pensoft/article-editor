@@ -27,7 +27,7 @@ import { endNote } from '@app/editor/utils/interfaces/endNotes';
 let endNoteHtmlTemplate = `
 <block-end-note [attr.end_note_number]="data.end_note_number" [attr.end_note_id]="data.end_note_ID">
   <end-note *ngIf="data.endNote">
-    <p style="display: inline;">
+    <p style="display: inline;" contenteditablenode="false">
       <strong><sup>
         *{{data.end_note_number+1}}&nbsp;&nbsp;&nbsp;&nbsp;
       </sup></strong>
@@ -75,7 +75,6 @@ export class AddEndNoteComponent implements AfterViewInit,AfterViewChecked {
     try {
       let endNotesInitialFormIOJson = this.ydocService.endNotesMap!.get('endNotesInitialFormIOJson');
       if(endNotesInitialFormIOJson){
-        console.log('using end note formio json from config',endNotesInitialFormIOJson);
         this.sectionContent = JSON.parse(JSON.stringify(endNotesInitialFormIOJson))
       }
       this.endNoteID = this.data.endNoteID || uuidv4();
@@ -146,9 +145,6 @@ export class AddEndNoteComponent implements AfterViewInit,AfterViewChecked {
 
       let currEndNoteTemplate
       if (!this.endNotesTemplatesObj[endNoteID]) {
-        if(endNotesInitialTemplate){
-          console.log('using end note html template from config',endNotesInitialTemplate);
-        }
         this.endNotesTemplatesObj[endNoteID] = { html: endNotesInitialTemplate?endNotesInitialTemplate:endNoteHtmlTemplate }
         currEndNoteTemplate = this.endNotesTemplatesObj[endNoteID]
       } else {

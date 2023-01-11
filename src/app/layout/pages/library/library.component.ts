@@ -1,18 +1,12 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { basicJournalArticleData, jsonSchemaForCSL, possibleReferenceTypes, exampleCitation, lang as langData, reference, formioAuthorsDataGrid, formIOTextFieldTemplate } from './data/data';
+import {  possibleReferenceTypes,  lang as langData, reference } from './data/data';
 import { ReferenceEditComponent } from './reference-edit/reference-edit.component';
 
-import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDrawer } from '@angular/material/sidenav';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-import { uuidv4 } from 'lib0/random';
-import { I } from '@angular/cdk/keycodes';
 import { CslService } from './lib-service/csl.service';
-import { BehaviorSubject, Subscriber, Subscription } from 'rxjs';
-import { HttpClient } from '@angular/common/http';
+import { BehaviorSubject } from 'rxjs';
 import { RefsApiService } from './lib-service/refs-api.service';
-import { styles, styles1 } from './data/styles';
 import { genereteNewReference } from './lib-service/refs-funcs';
 import { EnforcerService } from '@app/casbin/services/enforcer.service';
 import { HasPermissionPipe } from '@app/casbin/permission-pipe/has-permission.pipe';
@@ -36,7 +30,7 @@ export class LibraryPage implements AfterViewInit {
     public enforcer: EnforcerService,
     public permissionPipe: HasPermissionPipe
   ) {
-
+    this.serviceShare.ProsemirrorEditorsService.spinSpinner()
   }
   possibleReferenceTypes: any[] = possibleReferenceTypes
 
@@ -138,42 +132,13 @@ export class LibraryPage implements AfterViewInit {
     return this.cslService.addReference(newRef, refType, refStyle, formioData, oldRef, globally)
   }
 
-  /* updateScheme(ref:any){
-    let newRef = JSON.parse(JSON.stringify(ref));
-    newRef.refType.last_modified = (new Date()).getTime();
-    this.refsAPI.editReference(newRef,true).subscribe((res)=>{
-      this.userReferences = undefined;
-      this.changeDetection.detectChanges();
-      this.refsAPI.getReferences().subscribe((refs:any)=>{
-        this.userReferences = refs.data
-        this.changeDetection.detectChanges();
-      })
-    })
-  } */
-
-  /* updateStyle(ref:any){
-    let newRef = JSON.parse(JSON.stringify(ref));
-    newRef.refStyle.last_modified = (new Date()).getTime();
-    let styleName = newRef.refStyle.name;
-    styles1[styleName] = styles[Object.keys(styles)[Math.floor((Math.random()*Object.keys(styles).length))]]
-    this.refsAPI.editReference(newRef,true).subscribe((res)=>{
-      this.userReferences = undefined;
-      this.changeDetection.detectChanges();
-      this.refsAPI.getReferences().subscribe((refs:any)=>{
-        this.userReferences = refs.data
-        this.changeDetection.detectChanges();
-      })
-    })
-  } */
-
-
-
   ngAfterViewInit(): void {
     this.refsAPI.getReferences().subscribe((refs: any) => {
       this.shouldRender = true;
       // this.userReferences = refs.data;
       this.messageSource.next(refs.data);
       this.changeDetection.detectChanges();
+      this.serviceShare.ProsemirrorEditorsService.stopSpinner()
     })
   }
 }

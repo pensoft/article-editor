@@ -57,7 +57,10 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
     private prosemirrorEditorsService: ProsemirrorEditorsService,
     private serviceShare: ServiceShare,
     private chDetectionRef:ChangeDetectorRef
-  ) { }
+  ) {
+    this.prosemirrorEditorsService.spinSpinner()
+
+  }
 
   ngAfterViewChecked(): void {
     this.chDetectionRef.detectChanges()
@@ -191,6 +194,9 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
         } */
         this.data = dataToDisplay
         this.resultsLength = itemsCount;
+        if(this.prosemirrorEditorsService.spinning){
+          this.prosemirrorEditorsService.stopSpinner();
+        }
       });
       if(this.serviceShare.shouldOpenNewArticleDialog){
         this.openchooseDialog();

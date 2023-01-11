@@ -101,6 +101,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     private changeDetection: ChangeDetectorRef,
     private referencePluginService:ReferencePluginService
   ) {
+    this.prosemirrorEditorServie.spinSpinner();
     this.previewMode = this.prosemirrorEditorServie.previewArticleMode
     this.titleControl.valueChanges
       .pipe(
