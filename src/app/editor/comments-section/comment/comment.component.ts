@@ -59,6 +59,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
   replyFormControl = new FormControl('');
   showAutoComplete =  false;
 
+
   constructor(
     public authService: AuthService,
     public ydocService: YdocService,
@@ -68,6 +69,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
     private sharedService: ServiceShare,
     private router:Router
   ) {
+
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
     this.router.onSameUrlNavigation = 'reload';
     if (this.ydocService.editorIsBuild) {
@@ -82,8 +84,14 @@ export class CommentComponent implements OnInit, AfterViewInit {
     this.mobileVersion = prosemirrorEditorService.mobileVersion
   }
 
+  currUserId
+
   ngOnInit(): void {
     this.userComment = this.commentsMap?.get(this.comment!.commentAttrs.id) || { initialComment: undefined, commentReplies: undefined };
+    this.authService.getUserInfo().subscribe((userInfo)=>{
+      //@ts-ignore
+      this.currUserId = userInfo.data.id
+    })
     this.prosemirrorEditorService.mobileVersionSubject.subscribe((data) => {
       // data == true => mobule version
       this.mobileVersion = data
@@ -307,7 +315,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
     let userComment = {
       id: userCommentId,
       comment: commentContent,
-      userData: this.prosemirrorEditorService.userInfo.data,
+      userData:  {...this.prosemirrorEditorService.userInfo.data,userColor:this.prosemirrorEditorService.userInfo.color.userColor},
       date: commentDate
     }
     commentData.commentReplies.push(userComment);

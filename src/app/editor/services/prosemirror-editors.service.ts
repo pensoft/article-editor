@@ -618,7 +618,8 @@ export class ProsemirrorEditorsService {
             {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
-              userColor: this.userInfo.color
+              userColor: this.userInfo.color.userColor,
+              userContrastColor: this.userInfo.color.userContrastColor
             }, lastContainingInsertionMark);
           if (editorView?.state.selection instanceof TextSelection && transaction.selectionSet) {
             let sel = editorView?.state.selection
@@ -920,7 +921,8 @@ export class ProsemirrorEditorsService {
             {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
-              userColor: this.userInfo.color
+              userColor: this.userInfo.color.userColor,
+              userContrastColor: this.userInfo.color.userContrastColor
             }, lastContainingInsertionMark);
           if (transaction.selection instanceof TextSelection) {
             let sel = transaction.selection
@@ -1166,7 +1168,8 @@ export class ProsemirrorEditorsService {
             {
               userId: this.userInfo.data.id,
               username: this.userInfo.data.name,
-              userColor: this.userInfo.color
+              userColor: this.userInfo.color.userColor,
+              userContrastColor: this.userInfo.color.userContrastColor
             }, lastContainingInsertionMark);
           if (editorView?.state.selection instanceof TextSelection && transaction.selectionSet) {
             let sel = editorView?.state.selection

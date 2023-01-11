@@ -8,6 +8,8 @@ const markInsertion = (tr, from, to, user, date, group, markId, connectedTo, ins
         username: user.username,
         style: ` `,
         id: markId,
+        userColor:user.userColor,
+        userContrastColor:user.userContrastColor,
         date: Date.now(),
         connectedTo,
         color: user.userColor

@@ -36,7 +36,11 @@ export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
     this.sub?this.sub.unsubscribe():undefined
   }
 
+  currUserId;
   ngOnInit(): void {
+    this.serviceShare.AuthService.getUserInfo().subscribe((userInfo)=>{
+      this.currUserId = userInfo.data.id
+    })
   }
 
   ngAfterViewInit(): void {

@@ -595,7 +595,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     let userComment = {
       id: userCommentId,
       comment: value,
-      userData: this.prosemirrorEditorsService.userInfo.data,
+      userData: {...this.prosemirrorEditorsService.userInfo.data,userColor:this.prosemirrorEditorsService.userInfo.color.userColor},
       date: commentDate
     }
     this.commentsMap!.set(commentId, { initialComment: userComment, commentReplies: [] });
@@ -608,7 +608,9 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
       date: commentDate,
       commentmarkid,
       userid: this.prosemirrorEditorsService.userInfo.data.id,
-      username: this.prosemirrorEditorsService.userInfo.data.name
+      username: this.prosemirrorEditorsService.userInfo.data.name,
+      userColor: this.prosemirrorEditorsService.userInfo.color.userColor,
+      userContrastColor: this.prosemirrorEditorsService.userInfo.color.userContrastColor,
     })(state!, dispatch);
     let sectionName = this.addCommentEditorId
     this.addCommentSubject!.next({ type: 'commentData', sectionName, showBox: false })

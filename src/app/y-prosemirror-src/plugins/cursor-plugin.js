@@ -29,11 +29,11 @@ export const defaultCursorBuilder = user => {
 export const CursorBuilder = userInfo => {
   const cursor = document.createElement('span')
   cursor.classList.add('ProseMirror-yjs-cursor')
-  cursor.setAttribute('style', `border-color: ${userInfo.color}`)
+  cursor.setAttribute('style', `border-color: ${userInfo.color.userColor}`)
   let userDiv = document.createElement('span')
   userDiv.classList.add('ProseMirror-yjs-cursor-inner-div')
 
-  userDiv.setAttribute('style', `background-color: ${userInfo.color}`)
+  userDiv.setAttribute('style', `background-color: ${userInfo.color.userColor};color:${userInfo.color.userContrastColor}`)
   userDiv.insertBefore(document.createTextNode(userInfo.data.name), null)
   cursor.insertBefore(userDiv, null)
   return cursor

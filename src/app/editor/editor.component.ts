@@ -130,7 +130,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     this.prosemirrorEditorServie.usersInArticleStatusSubject.subscribe((status:Map<any,any>)=>{
       let userInfo:any[] = []
       status.forEach((aw, clientId)=>{
-        userInfo.push({ususerInfoer:aw.userInfo,clientId})
+        userInfo.push({userInfo:aw.userInfo,clientId})
       })
       this.usersInArticle = userInfo
     })

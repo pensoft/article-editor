@@ -26,6 +26,7 @@ export interface userDataInComment {
   email_verified_at: string
   id: String
   name: string
+  userColor:string
   updated_at: string
 }
 
