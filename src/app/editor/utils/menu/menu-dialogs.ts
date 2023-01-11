@@ -37,7 +37,7 @@ let citateRef = (sharedService: ServiceShare) => {
     let dialogRef = sharedDialog.open(CitateReferenceDialogComponent,{
       panelClass: 'editor-dialog-container',
       width:'400px',
-      height:'511px',
+      height:'461px',
     })
     dialogRef.afterClosed().subscribe(result => {
       if(result){

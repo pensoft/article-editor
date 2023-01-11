@@ -20,7 +20,7 @@ export class ArphaNavigationComponent implements AfterViewInit {
   constructor(
     private treeService: TreeService,
     public authService: AuthService,
-    private router: Router,
+    public router: Router,
     private serviceShare:ServiceShare,
     public sharedDialog: MatDialog,
     public enforcer:EnforcerService,
@@ -40,6 +40,8 @@ export class ArphaNavigationComponent implements AfterViewInit {
     })
   }
   openchooseDialog() {
+    console.log(this.router);
+    this.serviceShare.ProsemirrorEditorsService.spinSpinner();
     this.router.navigate(['dashboard']);
     this.serviceShare.shouldOpenNewArticleDialog = true;
   }
@@ -49,6 +51,7 @@ export class ArphaNavigationComponent implements AfterViewInit {
 
 
   openDashBoard() {
+    this.serviceShare.ProsemirrorEditorsService.spinSpinner();
     this.router.navigate(['dashboard']);
   }
 

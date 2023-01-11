@@ -39,7 +39,7 @@ import { TableSizePickerComponent } from '@app/editor/utils/table-size-picker/ta
 
 let tablesHtmlTemplate = `
 <block-table [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.table_number]="data.tableNumber" [attr.table_id]="data.tableID">
-  <h3 tagname="h3" contenteditablenode="false">Table: {{data.tableNumber+1}}</h3>
+  <h3 tagname="h3" contenteditablenode="false"><p contenteditablenode="false">Table: {{data.tableNumber+1}}</p></h3>
   <table-header-container>
     <table-description *ngIf="data.tableHeader" formControlName="tableHeader" style="display:block;">
     </table-description>
@@ -87,7 +87,6 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
     try {
       let tableInitioalFormIOJSON = this.ydocService.tablesMap.get('tablesInitialFormIOJson')
       if(tableInitioalFormIOJSON){
-        console.log('using Table formIO json from config',tableInitioalFormIOJSON);
         this.sectionContent = JSON.parse(JSON.stringify(tableInitioalFormIOJSON));
       }
       this.tableID = this.data.tableID || uuidv4();
@@ -205,9 +204,6 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
       let initialTableTemplate = this.ydocService.tablesMap!.get('tablesInitialTemplate');
       let currFigTemplates
       if (!this.tablesTemplatesObj[tableID]) {
-        if(initialTableTemplate){
-          console.log('using table template from config',initialTableTemplate);
-        }
         this.tablesTemplatesObj[tableID] = { html: initialTableTemplate?initialTableTemplate:tablesHtmlTemplate }
         currFigTemplates = this.tablesTemplatesObj[tableID]
       } else {

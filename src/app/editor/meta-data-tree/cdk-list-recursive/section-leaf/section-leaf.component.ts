@@ -255,7 +255,8 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   }
 
   addNodeHandle(nodeId: string) {
-    this.treeService.addNodeChange(nodeId);
+    this.prosemirrorEditorsService.spinSpinner();
+    this.treeService.addNodeChange(nodeId,this.prosemirrorEditorsService.stopSpinner);
   }
 
   deleteNodeHandle(nodeId: string) {
@@ -329,6 +330,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   };
 
   addSectionToNode(node: articleSection, formGroup: FormGroup) {
+    this.prosemirrorEditorsService.spinSpinner()
     if (node.title.name === '[MM] Materials') {
       material.parent = node;
       const materialData = JSON.parse(JSON.stringify(material));
@@ -336,6 +338,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       materialData.active = true;
       materialData.defaultFormIOValues = {};
       let sectionContent = this.formBuilderService.populateDefaultValues({}, node.formIOSchema, node.sectionID, formGroup);
+      this.prosemirrorEditorsService.stopSpinner()
       this.dialog.open(EditSectionDialogComponent, {
         width: '95%',
         height: '90%',
@@ -350,10 +353,12 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     } else if (['[MM] Description', '[MM] Diagnosis', '[MM] Distribution', '[MM] Ecology', '[MM] Conservation', '[MM] Biology', '[MM] Taxon discussion', '[MM] Notes', '[MM] Custom'].indexOf(node.title.name) > -1) {
       const treatmentSectionsSubsectionData = JSON.parse(JSON.stringify(treatmentSectionsSubsection));
       treatmentSectionsSubsectionData.parent = node;
+      this.prosemirrorEditorsService.stopSpinner()
       this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, treatmentSectionsSubsectionData, 'end');
     } else if ('[MM] Treatment sections' === node.title.name) {
       const treatmentSectionsCustomData = JSON.parse(JSON.stringify(treatmentSectionsCustom));
       treatmentSectionsCustomData.parent = node;
+      this.prosemirrorEditorsService.stopSpinner()
       this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, treatmentSectionsCustom, 'end');
     } else {
       taxonSection.parent = node;
@@ -367,8 +372,8 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
           let elementLevel = countSectionFromBackendLevel(el)
           return (elementLevel + sectionlevel < 3);
         });
-
-        sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates, node, node.children)
+        sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates, node, node.children);
+        this.prosemirrorEditorsService.stopSpinner()
         if(sectionTemplates && sectionTemplates.length === 1) {
           sectionTemplates[0].parent = node;
           this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, sectionTemplates[0], 0)

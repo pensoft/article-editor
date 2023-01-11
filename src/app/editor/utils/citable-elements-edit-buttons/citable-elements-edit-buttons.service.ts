@@ -102,6 +102,7 @@ export class CitableElementsEditButtonsService {
     // move up button
     let moveUpButton = document.createElement('button')
     moveUpButton.className = 'move-citable-item-up-button';
+    moveUpButton.setAttribute('tabindex',"-1")
     moveUpButton.style.cursor = 'pointer'
     moveUpButton.title = 'Move item up.'
     let moveUpImg = createCustomIcon('arrow_up.svg', 12, 12, 0, 1.5, 1.3)
@@ -116,6 +117,7 @@ export class CitableElementsEditButtonsService {
     // move up button
     let moveDownButton = document.createElement('button')
     moveDownButton.className = 'move-citable-item-down-button';
+    moveDownButton.setAttribute('tabindex',"-1")
     moveDownButton.style.cursor = 'pointer'
     moveDownButton.title = 'Move item down.'
     let moveDownImg = createCustomIcon('arrow_down.svg', 12, 12, 0, 1.5, 1.3)
@@ -130,6 +132,7 @@ export class CitableElementsEditButtonsService {
     // move up button
     let editButton = document.createElement('button')
     editButton.className = 'edit-citable-item-button';
+    editButton.setAttribute('tabindex',"-1")
     editButton.style.cursor = 'pointer'
     editButton.title = 'Edit item.'
     let editImg = createCustomIcon('edit2.svg', 12, 12, 0, 1.5, 1.3)
@@ -144,6 +147,7 @@ export class CitableElementsEditButtonsService {
     // move up button
     let deleteButton = document.createElement('button')
     deleteButton.className = 'delete-citable-item-button';
+    deleteButton.setAttribute('tabindex',"-1")
     deleteButton.style.cursor = 'pointer'
     deleteButton.title = 'Delete item.'
     let deleteImg = createCustomIcon('delete_forever.svg', 12, 12, 0, 1.5, 1.3)
@@ -294,6 +298,8 @@ export class CitableElementsEditButtonsService {
           html.setAttribute('style', `position:absolute;
           pointer-events:all;
           top:${top}px;left:${left}px`)
+          html.setAttribute('tabindex',"-1")
+
 
           return  DecorationSet.create(state.doc,[Decoration.widget(elPos, (view) => {
             return html

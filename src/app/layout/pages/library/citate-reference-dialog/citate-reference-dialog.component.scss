@@ -1,12 +1,14 @@
-::ng-deep .select-ref-form-field {
-  display: block;
-  .mat-form-field-label-wrapper {
-    transform: translate(-20px, -9px) !important;
-  }
+.title{
+  margin-bottom: 10px;
 }
 
 .table-row {
   cursor: pointer;
+}
+
+.search-container{
+  width: 100%;
+  height: 100%;
 }
 
 .spinner-container-citating {

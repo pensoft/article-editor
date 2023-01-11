@@ -317,10 +317,11 @@ export class TreeService implements OnDestroy {
     this.treeVisibilityChange.next({ action: 'editNode', nodeId });
   }
 
-  async addNodeChange(nodeId: string) {
+  async addNodeChange(nodeId: string,callback?:()=>void) {
     let newChild = await this.attachChildToNode(nodeId, undefined);
     this.ydocService.saveSectionMenusAndSchemasDefs([newChild])
     this.treeVisibilityChange.next({ action: 'addNode', parentId: nodeId, newChild });
+    callback();
   }
 
   renderForms = (sectionToRender: articleSection) => {

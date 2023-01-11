@@ -10,7 +10,7 @@ import { marks } from './marks';
 import { form_field, inline_block_container, paragraph } from './nodes';
 export const endEditorNodes: NodeSpec = {
     doc: {
-        content: "block_figure*"
+      content: "block_figure*"
     },
     form_field,
     inline_block_container,

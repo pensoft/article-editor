@@ -167,9 +167,11 @@ export class ArticleMetadataComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(result => {
       if(result){
+        this.serviceShare.ProsemirrorEditorsService.spinSpinner()
         this.sectionsService.getSectionById(result).subscribe((res: any) => {
           let sectionTemplate = res.data
           this.treeService.addNodeAtPlaceChange('parentList', sectionTemplate, 'end');
+          this.serviceShare.ProsemirrorEditorsService.stopSpinner()
         })
       }
     });

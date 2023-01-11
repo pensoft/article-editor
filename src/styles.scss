@@ -816,12 +816,24 @@ img[ychange_type="removed"] {
 .fix {
   outline: 1px solid orangered;
 }
-
+app-citate-reference-dialog{
+  mat-form-field{
+    width: 100%;
+  }
+  .mat-form-field-label {
+    padding-left: 1px !important;
+    padding-top: 8px !important;
+  }
+  .mat-form-field-infix{
+    border-top: 1px !important;
+  }
+}
 app-edit-section-dialog,
 app-add-figure-dialog,
 app-add-supplementary-file,
 app-add-end-note,
 app-add-link-dialog,
+app-citate-reference-dialog,
 insert-image-dialog {
   .mat-form-field.mat-focused {
     background-color: transparent;

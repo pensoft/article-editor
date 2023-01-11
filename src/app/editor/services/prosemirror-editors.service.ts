@@ -959,7 +959,7 @@ export class ProsemirrorEditorsService {
       handlePaste: handlePaste(this.serviceShare),
       handleTripleClickOn,
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
-      //handleKeyDown,
+      handleKeyDown: handleKeyDown(this.serviceShare),
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
     });
     EditorContainer.appendChild(container);
@@ -1352,6 +1352,7 @@ export class ProsemirrorEditorsService {
     this.serviceShare.CslService?.checkReferencesInAllEditors(this.editorContainers);
     setTimeout(() => {
       this.serviceShare.YjsHistoryService.stopBigNumberItemsCapturePrevention();
+      this,this.stopSpinner()
     }, 20)
   }
 
@@ -1474,11 +1475,11 @@ export class ProsemirrorEditorsService {
   }
 
   spinning = false;
-  spinSpinner() {
+  spinSpinner = () => {
     this.spinning = true;
     this.spinnerContainer.style.display = 'block'
   }
-  stopSpinner() {
+  stopSpinner = () => {
     this.spinning = false;
     this.spinnerContainer.style.display = 'none'
   }

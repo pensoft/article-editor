@@ -18,7 +18,7 @@ import {uuidv4} from 'lib0/random';
 export class CitateReferenceDialogComponent implements AfterViewInit {
   loading = false;
   selected: any
-  citating = false;
+  citating = true;
   displayedColumns = ['title']
   searchData: any
   references: any
@@ -53,6 +53,7 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
   ngAfterViewInit(): void {
     this.refsAPI.getReferences().subscribe((refs: any) => {
       this.references = refs.data;
+      this.citating = false;
       this.changeDetectorRef.detectChanges()
     })
     /*fromEvent(this.searchInput!.nativeElement, 'keyup')

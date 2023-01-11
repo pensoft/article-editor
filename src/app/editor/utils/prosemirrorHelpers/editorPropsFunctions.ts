@@ -224,7 +224,7 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
     try {
 
       let sel = view.state.selection
-      let { $from, $to, from, to } = sel
+      let { $from, $to, from, to, $anchor, $head } = sel
       let key = event.key
       let canEdit = false;
       if(key == "Tab"){
@@ -233,18 +233,8 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
           (serviceShare.YjsHistoryService.undoStack[serviceShare.YjsHistoryService.undoStack.length-1].editors.length>0||
           serviceShare.YjsHistoryService.undoStack[serviceShare.YjsHistoryService.undoStack.length-1].undoItemMeta)){
             serviceShare.YjsHistoryService.startCapturingNewUndoItem()
-          }
+        }
       }
-      /* if (sel instanceof CellSelection) {
-          from = Math.min(sel.$headCell.pos, sel.$anchorCell.pos);
-          to = Math.max(sel.$headCell.pos, sel.$anchorCell.pos);
-      } */
-      /* check the both siddes of the selection and check if there are in the same depth -> means that the selection sides are on the same level
-        true
-          loop the parents of the sides and search for form_field if there is a parent form field check if its the same for both sides and use it as parent ref
-              if there is no form_field parent find the first parent thats the same for both selection sides and use it as parent ref
-          check if the parent ref alows editing
-      */
       if ($from.depth == $to.depth) {
         //@ts-ignore
         let pathAtFrom: Array<Node | number> = $from.path
@@ -407,13 +397,17 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
       }
       let contentEditableNodeAroundPos = (pos: ResolvedPos) => {
         let contenteditable = false;
+        let noneditable = false;
         if ($from.nodeBefore && $from.nodeAfter) {
           //@ts-ignore
           let path = $from.path
           for (let i = path.length - 3; i > -1; i -= 3) {
             let parentNode = path[i];
-            if (!contenteditable && !(parentNode.attrs.contenteditableNode === false || parentNode.attrs.contenteditableNode == 'false')) {
+            if (!noneditable && !contenteditable && !(parentNode.attrs.contenteditableNode === false || parentNode.attrs.contenteditableNode == 'false')) {
               contenteditable = true;
+            }
+            if(!noneditable && !contenteditable && (parentNode.attrs.contenteditableNode === false || parentNode.attrs.contenteditableNode == 'false')){
+              noneditable = true;
             }
           }
         } else if (!$from.nodeBefore && $from.nodeAfter && pos.pos - 1 > 0) {
@@ -426,6 +420,9 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
             if (!contenteditable && !(parentNode.attrs.contenteditableNode === false || parentNode.attrs.contenteditableNode == 'false')) {
               contenteditable = true;
             }
+            if(!noneditable && !contenteditable && (parentNode.attrs.contenteditableNode === false || parentNode.attrs.contenteditableNode == 'false')){
+              noneditable = true;
+            }
           }
         } else if ($from.nodeBefore && !$from.nodeAfter && pos.pos + 1 < view.state.doc.content.size) {
           let posPlusOne = view.state.doc.resolve(pos.pos + 1);
@@ -437,13 +434,34 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
             if (!contenteditable && !(parentNode.attrs.contenteditableNode === false || parentNode.attrs.contenteditableNode == 'false')) {
               contenteditable = true;
             }
+            if(!noneditable && !contenteditable && (parentNode.attrs.contenteditableNode === false || parentNode.attrs.contenteditableNode == 'false')){
+              noneditable = true;
+            }
           }
         }
         return contenteditable
       }
+      if(from != to){
+        let nonEditableParrent = (path:any[]) => {
+          let noneditable = false;
+          let couner = path.length-3;
+          for(let i = couner;i>-1;i-=3){
+            let node = path[i] as Node;
+            if(node.attrs.contenteditableNode == false || node.attrs.contenteditableNode == 'false'){
+              noneditable = true;
+            }
+          }
+          return noneditable
+        }
+        //@ts-ignore
+        let nonEditableNodeAtFrom = nonEditableParrent($from.path);
+        //@ts-ignore
+        let nonEditableNodeAtTo = nonEditableParrent($to.path);
+        if(nonEditableNodeAtFrom||nonEditableNodeAtTo){
+          canEdit = false;
+        }
+      }
       if (!canEdit && to !== from && contentEditableNodeAroundPos($from) && contentEditableNodeAroundPos($to)) {
-
-
         view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(from - 1), view.state.doc.resolve(to + 1))))
         canEdit = true;
       }
