@@ -28,7 +28,7 @@
         <div class="more-avatar">
           <!--          {{usersInArticle.length}} {{usersInArticle | json}}-->
           <ng-container *ngFor="let user of usersInArticle | skipCurrent">
-            <ngx-avatar *ngIf="user&&user.ususerInfoer&&user.ususerInfoer.data" size="36" [gravatarId]="user.ususerInfoer.data.email" [name]="user.ususerInfoer.data.name" [bgColor]="user.ususerInfoer.color"></ngx-avatar>
+            <ngx-avatar *ngIf="user&&user.userInfo&&user.userInfo.data" size="36" [gravatarId]="user.userInfo.data.email" [name]="user.userInfo.data.name" [bgColor]="user.userInfo.color?user.userInfo.color.userColor:null"></ngx-avatar>
             <!--            <app-avatar user="user"></app-avatar>-->
           </ng-container>
         </div>

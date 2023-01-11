@@ -85,6 +85,7 @@ export class AuthService implements OnDestroy {
   }
 
   logout() {
+    this.removeGlobalStyleForUser()
     localStorage.clear();
     this.router.navigate(['/login'], {
       queryParams: {},
@@ -146,32 +147,63 @@ export class AuthService implements OnDestroy {
   userInfo:any = undefined
 
   getUserInfo(token = null) {
-    const auth = token || this.getToken();
-    if(token){
-      this.storeToken('token', token['access_token']);
-      this.storeToken('refresh_token', token['refresh_token']);
+    let getInfo = (token = null)=>{
+      const auth = token || this.getToken();
+      if(token){
+        this.storeToken('token', token['access_token']);
+        this.storeToken('refresh_token', token['refresh_token']);
+      }
+      if (!auth) {
+        return of(undefined);
+      }
+      if(this.userInfo){
+        //this.sharedService.EnforcerService.policiesChangeSubject.next(this.userInfo);
+        return of(this.userInfo)
+      }else{
+      }
+        return this._http.get<any>(`${API_AUTH_URL}/me`)
+          .pipe(
+            map((user) => {
+              if (user) {
+                this.userInfo = user;
+                this.currentUserSubject.next(user.data);
+                this.sharedService.EnforcerService.policiesChangeSubject.next(user);
+              } else {
+                this.logout();
+              }
+              return user;
+            }),
+          )
     }
-    if (!auth) {
-      return of(undefined);
+
+    return getInfo(token).pipe(tap(this.setGlobalStylesForUser));
+  }
+
+  userGlobalStyle?:HTMLStyleElement
+
+  setGlobalStylesForUser = (userData:any) => {
+    if(!userData) return;
+    if(this.userGlobalStyle) return;
+    const head = document.head || document.getElementsByTagName('head')[0];
+    const style = document.createElement('style');
+    style.type = 'text/css';
+    style.appendChild(document.createTextNode(`
+      span.insertion[user="${userData.data.id}"]{
+        background-color: #00B1B2 !important;
+        color: white !important;
+      }`));
+    this.userGlobalStyle = style
+    head.appendChild(style);
+  }
+
+  removeGlobalStyleForUser = () => {
+    if(this.userGlobalStyle){
+      const head = document.head || document.getElementsByTagName('head')[0];
+      head.removeChild(this.userGlobalStyle);
+      this.userGlobalStyle.innerHTML = ''
+      this.userGlobalStyle.remove();
+      this.userGlobalStyle = undefined
     }
-    if(this.userInfo){
-      //this.sharedService.EnforcerService.policiesChangeSubject.next(this.userInfo);
-      return of(this.userInfo)
-    }else{
-    }
-      return this._http.get<any>(`${API_AUTH_URL}/me`)
-        .pipe(
-          map((user) => {
-            if (user) {
-              this.userInfo = user;
-              this.currentUserSubject.next(user.data);
-              this.sharedService.EnforcerService.policiesChangeSubject.next(user);
-            } else {
-              this.logout();
-            }
-            return user;
-          }),
-        )
   }
 
   ngOnDestroy() {

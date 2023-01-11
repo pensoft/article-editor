@@ -267,8 +267,8 @@ supplementary-file-brief-description,end-note{
 }
 .insertion,
 .ins-from-popup {
-  color: black;
-  background: color(attr(data-color));
+  color: color(attr(usercontrastcolor));
+  background: color(attr(usercolor));
 }
 
 .form-field-inline-view {
@@ -366,6 +366,7 @@ app-article:not(.display-changes-hover) .deletion{
     }
   }
 }
+
 
 citation[nonexistingelement="true"] {
   background-color: rgb(194, 54, 54);

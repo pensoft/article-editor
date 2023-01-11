@@ -462,7 +462,7 @@ export let handleKeyDown = (serviceShare: ServiceShare) => {
         }
       }
       if (!canEdit && to !== from && contentEditableNodeAroundPos($from) && contentEditableNodeAroundPos($to)) {
-        view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(from - 1), view.state.doc.resolve(to + 1))))
+        //view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(from - 1), view.state.doc.resolve(to + 1))))
         canEdit = true;
       }
       if (!canEdit || previewMode.mode) {

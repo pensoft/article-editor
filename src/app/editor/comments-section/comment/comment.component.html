@@ -4,7 +4,7 @@
     <!-- <div mat-card-avatar class="comment-avatar"></div> -->
     <!--    <app-avatar mat-card-avatar class="comment-avatar"></app-avatar>-->
     <!--    {{userComment!.initialComment | json}}-->
-    <ngx-avatar mat-card-avatar size="36" [gravatarId]="userComment!.initialComment.userData.email" [name]="userComment!.initialComment.userData.name"></ngx-avatar>
+    <ngx-avatar mat-card-avatar size="36" [bgColor]="currUserId == userComment!.initialComment.userData.id?'#00B1B2':userComment!.initialComment.userData.userColor" [gravatarId]="userComment!.initialComment.userData.email" [name]="userComment!.initialComment.userData.name"></ngx-avatar>
     <mat-card-title class="comment-title">{{userComment!.initialComment.userData.name}}</mat-card-title>
     <mat-card-subtitle class="comment-subtitle" >{{userComment!.initialComment.date | date:'medium'}}</mat-card-subtitle>
 
@@ -62,7 +62,7 @@
 
   <mat-card-header>
 
-    <ngx-avatar mat-card-avatar size="36" [gravatarId]="comment.userData.email" [name]="comment.userData.name"></ngx-avatar>
+    <ngx-avatar mat-card-avatar size="36" [bgColor]="currUserId == comment.userData.id?'#00B1B2':comment.userData.userColor" [gravatarId]="comment.userData.email"  [name]="comment.userData.name"></ngx-avatar>
     <!--  <div mat-card-avatar class="comment-avatar"></div> -->
     <mat-card-title class="comment-title">{{comment.userData.name}}</mat-card-title>
     <mat-card-subtitle class="comment-subtitle">{{comment.date|date:'medium'}}</mat-card-subtitle>

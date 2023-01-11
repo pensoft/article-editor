@@ -21,6 +21,8 @@ const markDeletion = (
           user: user.userId,
           username: user.username,
           style: `color: ${user.userColor.deletion};`,
+          userColor:user.userColor,
+          userContrastColor:user.userContrastColor,
           date: Date.now(),
           id: markId,
           connectedTo: connectedTo,

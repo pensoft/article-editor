@@ -46,10 +46,10 @@ export class YdocService {
   comments?: YMap<any>
   creatingANewArticle = false
   figuresMap?: YMap<any>
-  citableElementsMap?:YMap<any>
+  citableElementsMap?: YMap<any>
   tablesMap?: YMap<any>
-  supplementaryFilesMap?:YMap<any>
-  endNotesMap?:YMap<any>
+  supplementaryFilesMap?: YMap<any>
+  endNotesMap?: YMap<any>
   trackChangesMetadata?: YMap<any>
   usersDataMap?: YMap<any>
   mathMap?: YMap<any>
@@ -135,26 +135,26 @@ export class YdocService {
     this.articleStructure?.set('articleSectionsStructureFlat', articleSectionsStructureFlat);
   }
 
-  saveSectionMenusAndSchemasDefs(sectionStructure:articleSection[]){
+  saveSectionMenusAndSchemasDefs(sectionStructure: articleSection[]) {
     let menusAndSchemasDefs = this.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
-    let loopSection = (section:articleSection,fn:any)=>{
-      if(section.children&&section.children.length>0){
-        section.children.forEach((child)=>{
-          loopSection(child,fn);
+    let loopSection = (section: articleSection, fn: any) => {
+      if (section.children && section.children.length > 0) {
+        section.children.forEach((child) => {
+          loopSection(child, fn);
         })
       }
       fn(section)
     }
-    sectionStructure.forEach(section => loopSection(section,(section:articleSection)=>{
-      if(
-        section.menusAndSchemasDefs&&
-        (section.menusAndSchemasDefs.menus||section.menusAndSchemasDefs.schemas)&&
-        (Object.keys(section.menusAndSchemasDefs.menus).length>0||Object.keys(section.menusAndSchemasDefs.schemas).length>0)
-      ){
+    sectionStructure.forEach(section => loopSection(section, (section: articleSection) => {
+      if (
+        section.menusAndSchemasDefs &&
+        (section.menusAndSchemasDefs.menus || section.menusAndSchemasDefs.schemas) &&
+        (Object.keys(section.menusAndSchemasDefs.menus).length > 0 || Object.keys(section.menusAndSchemasDefs.schemas).length > 0)
+      ) {
         menusAndSchemasDefs[section.sectionID] = section.menusAndSchemasDefs;
       }
     }))
-    this.PMMenusAndSchemasDefsMap?.set('menusAndSchemasDefs',menusAndSchemasDefs);
+    this.PMMenusAndSchemasDefsMap?.set('menusAndSchemasDefs', menusAndSchemasDefs);
   }
 
   getData(): ydocData {
@@ -219,21 +219,21 @@ export class YdocService {
 
   turnOnOffPreviewModeEditorFn: () => void
 
-  buildLayoutMenusAndSchemasDefs(defs:{menus:{},schemas:{}}){
-    let layoutMapedDefs = {menus:{},schemas:{}};
-    if(defs&&(defs.menus||defs.schemas)){
-      if(defs.menus){
-        Object.keys(defs.menus).forEach((menuKey)=>{
+  buildLayoutMenusAndSchemasDefs(defs: { menus: {}, schemas: {} }) {
+    let layoutMapedDefs = { menus: {}, schemas: {} };
+    if (defs && (defs.menus || defs.schemas)) {
+      if (defs.menus) {
+        Object.keys(defs.menus).forEach((menuKey) => {
           layoutMapedDefs.menus[menuKey] = defs.menus[menuKey]
         })
       }
-      if(defs.schemas){
-        Object.keys(defs.schemas).forEach((schemaKey)=>{
+      if (defs.schemas) {
+        Object.keys(defs.schemas).forEach((schemaKey) => {
           layoutMapedDefs.schemas[schemaKey] = mapSchemaDef(defs.schemas[schemaKey])
         })
       }
     }
-    return {layoutDefinitions:layoutMapedDefs}
+    return { layoutDefinitions: layoutMapedDefs }
   }
 
   buildEditor() {
@@ -245,7 +245,6 @@ export class YdocService {
     this.supplementaryFilesMap = this.ydoc.getMap('supplementaryFilesMap');
     this.endNotesMap = this.ydoc.getMap('endNotesMap');
 
-    this.provider?.awareness.setLocalStateField('userInfo', this.userInfo);
 
     let figuresNumbers = this.figuresMap!.get('ArticleFiguresNumbers');
     let figuresTemplates = this.figuresMap!.get('figuresTemplates');
@@ -287,7 +286,7 @@ export class YdocService {
     this.PMMenusAndSchemasDefsMap = this.ydoc.getMap('PMMenusAndSchemasDefsMap');
     let menusAndSchemasDefs = this.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
 
-    if(this.citableElementsSchemasSection){
+    if (this.citableElementsSchemasSection) {
       let tablesInitialTemplateRegex = /<ng-template #Tables>([\s\S]+?(?=<\/ng-template>))<\/ng-template>/gm;
       let supplementaryFilesInitialTemplateRegex = /<ng-template #SupplementaryMaterials>([\s\S]+?(?=<\/ng-template>))<\/ng-template>/gm;
       let endNotesInitialTemplateRegex = /<ng-template #Footnotes>([\s\S]+?(?=<\/ng-template>))<\/ng-template>/gm;
@@ -304,64 +303,64 @@ export class YdocService {
       let supplementaryFilesFormIoJson = formIOSchemas.SupplementaryMaterials
       let endNotesFormIoJson = formIOSchemas.Footnotes
 
-      if(tablesSchemaResult&&!tablesInitialTemplate){
-        this.tablesMap!.set('tablesInitialTemplate',tablesSchemaResult[1]);
+      if (tablesSchemaResult && !tablesInitialTemplate) {
+        this.tablesMap!.set('tablesInitialTemplate', tablesSchemaResult[1]);
       }
 
-      if(tablesFormIoJson&&!tablesInitialFormIOJson){
-        this.tablesMap!.set('tablesInitialFormIOJson',tablesFormIoJson);
+      if (tablesFormIoJson && !tablesInitialFormIOJson) {
+        this.tablesMap!.set('tablesInitialFormIOJson', tablesFormIoJson);
       }
 
-      if(supplementaryFilesSchemaResult&&!supplementaryFilesInitialTemplate){
-        this.supplementaryFilesMap!.set('supplementaryFilesInitialTemplate',supplementaryFilesSchemaResult[1]);
+      if (supplementaryFilesSchemaResult && !supplementaryFilesInitialTemplate) {
+        this.supplementaryFilesMap!.set('supplementaryFilesInitialTemplate', supplementaryFilesSchemaResult[1]);
       }
 
-      if(supplementaryFilesFormIoJson&&!supplementaryFilesInitialFormIOJson){
-        this.supplementaryFilesMap!.set('supplementaryFilesInitialFormIOJson',supplementaryFilesFormIoJson);
+      if (supplementaryFilesFormIoJson && !supplementaryFilesInitialFormIOJson) {
+        this.supplementaryFilesMap!.set('supplementaryFilesInitialFormIOJson', supplementaryFilesFormIoJson);
       }
 
-      if(endNotesSchemaResult&&!endNotesInitialTemplate){
-        this.endNotesMap!.set('endNotesInitialTemplate',endNotesSchemaResult[1]);
+      if (endNotesSchemaResult && !endNotesInitialTemplate) {
+        this.endNotesMap!.set('endNotesInitialTemplate', endNotesSchemaResult[1]);
       }
 
-      if(endNotesFormIoJson&&!endNotesInitialFormIOJson){
-        this.endNotesMap!.set('endNotesInitialFormIOJson',endNotesFormIoJson);
+      if (endNotesFormIoJson && !endNotesInitialFormIOJson) {
+        this.endNotesMap!.set('endNotesInitialFormIOJson', endNotesFormIoJson);
       }
     }
 
-    if(!endNotesTemplates){
-      this.endNotesMap.set('endNotesTemplates',{})
+    if (!endNotesTemplates) {
+      this.endNotesMap.set('endNotesTemplates', {})
     }
-    if(!supplementaryFilesTemplates){
-      this.supplementaryFilesMap.set('supplementaryFilesTemplates',{})
+    if (!supplementaryFilesTemplates) {
+      this.supplementaryFilesMap.set('supplementaryFilesTemplates', {})
     }
-    if(!endNotes){
-      this.endNotesMap.set('endNotes',{})
+    if (!endNotes) {
+      this.endNotesMap.set('endNotes', {})
     }
     if (!endNotesNumbers) {
       this.endNotesMap?.set('endNotesNumbers', [])
     }
-    if(!supplementaryFiles){
-      this.supplementaryFilesMap.set('supplementaryFiles',{})
+    if (!supplementaryFiles) {
+      this.supplementaryFilesMap.set('supplementaryFiles', {})
     }
     if (!supplementaryFilesNumbers) {
       this.supplementaryFilesMap?.set('supplementaryFilesNumbers', [])
     }
-    if(!menusAndSchemasDefs){
-      let layoutMenusAndAllowedTagsSettings:any = {menus:{},schemas:{}}
-      if(this.articleData.layout.settings){
+    if (!menusAndSchemasDefs) {
+      let layoutMenusAndAllowedTagsSettings: any = { menus: {}, schemas: {} }
+      if (this.articleData.layout.settings) {
         let settings = this.articleData.layout.settings
-        if(settings.allowed_tags&&Object.values(settings.allowed_tags).length>0){
+        if (settings.allowed_tags && Object.values(settings.allowed_tags).length > 0) {
           layoutMenusAndAllowedTagsSettings.schemas = settings.allowed_tags;
         }
-        if(settings.menus&&Object.values(settings.menus).length>0){
+        if (settings.menus && Object.values(settings.menus).length > 0) {
           layoutMenusAndAllowedTagsSettings.menus = settings.menus;
         }
       }
-      this.PMMenusAndSchemasDefsMap.set('menusAndSchemasDefs',this.buildLayoutMenusAndSchemasDefs(layoutMenusAndAllowedTagsSettings))
+      this.PMMenusAndSchemasDefsMap.set('menusAndSchemasDefs', this.buildLayoutMenusAndSchemasDefs(layoutMenusAndAllowedTagsSettings))
     }
-    if(!elementsCitations){
-      this.citableElementsMap.set('elementsCitations',{})
+    if (!elementsCitations) {
+      this.citableElementsMap.set('elementsCitations', {})
     }
     if (!customPropsObj) {
       this.customSectionProps?.set('customPropsObj', {})
@@ -382,6 +381,7 @@ export class YdocService {
       this.usersDataMap.set('usersColors', {});
     }
     this.setUserColor(this.userInfo);
+    this.provider?.awareness.setLocalStateField('userInfo', this.userInfo);
 
     if (!pdfSettings) {
       let pdfPrintSettings = (
@@ -442,9 +442,9 @@ export class YdocService {
     }
     let collaborators = this.collaborators.get('collaborators').collaborators as any[]
     let userInArticle = collaborators.find((user) => user.email == currUserEmail)
-    this.serviceShare.EnforcerService.enforceAsync('is-admin','admin-can-do-anything').subscribe((admin)=>{
-      if(admin){
-        userInArticle = {role:'Owner',email:'mincho@scalewest.com'};
+    this.serviceShare.EnforcerService.enforceAsync('is-admin', 'admin-can-do-anything').subscribe((admin) => {
+      if (admin) {
+        userInArticle = { role: 'Owner', email: 'mincho@scalewest.com' };
       }
       if (!userInArticle) {
         this.serviceShare.openNotAddedToEditorDialog()
@@ -468,13 +468,13 @@ export class YdocService {
   }
 
   citableElementsSchemasSection
-  saveCitableElementsSchemas(citableElementsSchemasSection:any){
+  saveCitableElementsSchemas(citableElementsSchemasSection: any) {
     this.citableElementsSchemasSection = citableElementsSchemasSection
   }
 
-  saveArticleData(data){
-    let artilceCitableElementsSchemas = data.layout.template.sections.find(x=>x.name == "Citable Elements Schemas");
-    if(artilceCitableElementsSchemas){
+  saveArticleData(data) {
+    let artilceCitableElementsSchemas = data.layout.template.sections.find(x => x.name == "Citable Elements Schemas");
+    if (artilceCitableElementsSchemas) {
       // filter sections from ctable elements schemas section
       data.layout.template.sections = data.layout.template.sections.filter(x => x.name != 'Citable Elements Schemas');
       this.saveCitableElementsSchemas(artilceCitableElementsSchemas);
@@ -539,43 +539,39 @@ export class YdocService {
     let usersColors = this.usersDataMap!.get('usersColors');
     let userId = userInfo.data.id;
     let colors: string[] = [
-      '#84aff5',
-      '#edeaa6',
-      '#d5eda6',
-      '#c7eda6',
-      '#b2eda6',
-      '#a6edb7',
-      '#a6edce',
-      '#a6edce',
-      '#a6e1ed',
-      '#a6d2ed',
-      '#a6b8ed',
-      '#b7a6ed',
-      '#d3a6ed',
-      '#eda6d5',
-      '#eda6a6',
-      '#ffeddb',
-      '#fcffdb',
-      '#f0ffdb',
-      '#e7ffdb',
-      '#dbffdc',
-      '#dbfff1',
-      '#dbfdff',
-      '#dbeeff',
-      '#dbdfff',
-      '#eedbff',
-      '#ffdbfb',
-      '#ffdbe2',]
+      '#ff008d4d',
+      '#de00ff4d',
+      '#5c00ff4d',
+      '#0046ff4d',
+      '#00b7ff4d',
+      '#00ffe278',
+      '#00ff9f78',
+      '#00ff2778',
+      '#a9ff0078',
+      '#eeff0078',
+      '#ffd60078',
+      '#ff890078',
+      '#ff580078',
+      '#ff000063']
     if (!usersColors[userId]) {
-      let newUserColor = colors[+(Math.random() * colors.length - 2).toFixed(0)]
-      usersColors[userId] = newUserColor;
+      const red = Math.floor(((256*4)/5)+(Math.random() * 256/5));
+      const green = Math.floor(((256*4)/5)+(Math.random() * 256/5));
+      const blue = Math.floor(((256*4)/5)+(Math.random() * 256/5));
+      let userColor = "rgb(" + red + ", " + green + ", " + blue + ")";
+      let userContrastColor =  (red * 0.299 + green * 0.587 + blue * 0.114) > 144
+                ? '#000000'
+                : '#FFFFFF';
+      let userColors = {
+        userColor,userContrastColor
+      }
+      usersColors[userId] = userColors;
     }
     this.usersDataMap!.set('usersColors', usersColors);
 
     this.userInfo.color = usersColors[userId];
   }
 
-  init(roomName: string, userInfo: any,articleData:any) {
+  init(roomName: string, userInfo: any, articleData: any) {
     if (!this.articleData) {
       this.saveArticleData(articleData)
     }
