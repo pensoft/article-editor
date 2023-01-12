@@ -14,25 +14,24 @@ const insertion = {
     viewid: { default: '' },
     style: { default: null },
     connectedTo:{default:''},
-    color:{default:''},
   },
   inclusive: false,
   group: 'track',
   parseDOM: [{
     tag: "span.insertion", getAttrs(dom:any) {
+      let styleArr = dom.getAttribute('style').split(';')
       return {
         src: dom.getAttribute('class'),
-        style: dom.getAttribute('style').split(';background: ')[0],
+        style: dom.getAttribute('style').split(';color ')[0],
         id: dom.dataset.id,
-          userColor: dom.getAttribute('usercolor'),
-          userContrastColor: dom.getAttribute('usercontrastcolor'),
-          user: dom.getAttribute('user'),
+        userColor: dom.getAttribute('usercolor'),
+        userContrastColor: dom.getAttribute('usercontrastcolor'),
+        user: dom.getAttribute('user'),
         username: dom.dataset.username,
         date: parseInt(dom.dataset.date),
         group: dom.dataset.group,
         viewid: dom.dataset.viewid,
         connectedTo: dom.getAttribute('connectedto'),
-        color: dom.getAttribute('style').split(';background: ')[1],
       }
     }
   }],
@@ -49,7 +48,7 @@ const insertion = {
       'data-date': node.attrs.date,
       'data-group': node.attrs.group,
       'data-viewid': node.attrs.viewid,
-      style: node.attrs.style + ';background: '+ node.attrs.color,
+      style: node.attrs.style + ';color: '+ node.attrs.userContrastColor + ';background: '+ node.attrs.userColor,
     }]
   }
 };

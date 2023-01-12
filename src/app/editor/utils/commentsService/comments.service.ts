@@ -27,6 +27,7 @@ export interface userDataInComment {
   id: String
   name: string
   userColor:string
+  userContrastColor:string
   updated_at: string
 }
 

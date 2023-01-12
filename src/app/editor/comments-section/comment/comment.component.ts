@@ -315,7 +315,11 @@ export class CommentComponent implements OnInit, AfterViewInit {
     let userComment = {
       id: userCommentId,
       comment: commentContent,
-      userData:  {...this.prosemirrorEditorService.userInfo.data,userColor:this.prosemirrorEditorService.userInfo.color.userColor},
+      userData:  {
+        ...this.prosemirrorEditorService.userInfo.data,
+        userColor:this.prosemirrorEditorService.userInfo.color.userColor,
+        userContrastColor:this.prosemirrorEditorService.userInfo.color.userContrastColor
+      },
       date: commentDate
     }
     commentData.commentReplies.push(userComment);
