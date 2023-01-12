@@ -280,17 +280,18 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     }
     if (event.type == 'blur') {
       element.setAttribute('contenteditable', 'false');
-      (parentNode as HTMLDivElement).style.zIndex = this.oldIndex;
-      this.oldIndex = undefined
+      element.setAttribute('style', '');
+      /* (parentNode as HTMLDivElement).style.zIndex = this.oldIndex;
+      this.oldIndex = undefined */
       this.treeService.saveNewTitleChange(node, element.textContent!);
       this.scrolledToView = false;
     } else if (event.type == 'click') {
       element.setAttribute('contenteditable', 'true');
-      let elementZIndex = window.getComputedStyle(element).zIndex;
-      if(this.oldIndex!=elementZIndex){
+      //let elementZIndex = window.getComputedStyle(element).zIndex;
+      /* if(this.oldIndex!=elementZIndex){
         this.oldIndex = elementZIndex
-      }
-      (parentNode as HTMLDivElement).style.zIndex = '11';
+      } */
+      //(parentNode as HTMLDivElement).style.zIndex = '11';
       element.focus()
     }
   }

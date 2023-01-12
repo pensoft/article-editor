@@ -1,6 +1,6 @@
 <ng-container>
   <div cdkDropList [ngClass]="{'outer-list':!nestedList,'nested-list':nestedList}" (cdkDropListDropped)="drop($event)" id="{{listParentId}}" [cdkDropListConnectedTo]="treeService.connectedLists" [cdkDropListData]="articleSectionsStructure" #dragDropList>
-    <div [ngClass]="{'outer-empty-placeholder':firstNested,'nested-empty-placeholder':!firstNested}" *ngIf="articleSectionsStructure.length == 0" cdkDragBoundary=".meta-data-list"  cdkDrag [cdkDragDisabled]="true">No subsection</div>
+    <div [ngClass]="{'outer-empty-placeholder':firstNested,'nested-empty-placeholder':!firstNested}" *ngIf="articleSectionsStructure.length == 0" cdkDragBoundary=".drag-drop-boundary"  cdkDrag [cdkDragDisabled]="true">No subsection</div>
     <ng-container *ngFor="let node of articleSectionsStructure;let i = index">
       <app-section-leaf [(node)]="articleSectionsStructure[i]" [parentListData]="listData" [nodeFormGroup]="sectionsFormGroups[node.sectionID]" [sectionsFormGroupsRef]="sectionsFormGroups" [parentId]="listParentId" [lastNestedChild]="i==articleSectionsStructure.length-1"
         [nestedNode]="nestedList" [isComplex]="node.type == 'complex'"></app-section-leaf>

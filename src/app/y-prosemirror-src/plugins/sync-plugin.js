@@ -161,7 +161,7 @@ export const ySyncPlugin = (yXmlFragment, { colors = defaultColors, colorMapping
  * @param {any} relSel
  * @param {ProsemirrorBinding} binding
  */
-const restoreRelativeSelection = (tr, relSel, binding) => {
+export const restoreRelativeSelection = (tr, relSel, binding) => {
   if (relSel !== null && relSel.anchor !== null && relSel.head !== null) {
     const anchor = relativePositionToAbsolutePosition(binding.doc, binding.type, relSel.anchor, binding.mapping)
     const head = relativePositionToAbsolutePosition(binding.doc, binding.type, relSel.head, binding.mapping)
@@ -171,10 +171,17 @@ const restoreRelativeSelection = (tr, relSel, binding) => {
   }
 }
 
-export const getRelativeSelection = (pmbinding, state) => ({
+export const getRelativeSelection = (pmbinding, state) => {
+  return {
   anchor: absolutePositionToRelativePosition(state.selection.anchor, pmbinding.type, pmbinding.mapping),
   head: absolutePositionToRelativePosition(state.selection.head, pmbinding.type, pmbinding.mapping)
-})
+}}
+
+export const getRelativeSelectionV2 = (pmbinding, anchor,head) => {
+  return {
+  anchor: absolutePositionToRelativePosition(anchor, pmbinding.type, pmbinding.mapping),
+  head: absolutePositionToRelativePosition(head, pmbinding.type, pmbinding.mapping)
+}}
 
 /**
  * Binding for prosemirror.
@@ -357,9 +364,11 @@ export class ProsemirrorBinding {
       let tr = this.prosemirrorView.state.tr.replace(0, this.prosemirrorView.state.doc.content.size, new PModel.Slice(new PModel.Fragment(fragmentContent), 0, 0))
       restoreRelativeSelection(tr, this.beforeTransactionSelection, this)
       tr = tr.setMeta(ySyncPluginKeyObj.ySyncPluginKey, { isChangeOrigin: true })
-      if (this.beforeTransactionSelection !== null && this._isLocalCursorInView()) {
+      if ((this.beforeTransactionSelectionFromUndoRedoItem!== null||this.beforeTransactionSelection !== null) && this._isLocalCursorInView()) {
+        this.prosemirrorView.focus()
         tr.scrollIntoView()
       }
+
       this.prosemirrorView.dispatch(tr)
     })
   }

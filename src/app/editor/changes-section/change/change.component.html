@@ -2,7 +2,7 @@
   <mat-card-header>
 <!--    <div mat-card-avatar class="avatar"></div>-->
 <!--    {{change.markattrs | json}}-->
-    <ngx-avatar mat-card-avatar size="36" [bgColor]="change.markattrs.user == currUserId?'#00B1B2':change.markattrs.userColor" [name]="change.markattrs.username"></ngx-avatar>
+    <ngx-avatar mat-card-avatar size="36" [fgColor]="change.markattrs.user == currUserId?'white':change.markattrs.userContrastColor" [bgColor]="change.markattrs.user == currUserId?'#00B1B2':change.markattrs.userColor" [name]="change.markattrs.username"></ngx-avatar>
     <mat-card-title class="change-title">{{change.markattrs.username}}</mat-card-title>
     <mat-card-subtitle class="change-subtitle">{{getDate(change.markattrs.date)}}</mat-card-subtitle>
   </mat-card-header>

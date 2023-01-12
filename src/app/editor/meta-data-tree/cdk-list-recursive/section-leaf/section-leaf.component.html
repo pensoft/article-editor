@@ -1,6 +1,6 @@
 <div *ngIf="!nestedNode" [ngClass]="{
     'node-box':!isComplex,
-    'node-box-dropdownbox':isComplex}" cdkDrag [cdkDragData]="{node,canDropBool}" cdkDragBoundary=".meta-data-list" >
+    'node-box-dropdownbox':isComplex}" cdkDrag [cdkDragData]="{node,canDropBool}" cdkDragBoundary=".drag-drop-boundary" >
   <div [style.position]='"relative"' (mouseover)="!previewMode.mode?showButtons(cdkDragSection,true,
     !isComplex?'sectionBorder':'sectionBorderListItem','selectedEditor',node):undefined" (mouseout)="!previewMode.mode?showButtons(cdkDragSection,false,
     !isComplex?'sectionBorder':'sectionBorderListItem','selectedEditor',node):undefined" #cdkDragSection>
@@ -49,7 +49,7 @@
 </div>
 <div *ngIf="nestedNode" [ngClass]="{
     'node-box-nested':!isComplex,
-    'node-box-dropdownbox-nested':isComplex}" cdkDrag [cdkDragData]="{node,canDropBool}" cdkDragBoundary=".meta-data-list" >
+    'node-box-dropdownbox-nested':isComplex}" cdkDrag [cdkDragData]="{node,canDropBool}" cdkDragBoundary=".drag-drop-boundary" >
   <div [style.position]='"relative"' (mouseover)="!previewMode.mode?showButtons(cdkDragSection,true,
     !isComplex?'sectionBorderNested':'sectionBorderListNested',
     !isComplex?'selectedEditorNestedLeaf':'selectedEditorNestedList',node):undefined" (mouseout)="!previewMode.mode?showButtons(cdkDragSection,false,
