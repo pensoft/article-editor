@@ -67,6 +67,7 @@ import { uuidv4 } from 'lib0/random.js';
 import { changeNodesOnDragDrop, handleDeleteOfRefsFigsCitationsAndComments } from '../utils/prosemirrorHelpers/drag-drop-append';
 import { getFilterNodesBySchemaDefPlugin } from '../utils/Schema/filterNodesIfSchemaDefPlugin';
 import { CitableElementsEditButtonsService } from '../utils/citable-elements-edit-buttons/citable-elements-edit-buttons.service';
+import { getToolTipPlugin } from '../utils/toolTipPlugin';
 export interface editorContainersObj { [key: string]: editorContainer }
 export interface editorContainer {
   editorID: string,
@@ -363,8 +364,8 @@ export class ProsemirrorEditorsService {
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment(section.mode, editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
-    yCursorPlugin(this.provider!.awareness, this.serviceShare, this.userData),
-    this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures })]
+    yCursorPlugin(this.provider!.awareness, this.serviceShare, this.userData)
+    ]
 
     container.setAttribute('class', 'editor-container');
     //let fullMenu1 = this.menuService.attachMenuItems(this.menu, this.ydoc!, 'fullMenu1', editorID);
@@ -532,6 +533,7 @@ export class ProsemirrorEditorsService {
         keymap(keymapObj),
         //history({renderFiguresFunc:this.rerenderFigures}),
         this.placeholderPluginService.getPlugin(),
+        getToolTipPlugin(this.serviceShare),
         getFilterNodesBySchemaDefPlugin(this.serviceShare,{nodes:nodesDefinitions,marks:marksDefinitions}),
         this.citableElementEditButtonsPluginService.citableElementsEditButtonsPlugin,
         transactionControllerPlugin,
@@ -551,7 +553,8 @@ export class ProsemirrorEditorsService {
         ...menuBar({
           floating: true,
           content: menuTypes, containerClass: menuContainerClass
-        })
+        }),
+        this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures })
       ].concat(exampleSetup({ schema:editorSchema, /* menuContent: fullMenuWithLog, */history: false, containerClass: menuContainerClass }))
       ,
       // @ts-ignore
@@ -827,7 +830,7 @@ export class ProsemirrorEditorsService {
     let xmlFragment = this.getXmlFragment('documentMode', editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
     yCursorPlugin(this.provider!.awareness, this.serviceShare, this.userData),
-    this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures })]
+    ]
 
     container.setAttribute('class', 'editor-container');
     this.initDocumentReplace[editorID] = true;
@@ -857,6 +860,7 @@ export class ProsemirrorEditorsService {
         history(),
         //this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
+        getToolTipPlugin(this.serviceShare),
         this.detectFocusService.getPlugin(),
         this.serviceShare.CitableElementsContextMenuService.getPlugin(),
         divideEndEditorFromTopPlugin,
@@ -866,6 +870,7 @@ export class ProsemirrorEditorsService {
         this.trackChangesService.getHideShowPlugin(),
         this.linkPopUpPluginService.linkPopUpPlugin,
         //inputRules({ rules: [inlineMathInputRule, blockMathInputRule] }),
+        this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures }),
         ...menuBar({
           floating: true,
           content: this.menuTypes, containerClass: menuContainerClass
@@ -1353,6 +1358,19 @@ export class ProsemirrorEditorsService {
   runFuncAfterRender() {
     this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems();
     this.serviceShare.CslService?.checkReferencesInAllEditors(this.editorContainers);
+
+    // pass current users in article
+    let updateArticleUserStates = () => {
+      if(this.provider){
+        let userStates =  this.provider!.awareness.getStates();
+        this.serviceShare.ProsemirrorEditorsService.usersInArticleStatusSubject.next(userStates)
+      }
+    }
+    this.provider!.awareness.on('update',(added:any[],updated:any[],removed:any[])=>{
+      updateArticleUserStates()
+    })
+
+    updateArticleUserStates()
     setTimeout(() => {
       this.serviceShare.YjsHistoryService.stopBigNumberItemsCapturePrevention();
       this,this.stopSpinner()

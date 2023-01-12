@@ -558,7 +558,7 @@ export class YdocService {
       const green = Math.floor(((256*4)/5)+(Math.random() * 256/5));
       const blue = Math.floor(((256*4)/5)+(Math.random() * 256/5));
       let userColor = "rgb(" + red + ", " + green + ", " + blue + ")";
-      let userContrastColor =  (red * 0.299 + green * 0.587 + blue * 0.114) > 144
+      let userContrastColor =  (red * 0.299 + green * 0.587 + blue * 0.114) >= 128
                 ? '#000000'
                 : '#FFFFFF';
       let userColors = {
@@ -600,7 +600,6 @@ export class YdocService {
         WebSocketPolyfill: WebSocket,
         awareness: new awarenessProtocol.Awareness(this.ydoc),
       } )*/
-      this.provider
       this.provider.on('connection-close', function (WSClosedEvent: any) {
         console.log("---", WSClosedEvent, (new Date()).getTime());
       });

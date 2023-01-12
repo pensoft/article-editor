@@ -28,7 +28,7 @@
         <div class="more-avatar">
           <!--          {{usersInArticle.length}} {{usersInArticle | json}}-->
           <ng-container *ngFor="let user of usersInArticle | skipCurrent">
-            <ngx-avatar *ngIf="user&&user.userInfo&&user.userInfo.data" size="36" [gravatarId]="user.userInfo.data.email" [name]="user.userInfo.data.name" [bgColor]="user.userInfo.color?user.userInfo.color.userColor:null"></ngx-avatar>
+            <ngx-avatar *ngIf="user&&user.userInfo&&user.userInfo.data" size="36" [gravatarId]="user.userInfo.data.email" [name]="user.userInfo.data.name" [fgColor]="(user.userInfo.color&&user.userInfo.color.userContrastColor)?user.userInfo.color.userContrastColor:null"  [bgColor]="(user.userInfo.color&&user.userInfo.color.userColor)?user.userInfo.color.userColor:null"></ngx-avatar>
             <!--            <app-avatar user="user"></app-avatar>-->
           </ng-container>
         </div>
@@ -104,7 +104,7 @@
     <div class="main-container">
       <mat-drawer #metaDataTreeDrawer class="metadataTreeDrawer" mode='over' position='start' *ngIf="innerWidth <= 600">
         <div #treeDataDiv class="data-tree">
-          <app-meta-data-tree style="width:100%;height:100%;"></app-meta-data-tree>
+          <app-meta-data-tree class="drag-drop-boundary" style="width:100%;height:100%;"></app-meta-data-tree>
         </div>
       </mat-drawer>
       <div #treeDataDiv *ngIf="innerWidth > 600" class="data-tree">

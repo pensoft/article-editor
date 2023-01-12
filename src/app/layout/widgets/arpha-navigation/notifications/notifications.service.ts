@@ -62,20 +62,12 @@ export class NotificationsService {
       console.log(user,ServiceShare.AuthService.currentUserValue);
       const token = ServiceShare.AuthService.getToken();
       this.echoService.echo.connector.options.auth.headers['Authorization'] = 'Bearer ' + token;
-      this.echoService.join(`task_manager:tasks.${user.data.id}`, 'private')
-        .listen(`task_manager:tasks.${user.data.id}`, '.TaskCreatedEvent')
+      this.echoService.join(`task_manager:private-tasks.${user.data.id}`, 'public')
+        .listen(`task_manager:private-tasks.${user.data.id}`, '.TaskCreatedEvent')
         .subscribe(data => { console.log(data); this.handleTaskUpdatesEvents(data) })
 
-        this.echoService.join(`task_manager:tasks`, 'public')
-        .listen(`task_manager:tasks`, '.TaskCreatedEvent')
-        .subscribe(data => { console.log(data);this.handleTaskUpdatesEvents(data) })
-
-      this.echoService.join(`task_manager:tasks.${user.data.id}`, 'private')
-        .listen(`task_manager:tasks.${user.data.id}`, '.TaskUpdateEvent')
-        .subscribe(data => { console.log(data); this.handleTaskUpdatesEvents(data) })
-
-        this.echoService.join(`task_manager:tasks`, 'public')
-        .listen(`task_manager:tasks`, '.TaskUpdateEvent')
+      this.echoService.join(`task_manager:private-tasks.${user.data.id}`, 'public')
+        .listen(`task_manager:private-tasks.${user.data.id}`, '.TaskUpdateEvent')
         .subscribe(data => { console.log(data); this.handleTaskUpdatesEvents(data) })
     })
     ServiceShare.shareSelf('NotificationsService', this)

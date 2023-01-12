@@ -6,9 +6,9 @@ import { Dropdown, undoItem as undoItemPM, redoItem as redoItemPM, undoItem } fr
 //@ts-ignore
 import { MenuItem } from '../utils/prosemirror-menu-master/src/index.js'
 //@ts-ignore
-import { getRelativeSelection } from '../../y-prosemirror-src/plugins/sync-plugin.js'
+import { getRelativeSelectionV2,restoreRelativeSelection } from '../../y-prosemirror-src/plugins/sync-plugin.js'
 //@ts-ignore
-import { ySyncPluginKey } from '../../y-prosemirror-src/plugins/keys.js'
+import { ySyncPluginKeyObj } from '../../y-prosemirror-src/plugins/keys.js'
 import { redoIcon, undoIcon } from './menu/menuItems';
 import { YdocService } from '../services/ydoc.service';
 import { YArray } from 'yjs/dist/src/internals';
@@ -17,7 +17,7 @@ import { AnyTxtRecord } from 'dns';
 import { EditorView } from 'prosemirror-view';
 interface undoServiceItem {
   editors: string[],
-  scrollpositions:number[],
+  selections:any[],
   undoItemMeta?: any,
   finished?: true,
   startSel?:{from:number,to:number},
@@ -136,12 +136,12 @@ export class YjsHistoryService {
   }
 
   createNewUndoStackItem() {
-    this.undoStack.unshift({ editors: [],scrollpositions:[] })
+    this.undoStack.unshift({ editors: [],selections:[] })
     this.redoStack = []
     this.clearRedoStacks()
   }
 
-  computeHistoryChange(changeMeta: any,item:any,itemWithMeta:any) {
+  computeHistoryChange(changeMeta: any,prevSel) {
     if(changeMeta.addToLastUndoItem && this.undoStack.length == 0){
       this.createNewUndoStackItem()
     }
@@ -150,8 +150,7 @@ export class YjsHistoryService {
         this.createNewUndoStackItem()
 
         this.undoStack[0].editors.unshift(changeMeta.sectionId);
-        let articaleScrollPos = this.serviceShare.ProsemirrorEditorsService.getScrollPosition();
-        this.undoStack[0].scrollpositions.unshift(articaleScrollPos);
+        this.undoStack[0].selections.unshift(prevSel);
         if(this.undoStack.length>1&&this.undoStack[0].editors[0]&&this.undoStack[1].editors[0]&&this.undoStack[0].editors[0]==this.undoStack[1].editors[0]){
           Object.keys(this.mainProsemirrorUndoManagers).forEach((sectionId)=>{
             if(sectionId!==changeMeta.sectionId){
@@ -164,8 +163,7 @@ export class YjsHistoryService {
       if(!this.undoStack[0].editors.find((val)=>changeMeta.sectionId == val)){
 
         this.undoStack[0].editors.unshift(changeMeta.sectionId);
-        let articaleScrollPos = this.serviceShare.ProsemirrorEditorsService.getScrollPosition();
-        this.undoStack[0].scrollpositions.unshift(articaleScrollPos);
+        this.undoStack[0].selections.unshift(prevSel);
       }
     }
     /* if(changeMeta.addNewUndoItem||changeMeta.addToLastUndoItem){
@@ -210,7 +208,7 @@ export class YjsHistoryService {
       state: {
         init: (initargs:any, state) => {
           // TODO: check if plugin order matches and fix
-          const ystate = ySyncPluginKey.getState(state)
+          const ystate = ySyncPluginKeyObj.ySyncPluginKey.getState(state)
           const undoManager = new UndoManager(ystate.type, {
             captureTimeout: this.captureTimeout,
             deleteFilter: (item: any) => !(item instanceof Item) ||
@@ -218,7 +216,7 @@ export class YjsHistoryService {
               !(item.content.type instanceof Text ||
                 (item.content.type instanceof XmlElement && protectedNodes.has(item.content.type.nodeName))) ||
               item.content.type._length === 0,
-            trackedOrigins: new Set([ySyncPluginKey].concat(trackedOrigins)),
+            trackedOrigins: new Set([ySyncPluginKeyObj.ySyncPluginKey].concat(trackedOrigins)),
           })
           this.mainProsemirrorUndoManagers[initargs.sectionName] = undoManager;
           undoManager.on('stack-item-popped', (item: any) => {
@@ -233,7 +231,8 @@ export class YjsHistoryService {
           }
         },
         apply: (tr, val, oldState, state) => {
-          const binding = ySyncPluginKey.getState(state).binding
+          const ystate = state['y-sync$'];
+          const binding = ystate.binding
           const undoManager = val.undoManager as UndoManager
           const hasUndoOps = undoManager.undoStack.length > 0
           const hasRedoOps = undoManager.redoStack.length > 0
@@ -242,10 +241,11 @@ export class YjsHistoryService {
             } else {
             }
           }
-          if (binding) {
+          if (  binding ) {
+            let prevSel = getRelativeSelectionV2(binding, oldState.selection.anchor,oldState.selection.head)
             return {
               undoManager,
-              prevSel: getRelativeSelection(binding, oldState),
+              prevSel,
               hasUndoOps,
               hasRedoOps,
               sectionName: val.sectionName
@@ -263,23 +263,14 @@ export class YjsHistoryService {
         }
       },
       view: view => {
-        const ystate = ySyncPluginKey.getState(view.state)
+        //const ystate = ySyncPluginKeyObj.ySyncPluginKey.getState(view.state)
         const undoManager = YjsPluginKey.getState(view.state).undoManager
-        undoManager.on('stack-item-added', ({ stackItem }: { stackItem: any }) => {
-          const binding = ystate.binding
-          if (binding) {
-            stackItem.meta.set(binding, YjsPluginKey.getState(view.state).prevSel)
-          }
-        })
-        undoManager.on('stack-item-popped', ({ stackItem }: { stackItem: any }) => {
-          const binding = ystate.binding
-          if (binding) {
-            binding.beforeTransactionSelection = stackItem.meta.get(binding) || binding.beforeTransactionSelection
-          }
-        })
+
+
         undoManager.on('stack-item-added', (item: any) => {
           item.undoRedoMeta.sectionId = sectionId;
-          this.computeHistoryChange(item.undoRedoMeta,item.stackItem,item);
+          let binding = view.state['y-sync$'].binding
+          this.computeHistoryChange(item.undoRedoMeta,YjsPluginKey.getState(view.state).prevSel);
           })
         return {
           destroy: () => {
@@ -365,7 +356,7 @@ export class YjsHistoryService {
   undo = (state: EditorState) => {
     this.stopCapturingUndoItem()
     let undoitem = this.undoStack.shift();
-    let redoItem: undoServiceItem = { editors: [], finished: true,startSel:undoitem.startSel,endSel:undoitem.endSel ,scrollpositions:[]}
+    let redoItem: undoServiceItem = { editors: [], finished: true,startSel:undoitem.startSel,endSel:undoitem.endSel ,selections:[]}
     if (undoitem.undoItemMeta) {
       redoItem.undoItemMeta = undoitem.undoItemMeta
       this.undoComplexItem(undoitem.undoItemMeta, 'undo');
@@ -373,8 +364,8 @@ export class YjsHistoryService {
     undoitem.editors.forEach((editor,i) => {
       this.mainProsemirrorUndoManagers[editor].undo();
       redoItem.editors.unshift(editor);
-      redoItem.scrollpositions.unshift(undoitem.scrollpositions[i]);
-      this.allpyScrollPosition(undoitem,i)
+      redoItem.selections.unshift(undoitem.selections[i]);
+      this.applySelPosition(undoitem,i)
 
     })
     this.redoStack.unshift(redoItem);
@@ -392,9 +383,16 @@ export class YjsHistoryService {
     return true
   }
 
-  allpyScrollPosition(undoItem:undoServiceItem,i:number){
+  applySelPosition(undoItem:undoServiceItem,i:number){
     if(i == undoItem.editors.length-1){
-      this.serviceShare.ProsemirrorEditorsService.applyLastScrollPosition(undoItem.scrollpositions[i]);
+      let sectionId = undoItem.editors[i];
+      let relSel = undoItem.selections[i];
+      let view = this.serviceShare.ProsemirrorEditorsService.editorContainers[sectionId].editorView;
+      let editorPmBinding = view.state['y-sync$'].binding;
+      let tr = view.state.tr;
+      restoreRelativeSelection(tr,relSel,editorPmBinding);
+      view.dispatch(tr)
+      //this.serviceShare.ProsemirrorEditorsService.applyLastScrollPosition(undoItem.selections[i]);
     }
   }
 
@@ -404,7 +402,7 @@ export class YjsHistoryService {
 
   redo = (state: EditorState) => {
     let redoItem = this.redoStack.shift();
-    let undoItem: undoServiceItem = { editors: [], finished: true,startSel:redoItem.startSel,endSel:redoItem.endSel ,scrollpositions:[]}
+    let undoItem: undoServiceItem = { editors: [], finished: true,startSel:redoItem.startSel,endSel:redoItem.endSel ,selections:[]}
     if (redoItem.undoItemMeta) {
       undoItem.undoItemMeta = redoItem.undoItemMeta
       this.undoComplexItem(redoItem.undoItemMeta, 'redo');
@@ -412,8 +410,8 @@ export class YjsHistoryService {
     redoItem.editors.forEach((editor,i) => {
       this.mainProsemirrorUndoManagers[editor].redo();
       undoItem.editors.unshift(editor)
-      undoItem.scrollpositions.unshift(redoItem.scrollpositions[i]);
-      this.allpyScrollPosition(redoItem,i)
+      undoItem.selections.unshift(redoItem.selections[i]);
+      this.applySelPosition(redoItem,i)
     })
     this.undoStack.unshift(undoItem);
     if (undoItem.editors[0] != 'endEditor'&&undoItem.editors[0]) {

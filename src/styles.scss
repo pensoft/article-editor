@@ -307,11 +307,6 @@ form-field[invalid="true"] {
   }
 }
 
-/* .selected-format-change,
-.selected-block-change {
-    background-color: #eefbfb;
-} */
-
 .ProseMirror .borderless {
   table {
     border: none !important;
@@ -321,35 +316,6 @@ form-field[invalid="true"] {
 .ProseMirror {
   word-break: break-all !important;
 }
-
-/* app-edit-section-dialog {
-  .insertion{
-    .show-insertion{
-      background-color: transparent;
-    }
-    background-color: transparent;
-  }
-  .deletion{
-    background-color: transparent;
-    text-decoration: none;
-    display: none;
-  }
-} */
-
-/* app-article:not(.display-changes-hover) .insertion{
-  .show-insertion{
-    background-color: transparent;
-  }
-  background-color: transparent;
-
-}
-
-app-article:not(.display-changes-hover) .deletion{
-  .hide-deletion{
-    background-color: transparent;
-  }
-  display: none;
-} */
 
 @media not all and (min-resolution: 0.001dpcm) {
   @supports (-webkit-appearance: none) {
@@ -511,17 +477,19 @@ reference-citation {
 .changes-placeholder {
   font-weight: normal;
 }
-
-*[data-username] {
+/*
+*[data-username][usercolor][usercontrastcolor] {
   //position: relative;
   &:hover:before {
     content: attr(data-username);
     display: inline;
     position: absolute;
-    background: #d6d6d6;
+    background-color: attr(usercolor color);
+    color: attr(usercontrastcolor color);
+    background-color: wheat;
+    color: black;
     border-radius: 5px;
     padding: 2px;
-    color: inherit;
     font-size: 15px;
     line-height: 1.1em;
     font-weight: normal;
@@ -533,7 +501,7 @@ reference-citation {
     margin: 0 auto;
   }
 }
-
+ */
 ychange[ychange_type="removed"],
 p[ychange_type="removed"] {
   text-decoration: line-through;
@@ -1124,7 +1092,6 @@ li.commentText + li.commentText {
   left: -1px;
   font-size: 13px;
   background-color: rgb(250, 129, 0);
-  font-family: serif;
   font-style: normal;
   font-weight: normal;
   line-height: normal;

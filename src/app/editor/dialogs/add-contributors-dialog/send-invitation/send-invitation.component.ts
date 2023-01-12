@@ -5,7 +5,7 @@ import { ENTER, COMMA } from '@angular/cdk/keycodes';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete';
 import { MatChipInputEvent } from '@angular/material/chips';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { map, startWith, tap } from 'rxjs/operators';
 import { contributorData } from '../add-contributors-dialog.component';
 import { AllUsersService } from '@app/core/services/all-users.service';
@@ -45,6 +45,7 @@ export class SendInvitationComponent implements OnInit, AfterViewInit {
     },
   ]
 
+  resultData=new Subject<contributorData[]>()
 
   constructor(
     private location: Location,
@@ -53,12 +54,15 @@ export class SendInvitationComponent implements OnInit, AfterViewInit {
     public allUsersService:AllUsersService,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
-    this.allUsersService.getAllUsers().subscribe((response: any) => {
-      this.searchData = response;
-    });
-    this.filteredInvitedPeople = this.invitedPeople.valueChanges.pipe(
+    this.invitedPeople.valueChanges.subscribe((value)=>{
+      console.log(value);
+      this.allUsersService.getAllUsers({page:1,pageSize:10,'filter[name]':value}).subscribe((response: any) => {
+        this.resultData.next(response)
+      });
+    })
+    /* this.filteredInvitedPeople = this.invitedPeople.valueChanges.pipe(
       map((invitedUser: any) => { return invitedUser ? this._filter(invitedUser) : this._filter('') })
-    )
+    ) */
 
   }
 

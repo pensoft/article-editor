@@ -10,8 +10,8 @@ const API_USERS_URL = environment.apiUrl;
 export class AllUsersService {
   constructor(private http: HttpClient) {}
 
-  public getAllUsers() {
-    return this.http.get(`${API_USERS_URL}/users`).pipe(map((x:any)=>{return x.data||[]}));
+  public getAllUsers(params:{[key:string]:string|number}) {
+    return this.http.get(`${API_USERS_URL}/users`,{params}).pipe(map((x:any)=>{return x.data||[]}));
   }
 
   sendCommentMentionInformation(body:any){
