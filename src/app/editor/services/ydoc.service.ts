@@ -600,7 +600,6 @@ export class YdocService {
         WebSocketPolyfill: WebSocket,
         awareness: new awarenessProtocol.Awareness(this.ydoc),
       } )*/
-      this.provider
       this.provider.on('connection-close', function (WSClosedEvent: any) {
         console.log("---", WSClosedEvent, (new Date()).getTime());
       });

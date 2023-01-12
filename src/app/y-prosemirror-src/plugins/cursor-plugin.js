@@ -53,7 +53,7 @@ export const createDecorations = (state, awareness, createCursor, sharedService)
     return DecorationSet.create(state.doc, [])
   }
   let states = awareness.getStates();
-  sharedService.ProsemirrorEditorsService.usersInArticleStatusSubject.next(states)
+  //sharedService.ProsemirrorEditorsService.usersInArticleStatusSubject.next(states)
   states.forEach((aw, clientId) => {
     if (clientId === y.clientID) {
       return

@@ -1358,6 +1358,19 @@ export class ProsemirrorEditorsService {
   runFuncAfterRender() {
     this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems();
     this.serviceShare.CslService?.checkReferencesInAllEditors(this.editorContainers);
+
+    // pass current users in article
+    let updateArticleUserStates = () => {
+      if(this.provider){
+        let userStates =  this.provider!.awareness.getStates();
+        this.serviceShare.ProsemirrorEditorsService.usersInArticleStatusSubject.next(userStates)
+      }
+    }
+    this.provider!.awareness.on('update',(added:any[],updated:any[],removed:any[])=>{
+      updateArticleUserStates()
+    })
+
+    updateArticleUserStates()
     setTimeout(() => {
       this.serviceShare.YjsHistoryService.stopBigNumberItemsCapturePrevention();
       this,this.stopSpinner()

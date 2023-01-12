@@ -19,7 +19,7 @@
             <input *ngIf="!dialogIsOpenedFromComment" placeholder="User..." #usersInput [formControl]="invitedPeople" [matAutocomplete]="auto" [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="add($event)">
           </mat-chip-list>
           <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-            <mat-option *ngFor="let invitedUser of filteredInvitedPeople | async" [value]="invitedUser">
+            <mat-option *ngFor="let invitedUser of resultData | async" [value]="invitedUser">
               {{invitedUser.email}}
             </mat-option>
           </mat-autocomplete>

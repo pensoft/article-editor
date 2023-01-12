@@ -6,7 +6,8 @@ import { AllUsersService } from '@app/core/services/all-users.service';
 import { AuthService } from '@app/core/services/auth.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { Console } from 'console';
-import { Subscription } from 'rxjs';
+import { of, Subscription } from 'rxjs';
+import { switchMap, tap } from 'rxjs/operators';
 import { Transaction, YMapEvent } from 'yjs/dist/src';
 import { EditContributorComponent } from './edit-contributor/edit-contributor.component';
 import { SendInvitationComponent } from './send-invitation/send-invitation.component';
@@ -57,16 +58,13 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
       accessAdding: false,
       disableOptionsPrint: false,
     });
-    this.searchFormControl.valueChanges.subscribe((value) => {
-      if (!value || value == '' || value.length == 0) {
-        this.searchResults = []
-      } else {
-        this.searchResults = this.filterSearchResults(value)
-      }
-    });
-    this.allUsersService.getAllUsers().subscribe((response: any) => {
-      this.searchData = response;
-    });
+    this.searchFormControl.valueChanges.pipe(
+      switchMap((value:string) => {
+        return this.allUsersService.getAllUsers({page:1,pageSize:10,'filter[name]':value})
+    })).subscribe((data)=>{
+      this.searchData = data;
+      this.searchResults = data;
+    })
   }
 
   clickedOutOdInput() {
