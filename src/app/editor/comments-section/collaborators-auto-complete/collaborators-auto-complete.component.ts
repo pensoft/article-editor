@@ -29,9 +29,7 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
     public serviceShare: ServiceShare,
     public dialog: MatDialog,) {
     // should get all the users at the rendering of this component
-    usersService.getAllUsers().subscribe((res) => {
-      this.allusers = res
-    })
+
 
     this.currCollaboratorsIneditor = this.serviceShare.YdocService.collaborators.get('collaborators')
     this.collabSub = this.serviceShare.YdocService.collaboratorsSubject.subscribe((collaborators)=>{
@@ -171,10 +169,14 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
   emailAddRegexMathStart = /( |^)@+/gm
   ngAfterViewInit(): void {
     this.inputFormControl.valueChanges.subscribe((data: string) => {
-      if (this.allusers && this.emailAddRegex.test(data)) {
+      if (this.emailAddRegex.test(data)) {
         let searchVal = data.match(this.emailAddRegex)[0].replace(this.emailAddRegexMathStart, '');
-        this.searchResults = this.allusers.filter((user) => user.email.startsWith(searchVal));
-        this.selectedUserIndex = 0
+        this.usersService.getAllUsers({page:1,pageSize:10,'filter[name]':searchVal}).subscribe((res) => {
+          this.allusers = res
+          this.searchResults = res
+          this.selectedUserIndex = 0
+          //this.searchResults = this.allusers.filter((user) => user.email.startsWith(searchVal));
+        })
       } else {
         this.searchResults = []
       }

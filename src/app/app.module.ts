@@ -157,6 +157,7 @@ import { InsertEndNoteComponent } from './editor/dialogs/end-notes/insert-end-no
 import { JatsErrorsDialogComponent } from './editor/dialogs/jats-errors-dialog/jats-errors-dialog.component';
 import {EchoInterceptor} from 'ngx-laravel-echo';
 import { Observable } from 'rxjs';
+import { BoldPipe } from './editor/dialogs/add-contributors-dialog/bold.pipe';
 
 //@ts-ignore
 EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE,'event-dispatcher']
@@ -279,6 +280,7 @@ const gravatarConfig: GravatarConfig = {
     UsersRoleIsChangedComponent,
     TestPageComponent,
     HasPermissionPipe,
+    BoldPipe,
     NotificationsComponent,
     AllnotificationsComponent,
     CitableTablesDialogComponent,
@@ -341,6 +343,7 @@ const gravatarConfig: GravatarConfig = {
 
   providers: [
     HasPermissionPipe,
+    BoldPipe,
     CookieService,
     {
       provide: HTTP_INTERCEPTORS,
