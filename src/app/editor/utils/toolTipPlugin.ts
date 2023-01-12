@@ -12,10 +12,23 @@ export const getToolTipPlugin = function(serviceShare:ServiceShare){
   })
   let toolTip = document.createElement('span')
   let toolTipArrow = document.createElement('span');
+
+  let removeToolTip = (view,event)=>{
+    let elPath = event.path
+    if(!(currUserId&&elPath[0]&&elPath[0] instanceof HTMLSpanElement&&toolTipElsClasses.includes(elPath[0].className))){
+      if(Array.from(document.body.childNodes).includes(toolTip)){
+        document.body.removeChild(toolTip)
+      }
+    }
+  }
   return new Plugin({
     key:toolTipPluginKey,
     props:{
       handleDOMEvents:{
+        mouseleave:removeToolTip,
+        mousemove:removeToolTip,
+        wheel:removeToolTip,
+        focusout:removeToolTip,
         mouseover:(view,event)=>{
           //@ts-ignore
           let elPath = event.path
@@ -57,9 +70,7 @@ export const getToolTipPlugin = function(serviceShare:ServiceShare){
             toolTip.appendChild(toolTipArrow)
             toolTip.style.left = event.clientX-toolTip.getBoundingClientRect().width/2 + 'px'
           }else{
-            if(Array.from(document.body.childNodes).includes(toolTip)){
-              document.body.removeChild(toolTip)
-            }
+            removeToolTip(view,event)
           }
         }
       }
