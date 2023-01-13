@@ -22,7 +22,7 @@
     </div>
     <div class="middle-group" [ngStyle]="{'display':active == 'editor'?'flex':'none'}">
       <mat-form-field class="titel-form-control" appearance="legacy" color="black">
-        <textarea matInput [formControl]="titleControl"></textarea>
+        <textarea matInput [formControl]="titleControl" rows="1" wrap="off"></textarea>
       </mat-form-field>
       <div class="right-avatars">
         <div class="more-avatar">

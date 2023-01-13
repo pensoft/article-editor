@@ -54,8 +54,25 @@
     justify-content: flex-start;
     align-items: center;
     padding-top: 30px;
+    flex-grow: 1;
     textarea {
+      width: 100%;
       resize: none;
+
+      -ms-overflow-style: none;  /* Internet Explorer 10+ */
+      scrollbar-width: none;  /* Firefox */
+
+      &::-webkit-scrollbar {
+        display: none;  /* Safari and Chrome */
+      }
+    }
+    .mat-form-field-wrapper {
+      width: 100%;
+      .mat-form-field-flex {
+        .mat-form-field-infix {
+          width: 100%;
+        }
+      }
     }
   }
 }
