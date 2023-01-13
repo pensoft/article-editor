@@ -42,7 +42,10 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
           ...(menusAndSchemasDefs[sectionID]||{schemas:{}}).schemas
         }
         let schemaDefForNode = importantSchemaDefsForSection[editorSchemaDEFKey];
-        let nodeSchema = serviceShare.ProsemirrorEditorsService.buildSchemaFromKeysDef(schemaDefForNode);
+        let nodeSchema = schemaDefForNode?serviceShare.ProsemirrorEditorsService.buildSchemaFromKeysDef(schemaDefForNode):schema;
+        if(!schemaDefForNode){
+          console.error(`There is no schema def with this name ["${editorSchemaDEFKey}"]. Available schema defs are : ["${Object.keys(importantSchemaDefsForSection).join('","')}"]`)
+        }
         nodeSchemaParser = DOMParser.fromSchema(nodeSchema)
         nodeSchemaSerializer = DOMSerializer.fromSchema(nodeSchema);
         DOMParsersAndSerializersBySchemaKeys[editorSchemaDEFKey] = {

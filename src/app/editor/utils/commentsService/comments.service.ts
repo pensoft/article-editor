@@ -314,7 +314,7 @@ export class CommentsService {
             })
           }
           if (!commentableAttr && !err) {
-            errorMessage = "You can't leave comment there."
+            errorMessage = "You can't leave a comment there."
             err = true
           }
           if (!selectedAComment && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() ) {
