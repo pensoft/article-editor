@@ -1446,9 +1446,5 @@ body {
 
 body {
   margin: 0;
-
-  &::ng-deep {
-    font-family: 'Open Sans', sans-serif;
-  }
-
+  font-family: 'Open Sans', sans-serif;
 }
