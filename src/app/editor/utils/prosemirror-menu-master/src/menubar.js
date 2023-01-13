@@ -43,6 +43,7 @@ class MenuBarView {
 
     constructor(editorView, options) {
         try {
+            this.PMMenusAndSchemasDefsMap = options.serviceShare.YdocService.ydoc.getMap('PMMenusAndSchemasDefsMap')
             this.editorView = editorView
             this.options = options
 
@@ -90,6 +91,7 @@ class MenuBarView {
             let menuKey = this.options.menuKey
             let menuTypeOnNode = 'main';
             let menuItAttrs = false;
+            let userIsInSectionTreeTitleNode = false;
             let lastFormControlName
             editorView.state.doc.nodesBetween(from, to, (node, pos, parent, index) => {
                 if (node.attrs.menuType && node.attrs.menuType !== '') {
@@ -98,9 +100,14 @@ class MenuBarView {
                 }
                 if(node.attrs.formControlName&&node.attrs.formControlName.length>0){
                   lastFormControlName = node.attrs.formControlName;
+                  if(node.attrs.formControlName=="sectionTreeTitle"){
+                    userIsInSectionTreeTitleNode = true;
+                  }
                 }
             })
-            if(!menuItAttrs&&this.editorView.editorType&&this.editorView.editorType == 'editorWithCustomSchema'){
+            let menusAndSchemasDefs = this.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
+
+            if(!userIsInSectionTreeTitleNode&&!menuItAttrs&&this.editorView.editorType&&this.editorView.editorType == 'editorWithCustomSchema'){
               if(
                 lastFormControlName &&
                 this.editorView.globalMenusAndSchemasSectionsDefs[this.editorView.sectionID]&&
@@ -111,13 +118,26 @@ class MenuBarView {
                     menuTypeOnNode = formIOJsonMenuAndSchemaDefForField.menu;
                   }
               }
-
             }
-            if (menuTypeOnNode == menuKey && editorView.hasFocus()) {
+            if(!userIsInSectionTreeTitleNode&&this.options.sectionID){
+              let importantMenusForCurrNode = [...Object.keys(menusAndSchemasDefs.layoutDefinitions.menus)]
+              if(menusAndSchemasDefs[this.options.sectionID]){
+                importantMenusForCurrNode.push(...Object.keys(menusAndSchemasDefs[this.options.sectionID].menus))
+              }
+              if(!importantMenusForCurrNode.includes(menuTypeOnNode)){
+                menuTypeOnNode = 'main'
+              }
+            }
+            if (!userIsInSectionTreeTitleNode&&menuTypeOnNode == menuKey && editorView.hasFocus()) {
                 Array.from(this.menuContainer.children).forEach((child) => {
                     child.style.display = 'none';
                 })
                 this.menu.style.display = 'block';
+            }
+            if(userIsInSectionTreeTitleNode && editorView.hasFocus()){
+              Array.from(this.menuContainer.children).forEach((child) => {
+                child.style.display = 'none';
+              })
             }
         }
         if (this.floating) {

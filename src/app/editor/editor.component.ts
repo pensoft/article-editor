@@ -1,6 +1,7 @@
 import { I } from '@angular/cdk/keycodes';
 import {
-  AfterViewInit, ChangeDetectorRef,
+  AfterViewChecked,
+  AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef,
   Component,
   ElementRef,
   HostListener,
@@ -51,8 +52,9 @@ import { CitableElementsEditButtonsService } from './utils/citable-elements-edit
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss'],
+  changeDetection:ChangeDetectionStrategy.OnPush
 })
-export class EditorComponent implements OnInit, AfterViewInit {
+export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked {
   articleSectionsStructure?: articleSection[];
 
   ydoc?: Y.Doc;
@@ -101,6 +103,7 @@ export class EditorComponent implements OnInit, AfterViewInit {
     private changeDetection: ChangeDetectorRef,
     private referencePluginService:ReferencePluginService
   ) {
+
     this.prosemirrorEditorServie.spinSpinner();
     this.previewMode = this.prosemirrorEditorServie.previewArticleMode
     this.titleControl.valueChanges
@@ -222,6 +225,10 @@ export class EditorComponent implements OnInit, AfterViewInit {
     this.metaDataTreeDrawer?.toggle();
   }
 
+  ngAfterViewChecked(): void {
+    this.changeDetection.detectChanges();
+  }
+
   clickEditorTab(){
     if(this.active=='library'){
       this.active='editor';
@@ -311,7 +318,12 @@ export class EditorComponent implements OnInit, AfterViewInit {
     ); // set prosemirror editors to not be editable while in movile mod
   }
 
+  commentsNumberChange : Subject<number> = new Subject()
+
   ngAfterViewInit(): void {
+    this.commentService.commentsChangeSubject.subscribe((msg)=>{
+      this.commentsNumberChange.next(Object.values(this.commentService.commentsObj).length);
+    })
   }
 
   turnOnOffTrachChanges(bool?: boolean) {

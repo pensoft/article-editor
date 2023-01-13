@@ -94,8 +94,8 @@
         <mat-icon svgIcon="reference"></mat-icon>
       </button>
 
-      <button (click)="toggleSidebar('comments')" mat-icon-button [class.active]="sidebar=='comments'">
-        <mat-icon svgIcon="comments"></mat-icon>
+      <button class="open-comments-sidebar" (click)="toggleSidebar('comments')"  mat-icon-button [class.active]="sidebar=='comments'">
+        <mat-icon matBadge="{{commentsNumberChange | async}}" matBadgeSize="small" matBadgeColor="warn" svgIcon="comments"></mat-icon>
       </button>
     </div>
   </div>

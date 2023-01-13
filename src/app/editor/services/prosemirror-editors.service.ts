@@ -552,7 +552,7 @@ export class ProsemirrorEditorsService {
         inputRules(inputRulesObj),
         ...menuBar({
           floating: true,
-          content: menuTypes, containerClass: menuContainerClass
+          content: menuTypes, containerClass: menuContainerClass,serviceShare:this.serviceShare,sectionID: editorID
         }),
         this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures })
       ].concat(exampleSetup({ schema:editorSchema, /* menuContent: fullMenuWithLog, */history: false, containerClass: menuContainerClass }))
@@ -873,7 +873,7 @@ export class ProsemirrorEditorsService {
         this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures }),
         ...menuBar({
           floating: true,
-          content: this.menuTypes, containerClass: menuContainerClass
+          content: this.menuTypes, containerClass: menuContainerClass,serviceShare:this.serviceShare,sectionID: editorID
         })
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */history: false, containerClass: menuContainerClass }))
       ,
@@ -988,10 +988,12 @@ export class ProsemirrorEditorsService {
 
     let menuTypes = this.menuTypes
     let editorSchema = schema
+    let importantMenusDefsForSectionPrim,importantScehmasDefsForSectionPrim
     if(sectionID){
       let {importantMenusDefsForSection,importantScehmasDefsForSection} = this.getMenusAndSchemaDefsImportantForSection(sectionID)
+      importantMenusDefsForSectionPrim = importantMenusDefsForSection
+      importantScehmasDefsForSectionPrim = importantScehmasDefsForSection
       menuTypes = this.menuService.buildPassedMenuTypes(importantMenusDefsForSection)
-
     }
     let CustomDOMPMSerializer = DOMSerializer.fromSchema(editorSchema)
     let placeholder = (formIOComponentInstance.component.placeholder && formIOComponentInstance.component.placeholder !== '') ? formIOComponentInstance.component.placeholder : undefined
@@ -1086,7 +1088,12 @@ export class ProsemirrorEditorsService {
     }
     let menu: any = undefined
     if (options.menuType) {
-      menu = { main: menuTypes[options.menuType] }
+      if(menuTypes[options.menuType]){
+        menu = { main: menuTypes[options.menuType] }
+      }else{
+        menu = { main: menuTypes['main'] };
+        console.error(`There is no menu def with this name ["${options.menuType}"]. Available menu defs are : ["${Object.keys(importantMenusDefsForSectionPrim).join('","')}"]`)
+      }
     }
     let keymapObj = {
       'Mod-z': undo,

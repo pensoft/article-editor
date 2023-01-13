@@ -21,6 +21,13 @@
   }
 }
 
+::ng-deep .open-comments-sidebar{
+  #mat-badge-content-1{
+    background-color: #E56B87 !important;
+    border: 2px solid white !important;
+  }
+}
+
 .user-reference-lib {
   height: 100%;
   position: fixed;

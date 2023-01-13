@@ -1,5 +1,6 @@
 import { DOMParser, DOMSerializer } from "prosemirror-model"
 import { ServiceShare } from "../services/service-share.service"
+import { schema } from "./Schema"
 import { FullSchemaDOMPMSerializer } from "./Schema/filterNodesIfSchemaDefPlugin"
 
 let allNodes = [
@@ -344,7 +345,11 @@ export let filterFieldsValues = (formIOJSON:any,submission:any,serviceShare:Serv
       customDefsForField = {schema:defsOnFieldsInHTML[fieldKey].allowedTags}
     }
     if(customDefsForField&&customDefsForField.schema){
-      let nodeSchema = serviceShare.ProsemirrorEditorsService.buildSchemaFromKeysDef(importantSchemaDefsForSection[customDefsForField.schema]);
+      let nodeSchemaDef = importantSchemaDefsForSection[customDefsForField.schema]
+      let nodeSchema = nodeSchemaDef?serviceShare.ProsemirrorEditorsService.buildSchemaFromKeysDef(nodeSchemaDef):schema;
+      if(!nodeSchemaDef){
+        console.error(`There is no schema def this whis name ["${customDefsForField.schema}"]. Available schema defs are : ["${Object.keys(importantSchemaDefsForSection).join('","')}"]`)
+      }
       let nodeSchemaParser = DOMParser.fromSchema(nodeSchema);
       let nodeSchemaSerializer = DOMSerializer.fromSchema(nodeSchema);
 

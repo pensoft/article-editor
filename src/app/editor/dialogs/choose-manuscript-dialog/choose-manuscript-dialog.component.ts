@@ -1,5 +1,5 @@
 import { ThisReceiver } from '@angular/compiler';
-import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { uuidv4 } from "lib0/random";
@@ -7,9 +7,10 @@ import { uuidv4 } from "lib0/random";
 @Component({
   selector: 'app-choose-manuscript-dialog',
   templateUrl: './choose-manuscript-dialog.component.html',
-  styleUrls: ['./choose-manuscript-dialog.component.scss']
+  styleUrls: ['./choose-manuscript-dialog.component.scss'],
+  changeDetection:ChangeDetectionStrategy.OnPush
 })
-export class ChooseManuscriptDialogComponent implements OnInit, AfterViewInit {
+export class ChooseManuscriptDialogComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
   showError = false;
   articleTemplates: any[] = [];
@@ -17,12 +18,18 @@ export class ChooseManuscriptDialogComponent implements OnInit, AfterViewInit {
   constructor(
     public dialog: MatDialog,
     private dialogRef: MatDialogRef<ChooseManuscriptDialogComponent>,
+    private ref:ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public data: { layouts: any },
   ) {
 
   }
 
+  ngAfterViewChecked(): void {
+    this.ref.detectChanges()
+  }
+
   ngOnInit(): void {
+
   }
 
   ngAfterViewInit(): void {
