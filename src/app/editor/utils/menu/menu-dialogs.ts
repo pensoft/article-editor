@@ -381,21 +381,65 @@ export const insertTableItem = new MenuItem({
 });
 
 export const addAnchorTagItem = new MenuItem({
-  title: 'Add anchor tag to the document',
+  title: 'Remove link on selection.',
   // @ts-ignore
   run: (state: EditorState, dispatch: any) => {
-    const { selection: { $from, $to }, tr } = state;
-    let anchorid;
-    const dialogRef = sharedDialog.open(AddCommentDialogComponent, {
+    let doc = state.doc
+    let from = state.selection.$from;
+
+    let markStart = state.selection.from;
+    let markEnd = state.selection.from;
+
+    let nodeBefore = from.nodeBefore
+    let markBefore = nodeBefore.marks.find((m)=>m.type.name == "link")
+    let nodeAfter = from.nodeAfter
+    let markAfter = nodeAfter.marks.find((m)=>m.type.name == "link")
+    let originalMarksAttr = markAfter.attrs;
+    let doneWithStart = false;
+    let doneWithEnd = false;
+
+    let checkAttrs = (attrs)=>{
+      return originalMarksAttr.title == attrs.title&&originalMarksAttr.href == attrs.href
+    }
+    while(!doneWithStart||!doneWithEnd){
+      let newStart = doc.resolve(markStart - nodeBefore.nodeSize);
+      let newStartNodeBefore = newStart.nodeBefore;
+      let newEnd = doc.resolve(markEnd + nodeAfter.nodeSize+1);
+      let newNodeNodeAfter = newEnd.nodeBefore;
+      if(!newStartNodeBefore||!newStartNodeBefore.marks.find((m)=>m.type.name == "link")||!checkAttrs(newStartNodeBefore.marks.find((m)=>m.type.name == "link").attrs)){
+        markStart = markStart - nodeBefore.nodeSize
+        doneWithStart = true;
+      }
+      if(!doneWithStart){
+        markStart = markStart - nodeBefore.nodeSize
+      }
+      if(!newNodeNodeAfter||!newNodeNodeAfter.marks.find((m)=>m.type.name == "link")||!checkAttrs(newNodeNodeAfter.marks.find((m)=>m.type.name == "link").attrs)){
+        markEnd = markEnd + nodeAfter.nodeSize
+        doneWithEnd = true;
+      }
+      if(!doneWithEnd){
+        markEnd = markEnd + nodeAfter.nodeSize
+      }
+    }
+    dispatch(state.tr.removeMark(markStart,markEnd,markBefore))
+   /*  const dialogRef = sharedDialog.open(AddCommentDialogComponent, {
       width: 'auto',
       data: { url: anchorid, type: 'anchorTag' }
     });
     dialogRef.afterClosed().subscribe(result => {
       anchorid = result;
       toggleMark(state.schema.marks.anchorTag, { id: anchorid })(state, dispatch)
-    });
+    }); */
   },
-  enable(state:EditorState) { return state.schema.marks.anchorTag&&!state.tr.selection.empty },
+  enable(state:EditorState) {
+    let {$from} = state.selection
+    let nodeBefore = $from.nodeBefore
+    let nodeAfter = $from.nodeAfter
+    if(nodeBefore&&nodeAfter&&nodeBefore.marks.some((m)=>m.type.name == "link")&&nodeAfter.marks.some((m)=>m.type.name == "link")){
+      return true
+    }
+    return false
+  },
   icon: createCustomIcon('anchortag.svg', 19)
 })
 
