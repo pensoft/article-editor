@@ -2,29 +2,40 @@
     font-size: 24px;
     font-weight: 500;
     text-align: -webkit-center;
-    padding-top: 31px;
-    padding-bottom: 31px;
+    padding-top: 24px;
+    padding-bottom: 60px;
 }
 
 .options-container {
+    position: relative;
     .format-label {
+        position: absolute;
+        top: 0;
+        font-weight: 500;
         display: inline-block;
+        padding-right: 12px;
     }
     .format-options {
         display: inline-block;
+        padding-left: 72px;
         .format-option {
             display: block;
+            padding-bottom: 18px;
         }
     }
 }
 
 .export-container {
+    padding-bottom: 42px;
     .export-label {
+        font-weight: 500;
+        padding-right: 12px;
         display: inline-block;
     }
     .export-place {
         display: inline-block;
         .folder-icon {
+            padding-right: 12px;
             display: inline;
         }
         .change-folder-btn {
@@ -37,5 +48,19 @@
 }
 
 .button-container {
-    .export-button {}
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    .export-button {
+        border-radius: 6px !important;
+        font-size: 14px;
+        line-height: 20px;
+        padding-top: 6px;
+        padding-bottom: 6px;
+        padding-left: 25px;
+        padding-right: 25px;
+        img {
+            padding-left: 4px;
+        }
+    }
 }
