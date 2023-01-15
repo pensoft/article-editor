@@ -11,9 +11,19 @@
     //  box-shadow: 0px 6px 10px $box-shadow !important;
   }
 }
+
+.container-shadow-contributor-heading {
+  font-weight: bold;
+  color: #273660;
+}
+
 ::ng-deep .add-contributor-input-container {
   width: auto;
   margin-right: 7px;
+  .contributor-input-heading {
+    margin-bottom: -12px;
+    font-weight: 500;
+  }
   .mat-form-field-underline {
     display: none;
   }
@@ -79,29 +89,35 @@
     background-color: white;
     border: 1px solid #979797;
     color: #979797;
-    font-size: 1em;
+    font-size: 14px;
+    line-height: 20px;
     padding: 7px;
     font-weight: 600;
     padding-right: 23px;
     padding-left: 23px;
+    padding-top: 7px;
+    padding-bottom: 7px;
     border-radius: 25px;
     cursor: pointer;
   }
   .contr-cancel-btn:hover {
     background-color: rgb(243, 242, 242);
   }
-  .contr-done-btn:hover {
-    background-color: rgb(243, 242, 242);
-  }
+  // .contr-done-btn:hover {
+  //   background-color: rgb(243, 242, 242);
+  // }
   .contr-done-btn {
-    background-color: white;
+    background-color: #02b1b4;
     border: 1px solid #02b1b4;
-    color: #02b1b4;
-    font-size: 1em;
-    padding: 7px;
+    color: white;
+    font-size: 14px;
+    line-height: 20px;
+    // padding: 7px;
     font-weight: 600;
     padding-right: 23px;
     padding-left: 23px;
+    padding-top: 7px;
+    padding-bottom: 7px;
     border-radius: 25px;
     cursor: pointer;
   }
@@ -110,7 +126,6 @@
 //     padding: 24px 0 24px 0;
 // }
 .container-contributers {
-  height: 300px;
   overflow: auto;
 }
 .input-search {
@@ -147,6 +162,7 @@
 .blue-bg-owner {
   background: $bg-light-glue;
   border-radius: 20px;
+  margin-bottom: 20px;
 }
 .border1px-primary {
   border: 2px solid #00b1b24a;

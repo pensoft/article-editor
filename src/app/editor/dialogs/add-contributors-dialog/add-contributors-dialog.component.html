@@ -2,7 +2,7 @@
   <div class="container-shadow-contributor">
     <article fxLayout="column">
       <div fxLayout="column" fxFill>
-        <h1 fxFill class="font-size16px">
+        <h1 fxFill class="font-size16px container-shadow-contributor-heading">
           Add contributors
         </h1>
         <div *ngIf="showError" class="error">No Layout selected.</div>
@@ -19,6 +19,9 @@
           </form>
           <label>Invite people</label> -->
           <div class="add-contributor-input-container">
+            <h3 class="contributor-input-heading">
+              Invite people
+            </h3>
             <mat-form-field class="contributor-input-field">
               <input matInput class="input-search" placeholder="Search by name" [formControl]="searchFormControl" autocomplete="off">
               <mat-icon matPrefix class="prefix-icon">search</mat-icon>
@@ -68,10 +71,10 @@
             </div>
           </div>
 
-          <div fxFlex="20%" class="text-primary  role-div">
+          <div fxFlex="25%" class="text-primary  role-div">
             {{contributor.role}}
           </div>
-          <div fxFlex="10%" >
+          <div fxFlex="5%" >
           </div>
         </div>
         <div *ngIf="contributor.role != 'Owner'" fxLayout="row" fxFill fxLayoutAlign="start center" class="border1px-primary border-radius20 mt10px">
@@ -86,7 +89,7 @@
               {{contributor.email}}
             </div>
           </div>
-          <div fxFlex="20%" class="text-primary role-div">
+          <div fxFlex="20%" class="role-div">
             {{contributor.role}}
           </div>
           <div fxFlex="10%" *ngIf="!isOwner">
@@ -102,7 +105,10 @@
     <article fxLayout="column">
       <div fxLayout="row" fxLayoutGap="15px" fxFill fxLayoutAlign="end" class="dialogbtns border-radius20 mt10px">
         <!-- <button class="normal-btn-cancel-graystyle" (click)="closeDialog()">Cancel</button> -->
-        <button class="normal-btn-done-greenstyle" (click)="closeDialog()">
+        <button class="contr-cancel-btn" (click)="closeDialog()">
+          Cancel
+      </button>
+        <button class="contr-done-btn" (click)="closeDialog()">
                     Done
                 </button>
       </div>
