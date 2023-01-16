@@ -1,7 +1,7 @@
 import markDeletion from './markDeletion';
 import markInsertion from './markInsertion';
 import markWrapping from './markWrapping';
-import { liftListItem } from 'prosemirror-schema-list';
+import { liftListItem } from '../../../menu/listLogic';
 
 const replaceAroundStep = (
     state,

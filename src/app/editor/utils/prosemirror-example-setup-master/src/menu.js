@@ -14,7 +14,7 @@ import {
 import { MenuItem } from '../../prosemirror-menu-master/src/index'
 import { NodeSelection } from "prosemirror-state"
 import { toggleMark } from "prosemirror-commands"
-import { wrapInList } from "prosemirror-schema-list"
+import { wrapInList } from "../../menu/listLogic"
 import { TextField, openPrompt } from "./prompt"
 
 // Helpers to create specific types of items
