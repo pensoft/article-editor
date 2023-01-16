@@ -23,10 +23,6 @@
         color: var(--color-e3e3e3);
       }
     }
-    &:hover {
-      background: var(--color-f5f5f5);
-      border-color: var(--color-559efe);
-    }
   }
   .mat-card {
     box-shadow: none !important;
@@ -62,7 +58,7 @@
 }
 
 .resolve-button {
-   ::ng-deep {
+  ::ng-deep {
     button {
       height: 25px !important;
       width: 78px !important;
@@ -93,13 +89,40 @@
   }
 }
 
-.change-action-button {
-   ::ng-deep {
-    .arpha-button {
-      width: 90px;
-      height: 25px;
-      color: green;
+::ng-deep .change-decline-button{
+  button{
+    color: #A1A2A2 !important;
+    border-color: #A1A2A2 !important;
+  }
+}
+
+.change-action-button-container{
+  text-align: center;
+}
+
+::ng-deep .change-action-button {
+  .arpha-button {
+    .mat-button-wrapper{
+      mat-icon{
+        margin-left: -6px;
+        margin-right: 3px;
+      }
     }
+    .material-icons{
+      font-size: 21px !important;
+      height: 21px !important;
+    }
+    font-size: 12px !important;
+    font-weight: bolder !important;
+    line-height: 20px !important;
+    width: 90px !important;
+    height: auto !important;
+    vertical-align: middle;
+    border-width: 1.5px !important;
+    padding-right: 0px !important;
+    display: inline-block;
+    text-align: center;
+    padding-left: 0px !important;
   }
 }
 

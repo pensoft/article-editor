@@ -45,7 +45,7 @@ export class TrackChangesService {
   acceptReject: any = {}
 
   focusedChangeIndex?:number
-
+  lastSelectedChanges: { [key: string]: { changeMarkId: string, section: string,pos:number } }
   editorCenter: { top: number | undefined, left: number | undefined } = { top: undefined, left: undefined }
 
   resetTrackChangesService() {
@@ -89,25 +89,24 @@ export class TrackChangesService {
         let domCoords = view.coordsAtPos(pos)
         let markIsLastSelected = false
 
-       /*  let selComment = this.lastSelectedChange[actualMark.attrs.id];
+        let selComment = this.lastSelectedChanges[actualMark.attrs.id];
         if (selComment) {
-          if (!this.serviceShare.ProsemirrorEditorsService.editorContainers[selComment.sectionId]) {
-            this.lastSelectedComments[actualMark.attrs.id] = undefined
-          } else if (selComment.pos == pos&&selComment.commentId == actualMark.attrs.id && selComment.commentMarkId == actualMark.attrs.commentmarkid && selComment.sectionId == sectionId) {
+          if (!this.serviceShare.ProsemirrorEditorsService.editorContainers[selComment.section]) {
+            this.lastSelectedChanges[actualMark.attrs.id] = undefined
+          } else if (selComment.pos == pos&&selComment.changeMarkId == actualMark.attrs.id && selComment.section == sectionId) {
             markIsLastSelected = true
           }
-        } */
-         let lastSelected: true | undefined
-        /*if (
-          this.lastCommentSelected.commentId == actualMark.attrs.id &&
-          this.lastCommentSelected.commentMarkId == actualMark.attrs.commentmarkid &&
-          this.lastCommentSelected.sectionId == sectionId&&
-          this.lastCommentSelected.pos == pos
+        }
+        let lastSelected: true | undefined
+        if (
+          this.lastChangeSelected.changeMarkId == actualMark.attrs.id &&
+          this.lastChangeSelected.section == sectionId &&
+          this.lastChangeSelected.pmDocStartPos == pos
         ) {
           lastSelected = true
         }
         if (lastSelected) {
-        } */
+        }
         if (markIsLastSelected || lastSelected || (!(markIsLastSelected || lastSelected) && !this.changesObj[actualMark.attrs.id])) {
           /*
           {
@@ -141,7 +140,6 @@ export class TrackChangesService {
             changeTxt: node.textContent,
             changeAttrs: actualMark.attrs,
             type:actualMark.type.name,
-            viewRef:view,
             selected: markIsLastSelected,
           }
         }
@@ -185,7 +183,6 @@ export class TrackChangesService {
   }
 
   setLastSelectedChange = (pos?: number, sectionId?: string, changeMarkIdPrim?: string,focus?:true) => {
-    console.log(pos,sectionId,changeMarkIdPrim,focus);
     if (!this.sameAsLastSelectedChange(pos, sectionId, changeMarkIdPrim)||focus) {
       this.lastSelectedChangeSubject.next({ pmDocStartPos:pos, section:sectionId, changeMarkId:changeMarkIdPrim })
     }
@@ -211,6 +208,8 @@ export class TrackChangesService {
       changeMarkId?: string,
     } = {}
     this.lastChangeSelected = lastChangeSelected
+    let lastSelectedChanges: { [key: string]: { changeMarkId: string, section: string,pos:number } } = {}
+    this.lastSelectedChanges = lastSelectedChanges
 
     let acceptReject = this.acceptReject
     let editorCenter = this.editorCenter
@@ -477,7 +476,12 @@ export class TrackChangesService {
             if (sameAsLastSelectedChange(pos, prev.sectionName, actualMark.attrs.id)) {
               return
             }
-            setLastSelectedChange(pos, prev.sectionName, actualMark.attrs.id)
+            setLastSelectedChange(pos, prev.sectionName, actualMark.attrs.id);
+            lastSelectedChanges[actualMark.attrs.id] = {
+              changeMarkId: actualMark.attrs.id,
+              section: prev.sectionName,
+              pos
+            }
           }
           let sectionContainer = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName]
           let view = sectionContainer?sectionContainer.editorView:undefined

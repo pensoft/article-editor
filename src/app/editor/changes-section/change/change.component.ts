@@ -46,6 +46,9 @@ export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
   }
 
   ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.doneRenderingChangesSubject.next('rendered')
+    }, 10)
     this.changesService.lastSelectedChangeSubject.subscribe((change) => {
       if(this.ydocService.curUserRole&&this.ydocService.curUserRole=='Viewer'){
         return
@@ -58,12 +61,16 @@ export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
     })
   }
 
-  acceptChange(view: any, type: any, attrs: any) {
+  acceptChange(type: any, attrs: any) {
+    let view = this.serviceShare.ProsemirrorEditorsService.editorContainers[this.change.section].editorView
     acceptChange(view, type,attrs)
+    this.changesService.getChangesInAllEditors()
   }
 
-  declineChange(view: any, type: any, attrs: any) {
+  declineChange(type: any, attrs: any) {
+    let view = this.serviceShare.ProsemirrorEditorsService.editorContainers[this.change.section].editorView
     rejectChange(view, type,attrs);
+    this.changesService.getChangesInAllEditors()
   }
 
   getDate = getDate
