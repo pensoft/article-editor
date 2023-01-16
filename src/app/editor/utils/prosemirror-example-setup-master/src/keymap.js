@@ -11,7 +11,7 @@ import {
     selectNodeBackward,
     selectNodeForward
 } from "prosemirror-commands"
-import { wrapInList, splitListItem, liftListItem, sinkListItem } from "prosemirror-schema-list"
+import { wrapInList, splitListItem, liftListItem, sinkListItem } from "../../menu/listLogic"
 import { undo, redo } from "prosemirror-history"
 import { undoInputRule } from "prosemirror-inputrules"
 import { EditorState, NodeSelection, TextSelection } from "prosemirror-state"
@@ -72,7 +72,7 @@ export function buildKeymap(schema, mapKeys) {
         while (counter > -1 && !formFieldParentFound) {
             let pathValue = anchorPath[counter]
             if (typeof pathValue == 'number') { // number
-            } else { // node       
+            } else { // node
                 let parentType = pathValue.type.name
                 if (parentType == "form_field") {
                     parentNode = pathValue // store the form_field node that the selection is currently in

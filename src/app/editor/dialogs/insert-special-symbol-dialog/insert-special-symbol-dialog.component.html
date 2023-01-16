@@ -3,15 +3,21 @@
   <div class="search-box">
     <arpha-input placeholder="Search for symbol"></arpha-input>
   </div>
-  <div class="filter-box">
-    <arpha-button label="Symbols" class="small primary"></arpha-button>
+  <div class="filter-box select-symbols-parent">
+    <select label="Symbols" class="select-symbols" [formControl]="selectSymbolsGroup">
+      <option *ngFor="let opt of selectOptions" value="{{opt.from+'|'+opt.to}}">U+{{opt.from}}...U+{{opt.to}} : {{opt.name}}</option>
+    </select>
     <arpha-button label="Font" class="small primary"></arpha-button>
     <arpha-button label="Color" class="small primary"></arpha-button>
   </div>
   <div class="content-box">
     <mat-grid-list cols="10" rowHeight="1:1">
-      <mat-grid-tile *ngFor="let i of size">
-        <mat-icon svgIcon="openPadlock"></mat-icon>
+      <mat-grid-tile *ngFor="let str of contentFlat" >
+        <div class="char-select" (click)="selectChar(currEl,str)" #currEl>
+          <div class="char-inner">
+            {{str}}
+          </div>
+        </div>
       </mat-grid-tile>
     </mat-grid-list>
   </div>
@@ -20,5 +26,6 @@
 <div class="actions">
   <arpha-button label="Cancel" (clickEvent)="onNoClick()" class="small secondary action-button negative-button">
   </arpha-button>
-  <arpha-button label="Add" (clickEvent)="doAction(data)" class="small primary action-button"></arpha-button>
+  <arpha-button label="Add" [disabled]="!selectedChar" (clickEvent)="doAction(data)" class="small primary action-button"></arpha-button>
 </div>
+

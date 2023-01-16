@@ -1,6 +1,6 @@
 //@ts-ignore
 import { DocumentHelpers } from 'wax-prosemirror-utilities';
-import { toggleMark } from "prosemirror-commands";
+import { joinDown, joinUp, toggleMark } from "prosemirror-commands";
 import { Dropdown } from "prosemirror-menu"
 //@ts-ignore
 import { MenuItem } from '../prosemirror-menu-master/src/index.js'
@@ -13,7 +13,7 @@ import { icons } from 'prosemirror-menu'
 import { redo, undo } from '../../../y-prosemirror-src/y-prosemirror.js';
 import { wrapItem, blockTypeItem, selectParentNodeItem as selectParentNodeItemPM } from "prosemirror-menu";
 import { YMap } from "yjs/dist/src/internals";
-import { wrapInList } from "prosemirror-schema-list";
+import { liftListItem, sinkListItem, wrapInList } from "./listLogic";
 import { Subject } from 'rxjs';
 import { canInsert, createCustomIcon } from './common-methods';
 import { insertFigure,insertSupplementaryFile, insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem, citateReference, insertTable, insertEndNote } from './menu-dialogs';
@@ -58,7 +58,9 @@ function markItem(markType: MarkType,markKey:string, options: any) {
 }
 
 function wrapListItem(nodeType: NodeType,nodeItem:string, options: any) {
-  let wrapListMenuItem = cmdItem(wrapInList(nodeType, options.attrs), options)
+  let wrapListMenuItem = cmdItem((state,dispatch,view)=>{
+    wrapInList(nodeType, options.attrs)(state,dispatch,view);
+  }, options)
   wrapListMenuItem.enable = (state:EditorState)=>{return state.schema.nodes[nodeItem]}
   return wrapListMenuItem
 }
@@ -171,15 +173,30 @@ const toggleEm = markItem(schema.marks.em,'em', { title: "Toggle emphasis", icon
 
 const toggleCode = markItem(schema.marks.code,'code', { title: "Toggle code font", icon: icons.code })
 
-const wrapBulletList = wrapListItem(schema.nodes.bullet_list,'bullet_list', {
+let wrapInBulletListFunc = wrapInList(schema.nodes.bullet_list)
+const wrapBulletList = new MenuItem({
   title: "Wrap in bullet list",
+  enable(state: EditorState) { return wrapInBulletListFunc(state) },
+  run(state: EditorState, dispatch: any,view) {
+    wrapInBulletListFunc(state,dispatch,view);
+    joinUp(view.state,view.dispatch,view)
+    joinDown(view.state,view.dispatch,view)
+  },
   icon: createCustomIcon('bullets.svg', 25, 25)
 })
 
-const wrapOrderedList = wrapListItem(schema.nodes.ordered_list,'ordered_list', {
+let wrapInOrderedListFunc = wrapInList(schema.nodes.ordered_list)
+const wrapOrderedList = new MenuItem({
   title: "Wrap in ordered list",
+  enable(state: EditorState) { return wrapInOrderedListFunc(state) },
+  run(state: EditorState, dispatch: any,view) {
+    wrapInOrderedListFunc(state,dispatch,view);
+    joinUp(view.state,view.dispatch,view)
+    joinDown(view.state,view.dispatch,view)
+  },
   icon: createCustomIcon('numbering.svg', 16)
 })
+
 
 const wrapBlockQuote = wrapItem(schema.nodes.blockquote, {
   title: "Wrap in block quote",
@@ -279,6 +296,62 @@ const setAlignLeft = new MenuItem({
   select: (state: EditorState) => { return setAlignment('set-align-left')(state) },
   icon: createCustomIcon('align2.svg', 20)
 })
+
+let selectionIsInListItem = (decrease:boolean)=>{
+  return (state:EditorState)=>{
+    let {$from,$to} = state.selection;
+
+    //@ts-ignore
+    let fromPath = $from.path as any[]
+    //@ts-ignore
+    let toPath = $to.path as any[]
+
+    let fromIsInListItem = false;
+    let listItemThatFromIsIn:Node
+    let toIsInListItem = false;
+    let listItemThatToIsIn:Node;
+
+    let parrentList:Node
+    for(let i = fromPath.length-3;i>=0;i-=3){
+      let node = fromPath[i] as Node
+      if(!listItemThatFromIsIn&&node.type.name == 'list_item'){
+        fromIsInListItem = true;
+        listItemThatFromIsIn = node
+      }else if(!parrentList&&(node.type.name == 'bullet_list'||node.type.name == 'ordered_list')){
+        parrentList = node;
+      }
+    }
+
+    for(let i = toPath.length-3;i>=0;i-=3){
+      let node = toPath[i] as Node
+      if(!listItemThatToIsIn&&node.type.name == 'list_item'){
+        toIsInListItem = true;
+        listItemThatToIsIn = node
+      }
+    }
+
+    if(listItemThatFromIsIn == listItemThatToIsIn&&parrentList&&(parrentList.firstChild!=listItemThatToIsIn||decrease)){
+      return true
+    }else{
+      return false;
+    }
+  }
+}
+
+const decreaseIndent = new MenuItem({
+  title: 'Format Indent Decrease',
+  run: liftListItem(schema.nodes.list_item),
+  enable:selectionIsInListItem(true),
+  icon: createCustomIcon('format_indent_decrease.svg', 20,20,3,0,1.1)
+})
+
+const increaseIndent = new MenuItem({
+  title: 'Format Indent Increase',
+  run: sinkListItem(schema.nodes.list_item),
+  enable:selectionIsInListItem(false),
+  icon: createCustomIcon('format_indent_increase.svg', 20,20,3,0,1.1)
+})
+
 
 const setAlignCenter = new MenuItem({
   title: 'Align element to center',
@@ -459,6 +532,7 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
   'insertSupplementaryFile':insertSupplementaryFile,
   'undoItem': undoItemPM,
   'redoItem': redoItemPM,
+  'increaseIndent':increaseIndent,
   'undoItemPM': undoItemPM,
   'redoItemPM': redoItemPM,
   'insertEndNote':insertEndNote,
@@ -479,6 +553,7 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
   'starMenuItem': functionItem,
   'highLightMenuItem': highLightMenuItem,
   'footnoteMenuItem': footnoteMenuItem,
+  'decreaseIndent':decreaseIndent,
   'spellCheckMenuItem': spellCheckMenuItem,
   'toggleUnderline': toggleUnderline,
   'logNodesMenuItem': logNodesMenuItem,

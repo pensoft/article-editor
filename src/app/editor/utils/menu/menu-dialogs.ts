@@ -260,16 +260,14 @@ export const insertSpecialSymbolItem = new MenuItem({
     if (dispatch) {
       const dialogRef = sharedDialog.open(InsertSpecialSymbolDialogComponent, {
         width: '581px',
-        height: '514px',
+        height: '557px',
         panelClass: 'editor-dialog-container',
         data: { type: 'pie' }
       });
       dialogRef.afterClosed().subscribe(data => {
-        if (!data) {
-          return;
+        if (data) {
+          view.dispatch(view.state.tr.replaceSelectionWith(state.schema.text(data)))
         }
-        // view?.dispatch(view.state.tr.replaceSelectionWith(state.schema.nodes.image.createAndFill(attrs)!))
-        // view?.focus();
       });
     }
     return true;

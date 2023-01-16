@@ -91,6 +91,7 @@ export class MenuService {
     ],
     'SimpleMenu': [
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
+      ['wrapBulletList', 'wrapOrderedList','increaseIndent','decreaseIndent'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItem', 'redoItem', 'insertVideoItem'],
       ['insertSupplementaryFile','insertFigure','insertTable','insertEndNote'],
