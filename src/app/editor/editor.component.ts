@@ -141,6 +141,32 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     this.OnOffTrackingChangesShowTrackingSubject =
       prosemirrorEditorServie.OnOffTrackingChangesShowTrackingSubject;
 
+    this.serviceShare.TrackChangesService.lastSelectedChangeSubject.subscribe((data)=>{
+      if(!data.changeMarkId||!data.pmDocStartPos||!data.section) return ;
+      if (!this.sidebarDrawer?.opened) {
+        this.sidebarDrawer?.toggle();
+      }
+      if (this.sidebar != 'changes') {
+        this.sidebar = 'changes';
+        setTimeout(()=>{
+          this.serviceShare.TrackChangesService.lastSelectedChangeSubject.next(data)
+        },20)
+      }
+    })
+
+    this.serviceShare.CommentsService.lastSelectedCommentSubject.subscribe((data)=>{
+      if(!data.commentId||!data.commentMarkId||!data.pos||!data.sectionId) return ;
+      if (!this.sidebarDrawer?.opened) {
+        this.sidebarDrawer?.toggle();
+      }
+      if (this.sidebar != 'comments') {
+        this.sidebar = 'comments';
+        setTimeout(()=>{
+          this.serviceShare.CommentsService.lastSelectedCommentSubject.next(data)
+        },20)
+      }
+    })
+
     this.commentService.addCommentSubject.subscribe((data) => {
       if (data.type == 'commentData') {
         if (this.innerWidth > 600) {
