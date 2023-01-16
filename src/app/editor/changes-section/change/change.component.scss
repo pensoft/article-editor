@@ -1,9 +1,7 @@
 ::ng-deep {
-  .change {
+  .change-box {
     padding: 16px 15px 16px 16px !important;
-    width: 90%;
-    border-radius: 0 !important;
-    border-left: 2px solid transparent;
+    border-radius: 11px !important;
     .avatar {
       height: 36px;
       width: 36px;
@@ -12,10 +10,16 @@
     }
     .mat-card-header-text {
       margin-left: 6px !important;
+      margin-right: 5px;
     }
     .header-actions {
-      margin-left: auto;
+      display: flex;
+      position: absolute;
+      margin-left: 0;
+      margin-right: auto;
+      right: 0;
       mat-icon {
+        vertical-align: initial;
         color: var(--color-e3e3e3);
       }
     }

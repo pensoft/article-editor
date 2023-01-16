@@ -34,8 +34,7 @@
                       <div fxFlex="65%" class="font-size16px ml-10px cont-name">
                         <div class="user-name" [innerHTML]="contributor.name | makeTextBold : searchFormControl.value">
                         </div>
-                        <div class="user-email">
-                          {{contributor.email}}
+                        <div class="user-email" [innerHTML]="contributor.email | makeTextBold : searchFormControl.value">
                         </div>
                       </div>
                       <!-- <div fxFlex="10%" class="text-primary cont-add-btn">

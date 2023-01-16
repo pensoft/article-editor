@@ -1,38 +1,27 @@
 import { Injectable } from '@angular/core';
+import { changeData } from '@app/editor/changes-section/changes-section.component';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { undoItem } from 'prosemirror-menu';
 import { Mark, Node } from 'prosemirror-model';
-import { EditorState, Plugin, PluginKey, Selection } from 'prosemirror-state';
-import { Decoration, DecorationSet } from 'prosemirror-view';
+import { AllSelection, EditorState, Plugin, PluginKey, Selection } from 'prosemirror-state';
+import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
 import { Subject } from 'rxjs';
 //@ts-ignore
 import { DocumentHelpers } from 'wax-prosemirror-utilities';
 import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../../services/ydoc.service';
 import { acceptChange, rejectChange } from '../trackChanges/acceptReject';
+export let selInChange = (sel:Selection,node:Node,nodePos:number) =>{
+  let nodestart= nodePos;
+  let nodeend = nodePos+node.nodeSize;
+  return nodestart<=sel.from&&nodeend>=sel.to
+}
 
+let changesMarksNames = ['insertion','deletion'];
 
-const getTrackChanges = (state: EditorState) => {
-  const finalTracks: any[] = [];
-  const allInlineNodes = DocumentHelpers.findInlineNodes(state.doc);
-
-  allInlineNodes.map((node: any) => {
-    if (node.node.marks.length > 0) {
-      node.node.marks.filter((mark: any) => {
-
-        if (
-          mark.type.name === 'insertion' ||
-          mark.type.name === 'deletion' ||
-          mark.type.name === 'format_change'
-        ) {
-          mark.pos = node.pos;
-          finalTracks.push(mark);
-        }
-      });
-    }
-  });
-  return finalTracks;
-};
+let changeMarksOnNode = (node:Node)=>{
+  return  node.marks.find(mark => changesMarksNames.includes(mark.type.name))
+}
 
 const checkPosition = (editorP: { top: number, bottom: number }, positionToCheck: { top: number, bottom: number }) => {
   if (editorP.top > positionToCheck.top) {
@@ -51,44 +40,182 @@ const checkPosition = (editorP: { top: number, bottom: number }, positionToCheck
   providedIn: 'root'
 })
 export class TrackChangesService {
-  changesVisibilityChange
-  changesObject
   hideShowPlugin
   hideshowPluginKey: PluginKey;
   acceptReject: any = {}
 
   focusedChangeIndex?:number
-  changesFocusFunctions = new Subject()
 
   editorCenter: { top: number | undefined, left: number | undefined } = { top: undefined, left: undefined }
 
   resetTrackChangesService() {
-    Object.keys(this.changesObject).forEach((key)=>{
-      this.changesObject[key] = []
-    })
     Object.keys(this.acceptReject).forEach((key)=>{
       this.acceptReject[key] = undefined
     })
 
+    this.changesObj = {}
     this.editorCenter.top = undefined
     this.editorCenter.left = undefined
   }
+
+  updateAllChanges() {
+    this.getChangesInAllEditors()
+    this.updateTimestamp = Date.now();
+  }
+
+  changesObj:{[kes:string]:changeData} = {}
+  changesChangeSubject: Subject<any> = new Subject()
+
+  getChangesInAllEditors = () => {
+    this.changesObj = {}
+    let edCont = this.serviceShare.ProsemirrorEditorsService.editorContainers
+    Object.keys(edCont).forEach((sectionId) => {
+      let view = edCont[sectionId].editorView;
+      this.getChanges(view, sectionId);
+    })
+    this.changesChangeSubject.next('changes pos calc for all sections');
+  }
+
+  getChanges = (view: EditorView, sectionId: string) => {
+    let doc = view.state.doc
+    let docSize: number = doc.content.size;
+    doc.nodesBetween(0, docSize - 1, (node, pos, parent, index) => {
+      const actualMark = node.marks.find(mark => changesMarksNames.includes(mark.type.name));
+
+      if (actualMark) {
+        // should get the top position , the node document position , the section id of this view
+        let articleElement = document.getElementById('app-article-element') as HTMLDivElement
+        let articleElementRactangle = articleElement.getBoundingClientRect()
+        let domCoords = view.coordsAtPos(pos)
+        let markIsLastSelected = false
+
+       /*  let selComment = this.lastSelectedChange[actualMark.attrs.id];
+        if (selComment) {
+          if (!this.serviceShare.ProsemirrorEditorsService.editorContainers[selComment.sectionId]) {
+            this.lastSelectedComments[actualMark.attrs.id] = undefined
+          } else if (selComment.pos == pos&&selComment.commentId == actualMark.attrs.id && selComment.commentMarkId == actualMark.attrs.commentmarkid && selComment.sectionId == sectionId) {
+            markIsLastSelected = true
+          }
+        } */
+         let lastSelected: true | undefined
+        /*if (
+          this.lastCommentSelected.commentId == actualMark.attrs.id &&
+          this.lastCommentSelected.commentMarkId == actualMark.attrs.commentmarkid &&
+          this.lastCommentSelected.sectionId == sectionId&&
+          this.lastCommentSelected.pos == pos
+        ) {
+          lastSelected = true
+        }
+        if (lastSelected) {
+        } */
+        if (markIsLastSelected || lastSelected || (!(markIsLastSelected || lastSelected) && !this.changesObj[actualMark.attrs.id])) {
+          /*
+          {
+    "changeMarkId": "0a2c76d6-33ad-435e-913e-f0ab78da94d0",
+    "pmDocStartPos": 121,
+    "pmDocEndPos": 133,
+    "section": "endEditor",
+    "domTop": 1599.869888305664,
+    "changeTxt": "ауисдхасиудх",
+    "changeAttrs": {
+        "class": "insertion",
+        "id": "0a2c76d6-33ad-435e-913e-f0ab78da94d0",
+        "user": "96c57a87-3301-4ecf-8083-29a323b16b43",
+        "username": "Минчо Милев",
+        "userColor": "rgb(222, 254, 245)",
+        "userContrastColor": "#000000",
+        "date": 1673598474455,
+        "group": "",
+        "viewid": "",
+        "style": " ;color: #000000;background: rgb(222, 254, 245);color: #000000;background: rgb(222, 254, 245);color: #000000;background: rgb(222, 254, 245);color: #000000;background: rgb(222, 254, 245)",
+        "connectedTo": "1badf54d-3a54-41da-b73e-a6e99b942e9b"
+    },
+    "selected": false
+} */
+          this.changesObj[actualMark.attrs.id] = {
+            changeMarkId: actualMark.attrs.id,
+            pmDocStartPos: pos,
+            pmDocEndPos: pos + node.nodeSize,
+            section: sectionId,
+            domTop: domCoords.top - articleElementRactangle.top,
+            changeTxt: node.textContent,
+            changeAttrs: actualMark.attrs,
+            type:actualMark.type.name,
+            viewRef:view,
+            selected: markIsLastSelected,
+          }
+        }
+      }
+    })
+  }
+
+  updateTimestamp
+  updateTimeout
+  changeInEditors = () => {
+    let now = Date.now();
+    if (!this.updateTimestamp) {
+      this.updateTimestamp = Date.now();
+    }
+    if (this.updateTimeout) {
+      clearTimeout(this.updateTimeout);
+    }
+    if (now - this.updateTimestamp > 1200) {
+      this.updateAllChanges()
+    }
+    this.updateTimeout = setTimeout(() => {
+      this.updateAllChanges()
+    }, 1200)
+  }
+  lastSelectedChangeSubject: Subject<{
+    pmDocStartPos?: number,
+    section?: string,
+    changeMarkId?: string,
+  }> = new Subject()
+  lastChangeSelected:{changeMarkId?:string,pmDocStartPos?:number, section?:string }
+  sameAsLastSelectedChange = (pos?: number, sectionId?: string, changeMarkIdPrim?: string) => {
+    if (
+      this.lastChangeSelected.changeMarkId != changeMarkIdPrim ||
+      this.lastChangeSelected.section != sectionId ||
+      this.lastChangeSelected.pmDocStartPos != pos
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  setLastSelectedChange = (pos?: number, sectionId?: string, changeMarkIdPrim?: string,focus?:true) => {
+    console.log(pos,sectionId,changeMarkIdPrim,focus);
+    if (!this.sameAsLastSelectedChange(pos, sectionId, changeMarkIdPrim)||focus) {
+      this.lastSelectedChangeSubject.next({ pmDocStartPos:pos, section:sectionId, changeMarkId:changeMarkIdPrim })
+    }
+  }
+
   constructor(
     private ydocService: YdocService,
     private serviceShare:ServiceShare
   ) {
     serviceShare.shareSelf('TrackChangesService',this);
-
+    this.lastSelectedChangeSubject.subscribe((data) => {
+      this.lastChangeSelected.pmDocStartPos = data.pmDocStartPos
+      this.lastChangeSelected.section = data.section
+      this.lastChangeSelected.changeMarkId = data.changeMarkId
+    })
     let hideShowPluginKey = new PluginKey('hideShowPlugin');
     this.hideshowPluginKey = hideShowPluginKey
-    let changesVisibilityChange: Subject<any> = new Subject<any>();
-    this.changesVisibilityChange = changesVisibilityChange
 
-    let changesObject: any = {};
-    this.changesObject = changesObject;
+    let changeInEditors = this.changeInEditors
+    let lastChangeSelected: {
+      pmDocStartPos?: number,
+      section?: string,
+      changeMarkId?: string,
+    } = {}
+    this.lastChangeSelected = lastChangeSelected
 
     let acceptReject = this.acceptReject
     let editorCenter = this.editorCenter
+    let setLastSelectedChange = this.setLastSelectedChange
+    let sameAsLastSelectedChange = this.sameAsLastSelectedChange
     let hideShowPlugin = new Plugin({
       key: hideShowPluginKey,
       state: {
@@ -101,45 +228,10 @@ export class TrackChangesService {
           };
         },
         apply(tr, prev, oldState, newState) {
+          let { from, to, empty } = newState.selection;
+
           let meta = tr.getMeta(hideShowPluginKey)
 
-          /*let decorations;
-          let createdDecorations = DecorationSet.empty;
-          const allMatches = getTrackChanges(newState);
-          if (allMatches.length > 0 && !showChanges) {
-
-            decorations = allMatches.map((result, index) => {
-
-
-
-              if (result.type.name === 'insertion') {
-                const position = DocumentHelpers.findMarkPosition(
-                  newState,
-                  result.pos,
-                  'insertion',
-                );
-                return Decoration.inline(position.from, position.to, {
-                  class: 'show-insertion',
-                });
-              }
-              if (result.type.name === 'deletion') {
-                const position = DocumentHelpers.findMarkPosition(
-                  newState,
-                  result.pos,
-                  'deletion',
-                );
-                return Decoration.inline(position.from, position.to, {
-                  class: 'hide-deletion',
-                });
-              }
-            });
-            decorations = decorations.filter((dec) => dec !== undefined) as Decoration<{ [key: string]: any; }>[]
-            if (decorations.length) {
-              createdDecorations = DecorationSet.create(newState.doc, decorations);
-            } else {
-              createdDecorations = DecorationSet.empty
-            }
-          } */
           let pluginState = { ...prev };
           if (acceptReject.action) {
             pluginState.createdDecorations = DecorationSet.empty
@@ -379,158 +471,74 @@ export class TrackChangesService {
               console.error(e);
             }
           }
+          let selectedAChange = false;
+
+          let changeInSelection = (actualMark: Mark, pos: number) => {
+            if (sameAsLastSelectedChange(pos, prev.sectionName, actualMark.attrs.id)) {
+              return
+            }
+            setLastSelectedChange(pos, prev.sectionName, actualMark.attrs.id)
+          }
+          let sectionContainer = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName]
+          let view = sectionContainer?sectionContainer.editorView:undefined
+
+          if (!(newState.selection instanceof AllSelection) && view && view.hasFocus() ) {
+
+            newState.doc.nodesBetween(from, to, (node, pos, parent) => {
+              if (node.marks.length > 0) {
+                const actualMark = changeMarksOnNode(node)
+                if (actualMark && selInChange(newState.selection,node,pos)) {
+                  changeInSelection(actualMark, pos)
+                  selectedAChange = true;
+                }
+              }
+            })
+          }
+
+          //check nodes before and after selection if there is no change in the selection
+          if (!selectedAChange && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() ) {
+            let sel = newState.selection
+            let nodeAfterSelection = sel.$to.nodeAfter
+            let nodeBeforeSelection = sel.$from.nodeBefore
+            let foundMark = false;
+            if (nodeAfterSelection) {
+              let pos = sel.to
+              let commentMark = changeMarksOnNode(nodeAfterSelection)
+              if (commentMark  && selInChange(newState.selection,nodeAfterSelection,pos)) {
+                changeInSelection(commentMark, pos)
+                selectedAChange = true;
+                foundMark = true;
+              }
+            }
+            /* if (nodeBeforeSelection && !foundMark) {
+              let pos = sel.from - nodeBeforeSelection.nodeSize
+              let commentMark = nodeBeforeSelection.marks.find(mark => mark.type === commentsMark)
+              if (commentMark && selInComment(newState.selection,nodeBeforeSelection,pos)) {
+                commentInSelection(commentMark, pos)
+                selectedAComment = true;
+              }
+            } */
+          }
+          if (!selectedAChange && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() ) {
+            setLastSelectedChange(undefined, undefined, undefined, undefined)
+          }
+          if (!(newState.selection instanceof AllSelection) /* && view.hasFocus() && tr.steps.length > 0 */) {
+            changeInEditors()
+          }
+
           return pluginState
         },
-
       }, props: {
         decorations: (state) => {
           let pluginState = hideShowPluginKey.getState(state);
           return pluginState.createdDecorations
         }
       },
-      view: (editorView) => {
-        return {
-          update: (view, prevState) => {
-            try {
-              let pluginState = hideShowPluginKey.getState(view.state)
-              let sectionName = pluginState.sectionName
-              if (this.acceptReject.action && this.acceptReject.editorId == sectionName) {
-
-                let marks = (changesObject[sectionName] as Array<any>).filter((el) => { return el.from <= acceptReject.pos && el.to >= acceptReject.pos });
-                if (marks.length == 0) {
-                  return
-                }
-                if (this.acceptReject.action == 'accept') {
-                  acceptChange(view,`${marks[0].type}`, {...marks[0].markattrs})
-                } else if (this.acceptReject.action == 'reject') {
-                  rejectChange(view,`${marks[0].type}`, {...marks[0].markattrs})
-                }
-                this.acceptReject.action = undefined
-                this.acceptReject.editorId = undefined
-                this.acceptReject.pos = undefined
-              }
-              /* if(!this.serviceShare.ProsemirrorEditorsService?.editorContainers[sectionName]){
-                return;
-              } */
-              if (JSON.stringify(view.state.doc) == JSON.stringify(prevState.doc) && !view.hasFocus()) {
-                return;
-              }
-              let deletionMark = view.state.schema.marks.deletion
-              let insertionMark = view.state.schema.marks.insertion
-              let format_changeMark = view.state.schema.marks.format_change
-
-              let delFromPopup = view.state.schema.marks.delFromPopup
-              let insFromPopup = view.state.schema.marks.insFromPopup
-
-              let editor
-              if (pluginState.editorType == 'popupEditor') {
-                editor = document.getElementsByTagName('mat-dialog-container').item(0) as HTMLDivElement
-              } else {
-                editor = document.getElementsByClassName('editor-container').item(0) as HTMLDivElement
-              }
-              if (editor) {
-                let elemRect = editor.getBoundingClientRect();
-                let editorCoordinatesObj = {
-                  top: elemRect.top,
-                  //left: elemRect.left,
-                  //right: elemRect.right,
-                  bottom: elemRect.bottom,
-                }
-                this.editorCenter.top = (elemRect.top + elemRect.bottom) / 2
-                this.editorCenter.left = (elemRect.left + elemRect.right) / 2
-                let coords = { left: elemRect.left + 17, top: elemRect.top + 11 }
-                let coords2 = { left: elemRect.right - 80, top: elemRect.bottom - 9 }
-                //let startOfEditor = view.posAtCoords(coords);
-                //let endOfEditor = view.posAtCoords(coords2);
-                let startCoords = view.coordsAtPos(0)
-                let startPosition = checkPosition(editorCoordinatesObj, { top: startCoords.top, bottom: startCoords.bottom })
-                let endOfEditor = view.state.doc.content.size
-                let endCoords = view.coordsAtPos(endOfEditor)
-                let endPosition = checkPosition(editorCoordinatesObj, { top: endCoords.top, bottom: endCoords.bottom })
-                if ((startPosition == endPosition && endPosition == 'above' || startPosition == endPosition && endPosition == 'under') && pluginState.editorType !== 'popupEditor') {
-
-                  changesObject[sectionName] = [];
-
-                  return
-                } else {
-                  let displayChangesFrom = 0;
-                  let displayChangesTo = endOfEditor;
-                  if (startPosition == 'above' && pluginState.editorType !== 'popupEditor') {
-                    displayChangesFrom = view.posAtCoords(coords)?.pos!;
-                  }
-                  if (endPosition == 'under' && pluginState.editorType !== 'popupEditor') {
-                    displayChangesTo = view.posAtCoords(coords2)?.pos!;
-                  }
-                  let allChangesMarksFound: any[] = []
-                  let doc = view.state.doc
-                  doc.nodesBetween(displayChangesFrom, displayChangesTo, (node, from) => {
-                    if (node.marks) {
-                      const actualMarks = node.marks.filter(mark =>
-                        mark.type === deletionMark ||
-                        mark.type === insertionMark ||
-                        mark.type === delFromPopup ||
-                        mark.type === insFromPopup ||
-                        mark.type === format_changeMark
-                      );
-                      actualMarks.forEach((mark) => {
-                        allChangesMarksFound.push({
-                          mark: mark,
-                          markattrs:{...mark.attrs},
-                          from: from,
-                          to: from + node.nodeSize,
-                          text: doc.textBetween(from, from + node.nodeSize),
-                          viewRef: view,
-                          type: mark.type.name,
-                          main:this.serviceShare.ProsemirrorEditorsService?.editorContainers[sectionName]&&true
-                        })
-                      })
-
-                      /* if (actualMark) {
-                        let comFound = allCommentMarksFound.length
-                        if (comFound > 0 && allCommentMarksFound[comFound - 1].attrs.id == actualMark.attrs.id) {
-                          allCommentMarksFound[comFound - 1].to = from + node.nodeSize
-                          allCommentMarksFound[comFound - 1].text = doc.textBetween(allCommentMarksFound[comFound - 1].from,from + node.nodeSize)
-                        } else {
-                          let markFound = {
-                            from,
-                            to: from + node.nodeSize,
-                            text:doc.textBetween(from,from + node.nodeSize),
-                            section:sectionName,
-                            attrs: actualMark.attrs,
-                            viewRef:view
-                          };
-                          allCommentMarksFound.push(markFound)
-                        }
-                      } */
-                    }
-                  });
-
-                  changesObject[sectionName] = allChangesMarksFound;
-                }
-                changesVisibilityChange.next(changesObject);
-              }
-            } catch (e) {
-              console.error(e);
-            }
-          },
-          destroy: () => {
-            let pluginState = hideShowPluginKey.getState(editorView.state)
-            let sectionName = pluginState.sectionName
-            changesObject[sectionName]=[]
-          }
-        }
-      }
     });
     this.hideShowPlugin = hideShowPlugin;
   }
 
-
-
   getHideShowPlugin() {
     return this.hideShowPlugin
-  }
-
-  getData() {
-    return this.changesObject
   }
 }
