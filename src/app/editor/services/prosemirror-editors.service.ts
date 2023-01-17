@@ -769,7 +769,7 @@ export class ProsemirrorEditorsService {
           countActiveSections(child)
         })
       }
-      if (item.active == true) {
+      if (item.active == true && item.mode != 'noSchemaSectionMode') {
         count++;
       }
     }
