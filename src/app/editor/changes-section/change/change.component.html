@@ -1,22 +1,22 @@
-<mat-card *ngIf="change.main" class="change {{index == changesService.focusedChangeIndex?'focusedChange':''}}" (click)="focusCitat()">
+<mat-card *ngIf="change" class="change-box" >
   <mat-card-header>
-<!--    <div mat-card-avatar class="avatar"></div>-->
-<!--    {{change.markattrs | json}}-->
-    <ngx-avatar mat-card-avatar size="36" [fgColor]="change.markattrs.user == currUserId?'white':change.markattrs.userContrastColor" [bgColor]="change.markattrs.user == currUserId?'#00B1B2':change.markattrs.userColor" [name]="change.markattrs.username"></ngx-avatar>
-    <mat-card-title class="change-title">{{change.markattrs.username}}</mat-card-title>
-    <mat-card-subtitle class="change-subtitle">{{getDate(change.markattrs.date)}}</mat-card-subtitle>
+    <ngx-avatar mat-card-avatar size="36" [fgColor]="change.changeAttrs.user == currUserId?'white':change.changeAttrs.userContrastColor" [bgColor]="change.changeAttrs.user == currUserId?'#00B1B2':change.changeAttrs.userColor" [name]="change.changeAttrs.username"></ngx-avatar>
+    <mat-card-title class="change-title">{{change.changeAttrs.username}}</mat-card-title>
+    <mat-card-subtitle class="change-subtitle">{{getDate(change.changeAttrs.date)}}</mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
     <div class="edited-text">
       <div class="edited-text-title">{{change.type == 'deletion'?'Deleted:':change.type=='format_change'?'Formated:':'Inserted:'}}</div>
       <div class="edited-text-content {{change.type}} target" [ngStyle]="{
-        background:change.type == 'deletion'?'#ffd0d0':change.markattrs.user == currUserId?'#00B1B2':change.markattrs.userColor,
-        color:change.type == 'deletion'?'black':change.markattrs.user == currUserId?'white':change.markattrs.userContrastColor
-      }">{{change.text}}</div>
+        background:change.type == 'deletion'?'#ffd0d0':change.changeAttrs.user == currUserId?'#00B1B2':change.changeAttrs.userColor,
+        color:change.type == 'deletion'?'black':change.changeAttrs.user == currUserId?'white':change.changeAttrs.userContrastColor
+      }">{{change.changeTxt}}</div>
     </div>
-    <arpha-button *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'&&ydocService.curUserRole!='Commenter'" (clickEvent)="!previewMode.mode?acceptChange(change.viewRef,change.type,change.markattrs):undefined" class="small secondary change-action-button" label="Accept" icon="done" style="margin-right:20px;">
-    </arpha-button>
-    <arpha-button *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'&&ydocService.curUserRole!='Commenter'" (clickEvent)="!previewMode.mode?declineChange(change.viewRef,change.type,change.markattrs):undefined" class="small secondary change-action-button" label="Decline" icon="close">
-    </arpha-button>
+    <div class="change-action-button-container">
+      <arpha-button *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'&&ydocService.curUserRole!='Commenter'" (clickEvent)="!previewMode.mode?acceptChange(change.type,change.changeAttrs):undefined" class="small secondary change-action-button" label="Accept" icon="check_small" style="margin-right:29px;">
+      </arpha-button>
+      <arpha-button *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'&&ydocService.curUserRole!='Commenter'" (clickEvent)="!previewMode.mode?declineChange(change.type,change.changeAttrs):undefined" class="small secondary change-action-button change-decline-button" label="Decline" icon="close">
+      </arpha-button>
+    </div>
   </mat-card-content>
 </mat-card>

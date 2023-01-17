@@ -167,11 +167,13 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
   regexToSplit = /@\S*$/gm
   emailAddRegex = /( |^)@\S*$/gm
   emailAddRegexMathStart = /( |^)@+/gm
+  lastSearchVal = ''
   ngAfterViewInit(): void {
     this.inputFormControl.valueChanges.subscribe((data: string) => {
       if (this.emailAddRegex.test(data)) {
         let searchVal = data.match(this.emailAddRegex)[0].replace(this.emailAddRegexMathStart, '');
-        this.usersService.getAllUsers({page:1,pageSize:10,'filter[name]':searchVal}).subscribe((res) => {
+        this.lastSearchVal = searchVal;
+        this.usersService.getAllUsers({page:1,pageSize:10,'search':searchVal}).subscribe((res) => {
           this.allusers = res
           this.searchResults = res
           this.selectedUserIndex = 0

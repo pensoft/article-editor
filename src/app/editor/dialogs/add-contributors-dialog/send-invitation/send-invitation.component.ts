@@ -56,7 +56,7 @@ export class SendInvitationComponent implements OnInit, AfterViewInit {
   ) {
     this.invitedPeople.valueChanges.subscribe((value)=>{
       console.log(value);
-      this.allUsersService.getAllUsers({page:1,pageSize:10,'filter[name]':value}).subscribe((response: any) => {
+      this.allUsersService.getAllUsers({page:1,pageSize:10,'search':value}).subscribe((response: any) => {
         this.resultData.next(response)
       });
     })

@@ -23,8 +23,6 @@ import { getDate } from './comment/comment.component';
 export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestroy {
 
   commentInputFormControl = new FormControl('')
-  comments: any[] = [];
-  commentsObj: any;
   addCommentEditorId?: any   // id of the editor where the Comment button was clicked in the menu
   addCommentSubject?: Subject<any>
   showAddCommentBox = false;
@@ -130,8 +128,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
   }
 
   ngOnInit() {
-    this.commentsObj = this.commentsService.getData()
-    this.comments = (Object.values(this.commentsObj) as Array<any>).flat()
   }
 
   splice() {
@@ -709,7 +705,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     if (container.getBoundingClientRect().height < articleElementRactangle.height) {
       container.style.height = articleElementRactangle.height + "px"
     }
-
   }
   shouldScrollSelected = false;
   tryMoveItemsUp = false;
@@ -803,7 +798,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     this.setFromControlChangeListener()
     this.setContainerHeight()
     this.setScrollListener()
-    this.userInfo
     this.lastSelSub = this.commentsService.lastSelectedCommentSubject.subscribe((data) => {
       if (data.commentId && data.commentMarkId && data.sectionId) {
         this.shouldScrollSelected = true
@@ -828,10 +822,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
         this.commentsService.getCommentsInAllEditors()
       }, 200)
     })
-    this.commentsService.commentsVisibilityChange.subscribe((commentsObj) => {
-      this.commentsObj = commentsObj
-      this.comments = (Object.values(commentsObj) as Array<any>).flat()
-    })
+
     this.commentsService.commentsChangeSubject.subscribe((msg) => {
       let commentsToAdd: commentData[] = []
       let commentsToRemove: commentData[] = []
