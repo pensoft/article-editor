@@ -21,6 +21,7 @@ interface undoServiceItem {
   undoItemMeta?: any,
   finished?: true,
   startSel?:{from:number,to:number},
+  lastSelection?:any,
   endSel?:{from:number,to:number}
 }
 
@@ -151,6 +152,7 @@ export class YjsHistoryService {
 
         this.undoStack[0].editors.unshift(changeMeta.sectionId);
         this.undoStack[0].selections.unshift(prevSel);
+
         if(this.undoStack.length>1&&this.undoStack[0].editors[0]&&this.undoStack[1].editors[0]&&this.undoStack[0].editors[0]==this.undoStack[1].editors[0]){
           Object.keys(this.mainProsemirrorUndoManagers).forEach((sectionId)=>{
             if(sectionId!==changeMeta.sectionId){
@@ -161,7 +163,6 @@ export class YjsHistoryService {
 
     } else if (changeMeta.addToLastUndoItem || (this.capturingNewItem && this.undoStack.length > 0 && !this.undoStack[0].finished)) {
       if(!this.undoStack[0].editors.find((val)=>changeMeta.sectionId == val)){
-
         this.undoStack[0].editors.unshift(changeMeta.sectionId);
         this.undoStack[0].selections.unshift(prevSel);
       }
@@ -225,6 +226,7 @@ export class YjsHistoryService {
           return {
             undoManager,
             prevSel: null,
+            beforeAfterTrSel:null,
             hasUndoOps: undoManager.undoStack.length > 0,
             hasRedoOps: undoManager.redoStack.length > 0,
             sectionName: initargs.sectionName
@@ -242,10 +244,31 @@ export class YjsHistoryService {
             }
           }
           if (  binding ) {
-            let prevSel = getRelativeSelectionV2(binding, oldState.selection.anchor,oldState.selection.head)
+
+            let prevSel = getRelativeSelectionV2(binding, oldState.selection.anchor,oldState.selection.head);
+            let selBeforeTr = getRelativeSelectionV2(binding, oldState.selection.anchor,oldState.selection.head);
+            let selAfterTr = getRelativeSelectionV2(binding, state.selection.anchor,state.selection.head);
+            let beforeAfterTrSel = val.beforeAfterTrSel;
+            let before = {pmSel:{anchor:oldState.selection.anchor,head:oldState.selection.head},relativeSelection:selBeforeTr}
+            if(oldState.selection.anchor != state.selection.anchor||oldState.selection.head!= state.selection.head){
+              let after = {pmSel:{anchor:state.selection.anchor,head:state.selection.head},relativeSelection:selAfterTr}
+              beforeAfterTrSel = {
+                before,
+                after
+              };
+            }
+            setTimeout(()=>{
+              if(
+                this.undoStack[0]&&this.redoStack.length == 0&&tr.steps.length>0&&tr.docChanged&&!tr.getMeta('y-sync')&&
+                !this.undoStack[0].finished&&!tr.getMeta('citable-elements-rerender')
+                ){
+                this.undoStack[0].lastSelection = {sel:before,sectionName:val.sectionName}
+              }
+            },20)
             return {
               undoManager,
               prevSel,
+              beforeAfterTrSel,
               hasUndoOps,
               hasRedoOps,
               sectionName: val.sectionName
@@ -270,7 +293,9 @@ export class YjsHistoryService {
         undoManager.on('stack-item-added', (item: any) => {
           item.undoRedoMeta.sectionId = sectionId;
           let binding = view.state['y-sync$'].binding
-          this.computeHistoryChange(item.undoRedoMeta,YjsPluginKey.getState(view.state).prevSel);
+          let beforeAfterTrSel = YjsPluginKey.getState(view.state).beforeAfterTrSel
+
+          this.computeHistoryChange(item.undoRedoMeta,beforeAfterTrSel);
           })
         return {
           destroy: () => {
@@ -357,6 +382,8 @@ export class YjsHistoryService {
     this.stopCapturingUndoItem()
     let undoitem = this.undoStack.shift();
     let redoItem: undoServiceItem = { editors: [], finished: true,startSel:undoitem.startSel,endSel:undoitem.endSel ,selections:[]}
+    redoItem.lastSelection = undoitem.lastSelection;
+
     if (undoitem.undoItemMeta) {
       redoItem.undoItemMeta = undoitem.undoItemMeta
       this.undoComplexItem(undoitem.undoItemMeta, 'undo');
@@ -365,9 +392,10 @@ export class YjsHistoryService {
       this.mainProsemirrorUndoManagers[editor].undo();
       redoItem.editors.unshift(editor);
       redoItem.selections.unshift(undoitem.selections[i]);
-      this.applySelPosition(undoitem,i)
-
+      this.applySelPosition(undoitem,i,'undo');
     })
+
+
     this.redoStack.unshift(redoItem);
     if (redoItem.editors[0] != 'endEditor'&&redoItem.editors[0]) {
       //this.serviceShare.ProsemirrorEditorsService!.scrollMainEditorIntoView(redoItem.editors[0])
@@ -383,18 +411,38 @@ export class YjsHistoryService {
     return true
   }
 
-  applySelPosition(undoItem:undoServiceItem,i:number){
+  applySelPosition(undoItem:undoServiceItem,i:number,type:'redo'|'undo'){
     if(i == undoItem.editors.length-1){
       let sectionId = undoItem.editors[i];
-      let relSel = undoItem.selections[i];
+      let beforeAfterTrSel = undoItem.selections[i];
       let view = this.serviceShare.ProsemirrorEditorsService.editorContainers[sectionId].editorView;
       let editorPmBinding = view.state['y-sync$'].binding;
       let tr = view.state.tr;
-      restoreRelativeSelection(tr,relSel,editorPmBinding);
-      view.dispatch(tr)
+      if(type == 'undo'){
+        restoreRelativeSelection(tr,beforeAfterTrSel.before.relativeSelection,editorPmBinding);
+      }else if(type == 'redo'){
+        restoreRelativeSelection(tr,beforeAfterTrSel.after.relativeSelection,editorPmBinding);
+      }
+      view.dispatch(tr.scrollIntoView())
+      if(!view.hasFocus()){
+        view.focus();
+      }
       //this.serviceShare.ProsemirrorEditorsService.applyLastScrollPosition(undoItem.selections[i]);
     }
   }
+
+  applyLastSel(undoItem:undoServiceItem){
+    let sectionId = undoItem.lastSelection.sectionName;
+    let view = this.serviceShare.ProsemirrorEditorsService.editorContainers[sectionId].editorView;
+    let editorPmBinding = view.state['y-sync$'].binding;
+    let tr = view.state.tr;
+    restoreRelativeSelection(tr,undoItem.lastSelection.sel.relativeSelection,editorPmBinding);
+    view.dispatch(tr.scrollIntoView())
+    if(!view.hasFocus()){
+      view.focus();
+    }
+  }
+
 
   canUndo() {
     return this.undoStack.length > 0
@@ -403,16 +451,23 @@ export class YjsHistoryService {
   redo = (state: EditorState) => {
     let redoItem = this.redoStack.shift();
     let undoItem: undoServiceItem = { editors: [], finished: true,startSel:redoItem.startSel,endSel:redoItem.endSel ,selections:[]}
+    undoItem.lastSelection = redoItem.lastSelection;
     if (redoItem.undoItemMeta) {
       undoItem.undoItemMeta = redoItem.undoItemMeta
       this.undoComplexItem(redoItem.undoItemMeta, 'redo');
     }
+    let lastSelection = redoItem.lastSelection
     redoItem.editors.forEach((editor,i) => {
       this.mainProsemirrorUndoManagers[editor].redo();
       undoItem.editors.unshift(editor)
       undoItem.selections.unshift(redoItem.selections[i]);
-      this.applySelPosition(redoItem,i)
+      if(!lastSelection){
+        this.applySelPosition(redoItem,i,'redo')
+      }
     })
+    if(lastSelection){
+      this.applyLastSel(redoItem)
+    }
     this.undoStack.unshift(undoItem);
     if (undoItem.editors[0] != 'endEditor'&&undoItem.editors[0]) {
       //this.serviceShare.ProsemirrorEditorsService!.scrollMainEditorIntoView(undoItem.editors[0])
