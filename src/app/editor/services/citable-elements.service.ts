@@ -796,6 +796,13 @@ export class CitableElementsService {
         this.countRenderedViews()
       }
     }
+    let numberOfNonDisplayedView = 0;
+    Object.values(nonDisplayedViewsWithIndexes).reduce((prev:number,curr:any[],index,array)=>{
+      return prev+=curr.length;
+    },0)
+    if(numberOfNonDisplayedView==0){
+      this.countRenderedViews()
+    }
     Object.keys(nonDisplayedViewsWithIndexes).forEach((type) => {
       let nonDisplayedEditors = nonDisplayedViewsWithIndexes[type];
       if (nonDisplayedEditors.length > 0) {
