@@ -14,6 +14,7 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked {
 
   showError = false;
   sectionTemplates: any[] = [];
+  searchResults:any[] = [];
   value = undefined
 
   constructor(
@@ -38,6 +39,7 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked {
       taxonTreatmentSection
     )*/
     this.sectionTemplates = this.data.templates
+    this.searchResults = this.data.templates
     this.ref.detectChanges()
   }
 
@@ -57,7 +59,9 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked {
   }
 
   public search(value: any) {
-    this.value = value
+    this.value = value;
+    this.searchResults = this.sectionTemplates.filter(el=>el.name.toLocaleLowerCase().startsWith(value.toLocaleLowerCase()));
+    this.ref.detectChanges()
   }
 
 }
