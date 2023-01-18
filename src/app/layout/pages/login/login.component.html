@@ -59,6 +59,7 @@
                 >-->
       </div>
       <div class="password-link"><a>Forgot your password?</a></div>
+      <div class="error-container" #errorContainer>{{errorText}}</div>
       <arpha-button label="Login" type="submit" class="primary large login-button"></arpha-button>
       <div class="text">or</div>
       <arpha-button routerLink="/register" label="Register" class="secondary large register-button"></arpha-button>
@@ -72,7 +73,7 @@
       <!--      <arpha-button label="Google" class="secondary small icon-text" icon="dashboard"></arpha-button>-->
       <!--      <arpha-button label="Linkedin" class="secondary small icon-text" icon="dashboard"></arpha-button>-->
       <!--      <arpha-button label="Facebook" class="secondary small icon-text" icon="dashboard"></arpha-button>-->
-      <arpha-button type="button" label="Pensoft" class="secondary large icon-text" icon="dashboard"  (mouseup)="signIn()">
+      <arpha-button type="button" label="Pensoft" class="rensoft-login-btn secondary large icon-text" icon="dashboard"  (mouseup)="signIn()">
       </arpha-button>
     </div>
 
@@ -85,7 +86,7 @@
         <arpha-button label="Linkedin" class="secondary small icon-text" icon="dashboard"></arpha-button>
         <arpha-button label="Facebook" class="secondary small icon-text" icon="dashboard"></arpha-button>
       </div>-->
-      <arpha-button type="button" label="Pensoft" class="secondary large icon-text" icon="dashboard" (mouseup)="signIn()">
+      <arpha-button type="button" label="Pensoft" class="rensoft-login-btn secondary large icon-text" icon="dashboard" (mouseup)="signIn()">
       </arpha-button>
     </div>
 

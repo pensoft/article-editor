@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {FormBuilder, FormGroup, Validators} from '@angular/forms';
 import {ActivatedRoute, Router} from '@angular/router';
 import {UserModel} from '@core/models/user.model';
@@ -10,6 +10,9 @@ import {Observable, Subscription} from 'rxjs';
 import {first, take} from 'rxjs/operators';
 import {uuidv4} from "lib0/random";
 import {lpClient} from "@core/services/oauth-client";
+import { ServiceShare } from '@app/editor/services/service-share.service';
+import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-signup',
@@ -24,12 +27,16 @@ export class SignupComponent implements OnInit, OnDestroy {
   };
   loginForm!: FormGroup;
   hasError!: boolean;
+  @ViewChild('errorContainer') errorContainer;
+  errorText = ''
   returnUrl!: string;
   private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
 
   constructor(
     private fb: FormBuilder,
+    private prosemirrorEditorsSerive:ProsemirrorEditorsService,
     private authService: AuthService,
+    private serviceShare:ServiceShare,
     private route: ActivatedRoute,
     private router: Router,
     private _broadcaster: BroadcasterService,
@@ -79,21 +86,48 @@ export class SignupComponent implements OnInit, OnDestroy {
   }
 
   submit() {
+    this.serviceShare.ProsemirrorEditorsService.spinSpinner()
+
     this.hasError = false;
-    this.authService.register({
+    let registerSub = this.authService.register({
       [CONSTANTS.EMAIL]: this.f.email.value,
       [CONSTANTS.NAME]: this.f.name.value,
       [CONSTANTS.PASSWORD]: this.f.password.value
     })
-      .pipe(first())
-      .subscribe((user: UserModel) => {
-        if (user) {
+    registerSub.pipe(first())
+      .subscribe({next:(user: UserModel) => {
+        if (user && user instanceof UserModel) {
           this.router.navigate(['dashboard']);
           // this.formioBaseService.login();
         } else {
           this.hasError = true;
         }
+        this.serviceShare.ProsemirrorEditorsService.stopSpinner()
+
+      },error:(error)=>{
+        this.showError(error);
+      }})
+      registerSub.subscribe({
+        next: (value: any) => {
+          if(value instanceof HttpErrorResponse){
+            this.showError(value)
+          }
+
+        },
+        error: (err: any) => {
+          this.showError(err);
+        },
       })
+  }
+
+  showError(error){
+    this.errorText = error.error.message;
+    this.errorContainer.nativeElement.style.opacity = 1;
+    this.prosemirrorEditorsSerive.stopSpinner();
+    setTimeout(()=>{
+      this.errorContainer.nativeElement.style.opacity = 0;
+      this.errorText = ''
+    },3000);
   }
 
   signIn() {

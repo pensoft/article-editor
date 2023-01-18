@@ -14,9 +14,23 @@
   display: none;
 }
 
+.error-container{
+  margin-top: 10px;
+  color: #ff0000ab;
+  max-width: 456px;
+  font-weight: bold;
+  transition: 0.2s;
+  opacity: 0;
+}
+
+.rensoft-login-btn{
+  margin-bottom: 32px !important;
+}
+
 .register {
-  height: 618px;
+  height: fit-content;
   border-radius: 15px;
+  transition: 0.3s;
   margin-right: 125px;
   float: right;
   background-color: var(--color-ffffff);
