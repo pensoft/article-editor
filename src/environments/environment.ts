@@ -12,5 +12,5 @@ export const environment = {
    passport_client_id: '96c50ae2-91d6-4df2-b9b0-1b1f5ef40def',
    validate_jats:'/validate/xml',
    print_pdf:'/proxy-pdf-print',
-   EVENT_DISPATCHER_SERVICE:'https://ps-event-dispatcher.dev.scalewest.com'
+   EVENT_DISPATCHER_SERVICE:'undefined'
 };
