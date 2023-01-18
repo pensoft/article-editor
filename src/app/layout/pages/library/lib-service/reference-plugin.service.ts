@@ -13,6 +13,7 @@ export class ReferencePluginService {
   referencePluginKey?: PluginKey;
   referencePlugin?: Plugin
   refsObj: any = {}
+  referenceActionButtons = ['update-data-reference-button'];
   decorationsByEditors: any = {}
   constructor(
     private serviceShare: ServiceShare
@@ -131,6 +132,13 @@ export class ReferencePluginService {
         },
       },
       props: {
+        handleDOMEvents:{
+          'blur':(view,event)=>{
+            if(event.relatedTarget && event.relatedTarget instanceof HTMLButtonElement && this.referenceActionButtons.includes(event.relatedTarget.className)){
+              event.relatedTarget.click();
+            }
+          }
+        },
         decorations(state) {
           let docs = referencePluginKey.getState(state).decs ? referencePluginKey.getState(state).decs.filter((dec: any) => dec) : undefined;
           return docs && docs.length > 0 ? DecorationSet.create(state.doc, referencePluginKey.getState(state).decs) : DecorationSet.empty;

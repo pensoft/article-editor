@@ -35,9 +35,6 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked {
   }
 
   ngAfterViewInit(): void {
-    /*this.data.templates.push(
-      taxonTreatmentSection
-    )*/
     this.sectionTemplates = this.data.templates
     this.searchResults = this.data.templates
     this.ref.detectChanges()
