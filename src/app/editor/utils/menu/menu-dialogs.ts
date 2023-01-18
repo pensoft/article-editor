@@ -312,19 +312,19 @@ export let insertVideoItem = (serviceShare:ServiceShare)=>{
 }
 
 export const addMathInlineMenuItem = new MenuItem({
-  title: 'Add mathematic expresions to the document',
-  label: 'Math',
+  title: 'Add inline mathematic expresions to the document',
   // @ts-ignore
   run: addMathInline('math_inline'),
   enable(state:EditorState) { return state.schema.nodes.math_inline&&state.tr.selection.empty },
+  icon: createCustomIcon('math-icon.svg', 13)
 });
 
 export const addMathBlockMenuItem = new MenuItem({
-  title: 'Add mathematic expresions to the document',
-  label: 'BlockMath',
+  title: 'Add block mathematic expresions to the document',
   // @ts-ignore
   run: addMathInline('math_display'),
-  enable(state:EditorState) { return state.schema.nodes.math_display&&state.tr.selection.empty }
+  enable(state:EditorState) { return state.schema.nodes.math_display&&state.tr.selection.empty },
+  icon: createCustomIcon('math-icon.svg', 13)
 });
 
 export const insertLinkItem = new MenuItem({

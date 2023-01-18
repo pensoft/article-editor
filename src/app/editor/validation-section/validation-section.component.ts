@@ -416,6 +416,7 @@ export class ValidationSectionComponent implements OnDestroy {
                       }
                     })
                     let sectionFromBackend = sectionsFromBackend.find((el: any) => el.version_id == sectionVersionID)
+                    console.log(sectionVersionID,sectionFromBackend,sectionsFromBackend,complexSection.subsectionValidations);
                     let secName = sectionFromBackend.name
                     if (countOfType < subSecMinMax.min) {
                       errors.push(`Number of "${secName}" sections should be more than ${subSecMinMax.min - 1}`);
@@ -428,6 +429,7 @@ export class ValidationSectionComponent implements OnDestroy {
                     this.complexSectionsMinMaxErrors.push({ fulfilled: false, errorMessage: `Complex section "${complexSection.title.label}" should match the required minimum and maximum validations. ${errors.join('. ')}` })
                   }
                 }
+                console.log(this.ydocService.articleData);
                 this.articleSectionsService.getAllSections({ page: 1, pageSize: 999 }).subscribe((resData: any) => {
                   let loopTree = (section: articleSection) => {
                     if (section.type == 'complex' && section.subsectionValidations && Object.keys(section.subsectionValidations).length > 0) {
