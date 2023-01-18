@@ -187,16 +187,17 @@ export class CommentsService {
     let now = Date.now();
     if (!this.updateTimestamp) {
       this.updateTimestamp = Date.now();
+      this.updateAllComments()
     }
     if (this.updateTimeout) {
       clearTimeout(this.updateTimeout);
     }
-    if (now - this.updateTimestamp > 1200) {
+    if (now - this.updateTimestamp > 500) {
       this.updateAllComments()
     }
     this.updateTimeout = setTimeout(() => {
       this.updateAllComments()
-    }, 1200)
+    }, 500)
   }
 
   constructor(private serviceShare: ServiceShare) {
@@ -309,6 +310,15 @@ export class CommentsService {
               let pos = sel.to
               let commentMark = nodeAfterSelection.marks.find(mark => mark.type === commentsMark)
               if (commentMark  && selInComment(newState.selection,nodeAfterSelection,pos)) {
+                commentInSelection(commentMark, pos)
+                selectedAComment = true;
+                foundMark = true;
+              }
+            }
+            if (nodeBeforeSelection) {
+              let pos = sel.from
+              let commentMark = nodeBeforeSelection.marks.find(mark => mark.type === commentsMark)
+              if (commentMark  && selInComment(newState.selection,nodeBeforeSelection,pos)) {
                 commentInSelection(commentMark, pos)
                 selectedAComment = true;
                 foundMark = true;
