@@ -15,8 +15,21 @@
   display: none;
 }
 
+.rensoft-login-btn{
+  margin-bottom: 32px !important;
+}
+
+.error-container{
+  margin-top: 10px;
+  color: #ff0000ab;
+  font-weight: bold;
+  max-width: 456px;
+  transition: 0.2s;
+  opacity: 0;
+}
+
 .register {
-  height: 618px;
+  height: fit-content;
   border-radius: 15px;
   margin-right: 125px;
   float: right;

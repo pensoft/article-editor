@@ -62,7 +62,7 @@ export class AuthService implements OnDestroy {
       }),
       switchMap((token) => this.getUserInfo(token)),
       catchError((err) => {
-        return of(undefined);
+        return of(err);
       })
     );
   }
@@ -79,7 +79,7 @@ export class AuthService implements OnDestroy {
     }).pipe(
       switchMap(() => this.login(userdetails)),
       catchError((err) => {
-        return of(undefined);
+        return of(err);
       })
     );
   }
