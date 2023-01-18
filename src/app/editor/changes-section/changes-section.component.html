@@ -1,9 +1,25 @@
-<div class="changes-wrapper">
-
-  <div class="changes-container">
-    <app-change *ngFor="let change of changes;let i = index" [change]="change" [index]="i"></app-change>
+<div class="search-changes">
+  <mat-form-field class="search-box-changes" style="background:white;" appearance="fill">
+    <mat-label class="character-style-9 label">Search changes...</mat-label>
+    <mat-icon class="search-icon" matPrefix>search</mat-icon>
+    <input [formControl]="searchForm" matInput style="color: black !important;">
+  </mat-form-field>
+  <div class="results-from-search" *ngIf="searching">
+    <div class="number-results">
+      {{searchIndex+1}}/{{searchResults.length}}
+    </div>
+    <button mat-icon-button [disabled]="searchIndex == 0" (click)="selectPrevChngFromSearch()"><mat-icon>arrow_upward</mat-icon></button>
+    <button mat-icon-button [disabled]="searchResults&&searchResults.length-1 == searchIndex" (click)="selectNextChngFromSearch()"><mat-icon>arrow_downward</mat-icon></button>
+    <button mat-icon-button class="end-search-btn" (click)="endSearch()"><mat-icon>close</mat-icon></button>
   </div>
-
+</div>
+<div class="changes-wrapper">
+  <div class="all-changes-container">
+    <div *ngFor="let change of this.allChanges;let i = index" class="change-container" style="opacity: 0;" attr.changeid="{{change.changeMarkId}}" attr.sectionId="{{change.section}}" #changeContainer>
+      <app-change [change]="change" [index]="i" [(doneRenderingChangesSubject)]="doneRenderingChangesSubject" (selected)="changeParentContainer($event,changeContainer,change)"></app-change>
+    </div>
+  </div>
+<!--
   <div class="changes-footer">
     <div class="left" (click)="focusPrevChange()">
       <mat-icon style="margin-right:8px">west</mat-icon>
@@ -13,6 +29,6 @@
       Next change
       <mat-icon style="margin-left:8px">east</mat-icon>
     </div>
-  </div>
+  </div> -->
 
 </div>

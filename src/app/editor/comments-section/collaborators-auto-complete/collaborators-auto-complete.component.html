@@ -4,8 +4,7 @@
       <ngx-avatar mat-card-avatar size="36" [gravatarId]="user.email" [name]="user.name"></ngx-avatar>
     </div>
     <div class="email-autocomplete">
-      <div>
-        {{user.email}}
+      <div [innerHTML]="user.email | makeTextBold : lastSearchVal">
       </div>
     </div>
   </div>

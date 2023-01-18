@@ -5,6 +5,6 @@
 
 <button *ngIf="routerLink" mat-flat-button class="arpha-button" [disabled]="disabled" (click)="onButtonClick($event)"
   [routerLink]="routerLink">
-  <mat-icon *ngIf="icon">{{icon}}</mat-icon>
-  <span *ngIf="label">{{label}}</span>
+  <mat-icon [ngClass]="{true: 'arpha-button-icon'}" *ngIf="icon" >{{icon}}</mat-icon>
+  <span [ngClass]="{true: 'arpha-button-label'}" *ngIf="label">{{label}}</span>
 </button>

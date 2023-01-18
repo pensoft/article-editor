@@ -1,12 +1,13 @@
 import { acceptChange, rejectChange } from '../../utils/trackChanges/acceptReject';
-import { AfterViewInit, Component, Input, OnDestroy, OnInit, Output } from '@angular/core';
+import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core';
 import { EditorView } from 'prosemirror-view';
 import { TextSelection } from 'prosemirror-state';
 import { TrackChangesService } from '@app/editor/utils/trachChangesService/track-changes.service';
 import { getDate } from '@app/editor/comments-section/comment/comment.component';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
+import { changeData } from '../changes-section.component';
 
 @Component({
   selector: 'app-change',
@@ -15,8 +16,14 @@ import { YdocService } from '@app/editor/services/ydoc.service';
 })
 export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
 
-  @Input() change: any;
-  @Input() index!: number;
+  @Input() change: changeData;
+  @Input() index: number;
+
+  @Input() doneRenderingChangesSubject?: Subject<any>;
+  @Output() doneRenderingChangesSubjectChange = new EventEmitter<Subject<any>>();
+
+  @Output() selected = new EventEmitter<boolean>();
+
   sub?:Subscription
   previewMode
   constructor(
@@ -25,11 +32,6 @@ export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
     public ydocService:YdocService
     ) {
     this.previewMode = serviceShare.ProsemirrorEditorsService!.previewArticleMode
-    this.sub = this.changesService.changesFocusFunctions.subscribe((index)=>{
-      if(index == this.index){
-        this.focusCitat()
-      }
-    })
   }
 
   ngOnDestroy(): void {
@@ -44,32 +46,32 @@ export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
   }
 
   ngAfterViewInit(): void {
+    setTimeout(() => {
+      this.doneRenderingChangesSubject.next('rendered')
+    }, 10)
+    this.changesService.lastSelectedChangeSubject.subscribe((change) => {
+      if(this.ydocService.curUserRole&&this.ydocService.curUserRole=='Viewer'){
+        return
+      }
+      if (this.change.changeMarkId == change.changeMarkId) {
+        this.selected.emit(true);
+      } else {
+        this.selected.emit(false);
+      }
+    })
   }
 
-  acceptChange(view: any, type: any, attrs: any) {
+  acceptChange(type: any, attrs: any) {
+    let view = this.serviceShare.ProsemirrorEditorsService.editorContainers[this.change.section].editorView
     acceptChange(view, type,attrs)
+    this.changesService.getChangesInAllEditors()
   }
 
-  declineChange(view: any, type: any, attrs: any) {
+  declineChange(type: any, attrs: any) {
+    let view = this.serviceShare.ProsemirrorEditorsService.editorContainers[this.change.section].editorView
     rejectChange(view, type,attrs);
+    this.changesService.getChangesInAllEditors()
   }
 
   getDate = getDate
-
-  focusCitat = ()=>{
-    this.changesService.focusedChangeIndex = this.index
-    let changeMiddle = Math.floor((this.change.from+this.change.to)/2)
-    if(this.change.from == this.change.to+1){
-      changeMiddle = this.change.from
-    }
-    let view:EditorView = this.change.viewRef
-    let sel = view.state.selection
-    if((sel.from < this.change.to&&sel.from>this.change.from)||(sel.to < this.change.to&&sel.to>this.change.from)){
-      return
-    }
-    view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(changeMiddle))));
-    view.focus()
-    view.dispatch(view.state.tr.scrollIntoView())
-  }
-
 }

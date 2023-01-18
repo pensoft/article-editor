@@ -14,13 +14,27 @@ export const getToolTipPlugin = function(serviceShare:ServiceShare){
   let toolTipArrow = document.createElement('span');
 
   let removeToolTip = (view,event)=>{
-    let elPath = event.path
-    if(!(currUserId&&elPath[0]&&elPath[0] instanceof HTMLSpanElement&&toolTipElsClasses.includes(elPath[0].className))){
+    let targetElement = getTargetElement(event);
+
+    if(!(targetElement instanceof HTMLSpanElement&&toolTipElsClasses.includes(targetElement.className))){
       if(Array.from(document.body.childNodes).includes(toolTip)){
         document.body.removeChild(toolTip)
       }
     }
   }
+
+  let getTargetElement = (event)=>{
+    let targetElement
+    if(event.composedPath&&event.composedPath()[0]){
+      targetElement = event.composedPath()[0];
+    }else if(event.relatedTarget){
+      targetElement = event.relatedTarget;
+    }else if(event.fromElement){
+      targetElement = event.fromElement;
+    }
+    return targetElement
+  }
+
   return new Plugin({
     key:toolTipPluginKey,
     props:{
@@ -30,10 +44,9 @@ export const getToolTipPlugin = function(serviceShare:ServiceShare){
         wheel:removeToolTip,
         focusout:removeToolTip,
         mouseover:(view,event)=>{
-          //@ts-ignore
-          let elPath = event.path
-          if(currUserId&&elPath[0]&&elPath[0] instanceof HTMLSpanElement&&toolTipElsClasses.includes(elPath[0].className)){
-            let elWithToolTip = elPath[0] as HTMLSpanElement;
+          let targetElement = getTargetElement(event);
+          if(targetElement&&targetElement instanceof HTMLSpanElement&&toolTipElsClasses.includes(targetElement.className)){
+            let elWithToolTip = targetElement as HTMLSpanElement;
             let userId = elWithToolTip.getAttribute('user')
             let userId2 = elWithToolTip.getAttribute('data-userid')
             let username = elWithToolTip.getAttribute('data-username')

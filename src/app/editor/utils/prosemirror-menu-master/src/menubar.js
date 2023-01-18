@@ -43,10 +43,11 @@ class MenuBarView {
 
     constructor(editorView, options) {
         try {
-            this.PMMenusAndSchemasDefsMap = options.serviceShare.YdocService.ydoc.getMap('PMMenusAndSchemasDefsMap')
             this.editorView = editorView
             this.options = options
-
+            if(options.sectionID){
+              this.PMMenusAndSchemasDefsMap = this.options.serviceShare.YdocService.ydoc.getMap('PMMenusAndSchemasDefsMap')
+            }
             this.menuContainer = document.getElementsByClassName(options.containerClass)[0]
                 //this.menuContainer = document.getElementsByClassName('menu-container')[0]
             this.wrapper = crel("div", { class: prefix + "-wrapper" })
@@ -105,7 +106,6 @@ class MenuBarView {
                   }
                 }
             })
-            let menusAndSchemasDefs = this.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
 
             if(!userIsInSectionTreeTitleNode&&!menuItAttrs&&this.editorView.editorType&&this.editorView.editorType == 'editorWithCustomSchema'){
               if(
@@ -120,6 +120,9 @@ class MenuBarView {
               }
             }
             if(!userIsInSectionTreeTitleNode&&this.options.sectionID){
+
+              let menusAndSchemasDefs = this.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
+
               let importantMenusForCurrNode = [...Object.keys(menusAndSchemasDefs.layoutDefinitions.menus)]
               if(menusAndSchemasDefs[this.options.sectionID]){
                 importantMenusForCurrNode.push(...Object.keys(menusAndSchemasDefs[this.options.sectionID].menus))

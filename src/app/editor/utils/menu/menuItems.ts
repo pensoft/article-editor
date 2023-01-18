@@ -190,7 +190,7 @@ const wrapOrderedList = new MenuItem({
   title: "Wrap in ordered list",
   enable(state: EditorState) { return wrapInOrderedListFunc(state) },
   run(state: EditorState, dispatch: any,view) {
-    wrapInOrderedListFunc(state,dispatch,view);
+    wrapInOrderedListFunc(state,view.dispatch,view);
     joinUp(view.state,view.dispatch,view)
     joinDown(view.state,view.dispatch,view)
   },
