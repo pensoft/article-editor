@@ -273,7 +273,6 @@ $altTheme: (primary: $theme-primary,
 // }
 
 /* Material Dialog Overrides */
-
 .mat-dialog-container {
   padding: 40px 40px 24px 40px !important;
 
@@ -364,9 +363,12 @@ $altTheme: (primary: $theme-primary,
     &:last-child {
       border-bottom: 0;
     }
+
+    &:hover {
+      background: var(--color-e4f6f6);
+    }
   }
 }
-
 
 
 /* No scroll element */
