@@ -317,6 +317,7 @@ export const addMathInlineMenuItem = new MenuItem({
   // @ts-ignore
   run: addMathInline('math_inline'),
   enable(state:EditorState) { return state.schema.nodes.math_inline&&state.tr.selection.empty },
+  icon: createCustomIcon('other.svg', 12,12,0,0)
 });
 
 export const addMathBlockMenuItem = new MenuItem({

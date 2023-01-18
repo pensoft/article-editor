@@ -16,6 +16,6 @@
     </mat-form-field>
   </div>
   <div mat-dialog-actions align="end">
-    <button color="warn" mat-stroked-button (click)="onNoClick()">Cancel</button>
-    <button color="primary" mat-stroked-button class="button-stroked-primary" [mat-dialog-close]="data.url" cdkFocusInitial>Confirm</button>
+    <button class="button-stroked-warn-cancel" (click)="onNoClick()">Cancel</button>
+    <button class="button-raised-primary-add" [mat-dialog-close]="data.url" cdkFocusInitial>Add</button>
   </div>
