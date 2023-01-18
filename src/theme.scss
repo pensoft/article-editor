@@ -4,15 +4,16 @@
 * Fork at: https://materialtheme.arcsine.dev/?c=YHBhbGV0dGU$YHByaW1hcnk$YF48I2NjMzNjYSIsIj9lcjwjZjBjMmVmIiwiO2VyPCNiOTIwYjd$LCIlPmBePCM3OTc5NzkiLCI~ZXI8I2Q3ZDdkNyIsIjtlcjwjNWM1YzVjfiwid2Fybj5gXjwjZmYwMDAwIiwiP2VyPCNmZmIzYjMiLCI7ZXI8I2ZmMDAwMH4sIj9UZXh0PCMwMDAwMDAiLCI~PTwjZmFmYWZhIiwiO1RleHQ8I2ZmZmZmZiIsIjs9PCMyYzJjMmN$LCJmb250cz5bYEA8KC00fixgQDwoLTN$LGBAPCgtMn4sYEA8KC0xfixgQDxoZWFkbGluZX4sYEA8dGl0bGV$LGBAPHN1YiktMn4sYEA8c3ViKS0xfixgQDxib2R5LTJ$LGBAPGJvZHktMX4sYEA8YnV0dG9ufixgQDxjYXB0aW9ufixgQDxpbnB1dCIsInNpemU$bnVsbH1dLCJpY29uczxGaWxsZWQiLCI~bmVzcz50cnVlLCJ2ZXJzaW9uPjEyfQ==
 */
 
-@use '~@angular/material'as mat;
+@use '~@angular/material' as mat;
 
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 
 // Fonts
 @import 'https://fonts.googleapis.com/css?family=Material+Icons';
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,500');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700,800');
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500');
+@import './src/assets/colors';
 
 $fontConfig: (display-4: mat.define-typography-level(112px, 112px, 300, var(--font-family-open-sans), -0.0134em),
   display-3: mat.define-typography-level(56px, 56px, 400, var(--font-family-open-sans), -0.0089em),
@@ -24,7 +25,7 @@ $fontConfig: (display-4: mat.define-typography-level(112px, 112px, 300, var(--fo
   subheading-1: mat.define-typography-level(15px, 24px, 500, var(--font-family-open-sans), 0.0067em),
   body-2: mat.define-typography-level(14px, 24px, 500, var(--font-family-open-sans), 0.0179em),
   body-1: mat.define-typography-level(14px, 20px, 400, var(--font-family-open-sans), 0.0179em),
-  button: mat.define-typography-level(12px, 17px, 400, var(--font-family-open-sans), 0.0333em),
+  button: mat.define-typography-level(14px, 17px, 400, var(--font-family-open-sans), 0.0333em),
   caption: mat.define-typography-level(12px, 20px, 400, var(--font-family-open-sans), 0.0333em),
   input: mat.define-typography-level(inherit, 1.125, 400, var(--font-family-open-sans), 1.5px));
 
@@ -145,6 +146,7 @@ $mat-dark-theme-background: (background: $dark-background,
 
 // Theme Config
 
+/* Primary styles */
 body {
   --primary-color: var(--color-00b1b2);
   --primary-lighter-color: #f0c2ef;
@@ -164,6 +166,7 @@ $mat-primary: (main: var(--color-00b1b2),
   ));
 $theme-primary: mat.define-palette($mat-primary, main, lighter, darker);
 
+/* Accent styles */
 body {
   --accent-color: #797979;
   --accent-lighter-color: #d7d7d7;
@@ -183,6 +186,7 @@ $mat-accent: (main: #797979,
   ));
 $theme-accent: mat.define-palette($mat-accent, main, lighter, darker);
 
+/* Warn styles */
 body {
   --warn-color: #ff0000;
   --warn-lighter-color: #ffb3b3;
@@ -267,3 +271,91 @@ $altTheme: (primary: $theme-primary,
 //   color: var(--color-00b1b2);
 //   font-weight: bold !important;
 // }
+
+/* Material Dialog Overrides */
+
+.mat-dialog-container {
+  padding: 40px 40px 24px 40px !important;
+
+  h2 {
+    font-size: 23px;
+    font-weight: bold;
+    line-height: 32px;
+  }
+
+  .mat-dialog-content {
+    padding: 0 40px;
+    margin: 0 -40px;
+    overflow-y: auto;
+    overflow-x: hidden;
+  }
+}
+
+/* Material Buttons Overrides */
+.mat-button-base {
+  border-radius: 18px !important;
+}
+
+/* Search Form Styling */
+.search-form {
+  > label {
+    margin: 0 0 9px 0;
+  }
+
+  .mat-form-field {
+    .mat-form-field-flex {
+      border-radius: 18px;
+      border: 1px solid var(--color-00b1b2);
+
+      .mat-form-field-infix {
+        border: 0;
+        padding: 0 16px;
+        margin: 0;
+      }
+
+      .mat-form-field-suffix {
+        border: 0;
+        margin: 0 -1px 0 0;
+        padding: 0;
+        box-shadow: none;
+
+        .mat-button-base {
+          padding: 0 28px;
+          line-height: 39px;
+        }
+      }
+    }
+  }
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: var(--color-e3e3e3);
+  border-radius: 4px;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: var(--color-00b1b2);
+  border-radius: 4px;
+}
+
+.mat-selection-list {
+  border: 1px solid $primary-dark-grey;
+  border-radius: 15px;
+  margin: 0 0 10px 0;
+  padding: 0 !important;
+  overflow: hidden;
+
+  .mat-list-option {
+    border-bottom: 1px solid $primary-dark-grey;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+  }
+}
