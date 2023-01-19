@@ -12,24 +12,6 @@ export function editorFactory(data?: editorMeta): editorData {
   return {editorId: uuidv4(), menuType: 'fullMenu', editorMeta: data}
 }
 
-/* export const removeInitProps: (section: articleSection) => void = (section: articleSection) => {
-  if (section.type == 'complex' && section.children.length > 0) {
-    section.children.forEach((child) => {
-      removeInitProps(child)
-    })
-  }
-  //section.initialRender = undefined;
-} */
-
-/* export const addInitProps:(section:articleSection,ydoc:Y.Doc)=>void = (section:articleSection,ydoc:Y.Doc)=>{
-  if(section.type=='complex'&&section.children.length>0){
-    section.children.forEach((child)=>{
-      removeInitProps(child)
-    })
-  }
-  section.initialRender = ydoc.guid;
-} */
-
 export const articleBasicStructure: articleSection[] = [
   {
     title: {label: 'Taxonomic coverage', name: 'Taxonomic coverage', template: 'Taxonomic coverage', editable: true},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
@@ -177,7 +159,7 @@ export const renderSectionFunc:
     if(!sectionFromBackend.schema||!sectionFromBackend.schema.components||sectionFromBackend.schema.components.length == 0){
       newArticleSection.edit.active = false;
     }
-  } else if (sectionFromBackend.type == 1) {
+  } else if (sectionFromBackend.type == 1) { // complex section
     newArticleSection = {
       title: {
         label: sectionLabel,
@@ -220,6 +202,7 @@ export const renderSectionFunc:
     }
     if(!sectionFromBackend.schema||!sectionFromBackend.schema.components||sectionFromBackend.schema.components.length == 0){
       newArticleSection.edit.active = false;
+      newArticleSection.mode = 'noSchemaSectionMode';
     }
   } else if (sectionFromBackend.type == 2) {
     // newArticleSection = taxonTreatmentSection as any;

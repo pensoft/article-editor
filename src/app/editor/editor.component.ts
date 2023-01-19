@@ -120,7 +120,9 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
               newName,
               this.ydocService.articleData!
             )
-            .subscribe((data) => {});
+            .subscribe((data) => {
+              console.log('updated article title ',data,newName);
+            });
         }
       });
 

@@ -49,8 +49,8 @@ export class ValidationSectionComponent implements OnDestroy {
   articleValidations: validationResult[] = []
   articleFormFieldsValidation: validationResult[] = []
   nonCitedFiguresValidation: validationResult[] = []
-  articleValidationsErrors:validationResult[] = []
-  complexSectionsMinMaxErrors:validationResult[] = []
+  articleValidationsErrors: validationResult[] = []
+  complexSectionsMinMaxErrors: validationResult[] = []
 
   articleLength = 0;
 
@@ -106,7 +106,7 @@ export class ValidationSectionComponent implements OnDestroy {
       this.donevalidationSubject = donevalidationSubject
       rules.push({ rule: 'FormControls' })
       rules.push({ rule: 'CitatedFigures' })
-      rules.push({rule:'ValidateComplexSections'})
+      rules.push({ rule: 'ValidateComplexSections' })
       /* rules.push(
         {
           rule: 'SectionPosition',
@@ -166,33 +166,36 @@ export class ValidationSectionComponent implements OnDestroy {
 
           }
         })
+
+
+        let editorsContainers = this.prosemirrorEditorsServise.editorContainers;
+        let symbolCount = 0;
+        let loop = (sections: articleSection[]) => {
+          sections.forEach((sec) => {
+            if (sec.type == 'complex' && sec.children.length > 0) {
+              loop(sec.children);
+            }
+            if (sec.active && sec.mode != 'noSchemaSectionMode') {
+              let editorView = editorsContainers[sec.sectionID].editorView;
+              symbolCount += editorView.state.doc.textContent.length;
+              console.log(symbolCount);
+            }
+          })
+        }
+        loop(this.treeService.articleSectionsStructure!)
+        this.articleLength = symbolCount
         this.articleSectionsService.getAllSections({ page: 1, pageSize: 999 }).subscribe((allSectionDataFromBackend) => {
           rules.forEach((el: { config: any, description: string, key: string, rule: String }, index: number) => {
-            try{
+            try {
               if (el.rule == "ToBeBetweenMinMax") {
                 let min = +el.config.min
                 let max = +el.config.max
-                let editorsContainers = this.prosemirrorEditorsServise.editorContainers;
 
-                let symbolCount = 0;
 
-                let loop = (sections: articleSection[]) => {
-                  sections.forEach((sec) => {
-                    if (sec.type == 'complex' && sec.children.length > 0) {
-                      loop(sec.children);
-                    }
-                    if (sec.active) {
-                      let editorView = editorsContainers[sec.sectionID].editorView;
-                      symbolCount += editorView.state.doc.textContent.length;
-                    }
-                  })
-                }
-                loop(this.treeService.articleSectionsStructure!)
 
                 if (min > symbolCount || max < symbolCount) {
                   this.articleValidations.push({ fulfilled: false, errorMessage: `Number of characters in the article is not in the required range: ( minimum: ${min}, maximum: ${max})` })
                 }
-                this.articleLength = symbolCount
                 donevalidationSubject.next(null)
               } else if (el.rule == "ToHaveMinMaxEqualSections") {
                 let sectionNames = (el.config.names.split('|') as string[]).map((name: string) => { return name.trim() });
@@ -398,51 +401,55 @@ export class ValidationSectionComponent implements OnDestroy {
                   }
                 })
                 donevalidationSubject.next(null)
-              } else if (el.rule == "ValidateComplexSections"){
+              } else if (el.rule == "ValidateComplexSections") {
                 let articleSectionStructure = this.treeService.articleSectionsStructure;
-                let validateComplexSecMinMax = (complexSection:articleSection,sectionsFromBackend:any) => {
-                  let errors:string[] = []
+                let validateComplexSecMinMax = (complexSection: articleSection, sectionsFromBackend: any) => {
+                  let errors: string[] = []
                   let children = complexSection.children;
-                    Object.keys(complexSection.subsectionValidations!).forEach((sectionVersionID:any)=>{
-                      let subSecMinMax = complexSection.subsectionValidations![sectionVersionID];
-                      let countOfType = 0;
+                  Object.keys(complexSection.subsectionValidations!).forEach((sectionVersionID: any) => {
+                    let subSecMinMax = complexSection.subsectionValidations![sectionVersionID];
+                    let countOfType = 0;
 
-                      children.forEach((child)=>{
-                        if(child.sectionVersionId == sectionVersionID){
-                          countOfType++;
-                        }
-                      })
-                      let sectionFromBackend = sectionsFromBackend.find((el:any)=>el.version_id == sectionVersionID)
-                      let secName = sectionFromBackend.name
-                      if(countOfType<subSecMinMax.min){
-                        errors.push(`Number of "${secName}" sections should be more than ${subSecMinMax.min-1}`);
-                      }
-                      if(countOfType>subSecMinMax.max){
-                        errors.push(`Number of "${secName}" sections should be less than ${subSecMinMax.max+1}`);
+                    children.forEach((child) => {
+                      if (child.sectionVersionId == sectionVersionID) {
+                        countOfType++;
                       }
                     })
-                  if(errors.length>0){
+                    let sectionFromBackend = sectionsFromBackend.find((el: any) => el.version_id == sectionVersionID)
+                    console.log(sectionVersionID,sectionFromBackend,sectionsFromBackend,complexSection.subsectionValidations);
+                    let secName = sectionFromBackend.name
+                    if (countOfType < subSecMinMax.min) {
+                      errors.push(`Number of "${secName}" sections should be more than ${subSecMinMax.min - 1}`);
+                    }
+                    if (countOfType > subSecMinMax.max) {
+                      errors.push(`Number of "${secName}" sections should be less than ${subSecMinMax.max + 1}`);
+                    }
+                  })
+                  if (errors.length > 0) {
                     this.complexSectionsMinMaxErrors.push({ fulfilled: false, errorMessage: `Complex section "${complexSection.title.label}" should match the required minimum and maximum validations. ${errors.join('. ')}` })
                   }
                 }
-                this.articleSectionsService.getAllSections({page:1,pageSize:999}).subscribe((resData:any)=>{
-                  let loopTree = (section:articleSection)=>{
-                    if(section.type == 'complex'&&section.subsectionValidations&&Object.keys(section.subsectionValidations).length>0){
-                      validateComplexSecMinMax(section,resData.data);
+                console.log(this.ydocService.articleData);
+                this.articleSectionsService.getAllSections({ page: 1, pageSize: 999 }).subscribe((resData: any) => {
+                  let loopTree = (section: articleSection) => {
+                    if (section.type == 'complex' && section.subsectionValidations && Object.keys(section.subsectionValidations).length > 0) {
+                      validateComplexSecMinMax(section, resData.data);
                     }
-                    section.type == 'complex'?section.children.forEach((sec)=>{
-                        loopTree(sec);
-                    }):undefined
+                    section.type == 'complex' ? section.children.forEach((sec) => {
+                      loopTree(sec);
+                    }) : undefined
                   }
-                  articleSectionStructure?.forEach((section)=>{
+                  articleSectionStructure?.forEach((section) => {
                     loopTree(section)
                   })
                   donevalidationSubject.next(null)
                 })
               }
-            }catch(e){
-              this.articleValidationsErrors.push({ fulfilled: false, errorMessage:
-                `There was problem pocessing the validation : \n${JSON.stringify(el,undefined,'\t')}` })
+            } catch (e) {
+              this.articleValidationsErrors.push({
+                fulfilled: false, errorMessage:
+                  `There was problem pocessing the validation : \n${JSON.stringify(el, undefined, '\t')}`
+              })
               donevalidationSubject.next(null)
               console.error(e)
             }
@@ -495,7 +502,7 @@ function getPositionFunctions(section: articleSection, sectionContainer: article
       return indexIsLast;
     },
     isAfter: (secToBeAfterName: string) => {
-      let indexOfGiven = secCont.findIndex((sec) => {return  sec.title.name == secToBeAfterName });
+      let indexOfGiven = secCont.findIndex((sec) => { return sec.title.name == secToBeAfterName });
 
       let secIsAfterGiven = indexOfSec > indexOfGiven
       return secIsAfterGiven;

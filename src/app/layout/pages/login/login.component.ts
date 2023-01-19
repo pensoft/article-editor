@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { UserModel } from '@core/models/user.model';
@@ -11,6 +11,7 @@ import { first, take } from 'rxjs/operators';
 import { uuidv4 } from "lib0/random";
 import { lpClient } from "@core/services/oauth-client";
 import { ServiceShare } from '@app/editor/services/service-share.service';
+import { HttpErrorResponse } from '@angular/common/http';
 
 @Component({
   selector: 'app-login',
@@ -28,6 +29,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   returnUrl!: string;
   isLoading$: Observable<boolean> = this._broadcaster.listen(CONSTANTS.SHOW_LOADER);
   private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
+
+  @ViewChild('errorContainer') errorContainer;
+  errorText = ''
 
   constructor(
     private fb: FormBuilder,
@@ -91,12 +95,31 @@ export class LoginComponent implements OnInit, OnDestroy {
 
         }
       });
-    loginSub.subscribe((data: any) => {
+    loginSub.subscribe({
+      next: (value: any) => {
+        if(value instanceof HttpErrorResponse){
+          this.showError(value)
+        }
+      },
+      error: (err: any) => {
+        this.showError(err);
+      },
     })
   }
 
+  showError(error){
+    this.errorText = error.error.message;
+    this.errorContainer.nativeElement.style.opacity = 1;
+    this.serviceShare.ProsemirrorEditorsService.stopSpinner();
+    setTimeout(()=>{
+      this.errorContainer.nativeElement.style.opacity = 0;
+      this.errorText = ''
+    },3000);
+  }
+
   signIn() {
-    this.serviceShare.ProsemirrorEditorsService.spinSpinner()
+    this.serviceShare.ProsemirrorEditorsService.spinSpinner();
+
     lpClient.signIn().then(async signInResult => {
       if (signInResult) {
         const token: string = await lpClient.getToken();
@@ -114,7 +137,7 @@ export class LoginComponent implements OnInit, OnDestroy {
           });
         this.unsubscribe.push(loginSubscr);
       }
-    }).catch(err => console.error(err));
+    }).catch(err => {console.error(err)});
   }
 
   ngOnDestroy() {

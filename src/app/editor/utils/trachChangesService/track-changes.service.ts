@@ -153,16 +153,17 @@ export class TrackChangesService {
     let now = Date.now();
     if (!this.updateTimestamp) {
       this.updateTimestamp = Date.now();
+      this.updateAllChanges()
     }
     if (this.updateTimeout) {
       clearTimeout(this.updateTimeout);
     }
-    if (now - this.updateTimestamp > 1200) {
+    if (now - this.updateTimestamp > 500) {
       this.updateAllChanges()
     }
     this.updateTimeout = setTimeout(() => {
       this.updateAllChanges()
-    }, 1200)
+    }, 500)
   }
   lastSelectedChangeSubject: Subject<{
     pmDocStartPos?: number,
@@ -509,6 +510,15 @@ export class TrackChangesService {
               let pos = sel.to
               let commentMark = changeMarksOnNode(nodeAfterSelection)
               if (commentMark  && selInChange(newState.selection,nodeAfterSelection,pos)) {
+                changeInSelection(commentMark, pos)
+                selectedAChange = true;
+                foundMark = true;
+              }
+            }
+            if(nodeBeforeSelection){
+              let pos = sel.from
+              let commentMark = changeMarksOnNode(nodeBeforeSelection)
+              if (commentMark  && selInChange(newState.selection,nodeBeforeSelection,pos)) {
                 changeInSelection(commentMark, pos)
                 selectedAChange = true;
                 foundMark = true;

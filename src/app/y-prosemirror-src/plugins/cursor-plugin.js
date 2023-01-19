@@ -141,7 +141,7 @@ export const yCursorPlugin = (awareness, sharedService, { cursorBuilder = /* def
             head
           })
         }
-      } else if (current.cursor != null && relativePositionToAbsolutePosition(ystate.doc, ystate.type, Y.createRelativePositionFromJSON(current.cursor.anchor), ystate.binding.mapping) !== null) {
+      } else if (ystate.binding&&current.cursor != null && relativePositionToAbsolutePosition(ystate.doc, ystate.type, Y.createRelativePositionFromJSON(current.cursor.anchor), ystate.binding.mapping) !== null) {
         // delete cursor information if current cursor information is owned by this editor binding
         awareness.setLocalStateField(cursorStateField, null)
       }

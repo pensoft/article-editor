@@ -54,7 +54,7 @@ export interface articleSection {
   delete: { active: boolean, main: boolean },
   addSubSection?: { active: boolean, main: boolean },
   menusAndSchemasDefs:{ menus:{[key:string]:any[]},schemas:{[key:string]:{nodes:string[],marks:string[]}}}
-  mode: 'documentMode' | 'editMode',
+  mode: 'documentMode' | 'editMode' | 'noSchemaSectionMode',
   title: titleContent,
   override?: any,
   prosemirrorHTMLNodesTempl?: string,
