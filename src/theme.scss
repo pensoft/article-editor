@@ -156,7 +156,8 @@ body {
   --text-primary-darker-color: #{$light-primary-text};
 }
 
-$mat-primary: (main: var(--color-00b1b2),
+$mat-primary: (
+  main: var(--color-00b1b2),
   lighter: #f0c2ef,
   darker: #b920b7,
   200: var(--color-00b1b2), // For slide toggle,
@@ -304,34 +305,53 @@ $altTheme: (primary: $theme-primary,
 }
 
 /* Search Form Styling */
-.search-form {
-  > label {
-    margin: 0 0 9px 0;
-  }
+.search-field-sticky-wrapper {
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  background: white;
 
-  .mat-form-field {
-    .mat-form-field-flex {
-      border-radius: 18px;
-      border: 1px solid var(--color-00b1b2);
+  form {
 
-      .mat-form-field-infix {
-        border: 0;
-        padding: 0 16px;
-        margin: 0;
-      }
+    > label {
+      color: $light-grey;
+      margin: 0 0 10px 0;
+    }
 
-      .mat-form-field-suffix {
-        border: 0;
-        margin: 0 -1px 0 0;
-        padding: 0;
-        box-shadow: none;
+    .mat-form-field {
+      .mat-form-field-flex {
+        border-radius: 18px;
+        border: 1px solid var(--color-00b1b2);
 
-        .mat-button-base {
-          padding: 0 28px;
-          line-height: 39px;
+        .mat-form-field-infix {
+          border: 0;
+          padding: 0 16px;
+          margin: 0;
+        }
+
+        .mat-form-field-suffix {
+          border: 0;
+          margin: 0 -1px 0 0;
+          padding: 0;
+          box-shadow: none;
+
+          .mat-button-base {
+            padding: 0 28px;
+            line-height: 39px;
+          }
         }
       }
     }
+  }
+
+  .mat-form-field-underline {
+    background-color: transparent !important;
+  }
+
+  .error {
+    background-color: $error-red;
   }
 }
 
@@ -361,7 +381,7 @@ $altTheme: (primary: $theme-primary,
 .mat-selection-list {
   border: 1px solid $primary-dark-grey;
   border-radius: 15px;
-  margin: 0 0 10px 0;
+  margin: 10px 0;
   padding: 0 !important;
   overflow: hidden;
 
@@ -380,6 +400,7 @@ $altTheme: (primary: $theme-primary,
 
 /* No scroll element */
 .no-scroll {
+
   &::-webkit-scrollbar {
     width: 0;
     height: 0;

@@ -1,38 +1,39 @@
-<section class="section-choose relative">
-    <article fxLayout="column">
-        <h1 fxFill fxLayoutAlign="center" class="mt30px">
-            Add section to Article.
-        </h1>
-        <div *ngIf="showError" class="error">No Section selected.</div>
-        <div fxFill fxLayoutAlign="center">
-            <form (keydown.enter)="search(inputText.value)" fxFlex="90%" fxLayout="column">
-                <label>Select a section</label>
-                <mat-form-field>
-                    <input matInput type="text" #inputText class="input-search">
-                    <button color="primary" class="search-button" type="submit" matSuffix mat-raised-button (click)="search(inputText.value)">
-            Search
-           </button>
-                </mat-form-field>
-            </form>
-        </div>
-    </article>
-    <article class="list-container">
-        <mat-selection-list #topic [multiple]="false">
-            <mat-list-option *ngFor="let section of sectionTemplates" [value]="section.id">
-                {{section.name}}
-            </mat-list-option>
-        </mat-selection-list>
-    </article>
+<h2 mat-dialog-title>Add section to Article.</h2>
+<mat-dialog-content>
+
+  <div *ngIf="showError" class="error">No Section selected.</div>
 
 
-    <div class="buttons-footer" fxLayoutGap="23px">
-        <button mat-stroked-button class="button-stroked-primary" (click)="closeSectionChoose()">
-          Cancel
-     </button>
-        <button mat-raised-button color="primary" (click)="chooseSection(topic.selectedOptions.selected[0]?.value)">
-          Add Section
-     </button>
-    </div>
 
+  <div class="search-field-sticky-wrapper">
+    <form (keydown.enter)="search(inputText.value)" fxFlex="100%" fxLayout="column">
+      <label>Select a section</label>
+      <mat-form-field>
+        <input matInput type="text" #inputText>
+        <button mat-flat-button color="primary" type="submit" matSuffix (click)="search(inputText.value)">
+          Search
+        </button>
+      </mat-form-field>
+    </form>
+  </div>
 
-</section>
+  <div *ngIf="sectionTemplates.length == 0">
+    There are no manuscripts found with this criteria
+  </div>
+
+  <mat-selection-list #topic [multiple]="false">
+    <mat-list-option *ngFor="let section of sectionTemplates" [value]="section.id">
+      {{section.name}}
+    </mat-list-option>
+  </mat-selection-list>
+
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" fxLayoutGap="8px">
+  <button mat-stroked-button [mat-dialog-close]="true">
+    Cancel
+  </button>
+  <button mat-flat-button color="primary" (click)="chooseSection(topic.selectedOptions.selected[0]?.value)">
+    Add Section
+  </button>
+</mat-dialog-actions>
