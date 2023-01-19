@@ -295,6 +295,14 @@ $altTheme: (primary: $theme-primary,
   border-radius: 18px !important;
 }
 
+.mat-stroked-button.mat-primary {
+  border-color: var(--color-00b1b2);
+}
+
+.mat-stroked-button.mat-warn {
+  border-color: var(--warn-color);
+}
+
 /* Search Form Styling */
 .search-form {
   > label {
@@ -370,7 +378,6 @@ $altTheme: (primary: $theme-primary,
   }
 }
 
-
 /* No scroll element */
 .no-scroll {
   &::-webkit-scrollbar {
@@ -386,5 +393,14 @@ $altTheme: (primary: $theme-primary,
   ::-webkit-scrollbar-track {
     background-color: transparent !important;
     color: transparent;
+  }
+}
+
+/* Button Group */
+.button-group {
+  text-align: right;
+
+  button {
+    margin: 0 0 0 20px;
   }
 }

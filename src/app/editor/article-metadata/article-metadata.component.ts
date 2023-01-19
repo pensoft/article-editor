@@ -64,7 +64,7 @@ export class ArticleMetadataComponent implements OnInit {
     //this.serviceShare.PmDialogSessionService!.createSession()
     this.dialog.open(FiguresDialogComponent, {
       width: '100%',
-      height: '90%',
+      // height: '90%',
       data: {},
       disableClose: false
     }).afterClosed().subscribe(result => {
@@ -79,7 +79,7 @@ export class ArticleMetadataComponent implements OnInit {
   openSupplementaryFilesDialog(){
     this.dialog.open(SupplementaryFilesDialogComponent, {
       width: '100%',
-      height: '90%',
+      // height: '90%',
       data: {},
       disableClose: false
     }).afterClosed().subscribe(result => {
@@ -94,7 +94,7 @@ export class ArticleMetadataComponent implements OnInit {
   openEndNotesDialog(){
     this.dialog.open(EndNotesDialogComponent, {
       width: '100%',
-      height: '90%',
+      // height: '90%',
       data: {},
       disableClose: false
     }).afterClosed().subscribe(result => {
@@ -110,7 +110,7 @@ export class ArticleMetadataComponent implements OnInit {
     //this.serviceShare.PmDialogSessionService!.createSession()
     this.dialog.open(CitableTablesDialogComponent, {
       width: '100%',
-      height: '90%',
+      // height: '90%',
       data: {},
       disableClose: false
     }).afterClosed().subscribe(result => {

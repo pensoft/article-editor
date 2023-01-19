@@ -4,7 +4,7 @@
     <span [innerHTML]="figure.description">
         </span>
   </div>
-  <div class="figure-components">
+  <div class="figure-components" fxLayout="row wrap">
     <div [ngClass]="{'component-image':component.componentType == 'image','component-video':component.componentType == 'video'}" *ngFor="let component of figure.components">
       <div *ngIf="component.componentType == 'image'">
         <img src='{{component.url}}' height="150" />
@@ -13,7 +13,7 @@
         <iframe height="150" [src]="component.url | safe" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
       </div>
       <div class="component-description"><span>
-                <span [innerHTML]="component.description"> 
+                <span [innerHTML]="component.description">
 
                 </span>
         </span>

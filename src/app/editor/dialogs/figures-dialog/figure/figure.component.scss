@@ -1,19 +1,30 @@
 .figure {
-    .figure-index {
+  .figure-description {
+    width: 100%;
+  }
+
+  .figure-components {
+    margin: 0 -8px;
+
+    .component-image {
+      margin: 0 8px;
+      max-width: 200px;
+      padding: 12px 0 0 0;
+
+      img {
+        max-width: 100%;
+        border-radius: 8px;
+        object-fit: cover;
+      }
+
+      p {
+        margin: 0;
+      }
     }
-    .figure-description {
-        width: 100%;
+
+    .component-video {
+      margin: 18px;
+      max-width: 300px;
     }
-    .figure-components {
-        display: grid;
-        grid-template-columns: 2fr 2fr 2fr;
-        .component-image {
-            margin: 18px;
-            max-width: 200px;
-        }
-        .component-video {
-            margin: 18px;
-            max-width: 300px;
-        }
-    }
+  }
 }

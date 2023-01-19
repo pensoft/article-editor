@@ -1,7 +1,10 @@
-<div *ngIf="figuresNumbers" class='figures-container'>
+<h2 mat-dialog-title *ngIf="figuresNumbers">Figures</h2>
+
+<mat-dialog-content *ngIf="figuresNumbers">
   <div *ngIf="figuresNumbers.length==0">There are no figures right now.You can be the first one to add a figure with the
     "Add Figure" button.
   </div>
+
   <ng-container *ngIf="figuresNumbers.length>0">
     <div cdkDropList class="figures-list" (cdkDropListDropped)="drop($event)">
       <div class="figure-box" *ngFor="let figure of figuresNumbers;let i = index" cdkDrag>
@@ -11,17 +14,18 @@
             <!-- <img src="{{figures![figure].canvasData.dataURL}}" alt=""> -->
             <app-figure [(figure)]="figures![figure]" [figureIndex]="i"></app-figure>
           </div>
-          <div class="figure-control-buttons">
-            <button mat-raised-button (click)="editFigure(figures![figure],i)">Edit figure</button>
-            <button mat-raised-button (click)="deleteFigure(figures![figure],i)">Delete figure</button>
+          <div class="figure-control-buttons button-group">
+            <button mat-stroked-button color="warn" (click)="deleteFigure(figures![figure],i)">Delete figure</button>
+            <button mat-stroked-button color="primary" (click)="editFigure(figures![figure],i)">Edit figure</button>
           </div>
         </div>
       </div>
     </div>
   </ng-container>
-  <div class="figures-buttons">
-    <button mat-raised-button (click)="addFigure()">Add Figure</button>
-    <button mat-raised-button (click)="saveFigures()">Save Figures</button>
-    <button mat-raised-button (click)="cancelFiguresEdit()">Cancel</button>
-  </div>
-</div>
+</mat-dialog-content>
+
+<mat-dialog-actions *ngIf="figuresNumbers" align="end">
+  <button mat-stroked-button (click)="cancelFiguresEdit()">Cancel</button>
+  <button mat-stroked-button color="primary" (click)="addFigure()">Add Figure</button>
+  <button mat-flat-button color="primary" (click)="saveFigures()">Save Figures</button>
+</mat-dialog-actions>
