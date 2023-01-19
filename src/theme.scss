@@ -289,6 +289,21 @@ $altTheme: (primary: $theme-primary,
     overflow-y: auto;
     overflow-x: hidden;
   }
+
+  .mat-dialog-actions {
+    min-height: unset;
+    box-sizing: border-box;
+    margin: 16px 0 0 0;
+    padding: 0;
+
+    button {
+      margin-top: 8px;
+    }
+  }
+}
+
+.mat-dialog-title {
+  color: var(--color-192956);
 }
 
 /* Material Buttons Overrides */
@@ -298,10 +313,61 @@ $altTheme: (primary: $theme-primary,
 
 .mat-stroked-button.mat-primary {
   border-color: var(--color-00b1b2);
+
 }
 
 .mat-stroked-button.mat-warn {
   border-color: var(--warn-color);
+}
+
+.mat-stroked-button.mat-button-base:not(.mat-primary):not(.mat-accent):not(.mat-warn) {
+  border-color: var(--color-676767);
+  color: var(--color-676767);
+  opacity: 0.69;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+/* Material Radio Inputs Overrides */
+mat-radio-button {
+  margin: 0 0 20px 0;
+
+  .mat-radio-label {
+    .mat-radio-container {
+      width: 16px;
+      height: 16px;
+
+      .mat-radio-outer-circle {
+        height: 16px;
+        width: 16px;
+        border-width: 1px;
+        border-color: var(--color-707070);
+      }
+
+      .mat-radio-inner-circle {
+        height: 16px;
+        width: 16px;
+        background-color: var(--color-00b1b2);
+      }
+
+      .mat-ripple {
+        height: 32px;
+        width: 32px;
+        left: calc(50% - 16px);
+        top: calc(50% - 16px);
+      }
+    }
+
+    .mat-radio-label-content {
+      padding-left: 13px;
+    }
+  }
+
+  &:last-child {
+    margin: 0;
+  }
 }
 
 /* Search Form Styling */

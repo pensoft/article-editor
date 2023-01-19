@@ -30,7 +30,7 @@
   </ng-container>
 </mat-dialog-content>
 
-<mat-dialog-actions *ngIf="supplementaryFilesNumbers" align="end">
+<mat-dialog-actions *ngIf="supplementaryFilesNumbers" align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
   <button mat-stroked-button color="primary" (click)="addSupplementaryFile()">Add File</button>
   <button mat-flat-button color="primary" (click)="saveSupplementaryFiles()">Save Files</button>

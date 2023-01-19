@@ -37,7 +37,7 @@
   </div>
 </mat-dialog-content>
 
-<mat-dialog-actions *ngIf="section.mode == 'editMode'" align="end">
+<mat-dialog-actions *ngIf="section.mode == 'editMode'" align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
   <button mat-stroked-button color="primary" (click)="hidehtml=!hidehtml">Edit HTML</button>
   <button mat-stroked-button color="primary" (click)="hidejson=!hidejson">Show JSON</button>
