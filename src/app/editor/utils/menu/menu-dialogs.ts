@@ -21,6 +21,7 @@ import { InsertTableComponent } from "@app/editor/dialogs/citable-tables-dialog/
 import { StateEffectType } from "@codemirror/state";
 import { InsertSupplementaryFileComponent } from "@app/editor/dialogs/supplementary-files/insert-supplementary-file/insert-supplementary-file.component";
 import { InsertEndNoteComponent } from "@app/editor/dialogs/end-notes/insert-end-note/insert-end-note.component";
+import { RefsInArticleCiteDialogComponent } from "@app/editor/dialogs/refs-in-article-cite-dialog/refs-in-article-cite-dialog.component";
 
 let sharedDialog: MatDialog;
 
@@ -34,13 +35,13 @@ let citateRef = (sharedService: ServiceShare) => {
     let end = state.selection.to;
     let nodeType = state.schema.nodes.reference_citation;
 
-    let dialogRef = sharedDialog.open(CitateReferenceDialogComponent,{
+    let dialogRef = sharedDialog.open(RefsInArticleCiteDialogComponent,{
       panelClass: 'editor-dialog-container',
-      width:'400px',
-      height:'461px',
+      width:'70%',
+      height:'70%',
     })
     dialogRef.afterClosed().subscribe(result => {
-      if(result){
+      /* if(result){
         sharedService.YjsHistoryService.startCapturingNewUndoItem();
         if(result.refInstance=='local'){
           let refInYdoc = sharedService.EditorsRefsManagerService!.addReferenceToEditor(result)
@@ -63,7 +64,7 @@ let citateRef = (sharedService: ServiceShare) => {
           tr = tr.setSelection(new TextSelection(tr.doc.resolve(end+2+refInYdoc.citationDisplayText.length),tr.doc.resolve(end+2+refInYdoc.citationDisplayText.length)))
           dispatch(tr)
         }
-      }
+      } */
     });
   }
 }
@@ -324,7 +325,7 @@ export const addMathBlockMenuItem = new MenuItem({
   // @ts-ignore
   run: addMathInline('math_display'),
   enable(state:EditorState) { return state.schema.nodes.math_display&&state.tr.selection.empty },
-  icon: createCustomIcon('math-icon.svg', 13)
+  icon: createCustomIcon('symbols.svg', 20)
 });
 
 export const insertLinkItem = new MenuItem({

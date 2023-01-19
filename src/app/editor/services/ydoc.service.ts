@@ -280,6 +280,7 @@ export class YdocService {
     let referencesInEditor = this.referenceCitationsMap?.get('referencesInEditor')
     let externalRefs = this.referenceCitationsMap?.get('externalRefs');
     let localRefs = this.referenceCitationsMap?.get('localRefs');
+    let refsAddedToArticle = this.referenceCitationsMap?.get('refsAddedToArticle');
     let customPropsObj = this.customSectionProps?.get('customPropsObj');
     let elementsCitations = this.citableElementsMap?.get('elementsCitations');
 
@@ -339,6 +340,9 @@ export class YdocService {
     }
     if (!endNotesNumbers) {
       this.endNotesMap?.set('endNotesNumbers', [])
+    }
+    if (!refsAddedToArticle) {
+      this.referenceCitationsMap.set('refsAddedToArticle', {})
     }
     if (!supplementaryFiles) {
       this.supplementaryFilesMap.set('supplementaryFiles', {})

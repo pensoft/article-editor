@@ -158,6 +158,9 @@ import { JatsErrorsDialogComponent } from './editor/dialogs/jats-errors-dialog/j
 import {EchoInterceptor} from 'ngx-laravel-echo';
 import { Observable } from 'rxjs';
 import { BoldPipe } from './editor/dialogs/add-contributors-dialog/bold.pipe';
+import { RefsInArticleDialogComponent } from './editor/dialogs/refs-in-article-dialog/refs-in-article-dialog.component';
+import { RefsInArticleCiteDialogComponent } from './editor/dialogs/refs-in-article-cite-dialog/refs-in-article-cite-dialog.component';
+import { RefsAddNewInArticleDialogComponent } from './editor/dialogs/refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
 
 //@ts-ignore
 EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE,'event-dispatcher']
@@ -298,6 +301,9 @@ const gravatarConfig: GravatarConfig = {
     EndNoteComponent,
     InsertEndNoteComponent,
     JatsErrorsDialogComponent,
+    RefsInArticleDialogComponent,
+    RefsInArticleCiteDialogComponent,
+    RefsAddNewInArticleDialogComponent,
   ],
   imports: [
     HttpClientJsonpModule,
