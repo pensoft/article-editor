@@ -1,22 +1,19 @@
 <div *ngIf="figure" class="figure">
-  <div class="figure-index">Figure №{{figureIndex!+1}} :</div>
-  <div class="figure-description">
-    <span [innerHTML]="figure.description">
-        </span>
+  <div class="figure-index">
+    <strong>Figure №{{figureIndex! + 1}}</strong>
+    <span [innerHTML]="figure.description"></span>
   </div>
-  <div class="figure-components" fxLayout="row wrap">
-    <div [ngClass]="{'component-image':component.componentType == 'image','component-video':component.componentType == 'video'}" *ngFor="let component of figure.components">
+  <div class="figure-components" fxLayout="row nowrap">
+    <div
+      [ngClass]="{'component-image':component.componentType == 'image','component-video':component.componentType == 'video'}"
+      *ngFor="let component of figure.components">
       <div *ngIf="component.componentType == 'image'">
-        <img src='{{component.url}}' height="150" />
+        <img src='{{component.url}}' height="90" alt="{{figure.description}}"/>
       </div>
       <div *ngIf="component.componentType == 'video'">
-        <iframe height="150" [src]="component.url | safe" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen=""></iframe>
-      </div>
-      <div class="component-description"><span>
-                <span [innerHTML]="component.description">
-
-                </span>
-        </span>
+        <iframe height="90" [src]="component.url | safe" title="YouTube video player" frameborder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowfullscreen=""></iframe>
       </div>
     </div>
   </div>
