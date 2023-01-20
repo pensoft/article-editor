@@ -4364,7 +4364,7 @@ let defaultReferences = [
         },
         "citatId": "4e676bad-b141-4503-98e3-0124dbbd5774",
         "style": "basicStyle",
-        "bobliography": "  <div class=\"csl-entry\">Ivan , N. (1999) “Title,” <i>Journal name</i>, volume(issue), pp. 22–23. doi:doiiiii.</div>\n"
+        "bibliography": "  <div class=\"csl-entry\">Ivan , N. (1999) “Title,” <i>Journal name</i>, volume(issue), pp. 22–23. doi:doiiiii.</div>\n"
       },
       "referenceData": {
         "author": [
@@ -4629,7 +4629,7 @@ let defaultReferences = [
         },
         "citatId": "fa68f98a-6ea3-4d4e-b7c8-cb3578efd1ec",
         "style": "basicStyle",
-        "bobliography": "  <div class=\"csl-entry\">Anonymous, A. (1999) <i>BookTitle</i>. Publisher. doi:DOIIII.</div>\n"
+        "bibliography": "  <div class=\"csl-entry\">Anonymous, A. (1999) <i>BookTitle</i>. Publisher. doi:DOIIII.</div>\n"
       },
       "referenceData": {
         "author": [
@@ -4933,7 +4933,7 @@ let defaultReferences = [
         },
         "citatId": "2609f2a9-402e-492d-8f6a-ca8d9a2a6261",
         "style": "basicStyle",
-        "bobliography": "  <div class=\"csl-entry\">Anon (2003) Title. Available from: http://dwqwdqwd.wd. </div>\n"
+        "bibliography": "  <div class=\"csl-entry\">Anon (2003) Title. Available from: http://dwqwdqwd.wd. </div>\n"
       },
       "referenceData": {
         "issued": {
@@ -5152,7 +5152,7 @@ let defaultReferences = [
         },
         "citatId": "57fdfc80-9672-4961-99b4-1822f019246f",
         "style": "basicStyle",
-        "bobliography": "  <div class=\"csl-entry\">Aleksandur. (2222). <i>Title</i>. Retrieved from https://qwdqwdqwdqwd</div>\n"
+        "bibliography": "  <div class=\"csl-entry\">Aleksandur. (2222). <i>Title</i>. Retrieved from https://qwdqwdqwdqwd</div>\n"
       },
       "referenceData": {
         "author": [
@@ -5398,7 +5398,7 @@ let defaultReferences = [
         },
         "citatId": "10956915-fedc-4804-9649-2ed180dc7d44",
         "style": "basicStyle",
-        "bobliography": "  <div class=\"csl-entry\">Dido, K. (1823). Title. In Trove OOD (Ed.), <i>BookTitle</i>: <i>Vol.</i> <i>Vol</i>. https://doi.org/DOI</div>\n"
+        "bibliography": "  <div class=\"csl-entry\">Dido, K. (1823). Title. In Trove OOD (Ed.), <i>BookTitle</i>: <i>Vol.</i> <i>Vol</i>. https://doi.org/DOI</div>\n"
       },
       "referenceData": {
         "author": [

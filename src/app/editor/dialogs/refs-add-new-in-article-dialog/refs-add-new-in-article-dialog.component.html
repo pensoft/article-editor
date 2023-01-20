@@ -26,6 +26,7 @@
     </div> -->
     <div class="btn-container">
       <button mat-raised-button (click)="addReFindItRef()" [disabled]="!externalSelection">Add Reference</button>
+      <button mat-raised-button (click)="closeDialog()">Cancel</button>
     </div>
   </mat-tab>
   <mat-tab label="Manual input">
@@ -46,6 +47,7 @@
       </div>
       <div class="btn-container">
         <button mat-raised-button (click)="onSubmit()" [disabled]="!dataSave||!isModified||!isValid">Add Reference</button>
+        <button mat-raised-button (click)="closeDialog()">Cancel</button>
       </div>
     </div>
   </mat-tab>

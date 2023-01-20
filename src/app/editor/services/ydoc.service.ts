@@ -542,21 +542,6 @@ export class YdocService {
   setUserColor(userInfo: any) {
     let usersColors = this.usersDataMap!.get('usersColors');
     let userId = userInfo.data.id;
-    let colors: string[] = [
-      '#ff008d4d',
-      '#de00ff4d',
-      '#5c00ff4d',
-      '#0046ff4d',
-      '#00b7ff4d',
-      '#00ffe278',
-      '#00ff9f78',
-      '#00ff2778',
-      '#a9ff0078',
-      '#eeff0078',
-      '#ffd60078',
-      '#ff890078',
-      '#ff580078',
-      '#ff000063']
     if (!usersColors[userId]) {
       const red = Math.floor(((256*4)/5)+(Math.random() * 256/5));
       const green = Math.floor(((256*4)/5)+(Math.random() * 256/5));

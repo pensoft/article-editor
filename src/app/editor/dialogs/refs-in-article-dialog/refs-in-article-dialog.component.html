@@ -1,57 +1,31 @@
 <div class="refs-in-article">
   <h1>Edit: References</h1>
+    <div *ngIf="loadingData" class="spinner-container" (click)="preventClick($event)">
+      <div class="spinner-container-inner">
+        <mat-spinner *ngIf="loadingData"></mat-spinner>
+      </div>
+    </div>
   <div class="all-refs-container">
-    <div class="ref-container">
-      <div class="ref">Reference should be here</div>
+
+    <div *ngFor="let ref of ydocAndChangedRefsSubject | async" class="ref-container">
+      <div class="ref" [innerHTML]="ref.citation.bibliography"></div>
       <div class="ref-actions-btns">
-        <button mat-raised-button>
+        <button mat-raised-button (click)="editRef(ref)">
           <mat-icon>edit</mat-icon>
           <span>
             Edit
           </span>
         </button>
-        <button mat-raised-button>
-          <mat-icon>delete</mat-icon>
+        <button mat-raised-button (click)="deleteRef(ref)">
+          <mat-icon >delete</mat-icon>
           <span>
             Delete
           </span>
         </button>
       </div>
     </div>
-    <div class="ref-container">
-      <div class="ref">Reference should be here</div>
-      <div class="ref-actions-btns">
-        <button mat-raised-button>
-          <mat-icon>edit</mat-icon>
-          <span>
-            Edit
-          </span>
-        </button>
-        <button mat-raised-button>
-          <mat-icon>delete</mat-icon>
-          <span>
-            Delete
-          </span>
-        </button>
-      </div>
-    </div>
-    <div class="ref-container">
-      <div class="ref">Reference should be here</div>
-      <div class="ref-actions-btns">
-        <button mat-raised-button>
-          <mat-icon>edit</mat-icon>
-          <span>
-            Edit
-          </span>
-        </button>
-        <button mat-raised-button>
-          <mat-icon>delete</mat-icon>
-          <span>
-            Delete
-          </span>
-        </button>
-      </div>
-    </div>
+
+
 
   </div>
   <div class="action-buttons">
@@ -62,8 +36,8 @@
       </button>
     </div>
     <div class="dialog-actions-btns">
-      <button mat-raised-button>Save</button>
-      <button mat-raised-button>Close</button>
+      <button mat-raised-button (click)="saveRefsInArticle()">Save</button>
+      <button mat-raised-button (click)="cancelRefsInAfticleEdit()">Close</button>
     </div>
   </div>
 </div>
