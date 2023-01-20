@@ -284,17 +284,23 @@ $altTheme: (primary: $theme-primary,
   }
 
   .mat-dialog-content {
-    padding: 0 40px;
+    padding: 0 28px 24px 28px;
     margin: 0 -40px;
     overflow-y: auto;
     overflow-x: hidden;
+    scrollbar-gutter: stable both-edges;
+
+    &.fixed-dialog-content-height {
+      height: 400px;
+    }
   }
 
   .mat-dialog-actions {
     min-height: unset;
     box-sizing: border-box;
-    margin: 16px 0 0 0;
-    padding: 0;
+    margin: 0;
+    padding: 16px 0 0 0;
+    border-top: 1px solid var(--color-cacdd3);
 
     button {
       margin-top: 8px;
@@ -372,12 +378,6 @@ mat-radio-button {
 
 /* Search Form Styling */
 .search-field-sticky-wrapper {
-  position: sticky;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 3;
-  background: white;
 
   form {
 
@@ -387,7 +387,23 @@ mat-radio-button {
     }
 
     .mat-form-field {
+
+      .mat-form-field-underline {
+        background-color: transparent;
+        height: 0;
+
+        :before {
+          background-color: transparent;
+          height: 0;
+        }
+
+        .mat-form-field-ripple {
+          display: none;
+        }
+      }
+
       .mat-form-field-flex {
+        padding: 0;
         border-radius: 18px;
         border: 1px solid var(--color-00b1b2);
 
@@ -410,10 +426,6 @@ mat-radio-button {
         }
       }
     }
-  }
-
-  .mat-form-field-underline {
-    background-color: transparent !important;
   }
 
   .error {
@@ -447,7 +459,7 @@ mat-radio-button {
 .mat-selection-list {
   border: 1px solid $primary-dark-grey;
   border-radius: 15px;
-  margin: 10px 0;
+  margin: 0;
   padding: 0 !important;
   overflow: hidden;
 

@@ -3,8 +3,8 @@
 <div class="search-field-sticky-wrapper">
   <form (keydown)="search(inputText)" fxFlex="100%%" fxLayout="column" class="search-form">
     <label>Select a Template</label>
-    <mat-form-field class="s" floatLabel="never">
-      <input matInput type="text" #inputText placeholder="search here">
+    <mat-form-field class="s" floatLabel="never" appearance="standard">
+      <input matInput type="text" #inputText placeholder="Search for topics">
       <button mat-flat-button color="primary" type="submit" matSuffix (click)="search(inputText)">
         Search
       </button>
@@ -12,7 +12,7 @@
   </form>
 </div>
 
-<mat-dialog-content>
+<mat-dialog-content class="fixed-dialog-content-height">
 
   <div *ngIf="showError" class="error">No Layout selected.</div>
 
