@@ -1,24 +1,30 @@
-<div class='export-header'>Export a manuscript</div>
-<div class="options-container">
-  <div class="format-label">Fromat:</div>
-  <mat-radio-group class="format-options" [(ngModel)]="selectedType">
-    <mat-radio-button class="format-option" value="pdf">PDF</mat-radio-button>
-    <mat-radio-button class="format-option" value="rtf">RTF</mat-radio-button>
-    <mat-radio-button class="format-option" value="msWord">MS Word</mat-radio-button>
-    <mat-radio-button class="format-option" value="jatsXml">JATS xml</mat-radio-button>
-    <mat-radio-button class="format-option" value="json-ld">JSON-LD</mat-radio-button>
-  </mat-radio-group>
-</div>
-<div class="export-container">
-  <div class="export-label">Export to:</div>
-  <div class="export-place">
-    <img class="folder-icon" src="../../../../assets/icons/folder.svg" alt="">
-    <div class="folder-path">{{path}}</div>
-    <button class="change-folder-btn" color="primary" mat-button>Change</button>
+<h2 mat-dialog-title align="center">Export a manuscript</h2>
+
+<mat-dialog-content>
+  <div class="options-container" fxLayout="flex wrap" fxLayoutAlign="flex-start flex-start">
+    <div class="format-label">Format:</div>
+    <mat-radio-group class="format-options" [(ngModel)]="selectedType">
+      <mat-radio-button class="format-option" value="pdf">PDF</mat-radio-button>
+      <mat-radio-button class="format-option" value="rtf">RTF</mat-radio-button>
+      <mat-radio-button class="format-option" value="msWord">MS Word</mat-radio-button>
+      <mat-radio-button class="format-option" value="jatsXml">JATS xml</mat-radio-button>
+      <mat-radio-button class="format-option" value="json-ld">JSON-LD</mat-radio-button>
+    </mat-radio-group>
   </div>
-</div>
-<div class="button-container">
-  <button class="export-button" mat-raised-button color="primary" (click)="openEditBeforeExport(selectedType)" mat-dialog-close>Export
+  <div class="export-container" fxLayout="flex wrap" fxLayoutAlign="flex-start center">
+    <div class="export-label">Export to:</div>
+    <div class="export-place">
+      <img class="folder-icon" src="../../../../assets/icons/folder.svg" alt="">
+      <div class="folder-path">{{path}}</div>
+      <button class="change-folder-btn" color="primary" mat-button>Change</button>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" fxLayoutGap="8px">
+  <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
+  <button mat-flat-button color="primary" (click)="openEditBeforeExport(selectedType)" [mat-dialog-close]="true">
+    Export
     <img src="../../../../assets/icons/download.svg" alt="" >
   </button>
-</div>
+</mat-dialog-actions>

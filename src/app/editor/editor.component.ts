@@ -438,8 +438,8 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
   export() {
     this.dialog
       .open(ExportOptionsComponent, {
-        width: '465px',
-        height: '531px',
+        width: '532px',
+        // height: '531px',
         data: {},
         disableClose: false,
       })

@@ -47,14 +47,7 @@ export const supplementaryFileJSON = {
           "key": "supplementaryFileURL",
           "type": "textfield",
           "input": true
-      },
-      {
-          "type": "button",
-          "label": "Submit",
-          "key": "submit",
-          "disableOnInvalid": true,
-          "input": true,
-          "tableView": false
       }
+
   ]
 }

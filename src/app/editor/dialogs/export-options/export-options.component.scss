@@ -39,3 +39,37 @@
 .button-container {
     .export-button {}
 }
+
+.mat-dialog-content {
+  .options-container {
+    padding: 44px 0;
+
+    .format-label {
+      min-width: 82px;
+      font-weight: 600;
+      color: #141414;
+    }
+  }
+
+  .export-container {
+    margin: 4px 0 24px 0;
+
+    .export-label {
+      min-width: 82px;
+      font-weight: 600;
+      color: #141414;
+    }
+
+    .export-place {
+      > img {
+        margin: 0 10px 0 0;
+      }
+
+      > div {
+        font-size: 12px;
+        line-height: 15px;
+        color: var(--color-192956);
+      }
+    }
+  }
+}

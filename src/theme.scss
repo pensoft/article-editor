@@ -4,15 +4,16 @@
 * Fork at: https://materialtheme.arcsine.dev/?c=YHBhbGV0dGU$YHByaW1hcnk$YF48I2NjMzNjYSIsIj9lcjwjZjBjMmVmIiwiO2VyPCNiOTIwYjd$LCIlPmBePCM3OTc5NzkiLCI~ZXI8I2Q3ZDdkNyIsIjtlcjwjNWM1YzVjfiwid2Fybj5gXjwjZmYwMDAwIiwiP2VyPCNmZmIzYjMiLCI7ZXI8I2ZmMDAwMH4sIj9UZXh0PCMwMDAwMDAiLCI~PTwjZmFmYWZhIiwiO1RleHQ8I2ZmZmZmZiIsIjs9PCMyYzJjMmN$LCJmb250cz5bYEA8KC00fixgQDwoLTN$LGBAPCgtMn4sYEA8KC0xfixgQDxoZWFkbGluZX4sYEA8dGl0bGV$LGBAPHN1YiktMn4sYEA8c3ViKS0xfixgQDxib2R5LTJ$LGBAPGJvZHktMX4sYEA8YnV0dG9ufixgQDxjYXB0aW9ufixgQDxpbnB1dCIsInNpemU$bnVsbH1dLCJpY29uczxGaWxsZWQiLCI~bmVzcz50cnVlLCJ2ZXJzaW9uPjEyfQ==
 */
 
-@use '~@angular/material'as mat;
+@use '~@angular/material' as mat;
 
 // Include the common styles for Angular Material. We include this here so that you only
 // have to load a single css file for Angular Material in your app.
 
 // Fonts
 @import 'https://fonts.googleapis.com/css?family=Material+Icons';
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,500');
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:300,400,500,600,700,800');
 @import url('https://fonts.googleapis.com/css?family=Roboto:300,400,500');
+@import './src/assets/colors';
 
 $fontConfig: (display-4: mat.define-typography-level(112px, 112px, 300, var(--font-family-open-sans), -0.0134em),
   display-3: mat.define-typography-level(56px, 56px, 400, var(--font-family-open-sans), -0.0089em),
@@ -24,7 +25,7 @@ $fontConfig: (display-4: mat.define-typography-level(112px, 112px, 300, var(--fo
   subheading-1: mat.define-typography-level(15px, 24px, 500, var(--font-family-open-sans), 0.0067em),
   body-2: mat.define-typography-level(14px, 24px, 500, var(--font-family-open-sans), 0.0179em),
   body-1: mat.define-typography-level(14px, 20px, 400, var(--font-family-open-sans), 0.0179em),
-  button: mat.define-typography-level(12px, 17px, 400, var(--font-family-open-sans), 0.0333em),
+  button: mat.define-typography-level(14px, 17px, 400, var(--font-family-open-sans), 0.0333em),
   caption: mat.define-typography-level(12px, 20px, 400, var(--font-family-open-sans), 0.0333em),
   input: mat.define-typography-level(inherit, 1.125, 400, var(--font-family-open-sans), 1.5px));
 
@@ -145,6 +146,7 @@ $mat-dark-theme-background: (background: $dark-background,
 
 // Theme Config
 
+/* Primary styles */
 body {
   --primary-color: var(--color-00b1b2);
   --primary-lighter-color: #f0c2ef;
@@ -154,7 +156,8 @@ body {
   --text-primary-darker-color: #{$light-primary-text};
 }
 
-$mat-primary: (main: var(--color-00b1b2),
+$mat-primary: (
+  main: var(--color-00b1b2),
   lighter: #f0c2ef,
   darker: #b920b7,
   200: var(--color-00b1b2), // For slide toggle,
@@ -164,6 +167,7 @@ $mat-primary: (main: var(--color-00b1b2),
   ));
 $theme-primary: mat.define-palette($mat-primary, main, lighter, darker);
 
+/* Accent styles */
 body {
   --accent-color: #797979;
   --accent-lighter-color: #d7d7d7;
@@ -183,6 +187,7 @@ $mat-accent: (main: #797979,
   ));
 $theme-accent: mat.define-palette($mat-accent, main, lighter, darker);
 
+/* Warn styles */
 body {
   --warn-color: #ff0000;
   --warn-lighter-color: #ffb3b3;
@@ -267,3 +272,320 @@ $altTheme: (primary: $theme-primary,
 //   color: var(--color-00b1b2);
 //   font-weight: bold !important;
 // }
+
+/* Material Dialog Overrides */
+.mat-dialog-container {
+  padding: 40px 40px 24px 40px !important;
+
+  h2 {
+    font-size: 23px;
+    font-weight: bold;
+    line-height: 32px;
+  }
+
+  .mat-dialog-content {
+    padding: 0 28px 24px 28px;
+    margin: 0 -40px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: stable both-edges;
+
+    &.fixed-dialog-content-height {
+      height: 400px;
+    }
+  }
+
+  .mat-dialog-actions {
+    min-height: unset;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 16px 0 0 0;
+    border-top: 1px solid var(--color-cacdd3);
+
+    button {
+      margin-top: 8px;
+    }
+  }
+}
+
+.mat-dialog-title {
+  color: var(--color-192956);
+}
+
+/* Material Buttons Overrides */
+.mat-button-base {
+  border-radius: 18px !important;
+}
+
+.mat-stroked-button.mat-primary {
+  border-color: var(--color-00b1b2);
+
+}
+
+.mat-stroked-button.mat-warn {
+  border-color: var(--warn-color);
+}
+
+.mat-stroked-button.mat-button-base:not(.mat-primary):not(.mat-accent):not(.mat-warn) {
+  border-color: var(--color-676767);
+  color: var(--color-676767);
+  opacity: 0.69;
+
+  &:hover {
+    opacity: 1;
+  }
+}
+
+/* Material Radio Inputs Overrides */
+mat-radio-button {
+  margin: 0 0 20px 0;
+
+  .mat-radio-label {
+    .mat-radio-container {
+      width: 16px;
+      height: 16px;
+
+      .mat-radio-outer-circle {
+        height: 16px;
+        width: 16px;
+        border-width: 1px;
+        border-color: var(--color-707070);
+      }
+
+      .mat-radio-inner-circle {
+        height: 16px;
+        width: 16px;
+        background-color: var(--color-00b1b2);
+      }
+
+      .mat-ripple {
+        height: 32px;
+        width: 32px;
+        left: calc(50% - 16px);
+        top: calc(50% - 16px);
+      }
+    }
+
+    .mat-radio-label-content {
+      padding-left: 13px;
+    }
+  }
+
+  &:last-child {
+    margin: 0;
+  }
+}
+
+/* Search Form Styling */
+.search-field-wrapper {
+
+  form {
+
+    > label {
+      color: $light-grey;
+      margin: 0 0 10px 0;
+    }
+
+    .mat-form-field {
+
+      .mat-form-field-underline {
+        background-color: transparent;
+        height: 0;
+
+        :before {
+          background-color: transparent;
+          height: 0;
+        }
+
+        .mat-form-field-ripple {
+          display: none;
+        }
+      }
+
+      .mat-form-field-flex {
+        padding: 0;
+        border-radius: 18px;
+        border: 1px solid var(--color-00b1b2);
+
+        .mat-form-field-infix {
+          border: 0;
+          padding: 0 16px;
+          margin: 0;
+        }
+
+        .mat-form-field-suffix {
+          border: 0;
+          margin: 0 -1px 0 0;
+          padding: 0;
+          box-shadow: none;
+
+          .mat-button-base {
+            padding: 0 28px;
+            line-height: 39px;
+          }
+        }
+      }
+    }
+  }
+
+  .error {
+    background-color: $error-red;
+  }
+}
+
+/* Scrollbar override */
+::-webkit-scrollbar {
+  width: 12px;
+  height: 12px;
+}
+
+::-webkit-scrollbar-track {
+  background: #ffffff;
+  border-radius: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-e3e3e3);
+  border-radius: 6px;
+  width: 6px;
+  border: 3px solid #ffffff;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-e3e3e3);
+}
+
+.mat-selection-list {
+  border: 1px solid $primary-dark-grey;
+  border-radius: 15px;
+  margin: 0;
+  padding: 0 !important;
+  overflow: hidden;
+
+  .mat-list-option {
+    border-bottom: 1px solid $primary-dark-grey;
+
+    &:last-child {
+      border-bottom: 0;
+    }
+
+    &:hover {
+      background: var(--color-e4f6f6);
+    }
+  }
+}
+
+/* No scroll element */
+.no-scroll {
+
+  &::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent !important;
+    border-radius: 0;
+  }
+
+  ::-webkit-scrollbar-track {
+    background-color: transparent !important;
+    color: transparent;
+  }
+}
+
+/* Article Metadata Dialogs Overrides */
+.table-box, .supplementary-file-box, .figure-box, .end-note-box {
+  padding: 16px 0;
+
+  > div {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    gap: 20px;
+
+    > div {
+      &:first-child {
+        flex-grow: 1;
+
+        .figure-table, .figure, .end-note, .supplementary-file {
+          display: grid;
+          grid-template-columns: 100%;
+          grid-gap: 20px;
+
+          &.figure {
+            grid-gap: 12px;
+          }
+
+          &.figure-table, &.end-note {
+            grid-template-columns: 60px 1fr;
+          }
+
+          img {
+            width: 100%;
+            height: auto;
+          }
+
+          strong {
+            display: block;
+            line-height: 20px;
+            display: -webkit-box;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            -webkit-line-clamp: 1;
+            line-clamp: 1;
+            -webkit-box-orient: vertical;
+            margin: 0 0 4px 0;
+
+            a {
+              font-weight: 400;
+              color: var(--color-00b1b2);
+            }
+          }
+
+          span {
+            display: block;
+            display: -webkit-box;
+            font-size: 13px;
+            line-height: 18px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            -webkit-line-clamp: 2;
+            line-clamp: 2;
+            -webkit-box-orient: vertical;
+            color: var(--color-818181);
+
+            .deletion {
+              display: none;
+            }
+
+            &.sub-title {
+              line-height: 20px;
+              margin: 0 0 4px 0;
+              display: -webkit-box;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              -webkit-line-clamp: 1;
+              line-clamp: 1;
+              -webkit-box-orient: vertical;
+              color: var(--color-abaaac);
+            }
+
+            p {
+              margin: 0;
+            }
+          }
+        }
+      }
+
+      &.button-group {
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+      }
+    }
+  }
+}

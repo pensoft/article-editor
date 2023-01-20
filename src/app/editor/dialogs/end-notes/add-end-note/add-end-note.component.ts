@@ -71,6 +71,28 @@ export class AddEndNoteComponent implements AfterViewInit,AfterViewChecked {
     this.changeDetectorRef.detectChanges();
   }
 
+  isValid:boolean = true;
+  formIoSubmission:any
+  formIoRoot:any
+  onChange(change: any) {
+    if(change instanceof Event){
+
+    }else{
+      this.isValid
+      this.formIoSubmission = change.data
+      console.log(change);
+      if(change.changed&&change.changed.instance){
+        this.formIoRoot = change.changed.instance.root
+      }
+    }
+  }
+
+  submitEndNote(){
+    if(this.formIoRoot){
+      this.formIoRoot.submit()
+    }
+  }
+
   ngAfterViewInit(): void {
     try {
       let endNotesInitialFormIOJson = this.ydocService.endNotesMap!.get('endNotesInitialFormIOJson');

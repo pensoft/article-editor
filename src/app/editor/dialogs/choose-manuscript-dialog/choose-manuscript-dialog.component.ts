@@ -71,8 +71,8 @@ export class ChooseManuscriptDialogComponent implements OnInit, AfterViewInit, A
             let inc = false
             let nOfEl = valueArr.filter(el1 => el1 == el).length
             let nOfElFound = found.filter(el1 => el1 == el).length
-            let nOfElInitioal = nameCharArr.filter(el1 => el1 == el).length
-            if (nameCharArr.includes(el) && nOfElFound < nOfEl && nOfElFound < nOfElInitioal) {
+            let nOfElInitial = nameCharArr.filter(el1 => el1 == el).length
+            if (nameCharArr.includes(el) && nOfElFound < nOfEl && nOfElFound < nOfElInitial) {
 
               found.push(el);
               inc = true;

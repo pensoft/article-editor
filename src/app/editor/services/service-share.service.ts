@@ -120,7 +120,7 @@ export class ServiceShare {
       this.articleLayouts = articleLayouts
       const dialogRef = this.dialog.open(ChooseManuscriptDialogComponent, {
         width: '563px',
-        height: '657px',
+        // height: '657px',
         panelClass:'choose-namuscript-dialog',
         data: { layouts: articleLayouts }
       });

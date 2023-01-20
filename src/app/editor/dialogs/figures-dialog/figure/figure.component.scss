@@ -1,19 +1,48 @@
 .figure {
-    .figure-index {
+  .figure-description {
+    width: 100%;
+  }
+
+  .figure-components {
+    align-items: flex-start;
+    box-sizing: border-box;
+    gap: 16px;
+    overflow-y: hidden;
+    overflow-x: auto;
+
+    .component-image {
+      height: auto;
+
+      > div {
+        height: 90px;
+        width: 90px;
+      }
+
+      img {
+        max-width: 100%;
+        border-radius: 8px;
+        object-fit: cover;
+        height: 100%;
+      }
+
+      p {
+        margin: 0;
+      }
     }
-    .figure-description {
-        width: 100%;
-    }
-    .figure-components {
-        display: grid;
-        grid-template-columns: 2fr 2fr 2fr;
-        .component-image {
-            margin: 18px;
-            max-width: 200px;
+
+    .component-video {
+      height: auto;
+
+      > div {
+        height: 90px;
+        width: 160px;
+
+        iframe {
+          width: 100%;
+          border-radius: 8px;
+
         }
-        .component-video {
-            margin: 18px;
-            max-width: 300px;
-        }
+      }
     }
+  }
 }
