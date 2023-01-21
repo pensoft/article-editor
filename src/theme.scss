@@ -275,9 +275,11 @@ $altTheme: (primary: $theme-primary,
 
 /* Material Dialog Overrides */
 .mat-dialog-container {
-  padding: 40px 40px 24px 40px !important;
+  padding: 24px 0 !important;
 
   h2 {
+    margin: 16px 0 0 0;
+    padding: 0 40px;
     font-size: 23px;
     font-weight: bold;
     line-height: 32px;
@@ -285,7 +287,7 @@ $altTheme: (primary: $theme-primary,
 
   .mat-dialog-content {
     padding: 0 28px 24px 28px;
-    margin: 0 -40px;
+    margin: 0;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-gutter: stable both-edges;
@@ -299,8 +301,8 @@ $altTheme: (primary: $theme-primary,
     min-height: unset;
     box-sizing: border-box;
     margin: 0;
-    padding: 16px 0 0 0;
-    border-top: 1px solid var(--color-cacdd3);
+    padding: 16px 40px 0 40px;
+    box-shadow: 0 0 10px #1BB1B22B;
 
     button {
       margin-top: 8px;
@@ -378,12 +380,14 @@ mat-radio-button {
 
 /* Search Form Styling */
 .search-field-wrapper {
+  margin: 16px 0 0 0;
+  padding: 0 40px;
 
   form {
 
     > label {
       color: $light-grey;
-      margin: 0 0 10px 0;
+      margin: 0 0 8px 0;
     }
 
     .mat-form-field {
