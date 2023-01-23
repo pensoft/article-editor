@@ -6,7 +6,7 @@
     <ng-container *ngIf='renderForm'>
       <div class="popup-menu-container"></div>
       <div>
-        <mat-formio #formio [form]="sectionContent" (submit)="onSubmit($event)"></mat-formio>
+        <mat-formio #formio [form]="sectionContent" (change)="onChange($event)" (submit)="onSubmit($event)"></mat-formio>
       </div>
     </ng-container>
   </div>
@@ -21,7 +21,7 @@
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
   <button mat-stroked-button color="primary" (click)="hidehtml=!hidehtml">Edit HTML</button>
-  <button mat-flat-button color="primary">Submit figure</button>
+  <button mat-flat-button color="primary" (click)="submitFigure()" [disabled]="!isValid">Submit figure</button>
 </mat-dialog-actions>
 
 

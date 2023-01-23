@@ -42,7 +42,7 @@
   <button mat-stroked-button color="primary" (click)="hidehtml=!hidehtml">Edit HTML</button>
   <button mat-stroked-button color="primary" (click)="hidejson=!hidejson">Show JSON</button>
   <button mat-stroked-button color="primary" (click)="hideDefsjson=!hideDefsjson">Show Menus And Schema Defs</button>
-  <button mat-flat-button color="primary">Submit section</button>
+  <button mat-flat-button color="primary" (click)="submitSection()" [disabled]="!isValid">Submit section</button>
 </mat-dialog-actions>
 
 <!-- If section is inside the Editor -->

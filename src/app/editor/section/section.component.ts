@@ -15,28 +15,21 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import {BrowserModule} from '@angular/platform-browser';
 import {basicSetup, EditorState, EditorView} from '@codemirror/basic-setup';
 import {html} from '@codemirror/lang-html';
 import {javascript} from '@codemirror/lang-javascript';
-import {Subject} from 'rxjs';
 import {EditSectionService} from '../dialogs/edit-section-dialog/edit-section.service';
 import {ProsemirrorEditorsService} from '../services/prosemirror-editors.service';
 import {articleSection, editorData} from '../utils/interfaces/articleSection';
 import {FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
-import {MaterialModule} from "../../shared/material.module";
-import {FormControlNameDirective} from "../directives/form-control-name.directive";
 import {TreeService} from '../meta-data-tree/tree-service/tree.service';
-import {FormArrayNameDirective} from "../directives/form-array-name.directive";
 import {FormBuilderService} from '../services/form-builder.service';
 import {YdocService} from '../services/ydoc.service';
-import {YMap} from 'yjs/dist/src/internals';
 import {DetectFocusService} from '../utils/detectFocusPlugin/detect-focus.service';
 //@ts-ignore
 import {updateYFragment} from '../../y-prosemirror-src/plugins/sync-plugin.js';
 import {DOMParser as DOMParserPM} from 'prosemirror-model';
 import {HelperService} from "@app/editor/section/helpers/helper.service";
-import { ThisReceiver, ThrowStmt } from '@angular/compiler';
 import { ServiceShare } from '../services/service-share.service';
 import { filterFieldsValues, parseSecFormIOJSONMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
 import { schema } from '../utils/Schema';
@@ -124,7 +117,26 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
   ngOnInit() {
   }
 
-  onChange(data: any) {
+  isValid:boolean = true;
+  formIoSubmission:any
+  formIoRoot:any
+  onChange(change: any) {
+    if(change instanceof Event){
+
+    }else{
+      this.isValid
+      this.formIoSubmission = change.data
+      console.log(change);
+      if(change.changed&&change.changed.instance){
+        this.formIoRoot = change.changed.instance.root
+      }
+    }
+  }
+
+  submitSection(){
+    if(this.formIoRoot){
+      this.formIoRoot.submit()
+    }
   }
 
   ready(form: any) {
@@ -160,8 +172,11 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
     this.ydocService.customSectionProps?.set('customPropsObj',customPropsObj);
   }
 
+
+
   onSubmit = async (submision?: any) => {
     try {
+      console.log(submision);
       let prosemirrorNewNodeContent: any
 
       prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
@@ -411,19 +426,11 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
 
     //chanking if the JSON has a submit btn and if it does not add one
 
-    if (!(this.sectionContent.components as Array<any>).find((val) => {
+    if ((this.sectionContent.components as Array<any>).find((val) => {
       return (val.key == 'submit' && val.type == 'button')
     })) {
-      this.sectionContent.components.push({
-        "type": "button",
-        "label": "Submit",
-        "key": "submit",
-        "disableOnInvalid": true,
-        "input": true,
-        "tableView": false,
-        "properties": {
-          "sectionID": this.section.sectionID
-        }
+      this.sectionContent.components = this.sectionContent.components.filter((val) => {
+        return (val.key != 'submit' || val.type != 'button')
       })
     }
 
