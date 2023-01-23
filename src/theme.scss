@@ -283,6 +283,10 @@ $altTheme: (primary: $theme-primary,
     font-size: 23px;
     font-weight: bold;
     line-height: 32px;
+
+    &.title-margin-bottom {
+      margin-bottom: 10px;
+    }
   }
 
   .mat-dialog-content {
@@ -291,7 +295,7 @@ $altTheme: (primary: $theme-primary,
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-gutter: stable both-edges;
-    min-height: 300px;
+    min-height: 100px;
 
     &.fixed-dialog-content-height {
       height: 400px;
@@ -506,13 +510,14 @@ mat-radio-button {
 
   > div {
     display: flex;
-    flex-flow: row nowrap;
+    flex-flow: row wrap;
     justify-content: space-between;
-    gap: 20px;
+    gap: 12px;
 
     > div {
       &:first-child {
         flex-grow: 1;
+        width: 100%;
 
         .figure-table, .figure, .end-note, .supplementary-file {
           display: grid;
@@ -535,12 +540,6 @@ mat-radio-button {
           strong {
             display: block;
             line-height: 20px;
-            display: -webkit-box;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            -webkit-line-clamp: 1;
-            line-clamp: 1;
-            -webkit-box-orient: vertical;
             margin: 0 0 4px 0;
 
             a {
@@ -586,10 +585,47 @@ mat-radio-button {
 
       &.button-group {
         display: flex;
-        flex-flow: row nowrap;
+        flex-flow: row wrap;
         align-items: center;
-        justify-content: center;
-        gap: 20px;
+        justify-content: flex-start;
+        gap: 8px;
+      }
+    }
+  }
+}
+
+@media all and (min-width: 1024px) {
+  .table-box, .supplementary-file-box, .figure-box, .end-note-box {
+    > div {
+      flex-flow: row nowrap;
+      gap: 20px;
+
+      > div {
+        &:first-child {
+          width: auto;
+
+          .figure-table, .figure, .end-note, .supplementary-file {
+            strong {
+              display: -webkit-box;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              -webkit-line-clamp: 1;
+              line-clamp: 1;
+              -webkit-box-orient: vertical;
+
+              a {
+                font-weight: 400;
+                color: var(--color-00b1b2);
+              }
+            }
+          }
+        }
+
+        &.button-group {
+          flex-flow: row nowrap;
+          justify-content: center;
+          gap: 20px;
+        }
       }
     }
   }
