@@ -42,7 +42,7 @@ export class SupplementaryFilesDialogComponent {
     //this.serviceShare.PmDialogSessionService!.createSubsession();
     this.dialog.open(AddSupplementaryFileComponent, {
       width: '100%',
-      height: '90%',
+      // height: '90%',
       data: { supplementaryFile, updateOnSave: false, index: supplementaryFileIndex, supplementaryFileID: supplementaryFile.supplementary_file_ID },
       disableClose: false
     }).afterClosed().subscribe((result: { supplementaryFile: supplementaryFile, supplementaryFileNode: Node }) => {
@@ -70,7 +70,7 @@ export class SupplementaryFilesDialogComponent {
     //this.serviceShare.PmDialogSessionService!.createSubsession();
     this.dialog.open(AddSupplementaryFileComponent, {
       width: '100%',
-      height: '90%',
+      // height: '90%',
       data: { supplementaryFile: undefined, updateOnSave: false, index: this.supplementaryFilesNumbers?.length },
       disableClose: false
     }).afterClosed().subscribe((result: { supplementaryFile: supplementaryFile, supplementaryFileNode: Node }) => {

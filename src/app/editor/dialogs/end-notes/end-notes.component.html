@@ -1,7 +1,10 @@
-<div *ngIf="endNotesNumbers" class='supplementary-files-container'>
-  <div *ngIf="endNotesNumbers.length==0">There are no end notes right now.You can be the first one to add a note with the
-    "Add End Note" button.
+<h2 mat-dialog-title *ngIf="endNotesNumbers">End notes</h2>
+
+<mat-dialog-content *ngIf="endNotesNumbers">
+  <div *ngIf="endNotesNumbers.length==0">
+    There are no end notes right now.You can be the first one to add a note with the "Add End Note" button.
   </div>
+
   <ng-container *ngIf="endNotesNumbers.length>0">
     <div cdkDropList class="end-notes-list" (cdkDropListDropped)="drop($event)">
       <div class="end-note-box" *ngFor="let endNoteNum of endNotesNumbers;let i = index" cdkDrag>
@@ -10,17 +13,20 @@
           <div class="end-note-view">
             <app-end-note [(endNote)]="endNotes![endNoteNum]" [endNoteIndex]="i"></app-end-note>
           </div>
-          <div class="end-note-control-buttons">
-            <button mat-raised-button (click)="editEndNote(endNotes![endNoteNum],i)">Edit End Note</button>
-            <button mat-raised-button (click)="deleteEndNote(endNotes![endNoteNum],i)">Delete End Note</button>
+          <div class="end-note-control-buttons button-group">
+            <button mat-stroked-button color="warn" (click)="deleteEndNote(endNotes![endNoteNum],i)">Delete note</button>
+            <button mat-stroked-button color="primary" (click)="editEndNote(endNotes![endNoteNum],i)">Edit note</button>
           </div>
         </div>
       </div>
     </div>
   </ng-container>
-  <div class="end-notes-buttons">
-    <button mat-raised-button (click)="addEndNote()">Add End Note</button>
-    <button mat-raised-button (click)="saveEndNotes()">Save End Notes</button>
-    <button mat-raised-button (click)="cancelEndNotesEdit()">Cancel</button>
-  </div>
-</div>
+</mat-dialog-content>
+
+<mat-dialog-actions *ngIf="endNotesNumbers" align="end" fxLayoutGap="8px">
+  <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
+  <button mat-stroked-button color="primary" (click)="addEndNote()">Add Note</button>
+  <button mat-flat-button color="primary" (click)="saveEndNotes()">Save Notes</button>
+</mat-dialog-actions>
+
+

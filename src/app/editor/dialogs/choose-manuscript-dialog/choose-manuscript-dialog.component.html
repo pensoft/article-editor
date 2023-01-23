@@ -1,38 +1,36 @@
-<section class="section-choose relative">
-    <article fxLayout="column">
-        <h1 fxFill fxLayoutAlign="center" class="mt30px">
-            Add Manuscript to Project
-        </h1>
-        <div *ngIf="showError" class="error">No Layout selected.</div>
-        <div fxFill fxLayoutAlign="center">
-            <form (keydown)="search(inputText)" fxFlex="90%" fxLayout="column">
-                <label>Select a Layout</label>
-                <mat-form-field>
-                    <input matInput type="text" #inputText class="input-search">
-                    <button color="primary" class="search-button" type="submit" matSuffix mat-raised-button (click)="search(inputText)">
-            Search
-          </button>
-                </mat-form-field>
-            </form>
-        </div>
-    </article>
-    <article class="list-container">
-        <mat-selection-list #topic [multiple]="false">
-            <mat-list-option *ngFor="let article of articleTemplates" [value]="article.id" class="border">
-                {{article.name}}
-            </mat-list-option>
-        </mat-selection-list>
-    </article>
+<h2 mat-dialog-title>Add Manuscript to Project</h2>
 
+<div class="search-field-wrapper">
+  <form (keydown)="search(inputText)" fxFlex="100%" fxLayout="column" class="search-form">
+    <label>Select a Template</label>
+    <mat-form-field class="s" floatLabel="never" appearance="standard">
+      <input matInput type="text" #inputText placeholder="Search for topics">
+      <button mat-flat-button color="primary" type="submit" matSuffix (click)="search(inputText)">
+        Search
+      </button>
+    </mat-form-field>
+  </form>
+</div>
 
-    <div class="buttons-footer" fxLayoutGap="23px">
-        <button mat-stroked-button class="button-stroked-primary" (click)="closeManuscriptChoose()">
-        Add Empty
-    </button>
-        <button mat-raised-button color="primary" (click)="createManuscript(topic.selectedOptions.selected[0]?.value)">
-        Add Manuscript
-    </button>
-    </div>
+<mat-dialog-content class="fixed-dialog-content-height">
 
+  <div *ngIf="showError" class="error">No Layout selected.</div>
 
-</section>
+  <div *ngIf="articleTemplates.length == 0">
+    There are no manuscripts found with this criteria
+  </div>
+
+  <mat-selection-list #topic [multiple]="false">
+    <mat-list-option *ngFor="let article of articleTemplates" [value]="article.id" class="border">
+      {{article.name}}
+    </mat-list-option>
+  </mat-selection-list>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" fxLayoutGap="8px">
+  <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
+  <button mat-stroked-button color="primary" (click)="closeManuscriptChoose()">Add Empty</button>
+  <button mat-flat-button color="primary" (click)="createManuscript(topic.selectedOptions.selected[0]?.value)">
+    Add Manuscript
+  </button>
+</mat-dialog-actions>

@@ -1,19 +1,9 @@
-<div *ngIf="table" class="figure">
-  <div class="figure-index">Figure №{{tableIndex!+1}} :</div>
-  <div class="figure-description">
-    <span [innerHTML]="table.header">
-        </span>
+<div *ngIf="table" class="figure figure-table">
+  <div class="figure-icon">
+    <img src="../../../../../assets/icons/table.svg" alt="{{table.header}}"/>
   </div>
-  <div class="figure-components">
-    <div class="figure-description">
-      <span [innerHTML]="table.content">
-          </span>
-    </div>
-  </div>
-  <div class="figure-components">
-    <div class="figure-description">
-      <span [innerHTML]="table.footer">
-          </span>
-    </div>
+  <div class="figure-index">
+    <strong>Table №{{tableIndex!+1}}</strong>
+    <span [innerHTML]="table.header"></span>
   </div>
 </div>

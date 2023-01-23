@@ -41,6 +41,14 @@ let citateRef = (sharedService: ServiceShare) => {
       height:'70%',
     })
     dialogRef.afterClosed().subscribe(result => {
+      if(result){
+        let citedRefs = result.citedRefs
+        let refsInYdoc = JSON.parse(JSON.stringify(result.refsInYdoc))
+        Object.values(refsInYdoc).forEach((ref:any)=>{
+          ref.citation.text = ref.citation.data.text;
+        })
+        console.log(citedRefs,refsInYdoc);
+      }
       /* if(result){
         sharedService.YjsHistoryService.startCapturingNewUndoItem();
         if(result.refInstance=='local'){
