@@ -1,4 +1,6 @@
-<mat-tab-group class="add-new-ref-tabs" (selectedTabChange)="tabChanged($event)">
+<mat-spinner class="loading-data-spinner" [ngStyle]="{display:loadingRefDataFromBackend?'block':'none'}">
+</mat-spinner>
+<mat-tab-group *ngIf="!loadingRefDataFromBackend" class="add-new-ref-tabs" (selectedTabChange)="tabChanged($event)">
   <mat-tab label="Import tools">
     <div class="tab0">
       <label class="external-search-label">Search in CrossRef, PubMed, RefBank, Agris, DataCite & GNUB</label>
@@ -6,7 +8,7 @@
         <input type="text" placeholder="Type here..." aria-label="References" matInput #trigger="matAutocompleteTrigger" matAutocompletePosition="below" [formControl]="searchReferencesControl" [matAutocomplete]="auto">
         <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
           <ng-container>
-            <mat-option *ngIf="loading" class="is-loading" >
+            <mat-option *ngIf="loading" class="is-loading">
               <mat-spinner diameter="25"></mat-spinner>
             </mat-option>
           </ng-container>
@@ -30,16 +32,15 @@
     </div>
   </mat-tab>
   <mat-tab label="Manual input">
-    <mat-spinner class="loading-data-spinner" [ngStyle]="{display:loadingRefDataFromBackend?'block':'none'}"></mat-spinner>
-    <div *ngIf="!loadingRefDataFromBackend" class="tab1">
-        <mat-form-field appearance="fill" #referenceType class="select-ref-form-field">
-          <mat-label class="">Types:</mat-label>
-          <mat-select [formControl]="referenceFormControl" class="select-reference" (selectionChange)="generateFormIOJSON(referenceFormControl.value)">
-            <mat-option *ngFor="let type of referenceTypesFromBackend " [value]="type">
-              {{type.label}}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
+    <div class="tab1">
+      <mat-form-field appearance="fill" #referenceType class="select-ref-form-field">
+        <mat-label class="">Types:</mat-label>
+        <mat-select [formControl]="referenceFormControl" class="select-reference" (selectionChange)="generateFormIOJSON(referenceFormControl.value)">
+          <mat-option *ngFor="let type of referenceTypesFromBackend " [value]="type">
+            {{type.label}}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
       <div class="formio-container">
         <div [formGroup]="referenceForms" *ngIf="formIOSchema" class="formio-inner-container">
           <mat-formio #formio [form]="formIOSchema" (change)="onChange($event)"></mat-formio>

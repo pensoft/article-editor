@@ -19,7 +19,7 @@ export class RefsInArticleCiteDialogComponent implements OnInit {
   refsAddedToArticle
   constructor(ydocService:YdocService) {
     this.refsAddedToArticle = ydocService.referenceCitationsMap.get('refsAddedToArticle');
-
+    console.log(this.refsAddedToArticle);
   }
 
   ngOnInit(): void {
