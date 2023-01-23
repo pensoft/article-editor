@@ -1,7 +1,7 @@
-<h2 mat-dialog-title align="center">Export a manuscript</h2>
+<h2 mat-dialog-title>Export a manuscript</h2>
 
 <mat-dialog-content>
-  <div class="options-container" fxLayout="flex wrap" fxLayoutAlign="flex-start flex-start">
+  <div class="options-container" fxLayout="flex nowrap" fxLayoutAlign="flex-start flex-start">
     <div class="format-label">Format:</div>
     <mat-radio-group class="format-options" [(ngModel)]="selectedType">
       <mat-radio-button class="format-option" value="pdf">PDF</mat-radio-button>
@@ -11,7 +11,7 @@
       <mat-radio-button class="format-option" value="json-ld">JSON-LD</mat-radio-button>
     </mat-radio-group>
   </div>
-  <div class="export-container" fxLayout="flex wrap" fxLayoutAlign="flex-start center">
+  <div class="export-container" fxLayout="flex nowrap" fxLayoutAlign="flex-start center">
     <div class="export-label">Export to:</div>
     <div class="export-place">
       <img class="folder-icon" src="../../../../assets/icons/folder.svg" alt="">
