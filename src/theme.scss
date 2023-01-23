@@ -291,6 +291,7 @@ $altTheme: (primary: $theme-primary,
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-gutter: stable both-edges;
+    min-height: 300px;
 
     &.fixed-dialog-content-height {
       height: 400px;
