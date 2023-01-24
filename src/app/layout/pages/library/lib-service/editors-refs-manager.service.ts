@@ -4,7 +4,7 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
 import { PMDomParser } from '@app/editor/utils/Schema';
 import { uuidv4 } from 'lib0/random';
 import { endsWith, keys } from 'lodash';
-import { DOMParser, DOMSerializer, Fragment, Schema } from 'prosemirror-model';
+import { DOMParser, DOMSerializer, Fragment, Node, Schema } from 'prosemirror-model';
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 
@@ -29,7 +29,12 @@ export class EditorsRefsManagerService {
 
   dothSaveToHistory = false;
 
-  citateSelectedReferencesInEditor(citedRefs: string[], view: EditorView) {
+  citateSelectedReferencesInEditor(citedRefs: string[], view: EditorView,citedRefsAtPos?:{
+    citedRefsAtPos:string[],
+    citationAtPos:Node,
+    citationPos:number
+  }) {
+
     let refsInYdoc = this.serviceShare.YdocService.referenceCitationsMap.get('refsAddedToArticle');
     let props = { refsInYdoc }
 
@@ -51,243 +56,102 @@ export class EditorsRefsManagerService {
       return prev
     }, []);
 
-    let citationTxt = schema.text(refsTxts.join(', '));
-    view.dispatch(state.tr.replaceSelectionWith(schema.nodes.reference_citation.create(nodeAttrs, citationTxt)));
-    this.checkIfAnyRefsShouldBeAddedToEndEditor(citedRefs);
-    this.checkIfAnyRefsShouldBeRemovedToEndEditor()
+    this.serviceShare.YjsHistoryService.captureBigOperation();
 
+    let citationTxt = schema.text(refsTxts.join(', '));
+    if(!citedRefsAtPos){
+      view.dispatch(state.tr.replaceSelectionWith(schema.nodes.reference_citation.create(nodeAttrs, citationTxt)));
+    }else{
+      view.dispatch(state.tr.replaceWith(citedRefsAtPos.citationPos,citedRefsAtPos.citationPos+citedRefsAtPos.citationAtPos.nodeSize,schema.nodes.reference_citation.create(nodeAttrs, citationTxt)))
+    }
+    this.checkIfAnyRefsShouldBeAddedToEndEditor(citedRefs);
+    this.checkIfAnyRefsShouldBeRemovedFromEndEditor();
+    this.checkIfShouldUpdateRefs();
+
+    this.serviceShare.YjsHistoryService.endBigOperationCapture()
   }
 
-  checkIfAnyRefsShouldBeRemovedToEndEditor() {
-    let refsIdsInEndEditor: string[] = [];
-    let view = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'].editorView;
+  updateRefsInEndEditorAndTheirCitations(){
+    this.checkIfAnyRefsShouldBeRemovedFromEndEditor();
+    this.checkIfShouldUpdateRefs();
+  }
 
-    let doc = view.state.doc
-    let start = 0;
-    let end = doc.content.size;
-    doc.nodesBetween(start, end, (node) => {
-      if (node.type.name == 'reference_citation_end') {
-        if(!refsIdsInEndEditor.includes(node.attrs.referenceData.refId)){
-          refsIdsInEndEditor.push(node.attrs.referenceData.refId);
-        }else{
-          console.error('There are multilple references of one instance in the end editor.')
-        }
-      }
-    })
-    let allcitedReferencesIdsInAllEditors: any[] = []
+  checkIfShouldUpdateRefs() {
+    let refsInEndEditor = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor');
+    let refsInArticle = this.serviceShare.YdocService.referenceCitationsMap.get('refsAddedToArticle');
 
-    Object.keys(this.serviceShare.ProsemirrorEditorsService!.editorContainers).forEach((sectionId) => {
-      if (sectionId != 'endEditor') {
-        let view = this.serviceShare.ProsemirrorEditorsService!.editorContainers[sectionId].editorView;
 
-        let doc = view.state.doc
-        let start = 0;
-        let end = doc.content.size;
-        doc.nodesBetween(start, end, (node) => {
-          if (node.type.name == 'reference_citation') {
-            node.attrs.citedRefsIds.forEach((refId)=>{
-              if(!allcitedReferencesIdsInAllEditors.includes(refId)){
-                allcitedReferencesIdsInAllEditors.push(refId);
-              }
-            })
-          }
-        })
+    let refsThatViewsShouldBeUpdated = {};
+    let deletedRefs = {}
+    Object.keys(refsInEndEditor).forEach((refId) => {
+      if (!refsInArticle[refId]) {
+        deletedRefs[refId] = refsInEndEditor[refId]
+      } else if (
+        refsInEndEditor[refId].citation.textContent != refsInArticle[refId].citation.textContent ||
+        refsInEndEditor[refId].refStyle.name != refsInArticle[refId].refStyle.name ||
+        refsInEndEditor[refId].refStyle.last_modified != refsInArticle[refId].refStyle.last_modified ||
+        refsInEndEditor[refId].refStyle.label != refsInArticle[refId].refStyle.label ||
+        refsInEndEditor[refId].refType.last_modified != refsInArticle[refId].refType.last_modified ||
+        refsInEndEditor[refId].refType.refTypeId != refsInArticle[refId].refType.refTypeId ||
+        refsInEndEditor[refId].refType.type != refsInArticle[refId].refType.type ||
+        refsInEndEditor[refId].ref_last_modified != refsInArticle[refId].ref_last_modified
+      ) {
+        refsThatViewsShouldBeUpdated[refId] = refsInArticle[refId]
       }
     })
 
-    if(refsIdsInEndEditor.length>allcitedReferencesIdsInAllEditors.length){
-      // there are reference in the end editor that are cited so we should remove them
-      let refsIdsToRemoveFormEndEditor:string[] = refsIdsInEndEditor.filter(x=>!allcitedReferencesIdsInAllEditors.includes(x));
-      refsIdsToRemoveFormEndEditor.forEach((id)=>{
-        this.removeRefFromEndEditorById(id);
+    let idsOfRefsForUpdate = Object.keys(refsThatViewsShouldBeUpdated)
+    if (idsOfRefsForUpdate.length > 0) {
+      idsOfRefsForUpdate.forEach((key) => {
+        refsInEndEditor[key] = refsInArticle[key]
       })
     }
+
+    let deleatedRefsIds = Object.keys(deletedRefs)
+    if (deleatedRefsIds.length > 0) {
+      let newRefsInEdnEditor = {}
+      Object.keys(refsInEndEditor).forEach((key) => {
+        if (!deleatedRefsIds.includes(key)) {
+          newRefsInEdnEditor[key] = refsInEndEditor[key]
+        }
+      })
+      refsInEndEditor = newRefsInEdnEditor;
+    }
+    this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsInEndEditor);
+
+    Object.keys(refsInEndEditor).forEach((key) => {
+      refsInEndEditor[key].originalDisplayText = refsInEndEditor[key].citation.data.text;
+      refsInEndEditor[key].originalBibliography = refsInEndEditor[key].citation.bibliography;
+      refsInEndEditor[key].displayHTMLOriginal = refsInEndEditor[key].citation.textContent;
+    })
+    this.updateCitationsDisplayTextAndBibliography(refsInEndEditor)
+
+    deleatedRefsIds.forEach((refId)=>{
+      this.removeBibliographyOfDeletedRef(refId)
+    })
   }
 
-  removeRefFromEndEditorById(refId: string) {
-    let endEditor = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'];
-    let view = endEditor.editorView;
-    let st = view.state;
-    let refsInEndEditor = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
-    let nOfRefs = Object.keys(refsInEndEditor).length
+  removeBibliographyOfDeletedRef(refId: string) {
+    let endEdView = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'].editorView;
+
+    let node: any;
     let from: any;
     let to: any;
-    let docSize = st.doc.content.size
-    if (nOfRefs == 1) {
-      st.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
-        if (n.type.name == 'reference_container') {
-          from = p - 16;
-          to = p + n.nodeSize
-        }
-      })
-    } else {
-      st.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
-        if (n.type.name == 'reference_citation_end' && n.attrs.referenceData.refId == refId) {
-          from = p - 1;
-          to = p + n.nodeSize + 1
-        }
-      })
-    }
 
-    if (from || to) {
-      view.dispatch(
-        st.tr.replaceWith(from, to, Fragment.empty));
-    }
-    let refs = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
-    let newRefs: any = {}
-    Object.keys(refs).forEach((key) => {
-      if (key != refId) {
-        newRefs[key] = refs[key];
+    let state = endEdView.state;
+
+    let docsize = state.doc.content.size
+    state.doc.nodesBetween(0, docsize - 1, (n, pos, parent, index) => {
+      if (n.type.name == 'reference_citation_end' && n.attrs.referenceData.refId == refId) {
+        node = n
+        from = pos;
+        to = n.nodeSize + pos;
       }
     })
-    this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', newRefs)
-
-  }
-
-  checkIfAnyRefsShouldBeAddedToEndEditor(citedRefs: string[]) {
-    let allCitedRefs = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor');
-
-    let refsInYdoc = this.serviceShare.YdocService.referenceCitationsMap.get('refsAddedToArticle');
-    let idsOfCitedRefsRN = Object.keys(allCitedRefs)
-    let newRefs = citedRefs.filter(x => !idsOfCitedRefsRN.includes(x));
-
-    newRefs.forEach((refId) => {
-      let ref = refsInYdoc[refId];
-      allCitedRefs[refId] = ref
-    });
-    console.log(refsInYdoc);
-    this.serviceShare.YdocService.referenceCitationsMap.set('referencesInEditor', allCitedRefs);
-
-    newRefs.forEach((refId) => {
-      let ref = refsInYdoc[refId];
-      this.addNewRefToEndEditor(ref);
-    });
-
-  }
-
-  addNewRefToEndEditor(ref: any) {
-    let view = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'].editorView;
-    let nodeStart: number = view.state.doc.nodeSize - 2
-    let nodeEnd: number = view.state.doc.nodeSize - 2
-    let state = view.state
-    let referenceContainerIsRendered = false;
-    view.state.doc.forEach((node, offset, index) => {
-      if (node.type.name == 'reference_container') {
-        nodeStart = offset + node.nodeSize - 1
-        nodeEnd = offset + node.nodeSize - 1
-        referenceContainerIsRendered = true
-      }
-    })
-    let schema: Schema = view.state.schema;
-    let referenceData = { refId: ref.ref.id, last_modified: ref.ref_last_modified };
-    let referenceStyle = { name: ref.refStyle.name, last_modified: ref.refStyle.last_modified };
-    let referenceType = { name: ref.refType.name, last_modified: ref.refType.last_modified };
-    let recCitationAttrs = {
-      contenteditableNode: 'false',
-      refCitationID: uuidv4(),
-      referenceData,
-      referenceStyle,
-      referenceType
+    if (node) {
+      let attrs = JSON.parse(JSON.stringify(node.attrs));
+      endEdView.dispatch(state.tr.replaceWith(from, to, Fragment.empty).setMeta('skipChange', true));
     }
-
-    let refNode = schema.nodes.reference_citation_end.create(recCitationAttrs, getHtmlInlineNodes(ref.citation.bibliography))
-    let refContainerNode = schema.nodes.reference_block_container.create({ contenteditableNode: 'false' }, refNode)
-    if (!referenceContainerIsRendered) {
-      let refTitle = schema.nodes.paragraph.create({ contenteditableNode: 'false' }, schema.text('References :'))
-      let h1 = schema.nodes.heading.create({ tagName: 'h1' }, refTitle)
-      let allRefsContainer = schema.nodes.reference_container.create({ contenteditableNode: 'false' }, refContainerNode)
-      let tr = state.tr.replaceWith(nodeStart, nodeEnd, [h1, allRefsContainer])
-      view.dispatch(tr.setMeta('addToLastHistoryGroup', true))
-    } else {
-      let tr = state.tr.replaceWith(nodeStart, nodeEnd, refContainerNode)
-      view.dispatch(tr.setMeta('addToLastHistoryGroup', true))
-    }
-  }
-
-  /////////////////////
-
-  removeRefsThatAreNotInEndEditor(refs: any) {
-    let filteredRefs: any = {}
-    let editorContainers = this.serviceShare.ProsemirrorEditorsService.editorContainers;
-    Object.keys(editorContainers).forEach((sectionId) => {
-      let doc = editorContainers[sectionId].editorView.state.doc
-      let docSize = doc.content.size
-      doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
-        if (n.type.name == 'reference_citation_end') {
-          let id = n.attrs.referenceData.refId
-          if (refs[id]) {
-            filteredRefs[id] = refs[id]
-          }
-        }
-      })
-    })
-    return filteredRefs
-  }
-
-  addReferenceToEditor(refDataFromDialog: any, fromEditDialog?: true) {
-    let refs = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
-    refs = this.removeRefsThatAreNotInEndEditor(refs)
-    let oldRefs = JSON.parse(JSON.stringify(refs))
-    let citationDisplayText = refDataFromDialog.citation.text;
-    let countOfRefsWithTheSameDisplayText = 0;
-    let refID
-    if (refDataFromDialog.refInstance == 'local') {
-      refID = refDataFromDialog.ref.refData.referenceData.id
-    } else if (refDataFromDialog.refInstance == "external") {
-      refID = refDataFromDialog.ref.refData.referenceData.id
-    }
-    if (refDataFromDialog.dothSaveToHistory) {
-      this.dothSaveToHistory = refDataFromDialog.dothSaveToHistory
-    } else {
-      this.dothSaveToHistory = false
-    }
-    let newRef = {
-      originalDisplayText: citationDisplayText,
-      citationDisplayText: citationDisplayText,
-      originalBibliography: refDataFromDialog.citation.bibliography,
-      bibliography: refDataFromDialog.citation.bibliography,
-      displayHTMLOriginal: refDataFromDialog.citation.htmlBibliography,
-      displayHTML: refDataFromDialog.citation.htmlBibliography,
-      ref: refDataFromDialog.ref,
-      refInstance: refDataFromDialog.refInstance
-    }
-    let notInEndEditorYet = !refs[refID]
-    refs[refID] = newRef
-    let refsUpdated = this.updateCitationsDisplayTextAndBibliography(refs)
-    if (notInEndEditorYet) {
-      setTimeout(() => {
-        this.addReferenceToEndEditor(newRef);
-      }, 10)
-    }
-    this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsUpdated);
-    let newRefs = JSON.parse(JSON.stringify(refsUpdated))
-
-    if (Object.values(oldRefs).reduce((prev, curr: any, i, arr) => {
-      return prev + curr.bibliography + curr.citationDisplayText + curr.originalBibliography + curr.originalDisplayText + curr.refInstance
-    }, '') != Object.values(newRefs).reduce((prev, curr: any, i, arr) => {
-      return prev + curr.bibliography + curr.citationDisplayText + curr.originalBibliography + curr.originalDisplayText + curr.refInstance
-    }, '') && !fromEditDialog) {
-      this.serviceShare.YjsHistoryService.addUndoItemInformation({
-        type: 'refs-yjs', data: {
-          oldRefs,
-          newRefs
-        }
-      })
-    }
-    let stopHistoryOperations = () => {
-      setTimeout(() => {
-        this.serviceShare.YjsHistoryService.stopCapturingUndoItem()
-        if (fromEditDialog) {
-          this.serviceShare.YjsHistoryService.stopBigNumberItemsCapturePrevention()
-        }
-      }, 20)
-    }
-    if (notInEndEditorYet) {
-      stopHistoryOperations()
-    } else {
-      stopHistoryOperations()
-    }
-    return refsUpdated[refID]
   }
 
   updateCitationsDisplayTextAndBibliography(refs: any, fromEditDialog?: true) {
@@ -356,184 +220,68 @@ export class EditorsRefsManagerService {
       this.updateBibliography(refs, refid)
     })
     //update citation of refs
-    updatedReferences.forEach((refid) => {
-      this.updateRefCitations(refs, refid)
-    })
-  }
-
-  checkIfEditorHasCitationOfRef(container: {
-    editorID: string;
-    containerDiv: HTMLDivElement;
-    editorState: EditorState;
-    editorView: EditorView;
-    dispatchTransaction: any;
-  }, refId: string) {
-    let count = 0
-    let st = container.editorView.state;
-    let docSize = st.doc.content.size
-    st.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
-      if (n.type.name == 'reference_citation' && n.attrs.actualRefId == refId) {
-        count++;
-      }
-    })
-    return count
-  }
-
-  handleRefCitationDelete(deletedRefCitations: any[]) {
-    deletedRefCitations.forEach((delCit) => {
-      let deletedCitRefId = delCit.actualRefId
-      this.checkIfShouldRemoveEditorFromEndEditor(deletedCitRefId)
-    })
-  }
-
-  checkIfShouldRemoveEditorFromEndEditor(refId: string,) {
-    if (!this.anyCitationsLeftOfRefInAnyEditor(refId)) {
-      this.removeFromEndEditor(refId)
-    }
-  }
-
-  nOfRefsInEndEditor() {
-    let endEditor = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'];
-    let nOfRefs = 0
-    let doc = endEditor.editorView.state.doc;
-    let size = doc.content.size;
-    doc.nodesBetween(0, size - 1, (n, p, par, i) => {
-      if (n.type.name == 'reference_citation_end') {
-        nOfRefs++;
-      }
-    })
-    return nOfRefs
-  }
-
-  checkIfRefIsInEndEditor(refId: string) {
-    let endEditor = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'];
-    let view = endEditor.editorView;
-    let st = view.state;
-    let any = false
-    let docSize = st.doc.content.size
-    st.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
-      if (n.type.name == 'reference_citation_end' && n.attrs.referenceData.refId == refId) {
-        any = true;
-      }
-    })
-    return any;
-  }
-
-  removeFromEndEditor(refId: string) {
-    let endEditor = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'];
-    let nOfRefs = this.nOfRefsInEndEditor();
-    let thereIsRefWithThisIDInLastEditor = this.checkIfRefIsInEndEditor(refId);
-    if (!thereIsRefWithThisIDInLastEditor) return
-    let view = endEditor.editorView;
-    let st = view.state;
-
-    let from: any;
-    let to: any;
-    let docSize = st.doc.content.size
-    if (nOfRefs == 1) {
-      st.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
-        if (n.type.name == 'reference_container') {
-          from = p - 16;
-          to = p + n.nodeSize
-        }
+    Object.keys(this.serviceShare.ProsemirrorEditorsService!.editorContainers).forEach((sectionId)=>{
+      let edView = this.serviceShare.ProsemirrorEditorsService!.editorContainers[sectionId].editorView
+      let allRefsCitationIdsInEditors = this.getAllCitationsIdsInEditor(edView)
+      allRefsCitationIdsInEditors.forEach((citeId)=>{
+        this.updateRefsCitationsInEditor(edView,refs,citeId)
       })
-    } else {
-      st.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
-        if (n.type.name == 'reference_citation_end' && n.attrs.referenceData.refId == refId) {
-          from = p - 1;
-          to = p + n.nodeSize + 1
-        }
-      })
-    }
-
-    if (from || to) {
-      view.dispatch(
-        st.tr.replaceWith(from, to, Fragment.empty)
-          .setMeta('addToLastHistoryGroup', true));
-    }
-    let refs = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
-    let newRefs: any = {}
-    Object.keys(refs).forEach((key) => {
-      if (key != refId) {
-        newRefs[key] = refs[key];
-      }
-    })
-    this.updateCitationsDisplayTextAndBibliography(newRefs)
-    this.serviceShare.YjsHistoryService.addUndoItemInformation({
-      type: 'refs-yjs-delete',
-      data: {
-        oldRefs: JSON.parse(JSON.stringify(refs)),
-        newRefs: JSON.parse(JSON.stringify(newRefs))
-      }
-    })
-    this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', newRefs)
-
-  }
-
-  anyCitationsLeftOfRefInAnyEditor(refId: string) {
-    let editors = this.serviceShare.ProsemirrorEditorsService!.editorContainers;
-    let any = false;
-    Object.keys(editors).forEach((editorid) => {
-      if (editorid != 'endEditor') {
-        let container = editors[editorid];
-        let st = container.editorView.state;
-        let docSize = st.doc.content.size;
-        st.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
-          if (n.type.name == 'reference_citation' && n.attrs.actualRefId == refId) {
-            any = true
-          }
-        })
-      }
-    })
-    return any
-  }
-
-  updateRefCitations(ydocRefs: any, refId: string) {
-    Object.keys(this.serviceShare.ProsemirrorEditorsService!.editorContainers).forEach((editorid) => {
-      if (editorid !== "endEditor") {
-        let cont = this.serviceShare.ProsemirrorEditorsService!.editorContainers[editorid]
-        let citationsInEd = this.checkIfEditorHasCitationOfRef(cont, refId);
-        if (citationsInEd > 0) {
-          for (let i = 0; i < citationsInEd; i++) {
-            this.updateRefCitation(cont, ydocRefs[refId], refId);
-          }
-        }
-      }
     })
   }
 
-  updateRefCitation(container: {
-    editorID: string;
-    containerDiv: HTMLDivElement;
-    editorState: EditorState;
-    editorView: EditorView;
-    dispatchTransaction: any;
-  }, ydocRef: any, refId: String) {
-    let edView = container.editorView;
-
-    let node: any;
-    let from: any;
-    let to: any;
-
+  getAllCitationsIdsInEditor(view:EditorView){
+    let edView = view;
     let state = edView.state;
-    let found = false;
     let docSize = state.doc.content.size
 
-
+    let citaitonIds = []
     state.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
-      if (n.type.name == 'reference_citation' && n.attrs.actualRefId == refId && n.textContent != ydocRef.citationDisplayText) {
-        found = true
-        node = n;
-        from = p;
-        to = n.nodeSize + p;
+      if (n.type.name == 'reference_citation') {
+        let citationId = n.attrs.refCitationID;
+        citaitonIds.push(citationId)
       }
     })
-    if (found) {
-      let attrs = JSON.parse(JSON.stringify(node.attrs));
-      let newNode = state.schema.nodes.reference_citation.create(attrs, state.schema.text(ydocRef.citationDisplayText))
-      edView.dispatch(state.tr.replaceWith(from, to, newNode).setMeta('addToLastHistoryGroup', true));
+    return citaitonIds
+  }
 
-    }
+  updateRefsCitationsInEditor(view,refs,citeId){
+      let edView = view;
+
+      let node: any;
+      let from: any;
+      let to: any;
+
+      let state = edView.state;
+      let found = false;
+      let citatNewTxt;
+      let docSize = state.doc.content.size
+
+      let allRefsIds = Object.keys(refs)
+      state.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
+        if (n.type.name == 'reference_citation'&&n.attrs.refCitationID == citeId) {
+          let citationTextContent = n.textContent;
+          let citationCurrTextContent: string = allRefsIds.reduce<string[]>((prev: string[], key: string, i: number) => {
+            if (n.attrs.citedRefsIds.includes(key)) {
+              let ref = refs[key];
+              prev.push(ref.citationDisplayText)
+            }
+            return prev
+          }, []).join(', ');
+          if(citationTextContent != citationCurrTextContent){
+            citatNewTxt = citationCurrTextContent
+            found = true
+            node = n;
+            from = p;
+            to = n.nodeSize + p;
+          }
+        }
+      })
+      if (found) {
+        let attrs = JSON.parse(JSON.stringify(node.attrs));
+        attrs.citedRefsIds = attrs.citedRefsIds.filter(x=>allRefsIds.includes(x));
+        let newNode = state.schema.nodes.reference_citation.create(attrs, state.schema.text(citatNewTxt))
+        edView.dispatch(state.tr.replaceWith(from, to, newNode).setMeta('addToLastHistoryGroup', true));
+      }
   }
 
   updateBibliography(ydocRefs: any, refId: string) {
@@ -555,9 +303,152 @@ export class EditorsRefsManagerService {
     })
     if (node) {
       let attrs = JSON.parse(JSON.stringify(node.attrs));
-
       let newNode = state.schema.nodes.reference_citation_end.create(attrs, getHtmlInlineNodes(ydocRefs[refId].displayHTML))
       endEdView.dispatch(state.tr.replaceWith(from, to, newNode).setMeta('skipChange', true));
+    }
+  }
+
+  checkIfAnyRefsShouldBeRemovedFromEndEditor() {
+    let refsIdsInEndEditor: string[] = [];
+    let view = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'].editorView;
+
+    let doc = view.state.doc
+    let start = 0;
+    let end = doc.content.size;
+    doc.nodesBetween(start, end, (node) => {
+      if (node.type.name == 'reference_citation_end') {
+        if (!refsIdsInEndEditor.includes(node.attrs.referenceData.refId)) {
+          refsIdsInEndEditor.push(node.attrs.referenceData.refId);
+        } else {
+          console.error('There are multilple references of one instance in the end editor.')
+          this.removeRefFromEndEditorById(node.attrs.referenceData.refId)
+        }
+      }
+    })
+    let allcitedReferencesIdsInAllEditors: any[] = []
+
+    Object.keys(this.serviceShare.ProsemirrorEditorsService!.editorContainers).forEach((sectionId) => {
+      let view = this.serviceShare.ProsemirrorEditorsService!.editorContainers[sectionId].editorView;
+
+      let doc = view.state.doc
+      let start = 0;
+      let end = doc.content.size;
+      doc.nodesBetween(start, end, (node) => {
+        if (node.type.name == 'reference_citation') {
+          node.attrs.citedRefsIds.forEach((refId) => {
+            if (!allcitedReferencesIdsInAllEditors.includes(refId)) {
+              allcitedReferencesIdsInAllEditors.push(refId);
+            }
+          })
+        }
+      })
+    })
+
+    if (refsIdsInEndEditor.length > allcitedReferencesIdsInAllEditors.length) {
+      // there are reference in the end editor that are cited so we should remove them
+      let refsIdsToRemoveFormEndEditor: string[] = refsIdsInEndEditor.filter(x => !allcitedReferencesIdsInAllEditors.includes(x));
+      refsIdsToRemoveFormEndEditor.forEach((id) => {
+        this.removeRefFromEndEditorById(id);
+      })
+    }
+  }
+
+  removeRefFromEndEditorById(refId: string) {
+    let endEditor = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'];
+    let view = endEditor.editorView;
+    let st = view.state;
+    let refsInEndEditor = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
+    let nOfRefs = Object.keys(refsInEndEditor).length
+    let from: any;
+    let to: any;
+    let docSize = st.doc.content.size
+    if (nOfRefs == 1) {
+      st.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
+        if (n.type.name == 'reference_container') {
+          from = p - 16;
+          to = p + n.nodeSize
+        }
+      })
+    } else {
+      st.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
+        if (n.type.name == 'reference_citation_end' && n.attrs.referenceData.refId == refId) {
+          from = p - 1;
+          to = p + n.nodeSize + 1
+        }
+      })
+    }
+
+    if (from || to) {
+      view.dispatch(
+        st.tr.replaceWith(from, to, Fragment.empty));
+    }
+    let refs = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor')
+    let newRefs: any = {}
+    Object.keys(refs).forEach((key) => {
+      if (key != refId) {
+        newRefs[key] = refs[key];
+      }
+    })
+    this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', newRefs)
+
+  }
+
+  checkIfAnyRefsShouldBeAddedToEndEditor(citedRefs: string[]) {
+    let allCitedRefs = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor');
+
+    let refsInYdoc = this.serviceShare.YdocService.referenceCitationsMap.get('refsAddedToArticle');
+    let idsOfCitedRefsRN = Object.keys(allCitedRefs)
+    let newRefs = citedRefs.filter(x => !idsOfCitedRefsRN.includes(x));
+
+    newRefs.forEach((refId) => {
+      let ref = refsInYdoc[refId];
+      allCitedRefs[refId] = ref
+    });
+    this.serviceShare.YdocService.referenceCitationsMap.set('referencesInEditor', allCitedRefs);
+
+    newRefs.forEach((refId) => {
+      let ref = refsInYdoc[refId];
+      this.addNewRefToEndEditor(ref);
+    });
+
+  }
+
+  addNewRefToEndEditor(ref: any) {
+    let view = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'].editorView;
+    let nodeStart: number = view.state.doc.nodeSize - 2
+    let nodeEnd: number = view.state.doc.nodeSize - 2
+    let state = view.state
+    let referenceContainerIsRendered = false;
+    view.state.doc.forEach((node, offset, index) => {
+      if (node.type.name == 'reference_container') {
+        nodeStart = offset + node.nodeSize - 1
+        nodeEnd = offset + node.nodeSize - 1
+        referenceContainerIsRendered = true
+      }
+    })
+    let schema: Schema = view.state.schema;
+    let referenceData = { refId: ref.ref.id, last_modified: ref.ref_last_modified };
+    let referenceStyle = { name: ref.refStyle.name, last_modified: ref.refStyle.last_modified };
+    let referenceType = { name: ref.refType.name, last_modified: ref.refType.last_modified };
+    let recCitationAttrs = {
+      contenteditableNode: 'false',
+      refCitationID: uuidv4(),
+      referenceData,
+      referenceStyle,
+      referenceType
+    }
+
+    let refNode = schema.nodes.reference_citation_end.create(recCitationAttrs, getHtmlInlineNodes(ref.citation.bibliography))
+    let refContainerNode = schema.nodes.reference_block_container.create({ contenteditableNode: 'false' }, refNode)
+    if (!referenceContainerIsRendered) {
+      let refTitle = schema.nodes.paragraph.create({ contenteditableNode: 'false' }, schema.text('References :'))
+      let h1 = schema.nodes.heading.create({ tagName: 'h1' }, refTitle)
+      let allRefsContainer = schema.nodes.reference_container.create({ contenteditableNode: 'false' }, refContainerNode)
+      let tr = state.tr.replaceWith(nodeStart, nodeEnd, [h1, allRefsContainer])
+      view.dispatch(tr.setMeta('addToLastHistoryGroup', true))
+    } else {
+      let tr = state.tr.replaceWith(nodeStart, nodeEnd, refContainerNode)
+      view.dispatch(tr.setMeta('addToLastHistoryGroup', true))
     }
   }
 
@@ -576,69 +467,5 @@ export class EditorsRefsManagerService {
       result = char + '. ' + text;
     }
     return result
-  }
-
-  addReferenceToEndEditor(newRef: any) {
-    let view = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'].editorView;
-    let nodeStart: number = view.state.doc.nodeSize - 2
-    let nodeEnd: number = view.state.doc.nodeSize - 2
-    let state = view.state
-    let referenceContainerIsRendered = false;
-    view.state.doc.forEach((node, offset, index) => {
-      if (node.type.name == 'reference_container') {
-        nodeStart = offset + node.nodeSize - 1
-        nodeEnd = offset + node.nodeSize - 1
-        referenceContainerIsRendered = true
-      }
-    })
-    let schema: Schema = view.state.schema
-    if (newRef.refInstance == 'local') {
-      let referenceData = { refId: newRef.ref.refData.referenceData.id, last_modified: newRef.ref.refData.last_modified };
-      let referenceStyle = { name: newRef.ref.refStyle.name, last_modified: newRef.ref.refStyle.last_modified };
-      let referenceType = { name: newRef.ref.refType.name, last_modified: newRef.ref.refType.last_modified };
-      let recCitationAttrs = {
-        contenteditableNode: 'false',
-        refCitationID: uuidv4(),
-        referenceData,
-        referenceStyle,
-        referenceType,
-        refInstance: newRef.refInstance
-      }
-
-      let refNode = schema.nodes.reference_citation_end.create(recCitationAttrs, getHtmlInlineNodes(newRef.displayHTML))
-      let refContainerNode = schema.nodes.reference_block_container.create({ contenteditableNode: 'false' }, refNode)
-      if (!referenceContainerIsRendered) {
-        let refTitle = schema.nodes.paragraph.create({ contenteditableNode: 'false' }, schema.text('References :'))
-        let h1 = schema.nodes.heading.create({ tagName: 'h1' }, refTitle)
-        let allRefsContainer = schema.nodes.reference_container.create({ contenteditableNode: 'false' }, refContainerNode)
-        let tr = state.tr.replaceWith(nodeStart, nodeEnd, [h1, allRefsContainer])
-        view.dispatch(tr.setMeta('addToLastHistoryGroup', true))
-      } else {
-        let tr = state.tr.replaceWith(nodeStart, nodeEnd, refContainerNode)
-        view.dispatch(tr.setMeta('addToLastHistoryGroup', true))
-      }
-    } else if (newRef.refInstance == 'external') {
-      let referenceData = { refId: newRef.ref.refData.referenceData.id, last_modified: undefined };
-      let recCitationAttrs = {
-        contenteditableNode: 'false',
-        refCitationID: uuidv4(),
-        referenceData,
-        referenceStyle: '',
-        referenceType: '',
-        refInstance: newRef.refInstance
-      }
-      let refNode = schema.nodes.reference_citation_end.create(recCitationAttrs, schema.text(newRef.bibliography))
-      let refContainerNode = schema.nodes.reference_block_container.create({ contenteditableNode: 'false' }, refNode)
-      if (!referenceContainerIsRendered) {
-        let refTitle = schema.nodes.paragraph.create({ contenteditableNode: 'false' }, schema.text('References :'))
-        let h1 = schema.nodes.heading.create({ tagName: 'h1' }, refTitle)
-        let allRefsContainer = schema.nodes.reference_container.create({ contenteditableNode: 'false' }, refContainerNode)
-        let tr = state.tr.replaceWith(nodeStart, nodeEnd, [h1, allRefsContainer])
-        view.dispatch(tr.setMeta('addToLastHistoryGroup', true))
-      } else {
-        let tr = state.tr.replaceWith(nodeStart, nodeEnd, refContainerNode)
-        view.dispatch(tr.setMeta('addToLastHistoryGroup', true))
-      }
-    }
   }
 }

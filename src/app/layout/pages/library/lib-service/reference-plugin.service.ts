@@ -22,8 +22,6 @@ export class ReferencePluginService {
     let referencePluginKey = new PluginKey('referencePluginKey');
     this.referencePluginKey = referencePluginKey;
     let refsObj = this.refsObj;
-    let updateRef = this.updateReference
-    let decorationsByEditors = this.decorationsByEditors
     this.referencePlugin = new Plugin({
       key: referencePluginKey,
       state: {
@@ -154,35 +152,6 @@ export class ReferencePluginService {
     });
   }
 
-  updateReference = (refPos: number, refSize: number, sectionID: string) => {
-    this.serviceShare.YjsHistoryService.startCapturingNewUndoItem();
-    let view = this.serviceShare.ProsemirrorEditorsService?.editorContainers[sectionID].editorView;
-    let refNode = view?.state.doc.nodeAt(refPos);
-    let refData = refNode?.attrs.referenceData;
-    let refStyle = refNode?.attrs.referenceStyle;
-    let refType = refNode?.attrs.referenceType;
-    let refs = this.refsObj.refs as any[];
-
-    let actualRef = refs.find((ref) => {
-      return ref.refData.referenceData.id == refData.refId;
-    })
-    if (actualRef) {
-      let strObj = this.serviceShare.CslService?.genereteCitationStr(refStyle.name, actualRef.refData.referenceData);
-      let refInYdoc = this.serviceShare.EditorsRefsManagerService!.addReferenceToEditor({
-        ref:actualRef,
-        citation:strObj,
-        refInstance: "local"
-      })
-      let newAttrs = JSON.parse(JSON.stringify(refNode?.attrs))
-      newAttrs.referenceData.last_modified = actualRef.refData.last_modified;
-      //newAttrs.referenceData = {refId:actualRef.refData.referenceData.id,last_modified:actualRef.refData.last_modified}
-      let newNode = view.state.schema.nodes.reference_citation_end.create(newAttrs, view.state.schema.text(refInYdoc.bibliography))
-      view?.dispatch(view.state.tr.replaceWith(refPos, refPos + refSize, newNode))
-      setTimeout(() => {
-        this.serviceShare.ProsemirrorEditorsService?.dispatchEmptyTransaction()
-      }, 10)
-    }
-  }
 
   setRefs(refs: any[]) {
     this.refsObj.refs = refs;

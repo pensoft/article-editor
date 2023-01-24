@@ -161,7 +161,7 @@ export class YjsHistoryService {
           })
         }
 
-    } else if (changeMeta.addToLastUndoItem || (this.capturingNewItem && this.undoStack.length > 0 && !this.undoStack[0].finished)) {
+    } else if (changeMeta.addToLastUndoItem || this.capturingBigOperation || (this.capturingNewItem && this.undoStack.length > 0 && !this.undoStack[0].finished)) {
       if(!this.undoStack[0].editors.find((val)=>changeMeta.sectionId == val)){
         this.undoStack[0].editors.unshift(changeMeta.sectionId);
         this.undoStack[0].selections.unshift(prevSel);

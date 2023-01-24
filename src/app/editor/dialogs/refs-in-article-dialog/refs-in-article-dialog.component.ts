@@ -95,6 +95,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
   saveRefsInArticle() {
     let newRefs = this.getRefsForCurrEdidSession();
     this.refMap.set('refsAddedToArticle', newRefs);
+    this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
     this.dialogRef.close()
   }
 
@@ -152,7 +153,10 @@ export class RefsInArticleDialogComponent implements OnDestroy {
               }
             }
             refObj.ref.id = ref.ref.id
-            let refBasicCitation = this.serviceShare.CslService.getBasicCitation(refObj.ref, refStyle.style);
+            let refBasicCitation:any = this.serviceShare.CslService.getBasicCitation(refObj.ref, refStyle.style);
+            let container = document.createElement('div');
+            container.innerHTML = refBasicCitation.bibliography;
+            refBasicCitation.textContent = container.textContent;
             let refInstance = {
               ...refObj,
               citation: refBasicCitation,

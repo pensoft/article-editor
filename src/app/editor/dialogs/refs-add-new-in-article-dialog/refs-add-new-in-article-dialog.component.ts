@@ -171,7 +171,10 @@ export class RefsAddNewInArticleDialogComponent implements OnInit {
         "last_modified": 1649665699315
       }
     }
-    let refBasicCitation = this.serviceShare.CslService.getBasicCitation(refInfo.ref, refStyle.style);
+    let refBasicCitation:any = this.serviceShare.CslService.getBasicCitation(refInfo.ref, refStyle.style);
+    let container = document.createElement('div');
+    container.innerHTML = refBasicCitation.bibliography;
+    refBasicCitation.textContent = container.textContent;
     let ref = {
       ...refInfo,
       citation:refBasicCitation,

@@ -1,6 +1,6 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { Subject } from 'rxjs';
 import { YMap } from 'yjs/dist/src/internals';
@@ -34,6 +34,7 @@ export class RefsInArticleCiteDialogComponent implements OnInit, OnDestroy {
     ydocService:YdocService,
     public dialogRef: MatDialogRef<RefsInArticleCiteDialogComponent>,
     public dialog: MatDialog,
+    @Inject(MAT_DIALOG_DATA) public data: {citedRefsAtPos?:string[]},
     ) {
     this.refMap = ydocService.referenceCitationsMap;
     this.refMap.observe(this.observeRefMapChanges)
@@ -93,6 +94,9 @@ export class RefsInArticleCiteDialogComponent implements OnInit, OnDestroy {
       this.searchValue = value
       this.passRefsToSubject()
     })
+    if(this.data.citedRefsAtPos){
+      this.checkedRefs.push(...this.data.citedRefsAtPos)
+    }
   }
 
   ngOnDestroy(): void {

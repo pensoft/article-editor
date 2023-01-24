@@ -31,8 +31,29 @@ export function shareDialog(dialog: MatDialog) {
 
 let citateRef = (sharedService: ServiceShare) => {
   return (state: EditorState, dispatch: any, view: EditorView) => {
+    //@ts-ignore
+    let resolvedPosPath = state.selection.$anchor.path
+    let citedRefsAtPos
+    let citationAtPos
+    let citationPos
+    let citationObj
+    for(let i = resolvedPosPath.length-3;i>=0&&!citedRefsAtPos;i-=3){
+      let node:Node = resolvedPosPath[i];
+      if(!citedRefsAtPos&&node.type.name == 'reference_citation'){
+        citedRefsAtPos = node.attrs.citedRefsIds;
+        citationAtPos = node
+        citationPos = resolvedPosPath[i-1]
+        citationObj = {
+          citedRefsAtPos,
+          citationAtPos,
+          citationPos
+        }
+      }
+    }
+
     let dialogRef = sharedDialog.open(RefsInArticleCiteDialogComponent,{
       panelClass: 'editor-dialog-container',
+      data:{citedRefsAtPos},
       width:'70%',
       height:'70%',
     })
@@ -43,7 +64,7 @@ let citateRef = (sharedService: ServiceShare) => {
         Object.values(refsInYdoc).forEach((ref:any)=>{
           ref.citation.text = ref.citation.data.text;
         })
-        sharedService.EditorsRefsManagerService.citateSelectedReferencesInEditor(result.citedRefs,view)
+        sharedService.EditorsRefsManagerService.citateSelectedReferencesInEditor(result.citedRefs,view,citationObj)
       }
       /* if(result){
         sharedService.YjsHistoryService.startCapturingNewUndoItem();
