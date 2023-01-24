@@ -31,10 +31,6 @@ export function shareDialog(dialog: MatDialog) {
 
 let citateRef = (sharedService: ServiceShare) => {
   return (state: EditorState, dispatch: any, view: EditorView) => {
-    let start = state.selection.from;
-    let end = state.selection.to;
-    let nodeType = state.schema.nodes.reference_citation;
-
     let dialogRef = sharedDialog.open(RefsInArticleCiteDialogComponent,{
       panelClass: 'editor-dialog-container',
       width:'70%',
@@ -47,7 +43,7 @@ let citateRef = (sharedService: ServiceShare) => {
         Object.values(refsInYdoc).forEach((ref:any)=>{
           ref.citation.text = ref.citation.data.text;
         })
-        console.log(citedRefs,refsInYdoc);
+        sharedService.EditorsRefsManagerService.citateSelectedReferencesInEditor(result.citedRefs,view)
       }
       /* if(result){
         sharedService.YjsHistoryService.startCapturingNewUndoItem();
@@ -80,17 +76,6 @@ let canCitate = (state: EditorState) => {
   let sel = state.selection;
   if(!state.schema.nodes.reference_citation) return false;
   if(sel.from !== sel.to) return false;
-  //@ts-ignore
-  if(sel.$anchor.path){
-    //@ts-ignore
-    let p = sel.$anchor.path;
-    for(let i = p.length-1;i>-1;i--){
-      let el = p[i];
-      if(i%3==0&&el.type.name == 'reference_citation'){
-        return false;
-      }
-    }
-  }
   return true;
 }
 export const citateReference = (sharedService: ServiceShare) => {

@@ -185,10 +185,6 @@ const gravatarConfig: GravatarConfig = {
   fallback: FALLBACK.robohash,
 };
 
-// function initializeAppFactory(refsAPI: RefsApiService): () => Observable<any> {
-//   return () => (refsAPI as any).getReferences().subscribe();
-// }
-
 @NgModule({
   declarations: [
     AppComponent,
@@ -381,12 +377,6 @@ const gravatarConfig: GravatarConfig = {
       deps: [COMPILER_OPTIONS],
     },
     {provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory]},
-    // {
-    //   provide: APP_INITIALIZER,
-    //   useFactory: initializeAppFactory,
-    //   deps: [RefsApiService],
-    //   multi: true
-    // }
   ],
   bootstrap: [AppComponent],
 })

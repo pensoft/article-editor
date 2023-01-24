@@ -36,7 +36,7 @@ export class ReferencePluginService {
             let docSize = editorState.doc.content.size
             editorState.doc.nodesBetween(0, docSize - 1, (node, pos, parent, index) => {
               if (node.type.name == 'reference_citation_end'&&node.attrs.refInstance == 'local') {
-                let nodeRefData = node.attrs.referenceData;
+/*                 let nodeRefData = node.attrs.referenceData;
                 let nodeStyleData = node.attrs.referenceStyle;
                 let actualRef = refsObj.refs.find((ref: any) => {
                   return ref.refData.referenceData.id == nodeRefData.refId
@@ -91,7 +91,7 @@ export class ReferencePluginService {
                     return buttonContainer
                   }))
                 }
-              }else if(node.type.name == 'reference_citation_end'&&node.attrs.refInstance == 'external'){
+              }else if(node.type.name == 'reference_citation_end'&&node.attrs.refInstance == 'external'){ */
                 let nodeRefData = node.attrs.referenceData;
 
                 let buttonContainer = document.createElement('div');

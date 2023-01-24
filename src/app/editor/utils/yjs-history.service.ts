@@ -319,40 +319,8 @@ export class YjsHistoryService {
       } else {
         this.serviceShare.CitableElementsService.writeElementDataGlobalV2(meta.data.newData.cites, meta.data.newData.elementNumbers, meta.data.newData.elements,'table_citation')
       }
-    }else /* if (meta.type == 'figure-citation') {
-      setTimeout(()=>{
-        this.serviceShare.updateCitableElementsViews()
-        //this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
-      },10)
-    }else if(meta.type =='table-citation'){
-      setTimeout(()=>{
-        this.serviceShare.updateCitableElementsViews()
-        //this.serviceShare.CitableTablesService.updateOnlyTablesView()
-      },10)
-    }else if */ if(meta.type == 'refs-yjs') {
-      /* let refsToReturn = action == 'undo' ? meta.data.oldRefs : meta.data.newRefs;
-      this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsToReturn)
-      let refs = Object.values(refsToReturn);
-      let backEndEditedCount = 0;
-      let checkDone = () => {
-        if (backEndEditedCount == refs.length) {
-          this.serviceShare.RefsApiService.getReferences().subscribe((refs) => {
-            this.serviceShare.ProsemirrorEditorsService.dispatchEmptyTransaction();
-          })
-        }
-      }
-      refs.forEach((yjsRefInstance: any) => {
-        let ref = yjsRefInstance.ref;
-        let global = yjsRefInstance.refInstance !== 'local'
-        let refType = ref.refType
-        let formIOData = ref.refData.formioData;
-        this.serviceShare.RefsApiService.editReference(ref, global, formIOData, refType, true).subscribe((editRes) => {
-          backEndEditedCount++;
-          checkDone();
-        }, (err) => {
+    }else if(meta.type == 'refs-yjs') {
 
-        })
-      }) */
     }else if(meta.type == 'refs-yjs-delete'){
       let refsToSet = action == 'undo' ? meta.data.oldRefs : meta.data.newRefs;
 

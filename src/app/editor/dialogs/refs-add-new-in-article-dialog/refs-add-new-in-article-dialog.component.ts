@@ -175,6 +175,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit {
     let ref = {
       ...refInfo,
       citation:refBasicCitation,
+      ref_last_modified:Date.now(),
       refType:this.referenceFormControl.value,
       refStyle
     }

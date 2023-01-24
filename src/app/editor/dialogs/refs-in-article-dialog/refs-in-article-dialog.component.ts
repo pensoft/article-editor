@@ -157,6 +157,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
               ...refObj,
               citation: refBasicCitation,
               refType: result.referenceScheme,
+              ref_last_modified:Date.now(),
               refStyle
             }
             let refId = refInstance.ref.id;

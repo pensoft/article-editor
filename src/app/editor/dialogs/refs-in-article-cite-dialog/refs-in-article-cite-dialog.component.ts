@@ -111,8 +111,6 @@ export class RefsInArticleCiteDialogComponent implements OnInit, OnDestroy {
       this.checkedRefs = this.checkedRefs.filter(x => x!=refId);
       this.addRefsThisSession = this.addRefsThisSession.filter(x => x!=refId);
     }
-    console.log(checked,ref);
-    console.log(this.checkedRefs);
   }
 
   citeSelectedRefs(){

@@ -1,5 +1,4 @@
 import {
-  HttpErrorResponse,
   HttpEvent,
   HttpHandler,
   HttpInterceptor,
@@ -7,19 +6,11 @@ import {
   HttpResponse,
 } from '@angular/common/http';
 
-import {Inject, Injectable} from '@angular/core';
-import {IAuthToken} from '@core/interfaces/auth.interface';
-import {BehaviorSubject, Observable, of, throwError} from 'rxjs';
-import {catchError, filter, finalize, switchMap, take, tap} from 'rxjs/operators';
+import { Injectable} from '@angular/core';
+import {BehaviorSubject, Observable, of} from 'rxjs';
 import {AuthService} from './auth.service';
-import {BroadcasterService} from './broadcaster.service';
-import {CONSTANTS} from './constants';
-import {environment} from '@env';
 import {basicStyle, harvardstyle, pensoftStyle} from '@app/layout/pages/library/data/styles';
-import {readUint16} from 'lib0/decoding';
-import {RefsApiService} from '@app/layout/pages/library/lib-service/refs-api.service';
 import {journalTree} from "@core/services/journalTreeConstants";
-import {FormControl} from "@angular/forms";
 import {materials} from "@core/services/custom_sections/materials";
 import {treatmentSections} from "@core/services/custom_sections/treatment_sections";
 import {externalLinks, taxonSection} from "@core/services/custom_sections/taxon";

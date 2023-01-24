@@ -8,14 +8,14 @@ export const reference_citation = {
   attrs: {
     ...getGenericAttributes(),
     refCitationID:{default:''},
-    actualRefId:{default:''},
+    citedRefsIds:{default:[]},
   },
   parseDOM: [{
     tag: "reference-citation", getAttrs(dom: any) {
       return {
         ...parseGenericAttributes(dom),
         refCitationID : dom.getAttribute('refCitationID'),
-        actualRefId : dom.getAttribute('actualRefId'),
+        citedRefsIds : dom.getAttribute('citedRefsIds').split(','),
       }
     },
   }],
@@ -23,7 +23,7 @@ export const reference_citation = {
     let attributesToDom: any = {
       ...genericAttributtesToDom(node),
       refCitationID:node.attrs.refCitationID,
-      actualRefId:node.attrs.actualRefId,
+      citedRefsIds:node.attrs.citedRefsIds.join(','),
     }
     return ["reference-citation", attributesToDom, 0];
   }

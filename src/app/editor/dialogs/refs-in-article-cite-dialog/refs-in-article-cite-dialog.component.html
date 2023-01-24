@@ -10,7 +10,7 @@
         <mat-checkbox
         [checked]="checkedRefs.includes(ref.ref.id)"
         (change)="checkBoxChange($event.checked,ref)">
-          <div [innerHTML]="ref.citation.textContent | makeTextBold : searchValue"></div>
+          <div class="ref-content-txt" [innerHTML]="ref.citation.textContent | makeTextBold : searchValue"></div>
         </mat-checkbox>
       </div>
     </div>
