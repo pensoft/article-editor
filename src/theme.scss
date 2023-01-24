@@ -303,6 +303,7 @@ $altTheme: (primary: $theme-primary,
   }
 
   .mat-dialog-actions {
+    position: relative;
     min-height: unset;
     box-sizing: border-box;
     margin: 0;
