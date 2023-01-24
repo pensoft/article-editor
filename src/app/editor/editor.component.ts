@@ -66,8 +66,8 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
 
   titleControl = new FormControl();
 
-  @ViewChild('trachChangesOnOffBtn', { read: ElementRef })
-  trachChangesOnOffBtn?: ElementRef;
+  @ViewChild('trackChangesOnOffBtn', { read: ElementRef })
+  trackChangesOnOffBtn?: ElementRef;
   OnOffTrackingChangesShowTrackingSubject: Subject<{
     trackTransactions: boolean;
   }>;
@@ -366,7 +366,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
       this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
     }
 
-    let buttonElement = this.trachChangesOnOffBtn
+    let buttonElement = this.trackChangesOnOffBtn
       ?.nativeElement as HTMLButtonElement;
   }
 

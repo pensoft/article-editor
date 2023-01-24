@@ -313,7 +313,7 @@ $altTheme: (primary: $theme-primary,
 }
 
 /* Material Buttons Overrides */
-.mat-button-base {
+.mat-button-base:not(.mat-fab):not(.mat-mini-fab) {
   border-radius: 18px !important;
 }
 
@@ -585,6 +585,79 @@ mat-radio-button {
         align-items: center;
         justify-content: center;
         gap: 20px;
+      }
+    }
+  }
+}
+
+
+/* Avatars styles override */
+.more-avatar {
+  display: flex;
+  flex-flow: row nowrap;
+  margin: 0 4px;
+
+  .avatar {
+    transition: margin 0.1s ease-in-out;
+    margin-left: -15px;
+    text-decoration: none;
+    border: 2px solid var(--color-ffffff);
+    background: var(--color-ffffff);
+    cursor: default;
+
+    &:hover {
+      z-index: 1;
+      transform: scale(1.2, 1.2);
+    }
+  }
+
+  .mat-mini-fab {
+    margin-left: -15px;
+    border: 2px solid var(--color-ffffff);
+
+    .mat-button-wrapper {
+      padding: 0;
+      line-height: 36px;
+    }
+  }
+
+
+}
+
+
+.article-users-list {
+
+  .mat-menu-content:not(:empty) {
+    padding-bottom: 16px;
+
+    .mat-card {
+      padding: 0 8px;
+      margin: 8px 0 0 0;
+      box-shadow: unset;
+
+      .mat-card-header {
+
+        .mat-card-avatar {
+          width: 36px;
+          height: 36px;
+        }
+
+        .mat-card-header-text {
+          margin: 0;
+          padding: 0 0 0 8px;
+
+          .mat-card-title {
+            font-size: 14px;
+            line-height: 16px;
+            margin: 0 0 2px 0;
+          }
+
+          .mat-card-subtitle {
+            font-size: 12px;
+            line-height: 14px;
+            margin: 0;
+          }
+        }
       }
     }
   }
