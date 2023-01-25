@@ -285,7 +285,23 @@ $altTheme: (primary: $theme-primary,
     line-height: 32px;
 
     &.title-margin-bottom {
-      margin-bottom: 10px;
+      padding-bottom: 10px;
+    }
+  }
+
+  .insert-figure-in-editor {
+
+  }
+
+  .popup-menu-container {
+    padding: 0 20px;
+    margin: 12px 0 0 0;
+    width: auto;
+    min-width: auto;
+
+    .ProseMirror-menubar {
+      min-height: auto;
+      padding: 20px;
     }
   }
 
@@ -299,6 +315,10 @@ $altTheme: (primary: $theme-primary,
 
     &.fixed-dialog-content-height {
       height: 400px;
+    }
+
+    &.dialog-content-max-height {
+      max-height: 400px;
     }
   }
 
@@ -346,7 +366,6 @@ $altTheme: (primary: $theme-primary,
 
 /* Material Radio Inputs Overrides */
 mat-radio-button {
-  margin: 0 0 20px 0;
 
   .mat-radio-label {
     .mat-radio-container {
@@ -375,12 +394,50 @@ mat-radio-button {
     }
 
     .mat-radio-label-content {
+      display: block;
+      display: -webkit-box;
+      overflow: hidden;
+      line-height: 20px;
+      text-overflow: ellipsis;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      white-space: break-spaces;
       padding-left: 13px;
     }
   }
+}
 
-  &:last-child {
-    margin: 0;
+/* Material Radio Radio Group Overrides */
+mat-radio-group {
+  mat-radio-button {
+    margin: 0 0 20px 0;
+
+    &:last-child {
+      margin: 0;
+    }
+  }
+}
+
+/* Checkbox Radio Group */
+.mat-checkbox-group {
+  mat-checkbox {
+    .mat-checkbox-layout {
+      padding: 10px 0;
+
+      .mat-checkbox-label {
+        display: block;
+        display: -webkit-box;
+        overflow: hidden;
+        line-height: 20px;
+        text-overflow: ellipsis;
+        -webkit-line-clamp: 2;
+        line-clamp: 2;
+        -webkit-box-orient: vertical;
+        white-space: break-spaces;
+        padding-left: 6px;
+      }
+    }
   }
 }
 
@@ -595,6 +652,14 @@ mat-radio-button {
   }
 }
 
+.figure-box-container {
+  margin: 0 0 24px 0;
+
+  &:last-child {
+    margin: 0;
+  }
+}
+
 @media all and (min-width: 1024px) {
   .table-box, .supplementary-file-box, .figure-box, .end-note-box {
     > div {
@@ -628,6 +693,213 @@ mat-radio-button {
           gap: 20px;
         }
       }
+    }
+  }
+}
+
+/* CDK Overlay Pane override */
+.cdk-overlay-pane {
+  &.insert-figure-in-editor, &.comment-edit-dialog, &.editor-dialog-container, &.contributors-dialog {
+    .mat-dialog-container {
+      .mat-dialog-content {
+        margin-top: 26px;
+      }
+    }
+  }
+
+  &.special-symbols-dialog {
+    .mat-dialog-container {
+      .fixed-dialog-content-height {
+        height: 230px;
+      }
+    }
+  }
+}
+
+/* Add Reference autocomplete Override */
+.mat-autocomplete-panel {
+  border-radius: 10px !important;
+  box-shadow: 0 1px 7px #A2A2A291 !important;
+  padding: 10px 0;
+
+  mat-option {
+    padding: 0 36px;
+    height: auto;
+
+    .mat-option-text {
+      display: grid;
+      grid-template-columns: 30px minmax(0,1fr);
+      grid-gap: 0 16px;
+      grid-template-rows: 15px;
+      height: auto;
+      line-height: 15px;
+      padding: 18px 0;
+      border-bottom: 1px solid rgba(226, 226, 226, 0.7);
+
+      .option-status {
+        width: 30px;
+        height: 30px;
+        background: #98E6B2;
+        border-radius: 50%;
+        opacity: 0.5;
+      }
+
+      .option-title {
+        grid-row: 1;
+        grid-column: 2;
+        display: block;
+        display: -webkit-box;
+        font-size: 15px;
+        line-height: 15px;
+        color: var(--color-192956);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        -webkit-box-orient: vertical;
+        white-space: break-spaces;
+        word-break: break-all;
+      }
+
+      .option-author {
+        grid-column: 2;
+        grid-row: 2;
+        display: block;
+        display: -webkit-box;
+        color: #C0C0C0;
+        font-size: 12px;
+        line-height: 15px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        -webkit-line-clamp: 1;
+        line-clamp: 1;
+        -webkit-box-orient: vertical;
+        white-space: break-spaces;
+        word-break: break-all;
+      }
+    }
+
+    &:last-child {
+      .mat-option-text {
+        border: 0;
+      }
+    }
+  }
+}
+
+/* Material Form Field Search with prefix Icon Overrides */
+.mat-form-field-search {
+  width: 100%;
+
+  .mat-form-field-wrapper {
+    padding: 0;
+
+    > .mat-form-field-flex {
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+      border-radius: 20px;
+      border: 1px solid #ABAAAC;
+      padding: 0 16px;
+      background: #FFFFFF;
+
+      > .mat-form-field-infix {
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 18px;
+        padding: 12px 4px;
+        color: var(--color-000000);
+        border: 0;
+      }
+    }
+
+    .mat-form-field-underline {
+      display: none;
+    }
+  }
+}
+
+.mat-form-field-search-label {
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 22px;
+  color: #1A1A1A;
+  margin: 8px 0;
+}
+
+/* Material Form Field Select Overrides */
+.mat-form-field-select-pill {
+
+  &.mat-form-field-should-float {
+
+    .mat-form-field-wrapper {
+      .mat-form-field-flex {
+        .mat-form-field-infix {
+          .mat-form-field-label-wrapper {
+            .mat-form-field-label {
+              display: none !important;
+            }
+          }
+        }
+      }
+
+      .mat-form-field-underline {
+        display: none;
+      }
+    }
+  }
+
+  .mat-form-field-wrapper {
+    padding: 0;
+
+    .mat-form-field-flex {
+      border-radius: 16px;
+      padding: 0;
+      margin: 16px 0 0 0;
+      background: rgba(166, 222, 224, 0.4);
+
+      .mat-form-field-infix {
+        width: 100px;
+        padding: 7px 16px;
+        border: 0;
+
+        mat-select {
+          font-size: 12px;
+          font-weight: 600;
+          line-height: 15px;
+          letter-spacing: 0;
+          color: #303030;
+
+          .mat-select-arrow-wrapper {
+            transform: none;
+
+            .mat-select-arrow {
+              background: url('./assets/icons/chevron-down.svg') 12px 12px;
+              border: 0;
+              width: 12px;
+              height: 11px;
+              background-size: 12px 12px;
+              margin: 0;
+            }
+          }
+        }
+
+        .mat-form-field-label-wrapper {
+          .mat-form-field-label {
+            font-size: 12px;
+            font-weight: 600;
+            line-height: 15px;
+            letter-spacing: 0;
+            color: #303030;
+            padding-left: 16px !important;
+            padding-top: 10px !important;
+          }
+        }
+      }
+    }
+
+    .mat-form-field-underline {
+      display: none;
     }
   }
 }

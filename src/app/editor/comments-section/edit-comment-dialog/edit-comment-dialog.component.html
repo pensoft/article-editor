@@ -1,13 +1,24 @@
-<div>
-  <mat-label>Comment edit :</mat-label>
-</div>
-<div>
-  <mat-form-field class="edit-comment-form" appearance="fill">
-    <textarea matInput placeholder="Whire a comment" [formControl]="editCommentControl" (keydown)="autocomplete.keyHandle($event)"></textarea>
+<h2 mat-dialog-title>Edit comment</h2>
+
+<mat-dialog-content>
+  <div>
+    <mat-form-field class="example-full-width">
+      <mat-label>Comment</mat-label>
+      <textarea matInput
+                placeholder="Write a comment"
+                [formControl]="editCommentControl"
+                rows="4"
+                (keydown)="autocomplete.keyHandle($event)"></textarea>
+    </mat-form-field>
+
     <app-collaborators-auto-complete [(commentmarkId)]="commentmarkId" [(inputFormControl)]="editCommentControl" #autocomplete></app-collaborators-auto-complete>
-  </mat-form-field>
-</div>
-<div class="buttons-container">
-  <button class="normal-btn-cancel-graystyle" (click)="cancelEdit()">Cancel</button>
-  <button class="normal-btn-done-greenstyle" (click)="autocomplete.canFinishComment(submitEdit,[])">Edit</button>
-</div>
+
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" fxLayoutGap="8px">
+  <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
+  <button mat-flat-button color="primary" (click)="autocomplete.canFinishComment(submitEdit,[])">Edit Comment</button>
+</mat-dialog-actions>
+
+

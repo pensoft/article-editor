@@ -36,8 +36,8 @@ let citateRef = (sharedService: ServiceShare) => {
 
     let dialogRef = sharedDialog.open(CitateReferenceDialogComponent,{
       panelClass: 'editor-dialog-container',
-      width:'400px',
-      height:'461px',
+      width: '680px',
+      // height:'461px',
     })
     dialogRef.afterClosed().subscribe(result => {
       if(result){
@@ -99,8 +99,8 @@ export const insertImageItem = new MenuItem({
   run: (state: EditorState, dispatch?: (tr: Transaction) => boolean, view?: EditorView) => {
     if (dispatch) {
       const dialogRef = sharedDialog.open(InsertImageDialogComponent, {
-        width: '444px',
-        height: '454px',
+        width: '680px',
+        // height: '454px',
         panelClass: 'editor-dialog-container',
         data: { image: '' }
       });
@@ -134,8 +134,8 @@ export const insertEndNote = new MenuItem({
       data = JSON.parse(JSON.stringify(citatmark![0].attrs));
     }
     const dialogRef = sharedDialog.open(InsertEndNoteComponent, {
-      width: '80%',
-      height: '90%',
+      width: '582px',
+      // height: '90%',
       panelClass: 'insert-figure-in-editor',
       data: { view, citatData: data }
     });
@@ -160,8 +160,8 @@ export const insertSupplementaryFile = new MenuItem({
       data = JSON.parse(JSON.stringify(citatmark![0].attrs));
     }
     const dialogRef = sharedDialog.open(InsertSupplementaryFileComponent, {
-      width: '80%',
-      height: '90%',
+      width: '582px',
+      // height: '90%',
       panelClass: 'insert-figure-in-editor',
       data: { view, citatData: data }
     });
@@ -186,8 +186,8 @@ export const insertFigure = new MenuItem({
       data = JSON.parse(JSON.stringify(citatmark![0].attrs));
     }
     const dialogRef = sharedDialog.open(InsertFigureComponent, {
-      width: '80%',
-      height: '90%',
+      width: '582px',
+      // height: '90%',
       panelClass: 'insert-figure-in-editor',
       data: { view, citatData: data }
     });
@@ -212,8 +212,8 @@ export const insertTable = new MenuItem({
       data = JSON.parse(JSON.stringify(citatmark![0].attrs));
     }
     const dialogRef = sharedDialog.open(InsertTableComponent, {
-      width: '80%',
-      height: '90%',
+      width: '582px',
+      // height: '90%',
       panelClass: 'insert-figure-in-editor',
       data: { view, citatData: data }
     });
@@ -233,8 +233,8 @@ export const insertDiagramItem = new MenuItem({
   run: (state: EditorState, dispatch?: (tr: Transaction) => boolean, view?: EditorView) => {
     if (dispatch) {
       const dialogRef = sharedDialog.open(InsertDiagramDialogComponent, {
-        width: '444px',
-        height: '345px',
+        width: '680px',
+        // height: '345px',
         panelClass: 'editor-dialog-container',
         data: { type: 'pie' }
       });
@@ -259,9 +259,9 @@ export const insertSpecialSymbolItem = new MenuItem({
   run: (state: EditorState, dispatch?: (tr: Transaction) => boolean, view?: EditorView) => {
     if (dispatch) {
       const dialogRef = sharedDialog.open(InsertSpecialSymbolDialogComponent, {
-        width: '581px',
-        height: '557px',
-        panelClass: 'editor-dialog-container',
+        width: '680px',
+        // height: '557px',
+        panelClass: ['editor-dialog-container', 'special-symbols-dialog'],
         data: { type: 'pie' }
       });
       dialogRef.afterClosed().subscribe(data => {
@@ -286,6 +286,7 @@ export let insertVideoItem = (serviceShare:ServiceShare)=>{
         let nodetype = state.schema.nodes.video;
         const dialogRef = sharedDialog.open(AddCommentDialogComponent, {
           width: '500px',
+          panelClass: 'insert-figure-in-editor',
           data: { url: url, type: 'video' }
         });
         dialogRef.afterClosed().subscribe(result => {
@@ -332,7 +333,8 @@ export const insertLinkItem = new MenuItem({
   run: (state: EditorState, dispatch: any) => {
     let url, text;
     const dialogRef = sharedDialog.open(AddLinkDialogComponent, {
-      width: 'auto',
+      width: '582px',
+      panelClass: 'insert-figure-in-editor',
       data: { url: url, text: text }
     });
     dialogRef.afterClosed().subscribe(result => {
@@ -450,7 +452,8 @@ function addMathInline(mathType: string) {
         let { from, to } = state.selection
         let mathNode = state.schema.nodes[mathType]
         const dialogRef = sharedDialog.open(AddCommentDialogComponent, {
-          width: 'auto',
+          width: '582px',
+          panelClass: 'insert-figure-in-editor',
           data: { url: mathExpresion, type: 'mathinline' }
         });
         dialogRef.afterClosed().subscribe(result => {
