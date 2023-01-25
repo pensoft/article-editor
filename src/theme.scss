@@ -560,7 +560,7 @@ mat-radio-group {
 
 /* Article Metadata Dialogs Overrides */
 .table-box, .supplementary-file-box, .figure-box, .end-note-box, .reference-box {
-  padding: 16px 0;
+  padding: 0 0 24px 0;
 
   > div {
     display: flex;
@@ -577,7 +577,7 @@ mat-radio-group {
           grid-template-columns: 100%;
           grid-gap: 20px;
 
-          &.figure-table, &.end-note {
+          &.figure-table {
             grid-template-columns: 60px 1fr;
           }
 
@@ -586,18 +586,20 @@ mat-radio-group {
             height: auto;
           }
 
-          .figure-index {
+          .figure-index,
+          .end-note-index,
+          .supplementary-file-index,
+          &.reference > div {
 
             strong {
-              display: block;
-              line-height: 20px;
               display: -webkit-box;
+              margin: 0 0 4px 0;
+              line-height: 20px;
               overflow: hidden;
               text-overflow: ellipsis;
               -webkit-line-clamp: 1;
               line-clamp: 1;
               -webkit-box-orient: vertical;
-              margin: 0 0 4px 0;
 
               a {
                 font-weight: 400;
@@ -663,26 +665,13 @@ mat-radio-group {
 @media all and (min-width: 1024px) {
   .table-box, .supplementary-file-box, .figure-box, .end-note-box, .reference-box {
     > div {
-      flex-flow: row nowrap;
       gap: 20px;
 
       > div {
         &:first-child {
 
-          .figure-table, .figure, .end-note, .supplementary-file, .reference {
-            strong {
-              display: -webkit-box;
-              overflow: hidden;
-              text-overflow: ellipsis;
-              -webkit-line-clamp: 1;
-              line-clamp: 1;
-              -webkit-box-orient: vertical;
-
-              a {
-                font-weight: 400;
-                color: var(--color-00b1b2);
-              }
-            }
+          .figure {
+            grid-template-columns: 1fr 1fr;
           }
         }
 
@@ -692,16 +681,6 @@ mat-radio-group {
           align-items: center;
           grid-gap: 20px;
           gap: 20px;
-        }
-      }
-    }
-  }
-
-  .figure-box {
-    > div {
-      > div:first-child {
-        .figure {
-          grid-template-columns: 1fr 1fr;
         }
       }
     }
@@ -780,11 +759,11 @@ mat-radio-group {
   }
 }
 
-.figure-components-list {
+.mat-menu-panel.figure-components-list {
+  width: 280px;
+  max-height: 400px;
 
   .mat-menu-content:not(:empty) {
-    width: 280px;
-    max-height: 400px;
     padding-bottom: 16px;
 
     .mat-card {
