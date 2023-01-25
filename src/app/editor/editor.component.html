@@ -30,8 +30,8 @@
       <div class="right-avatars">
         <div class="more-avatar">
           <!--          {{usersInArticle.length}} {{usersInArticle | json}}-->
-          <ng-container *ngFor="let user of usersInArticle | slice:0:3 | skipCurrent">
-            <ngx-avatar class="avatar" *ngIf="user&&user.userInfo&&user.userInfo.data" size="36"
+          <ng-container *ngFor="let user of usersInArticle | skipCurrent; index as i">
+            <ngx-avatar class="avatar" *ngIf="user&&user.userInfo&&user.userInfo.data&&i<2" size="36"
                         [gravatarId]="user.userInfo.data.email" [name]="user.userInfo.data.name"
                         [fgColor]="(user.userInfo.color&&user.userInfo.color.userContrastColor)?user.userInfo.color.userContrastColor:null"
                         [bgColor]="(user.userInfo.color&&user.userInfo.color.userColor)?user.userInfo.color.userColor:null"></ngx-avatar>
@@ -41,12 +41,12 @@
           <ng-container *ngIf="usersInArticle.length > 2">
 
             <button mat-mini-fab color="accent" [matMenuTriggerFor]="avatars_menu" aria-label="Show all avatars">
-              <mat-icon>more_vert</mat-icon>
+              +{{ usersInArticle.length - 2 }}
             </button>
 
             <mat-menu #avatars_menu="matMenu" class="article-users-list">
 
-              <ng-container *ngFor="let user of usersInArticle | skipCurrent">
+              <ng-container *ngFor="let user of usersInArticle">
                 <mat-card class="user-card" *ngIf="user&&user.userInfo&&user.userInfo.data">
                   <mat-card-header>
                     <div mat-card-avatar>
