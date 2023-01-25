@@ -1,0 +1,28 @@
+<div class="refs-in-article">
+  <h1>Citation Properties</h1>
+  <mat-form-field class="search-refs-in-article-field">
+    <mat-label>Search Refs:</mat-label>
+    <input matInput placeholder="Type here..." [formControl]="searchControl">
+  </mat-form-field>
+  <div class="all-refs-container">
+    <div *ngFor="let ref of ydocRefsSubject | async" class="ref-container">
+      <div>
+        <mat-checkbox
+        [checked]="checkedRefs.includes(ref.ref.id)"
+        (change)="checkBoxChange($event.checked,ref)">
+          <div class="ref-content-txt" [innerHTML]="ref.citation.textContent | makeTextBold : searchValue"></div>
+        </mat-checkbox>
+      </div>
+    </div>
+  </div>
+  <div class="action-buttons">
+    <div class="dialog-actions-btns">
+      <button mat-raised-button [disabled]="checkedRefs.length==0" (click)="citeSelectedRefs()">Cite selected reference(s)</button>
+      <button mat-raised-button (click)="openAddNewRefToEditorDialog()">
+        <mat-icon>add</mat-icon>
+        <span>Add new reference</span>
+      </button>
+      <button mat-raised-button (click)="closeDialog()">Close</button>
+    </div>
+  </div>
+</div>

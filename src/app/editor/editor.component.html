@@ -6,7 +6,7 @@
         <mat-icon svgIcon="edit1"></mat-icon>
         <span style="margin-left:2px">Editor</span>
       </button>
-      <button *ngIf="
+     <!--  <button *ngIf="
                 enforcer.newBeahviorSubject |
                 hasPermission:'/references/items':
                 'GET' |
@@ -14,7 +14,7 @@
                 " (click)="active='library'" mat-button [class.active]="active=='library'" style="color:var(--color-192956)">
         <mat-icon svgIcon="library"></mat-icon>
         <span style="margin-left:5px">Library</span>
-      </button>
+      </button> -->
       <button (click)="openDialog();" color="primary" mat-button [class.active]="active=='contributors'" style="color:var(--color-192956)">
         <mat-icon svgIcon="contributors"></mat-icon>
         <span style="margin-left:5px">Contributors</span>

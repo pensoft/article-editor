@@ -1,9 +1,9 @@
-::ng-deep .select-ref-form-field {
+/* ::ng-deep .select-ref-form-field {
   display: block;
   .mat-form-field-label-wrapper {
     transform: translate(-20px, -9px) !important;
   }
-}
+} */
 
 ::ng-deep .right-side-nav {
   width: 1200px;
@@ -46,23 +46,23 @@
         .mat-form-field-flex {
           background: #f6f6f6;
           border-radius: 4px;
-          transform: translate(0px, 10px);
+          /* transform: translate(0px, 10px); */
         }
         .mat-form-field-infix {
           margin-right: 5px;
           margin-left: 5px;
         }
         .mat-form-field-label {
-          transform: scale(0.8) translate(-25px, -22px);
+         /*  transform: scale(0.8) translate(-25px, -22px); */
         }
         .mat-form-field-empty {
-          transform: translate(-26px, -12px);
+          /* transform: translate(-26px, -12px); */
         }
       }
       .mat-form-field.mat-focused .mat-form-field-label {
-        color: transparent !important;
+        //color: transparent !important;
         .required-star {
-          color: transparent !important;
+          //color: transparent !important;
         }
       }
       .mat-empty {
@@ -74,10 +74,10 @@
       mat-formio-textfield {
         margin-bottom: 0 !important;
         label {
-          transform: translate(-26px, -10px) !important;
-          color: transparent !important;
+          /* transform: translate(-26px, -10px) !important; */
+          //color: transparent !important;
           .required-star {
-            color: transparent !important;
+            //color: transparent !important;
           }
         }
         input {

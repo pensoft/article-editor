@@ -209,7 +209,7 @@ export function handleDeleteOfRefsFigsCitationsAndComments(sharedService: Servic
       if (deletedRefCitations.length > 0) {
         setTimeout(()=>{
           sharedService.YjsHistoryService.capturingNewItem = true
-          sharedService.EditorsRefsManagerService!.handleRefCitationDelete(deletedRefCitations)
+          sharedService.EditorsRefsManagerService!.updateRefsInEndEditorAndTheirCitations();
           setTimeout(()=>{
             sharedService.YjsHistoryService.stopCapturingUndoItem()
           },20)
