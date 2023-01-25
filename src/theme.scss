@@ -296,6 +296,9 @@ $altTheme: (primary: $theme-primary,
         .ProseMirror-menubar {
           min-height: auto;
           padding: 20px;
+          box-shadow: 0 5px 5px #1bb1b22b;
+          position: relative;
+          z-index: 1;
         }
       }
 
@@ -448,7 +451,7 @@ mat-radio-group {
     .mat-form-field {
 
       .mat-form-field-wrapper {
-        margin: 0;
+        padding: 0;
       }
 
       .mat-form-field-underline {
@@ -560,12 +563,15 @@ mat-radio-group {
 
 /* Article Metadata Dialogs Overrides */
 .table-box, .supplementary-file-box, .figure-box, .end-note-box, .reference-box {
-  padding: 0 0 24px 0;
+  position: relative;
+  padding: 0 28px 24px 12px;
+  margin: 0 -40px;
 
   > div {
     display: flex;
     flex-flow: row nowrap;
     justify-content: space-between;
+    padding: 8px 12px 8px 28px;
     gap: 12px;
 
     > div {
@@ -650,6 +656,39 @@ mat-radio-group {
         justify-content: center;
         gap: 8px;
       }
+    }
+  }
+
+  .drag-icon {
+    display: none;
+    position: absolute;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+    left: 16px;
+    top: 8px;
+  }
+
+  &:hover:not(.reference-box) { // All without References modal have draggable elements
+    cursor: move;
+
+    .drag-icon {
+      display: block;
+    }
+  }
+}
+
+.figures-list,
+.tables-list,
+.supplementary-files-list,
+.end-notes-list {
+  .cdk-drag-placeholder {
+    > div {
+      padding: 6px 10px 6px 26px;
+      background: #e0f3f4;
+      border-radius: 8px;
+      border: 2px dashed #1ebabb;
+      transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
     }
   }
 }

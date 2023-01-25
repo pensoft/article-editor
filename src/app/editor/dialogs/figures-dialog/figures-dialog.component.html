@@ -8,7 +8,9 @@
   <ng-container *ngIf="figuresNumbers.length>0">
     <div cdkDropList class="figures-list" (cdkDropListDropped)="drop($event)">
       <div class="figure-box" *ngFor="let figure of figuresNumbers;let i = index" cdkDrag>
-        <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+
+        <mat-icon class="drag-icon">drag_indicator</mat-icon>
+
         <div>
           <div class="figure-view">
             <!-- <img src="{{figures![figure].canvasData.dataURL}}" alt=""> -->
