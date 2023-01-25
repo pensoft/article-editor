@@ -12,10 +12,12 @@ export const reference_citation = {
   },
   parseDOM: [{
     tag: "reference-citation", getAttrs(dom: any) {
+      let refCitationID = dom.getAttribute('refCitationID');
+      let citedRefsIds = dom.getAttribute('citedRefsIds') || '';
       return {
         ...parseGenericAttributes(dom),
-        refCitationID : dom.getAttribute('refCitationID'),
-        citedRefsIds : dom.getAttribute('citedRefsIds').split(','),
+        refCitationID: refCitationID,
+        citedRefsIds: citedRefsIds.split(','),
       }
     },
   }],
