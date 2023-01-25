@@ -3,9 +3,6 @@ import {FormControl} from '@angular/forms';
 import {TreeService} from '@app/editor/meta-data-tree/tree-service/tree.service';
 import {articleSection} from '@app/editor/utils/interfaces/articleSection';
 import {HttpClient} from "@angular/common/http";
-import {map, startWith, tap} from "rxjs/operators";
-import {Observable} from "rxjs";
-import {journalTree} from "@core/services/journalTreeConstants";
 import {ServiceShare} from '@app/editor/services/service-share.service';
 
 @Component({

@@ -100,7 +100,13 @@ export class ChecklistDatabase {
   buildNestedJson(res: any) {
     const TREE_DATA = {};
     res.forEach((node: any) => {
-      const positions = node.pos.split(/(?<=^(?:.{2})+)(?!$)/);
+      let strL = node.pos.length;
+      let positions = []
+      for(let i = 0 ; i < strL-1;i+=2){
+        let char = node.pos[i];
+        let char2 = node.pos[i+1];
+        positions.push(char+char2)
+      }
       positions.reduce((next: any, current: any, index: any) => {
         if (!next[current]) {
           if (positions.length - 1 === index) {
