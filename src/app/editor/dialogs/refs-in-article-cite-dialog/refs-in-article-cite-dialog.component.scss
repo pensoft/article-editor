@@ -1,0 +1,58 @@
+.add-ref-btn {
+  margin: 10px;
+}
+
+.dialog-actions-btns {
+  margin: 10px;
+  button {
+    margin-right: 10px;
+  }
+}
+
+.refs-in-article {
+  height: 100%;
+}
+
+.all-refs-container {
+  height: calc(100% - 240px);
+  margin-top: 40px;
+  overflow: auto;
+  margin-bottom: 40px;
+}
+
+::ng-deep .ref-container {
+  padding: 10px;
+  border-top: 1px solid;
+  margin-right: 20px;
+  margin-left: 20px;
+  mat-checkbox {
+    width: 100% !important;
+    label {
+      max-width: 100%;
+      .mat-checkbox-label {
+        width: calc(100% - 30px);
+        .ref-content-txt {
+          overflow: hidden;
+          display: inline-block;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          width: 100%;
+        }
+      }
+    }
+  }
+  .ref {
+    display: inline-block;
+    width: calc(100% - 201px);
+  }
+  .ref-actions-btns {
+    display: inline;
+    button {
+      margin-left: 10px;
+    }
+  }
+}
+
+.ref-container:last-of-type {
+  border-bottom: 1px solid;
+}

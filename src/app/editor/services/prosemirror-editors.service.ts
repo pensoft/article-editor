@@ -1364,7 +1364,6 @@ export class ProsemirrorEditorsService {
 
   runFuncAfterRender() {
     this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems();
-    this.serviceShare.CslService?.checkReferencesInAllEditors(this.editorContainers);
 
     // pass current users in article
     let updateArticleUserStates = () => {

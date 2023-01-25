@@ -121,7 +121,6 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
               this.ydocService.articleData!
             )
             .subscribe((data) => {
-              console.log('updated article title ',data,newName);
             });
         }
       });
@@ -215,11 +214,11 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
         this.shouldTrackChanges = hideshowData.trackTransactions;
         this.trackChangesData = hideshowData;
       });
-      this.refsAPI.getReferences().subscribe((refs:any)=>{
+     /*  this.refsAPI.getReferences().subscribe((refs:any)=>{
         // this.shouldRender = true;
         // this.userReferences = refs.data;
         this.changeDetection.detectChanges();
-      })
+      }) */
     };
     if (this.ydocService.editorIsBuild) {
       initArtcleStructureMap();

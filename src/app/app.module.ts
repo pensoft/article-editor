@@ -158,6 +158,9 @@ import { JatsErrorsDialogComponent } from './editor/dialogs/jats-errors-dialog/j
 import {EchoInterceptor} from 'ngx-laravel-echo';
 import { Observable } from 'rxjs';
 import { BoldPipe } from './editor/dialogs/add-contributors-dialog/bold.pipe';
+import { RefsInArticleDialogComponent } from './editor/dialogs/refs-in-article-dialog/refs-in-article-dialog.component';
+import { RefsInArticleCiteDialogComponent } from './editor/dialogs/refs-in-article-cite-dialog/refs-in-article-cite-dialog.component';
+import { RefsAddNewInArticleDialogComponent } from './editor/dialogs/refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
 
 //@ts-ignore
 EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE,'event-dispatcher']
@@ -181,10 +184,6 @@ export function createCompiler(compilerFactory: CompilerFactory) {
 const gravatarConfig: GravatarConfig = {
   fallback: FALLBACK.robohash,
 };
-
-// function initializeAppFactory(refsAPI: RefsApiService): () => Observable<any> {
-//   return () => (refsAPI as any).getReferences().subscribe();
-// }
 
 @NgModule({
   declarations: [
@@ -298,6 +297,9 @@ const gravatarConfig: GravatarConfig = {
     EndNoteComponent,
     InsertEndNoteComponent,
     JatsErrorsDialogComponent,
+    RefsInArticleDialogComponent,
+    RefsInArticleCiteDialogComponent,
+    RefsAddNewInArticleDialogComponent,
   ],
   imports: [
     HttpClientJsonpModule,
@@ -375,12 +377,6 @@ const gravatarConfig: GravatarConfig = {
       deps: [COMPILER_OPTIONS],
     },
     {provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory]},
-    // {
-    //   provide: APP_INITIALIZER,
-    //   useFactory: initializeAppFactory,
-    //   deps: [RefsApiService],
-    //   multi: true
-    // }
   ],
   bootstrap: [AppComponent],
 })

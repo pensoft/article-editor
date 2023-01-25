@@ -21,6 +21,7 @@ import { InsertTableComponent } from "@app/editor/dialogs/citable-tables-dialog/
 import { StateEffectType } from "@codemirror/state";
 import { InsertSupplementaryFileComponent } from "@app/editor/dialogs/supplementary-files/insert-supplementary-file/insert-supplementary-file.component";
 import { InsertEndNoteComponent } from "@app/editor/dialogs/end-notes/insert-end-note/insert-end-note.component";
+import { RefsInArticleCiteDialogComponent } from "@app/editor/dialogs/refs-in-article-cite-dialog/refs-in-article-cite-dialog.component";
 
 let sharedDialog: MatDialog;
 
@@ -30,17 +31,42 @@ export function shareDialog(dialog: MatDialog) {
 
 let citateRef = (sharedService: ServiceShare) => {
   return (state: EditorState, dispatch: any, view: EditorView) => {
-    let start = state.selection.from;
-    let end = state.selection.to;
-    let nodeType = state.schema.nodes.reference_citation;
+    //@ts-ignore
+    let resolvedPosPath = state.selection.$anchor.path
+    let citedRefsAtPos
+    let citationAtPos
+    let citationPos
+    let citationObj
+    for(let i = resolvedPosPath.length-3;i>=0&&!citedRefsAtPos;i-=3){
+      let node:Node = resolvedPosPath[i];
+      if(!citedRefsAtPos&&node.type.name == 'reference_citation'){
+        citedRefsAtPos = node.attrs.citedRefsIds;
+        citationAtPos = node
+        citationPos = resolvedPosPath[i-1]
+        citationObj = {
+          citedRefsAtPos,
+          citationAtPos,
+          citationPos
+        }
+      }
+    }
 
-    let dialogRef = sharedDialog.open(CitateReferenceDialogComponent,{
+    let dialogRef = sharedDialog.open(RefsInArticleCiteDialogComponent,{
       panelClass: 'editor-dialog-container',
-      width:'400px',
-      height:'461px',
+      data:{citedRefsAtPos},
+      width:'70%',
+      height:'70%',
     })
     dialogRef.afterClosed().subscribe(result => {
       if(result){
+        let citedRefs = result.citedRefs
+        let refsInYdoc = JSON.parse(JSON.stringify(result.refsInYdoc))
+        Object.values(refsInYdoc).forEach((ref:any)=>{
+          ref.citation.text = ref.citation.data.text;
+        })
+        sharedService.EditorsRefsManagerService.citateSelectedReferencesInEditor(result.citedRefs,view,citationObj)
+      }
+      /* if(result){
         sharedService.YjsHistoryService.startCapturingNewUndoItem();
         if(result.refInstance=='local'){
           let refInYdoc = sharedService.EditorsRefsManagerService!.addReferenceToEditor(result)
@@ -63,7 +89,7 @@ let citateRef = (sharedService: ServiceShare) => {
           tr = tr.setSelection(new TextSelection(tr.doc.resolve(end+2+refInYdoc.citationDisplayText.length),tr.doc.resolve(end+2+refInYdoc.citationDisplayText.length)))
           dispatch(tr)
         }
-      }
+      } */
     });
   }
 }
@@ -71,17 +97,6 @@ let canCitate = (state: EditorState) => {
   let sel = state.selection;
   if(!state.schema.nodes.reference_citation) return false;
   if(sel.from !== sel.to) return false;
-  //@ts-ignore
-  if(sel.$anchor.path){
-    //@ts-ignore
-    let p = sel.$anchor.path;
-    for(let i = p.length-1;i>-1;i--){
-      let el = p[i];
-      if(i%3==0&&el.type.name == 'reference_citation'){
-        return false;
-      }
-    }
-  }
   return true;
 }
 export const citateReference = (sharedService: ServiceShare) => {
@@ -324,7 +339,7 @@ export const addMathBlockMenuItem = new MenuItem({
   // @ts-ignore
   run: addMathInline('math_display'),
   enable(state:EditorState) { return state.schema.nodes.math_display&&state.tr.selection.empty },
-  icon: createCustomIcon('math-icon.svg', 13)
+  icon: createCustomIcon('symbols.svg', 20)
 });
 
 export const insertLinkItem = new MenuItem({

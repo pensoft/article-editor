@@ -116,15 +116,15 @@ app-meta-data-tree {
 }
 
 app-article-metadata {
-  width: -webkit-fill-available;
-  height: calc(30% - 9px);
-  display: inline-block;
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  padding: 8px 16px 24px 32px;
+  margin: 0 16px 24px 0;
   background: var(--color-ffffff);
   box-shadow: 2px 2px 3px #1bb1b22b;
-  border-top-right-radius: 23px;
-  border-bottom-right-radius: 23px;
-  margin-right: 17px;
-  margin-bottom: 5px;
+  border-radius: 0 23px 23px 0;
 }
 
 text-content-type {
@@ -162,8 +162,9 @@ $treeSpace: 290px;
   background: var(--color-f9fafc);
   height: calc(100vh - 202px);
   display: flex;
+
   .data-tree {
-    height: calc(100% - 20px);
+    height: 100%;
     margin-top: 0px;
     width: $treeSpace;
     background: #ffffff00;
