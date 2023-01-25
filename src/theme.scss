@@ -262,76 +262,68 @@ $altTheme: (primary: $theme-primary,
   border-color: #00B1B2;
 }
 
-
-// .mat-button, .mat-raised-button, .mat-icon-button, .mat-stroked-button, .mat-flat-button, .mat-fab, .mat-mini-fab {
-//   font-family: 'Open Sans' !important;
-//   font-size: 12px !important;
-//   letter-spacing: 0.18px;
-//   border-radius: 100px !important;
-//   border-color: var(--color-00b1b2) !important;
-//   color: var(--color-00b1b2);
-//   font-weight: bold !important;
-// }
-
 /* Material Dialog Overrides */
-.mat-dialog-container {
-  padding: 24px 0 !important;
+.cdk-global-overlay-wrapper {
+  .cdk-overlay-pane {
+    width: 960px;
+    max-width: 90vw !important;
 
-  h2 {
-    margin: 16px 0 0 0;
-    padding: 0 40px;
-    font-size: 23px;
-    font-weight: bold;
-    line-height: 32px;
+    .mat-dialog-container {
+      padding: 24px 0;
 
-    &.title-margin-bottom {
-      padding-bottom: 10px;
-    }
-  }
+      h2 {
+        margin: 16px 0 0 0;
+        padding: 0 40px;
+        font-size: 23px;
+        font-weight: bold;
+        line-height: 32px;
 
-  .insert-figure-in-editor {
+        &.title-margin-bottom {
+          padding-bottom: 10px;
+        }
+      }
 
-  }
+      .insert-figure-in-editor {
 
-  .popup-menu-container {
-    padding: 0 20px;
-    margin: 12px 0 0 0;
-    width: auto;
-    min-width: auto;
+      }
 
-    .ProseMirror-menubar {
-      min-height: auto;
-      padding: 20px;
-    }
-  }
+      .popup-menu-container {
+        padding: 0 20px;
+        margin: 12px 0 0 0;
+        width: auto;
+        min-width: auto;
 
-  .mat-dialog-content {
-    padding: 0 28px 24px 28px;
-    margin: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    scrollbar-gutter: stable both-edges;
-    min-height: 100px;
+        .ProseMirror-menubar {
+          min-height: auto;
+          padding: 20px;
+        }
+      }
 
-    &.fixed-dialog-content-height {
-      height: 400px;
-    }
+      .mat-dialog-content {
+        padding: 24px 28px;
+        margin: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-gutter: stable both-edges;
+        min-height: 400px;
 
-    &.dialog-content-max-height {
-      max-height: 400px;
-    }
-  }
+        &.fixed-dialog-content-height {
+          height: 400px;
+        }
+      }
 
-  .mat-dialog-actions {
-    position: relative;
-    min-height: unset;
-    box-sizing: border-box;
-    margin: 0;
-    padding: 16px 40px 0 40px;
-    box-shadow: 0 -5px 5px #1BB1B22B;
+      .mat-dialog-actions {
+        position: relative;
+        min-height: unset;
+        box-sizing: border-box;
+        margin: 0;
+        padding: 16px 40px 0 40px;
+        box-shadow: 0 -5px 5px #1BB1B22B;
 
-    button {
-      margin-top: 8px;
+        button {
+          margin-top: 8px;
+        }
+      }
     }
   }
 }
@@ -342,7 +334,7 @@ $altTheme: (primary: $theme-primary,
 
 /* Material Buttons Overrides */
 .mat-button-base:not(.mat-fab):not(.mat-mini-fab) {
-  border-radius: 18px !important;
+  border-radius: 18px;
 }
 
 .mat-stroked-button.mat-primary {
@@ -454,6 +446,10 @@ mat-radio-group {
     }
 
     .mat-form-field {
+
+      .mat-form-field-wrapper {
+        margin: 0;
+      }
 
       .mat-form-field-underline {
         background-color: transparent;
@@ -575,16 +571,11 @@ mat-radio-group {
     > div {
       &:first-child {
         flex-grow: 1;
-        width: 100%;
 
         .figure-table, .figure, .end-note, .supplementary-file, .reference {
           display: grid;
           grid-template-columns: 100%;
           grid-gap: 20px;
-
-          &.figure {
-            grid-gap: 12px;
-          }
 
           &.figure-table, &.end-note {
             grid-template-columns: 60px 1fr;
@@ -595,53 +586,56 @@ mat-radio-group {
             height: auto;
           }
 
-          strong {
-            display: block;
-            line-height: 20px;
-            display: -webkit-box;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            -webkit-line-clamp: 1;
-            line-clamp: 1;
-            -webkit-box-orient: vertical;
-            margin: 0 0 4px 0;
+          .figure-index {
 
-            a {
-              font-weight: 400;
-              color: var(--color-00b1b2);
-            }
-          }
-
-          span {
-            display: block;
-            display: -webkit-box;
-            font-size: 13px;
-            line-height: 18px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            -webkit-line-clamp: 2;
-            line-clamp: 2;
-            -webkit-box-orient: vertical;
-            color: var(--color-818181);
-
-            .deletion {
-              display: none;
-            }
-
-            &.sub-title {
+            strong {
+              display: block;
               line-height: 20px;
-              margin: 0 0 4px 0;
               display: -webkit-box;
               overflow: hidden;
               text-overflow: ellipsis;
               -webkit-line-clamp: 1;
               line-clamp: 1;
               -webkit-box-orient: vertical;
-              color: var(--color-abaaac);
+              margin: 0 0 4px 0;
+
+              a {
+                font-weight: 400;
+                color: var(--color-00b1b2);
+              }
             }
 
-            p {
-              margin: 0;
+            span {
+              display: block;
+              display: -webkit-box;
+              font-size: 13px;
+              line-height: 18px;
+              overflow: hidden;
+              text-overflow: ellipsis;
+              -webkit-line-clamp: 2;
+              line-clamp: 2;
+              -webkit-box-orient: vertical;
+              color: var(--color-818181);
+
+              .deletion {
+                display: none;
+              }
+
+              &.sub-title {
+                line-height: 20px;
+                margin: 0 0 4px 0;
+                display: -webkit-box;
+                overflow: hidden;
+                text-overflow: ellipsis;
+                -webkit-line-clamp: 1;
+                line-clamp: 1;
+                -webkit-box-orient: vertical;
+                color: var(--color-abaaac);
+              }
+
+              p {
+                margin: 0;
+              }
             }
           }
         }
@@ -674,7 +668,6 @@ mat-radio-group {
 
       > div {
         &:first-child {
-          width: auto;
 
           .figure-table, .figure, .end-note, .supplementary-file, .reference {
             strong {
@@ -791,6 +784,7 @@ mat-radio-group {
 
   .mat-menu-content:not(:empty) {
     width: 280px;
+    max-height: 400px;
     padding-bottom: 16px;
 
     .mat-card {
@@ -807,7 +801,24 @@ mat-radio-group {
             width: 90px;
             height: 90px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 18px;
+          }
+
+          .video-thumb {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 90px;
+            width: 90px;
+            border-radius: 18px;
+            background-color: var(--color-676767);
+            color: var(--color-ffffff);
+
+            .mat-icon {
+              width: 36px;
+              height: 36px;
+              font-size: 36px;
+            }
           }
         }
         .mat-card-header-text {
@@ -821,48 +832,10 @@ mat-radio-group {
 
             text-transform: capitalize;
           }
-          
+
           .mat-card-subtitle {
             font-size: 12px;
             line-height: 14px;
-            margin: 0;
-          }
-        }
-      }
-    }
-  }
-}
-
-/* CDK Overlay Pane override */
-.cdk-overlay-pane {
-  &.insert-figure-in-editor, &.comment-edit-dialog, &.editor-dialog-container, &.contributors-dialog, &.ask-before-delete-dialog {
-    .mat-dialog-container {
-      .mat-dialog-content {
-        margin-top: 26px;
-      }
-    }
-  }
-
-  &.special-symbols-dialog {
-    .mat-dialog-container {
-      .fixed-dialog-content-height {
-        height: 230px;
-      }
-    }
-  }
-
-  &.edit-reference-panel, &.refs-add-new-in-article-dialog {
-    .formio-inner-container {
-      mat-formio-datagrid {
-        .mat-card {
-          padding: 0;
-          box-shadow: none;
-
-          mat-card-content {
-            overflow-y: auto;
-          }
-
-          mat-card-actions {
             margin: 0;
           }
         }
