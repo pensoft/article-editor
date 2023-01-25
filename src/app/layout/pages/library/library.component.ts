@@ -41,6 +41,7 @@ export class LibraryPage implements AfterViewInit {
         this.refsAPI.getStyles().subscribe((refStyles: any) => {
           let referenceStyles = refStyles.data
           let referenceTypesFromBackend = refTypes.data;
+
           const dialogRef = this.dialog.open(ReferenceEditComponent, {
             data: { referenceTypesFromBackend, oldData: ref, referenceStyles },
             panelClass: 'edit-reference-panel',
@@ -66,7 +67,7 @@ export class LibraryPage implements AfterViewInit {
                 // find ref in the returned obj
                 // edit all cetitaions of this reference in the editors
                 this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
-                this.cslService.updateAllCitatsOfReferenceInAllEditors(containers, reference)
+                //this.cslService.updateAllCitatsOfReferenceInAllEditors(containers, reference)
               })
             }
           })

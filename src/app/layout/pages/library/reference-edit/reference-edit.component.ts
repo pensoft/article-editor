@@ -43,77 +43,6 @@ export class ReferenceEditComponent implements AfterViewInit {
       this.cahngeDetectorRef.detectChanges();
     }, 100)
     return
-    let forms = type.formFields;
-    let newFormIOJSON1: any = {
-      "components": [
-
-      ]
-    }
-    let oldFormIOData1 = this.dataSave?this.dataSave:this.data.oldData?this.data.oldData.formioSubmission:undefined
-    forms.forEach((form:any) => {
-      let formTemplate: any
-      if (form.cslKey == 'authors' || form.cslKey == 'editor') {
-
-        formTemplate = JSON.parse(JSON.stringify(formioAuthorsDataGrid));
-        let loopAndChangeConditions = (obj: any) => {
-          if (obj['conditional']) {
-            obj['conditional'].when = obj['conditional'].when.replace(formTemplate.key, form.cslKey)
-          }
-          if (obj instanceof Array) {
-            obj.forEach((el: any) => {
-              loopAndChangeConditions(el);
-            })
-          } else if (typeof obj == 'object' && Object.keys(obj).length > 0) {
-            Object.keys(obj).forEach((key) => {
-              let el = obj[key];
-              if (el) {
-                loopAndChangeConditions(el);
-              }
-            })
-          }
-        }
-        loopAndChangeConditions(formTemplate)
-      } else {
-        formTemplate = JSON.parse(JSON.stringify(formIOTextFieldTemplate));
-        if (form.validations) {
-          formTemplate['validate'] = {}
-          if(form.validations.required){
-            formTemplate.validate.required = true;
-          }
-          if(form.validations.pattern){
-            formTemplate.validate.pattern = form.validations.pattern
-          }
-          if (form.validations.min) {
-            formTemplate.validate.minLength = form.validations.min
-          }
-          if (form.validations.max) {
-            formTemplate.validate.maxLength = form.validations.max
-          }
-        }
-      }
-
-      formTemplate.label = form.label;
-      if(form.cslKey){
-
-      }
-      formTemplate.key = form.cslKey;
-      if(oldFormIOData&&oldFormIOData[form.cslKey]){
-        formTemplate.defaultValue = oldFormIOData[form.cslKey];
-      }
-      newFormIOJSON.components.push(formTemplate);
-    })
-    newFormIOJSON.components.push({
-      "type": "button",
-      "label": "Submit",
-      "key": "submit",
-      "disableOnInvalid": true,
-      "input": true,
-      "tableView": false
-    })
-    setTimeout(() => {
-      this.formIOSchema = newFormIOJSON;
-      this.cahngeDetectorRef.detectChanges();
-    }, 100)
   }
 
   ngAfterViewInit(): void {
@@ -153,29 +82,11 @@ export class ReferenceEditComponent implements AfterViewInit {
   }
 
   onSubmit(submission: any) {
-    if(!this.data.oldData){
-      this.dialogRef.close({
-        submissionData: submission,
-        referenceScheme: this.referenceFormControl.value,
-        referenceStyle: this.stylesFormControl.value,
-      })
-    }else{
-      const saveDialogRef = this.dialog.open(SaveComponent, {
-        panelClass: 'save-reference-panel',
-      });
-      saveDialogRef.afterClosed().subscribe((saveOption:any)=>{
-        if(saveOption){
-          this.dialogRef.close({
-            submissionData: submission,
-            referenceScheme: this.referenceFormControl.value,
-            referenceStyle: this.stylesFormControl.value,
-            globally:saveOption.globally
-          })
-        }else{
-          this.generateFormIOJSON(this.referenceFormControl.value);
-        }
-      })
-    }
+    this.dialogRef.close({
+      submissionData: submission,
+      referenceScheme: this.referenceFormControl.value,
+      referenceStyle: this.stylesFormControl.value,
+    })
   }
 
   onChange(change: any) {

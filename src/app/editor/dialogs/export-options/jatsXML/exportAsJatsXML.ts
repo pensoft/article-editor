@@ -2,7 +2,7 @@ import {ServiceShare} from "@app/editor/services/service-share.service";
 import {bigJatsFile} from "./jatsFile";
 import {saveAs} from 'file-saver';
 import {create} from 'xmlbuilder2';
-import {D} from "@angular/cdk/keycodes";
+import {D, I} from "@angular/cdk/keycodes";
 import {DOMParser, DOMSerializer, Node} from "prosemirror-model";
 import {XMLBuilder} from "xmlbuilder2/lib/interfaces";
 import {articleSection} from "@app/editor/utils/interfaces/articleSection";
@@ -282,8 +282,11 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   // create all article sections
   serviceShare.TreeService.articleSectionsStructure.forEach((sec) => {
     let secId = sec.sectionID;
-    let secview = serviceShare.ProsemirrorEditorsService.editorContainers[secId].editorView;
-    parseSection(secview, body, serviceShare, sec);
+    let container = serviceShare.ProsemirrorEditorsService.editorContainers[secId]
+    if(container){
+      let secview = container.editorView;
+      parseSection(secview, body, serviceShare, sec);
+    }
   })
   /**/
   let back = article.ele('back') // refs , Acknowledgements ,
@@ -308,7 +311,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   // loop and build refs as xml
   Object.keys(refObj).forEach((refActualId) => {
     let actualRef = refObj[refActualId]
-    let refData = actualRef.ref.refData.referenceData
+    let refData = actualRef.ref
     let refType = refData.type;
     let ref = refsList.ele('ref', {id: refIdsG[refActualId]})
     /**/

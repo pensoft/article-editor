@@ -30,6 +30,7 @@ export class RefsApiService {
   mapRefItems(refItemsFromBackend: any) {
     let refs: any[] = [];
     let ydocRefs = this.serviceShare.YdocService.referenceCitationsMap?JSON.parse(JSON.stringify(this.serviceShare.YdocService.referenceCitationsMap?.get('localRefs'))):{};
+    console.log(refItemsFromBackend,ydocRefs);
     if(!this.serviceShare.YdocService.articleData){
       return refs
     }
@@ -176,11 +177,7 @@ export class RefsApiService {
   }
 
   createReference(ref: any, formIOData?: any, refType?: any) {
-    /* {
-  "title": "string",
-  "data": {},
-  "reference_definition_id": "string"
-} */
+
     if (formIOData && refType) {
       return this._http.post(API_URL + '/references/items', {
         "title": formIOData.title,
