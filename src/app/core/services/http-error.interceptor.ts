@@ -9,14 +9,23 @@ import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core';
 import { ToastrService } from 'ngx-toastr';
+import { AuthService } from '@core/services/auth.service';
 
 @Injectable()
 export class HttpErrorInterceptor implements HttpInterceptor {
 
   constructor(private readonly translate: TranslateService,
-              private readonly toastr: ToastrService) {}
+              private readonly toastr: ToastrService,
+              private readonly authService: AuthService) {}
 
   public error422(error: HttpErrorResponse) {
+
+    if(error.status === 500 && error.error.message.includes('Unauthenticated')){
+      this.authService.logout();
+
+      return;
+    }
+
     const { errors } = error.error.error;
     const message: string = error.error.message;
 
