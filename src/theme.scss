@@ -563,7 +563,7 @@ mat-radio-group {
 }
 
 /* Article Metadata Dialogs Overrides */
-.table-box, .supplementary-file-box, .figure-box, .end-note-box {
+.table-box, .supplementary-file-box, .figure-box, .end-note-box, .reference-box {
   padding: 16px 0;
 
   > div {
@@ -577,7 +577,7 @@ mat-radio-group {
         flex-grow: 1;
         width: 100%;
 
-        .figure-table, .figure, .end-note, .supplementary-file {
+        .figure-table, .figure, .end-note, .supplementary-file, .reference {
           display: grid;
           grid-template-columns: 100%;
           grid-gap: 20px;
@@ -661,7 +661,7 @@ mat-radio-group {
 }
 
 @media all and (min-width: 1024px) {
-  .table-box, .supplementary-file-box, .figure-box, .end-note-box {
+  .table-box, .supplementary-file-box, .figure-box, .end-note-box, .reference-box {
     > div {
       flex-flow: row nowrap;
       gap: 20px;
@@ -670,7 +670,7 @@ mat-radio-group {
         &:first-child {
           width: auto;
 
-          .figure-table, .figure, .end-note, .supplementary-file {
+          .figure-table, .figure, .end-note, .supplementary-file, .reference {
             strong {
               display: -webkit-box;
               overflow: hidden;
@@ -768,6 +768,25 @@ mat-radio-group {
     .mat-dialog-container {
       .fixed-dialog-content-height {
         height: 230px;
+      }
+    }
+  }
+
+  &.edit-reference-panel, &.refs-add-new-in-article-dialog {
+    .formio-inner-container {
+      mat-formio-datagrid {
+        .mat-card {
+          padding: 0;
+          box-shadow: none;
+
+          mat-card-content {
+            overflow-y: auto;
+          }
+
+          mat-card-actions {
+            margin: 0;
+          }
+        }
       }
     }
   }

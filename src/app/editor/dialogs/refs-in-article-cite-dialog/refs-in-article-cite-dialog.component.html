@@ -1,28 +1,37 @@
-<div class="refs-in-article">
-  <h1>Citation Properties</h1>
-  <mat-form-field class="search-refs-in-article-field">
-    <mat-label>Search Refs:</mat-label>
-    <input matInput placeholder="Type here..." [formControl]="searchControl">
+<h2 mat-dialog-title class="title-margin-bottom">Cite Reference</h2>
+
+<div class="search-field-wrapper">
+  <div class="mat-form-field-search-label">Search References</div>
+  <mat-form-field class="mat-form-field-search" appearance="fill">
+    <input type="text"
+           class="input-search"
+           placeholder="Start typing author, article name, etc…."
+           matInput
+           [formControl]="searchControl"
+           autocomplete="off">
+    <mat-icon matPrefix class="prefix-icon">search</mat-icon>
   </mat-form-field>
-  <div class="all-refs-container">
-    <div *ngFor="let ref of ydocRefsSubject | async" class="ref-container">
-      <div>
-        <mat-checkbox
-        [checked]="checkedRefs.includes(ref.ref.id)"
-        (change)="checkBoxChange($event.checked,ref)">
-          <div class="ref-content-txt" [innerHTML]="ref.citation.textContent | makeTextBold : searchValue"></div>
-        </mat-checkbox>
-      </div>
-    </div>
-  </div>
-  <div class="action-buttons">
-    <div class="dialog-actions-btns">
-      <button mat-raised-button [disabled]="checkedRefs.length==0" (click)="citeSelectedRefs()">Cite selected reference(s)</button>
-      <button mat-raised-button (click)="openAddNewRefToEditorDialog()">
-        <mat-icon>add</mat-icon>
-        <span>Add new reference</span>
-      </button>
-      <button mat-raised-button (click)="closeDialog()">Close</button>
-    </div>
-  </div>
 </div>
+
+<mat-dialog-content class="fixed-dialog-content-height">
+  <div class="all-refs-container">
+    <div class="mat-checkbox-group" fxLayout="column nowrap">
+      <ng-container *ngFor="let ref of ydocRefsSubject | async" class="ref-container">
+        <mat-checkbox
+          [checked]="checkedRefs.includes(ref.ref.id)"
+          (change)="checkBoxChange($event.checked,ref)"
+          [color]='"primary"'>
+          <span [innerHTML]="ref.citation.textContent | makeTextBold : searchValue"></span>
+        </mat-checkbox>
+      </ng-container>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" fxLayoutGap="8px">
+  <button mat-stroked-button (click)="closeDialog()">Cancel</button>
+  <button mat-stroked-button color="primary" (click)="openAddNewRefToEditorDialog()">Add Reference</button>
+  <button mat-flat-button color="primary" [disabled]="checkedRefs.length==0" (click)="citeSelectedRefs()">
+    Cite References
+  </button>
+</mat-dialog-actions>
