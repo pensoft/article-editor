@@ -15,7 +15,7 @@ export const reference_citation = {
       return {
         ...parseGenericAttributes(dom),
         refCitationID : dom.getAttribute('refCitationID'),
-        citedRefsIds : dom.getAttribute('citedRefsIds') ? dom.getAttribute('citedRefsIds').split(',') : [],
+        citedRefsIds : dom.getAttribute('citedRefsIds')?dom.getAttribute('citedRefsIds').split(','):[],
       }
     },
   }],

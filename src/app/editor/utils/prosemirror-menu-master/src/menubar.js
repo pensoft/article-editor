@@ -1,4 +1,5 @@
 import crel from "crelt"
+import { Node } from "prosemirror-model"
 import { Plugin } from "prosemirror-state"
 
 import { renderGrouped } from "./menu"
@@ -88,25 +89,52 @@ class MenuBarView {
     update(editorView) {
         this.contentUpdate(this.editorView.state)
         if (editorView) {
-            let { from, to } = editorView.state.selection
+            let { from, to,$anchor,anchor } = editorView.state.selection
             let menuKey = this.options.menuKey
             let menuTypeOnNode = 'main';
             let menuItAttrs = false;
             let userIsInSectionTreeTitleNode = false;
             let lastFormControlName
-            editorView.state.doc.nodesBetween(from, to, (node, pos, parent, index) => {
-                if (node.attrs.menuType && node.attrs.menuType !== '') {
-                  menuTypeOnNode = node.attrs.menuType;
-                  menuItAttrs = true;
-                }
-                if(node.attrs.formControlName&&node.attrs.formControlName.length>0){
-                  lastFormControlName = node.attrs.formControlName;
-                  if(node.attrs.formControlName=="sectionTreeTitle"){
-                    userIsInSectionTreeTitleNode = true;
+            let doc = editorView.state.doc
+            let docSize = doc.content.size
+            let foundMenu = ()=>{
+              return menuItAttrs||userIsInSectionTreeTitleNode||lastFormControlName
+            }
+            let searchPathForNodeWithMenu = (path)=>{
+              if(!foundMenu()){
+                for(let i = path.length-3;i>=0;i-=3){
+                  let node = path[i];
+                  if (node.attrs.menuType && node.attrs.menuType !== '') {
+                    menuTypeOnNode = node.attrs.menuType;
+                    menuItAttrs = true;
+                  }
+                  if(node.attrs.formControlName&&node.attrs.formControlName.length>0){
+                    lastFormControlName = node.attrs.formControlName;
+                    if(node.attrs.formControlName=="sectionTreeTitle"){
+                      userIsInSectionTreeTitleNode = true;
+                    }
                   }
                 }
-            })
-
+              }
+              return foundMenu()
+            }
+            if(editorView.hasFocus()&&!searchPathForNodeWithMenu($anchor.path)){
+              let beforePos = anchor
+              let afterPos = anchor
+              let updatePositions = ()=>{
+                beforePos = beforePos-1>0?beforePos-1:beforePos
+                afterPos = afterPos+1<docSize?afterPos+1:afterPos
+              }
+              let count = 0
+              while (!foundMenu()&&count<4){
+                updatePositions();
+                searchPathForNodeWithMenu(doc.resolve(afterPos).path)
+                searchPathForNodeWithMenu(doc.resolve(beforePos).path)
+                count++
+              }
+            }
+            if(editorView.hasFocus()){
+            }
             if(!userIsInSectionTreeTitleNode&&!menuItAttrs&&this.editorView.editorType&&this.editorView.editorType == 'editorWithCustomSchema'){
               if(
                 lastFormControlName &&
