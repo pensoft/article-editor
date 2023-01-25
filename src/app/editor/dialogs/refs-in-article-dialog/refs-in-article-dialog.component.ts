@@ -52,9 +52,9 @@ export class RefsInArticleDialogComponent implements OnDestroy {
 
   openAddNewRefToEditorDialog() {
     const dialogRef = this.dialog.open(RefsAddNewInArticleDialogComponent, {
-      panelClass: 'refs-add-new-in-article-dialog',
-      width: '70%',
-      height: '70%',
+      panelClass: ['editor-dialog-container', 'refs-add-new-in-article-dialog'],
+      width: '100%',
+      // height: '70%',
     });
 
     dialogRef.afterClosed().subscribe((result: any) => {
@@ -123,10 +123,10 @@ export class RefsInArticleDialogComponent implements OnDestroy {
         let oldData = { refData: { formioData: ref.formIOData }, refType: ref.refType, refStyle: ref.refStyle }
         const dialogRef = this.dialog.open(ReferenceEditComponent, {
           data: { referenceTypesFromBackend, oldData, referenceStyles },
-          panelClass: 'edit-reference-panel',
-          width: 'auto',
-          height: '90%',
-          maxWidth: '100%'
+          panelClass: ['edit-reference-panel', 'editor-dialog-container'],
+          width: '100%',
+          // height: '90%',
+          // maxWidth: '100%'
         });
 
         dialogRef.afterClosed().subscribe((result: any) => {

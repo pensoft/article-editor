@@ -1,43 +1,37 @@
-<div class="refs-in-article">
-  <h1>Edit: References</h1>
-    <div *ngIf="loadingData" class="spinner-container" (click)="preventClick($event)">
-      <div class="spinner-container-inner">
-        <mat-spinner *ngIf="loadingData"></mat-spinner>
-      </div>
-    </div>
-  <div class="all-refs-container">
+<h2 mat-dialog-title class="title-margin-bottom">References</h2>
 
-    <div *ngFor="let ref of ydocAndChangedRefsSubject | async" class="ref-container">
-      <div class="ref" [innerHTML]="ref.citation.bibliography"></div>
-      <div class="ref-actions-btns">
-        <button mat-raised-button (click)="editRef(ref)">
-          <mat-icon>edit</mat-icon>
-          <span>
-            Edit
-          </span>
-        </button>
-        <button mat-raised-button (click)="deleteRef(ref)">
-          <mat-icon >delete</mat-icon>
-          <span>
-            Delete
-          </span>
-        </button>
-      </div>
-    </div>
-
-
-
-  </div>
-  <div class="action-buttons">
-    <div class="add-ref-btn">
-      <button mat-raised-button (click)="openAddNewRefToEditorDialog()">
-        <mat-icon>add</mat-icon>
-        <span>Add reference</span>
-      </button>
-    </div>
-    <div class="dialog-actions-btns">
-      <button mat-raised-button (click)="saveRefsInArticle()">Save</button>
-      <button mat-raised-button (click)="cancelRefsInAfticleEdit()">Close</button>
+<mat-dialog-content>
+  <div *ngIf="loadingData" class="spinner-container" (click)="preventClick($event)">
+    <div class="spinner-container-inner">
+      <mat-spinner *ngIf="loadingData"></mat-spinner>
     </div>
   </div>
-</div>
+
+  <div class="reference-box" *ngFor="let ref of ydocAndChangedRefsSubject | async">
+    <div>
+      <div class="reference-view">
+        <div class="reference">
+          <div>
+            <strong [innerHTML]="ref.ref.title"></strong>
+            <span [innerHTML]="ref.citation.textContent"></span>
+          </div>
+        </div>
+      </div>
+      <div class="button-group">
+        <button mat-stroked-button color="warn" (click)="deleteRef(ref)">
+          Delete reference
+        </button>
+        <button mat-stroked-button color="primary" (click)="editRef(ref)">
+          Edit reference
+        </button>
+      </div>
+    </div>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" fxLayoutGap="8px">
+  <button mat-stroked-button (click)="cancelRefsInAfticleEdit()">Cancel</button>
+  <button mat-stroked-button color="primary" (click)="openAddNewRefToEditorDialog()">Add Reference</button>
+  <button mat-flat-button color="primary" (click)="saveRefsInArticle()">Save References</button>
+</mat-dialog-actions>
+

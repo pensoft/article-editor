@@ -42,7 +42,8 @@
 
 .mat-dialog-content {
   .options-container {
-    padding: 44px 0;
+    padding: 0;
+    margin: 24px 0 0 0;
 
     .format-label {
       min-width: 82px;
@@ -52,15 +53,26 @@
   }
 
   .export-container {
-    margin: 4px 0 24px 0;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    margin: 24px 0 0 0;
 
     .export-label {
-      min-width: 82px;
+      flex: 0 0 82px;
       font-weight: 600;
       color: #141414;
     }
 
     .export-place {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: flex-start;
+      align-items: center;
+      flex: 1 1 auto;
+
       > img {
         margin: 0 10px 0 0;
       }
@@ -69,6 +81,7 @@
         font-size: 12px;
         line-height: 15px;
         color: var(--color-192956);
+        word-break: break-word;
       }
     }
   }

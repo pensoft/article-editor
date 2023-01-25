@@ -94,8 +94,8 @@ export class ArticleMetadataComponent implements OnInit {
 
   openReferencesDialog(){
     this.dialog.open(RefsInArticleDialogComponent, {
-      width: '70%',
-      height: '70%',
+      width: '100%',
+      // height: '70%',
       data: {},
       disableClose: false
     }).afterClosed().subscribe(result => {
