@@ -1,19 +1,20 @@
+<h2 mat-dialog-title>Insert link</h2>
 
-<div class="dialog-container" mat-dialog-content>
-    <p>Enter link and text,representing the link</p>
-    <mat-form-field [style.width]='"100%"' appearance="fill">
-      <mat-label >Link...</mat-label>
-      <input matInput  [(ngModel)]="data.url" [formControl]="text" required>
-      <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
-    </mat-form-field>
-    <mat-form-field [style.width]='"100%"' appearance="fill">
-        <mat-label >Text...</mat-label>
-        <input matInput  [(ngModel)]="data.text" [formControl]="text" required>
-        <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
-      </mat-form-field>
-  </div>
-  <div mat-dialog-actions align="end">
-    <button color="warn" mat-stroked-button (click)="onNoClick()">Cancel</button>
-    <button color="primary" mat-stroked-button [mat-dialog-close]="data" cdkFocusInitial>Confirm</button>
-  </div>
-  
+<mat-dialog-content>
+  <p>Enter link and text,representing the link</p>
+  <mat-form-field [style.width]='"100%"' appearance="fill">
+    <mat-label>Link...</mat-label>
+    <input matInput [(ngModel)]="data.url" [formControl]="text" required>
+    <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
+  </mat-form-field>
+  <mat-form-field [style.width]='"100%"' appearance="fill">
+    <mat-label>Text...</mat-label>
+    <input matInput [(ngModel)]="data.text" [formControl]="text" required>
+    <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
+  </mat-form-field>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" fxLayoutGap="8px">
+  <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
+  <button mat-flat-button color="primary" [mat-dialog-close]="data" cdkFocusInitial>Insert Link</button>
+</mat-dialog-actions>
