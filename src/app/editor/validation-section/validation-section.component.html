@@ -55,6 +55,10 @@
       <ul *ngFor="let error of complexSectionsMinMaxErrors">
         <li>{{error.errorMessage}}</li>
       </ul>
+      <div class="error-type" *ngIf="nonCitedReferences.length>0">References</div>
+      <ul *ngFor="let error of nonCitedReferences">
+        <li>{{error.errorMessage}}</li>
+      </ul>
     </div>
     <hr class="error-hr">
     <div class="number-of-characters">Number of characters(with spaces): {{articleLength}}</div>
