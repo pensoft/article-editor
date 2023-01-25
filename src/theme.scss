@@ -568,7 +568,7 @@ mat-radio-group {
 
   > div {
     display: flex;
-    flex-flow: row wrap;
+    flex-flow: row nowrap;
     justify-content: space-between;
     gap: 12px;
 
@@ -643,9 +643,9 @@ mat-radio-group {
 
       &.button-group {
         display: flex;
-        flex-flow: row wrap;
-        align-items: center;
-        justify-content: flex-start;
+        flex-flow: column nowrap;
+        align-items: flex-end;
+        justify-content: center;
         gap: 8px;
       }
     }
@@ -689,8 +689,65 @@ mat-radio-group {
 
         &.button-group {
           flex-flow: row nowrap;
-          justify-content: center;
+          justify-content: flex-end;
+          align-items: center;
+          grid-gap: 20px;
           gap: 20px;
+        }
+      }
+    }
+  }
+
+  .figure-box {
+    > div {
+      > div:first-child {
+        .figure {
+          grid-template-columns: 1fr 1fr;
+        }
+      }
+    }
+  }
+}
+
+
+
+.figure-components-list {
+
+  .mat-menu-content:not(:empty) {
+    width: 280px;
+    padding-bottom: 16px;
+
+    .mat-card {
+      padding: 0 8px;
+      margin: 8px 0 0 0;
+      box-shadow: unset;
+
+      .mat-card-header {
+        .mat-card-avatar {
+          height: 90px;
+          width: 90px;
+
+          img {
+            width: 90px;
+            height: 90px;
+            object-fit: cover;
+            border-radius: 8px;
+          }
+        }
+        .mat-card-header-text {
+          margin: 0;
+          padding: 0 0 0 8px;
+          .mat-card-title {
+            font-size: 14px;
+            line-height: 16px;
+            margin: 0 0 2px 0;
+            text-transform: capitalize;
+          }
+          .mat-card-subtitle {
+            font-size: 12px;
+            line-height: 14px;
+            margin: 0;
+          }
         }
       }
     }

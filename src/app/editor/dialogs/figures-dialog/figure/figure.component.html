@@ -6,15 +6,51 @@
   <div class="figure-components" fxLayout="row nowrap">
     <div
       [ngClass]="{'component-image':component.componentType == 'image','component-video':component.componentType == 'video'}"
-      *ngFor="let component of figure.components">
+      *ngFor="let component of figure.components | slice:0:3">
       <div *ngIf="component.componentType == 'image'">
-        <img src='{{component.url}}' height="90" alt="{{figure.description}}"/>
+        <img src='{{component.url}}' alt="{{figure.description}}"/>
       </div>
       <div *ngIf="component.componentType == 'video'">
-        <iframe height="90" [src]="component.url | safe" title="YouTube video player" frameborder="0"
+        <iframe [src]="component.url | safe" title="YouTube video player" frameborder="0"
+                width="140"
+                height="80"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                 allowfullscreen=""></iframe>
       </div>
+
+
     </div>
+
+    <ng-container *ngIf="figure.components.length > 3">
+      <div class="show-all-container">
+        <div>
+          <button mat-button color="accent" [matMenuTriggerFor]="figure_components_menu" aria-label="Show all figure components">
+            <mat-icon class="font-size36px">more_vert</mat-icon>
+          </button>
+        </div>
+      </div>
+      <mat-menu #figure_components_menu="matMenu" class="figure-components-list">
+        <ng-container *ngFor="let component of figure.components">
+          <mat-card class="component-card" >
+            <mat-card-header>
+              <div mat-card-avatar>
+                <div *ngIf="component.componentType == 'image'">
+                  <img src='{{component.url}}' alt="{{figure.description}}" />
+                </div>
+                <div *ngIf="component.componentType == 'video'">
+                  <iframe [src]="component.url | safe" title="YouTube video player" frameborder="0"
+                          width="160"
+                          height="90"
+                          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                          allowfullscreen=""></iframe>
+                </div>
+              </div>
+              <mat-card-title>{{ component.componentType }}</mat-card-title>
+              <mat-card-subtitle [innerHTML]="component.description"></mat-card-subtitle>
+            </mat-card-header>
+          </mat-card>
+        </ng-container>
+      </mat-menu>
+    </ng-container>
   </div>
 </div>
