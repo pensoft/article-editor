@@ -8,7 +8,9 @@
   <ng-container *ngIf="tablesNumbers.length>0">
     <div cdkDropList class="tables-list" (cdkDropListDropped)="drop($event)">
       <div class="table-box" *ngFor="let table of tablesNumbers;let i = index" cdkDrag>
-        <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+
+        <mat-icon class="drag-icon">drag_indicator</mat-icon>
+
         <div>
           <div class="table-view">
             <!-- <img src="{{tables![table].canvasData.dataURL}}" alt=""> -->

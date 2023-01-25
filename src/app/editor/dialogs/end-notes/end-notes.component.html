@@ -8,7 +8,9 @@
   <ng-container *ngIf="endNotesNumbers.length>0">
     <div cdkDropList class="end-notes-list" (cdkDropListDropped)="drop($event)">
       <div class="end-note-box" *ngFor="let endNoteNum of endNotesNumbers;let i = index" cdkDrag>
-        <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+
+        <mat-icon class="drag-icon">drag_indicator</mat-icon>
+
         <div>
           <div class="end-note-view">
             <app-end-note [(endNote)]="endNotes![endNoteNum]" [endNoteIndex]="i"></app-end-note>
