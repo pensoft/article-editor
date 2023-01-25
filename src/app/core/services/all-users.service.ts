@@ -14,6 +14,10 @@ export class AllUsersService {
     return this.http.get(`${API_USERS_URL}/users`,{params}).pipe(map((x:any)=>{return x.data||[]}));
   }
 
+  public getAllUsersV2(params:{[key:string]:string|number}) {
+    return this.http.get(`${API_USERS_URL}/users`,{params});
+  }
+
   sendCommentMentionInformation(body:any){
     return this.http.post(`${API_USERS_URL}/collaborators/comment`,body)
   }
