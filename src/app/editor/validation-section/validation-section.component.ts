@@ -33,7 +33,6 @@ export class ValidationSectionComponent implements OnDestroy {
   displayErrors = false;
 
   constructor(
-    private ydocSetvice: YdocService,
     private prosemirrorEditorsServise: ProsemirrorEditorsService,
     private treeService: TreeService,
     private articleSectionsService: ArticleSectionsService,
@@ -51,6 +50,7 @@ export class ValidationSectionComponent implements OnDestroy {
   nonCitedFiguresValidation: validationResult[] = []
   articleValidationsErrors: validationResult[] = []
   complexSectionsMinMaxErrors: validationResult[] = []
+  nonCitedReferences: validationResult[] = []
 
   articleLength = 0;
 
@@ -60,6 +60,7 @@ export class ValidationSectionComponent implements OnDestroy {
     this.articleValidations = []
     this.articleFormFieldsValidation = []
     this.nonCitedFiguresValidation = []
+    this.nonCitedReferences = []
     this.articleValidationsErrors = []
     this.complexSectionsMinMaxErrors = []
     this.results = 0;
@@ -101,12 +102,13 @@ export class ValidationSectionComponent implements OnDestroy {
         //@ts-ignore
         (this.spinnerEl!.nativeElement as HTMLImageElement).style.transform = 'rotate(' + this.deg + 'deg)';
       }, 100)
-      let rules = JSON.parse(JSON.stringify(this.ydocSetvice.articleData.layout.rules))
+      let rules = JSON.parse(JSON.stringify(this.ydocService.articleData.layout.rules))
       let donevalidationSubject = new Subject();
       this.donevalidationSubject = donevalidationSubject
       rules.push({ rule: 'FormControls' })
       rules.push({ rule: 'CitatedFigures' })
       rules.push({ rule: 'ValidateComplexSections' })
+      rules.push({ rule: 'ValidateCitedRefs' })
       /* rules.push(
         {
           rule: 'SectionPosition',
@@ -417,12 +419,16 @@ export class ValidationSectionComponent implements OnDestroy {
                     })
                     let sectionFromBackend = sectionsFromBackend.find((el: any) => el.version_id == sectionVersionID)
                     console.log(sectionVersionID,sectionFromBackend,sectionsFromBackend,complexSection.subsectionValidations);
-                    let secName = sectionFromBackend.name
-                    if (countOfType < subSecMinMax.min) {
-                      errors.push(`Number of "${secName}" sections should be more than ${subSecMinMax.min - 1}`);
-                    }
-                    if (countOfType > subSecMinMax.max) {
-                      errors.push(`Number of "${secName}" sections should be less than ${subSecMinMax.max + 1}`);
+                    if(sectionFromBackend){
+                      let secName = sectionFromBackend.name
+                      if (countOfType < subSecMinMax.min) {
+                        errors.push(`Number of "${secName}" sections should be more than ${subSecMinMax.min - 1}`);
+                      }
+                      if (countOfType > subSecMinMax.max) {
+                        errors.push(`Number of "${secName}" sections should be less than ${subSecMinMax.max + 1}`);
+                      }
+                    }else{
+                      console.error('There is no section with this ID.')
                     }
                   })
                   if (errors.length > 0) {
@@ -444,6 +450,26 @@ export class ValidationSectionComponent implements OnDestroy {
                   })
                   donevalidationSubject.next(null)
                 })
+              } else if (el.rule == 'ValidateCitedRefs'){
+                let refsInEndEditor = this.ydocService!.referenceCitationsMap?.get('referencesInEditor');
+                let refsInArticle = this.ydocService.referenceCitationsMap.get('refsAddedToArticle');
+
+                let keysOfRefsInEndEditor = Object.keys(refsInEndEditor)
+                let keysOfRefsInArticle = Object.keys(refsInArticle);
+
+                let nonCitedRefs  = {}
+
+                keysOfRefsInArticle.forEach((key)=>{
+                  if(!keysOfRefsInEndEditor.includes(key)){
+                    nonCitedRefs[key] = refsInArticle[key]
+                  }
+                })
+                console.log('nonCitedRefs',nonCitedRefs);
+                Object.keys(nonCitedRefs).forEach((refId)=>{
+                  let refText = nonCitedRefs[refId].citation.textContent;
+                  this.nonCitedReferences.push({ fulfilled: false, errorMessage: `Reference "${refText}" is not cited.` });
+                })
+                donevalidationSubject.next(null)
               }
             } catch (e) {
               this.articleValidationsErrors.push({
@@ -467,6 +493,7 @@ export class ValidationSectionComponent implements OnDestroy {
       this.progress1 = 0;
       this.results += this.articleValidations.length;
       this.results += this.articleFormFieldsValidation.length;
+      this.results += this.nonCitedFiguresValidation.length;
       this.results += this.nonCitedFiguresValidation.length;
       this.results += this.articleValidationsErrors.length;
       this.results += this.complexSectionsMinMaxErrors.length;
