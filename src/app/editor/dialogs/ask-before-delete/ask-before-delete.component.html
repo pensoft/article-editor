@@ -1,5 +1,10 @@
-<div>Do you really want to delete "{{data.sectionName}}" section</div>
-<div class="buttons-container">
-    <button mat-stroked-button class="button-stroked-primary" (click)="cancelDeletion()" color="primary">Cancel</button>
-    <button mat-raised-button class="mb5px btn-my-profile" (click)="confirmDeletion()" color="primary">OK</button>
-</div>
+<h2 mat-dialog-title>Delete section</h2>
+
+<mat-dialog-content>
+  <p>Do you really want to delete <strong>{{data.sectionName}}</strong> section?</p>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" fxLayoutGap="8px">
+  <button mat-stroked-button (click)="cancelDeletion()">Cancel</button>
+  <button mat-flat-button color="primary" (click)="confirmDeletion()">Delete Section</button>
+</mat-dialog-actions>

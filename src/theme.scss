@@ -756,7 +756,7 @@ mat-radio-group {
 
 /* CDK Overlay Pane override */
 .cdk-overlay-pane {
-  &.insert-figure-in-editor, &.comment-edit-dialog, &.editor-dialog-container, &.contributors-dialog {
+  &.insert-figure-in-editor, &.comment-edit-dialog, &.editor-dialog-container, &.contributors-dialog, &.ask-before-delete-dialog {
     .mat-dialog-container {
       .mat-dialog-content {
         margin-top: 26px;
