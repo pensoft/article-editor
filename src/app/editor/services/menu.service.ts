@@ -185,9 +185,12 @@ export class MenuService {
       content.forEach((value, index, array) => {
         if (typeof value !== 'string') {
           let submenu = buildDropDown(value.dropdownSubmenuName, 'dropdownSubmenu', value.content);
-          conentItems[index] = submenu
+          conentItems.push(submenu)
         } else {
-          conentItems[index] = getMenuItem(value)
+          let item = getMenuItem(value)
+          if(item){
+          conentItems.push(item)
+          }
         }
       })
       if (type == 'dropdownSubmenu') {
@@ -207,7 +210,10 @@ export class MenuService {
       menuBuild[i] = [];
       menuSection.forEach((menuItem, j) => {
         if (typeof menuItem == "string") {
-          menuBuild[i][j] = getMenuItem(menuItem);
+          let item =getMenuItem(menuItem);
+          if(item){
+            menuBuild[i].push(item);
+          }
         } else {
 
           menuBuild[i][j] = buildDropDown(menuItem.dropdownIcon!, 'dropdown', menuItem.content)!
