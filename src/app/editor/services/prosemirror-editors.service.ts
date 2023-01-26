@@ -979,6 +979,25 @@ export class ProsemirrorEditorsService {
       dispatchTransaction: dispatchTransaction
     };
     this.editorContainers[editorID] = editorCont;
+
+    let count = 0;
+    let countActiveSections = (item: articleSection) => {
+      if (item.type == 'complex' && item.children.length > 0) {
+        item.children.forEach((child) => {
+          countActiveSections(child)
+        })
+      }
+      if (item.active == true && item.mode != 'noSchemaSectionMode') {
+        count++;
+      }
+    }
+    this.treeService.articleSectionsStructure?.forEach(item => {
+      countActiveSections(item)
+    })
+    if (count == 0) {
+      this.runFuncAfterRender()
+    }
+
     return editorCont
   }
 
