@@ -256,7 +256,7 @@ let sectionMenuAndScemaMapping = {
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItem', 'redoItem', 'insertVideoItem'],
-      ['logNodesMenuItem', 'insertFigure','insertTable', 'insertPageBreak', 'headings'],
+      [ 'insertFigure','insertTable', 'insertPageBreak', 'headings'],
       ['citateReference','tableMenu']
     ],
     schema:{                                 // schema 2 by elements (from html nodes)
@@ -608,7 +608,7 @@ let ad ={
   }
 }
 
-let all_Menus = ['addMathInlineMenuItem','addMathBlockMenuItem','insertSupplementaryFile','insertEndNote','toggleStrong','insertTable','toggleEm','toggleCode','insertImage','wrapBulletList','wrapOrderedList','wrapBlockQuote','makeParagraph','makeCodeBlock','headings','insertPageBreak','insertHorizontalRule','insertSupplementaryFile','undoItem','redoItem','undoItemPM','redoItemPM','insertEndNote','toggleSuperscriptItem','toggleSubscriptItem','insertLink','setAlignLeft','setAlignCenter','setAlignRight','citateReference','insertVideoItem','selectParentNodeItem','tableMenu','alignMenu','addAnchorTagMenuItem','insertSpecialSymbol','getLinkMenuItem','starMenuItem','highLightMenuItem','footnoteMenuItem','spellCheckMenuItem','toggleUnderline','logNodesMenuItem','insertFigure']
+let all_Menus = ['addMathInlineMenuItem','addMathBlockMenuItem','insertSupplementaryFile','insertEndNote','toggleStrong','insertTable','toggleEm','toggleCode','insertImage','wrapBulletList','wrapOrderedList','wrapBlockQuote','makeParagraph','makeCodeBlock','headings','insertPageBreak','insertHorizontalRule','insertSupplementaryFile','undoItem','redoItem','undoItemPM','redoItemPM','insertEndNote','toggleSuperscriptItem','toggleSubscriptItem','insertLink','setAlignLeft','setAlignCenter','setAlignRight','citateReference','insertVideoItem','selectParentNodeItem','tableMenu','alignMenu','addAnchorTagMenuItem','insertSpecialSymbol','getLinkMenuItem','starMenuItem','highLightMenuItem','footnoteMenuItem','spellCheckMenuItem','toggleUnderline','insertFigure']
 let all_Nodes = ['citable-tables','citable-figures','tables','image','video','inline_block_container','reference-citation','blockquote','horizontal_rule','headings','code_block','hard_break','page_break','math_inline','math_display','bullet_list','ordered_list']
 let all_Marks = ['subscript','superscript','comment','link','em','strong','code','anchorTag','underline']
 
@@ -659,7 +659,6 @@ let AllMenuItems = [
   "footnoteMenuItem",
   "spellCheckMenuItem",
   "toggleUnderline",
-  "logNodesMenuItem",
   "insertFigure"
 ]
 let AllTagsSchema = {

@@ -71,7 +71,7 @@ export class MenuService {
       ['alignMenu'],
       ['undoItem', 'redoItem'],
       ['insertLink', 'addAnchorTagMenuItem', 'highLightMenuItem'],
-      ['insertMenu', 'logNodesMenuItem', 'insertFigure','insertTable', 'insertPageBreak', 'headings'],
+      ['insertMenu',  'insertFigure','insertTable', 'insertPageBreak', 'headings'],
       ['citateReference']
     ],
     'fullMenuPMundoRedo': [
@@ -79,7 +79,7 @@ export class MenuService {
       ['alignMenu'],
       ['undoItemPM', 'redoItemPM'],
       ['insertLink', 'addAnchorTagMenuItem', 'highLightMenuItem'],
-      ['insertMenu', 'logNodesMenuItem', 'insertPageBreak', 'headings'],
+      ['insertMenu', 'insertPageBreak', 'headings'],
       ['citateReference']
     ],
     'fullMenuWithLog': [
@@ -95,14 +95,14 @@ export class MenuService {
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItem', 'redoItem', 'insertVideoItem','insertSpecialSymbol'],
       ['insertSupplementaryFile','insertFigure','insertTable','insertEndNote'],
-      ['logNodesMenuItem',  'insertPageBreak', 'headings'],
+      [  'insertPageBreak', 'headings'],
       ['citateReference','tableMenu']
     ],
     'SimpleMenuPMundoRedo': [
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
       ['undoItemPM', 'redoItemPM', 'insertVideoItem'],
-      ['logNodesMenuItem', 'insertPageBreak', 'headings'],
+      [ 'insertPageBreak', 'headings'],
       ['citateReference','insertTable']
     ],
     'onlyPmMenu': [
