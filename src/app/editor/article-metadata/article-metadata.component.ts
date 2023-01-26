@@ -190,29 +190,9 @@ export class ArticleMetadataComponent implements OnInit {
           this.serviceShare.ProsemirrorEditorsService.stopSpinner()
         })
       }
+      this.serviceShare.ProsemirrorEditorsService.stopSpinner()
+
     });
-    return
-    this.sectionsService.getAllSections({ page: 1, pageSize: 999 }).subscribe((response: any) => {
-      //this.sectionTemplates = response.data
-      this.sectionTemplates = response.data.filter((data: any) => {
-        return (
-          this.treeService.articleSectionsStructure?.findIndex((element) => { return (data.id == element.sectionTypeID && (element.sectionMeta.main == true)) }) == -1
-
-
-        )
-      })
-      const dialogRef = this.dialog.open(ChooseSectionComponent, {
-        width: '563px',
-        panelClass: 'choose-namuscript-dialog',
-        data: { templates: this.sectionTemplates }
-      });
-      dialogRef.afterClosed().subscribe(result => {
-        this.sectionsService.getSectionById(result).subscribe((res: any) => {
-          let sectionTemplate = res.data
-          this.treeService.addNodeAtPlaceChange('parentList', sectionTemplate, 'end');
-        })
-      });
-    })
   }
 
   showArticleData() {

@@ -385,10 +385,12 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
             data: {templates: sectionTemplates, sectionlevel}
           });
           dialogRef.afterClosed().subscribe(result => {
-            this.serviceShare.ArticleSectionsService!.getSectionById(result).subscribe((res: any) => {
-              res.data.parent = node;
-              this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, res.data, 0)
-            })
+            if(result){
+              this.serviceShare.ArticleSectionsService!.getSectionById(result).subscribe((res: any) => {
+                res.data.parent = node;
+                this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, res.data, 0)
+              })
+            }
           });
         }
       })

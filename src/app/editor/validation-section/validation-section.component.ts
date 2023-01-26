@@ -494,7 +494,7 @@ export class ValidationSectionComponent implements OnDestroy {
       this.results += this.articleValidations.length;
       this.results += this.articleFormFieldsValidation.length;
       this.results += this.nonCitedFiguresValidation.length;
-      this.results += this.nonCitedFiguresValidation.length;
+      this.results += this.nonCitedReferences.length;
       this.results += this.articleValidationsErrors.length;
       this.results += this.complexSectionsMinMaxErrors.length;
       this.changeDetectorRef.detectChanges();

@@ -161,6 +161,7 @@ import { BoldPipe } from './editor/dialogs/add-contributors-dialog/bold.pipe';
 import { RefsInArticleDialogComponent } from './editor/dialogs/refs-in-article-dialog/refs-in-article-dialog.component';
 import { RefsInArticleCiteDialogComponent } from './editor/dialogs/refs-in-article-cite-dialog/refs-in-article-cite-dialog.component';
 import { RefsAddNewInArticleDialogComponent } from './editor/dialogs/refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
+import { MAT_DIALOG_DEFAULT_OPTIONS, MatDialogConfig } from '@angular/material/dialog';
 
 //@ts-ignore
 EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE,'event-dispatcher']
@@ -377,6 +378,13 @@ const gravatarConfig: GravatarConfig = {
       deps: [COMPILER_OPTIONS],
     },
     {provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory]},
+    {
+      provide: MAT_DIALOG_DEFAULT_OPTIONS,
+      useValue: {
+        ...new MatDialogConfig(),
+        autoFocus: false,
+      } as MatDialogConfig,
+    }
   ],
   bootstrap: [AppComponent],
 })
