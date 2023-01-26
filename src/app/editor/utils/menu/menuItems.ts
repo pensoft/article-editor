@@ -482,12 +482,6 @@ export let redoItemPM = new MenuItem({
   icon: redoIcon
 })
 
-const logNodesMenuItem = new MenuItem({
-  title: 'Log Nodes', label: 'LogDocNode',
-  // @ts-ignore
-  run: logNodesItemRun,
-  enable(state: EditorState) { return true },
-})
 
 
 
@@ -556,7 +550,6 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
   'decreaseIndent':decreaseIndent,
   'spellCheckMenuItem': spellCheckMenuItem,
   'toggleUnderline': toggleUnderline,
-  'logNodesMenuItem': logNodesMenuItem,
   'insertFigure': insertFigure,
   // unfinished menu :
   'textMenu': [toggleStrong, toggleEm, toggleUnderline, 'menuseparator', wrapOrderedList, wrapBulletList, 'menuseparator', toggleSubscriptItem, toggleSuperscriptItem, spellCheckMenuItem],

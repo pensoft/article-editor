@@ -18,7 +18,7 @@ import { I } from '@angular/cdk/keycodes';
 export let selInComment = (sel:Selection,node:Node,nodePos:number) =>{
   let nodestart= nodePos;
   let nodeend = nodePos+node.nodeSize;
-  return nodestart<=sel.from&&nodeend>=sel.to
+  return ((sel.from>nodestart&&sel.from<nodeend)||(sel.from>nodestart&&sel.from<nodeend))
 }
 export interface userDataInComment {
   created_at: string
@@ -265,18 +265,18 @@ export class CommentsService {
           let selectedAComment = false;
           let commentsMark = newState.schema.marks.comment
           let commentInSelection = (actualMark: Mark, pos: number) => {
+            err = true
+            errorMessage = "There is a comment here already"
             if (sameAsLastSelectedComment(actualMark.attrs.id, pos, prev.sectionName, actualMark.attrs.commentmarkid)) {
               return
             } else {
-            }
-            err = true
-            errorMessage = "There is a comment here already"
-            setLastSelectedComment(actualMark.attrs.id, pos, prev.sectionName, actualMark.attrs.commentmarkid)
-            lastSelectedComments[actualMark.attrs.id] = {
-              commentId: actualMark.attrs.id,
-              commentMarkId: actualMark.attrs.commentmarkid,
-              sectionId: prev.sectionName,
-              pos
+              setLastSelectedComment(actualMark.attrs.id, pos, prev.sectionName, actualMark.attrs.commentmarkid)
+              lastSelectedComments[actualMark.attrs.id] = {
+                commentId: actualMark.attrs.id,
+                commentMarkId: actualMark.attrs.commentmarkid,
+                sectionId: prev.sectionName,
+                pos
+              }
             }
           }
           let sectionContainer = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName]
@@ -286,7 +286,7 @@ export class CommentsService {
             newState.doc.nodesBetween(from, to, (node, pos, parent) => {
               if (node.marks.length > 0) {
                 const actualMark = node.marks.find(mark => mark.type === commentsMark)
-                if (actualMark && selInComment(newState.selection,node,pos)) {
+                if (actualMark) {
                   commentInSelection(actualMark, pos)
                   selectedAComment = true;
                 }
@@ -309,29 +309,21 @@ export class CommentsService {
             if (nodeAfterSelection) {
               let pos = sel.to
               let commentMark = nodeAfterSelection.marks.find(mark => mark.type === commentsMark)
-              if (commentMark  && selInComment(newState.selection,nodeAfterSelection,pos)) {
+              if (commentMark  ) {
                 commentInSelection(commentMark, pos)
                 selectedAComment = true;
                 foundMark = true;
               }
             }
             if (nodeBeforeSelection) {
-              let pos = sel.from
+              let pos = sel.from - nodeBeforeSelection.nodeSize
               let commentMark = nodeBeforeSelection.marks.find(mark => mark.type === commentsMark)
-              if (commentMark  && selInComment(newState.selection,nodeBeforeSelection,pos)) {
+              if (commentMark  ) {
                 commentInSelection(commentMark, pos)
                 selectedAComment = true;
                 foundMark = true;
               }
             }
-            /* if (nodeBeforeSelection && !foundMark) {
-              let pos = sel.from - nodeBeforeSelection.nodeSize
-              let commentMark = nodeBeforeSelection.marks.find(mark => mark.type === commentsMark)
-              if (commentMark && selInComment(newState.selection,nodeBeforeSelection,pos)) {
-                commentInSelection(commentMark, pos)
-                selectedAComment = true;
-              }
-            } */
           }
           if (!selectedAComment && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() ) {
             setLastSelectedComment(undefined, undefined, undefined, undefined)
