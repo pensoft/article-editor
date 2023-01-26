@@ -383,6 +383,7 @@ const gravatarConfig: GravatarConfig = {
       useValue: {
         ...new MatDialogConfig(),
         autoFocus: false,
+        restoreFocus: false,
       } as MatDialogConfig,
     }
   ],
