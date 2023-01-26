@@ -336,10 +336,6 @@ $altTheme: (primary: $theme-primary,
 }
 
 /* Material Buttons Overrides */
-.mat-button-base:not(.mat-fab):not(.mat-mini-fab) {
-  border-radius: 18px;
-}
-
 .mat-stroked-button.mat-primary {
   border-color: var(--color-00b1b2);
 
@@ -481,13 +477,15 @@ mat-radio-group {
 
         .mat-form-field-suffix {
           border: 0;
-          margin: 0 -1px 0 0;
+          margin: 0;
           padding: 0;
           box-shadow: none;
 
           .mat-button-base {
             padding: 0 28px;
+            margin: 0 -2px 0 0;
             line-height: 39px;
+            border-radius: 18px;
           }
         }
       }
