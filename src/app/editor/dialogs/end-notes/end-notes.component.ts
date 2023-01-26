@@ -39,7 +39,7 @@ export class EndNotesDialogComponent {
 
   editEndNote(endNote: endNote, endNoteIndex: number) {
     this.dialog.open(AddEndNoteComponent, {
-      width: '100%',
+      //width: '100%',
       // height: '90%',
       data: { endNote, updateOnSave: false, index: endNoteIndex, endNoteID: endNote.end_note_ID },
       disableClose: false
@@ -64,7 +64,7 @@ export class EndNotesDialogComponent {
 
   addEndNote() {
     this.dialog.open(AddEndNoteComponent, {
-      width: '100%',
+      //width: '100%',
       // height: '90%',
       data: { endNote: undefined, updateOnSave: false, index: this.endNotesNumbers?.length },
       disableClose: false

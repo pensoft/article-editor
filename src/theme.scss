@@ -305,8 +305,8 @@ $altTheme: (primary: $theme-primary,
   }
 
   .mat-dialog-content {
-    padding: 24px 28px;
-    margin: 0;
+    padding: 0 28px;
+    margin: 24px 0;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-gutter: stable both-edges;
