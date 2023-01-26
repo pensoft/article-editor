@@ -16,8 +16,8 @@
             <app-end-note [(endNote)]="endNotes![endNoteNum]" [endNoteIndex]="i"></app-end-note>
           </div>
           <div class="end-note-control-buttons button-group">
-            <button mat-stroked-button color="warn" (click)="deleteEndNote(endNotes![endNoteNum],i)">Delete note</button>
             <button mat-stroked-button color="primary" (click)="editEndNote(endNotes![endNoteNum],i)">Edit note</button>
+            <button mat-stroked-button color="warn" (click)="deleteEndNote(endNotes![endNoteNum],i)">Delete note</button>
           </div>
         </div>
       </div>
