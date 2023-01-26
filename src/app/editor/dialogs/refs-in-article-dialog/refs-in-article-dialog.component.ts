@@ -53,7 +53,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
   openAddNewRefToEditorDialog() {
     const dialogRef = this.dialog.open(RefsAddNewInArticleDialogComponent, {
       panelClass: ['editor-dialog-container', 'refs-add-new-in-article-dialog'],
-      width: '100%',
+      //width: '100%',
       // height: '70%',
     });
 
@@ -124,7 +124,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
         const dialogRef = this.dialog.open(ReferenceEditComponent, {
           data: { referenceTypesFromBackend, oldData, referenceStyles },
           panelClass: ['edit-reference-panel', 'editor-dialog-container'],
-          width: '100%',
+          //width: '100%',
           // height: '90%',
           // maxWidth: '100%'
         });

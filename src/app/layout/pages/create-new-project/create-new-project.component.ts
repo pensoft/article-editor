@@ -32,7 +32,7 @@ export class CreateNewProjectComponent implements OnInit {
 
   openDialog(): void {
     const dialogRef = this.dialog.open(DialogAddFilesComponent, {
-      width: '100%',
+      //width: '100%',
     });
 
     dialogRef.afterClosed().subscribe(result => {

@@ -44,7 +44,7 @@ export class RefsInArticleCiteDialogComponent implements OnInit, OnDestroy {
   openAddNewRefToEditorDialog() {
     const dialogRef = this.dialog.open(RefsAddNewInArticleDialogComponent, {
       panelClass: ['refs-add-new-in-article-dialog', 'editor-dialog-container'],
-      width: '100%',
+      //width: '100%',
       // height: '70%',
     });
 
