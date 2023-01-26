@@ -85,6 +85,8 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
           }, 0)
           this.showAddCommentBox = data.showBox
         } else if (data.type == 'commentAllownes'&&this.addCommentEditorId == data.sectionId) {
+        console.log(data);
+
           if (this.showAddCommentBox && data.allow == false) {
             this.cancelBtnHandle()
           }
