@@ -346,10 +346,13 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
   }
 
   commentsNumberChange : Subject<number> = new Subject()
+  noComments = true;
 
   ngAfterViewInit(): void {
     this.commentService.commentsChangeSubject.subscribe((msg)=>{
-      this.commentsNumberChange.next(Object.values(this.commentService.commentsObj).length);
+      let commentNum = Object.values(this.commentService.commentsObj).length
+      this.commentsNumberChange.next(commentNum);
+      this.noComments = commentNum==0
     })
   }
 
