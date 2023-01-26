@@ -271,7 +271,7 @@ $altTheme: (primary: $theme-primary,
 }
 
 .mat-dialog-container {
-  padding: 24px 0;
+  padding: 24px 0 !important;
 
   h2 {
     margin: 16px 0 0 0;
@@ -305,8 +305,8 @@ $altTheme: (primary: $theme-primary,
   }
 
   .mat-dialog-content {
-    padding: 24px 28px;
-    margin: 0;
+    padding: 0 28px;
+    margin: 24px 0;
     overflow-y: auto;
     overflow-x: hidden;
     scrollbar-gutter: stable both-edges;
@@ -1055,3 +1055,38 @@ mat-radio-group {
 .mat-drawer-container {
   background-color: var(--color-efefef);
 }
+
+/* Material Form Field Hint Custom */
+.mat-form-field-hint-custom {
+  display: inline-block;
+  line-height: 1.2;
+  padding: 0 10px;
+
+  a {
+    color: var(--color-00b1b2);
+    text-decoration: none;
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.refs-add-new-in-article-dialog, .edit-reference-panel {
+  .mat-card {
+    padding: 0;
+    box-shadow: none;
+
+    .mat-card-content {
+      overflow-y: hidden;
+      overflow-x: auto;
+    }
+
+    .mat-card-actions {
+      margin: 0;
+      padding: 0;
+    }
+  }
+}
+
