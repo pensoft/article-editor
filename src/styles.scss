@@ -110,6 +110,7 @@ spacer {
 .editor-drawer {
   .mat-drawer-content {
     width: calc(100% - 341px);
+    overflow: hidden;
   }
 }
 

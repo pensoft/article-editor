@@ -9,7 +9,8 @@
   width: 1200px;
   .mat-drawer-inner-container {
     overflow: hidden;
-    height: calc(100%);
+    height: 100%;
+    background-color: var(--color-efefef);
   }
   .rightside-header {
     height: 49px;

@@ -132,14 +132,11 @@ text-content-type {
 }
 
 app-article {
+  display: block;
   width: calc(100% - 61px);
   height: fit-content;
-  border-top-left-radius: 20px;
-  margin-top: 20px;
-  margin-left: 0;
-  display: block;
-  margin-right: 0;
-  padding: 10px;
+  margin: 0;
+  padding: 24px;
 }
 
 app-prosemirror-editor {
@@ -155,31 +152,34 @@ app-prosemirror-editor {
 .actions-container {
   height: 65px;
   background: var(--color-ffffff);
+  box-shadow: 0 5px 5px #1bb1b22b;
+  position: relative;
+  z-index: 2;
 }
 
-$treeSpace: 290px;
+$treeSpace: 341px;
 .main-container {
-  background: var(--color-f9fafc);
-  height: calc(100vh - 202px);
+  background: var(--color-efefef);
+  height: calc(100vh - 197px);
   display: flex;
 
   .data-tree {
-    height: 100%;
-    margin-top: 0px;
-    width: $treeSpace;
-    background: #ffffff00;
     display: block;
+    flex-shrink: 0;
+    height: 100%;
+    margin-top: 0;
+    width: $treeSpace;
+    background: inherit;
+
     overflow-y: auto;
   }
   .editor-container {
+    display: block;
     width: 100%;
-    height: calc(100% - 20px);
-    margin-top: 20px;
+    height: 100%;
+    margin: 0;
     background: var(--color-ffffff);
     box-shadow: 0 4px 4px #1bb1b22b;
-    border-top-left-radius: 20px;
-    display: inline-flex;
-    border-top-right-radius: 20px;
     overflow: hidden;
     overflow-y: auto;
   }
@@ -302,7 +302,7 @@ $treeSpace: 290px;
 .sidebar-container {
   width: 341px;
   height: 100%;
-  background: var(--color-ffffff);
+  background: var(--color-efefef);
   box-shadow: -2px 0px 1px #1bb1b22b;
   display: inline-flex;
 }

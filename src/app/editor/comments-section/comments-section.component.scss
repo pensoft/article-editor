@@ -13,12 +13,11 @@
       position: unset;
     }
     .mat-form-field-flex {
-      background: white;
-      background-color: white;
+      background: var(--color-efefef);
     }
     .label {
       margin-left: 7px;
-      color: var(--color-cacdd3);
+      color: var(--color-818181);
     }
     .mat-form-field-label {
       top: 0 !important;
@@ -28,7 +27,7 @@
       margin-top: 5px !important
     }
     .search-icon {
-      color: var(--color-cacdd3);
+      color: var(--color-818181);
     }
     .mat-form-field-underline {
       display: none !important;
@@ -37,7 +36,10 @@
 }
 
 .search-comments {
-  border-bottom: 1px solid #00000063;
+  position: relative;
+  border-bottom: 1px solid #d6d6d6;
+  box-shadow: 0 2px 2px #1bb1b22b;
+  z-index: 1;
 }
 
 .results-from-search {
