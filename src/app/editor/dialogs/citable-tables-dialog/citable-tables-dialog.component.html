@@ -16,8 +16,8 @@
             <app-citable-table [(table)]="tables![table]" [tableIndex]="i"></app-citable-table>
           </div>
           <div class="table-control-buttons button-group">
-            <button mat-stroked-button color="warn" (click)="deleteTable(tables![table],i)">Delete table</button>
             <button mat-stroked-button color="primary" (click)="editTable(tables![table],i)">Edit table</button>
+            <button mat-stroked-button color="warn" (click)="deleteTable(tables![table],i)">Delete table</button>
           </div>
         </div>
       </div>
