@@ -336,10 +336,6 @@ $altTheme: (primary: $theme-primary,
 }
 
 /* Material Buttons Overrides */
-.mat-button-base:not(.mat-fab):not(.mat-mini-fab) {
-  border-radius: 18px;
-}
-
 .mat-stroked-button.mat-primary {
   border-color: var(--color-00b1b2);
 
