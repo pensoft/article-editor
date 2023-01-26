@@ -267,66 +267,66 @@ $altTheme: (primary: $theme-primary,
   .cdk-overlay-pane {
     width: 960px;
     max-width: 90vw !important;
+  }
+}
 
-    .mat-dialog-container {
-      padding: 24px 0;
+.mat-dialog-container {
+  padding: 24px 0;
 
-      h2 {
-        margin: 16px 0 0 0;
-        padding: 0 40px;
-        font-size: 23px;
-        font-weight: bold;
-        line-height: 32px;
+  h2 {
+    margin: 16px 0 0 0;
+    padding: 0 40px;
+    font-size: 23px;
+    font-weight: bold;
+    line-height: 32px;
 
-        &.title-margin-bottom {
-          padding-bottom: 10px;
-        }
-      }
+    &.title-margin-bottom {
+      padding-bottom: 10px;
+    }
+  }
 
-      .insert-figure-in-editor {
+  .insert-figure-in-editor {
 
-      }
+  }
 
-      .popup-menu-container {
-        padding: 0 20px;
-        margin: 12px 0 0 0;
-        width: auto;
-        min-width: auto;
+  .popup-menu-container {
+    padding: 0 20px;
+    margin: 12px 0 0 0;
+    width: auto;
+    min-width: auto;
 
-        .ProseMirror-menubar {
-          min-height: auto;
-          padding: 20px;
-          box-shadow: 0 5px 5px #1bb1b22b;
-          position: relative;
-          z-index: 1;
-        }
-      }
+    .ProseMirror-menubar {
+      min-height: auto;
+      padding: 20px;
+      box-shadow: 0 5px 5px #1bb1b22b;
+      position: relative;
+      z-index: 1;
+    }
+  }
 
-      .mat-dialog-content {
-        padding: 24px 28px;
-        margin: 0;
-        overflow-y: auto;
-        overflow-x: hidden;
-        scrollbar-gutter: stable both-edges;
-        min-height: 400px;
+  .mat-dialog-content {
+    padding: 24px 28px;
+    margin: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    scrollbar-gutter: stable both-edges;
+    min-height: 400px;
 
-        &.fixed-dialog-content-height {
-          height: 400px;
-        }
-      }
+    &.fixed-dialog-content-height {
+      height: 400px;
+    }
+  }
 
-      .mat-dialog-actions {
-        position: relative;
-        min-height: unset;
-        box-sizing: border-box;
-        margin: 0;
-        padding: 16px 40px 0 40px;
-        box-shadow: 0 -5px 5px #1BB1B22B;
+  .mat-dialog-actions {
+    position: relative;
+    min-height: unset;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 16px 40px 0 40px;
+    box-shadow: 0 -5px 5px #1BB1B22B;
 
-        button {
-          margin-top: 8px;
-        }
-      }
+    button {
+      margin-top: 8px;
     }
   }
 }
@@ -1048,4 +1048,10 @@ mat-radio-group {
       display: none;
     }
   }
+}
+
+
+/* Editor page overrides */
+.mat-drawer-container {
+  background-color: var(--color-efefef);
 }
