@@ -453,9 +453,9 @@ export class ValidationSectionComponent implements OnDestroy {
               } else if (el.rule == 'ValidateCitedRefs'){
                 let refsInEndEditor = this.ydocService!.referenceCitationsMap?.get('referencesInEditor');
                 let refsInArticle = this.ydocService.referenceCitationsMap.get('refsAddedToArticle');
-
                 let keysOfRefsInEndEditor = Object.keys(refsInEndEditor)
                 let keysOfRefsInArticle = Object.keys(refsInArticle);
+                console.log(keysOfRefsInEndEditor,keysOfRefsInArticle);
 
                 let nonCitedRefs  = {}
 
@@ -467,6 +467,7 @@ export class ValidationSectionComponent implements OnDestroy {
                 console.log('nonCitedRefs',nonCitedRefs);
                 Object.keys(nonCitedRefs).forEach((refId)=>{
                   let refText = nonCitedRefs[refId].citation.textContent;
+                  console.log('non cited ref',refText);
                   this.nonCitedReferences.push({ fulfilled: false, errorMessage: `Reference "${refText}" is not cited.` });
                 })
                 donevalidationSubject.next(null)
@@ -484,6 +485,7 @@ export class ValidationSectionComponent implements OnDestroy {
       })
     }
     let validateData = await validAsync()
+    console.log(this.nonCitedReferences);
     if (validateData == 'cancel') {
 
     } else {
@@ -494,7 +496,7 @@ export class ValidationSectionComponent implements OnDestroy {
       this.results += this.articleValidations.length;
       this.results += this.articleFormFieldsValidation.length;
       this.results += this.nonCitedFiguresValidation.length;
-      this.results += this.nonCitedFiguresValidation.length;
+      this.results += this.nonCitedReferences.length;
       this.results += this.articleValidationsErrors.length;
       this.results += this.complexSectionsMinMaxErrors.length;
       this.changeDetectorRef.detectChanges();
