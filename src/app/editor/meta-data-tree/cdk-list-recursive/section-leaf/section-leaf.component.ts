@@ -180,7 +180,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
       node.formIOSchema = sectionContent
         this.dialog.open(EditSectionDialogComponent, {
-          width: '100%',
+          //width: '100%',
           // height: '90%',
           data: {node: node, form: formGroup, sectionContent},
           disableClose: false
@@ -341,7 +341,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       let sectionContent = this.formBuilderService.populateDefaultValues({}, node.formIOSchema, node.sectionID, formGroup);
       this.prosemirrorEditorsService.stopSpinner()
       this.dialog.open(EditSectionDialogComponent, {
-        width: '100%',
+        //width: '100%',
         // height: '90%',
         data: {node: node, form: formGroup, sectionContent, component: '[MM] Material',editOnAddFromParent:true},
         disableClose: false

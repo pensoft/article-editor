@@ -19,11 +19,11 @@
                                     [supplementaryFileIndex]="i"></app-supplementary-file>
           </div>
           <div class="supplementary-file-control-buttons button-group">
-            <button mat-stroked-button color="warn" (click)="deleteSupplementaryFile(supplementaryFiles![supplementaryFileNum],i)">
-              Delete file
-            </button>
             <button mat-stroked-button color="primary" (click)="editSupplementaryFile(supplementaryFiles![supplementaryFileNum],i)">
               Edit file
+            </button>
+            <button mat-stroked-button color="warn" (click)="deleteSupplementaryFile(supplementaryFiles![supplementaryFileNum],i)">
+              Delete file
             </button>
           </div>
         </div>
