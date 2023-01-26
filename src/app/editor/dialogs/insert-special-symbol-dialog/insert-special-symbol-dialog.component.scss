@@ -9,42 +9,37 @@
   margin: 9px 0px 11px 0px;
 }
 
-.select-symbols{
+.select-symbols {
   display: block;
-    width: 100%;
-    margin: 5px;
-    background-color: var(--color-00b1b2);
-    padding: 6px;
-    color: white;
-    font-size: 15px;
-    line-height: 20px;
-    border-radius: 33px;
-    border-color: transparent;
+  width: 100%;
+  margin: 5px;
+  background-color: var(--color-00b1b2);
+  padding: 6px;
+  color: white;
+  font-size: 15px;
+  line-height: 20px;
+  border-radius: 33px;
+  border-color: transparent;
 }
 
-.char-select{
-  font-size: 25px;
-    cursor: pointer;
-    position: relative;
-    display: inline-block;
-    width: 80%;
-    border-radius: 100%;
-    height: 80%;
-    text-align: center;
-    padding-top: 0px;
+.char-select {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  cursor: pointer;
+  position: relative;
+  width: 24px;
+  border-radius: 100%;
+  height: 24px;
+  text-align: center;
+  padding: 6px;
 }
 
-.char-inner{
-  display: inline-block;
-    position: absolute;
-    top: 50%;
-    right: 50%;
-    transform: translate(50%, -50%);
-    vertical-align: middle;
-}
-
-.selected{
-  background-color:  var(--color-00b1b2);
+.selected {
+  background-color: rgba(0, 177, 178, 0.15);
+  border-radius: 4px;
 }
 
 ::ng-deep .select-symbols-parent select {
@@ -67,23 +62,28 @@
   .search-box {
     margin-left: -4px;
     margin-bottom: 14px;
+
     ::ng-deep {
       .arpha-input-container {
         border-radius: 20px !important;
       }
+
       input {
         border-radius: 20px !important;
       }
     }
   }
+
   .filter-box {
     margin-left: -4px;
     margin-bottom: 50px;
+
     arpha-button {
       &:not(:first-child) {
         margin-left: 21px;
       }
     }
+
     ::ng-deep {
       button {
         width: 100px;
@@ -91,10 +91,12 @@
       }
     }
   }
+
   .content-box {
     height: 210px;
     overflow: auto;
     margin-bottom: 55px;
+
     mat-icon {
       width: 22px;
     }
@@ -109,13 +111,16 @@
 
 .actions {
   float: right;
+
   .action-button {
     &:first-of-type {
       margin-right: 21px;
     }
+
     &:last-of-type {
       margin-right: -3px;
     }
+
     ::ng-deep {
       button {
         width: 100px !important;
@@ -123,6 +128,7 @@
       }
     }
   }
+
   .negative-button {
     ::ng-deep {
       button {

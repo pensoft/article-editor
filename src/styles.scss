@@ -110,6 +110,7 @@ spacer {
 .editor-drawer {
   .mat-drawer-content {
     width: calc(100% - 341px);
+    overflow: hidden;
   }
 }
 
@@ -436,13 +437,6 @@ reference-citation {
       }
     }
   } */
-}
-
-.ask-before-delete-dialog {
-  width: 500px;
-  height: 120px;
-  font-size: 17px;
-  position: relative !important;
 }
 
 .popup-menu-container {

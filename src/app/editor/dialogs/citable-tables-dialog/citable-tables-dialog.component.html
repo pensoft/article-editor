@@ -1,4 +1,4 @@
-<h2 mat-dialog-title *ngIf="tablesNumbers">Tables</h2>
+<h2 mat-dialog-title *ngIf="tablesNumbers" class="title-margin-bottom">Tables</h2>
 
 <mat-dialog-content *ngIf="tablesNumbers">
   <div *ngIf="tablesNumbers.length==0">There are no tables right now.You can be the first one to add a table with the
@@ -8,7 +8,9 @@
   <ng-container *ngIf="tablesNumbers.length>0">
     <div cdkDropList class="tables-list" (cdkDropListDropped)="drop($event)">
       <div class="table-box" *ngFor="let table of tablesNumbers;let i = index" cdkDrag>
-        <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+
+        <mat-icon class="drag-icon">drag_indicator</mat-icon>
+
         <div>
           <div class="table-view">
             <!-- <img src="{{tables![table].canvasData.dataURL}}" alt=""> -->

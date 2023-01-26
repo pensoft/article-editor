@@ -1,18 +1,57 @@
-<div class="title">Add a special symbol</div>
-<div class="content">
+<h2 mat-dialog-title>Add a special symbol</h2>
+
+<div class="search-field-wrapper">
   <div class="search-box">
-    <arpha-input placeholder="Search for symbol"></arpha-input>
+    <mat-form-field class="select-ref-form-field mat-form-field-search" appearance="fill">
+      <input type="text"
+             placeholder="Search for symbol"
+             aria-label="Symbols"
+             matInput
+      >
+      <mat-icon matPrefix class="prefix-icon">search</mat-icon>
+    </mat-form-field>
   </div>
-  <div class="filter-box select-symbols-parent">
-    <select label="Symbols" class="select-symbols" [formControl]="selectSymbolsGroup">
-      <option *ngFor="let opt of selectOptions" value="{{opt.from+'|'+opt.to}}">U+{{opt.from}}...U+{{opt.to}} : {{opt.name}}</option>
-    </select>
-    <arpha-button label="Font" class="small primary"></arpha-button>
-    <arpha-button label="Color" class="small primary"></arpha-button>
+  <div class="filter-box select-symbols-parent" fxLayout="row wrap" fxLayoutGap="22px">
+
+    <mat-form-field class="mat-form-field-select-pill" appearance="fill">
+      <mat-select [formControl]="selectSymbolsGroup">
+        <mat-option *ngFor="let opt of selectOptions" value="{{opt.from+'|'+opt.to}}">
+          U+{{opt.from}}...U+{{opt.to}}: {{opt.name}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!--    <arpha-button label="Font" class="small primary"></arpha-button>-->
+    <!--    <arpha-button label="Color" class="small primary"></arpha-button>-->
+
+    <mat-form-field class="mat-form-field-select-pill" appearance="fill">
+      <mat-label>Font</mat-label>
+      <mat-select>
+        <mat-option>Default</mat-option>
+        <mat-option value="Roboto">Roboto</mat-option>
+        <mat-option value="Open Sans">Open Sans</mat-option>
+        <mat-option value="Inter">Inter</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field class="mat-form-field-select-pill" appearance="fill">
+      <mat-label>Color</mat-label>
+      <mat-select>
+        <mat-option>Default</mat-option>
+        <mat-option value="Red">Red</mat-option>
+        <mat-option value="Black">Black</mat-option>
+        <mat-option value="Blue">Blue</mat-option>
+        <mat-option value="Gray">Gray</mat-option>
+        <mat-option value="Green">Green</mat-option>
+      </mat-select>
+    </mat-form-field>
   </div>
+</div>
+
+<mat-dialog-content class="fixed-dialog-content-height">
   <div class="content-box">
     <mat-grid-list cols="10" rowHeight="1:1">
-      <mat-grid-tile *ngFor="let str of contentFlat" >
+      <mat-grid-tile *ngFor="let str of contentFlat">
         <div class="char-select" (click)="selectChar(currEl,str)" #currEl>
           <div class="char-inner">
             {{str}}
@@ -21,11 +60,14 @@
       </mat-grid-tile>
     </mat-grid-list>
   </div>
+</mat-dialog-content>
 
-</div>
-<div class="actions">
-  <arpha-button label="Cancel" (clickEvent)="onNoClick()" class="small secondary action-button negative-button">
-  </arpha-button>
-  <arpha-button label="Add" [disabled]="!selectedChar" (clickEvent)="doAction(data)" class="small primary action-button"></arpha-button>
-</div>
+<mat-dialog-actions align="end" fxLayoutGap="8px">
+  <button mat-stroked-button (click)="onNoClick()">Cancel</button>
+  <button mat-flat-button color="primary" [disabled]="!selectedChar" (click)="doAction(data)">Add Symbol</button>
+</mat-dialog-actions>
+
+
+
+
 

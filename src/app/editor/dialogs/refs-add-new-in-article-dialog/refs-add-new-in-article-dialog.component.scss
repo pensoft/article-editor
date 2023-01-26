@@ -1,13 +1,3 @@
-.tab0{
-  width: 100%;
-  height: calc(100% - 69px);
-}
-
-.tab1{
-  width: 100%;
-  height: calc(100% - 59px);
-}
-
 .search-in-refindit{
   width: 100%;
   display: block;
@@ -20,13 +10,7 @@
 
 .btn-container{
   text-align: left;
-}
-
-.formio-container{
-  overflow-y: scroll;
-  height: calc(100% - 84px);
-  margin-bottom: 15px;
-  overflow-x: hidden;
+  margin: 24px 0 0 0;
 }
 
 .loading-data-spinner{
@@ -46,4 +30,8 @@
   .mat-tab-body-wrapper{
     height: 100%;
   }
+}
+
+.add-new-ref-tabs {
+  gap: 24px;
 }

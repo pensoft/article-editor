@@ -1,4 +1,4 @@
-<h2 mat-dialog-title *ngIf="supplementaryFilesNumbers">Supplementary Files</h2>
+<h2 mat-dialog-title *ngIf="supplementaryFilesNumbers" class="title-margin-bottom">Supplementary Files</h2>
 
 <mat-dialog-content *ngIf="supplementaryFilesNumbers">
   <div *ngIf="supplementaryFilesNumbers.length==0">
@@ -10,7 +10,9 @@
     <div cdkDropList class="supplementary-files-list" (cdkDropListDropped)="drop($event)">
       <div class="supplementary-file-box" *ngFor="let supplementaryFileNum of supplementaryFilesNumbers;let i = index"
            cdkDrag>
-        <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+
+        <mat-icon class="drag-icon">drag_indicator</mat-icon>
+
         <div>
           <div class="supplementary-file-view">
             <app-supplementary-file [(supplementaryFile)]="supplementaryFiles![supplementaryFileNum]"

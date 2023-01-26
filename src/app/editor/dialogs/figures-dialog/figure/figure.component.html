@@ -6,15 +6,46 @@
   <div class="figure-components" fxLayout="row nowrap">
     <div
       [ngClass]="{'component-image':component.componentType == 'image','component-video':component.componentType == 'video'}"
-      *ngFor="let component of figure.components">
+      *ngFor="let component of figure.components | slice:0:3">
       <div *ngIf="component.componentType == 'image'">
-        <img src='{{component.url}}' height="90" alt="{{figure.description}}"/>
+          <img src='{{component.url}}' alt="{{figure.description}}"/>
       </div>
       <div *ngIf="component.componentType == 'video'">
-        <iframe height="90" [src]="component.url | safe" title="YouTube video player" frameborder="0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowfullscreen=""></iframe>
+        <div class="video-thumb">
+          <mat-icon>ondemand_video</mat-icon>
+        </div>
       </div>
     </div>
+
+    <ng-container *ngIf="figure.components.length > 3">
+      <div class="show-all-container">
+        <div>
+          <button mat-button [matMenuTriggerFor]="figure_components_menu"
+                  aria-label="Show all figure components">
+            +{{ figure.components.length - 3 }}
+          </button>
+        </div>
+      </div>
+      <mat-menu #figure_components_menu="matMenu" class="figure-components-list">
+        <ng-container *ngFor="let component of figure.components">
+          <mat-card class="component-card" >
+            <mat-card-header>
+              <div mat-card-avatar>
+                <div *ngIf="component.componentType == 'image'">
+                  <img src='{{component.url}}' alt="{{figure.description}}" />
+                </div>
+                <div *ngIf="component.componentType == 'video'">
+                  <div class="video-thumb">
+                    <mat-icon>ondemand_video</mat-icon>
+                  </div>
+                </div>
+              </div>
+              <mat-card-title>{{ component.componentType }}</mat-card-title>
+              <mat-card-subtitle [innerHTML]="component.description"></mat-card-subtitle>
+            </mat-card-header>
+          </mat-card>
+        </ng-container>
+      </mat-menu>
+    </ng-container>
   </div>
 </div>

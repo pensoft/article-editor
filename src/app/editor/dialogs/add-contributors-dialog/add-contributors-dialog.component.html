@@ -1,109 +1,80 @@
-<section class="section-choose relative">
-  <div class="container-shadow-contributor">
-    <article fxLayout="column">
-      <div fxLayout="column" fxFill>
-        <h1 fxFill class="font-size16px">
-          Add contributors
-        </h1>
-        <div *ngIf="showError" class="error">No Layout selected.</div>
-        <div fxFill fxLayoutAlign="center" fxFlex="100%" fxLayout="column">
-          <!-- <form (keydown)="search(inputText)" fxFlex="100%" fxLayout="column">
-            <label>Invite people</label>
-            <mat-form-field>
-              <input matInput type="text" #inputText class="input-search">
-              <mat-icon matPrefix class="prefix-icon">search</mat-icon>
-              <button color="primary" class="search-button" type="submit" matSuffix mat-raised-button (click)="search(inputText)">
-                        Search
-                    </button>
-            </mat-form-field>
-          </form>
-          <label>Invite people</label> -->
-          <div class="add-contributor-input-container">
-            <mat-form-field class="contributor-input-field">
-              <input matInput class="input-search" placeholder="Search by name" [formControl]="searchFormControl" autocomplete="off">
-              <mat-icon matPrefix class="prefix-icon">search</mat-icon>
-            </mat-form-field>
-            <div class="search-result-container">
-              <div *ngIf="searchResults.length>0" class="search-results">
-                <ng-container *ngFor="let contributor of searchResults">
-                  <div>
-                    <div fxLayout="row" fxFill fxLayoutAlign="start center" class="cont-search-result" (click)="openAddContrDialog(contributor)">
-                      <div fxFlex="10%" class="avatar-owner">
-                        <ngx-avatar mat-card-avatar size="36" [gravatarId]="contributor.email" [name]="contributor.name"></ngx-avatar>
-                      </div>
-                      <div fxFlex="65%" class="font-size16px ml-10px cont-name">
-                        <div class="user-name" [innerHTML]="contributor.name | makeTextBold : searchFormControl.value">
-                        </div>
-                        <div class="user-email" [innerHTML]="contributor.email | makeTextBold : searchFormControl.value">
-                        </div>
-                      </div>
-                      <!-- <div fxFlex="10%" class="text-primary cont-add-btn">
-                        <button mat-icon-button color="primary" type="button" *ngIf="!contributer.userIsAdded" (click)="addUser(contributersData)">
-                          <mat-icon>add</mat-icon>
-                        </button>
-                      </div> -->
-                    </div>
-                  </div>
-                </ng-container>
-              </div>
-            </div>
+<h2 mat-dialog-title class="title-margin-bottom">Add Contributors</h2>
 
-          </div>
+<div class="search-field-wrapper">
+
+  <div class="mat-form-field-search-label">Invite people</div>
+  <mat-form-field class="mat-form-field-search" appearance="fill">
+    <input type="text"
+           class="input-search"
+           placeholder="Search by name"
+           matInput
+           [formControl]="searchFormControl"
+           autocomplete="off">
+    <mat-icon matPrefix class="prefix-icon">search</mat-icon>
+  </mat-form-field>
+  <div class="search-result-container">
+    <div *ngIf="searchResults.length>0" class="search-results">
+      <ng-container *ngFor="let contributor of searchResults">
+        <div fxLayout="row nowrap"
+             fxLayoutAlign="flex-start center"
+             fxLayoutGap="16px"
+             class="results-row"
+             (click)="openAddContrDialog(contributor)">
+          <ngx-avatar mat-card-avatar size="32" [gravatarId]="contributor.email" [name]="contributor.name"></ngx-avatar>
+
+          <span class="contributor-name" fxFlex="1 0 0">
+            {{contributor.name}}{{contributor.email == currentUser.email?" (you)":''}}
+          </span>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+<mat-dialog-content class="fixed-dialog-content-height">
+  <div class="container-shadow-contributor">
+    <div *ngIf="this.collaborators &&this.collaborators.collaborators && this.currentUser" class="container-contributers"
+         fxLayout="column nowrap"
+         fxLayoutGap="10px">
+      <div *ngFor="let contributor of collaborators.collaborators" fxLayout="column">
+        <div *ngIf="contributor.role == 'Owner'"
+             fxLayout="row nowrap"
+             fxLayoutAlign="flex-start center"
+             fxLayoutGap="16px"
+             class="contributor-row is-owner">
+          <ngx-avatar mat-card-avatar size="42" [gravatarId]="contributor.email" [name]="contributor.name"></ngx-avatar>
+
+          <span class="contributor-name" fxFlex="1 0 0">
+            {{contributor.name}}{{contributor.email == currentUser.email?" (you)":''}}
+          </span>
+
+          <span class="contributor-role">{{contributor.role}}</span>
+        </div>
+
+        <div *ngIf="contributor.role != 'Owner'"
+             class="contributor-row"
+             fxLayout="row nowrap"
+             fxLayoutAlign="flex-start center"
+             fxLayoutGap="16px">
+
+          <ngx-avatar mat-card-avatar size="42" [gravatarId]="contributor.email" [name]="contributor.name"></ngx-avatar>
+
+          <span class="contributor-name" fxFlex="1 0 0">
+            {{contributor.name}}{{contributor.email == currentUser.email?"(you)":''}}
+          </span>
+
+          <span class="contributor-role">{{contributor.role}}</span>
+
+          <button *ngIf="isOwner" class="edit-contributor-btn" (click)="editContr(contributor)">
+            <mat-icon svgIcon="editGreen"></mat-icon>
+          </button>
+
         </div>
       </div>
-    </article>
-    <div *ngIf="this.collaborators &&this.collaborators.collaborators&& this.currentUser" class="container-contributers" >
-      <article *ngFor="let contributor of collaborators.collaborators" fxLayout="column">
-        <div *ngIf="contributor.role == 'Owner'" fxLayout="row" fxFill fxLayoutAlign="start center" class="blue-bg-owner">
-          <div fxFlex="10%" class="avatar-owner">
-            <ngx-avatar mat-card-avatar size="36" [gravatarId]="contributor.email" [name]="contributor.name"></ngx-avatar>
-          </div>
-          <div fxFlex="60%" class="font-size16px ml-10px">
-            <div>
-              {{contributor.name}}{{contributor.email == currentUser.email?"(you)":''}}
-            </div>
-            <div>
-              {{contributor.email}}
-            </div>
-          </div>
-
-          <div fxFlex="20%" class="text-primary  role-div">
-            {{contributor.role}}
-          </div>
-          <div fxFlex="10%" >
-          </div>
-        </div>
-        <div *ngIf="contributor.role != 'Owner'" fxLayout="row" fxFill fxLayoutAlign="start center" class="border1px-primary border-radius20 mt10px">
-          <div fxFlex="10%" class="avatar-owner">
-            <ngx-avatar mat-card-avatar size="36" [gravatarId]="contributor.email" [name]="contributor.name"></ngx-avatar>
-          </div>
-          <div fxFlex="{{isOwner?'55%':'60%'}}" class="font-size16px ml-10px">
-            <div class="user-name">
-              {{contributor.name}}{{contributor.email == currentUser.email?"(you)":''}}
-            </div>
-            <div class="user-email">
-              {{contributor.email}}
-            </div>
-          </div>
-          <div fxFlex="20%" class="text-primary role-div">
-            {{contributor.role}}
-          </div>
-          <div fxFlex="10%" *ngIf="!isOwner">
-          </div>
-          <div  fxFlex="15%" *ngIf="isOwner" class="button-div">
-            <button class="edit-contributor-btn" (click)="editContr(contributor)">
-                        <mat-icon svgIcon="editGreen"></mat-icon>
-                    </button>
-          </div>
-        </div>
-      </article>
     </div>
     <article fxLayout="column">
       <div fxLayout="row" fxLayoutGap="15px" fxFill fxLayoutAlign="end" class="dialogbtns border-radius20 mt10px">
         <!-- <button class="normal-btn-cancel-graystyle" (click)="closeDialog()">Cancel</button> -->
-        <button class="normal-btn-done-greenstyle" (click)="closeDialog()">
-                    Done
-                </button>
       </div>
 
     </article>
@@ -125,4 +96,13 @@
       </div>
     </article>
   </div> -->
-</section>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" fxLayoutGap="8px">
+  <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
+  <button mat-flat-button color="primary" (click)="closeDialog()">Done</button>
+</mat-dialog-actions>
+
+
+
+

@@ -423,7 +423,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     const dialogRef = this.dialog.open(AddContributorsDialogComponent, {
       width: '665px',
      // height: '531px',
-      panelClass: 'add-contributer-dialog',
+      panelClass: 'contributors-dialog',
       data: {},
       disableClose: false,
     });

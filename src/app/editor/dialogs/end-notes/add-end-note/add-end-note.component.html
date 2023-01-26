@@ -1,10 +1,11 @@
 <h2 mat-dialog-title>End Note</h2>
 
+<div class="popup-menu-container"></div>
+
 <mat-dialog-content>
   <div [formGroup]="sectionForm">
     <div #codemirrorHtmlTemplate class='codemirror-editor' [ngStyle]="{'display': hidehtml ? 'none' : 'block'}"></div>
     <ng-container *ngIf='renderForm'>
-      <div class="popup-menu-container"></div>
       <div>
         <mat-formio #formio [form]="sectionContent" (change)="onChange($event)" (submit)="onSubmit($event)"></mat-formio>
       </div>

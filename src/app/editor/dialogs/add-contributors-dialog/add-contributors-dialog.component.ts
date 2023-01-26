@@ -77,7 +77,8 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
 
   editContr(contrData: any) {
     const dialogRef = this.dialog.open(EditContributorComponent, {
-      width: '250px',
+      width: '445px',
+      panelClass: 'contributors-dialog',
       data: { contrData },
     });
 
@@ -162,7 +163,8 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
   }
   openAddContrDialog(contributor: any) {
     const dialogRef = this.dialog.open(SendInvitationComponent, {
-      width: '550px',
+      width: '445px',
+      panelClass: 'contributors-dialog',
       data: { contributor: [contributor] },
     });
 

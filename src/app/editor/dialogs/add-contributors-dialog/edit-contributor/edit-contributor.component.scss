@@ -1,15 +1,4 @@
-::ng-deep .form-container {
-  width: 100%;
-  .form-role {
-    .mat-form-field-label {
-      padding-left: 1px !important;
-      padding-top: 1px !important;
-    }
-  }
-}
-.btns-container{
-  text-align: right;
-}
-.margin-left-10{
-  margin-left: 10px;
+.mat-card-delete {
+  border: 1px solid rgba(171, 170, 172, 0.5);
+  border-radius: 8px;
 }

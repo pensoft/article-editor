@@ -1,4 +1,4 @@
-<h2 mat-dialog-title *ngIf="figuresNumbers">Figures</h2>
+<h2 mat-dialog-title *ngIf="figuresNumbers" class="title-margin-bottom">Figures</h2>
 
 <mat-dialog-content *ngIf="figuresNumbers">
   <div *ngIf="figuresNumbers.length==0">There are no figures right now.You can be the first one to add a figure with the
@@ -8,7 +8,9 @@
   <ng-container *ngIf="figuresNumbers.length>0">
     <div cdkDropList class="figures-list" (cdkDropListDropped)="drop($event)">
       <div class="figure-box" *ngFor="let figure of figuresNumbers;let i = index" cdkDrag>
-        <div class="example-custom-placeholder" *cdkDragPlaceholder></div>
+
+        <mat-icon class="drag-icon">drag_indicator</mat-icon>
+
         <div>
           <div class="figure-view">
             <!-- <img src="{{figures![figure].canvasData.dataURL}}" alt=""> -->
