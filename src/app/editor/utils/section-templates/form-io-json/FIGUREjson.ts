@@ -10,7 +10,97 @@ https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image4.jpg
 https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image5.jpg
 
 https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image6.jpg */
-
+export const figureBasicData = {
+  "description": "<p class=\"set-align-left\">Caption basic example</p>",
+  "components": [
+    {
+      "description": "<p class=\"set-align-left\">mCurabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vivamus suscipit tortor eget felis porttitor volutpat. Nulla quis lorem ut libero malesuada feugiat. Nulla quis lorem ut libero malesuada feugiat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vivamus suscipit tortor eget felis porttitor volutpat. Nulla quis lorem ut libero malesuada feugiat. Nulla quis lorem ut libero malesuada feugiat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.oon</p>",
+      "componentType": "image",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBSxBFtvMzHp5meoU4Pe2LXU56WcJg3uU5O5bnpqsWbzMBJmnT"
+    },
+    {
+      "description": "<p class=\"set-align-left\">SuCurabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vivamus suscipit tortor eget felis porttitor volutpat. Nulla quis lorem ut libero malesuada feugiat. Nulla quis lorem ut libero malesuada feugiat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.nrise</p>",
+      "componentType": "image",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB94GXwEX5gtOMEXM0v-BhpwmGulU6lXJ9rQ&usqp=CAU"
+    },
+    {
+      "description": "<p class=\"set-align-left\">ForeCurabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vivamus suscipit tortor eget felis porttitor volutpat. Nulla quis lorem ut libero malesuada feugiat. Nulla quis lorem ut libero malesuada feugiat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.st</p>",
+      "componentType": "image",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_BUqnSU-hcr1mMoxzri9l_3cKytZnBNew5g&usqp=CAU"
+    },
+    {
+      "description": "<p class=\"set-align-left\">GalCurabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vivamus suscipit tortor eget felis porttitor volutpat. Nulla quis lorem ut libero malesuada feugiat. Nulla quis lorem ut libero malesuada feugiat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.axy</p>",
+      "componentType": "image",
+      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMxAUDn_aEXvgLRsgAg_XcYJcd5DmEjnmtQA&usqp=CAU"
+    }
+  ],
+  "figureID": "fa679ae6-d6af-44fb-aecf-21fd6492603f",
+  "figurePlace": "endEditor",
+  "viewed_by_citat": "endEditor",
+  "canvasData": {
+    "a4Pixels": [
+      841.89,
+      833.385
+    ],
+    "figRows": [
+      [
+        {
+          "container": {
+            "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBSxBFtvMzHp5meoU4Pe2LXU56WcJg3uU5O5bnpqsWbzMBJmnT",
+            "description": "moon",
+            "componentType": "image",
+            "height": 0.25,
+            "h": 208.34625,
+            "w": 146.70073033707865
+          }
+        }
+      ],
+      [
+        {
+          "container": {
+            "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB94GXwEX5gtOMEXM0v-BhpwmGulU6lXJ9rQ&usqp=CAU",
+            "description": "Sunrise",
+            "componentType": "image",
+            "hpers": 0.21958638564409008,
+            "wpers": 0.32664599888346457,
+            "h": 183,
+            "w": 275
+          }
+        }
+      ],
+      [
+        {
+          "container": {
+            "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_BUqnSU-hcr1mMoxzri9l_3cKytZnBNew5g&usqp=CAU",
+            "description": "Forest",
+            "componentType": "image",
+            "hpers": 0.21958638564409008,
+            "wpers": 0.32664599888346457,
+            "h": 183,
+            "w": 275
+          }
+        }
+      ],
+      [
+        {
+          "container": {
+            "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMxAUDn_aEXvgLRsgAg_XcYJcd5DmEjnmtQA&usqp=CAU",
+            "description": "Galaxy",
+            "componentType": "image",
+            "hpers": 0.16918951025036447,
+            "wpers": 0.4240458967323522,
+            "h": 141,
+            "w": 357
+          }
+        }
+      ]
+    ],
+    "nOfRows": 4,
+    "nOfColumns": 1,
+    "maxImgHeightPers": 25,
+    "maxImgWidthPers": 100
+  }
+}
 
 export const figureJson = {
   "components": [
@@ -27,8 +117,8 @@ export const figureJson = {
               "validate": {
                 "required": true
               },
-              "properties":{
-                "addFigureEditor":true
+              "properties": {
+                "addFigureEditor": true
               },
               "key": "figureDescription",
               "type": "textarea",
@@ -159,8 +249,8 @@ export const figureJson = {
                       "validate": {
                         "required": true
                       },
-                      "properties":{
-                        "addFigureEditor":true
+                      "properties": {
+                        "addFigureEditor": true
                       },
                       "key": "description",
                       "type": "textarea",

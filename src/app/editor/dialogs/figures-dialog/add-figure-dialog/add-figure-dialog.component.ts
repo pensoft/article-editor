@@ -111,6 +111,7 @@ export class AddFigureDialogComponent implements AfterViewInit,AfterViewChecked 
       if (!this.data.fig) {
         this.renderForm = true
       } else {
+        console.log(this.data);
         //@ts-ignore
         this.sectionContent.components[0].columns[0].components[0].defaultValue = this.data.fig.description
         let componentsDefaultValues: any = []
@@ -143,7 +144,6 @@ export class AddFigureDialogComponent implements AfterViewInit,AfterViewChecked 
     }else{
       this.isValid
       this.formIoSubmission = change.data
-      console.log(change);
       if(change.changed&&change.changed.instance){
         this.formIoRoot = change.changed.instance.root
       }
@@ -184,14 +184,7 @@ export class AddFigureDialogComponent implements AfterViewInit,AfterViewChecked 
       this.ydocService.figuresMap?.set('figuresTemplates', this.figuresTemplatesObj)
 
       submision.data.figureNumber = this.data.index
-      let interpolated: any
 
-      let figureFormGroup = citationElementMap['citation'].buildElementFormGroup(submision.data)
-
-      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data,figureFormGroup);
-      let templ = document.createElement('div')
-      templ.innerHTML = interpolated
-      let Slice = DOMParser.fromSchema(schema).parse(templ.firstChild!)
       let newFigure: figure = {
         figureNumber: this.data.index,
         description: submision.data.figureDescription,
@@ -212,7 +205,9 @@ export class AddFigureDialogComponent implements AfterViewInit,AfterViewChecked 
           this.figuresControllerService.updateSingleFigure(newFigure, this.data.index)
       } */
       //@ts-ignore
-      this.dialogRef.close({ figure: newFigure, figureNode: Slice.content.content[0] })
+
+      //@ts-ignore
+      this.dialogRef.close({ figure: newFigure })
     } catch (error) {
       console.error(error);
     }
@@ -228,7 +223,7 @@ export class AddFigureDialogComponent implements AfterViewInit,AfterViewChecked 
       } else {
         currFigTemplates = this.figuresTemplatesObj[figID]
       }
-      //this.ydocService.figuresMap?.set('figuresTemplates',figuresTemplatesObj)
+      this.ydocService.figuresMap?.set('figuresTemplates',this.figuresTemplatesObj)
       let prosemirrorNodesHtml = currFigTemplates.html
 
       //prosemirrorNodesHtml = this.formatHTML(prosemirrorNodesHtml)

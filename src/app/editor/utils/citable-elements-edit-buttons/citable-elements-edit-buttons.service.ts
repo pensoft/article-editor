@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { AddTableDialogComponent } from '@app/editor/dialogs/citable-tables-dialog/add-table-dialog/add-table-dialog.component';
 import { AddEndNoteComponent } from '@app/editor/dialogs/end-notes/add-end-note/add-end-note.component';
+import { AddFigureDialogV2Component } from '@app/editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-dialog-v2.component';
 import { AddFigureDialogComponent } from '@app/editor/dialogs/figures-dialog/add-figure-dialog/add-figure-dialog.component';
 import { AddSupplementaryFileComponent } from '@app/editor/dialogs/supplementary-files/add-supplementary-file/add-supplementary-file.component';
 import { ServiceShare } from '@app/editor/services/service-share.service';
@@ -33,7 +34,7 @@ export class CitableElementsEditButtonsService {
       elementsObj: 'ArticleFigures',
       numberPropInObj:'figureNumber',
       elementNumbersObj: 'ArticleFiguresNumbers',
-      elementEditComponent:AddFigureDialogComponent,
+      elementEditComponent:AddFigureDialogV2Component,
       getDialogData:function(item:any,itemIndex:number,itemId:string){
         return { fig:item, updateOnSave: false, index: itemIndex, figID: itemId };
       },
@@ -267,7 +268,6 @@ export class CitableElementsEditButtonsService {
             editElementFnc:()=>{
               this.dialog.open(elementMap.elementEditComponent, {
                 width: '100%',
-                height: '90%',
                 data: elementMap.getDialogData(elementsObj[elementId],elementNumber,elementId),
                 disableClose: false
               }).afterClosed().subscribe((result: any) => {

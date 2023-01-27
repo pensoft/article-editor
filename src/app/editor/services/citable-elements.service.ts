@@ -575,30 +575,8 @@ export class CitableElementsService {
     }
   }
 
-  writeElementDataGlobalV2(citats, nums, els,type) {
-
-
-    let elementMapping = citationElementMap[type];
-
-    let cites = JSON.parse(JSON.stringify(citats));
-    let elNums = JSON.parse(JSON.stringify(nums));
-    let elements = JSON.parse(JSON.stringify(els));
-    if(type == 'citation'){
-      Object.keys(els).forEach((key) => {
-        this.getFigureRowsOrderData(elements[key].canvasData);
-      })
-    }
-    //let elsToSet = JSON.parse(JSON.stringify(elements))
-    this.updateElementsNumbers(elements, elNums,elementMapping.elementNumberProp)
-    this.serviceShare.YdocService[elementMapping.yjsMap].set(elementMapping.elementNumbersObj, elNums)
-    this.serviceShare.YdocService[elementMapping.yjsMap].set(elementMapping.elementsObj, elements)
-    this.serviceShare.YdocService.citableElementsMap?.set('elementsCitations', cites);
-    /* setTimeout(()=>{
-      this.serviceShare.updateCitableElementsViewsAndCites();
-    }) */
-  }
-
   writeElementDataGlobal( newElements: { [key: string]: any }, elementsNumbers: string[],type:string) {
+    console.log(newElements,elementsNumbers);
     let elementMapping = citationElementMap[type];
     let oldCitats = JSON.parse(JSON.stringify(this.serviceShare.YdocService.citableElementsMap?.get('elementsCitations')));
     let oldElNums = JSON.parse(JSON.stringify(this.serviceShare.YdocService[elementMapping.yjsMap].get(elementMapping.elementNumbersObj)))
