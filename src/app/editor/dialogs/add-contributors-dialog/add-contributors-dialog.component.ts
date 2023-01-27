@@ -61,13 +61,9 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
     this.searchFormControl.valueChanges.pipe(
       switchMap((value:string) => {
         return this.allUsersService.getAllUsersV2({page:1,pageSize:10,'filter[search]':value})
-    })).subscribe((data:any)=>{
-      if(!data.meta.search||data.meta.search == ''){
-        this.searchResults = []
-      }else{
-        this.searchData = data.data;
-        this.searchResults = data.data;
-      }
+    })).subscribe(({data = []}:any)=>{
+      this.searchData = data;
+      this.searchResults = data;
     })
   }
 
