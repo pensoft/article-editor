@@ -9,7 +9,7 @@ import { FormioBaseService } from '@core/services/formio-base.service';
 import { Observable, Subscription } from 'rxjs';
 import { first, take } from 'rxjs/operators';
 import { uuidv4 } from "lib0/random";
-import { lpClient } from "@core/services/oauth-client";
+import { lpClient, ssoClient } from "@core/services/oauth-client";
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { HttpErrorResponse } from '@angular/common/http';
 
@@ -117,7 +117,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     },3000);
   }
 
-  signIn() {
+  /*signIn() {
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
 
     lpClient.signIn().then(async signInResult => {
@@ -138,6 +138,44 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.unsubscribe.push(loginSubscr);
       }
     }).catch(err => {console.error(err)});
+  }*/
+
+  async signIn() {
+    this.serviceShare.ProsemirrorEditorsService.spinSpinner();
+    try {
+      const signInResult = await lpClient.signIn();
+      await this.processSigninResult(signInResult);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async orcidSignIn() {
+    this.serviceShare.ProsemirrorEditorsService.spinSpinner();
+    try {
+      const signInResult = await ssoClient.signIn();
+      await this.processSigninResult(signInResult);
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  async processSigninResult(signInResult){
+    console.log(signInResult);
+    if(signInResult){
+      const token = await lpClient.getToken();
+      this.authService.storeToken('token', token);
+      const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
+        .subscribe((user: UserModel | undefined) => {
+          if (user) {
+            this.router.navigate(['/dashboard']);
+            this.formioBaseService.login();
+          } else {
+            this.hasError = true;
+          }
+        });
+      this.unsubscribe.push(loginSubscr);
+    }
   }
 
   ngOnDestroy() {

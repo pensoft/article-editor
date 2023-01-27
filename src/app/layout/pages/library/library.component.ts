@@ -45,7 +45,7 @@ export class LibraryPage implements AfterViewInit {
           const dialogRef = this.dialog.open(ReferenceEditComponent, {
             data: { referenceTypesFromBackend, oldData: ref, referenceStyles },
             panelClass: 'edit-reference-panel',
-            width: '100%',
+            //width: '100%',
             // height: '90%',
             // maxWidth: '100%'
           });
@@ -83,7 +83,7 @@ export class LibraryPage implements AfterViewInit {
         const dialogRef = this.dialog.open(ReferenceEditComponent, {
           data: { possibleReferenceTypes: this.possibleReferenceTypes, referenceTypesFromBackend, referenceStyles },
           panelClass: 'edit-reference-panel',
-          width: '100%',
+          //width: '100%',
           // height: '90%',
           // maxWidth: '100%'
         });

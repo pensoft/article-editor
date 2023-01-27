@@ -164,6 +164,7 @@ import { RefsAddNewInArticleDialogComponent } from './editor/dialogs/refs-add-ne
 import { AddFigureDialogV2Component } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-dialog-v2.component';
 import { FigureComponentPreviewComponent } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/figure-component-preview/figure-component-preview.component';
 import { AddFigureComponentDialogComponent } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-component-dialog/add-figure-component-dialog.component';
+import { MAT_DIALOG_DEFAULT_OPTIONS, MatDialogConfig } from '@angular/material/dialog';
 
 //@ts-ignore
 EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE,'event-dispatcher']
@@ -383,6 +384,14 @@ const gravatarConfig: GravatarConfig = {
       deps: [COMPILER_OPTIONS],
     },
     {provide: Compiler, useFactory: createCompiler, deps: [CompilerFactory]},
+    {
+      provide: MAT_DIALOG_DEFAULT_OPTIONS,
+      useValue: {
+        ...new MatDialogConfig(),
+        autoFocus: false,
+        restoreFocus: false,
+      } as MatDialogConfig,
+    }
   ],
   bootstrap: [AppComponent],
 })

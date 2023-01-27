@@ -267,7 +267,8 @@ export class CitableElementsEditButtonsService {
             },
             editElementFnc:()=>{
               this.dialog.open(elementMap.elementEditComponent, {
-                width: '100%',
+                //width: '100%',
+                //height: '90%',
                 data: elementMap.getDialogData(elementsObj[elementId],elementNumber,elementId),
                 disableClose: false
               }).afterClosed().subscribe((result: any) => {

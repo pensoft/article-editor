@@ -4,10 +4,7 @@
 <h2 mat-dialog-title *ngIf="type == 'video'">Embed Video</h2>
 
 <mat-dialog-content>
-  <p *ngIf="type == 'mathinline'">
-    Enter katex mathematical expresion.See
-    <a href="https://katex.org/docs/supported.html "  target="_blank">https://katex.org/docs/supported.html</a>
-  </p>
+  <p *ngIf="type == 'mathinline'">Enter katex mathematical expresion.</p>
   <p *ngIf="type == 'comment'">White your comment here : </p>
   <p *ngIf="type == 'anchorTag'">White your anchor id here : </p>
   <p *ngIf="type == 'video'">Enter video url.Atention url must be embedable (youtube case: contain /embed) : https://www.youtube.com/embed/GDae7zmUHlc Tutorial on how to get embeded videos form youtube : https://www.youtube.com/watch?v=ZnuwB35GYMY&ab_channel=Techoist</p>
@@ -20,12 +17,17 @@
     <input matInput  [(ngModel)]="data.url" [formControl]="text" required style="color: black !important;">
     <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
   </mat-form-field>
+  <small class="mat-form-field-hint-custom" *ngIf="type == 'mathinline'">
+    See
+    <a href="https://katex.org/docs/supported.html"  target="_blank">https://katex.org/docs/supported.html</a>
+    for supported functions, operators and etc.
+  </small>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button (click)="onNoClick()">Cancel</button>
   <button mat-flat-button color="primary" [mat-dialog-close]="data.url" *ngIf="type == 'mathinline'" cdkFocusInitial>
-    Confirm Expression
+    Insert Expression
   </button>
   <button mat-flat-button color="primary" [mat-dialog-close]="data.url" *ngIf="type == 'comment'" cdkFocusInitial>
     Submit Comment

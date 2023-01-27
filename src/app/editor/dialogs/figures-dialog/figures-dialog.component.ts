@@ -44,7 +44,7 @@ export class FiguresDialogComponent implements AfterViewInit {
   /* editFigure(fig: figure, figIndex: number) {
     //this.serviceShare.PmDialogSessionService!.createSubsession();
     this.dialog.open(AddFigureDialogComponent, {
-      width: '100%',
+      //width: '100%',
       // height: '90%',
       data: { fig, updateOnSave: false, index: figIndex, figID: fig.figureID },
       disableClose: false
@@ -108,7 +108,7 @@ export class FiguresDialogComponent implements AfterViewInit {
   /* addFigure() {
     //this.serviceShare.PmDialogSessionService!.createSubsession();
     this.dialog.open(AddFigureDialogComponent, {
-      width: '100%',
+      //width: '100%',
       // height: '90%',
       data: { fig: undefined, updateOnSave: false, index: this.figuresNumbers?.length },
       disableClose: false
