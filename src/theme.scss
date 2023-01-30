@@ -315,6 +315,10 @@ $altTheme: (primary: $theme-primary,
     &.fixed-dialog-content-height {
       height: 400px;
     }
+
+    &.dynamic-content-height {
+      min-height: unset;
+    }
   }
 
   .mat-dialog-actions {
@@ -402,7 +406,7 @@ mat-radio-button {
 /* Material Radio Radio Group Overrides */
 mat-radio-group {
   mat-radio-button {
-    margin: 0 0 20px 0;
+    margin: 0 0 12px 0;
 
     &:last-child {
       margin: 0;
