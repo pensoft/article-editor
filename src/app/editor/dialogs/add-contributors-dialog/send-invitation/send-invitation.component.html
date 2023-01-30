@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Invite Contributor</h2>
+<h2 mat-dialog-title>Invite Collaborator</h2>
 
 <mat-dialog-content>
   <form [formGroup]="inviteUsersForm" fxLayout="column nowrap">
@@ -11,23 +11,59 @@
             <mat-icon>cancel</mat-icon>
           </button>
         </mat-chip>
-        <input *ngIf="!dialogIsOpenedFromComment" placeholder="User..." #usersInput [formControl]="invitedPeople"
-               [matAutocomplete]="auto" [matChipInputFor]="chipList"
-               [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="add($event)">
+        <input *ngIf="!dialogIsOpenedFromComment" placeholder="User..." #usersInput [formControl]="invitedPeople" [matAutocomplete]="auto" [matChipInputFor]="chipList" [matChipInputSeparatorKeyCodes]="separatorKeysCodes" (matChipInputTokenEnd)="add($event)">
       </mat-chip-list>
       <mat-autocomplete #auto="matAutocomplete" (optionSelected)="selected($event)">
-        <mat-option *ngFor="let invitedUser of resultData | async" [value]="invitedUser"
-                    [innerHTML]="invitedUser.email | makeTextBold : invitedPeople.value">
+        <mat-option *ngFor="let invitedUser of resultData | async" [value]="invitedUser" [innerHTML]="invitedUser.email | makeTextBold : invitedPeople.value">
         </mat-option>
       </mat-autocomplete>
     </mat-form-field>
 
-    <mat-form-field floatLabel='never' class="form-role" appearance="fill" fxFlex="48">
-      <mat-label>Role</mat-label>
-      <mat-select formControlName="selectOptions">
-        <mat-option *ngFor="let option of selectOptions" [value]="option.name">{{option.name}}</mat-option>
+    <mat-form-field floatLabel='never' class="form-access" appearance="fill" fxFlex="48">
+      <mat-label>Access</mat-label>
+      <mat-select formControlName="accessSelect">
+        <mat-option *ngFor="let option of accessOptions" [value]="option.name">{{option.name}}</mat-option>
       </mat-select>
     </mat-form-field>
+
+    <mat-form-field floatLabel='never' class="form-role" appearance="fill" fxFlex="48">
+      <mat-label>Role</mat-label>
+      <mat-select formControlName="roleSelect">
+        <mat-option *ngFor="let option of roleOptions" [value]="option.name">{{option.name}}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+
+    <div class="affiliations-container" *ngIf="roleSelect.value == 'Author'||roleSelect.value == 'Co-author'" >
+      <div>
+        <ng-container formArrayName="affiliations">
+          <ng-container *ngFor="let  affiliation of affiliations.controls; let index = index">
+            <div [formGroupName]="index">
+              <mat-form-field floatLabel='never' class="form-affiliations" appearance="fill" fxFlex="48">
+                <mat-label>Affiliation</mat-label>
+                <input matInput formControlName="affiliation">
+              </mat-form-field>
+              <mat-form-field floatLabel='never' class="form-affiliations" appearance="fill" fxFlex="48">
+                <mat-label>City</mat-label>
+                <input matInput formControlName="city">
+              </mat-form-field>
+              <mat-form-field floatLabel='never' class="form-affiliations" appearance="fill" fxFlex="48">
+                <mat-label>Country</mat-label>
+                <input matInput type="text" [formControlName]="'country'" [formControl] [matAutocomplete]="auto1">
+                <mat-autocomplete #auto1="matAutocomplete">
+                  <mat-option *ngFor="let option of filter($any(affiliation).controls.country.value)" [value]="option">
+                    {{option}}
+                  </mat-option>
+                </mat-autocomplete>
+              </mat-form-field>
+              <button class="remove-affiliation-btn" mat-stroked-button color="primary" (click)="removeAffiliation(index)" [disabled]="affiliations.controls.length==1">Delete</button>
+            </div>
+          </ng-container>
+        </ng-container>
+      </div>
+      <button class="form-affiliations" mat-flat-button color="primary" (click)="addAffiliation()">Add affiliation.</button>
+    </div>
+
 
     <mat-form-field class="message-form" appearance="fill" fxFill>
       <textarea matInput formControlName="message"></textarea>
@@ -38,10 +74,9 @@
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
   <button mat-flat-button color="primary" [disabled]="users.length==0||
-              !inviteUsersForm.controls.selectOptions.value||
+              !inviteUsersForm.controls.accessSelect.value||
               ((!inviteUsersForm.controls.message.value||
-              inviteUsersForm.controls.message.value.length == 0)&&!dialogIsOpenedFromComment)"
-          (click)="(users.length==0||!inviteUsersForm.controls.selectOptions.value||
+              inviteUsersForm.controls.message.value.length == 0)&&!dialogIsOpenedFromComment)" (click)="(users.length==0||!inviteUsersForm.controls.accessSelect.value||
                 ((!inviteUsersForm.controls.message.value||
               inviteUsersForm.controls.message.value.length == 0)&&!dialogIsOpenedFromComment)
               )?undefined:submitInviteUsersForm()">Invite User

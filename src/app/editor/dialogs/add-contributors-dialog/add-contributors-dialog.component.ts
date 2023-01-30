@@ -161,23 +161,29 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
   }
   openAddContrDialog(contributor: any) {
     const dialogRef = this.dialog.open(SendInvitationComponent, {
-      width: '445px',
+      maxWidth: '80%',
       panelClass: 'contributors-dialog',
       data: { contributor: [contributor] },
     });
 
-    dialogRef.afterClosed().subscribe(result => {
-      if (result.usersChipList.length > 0 && result.selectOptions && result.selectOptions != '' && this.collaborators) {
+    dialogRef.afterClosed().subscribe((result:{
+      'usersChipList': any,
+      'notifyingPeople': any,
+      'accessSelect': string,
+      'roleSelect': string,
+      'message': string
+    }) => {
+      if (result.usersChipList.length > 0 && result.accessSelect && result.accessSelect != '' && this.collaborators) {
         this.sharedService.ProsemirrorEditorsService.spinSpinner()
         let collaboratorsCopy = [...this.collaborators.collaborators];
         result.usersChipList.forEach((newColaborator) => {
-          collaboratorsCopy.push({ ...newColaborator, access: result.selectOptions })
+          collaboratorsCopy.push({ ...newColaborator, access: result.accessSelect })
         })
         let articleData = {
           "id": this.sharedService.YdocService.articleData.uuid,
           "title": this.sharedService.YdocService.articleData.name
         }
-        let access = result.selectOptions
+        let access = result.accessSelect
         let postBody = {
           "article": articleData,
           "message": result.message,

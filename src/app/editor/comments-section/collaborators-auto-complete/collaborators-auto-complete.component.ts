@@ -123,19 +123,25 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
         })
         // should add contributers to editor do finish comment add
         const dialogRef = this.dialog.open(SendInvitationComponent, {
-          width: '550px',
+          maxWidth: '80%',
           data: { contributor: mappedNewCollaborators, fromComment: true },
         });
 
-        dialogRef.afterClosed().subscribe(result => {
-          if (result.usersChipList.length > 0 && result.selectOptions && result.selectOptions != '' && this.currCollaboratorsIneditor) {
+        dialogRef.afterClosed().subscribe((result:{
+          'usersChipList': any,
+          'notifyingPeople': any,
+          'accessSelect': string,
+          'roleSelect': string,
+          'message': string
+        }) => {
+          if (result.usersChipList.length > 0 && result.accessSelect && result.accessSelect != '' && this.currCollaboratorsIneditor) {
             this.serviceShare.ProsemirrorEditorsService.spinSpinner()
             let collaboratorsCopy = [...this.currCollaboratorsIneditor.collaborators];
             result.usersChipList.forEach((newColaborator) => {
-              collaboratorsCopy.push({ ...newColaborator, access: result.selectOptions })
+              collaboratorsCopy.push({ ...newColaborator, access: result.accessSelect })
             })
 
-            this.addDataToBackend(emailsInText, newCollaborators,result.selectOptions).subscribe((data)=>{
+            this.addDataToBackend(emailsInText, newCollaborators,result.accessSelect).subscribe((data)=>{
               console.log('set contributors autocomplete invite',{ collaborators: collaboratorsCopy });
               this.serviceShare.YdocService.collaborators.set('collaborators', { collaborators: collaboratorsCopy });
               this.serviceShare.ProsemirrorEditorsService.stopSpinner()
