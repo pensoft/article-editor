@@ -14,22 +14,22 @@ export const figureBasicData = {
   "description": "<p class=\"set-align-left\">Caption basic example</p>",
   "components": [
     {
-      "description": "<p class=\"set-align-left\">mCurabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vivamus suscipit tortor eget felis porttitor volutpat. Nulla quis lorem ut libero malesuada feugiat. Nulla quis lorem ut libero malesuada feugiat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.Curabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vivamus suscipit tortor eget felis porttitor volutpat. Nulla quis lorem ut libero malesuada feugiat. Nulla quis lorem ut libero malesuada feugiat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.oon</p>",
+      "description": "<p class=\"set-align-left\">mue, auctor sit amet aliquam vel, ullamcorper sit amet ligula.oon</p>",
       "componentType": "image",
       "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBSxBFtvMzHp5meoU4Pe2LXU56WcJg3uU5O5bnpqsWbzMBJmnT"
     },
     {
-      "description": "<p class=\"set-align-left\">SuCurabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vivamus suscipit tortor eget felis porttitor volutpat. Nulla quis lorem ut libero malesuada feugiat. Nulla quis lorem ut libero malesuada feugiat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.nrise</p>",
+      "description": "<p class=\"set-align-left\">mue, auctor sit amet aliquam vel, ullamcorper sit amet ligula.oon</p>",
       "componentType": "image",
       "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB94GXwEX5gtOMEXM0v-BhpwmGulU6lXJ9rQ&usqp=CAU"
     },
     {
-      "description": "<p class=\"set-align-left\">ForeCurabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vivamus suscipit tortor eget felis porttitor volutpat. Nulla quis lorem ut libero malesuada feugiat. Nulla quis lorem ut libero malesuada feugiat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.st</p>",
+      "description": "<p class=\"set-align-left\">mue, auctor sit amet aliquam vel, ullamcorper sit amet ligula.oon</p>",
       "componentType": "image",
       "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_BUqnSU-hcr1mMoxzri9l_3cKytZnBNew5g&usqp=CAU"
     },
     {
-      "description": "<p class=\"set-align-left\">GalCurabitur arcu erat, accumsan id imperdiet et, porttitor at sem. Quisque velit nisi, pretium ut lacinia in, elementum id enim. Vivamus suscipit tortor eget felis porttitor volutpat. Nulla quis lorem ut libero malesuada feugiat. Nulla quis lorem ut libero malesuada feugiat. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula.axy</p>",
+      "description": "<p class=\"set-align-left\">mue, auctor sit amet aliquam vel, ullamcorper sit amet ligula.oon</p>",
       "componentType": "image",
       "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMxAUDn_aEXvgLRsgAg_XcYJcd5DmEjnmtQA&usqp=CAU"
     }
