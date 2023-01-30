@@ -487,6 +487,11 @@ $itemHeight: 30px;
   white-space: nowrap;
 }
 
+.outer-list {
+  padding: 24px 0 16px 0;
+  border-bottom: 1px solid #d6d6d6;
+}
+
 @media screen and (max-width: 600px) {
   .outer-list {
     .node-box-dropdownbox {
@@ -539,9 +544,3 @@ $itemHeight: 30px;
   }
 }
 
-.outer-list {
-  padding-top: 55px;
-}
-.outer-list:last-child {
-  margin-bottom: 60px;
-}
