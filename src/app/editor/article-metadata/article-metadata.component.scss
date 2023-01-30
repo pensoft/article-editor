@@ -1,11 +1,4 @@
 .figures-button {
   margin: 16px 0 0 0;
-  box-shadow: 1px 2px 4px 0 rgb(0 177 178);
-}
-
-.figures-button:hover {
-  background-color: rgba(207, 206, 206, 0.37);
-  -webkit-transition: background-color 500ms linear;
-  -ms-transition: background-color 500ms linear;
-  transition: background-color 500ms linear;
+  min-width: 120px;
 }
