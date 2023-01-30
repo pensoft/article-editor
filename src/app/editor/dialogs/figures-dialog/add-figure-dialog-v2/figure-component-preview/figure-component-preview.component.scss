@@ -1,0 +1,26 @@
+
+
+.img-container{
+  max-width: calc(100% - 20px);
+  max-height: calc(100% - 20px);
+  margin-right: auto;
+  margin-left: auto;
+  display: inline-block;
+  img{
+    max-height: inherit;
+    max-width: inherit;
+  }
+}
+
+.component-content{
+  max-width: calc(100% - 20px);
+  max-height: calc(100% - 20px);
+  margin-right: auto;
+  margin-left: auto;
+}
+.component-container{
+  height: 60%;
+  margin-bottom: 10%;
+  margin-top: 10%;
+  overflow: auto;
+}

@@ -32,7 +32,6 @@ import { schema } from '@app/editor/utils/Schema';
 import { DOMParser } from 'prosemirror-model';
 import { uuidv4 } from 'lib0/random';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
-import { FormioEventsService } from '@app/editor/formioComponents/formio-events.service';
 import { citationElementMap } from '@app/editor/services/citable-elements.service';
 import { TableSizePickerComponent } from '@app/editor/utils/table-size-picker/table-size-picker.component';
 
@@ -77,7 +76,6 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
     private changeDetectorRef: ChangeDetectorRef,
     private dialogRef: MatDialogRef<AddTableDialogComponent>,
     private ydocService: YdocService,
-    private formioEventsService: FormioEventsService,
     @Inject(MAT_DIALOG_DATA) public data: { table: citableTable | undefined, updateOnSave: boolean, index: number, tableID: string | undefined }
   ) {
 
