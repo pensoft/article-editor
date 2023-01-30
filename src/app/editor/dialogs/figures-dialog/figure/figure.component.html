@@ -27,8 +27,8 @@
         </div>
       </div>
       <mat-menu #figure_components_menu="matMenu" class="figure-components-list">
-        <ng-container *ngFor="let component of figure.components">
-          <mat-card class="component-card" >
+        <ng-container *ngFor="let component of figure.components| slice:3:figure.components.length">
+          <mat-card class="component-card">
             <mat-card-header>
               <div mat-card-avatar>
                 <div *ngIf="component.componentType == 'image'">

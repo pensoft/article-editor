@@ -312,15 +312,11 @@ export class YjsHistoryService {
   undoComplexItem(meta: any, action: 'undo' | 'redo') {
     if (meta.type == 'figure') {
       if (action == 'undo') {
-        this.serviceShare.CitableElementsService.writeElementDataGlobalV2(meta.data.oldData.cites, meta.data.oldData.elementNumbers, meta.data.oldData.elements,'citation')
       } else {
-        this.serviceShare.CitableElementsService.writeElementDataGlobalV2(meta.data.newData.cites, meta.data.newData.elementNumbers, meta.data.newData.elements,'citation')
       }
     } else if (meta.type == 'table'){
       if (action == 'undo') {
-        this.serviceShare.CitableElementsService.writeElementDataGlobalV2(meta.data.oldData.cites, meta.data.oldData.elementNumbers, meta.data.oldData.elements,'table_citation')
       } else {
-        this.serviceShare.CitableElementsService.writeElementDataGlobalV2(meta.data.newData.cites, meta.data.newData.elementNumbers, meta.data.newData.elements,'table_citation')
       }
     }else if(meta.type == 'refs-yjs') {
 

@@ -1265,7 +1265,7 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
-  renderSeparatedEditorWithNoSync(EditorContainer: HTMLDivElement, menuContainerClass: string, startingText?: string): editorContainer {
+  renderSeparatedEditorWithNoSync(EditorContainer: HTMLDivElement, menuContainerClass: string, startingText?: string|Node): editorContainer {
 
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
     EditorContainer.innerHTML = ''
@@ -1295,7 +1295,11 @@ export class ProsemirrorEditorsService {
     let menu: any = undefined
     menu = { main: this.menuTypes['onlyPmMenu'] }
     if (startingText) {
-      doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, schema.nodes.paragraph.create({}, schema.text(startingText))))
+      if(startingText instanceof Node){
+        doc = schema.nodes.doc.create({}, startingText)
+      }else{
+        doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, schema.nodes.paragraph.create({}, schema.text(startingText))))
+      }
     } else {
       doc = schema.nodes.doc.create({}, schema.nodes.form_field.create({}, schema.nodes.paragraph.create({})))
     }
@@ -1454,45 +1458,6 @@ export class ProsemirrorEditorsService {
         Object.keys(nodeDomAttrs).forEach((key) => {
           ((mathview.dom as HTMLElement).hasAttribute(key) && nodeDomAttrs[key] !== '' && nodeDomAttrs[key]) ? undefined : (mathview.dom as HTMLElement).setAttribute(key, nodeDomAttrs[key]);
         });
-        /* let setDataURL = (dataURL: string) => {
-
-          let session = seviceShare.PmDialogSessionService ? seviceShare.PmDialogSessionService!.inSession() : 'nosession';
-          if(session !== 'nosession'){
-            seviceShare.PmDialogSessionService!.addElement(mathview._node.attrs.math_id,dataURL)
-          }else{
-            mathObj[mathview._node.attrs.math_id] = dataURL;
-            ydocservice.mathMap?.set('dataURLObj', mathObj)
-          }
-        }
-        mathObj = this.ydocService.mathMap?.get('dataURLObj')
-        if (!mathObj[mathview._node.attrs.math_id]) {
-          setTimeout(() => {
-            toCanvas(matDom as HTMLElement).then((canvasData: any) => {
-              if (canvasData.toDataURL() == 'data:,') {
-                html2canvas(matDom as HTMLElement,{backgroundColor:null}).then((canvasData1) => {
-                  setDataURL(canvasData1.toDataURL())
-                })
-              } else {
-                setDataURL(canvasData.toDataURL())
-              }
-            })
-          }, 100)
-        } else if (mathview._isEditing) {
-
-          setTimeout(() => {
-            toCanvas(matDom as HTMLElement).then((canvasData: any) => {
-              if (canvasData.toDataURL() == 'data:,') {
-                html2canvas(matDom as HTMLElement,{backgroundColor:null}).then((canvasData1) => {
-                  setDataURL(canvasData1.toDataURL())
-                })
-              } else {
-                setDataURL(canvasData.toDataURL())
-              }
-            })
-          }, 100)
-
-          return ret
-        } */
       };
       MathView.prototype.renderMath = function renderMath() {
         //@ts-ignore

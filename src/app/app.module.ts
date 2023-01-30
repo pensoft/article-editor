@@ -161,6 +161,9 @@ import { BoldPipe } from './editor/dialogs/add-contributors-dialog/bold.pipe';
 import { RefsInArticleDialogComponent } from './editor/dialogs/refs-in-article-dialog/refs-in-article-dialog.component';
 import { RefsInArticleCiteDialogComponent } from './editor/dialogs/refs-in-article-cite-dialog/refs-in-article-cite-dialog.component';
 import { RefsAddNewInArticleDialogComponent } from './editor/dialogs/refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
+import { AddFigureDialogV2Component } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-dialog-v2.component';
+import { FigureComponentPreviewComponent } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/figure-component-preview/figure-component-preview.component';
+import { AddFigureComponentDialogComponent } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-component-dialog/add-figure-component-dialog.component';
 import { MAT_DIALOG_DEFAULT_OPTIONS, MatDialogConfig } from '@angular/material/dialog';
 
 //@ts-ignore
@@ -231,6 +234,7 @@ const gravatarConfig: GravatarConfig = {
     SectionLeafComponent,
     FiguresProsemirrorViewComponent,
     InsertFigureComponent,
+    AddFigureComponentDialogComponent,
     VerifyAccountComponent,
     CreateNewProjectComponent,
     DialogAddFilesComponent,
@@ -301,6 +305,8 @@ const gravatarConfig: GravatarConfig = {
     RefsInArticleDialogComponent,
     RefsInArticleCiteDialogComponent,
     RefsAddNewInArticleDialogComponent,
+    AddFigureDialogV2Component,
+    FigureComponentPreviewComponent,
   ],
   imports: [
     HttpClientJsonpModule,
