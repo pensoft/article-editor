@@ -9,7 +9,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 export class EditContributorComponent implements AfterViewInit {
 
-  roleControl = new FormControl('')
+  accessControl = new FormControl('')
 
   selectOptions: any[] = [
     {
@@ -31,7 +31,7 @@ export class EditContributorComponent implements AfterViewInit {
   ) { }
 
   ngAfterViewInit(): void {
-    this.roleControl.setValue(this.data.contrData.role)
+    this.accessControl.setValue(this.data.contrData.access)
   }
 
   removeCollaborator(){
@@ -39,7 +39,7 @@ export class EditContributorComponent implements AfterViewInit {
   }
 
   editCollaborator(){
-    this.dialogRef.close({edited:true,role:this.roleControl.value})
+    this.dialogRef.close({edited:true,access:this.accessControl.value})
   }
 
 }

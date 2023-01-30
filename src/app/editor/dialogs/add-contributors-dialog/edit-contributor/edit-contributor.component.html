@@ -3,8 +3,8 @@
 <mat-dialog-content>
   <div class="form-container">
     <mat-form-field floatLabel='never' class="form-role" appearance="fill">
-      <mat-label>Role</mat-label>
-      <mat-select [formControl]="roleControl">
+      <mat-label>Access</mat-label>
+      <mat-select [formControl]="accessControl">
         <mat-option *ngFor="let option of selectOptions" [value]="option.name">{{option.name}}</mat-option>
       </mat-select>
     </mat-form-field>
@@ -23,8 +23,8 @@
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
   <button mat-stroked-button color="warn" (click)="askremove = true">Remove User</button>
-  <button mat-flat-button color="primary" [disabled]="roleControl.value==data.contrData.role"
-          (click)="roleControl.value==data.contrData.role?undefined:editCollaborator()">Edit User</button>
+  <button mat-flat-button color="primary" [disabled]="accessControl.value==data.contrData.access"
+          (click)="accessControl.value==data.contrData.access?undefined:editCollaborator()">Edit User</button>
 </mat-dialog-actions>
 
 

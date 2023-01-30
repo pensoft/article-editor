@@ -152,7 +152,7 @@ export class ServiceShare {
     })
   }
 
-  openNotifyUserRoleChangeDialog:(oldrole:string,newrole:string)=>void
+  openNotifyUserAccessChangeDialog:(oldAccess:string,newAccess:string)=>void
   openNotAddedToEditorDialog:()=>void
   shareSelf(serviceName:string,serviceInstance:any){
     //@ts-ignore

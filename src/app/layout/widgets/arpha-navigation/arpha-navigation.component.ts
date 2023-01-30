@@ -45,8 +45,8 @@ export class ArphaNavigationComponent implements AfterViewInit {
     this.router.navigate(['dashboard']);
     this.serviceShare.shouldOpenNewArticleDialog = true;
   }
-  openNotifyUserRoleChangeDialog = (oldrole:string,newrole:string)=>{
-    let cantOpenDialog = this.sharedDialog.open(UsersRoleIsChangedComponent,{data:{oldrole,newrole}})
+  openNotifyUserAccessChangeDialog = (oldAccess:string,newAccess:string)=>{
+    let cantOpenDialog = this.sharedDialog.open(UsersRoleIsChangedComponent,{data:{oldAccess,newAccess}})
   }
 
 
@@ -57,7 +57,7 @@ export class ArphaNavigationComponent implements AfterViewInit {
 
   ngAfterViewInit(): void {
     this.serviceShare.openNotAddedToEditorDialog = this.openNotAddedToEditorDialog
-    this.serviceShare.openNotifyUserRoleChangeDialog = this.openNotifyUserRoleChangeDialog
+    this.serviceShare.openNotifyUserAccessChangeDialog = this.openNotifyUserAccessChangeDialog
     this.mobileVersion = this.serviceShare.ProsemirrorEditorsService.mobileVersion;
   }
 

@@ -14,12 +14,12 @@ import { SendInvitationComponent } from './send-invitation/send-invitation.compo
 
 export interface contributorData {
   name: string,
-  role?: 'Editor' | 'Viewer' | 'Commenter',
+  access?: 'Editor' | 'Viewer' | 'Commenter',
   email: string,
   id: string
 }
 
-export let roleMaping = {
+export let accessMaping = {
   'Editor':'WRITER',
   "Commenter":'COMMENTER',
   "Viewer":'READER'
@@ -36,7 +36,7 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
   searchFormControl = new FormControl('')
 
   showError = false;
-  public role: any[] = [];
+  public access: any[] = [];
 
   searchData: contributorData[]
   contributersData: contributorData[]
@@ -84,9 +84,10 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
         let userIndex = editedContributors.findIndex((user) => user.email == contrData.email)
         if (result.removed) {
           editedContributors.splice(userIndex, 1)
-        } else if (result.role) {
-          editedContributors[userIndex].role = result.role
+        } else if (result.access) {
+          editedContributors[userIndex].access = result.access
         }
+        console.log('set contributors after change',{ collaborators: editedContributors });
         this.sharedService.YdocService.collaborators.set('collaborators', { collaborators: editedContributors })
       }
     });
@@ -110,6 +111,7 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
   setCollaboratorsData(collaboratorsData: any) {
     setTimeout(() => {
       this.collaborators = collaboratorsData
+      console.log('get contributors setCollaboratorsData add dialog',collaboratorsData);
       if (this.currentUser) {
         this.checkIfCurrUserIsOwner()
       }
@@ -122,7 +124,7 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
       if(admin){
         this.isOwner = true
       }else{
-        if (user.role == 'Owner') {
+        if (user.access == 'Owner') {
           this.isOwner = true
         }
       }
@@ -169,23 +171,24 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
         this.sharedService.ProsemirrorEditorsService.spinSpinner()
         let collaboratorsCopy = [...this.collaborators.collaborators];
         result.usersChipList.forEach((newColaborator) => {
-          collaboratorsCopy.push({ ...newColaborator, role: result.selectOptions })
+          collaboratorsCopy.push({ ...newColaborator, access: result.selectOptions })
         })
         let articleData = {
           "id": this.sharedService.YdocService.articleData.uuid,
           "title": this.sharedService.YdocService.articleData.name
         }
-        let role = result.selectOptions
+        let access = result.selectOptions
         let postBody = {
           "article": articleData,
           "message": result.message,
           "invited": result.usersChipList.map((x: any) => {
-            x.type = roleMaping[role];
+            x.type = accessMaping[access];
             return x
           }),
         }
         this.allUsersService.sendInviteInformation(postBody).subscribe(
           (res) => {
+            console.log('set contributors after add',{ collaborators: collaboratorsCopy });
             this.sharedService.YdocService.collaborators.set('collaborators', { collaborators: collaboratorsCopy })
             this.sharedService.ProsemirrorEditorsService.stopSpinner()
           },

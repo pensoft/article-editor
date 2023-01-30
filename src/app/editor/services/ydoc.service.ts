@@ -436,7 +436,7 @@ export class YdocService {
     this.editorIsBuild = true;
   }
 
-  curUserRole: string
+  curUserAccess: string
   currUserRoleSubject = new Subject()
   checkIfUserIsInArticle() {
     let userinfo = this.userInfo.data;
@@ -445,18 +445,20 @@ export class YdocService {
       this.setArticleOwnerInfo()
     }
     let collaborators = this.collaborators.get('collaborators').collaborators as any[]
+    console.log('get collaborators check if user is in article',this.collaborators.get('collaborators').collaborators);
+
     let userInArticle = collaborators.find((user) => user.email == currUserEmail)
     this.serviceShare.EnforcerService.enforceAsync('is-admin', 'admin-can-do-anything').subscribe((admin) => {
       if (admin) {
-        userInArticle = { role: 'Owner', email: 'mincho@scalewest.com' };
+        userInArticle = { access: 'Owner', email: 'mincho@scalewest.com' };
       }
       if (!userInArticle) {
         this.serviceShare.openNotAddedToEditorDialog()
       } else {
-        if (this.curUserRole && this.curUserRole != userInArticle.role) {
-          this.serviceShare.openNotifyUserRoleChangeDialog(this.curUserRole, userInArticle.role)
+        if (this.curUserAccess && this.curUserAccess != userInArticle.access) {
+          this.serviceShare.openNotifyUserAccessChangeDialog(this.curUserAccess, userInArticle.access)
         }
-        this.curUserRole = userInArticle.role;
+        this.curUserAccess = userInArticle.access;
         this.currUserRoleSubject.next(userInArticle);
       }
     })
@@ -465,6 +467,7 @@ export class YdocService {
   collaboratorsSubject = new Subject()
   observeCollaboratorsFunc = (event: YMapEvent<any>, transaction: YTransaction) => {
     let collaboratorsData = this.collaborators.get('collaborators')
+    console.log('get collaborators observeCollaboratorsFunc',collaboratorsData);
     if (collaboratorsData) {
       this.checkIfUserIsInArticle()
     }
@@ -503,7 +506,7 @@ export class YdocService {
   resetYdoc() {
 
     this.editorIsBuild = false;
-    this.curUserRole = undefined
+    this.curUserAccess = undefined
     this.ydoc = new Y.Doc();
 
     if (this.provider) {
@@ -724,7 +727,8 @@ export class YdocService {
   setArticleOwnerInfo() {
     this.shouldSetTheOwnerForTheNewArticle = false
     if (this.roomName == this.newArticleId) {
-      this.collaborators.set('collaborators', { collaborators: [{ ...this.ownerInfo.data, role: 'Owner' }] });
+      console.log('set contributors owner',{ collaborators: [{ ...this.ownerInfo.data, access: 'Owner' }] });
+      this.collaborators.set('collaborators', { collaborators: [{ ...this.ownerInfo.data, access: 'Owner' }] });
     }
     this.ownerInfo = undefined
     this.newArticleId = ''

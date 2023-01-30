@@ -271,11 +271,11 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     }
   }
 
-  userRole:string
+  userAccess:string
   ngOnInit(): void {
     this.ydocService.currUserRoleSubject.subscribe((userData:any)=>{
-      this.userRole = userData.role
-      if(this.userRole == 'Commenter'||this.userRole == 'Viewer'){
+      this.userAccess = userData.access
+      if(this.userAccess == 'Commenter'||this.userAccess == 'Viewer'){
         this.prosemirrorEditorServie.previewArticleMode.mode = true
         this.titleControl.disable()
       }

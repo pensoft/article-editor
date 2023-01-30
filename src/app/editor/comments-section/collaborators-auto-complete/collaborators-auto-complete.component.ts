@@ -2,7 +2,7 @@ import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Outpu
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { AllUsersService } from '@app/core/services/all-users.service';
-import { contributorData, roleMaping } from '@app/editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
+import { contributorData, accessMaping } from '@app/editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
 import { SendInvitationComponent } from '@app/editor/dialogs/add-contributors-dialog/send-invitation/send-invitation.component';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { Subscription } from 'rxjs';
@@ -30,8 +30,8 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
     public dialog: MatDialog,) {
     // should get all the users at the rendering of this component
 
-
     this.currCollaboratorsIneditor = this.serviceShare.YdocService.collaborators.get('collaborators')
+    console.log('get contributors autocomplete',this.currCollaboratorsIneditor);
     this.collabSub = this.serviceShare.YdocService.collaboratorsSubject.subscribe((collaborators)=>{
       this.currCollaboratorsIneditor = collaborators
     })
@@ -65,7 +65,7 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
     }
   }
 
-  addDataToBackend(emailsInText: string[], newEmails: string[],role?:string) {
+  addDataToBackend(emailsInText: string[], newEmails: string[],access?:string) {
     let mappedNewCollaborators = newEmails.map((email) => {
       let actualUser = this.allusers.find((user) => user.email == email)
       if (actualUser) {
@@ -88,7 +88,7 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
     let message = this.inputFormControl.value;
     let commentMarkHash = this.commentmarkId
     let invited = invitedPeople.map((x:any)=>{
-      x.type = roleMaping[role];
+      x.type = accessMaping[access];
       return x
     })
     let postBody = {
@@ -132,10 +132,11 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
             this.serviceShare.ProsemirrorEditorsService.spinSpinner()
             let collaboratorsCopy = [...this.currCollaboratorsIneditor.collaborators];
             result.usersChipList.forEach((newColaborator) => {
-              collaboratorsCopy.push({ ...newColaborator, role: result.selectOptions })
+              collaboratorsCopy.push({ ...newColaborator, access: result.selectOptions })
             })
 
             this.addDataToBackend(emailsInText, newCollaborators,result.selectOptions).subscribe((data)=>{
+              console.log('set contributors autocomplete invite',{ collaborators: collaboratorsCopy });
               this.serviceShare.YdocService.collaborators.set('collaborators', { collaborators: collaboratorsCopy });
               this.serviceShare.ProsemirrorEditorsService.stopSpinner()
               func(...args)

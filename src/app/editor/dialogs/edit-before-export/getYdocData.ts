@@ -117,6 +117,7 @@ export let getYdocData = function (ydoc) {
   let collaborators = ydoc.getMap('articleCollaborators'); // ------------
   let collaborators1 = collaborators.get('collaborators')
   ydocData.collaborators = collaborators1;
+  console.log('get collaborators on ydoc init',collaborators1);
 
   return ydocData
 }
