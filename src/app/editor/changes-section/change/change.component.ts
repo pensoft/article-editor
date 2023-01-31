@@ -25,6 +25,8 @@ export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
   @Output() selected = new EventEmitter<boolean>();
 
   sub?:Subscription
+
+  initialShowMore = false;
   previewMode
   constructor(
     public changesService: TrackChangesService,

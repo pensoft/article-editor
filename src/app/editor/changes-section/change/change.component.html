@@ -10,10 +10,25 @@
   <mat-card-content>
     <div class="edited-text">
       <div class="edited-text-title">{{change.type == 'deletion'?'Deleted:':change.type=='format_change'?'Formated:':'Inserted:'}}</div>
-      <div class="edited-text-content {{change.type}} target" [ngStyle]="{
+
+      <div class="edited-text-content {{change.type}} target"
+           [ngClass]="{
+      'is-cropped':!initialShowMore,
+      'is-shown':initialShowMore
+      }" [ngStyle]="{
         background:change.type == 'deletion'?'#ffd0d0':change.changeAttrs.user == currUserId?'#00B1B2':change.changeAttrs.userColor,
         color:change.type == 'deletion'?'black':change.changeAttrs.user == currUserId?'white':change.changeAttrs.userContrastColor
-      }">{{change.changeTxt}}</div>
+      }">
+        <span #changeSpan>{{change.changeTxt}}</span>
+      </div>
+      <a (click)="initialShowMore = !initialShowMore;"
+         [ngClass]="{
+         'morelessBtn':true,
+         'is-hidden':changeSpan.offsetHeight < 60
+         }"
+      >
+        {{initialShowMore ? 'Show less': 'Show more' }}
+      </a>
     </div>
 
     <div class="comment-btns" fxLayout="row nowrap" fxLayoutGap="30px" fxLayoutAlign="center center">

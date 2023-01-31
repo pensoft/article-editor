@@ -46,7 +46,7 @@
     }" (click)="selectComment()"><span #commentSpan [innerHtml]="userComment!.initialComment.comment | email"></span></div>
     <a (click)="initialShowMore = !initialShowMore;showMoreLessClick()" [ngClass]="{
       'morelessBtn':true,
-      'comment-display-none':commentSpan.offsetWidth < 295 && commentSpan.offsetHeight < 20
+      'comment-display-none':commentSpan.offsetWidth < 306 && commentSpan.offsetHeight < 20
     }">{{initialShowMore ? 'Show less': 'Show more' }}</a>
 
     <div *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'">
