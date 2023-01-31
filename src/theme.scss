@@ -1383,3 +1383,23 @@ mat-radio-group {
   }
 }
 
+/* Data Tree icons position global override */
+
+.outer-list {
+  > app-section-leaf {
+    &:first-child {
+      .section_btn_container {
+        top: 0;
+        transform: none;
+      }
+    }
+
+    &:last-child {
+      .section_btn_container {
+        top: auto;
+        bottom: 0;
+        transform: none;
+      }
+    }
+  }
+}

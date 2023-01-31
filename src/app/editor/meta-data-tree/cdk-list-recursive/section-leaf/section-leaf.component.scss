@@ -32,18 +32,12 @@ $itemHeight: 30px;
   width: 30px !important;
   padding: 0px;
   line-height: 0px;
-  .mat-button-wrapper {
-    padding: 0px;
-    padding-top: 7px;
-    line-height: 0px;
-  }
 }
 
 .section_btn_outerList {
   color: #223361;
   background-color: white;
-  margin-right: 1px;
-  margin-left: 2px;
+  margin: 0 2px;
   z-index: 5;
   vertical-align: middle;
   box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
@@ -52,13 +46,8 @@ $itemHeight: 30px;
 ::ng-deep .section_btn {
   height: 30px !important;
   width: 30px !important;
-  padding: 0px;
-  line-height: 0px;
-  .mat-button-wrapper {
-    padding: 0px;
-    padding-top: 7px;
-    line-height: 0px;
-  }
+  padding: 0;
+  line-height: 0;
 }
 
 ::ng-deep .section_btn_nestedList {
@@ -66,11 +55,6 @@ $itemHeight: 30px;
   width: 30px !important;
   padding: 0px;
   line-height: 0px;
-  .mat-button-wrapper {
-    padding: 0px;
-    padding-top: 7px;
-    line-height: 0px;
-  }
 }
 
 .sectionBorderNestedInactive {
@@ -340,12 +324,11 @@ $itemHeight: 30px;
   flex-flow: column nowrap;
   gap: 4px;
   position: absolute;
-  top: calc(50% + 16px);
+  top: 50%;
   right: 2px;
-  margin-top: -25%;
   z-index: 5;
   width: 34px;
-  transform: none;
+  transform: translateY(-50%);
 }
 
 .drag_btn_leaf_node_nested {
@@ -373,8 +356,7 @@ $itemHeight: 30px;
 .section_btn_nestedList {
   color: #223361;
   background-color: white;
-  margin-right: 1px;
-  margin-left: 2px;
+  margin: 0 2px;
   z-index: 5;
   vertical-align: top;
   box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
@@ -384,10 +366,7 @@ $itemHeight: 30px;
   height: 20px !important;
   width: 20px !important;
   align-self: center;
-  line-height: 0px !important;
-  .mat-button-wrapper {
-    line-height: 0px !important;
-  }
+  line-height: 0 !important;
   .mat-icon {
     height: 20px;
     width: 20px;
