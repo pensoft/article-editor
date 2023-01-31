@@ -11,7 +11,6 @@ import {
 } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { citableTable } from '@app/editor/utils/interfaces/citableTables';
 import { basicSetup, EditorState, EditorView } from '@codemirror/basic-setup';
 import { html } from '@codemirror/lang-html';
 import { YdocService } from '@app/editor/services/ydoc.service';
@@ -19,9 +18,7 @@ import { schema } from '@app/editor/utils/Schema';
 import { DOMParser } from 'prosemirror-model';
 import { uuidv4 } from 'lib0/random';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
-import { FormioEventsService } from '@app/editor/formioComponents/formio-events.service';
 import { citationElementMap } from '@app/editor/services/citable-elements.service';
-import { TableSizePickerComponent } from '@app/editor/utils/table-size-picker/table-size-picker.component';
 import { supplementaryFileJSON } from '@app/editor/utils/section-templates/form-io-json/supplementaryFileFormIOJson';
 import { supplementaryFile } from '@app/editor/utils/interfaces/supplementaryFile';
 
@@ -92,7 +89,6 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
     private changeDetectorRef: ChangeDetectorRef,
     private dialogRef: MatDialogRef<AddSupplementaryFileComponent>,
     private ydocService: YdocService,
-    private formioEventsService: FormioEventsService,
     @Inject(MAT_DIALOG_DATA) public data:  { supplementaryFile:supplementaryFile, updateOnSave: boolean, index: number, supplementaryFileID: string }
   ) {
 

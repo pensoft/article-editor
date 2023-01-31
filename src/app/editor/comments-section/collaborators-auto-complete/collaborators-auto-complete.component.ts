@@ -173,7 +173,7 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
       if (this.emailAddRegex.test(data)) {
         let searchVal = data.match(this.emailAddRegex)[0].replace(this.emailAddRegexMathStart, '');
         this.lastSearchVal = searchVal;
-          this.usersService.getAllUsers({page:1,pageSize:10,'search':searchVal}).subscribe((res) => {
+          this.usersService.getAllUsers({page:1,pageSize:10,'filter[search]':searchVal}).subscribe((res) => {
             this.allusers = res
             //this.searchResults = res
             if(!searchVal||searchVal.length == 0){

@@ -227,6 +227,7 @@ export class TreeService implements OnDestroy {
   }
 
   getNodeLevel(node: articleSection) {
+    if(!node) return 0;
     let nodeLevel: number
     let findLevel = (children: articleSection[], level: number) => {
       children.forEach((child) => {

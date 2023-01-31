@@ -1,19 +1,19 @@
-<button mat-raised-button [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="figures-button" (click)="!previewMode.mode?openFiguresDialog():undefined">Figures</button>
-<button mat-raised-button [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="figures-button" (click)="!previewMode.mode?openReferencesDialog():undefined">References</button>
-<button mat-raised-button [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="figures-button" (click)="!previewMode.mode?openTablesDialog():undefined">Tables</button>
-<button mat-raised-button [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="figures-button" (click)="!previewMode.mode?openSupplementaryFilesDialog():undefined">Suppl. Files</button>
-<button mat-raised-button [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="figures-button" (click)="!previewMode.mode?openEndNotesDialog():undefined">End Notes</button>
+<button mat-stroked-button color="primary" [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="article-metadata-button" (click)="!previewMode.mode?openFiguresDialog():undefined">Figures</button>
+<button mat-stroked-button color="primary" [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="article-metadata-button" (click)="!previewMode.mode?openReferencesDialog():undefined">References</button>
+<button mat-stroked-button color="primary" [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="article-metadata-button" (click)="!previewMode.mode?openTablesDialog():undefined">Tables</button>
+<button mat-stroked-button color="primary" [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="article-metadata-button" (click)="!previewMode.mode?openSupplementaryFilesDialog():undefined">Suppl. Files</button>
+<button mat-stroked-button color="primary" [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="article-metadata-button" (click)="!previewMode.mode?openEndNotesDialog():undefined">End Notes</button>
 <button *ngIf="
       enforcer.newBeahviorSubject |
       hasPermission:'/articles/sections':
       'GET' |
       async
-" mat-raised-button [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="figures-button" (click)="!previewMode.mode?addNewSectionToArticle():undefined">Add Section</button>
-<button mat-raised-button class="figures-button" (click)="logData()">Log Data</button>
-<button [ngStyle]="{display:'none'}" mat-raised-button class="figures-button" (click)="resetCitatsObj()">Reset citats Obj</button>
-<button [ngStyle]="{display:'none'}" mat-raised-button class="figures-button" (click)="refreshToken()">Refresh Token</button>
-<!-- <button [ngStyle]="{display:'none'}" mat-raised-button class="figures-button" (click)="updateFigures()">Update Figures</button> -->
-<button [ngStyle]="{display:'none'}" mat-raised-button class="figures-button" (click)="preventAddToHistory()">Prevent add to history</button>
-<button [ngStyle]="{display:'none'}" mat-raised-button class="figures-button" (click)="openTestingDialog()">Testing dialog</button>
-<button [ngStyle]="{display:'none'}" mat-raised-button class="figures-button" (click)="getArticleCollaboratorsData()">Log Collabs</button>
-<button [ngStyle]="{display:'none'}" mat-raised-button class="figures-button" (click)="showArticleData()">Show article data</button>
+" mat-stroked-button color="primary" [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="article-metadata-button" (click)="!previewMode.mode?addNewSectionToArticle():undefined">Add Section</button>
+<button mat-stroked-button color="primary" class="article-metadata-button" (click)="logData()">Log Data</button>
+<button [ngStyle]="{display:'none'}" mat-stroked-button color="primary" class="article-metadata-button" (click)="resetCitatsObj()">Reset citats Obj</button>
+<button [ngStyle]="{display:'none'}" mat-stroked-button color="primary" class="article-metadata-button" (click)="refreshToken()">Refresh Token</button>
+<!-- <button [ngStyle]="{display:'none'}" mat-stroked-button class="article-metadata-button" (click)="updateFigures()">Update Figures</button> -->
+<button [ngStyle]="{display:'none'}" mat-stroked-button color="primary" class="article-metadata-button" (click)="preventAddToHistory()">Prevent add to history</button>
+<button [ngStyle]="{display:'none'}" mat-stroked-button color="primary" class="article-metadata-button" (click)="openTestingDialog()">Testing dialog</button>
+<button [ngStyle]="{display:'none'}" mat-stroked-button color="primary" class="article-metadata-button" (click)="getArticleCollaboratorsData()">Log Collabs</button>
+<button [ngStyle]="{display:'none'}" mat-stroked-button color="primary" class="article-metadata-button" (click)="showArticleData()">Show article data</button>

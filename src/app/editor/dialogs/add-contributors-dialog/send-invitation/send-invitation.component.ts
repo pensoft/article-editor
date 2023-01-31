@@ -55,12 +55,8 @@ export class SendInvitationComponent implements OnInit, AfterViewInit {
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.invitedPeople.valueChanges.subscribe((value)=>{
-      this.allUsersService.getAllUsersV2({page:1,pageSize:10,'search':value}).subscribe((response: any) => {
-        if(response.meta.search&&response.meta.search.length>0){
-          this.resultData.next(response.data)
-        }else{
-          this.resultData.next([])
-        }
+      this.allUsersService.getAllUsersV2({page:1,pageSize:10,'filter[search]':value}).subscribe(({data = []}: any) => {
+        this.resultData.next(data)
       });
     })
     /* this.filteredInvitedPeople = this.invitedPeople.valueChanges.pipe(

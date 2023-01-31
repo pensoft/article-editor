@@ -28,15 +28,17 @@ export function installPatch(treeService: TreeService) {
 
     //@ts-ignore
     let targets = [this, ...this._siblings];
-    if (!item.data.data) {
-      return undefined
-    }
+
     // Only consider targets where the drag postition is within the client rect
     // (this avoids calling enterPredicate on each possible target)
     let matchingTargets = targets.filter(ref => {
       let isInside = isInsideClientRect(ref.element.getBoundingClientRect(), x, y);
       return isInside
     });
+
+    if (!item.data.data) {
+      return matchingTargets[0]
+    }
     // Stop if no targets match the coordinates
     if (matchingTargets.length == 0) {
       return undefined;
@@ -70,7 +72,7 @@ function canMoveOut(target: any, item: any, treeService: TreeService) {
     if (item._initialContainer.data.id !== "parentList") {
       // the initial parent of the node , from where we start dragging the node
       let parentNode = treeService.findNodeById(item._initialContainer.data.id)!
-      if (parentNode.subsectionValidations) {
+      if (parentNode&&parentNode.subsectionValidations) {
         let moovingNode = item.data.data.node
         let canMove = checkMinWhenMoovingASectionOut(moovingNode, parentNode);
         if (!canMove) {
@@ -88,7 +90,7 @@ function canMoveIn(target: any, item: any, treeService: TreeService) {
   if (target.data.id !== "parentList") {
     // the initial parent of the node , from where we start dragging the node
     let moovingInNode = treeService.findNodeById(target.data.id)!
-    if (moovingInNode.subsectionValidations) {
+    if (moovingInNode&&moovingInNode.subsectionValidations) {
       let moovingNode = item.data.data.node
       let canMove = checkMaxWhenMoovingASectionIn(moovingNode, moovingInNode);
       if (!canMove) {
@@ -113,7 +115,7 @@ function canReceive(target: any, item: any, treeService: TreeService) {
 
   }
   let levelsInItem = 0;
-  if (item.data.data.node.type == 'complex') {
+  if (item.data.data.node?.type == 'complex') {
     levelsInItem = 1;
     let countInnerLevels = (node: articleSection, level: number) => {
       if (node.type == 'complex') {

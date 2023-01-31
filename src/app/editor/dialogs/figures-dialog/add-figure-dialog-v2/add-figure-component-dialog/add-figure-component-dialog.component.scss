@@ -1,0 +1,28 @@
+.pm-pdf-menu-container{
+  text-align: center;
+  box-shadow: 0 5px 5px #1bb1b22b;
+  height: 48.14px;
+}
+.figure-component-edit{
+  width: 60%;
+  display: inline-block;
+  .url-edit-field{
+    width: 40%;
+
+  }
+  .type-edit-field{
+    width: 25%;
+    margin-left: 30px;
+  }
+  .pm-editor{
+    border-bottom: 1px solid #00b1b2;
+    padding: 18px;
+  }
+}
+.figure-component-edit-preview{
+  width: 40%;
+  display: inline-block;
+  img{
+    width: 100%;
+  }
+}
