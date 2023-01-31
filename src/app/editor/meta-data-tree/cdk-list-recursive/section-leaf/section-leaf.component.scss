@@ -336,15 +336,16 @@ $itemHeight: 30px;
 }
 
 .section_btn_container {
-  display: inline-grid;
-  height: fit-content;
-  align-content: center;
-  width: 30px;
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 4px;
   position: absolute;
+  top: calc(50% + 16px);
+  right: 2px;
+  margin-top: -25%;
   z-index: 5;
-  top: 50%;
-  transform: translate(4%, -50%);
-  margin-top: -2px;
+  width: 34px;
+  transform: none;
 }
 
 .drag_btn_leaf_node_nested {
