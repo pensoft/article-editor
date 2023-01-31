@@ -62,7 +62,7 @@
       <div class="error-container" #errorContainer>{{errorText}}</div>
       <arpha-button label="Login" type="submit" class="primary large login-button"></arpha-button>
       <div class="text">or</div>
-      <arpha-button routerLink="/register" label="Register" class="secondary large register-button"></arpha-button>
+      <arpha-button (clickEvent)="goToRegister()" label="Register" class="secondary large register-button"></arpha-button>
       <div class="crossed-title">
         <span>or Login with</span>
       </div>
