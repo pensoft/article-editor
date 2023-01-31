@@ -2,7 +2,7 @@ import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Outpu
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { AllUsersService } from '@app/core/services/all-users.service';
-import { contributorData, accessMaping } from '@app/editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
+import { contributorData, accessMaping, authorListData } from '@app/editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
 import { SendInvitationComponent } from '@app/editor/dialogs/add-contributors-dialog/send-invitation/send-invitation.component';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { Subscription } from 'rxjs';
@@ -19,7 +19,7 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
 
   @Input() inputFormControl!: FormControl;
   @Output() inputFormControlChange = new EventEmitter<FormControl>();
-
+  authorsList:authorListData[]
   allusers?: contributorData[]
   searchResults: contributorData[] = []
   currCollaboratorsIneditor: any
@@ -34,6 +34,8 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
     console.log('get contributors autocomplete',this.currCollaboratorsIneditor);
     this.collabSub = this.serviceShare.YdocService.collaboratorsSubject.subscribe((collaborators)=>{
       this.currCollaboratorsIneditor = collaborators
+      this.authorsList = this.serviceShare.YdocService.collaborators.get('authorsList');
+      console.log('set authorsList',this.authorsList);
     })
   }
 
@@ -132,14 +134,25 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
           'notifyingPeople': any,
           'accessSelect': string,
           'roleSelect': string,
+          'affiliations':{
+            affiliation:string,
+            city:string,
+            country:string
+          }[],
           'message': string
         }) => {
           if (result.usersChipList.length > 0 && result.accessSelect && result.accessSelect != '' && this.currCollaboratorsIneditor) {
+            console.log(result);
             this.serviceShare.ProsemirrorEditorsService.spinSpinner()
             let collaboratorsCopy = [...this.currCollaboratorsIneditor.collaborators];
             result.usersChipList.forEach((newColaborator) => {
-              collaboratorsCopy.push({ ...newColaborator, access: result.accessSelect })
+              collaboratorsCopy.push({ ...newColaborator, access: result.accessSelect,role:result.roleSelect,affiliations:result.affiliations })
             })
+
+            let authorsListCopy:authorListData[] = [...this.authorsList];
+            if(result.roleSelect == 'Author' || result.roleSelect == 'Co-author'){
+              authorsListCopy.push(result.usersChipList.map(user=>{return {authorId:user.id,authorEmail:user.email}}));
+            }
 
             this.addDataToBackend(emailsInText, newCollaborators,result.accessSelect).subscribe((data)=>{
               console.log('set contributors autocomplete invite',{ collaborators: collaboratorsCopy });

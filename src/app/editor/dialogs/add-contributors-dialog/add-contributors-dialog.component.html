@@ -1,29 +1,21 @@
-<h2 mat-dialog-title class="title-margin-bottom">Add Contributors</h2>
+<h2 mat-dialog-title class="title-margin-bottom">Add Collaborators</h2>
 
 <div class="search-field-wrapper">
 
   <div class="mat-form-field-search-label">Invite people</div>
   <mat-form-field class="mat-form-field-search" appearance="fill">
-    <input type="text"
-           class="input-search"
-           placeholder="Search by name"
-           matInput
-           [formControl]="searchFormControl"
-           autocomplete="off">
+    <input type="text" class="input-search" placeholder="Search by name" matInput [formControl]="searchFormControl" autocomplete="off">
     <mat-icon matPrefix class="prefix-icon">search</mat-icon>
   </mat-form-field>
   <div class="search-result-container">
     <div *ngIf="searchResults.length>0" class="search-results">
       <ng-container *ngFor="let contributor of searchResults">
-        <div fxLayout="row nowrap"
-             fxLayoutAlign="flex-start center"
-             fxLayoutGap="16px"
-             class="results-row"
-             (click)="openAddContrDialog(contributor)">
+        <div fxLayout="row nowrap" fxLayoutAlign="flex-start center" fxLayoutGap="16px" class="results-row" (click)="openAddContrDialog(contributor)">
           <ngx-avatar mat-card-avatar size="32" [gravatarId]="contributor.email" [name]="contributor.name"></ngx-avatar>
 
-          <span class="contributor-name" fxFlex="1 0 0">
-            {{contributor.name}}{{contributor.email == currentUser.email?" (you)":''}}
+          <span class="contributor-name">
+            <div [innerHTML]="contributor.name | makeTextBold : searchFormControl.value"></div>
+            <div [innerHTML]="contributor.email | makeTextBold : searchFormControl.value"></div>
           </span>
         </div>
       </ng-container>
@@ -33,76 +25,72 @@
 
 <mat-dialog-content class="fixed-dialog-content-height">
   <div class="container-shadow-contributor">
-    <div *ngIf="this.collaborators &&this.collaborators.collaborators && this.currentUser" class="container-contributers"
-         fxLayout="column nowrap"
-         fxLayoutGap="10px">
-      <div *ngFor="let contributor of collaborators.collaborators" fxLayout="column">
-        <div *ngIf="contributor.access == 'Owner'"
-             fxLayout="row nowrap"
-             fxLayoutAlign="flex-start center"
-             fxLayoutGap="16px"
-             class="contributor-row is-owner">
-          <ngx-avatar mat-card-avatar size="42" [gravatarId]="contributor.email" [name]="contributor.name"></ngx-avatar>
-
-          <span class="contributor-name" fxFlex="1 0 0">
-            {{contributor.name}}{{contributor.email == currentUser.email?" (you)":''}}
-          </span>
-
-          <span class="contributor-role">{{contributor.access}}</span>
-        </div>
-
-        <div *ngIf="contributor.access != 'Owner'"
-             class="contributor-row"
-             fxLayout="row nowrap"
-             fxLayoutAlign="flex-start center"
-             fxLayoutGap="16px">
-
-          <ngx-avatar mat-card-avatar size="42" [gravatarId]="contributor.email" [name]="contributor.name"></ngx-avatar>
-
-          <span class="contributor-name" fxFlex="1 0 0">
-            {{contributor.name}}{{contributor.email == currentUser.email?"(you)":''}}
-          </span>
-
-          <span class="contributor-role">{{contributor.access}}</span>
-
-          <button *ngIf="isOwner" class="edit-contributor-btn" (click)="editContr(contributor)">
+    <div *ngIf="this.collaborators &&this.collaborators.collaborators">
+      <div *ngIf="this.authors" cdkDropList class="authors-list container-contributers" fxLayout="column nowrap" fxLayoutGap="10px" (cdkDropListDropped)="drop($event)">
+        <h1 class="authors-list-h">Authors and Co-authors:</h1>
+        <ng-container *ngFor="let author of authors">
+          <div *ngIf="author.access == 'Owner'" fxLayout="row nowrap" fxLayoutAlign="flex-start center" fxLayoutGap="16px" cdkDragLockAxis="y"  class="contributor-row is-owner author-box" cdkDrag>
+            <div class="author-handle" cdkDragHandle>
+              <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
+                <path d="M0 0h24v24H0z" fill="none"></path>
+              </svg>
+            </div>
+            <ngx-avatar mat-card-avatar size="42" [gravatarId]="author.email" [name]="author.name"></ngx-avatar>
+            <span class="contributor-name" fxFlex="1 0 0">
+            {{author.name}}{{author.email == currentUser.email?" (you)":''}}
+            </span>
+            <span class="contributor-role">{{author.access}}</span>
+          </div>
+          <div *ngIf="author.access != 'Owner'" class="contributor-row author-box" fxLayout="row nowrap" cdkDragLockAxis="y"  fxLayoutAlign="flex-start center" fxLayoutGap="16px" cdkDrag>
+            <div class="author-handle" cdkDragHandle>
+              <svg width="24px" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M10 9h4V6h3l-5-5-5 5h3v3zm-1 1H6V7l-5 5 5 5v-3h3v-4zm14 2l-5-5v3h-3v4h3v3l5-5zm-9 3h-4v3H7l5 5 5-5h-3v-3z"></path>
+                <path d="M0 0h24v24H0z" fill="none"></path>
+              </svg>
+            </div>
+            <ngx-avatar mat-card-avatar size="42" [gravatarId]="author.email" [name]="author.name"></ngx-avatar>
+            <span class="contributor-name" fxFlex="1 0 0">
+            {{author.name}}{{author.email == currentUser.email?"(you)":''}}
+            </span>
+            <span class="contributor-role">{{author.access}}</span>
+            <button *ngIf="isOwner" class="edit-contributor-btn" (click)="editContr(author)">
             <mat-icon svgIcon="editGreen"></mat-icon>
-          </button>
-
-        </div>
+            </button>
+          </div>
+        </ng-container>
+      </div>
+      <div *ngIf="this.contributors" class="contributors-list container-contributers" fxLayout="column nowrap" fxLayoutGap="10px" >
+        <h1 class="contributors-list-h">Contributors:</h1>
+        <ng-container *ngFor="let author of contributors">
+          <div *ngIf="author.access == 'Owner'" fxLayout="row nowrap" fxLayoutAlign="flex-start center" fxLayoutGap="16px" class="contributor-row is-owner">
+            <ngx-avatar mat-card-avatar size="42" [gravatarId]="author.email" [name]="author.name"></ngx-avatar>
+            <span class="contributor-name" fxFlex="1 0 0">
+            {{author.name}}{{author.email == currentUser.email?" (you)":''}}
+            </span>
+            <span class="contributor-role">{{author.access}}</span>
+          </div>
+          <div *ngIf="author.access != 'Owner'" class="contributor-row" fxLayout="row nowrap" fxLayoutAlign="flex-start center" fxLayoutGap="16px">
+            <ngx-avatar mat-card-avatar size="42" [gravatarId]="author.email" [name]="author.name"></ngx-avatar>
+            <span class="contributor-name" fxFlex="1 0 0">
+            {{author.name}}{{author.email == currentUser.email?"(you)":''}}
+            </span>
+            <span class="contributor-role">{{author.access}}</span>
+            <button *ngIf="isOwner" class="edit-contributor-btn" (click)="editContr(author)">
+            <mat-icon svgIcon="editGreen"></mat-icon>
+            </button>
+          </div>
+        </ng-container>
       </div>
     </div>
     <article fxLayout="column">
       <div fxLayout="row" fxLayoutGap="15px" fxFill fxLayoutAlign="end" class="dialogbtns border-radius20 mt10px">
-        <!-- <button class="normal-btn-cancel-graystyle" (click)="closeDialog()">Cancel</button> -->
       </div>
-
     </article>
   </div>
-  <!-- <div class="container-shadow-contributor mt10px ">
-    <article fxLayout="column">
-      <div fxLayout="row" fxFill fxLayoutAlign="start center"><span class="font-size16px bold">Owner
-                    Settings</span></div>
-      <div fxLayout="row" fxFill fxLayoutAlign="start center">
-        <section fxLayout="column" [formGroup]="ownerSettingsForm" (ngSubmit)="submitOwnerSettingsForm()">
-          <p>
-            <mat-checkbox formControlName="accessAdding">Prevent editors from changing access and adding new people
-            </mat-checkbox>
-          </p>
-          <p>
-            <mat-checkbox formControlName="disableOptionsPrint">Disable options to print, copy for commenters and viewers</mat-checkbox>
-          </p>
-        </section>
-      </div>
-    </article>
-  </div> -->
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
   <button mat-flat-button color="primary" (click)="closeDialog()">Done</button>
 </mat-dialog-actions>
-
-
-
-

@@ -6,7 +6,6 @@
   &.is-owner {
     background: #EDF8F9;
     border-color: #EDF8F9;
-    margin: 0 0 16px 0;
 
     ngx-avatar {
       .avatar-container {
@@ -62,6 +61,56 @@
   }
 }
 
+.authors-list {
+  max-width: 100%;
+  min-height: 60px;
+  display: block;
+  background: white;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.cdk-drag-placeholder{
+  opacity: 0 !important;
+}
+
+.contributors-list{
+  margin-top: 38px;
+  border-top: 1px solid #00b1b2;
+  border-radius: 0;
+  padding-top: 46px;
+}
+
+.author-box {
+  border-bottom: solid 1px #ccc;
+  color: rgba(0, 0, 0, 0.87);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: 10px;
+  justify-content: space-between;
+  box-sizing: border-box;
+  cursor: move;
+  background: white;
+  font-size: 14px;
+}
+
+.cdk-drag-preview {
+  box-sizing: border-box;
+  border-radius: 4px;
+  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+              0 8px 10px 1px rgba(0, 0, 0, 0.14),
+              0 3px 14px 2px rgba(0, 0, 0, 0.12);
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.authors-list.cdk-drop-list-dragging .author-box:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
 .search-result-container {
   position: relative;
 
@@ -93,8 +142,6 @@
         display: -webkit-box;
         overflow: hidden;
         text-overflow: ellipsis;
-        -webkit-line-clamp: 1;
-        line-clamp: 1;
         -webkit-box-orient: vertical;
         word-break: break-all;
       }

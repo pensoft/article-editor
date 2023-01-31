@@ -48,6 +48,7 @@ import { treeNode } from './utils/interfaces/treeNode';
 import { TrackChangesService } from './utils/trachChangesService/track-changes.service';
 import { CitableElementsService } from './services/citable-elements.service';
 import { CitableElementsEditButtonsService } from './utils/citable-elements-edit-buttons/citable-elements-edit-buttons.service';
+import { CollaboratorsService } from './dialogs/add-contributors-dialog/collaborators.service';
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
@@ -86,6 +87,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     public dialog: MatDialog,
     private commentService: CommentsService,
     private _bottomSheet: MatBottomSheet,
+    private collaboratorsService: CollaboratorsService,
     private prosemirrorEditorServie: ProsemirrorEditorsService,
     private trackChanges: TrackChangesService,
     private treeService: TreeService,

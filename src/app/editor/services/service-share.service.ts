@@ -32,6 +32,7 @@ import {MatSnackBar, MatSnackBarRef} from '@angular/material/snack-bar';
 import { JatsErrorsDialogComponent } from '../dialogs/jats-errors-dialog/jats-errors-dialog.component';
 import { CitableElementsContextMenuService } from '../utils/citable-elements-context-menu/citable-elements-context-menu.service';
 import { ChangesSectionComponent } from '../changes-section/changes-section.component';
+import { CollaboratorsService } from '../dialogs/add-contributors-dialog/collaborators.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -39,6 +40,7 @@ export class ServiceShare {
 
   articleLayouts:any
 
+  CollaboratorsService?:CollaboratorsService
   ChangesSectionComponent?:ChangesSectionComponent
   CitableElementsService?:CitableElementsService
   CitableElementsContextMenuService?:CitableElementsContextMenuService
