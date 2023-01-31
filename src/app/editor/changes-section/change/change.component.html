@@ -1,6 +1,9 @@
 <mat-card *ngIf="change" class="change-box" >
   <mat-card-header>
-    <ngx-avatar mat-card-avatar size="36" [fgColor]="change.changeAttrs.user == currUserId?'white':change.changeAttrs.userContrastColor" [bgColor]="change.changeAttrs.user == currUserId?'#00B1B2':change.changeAttrs.userColor" [name]="change.changeAttrs.username"></ngx-avatar>
+    <div class="mat-card-avatar-container">
+      <ngx-avatar mat-card-avatar size="36" [fgColor]="change.changeAttrs.user == currUserId?'white':change.changeAttrs.userContrastColor" [bgColor]="change.changeAttrs.user == currUserId?'#00B1B2':change.changeAttrs.userColor" [name]="change.changeAttrs.username"></ngx-avatar>
+      <span><img src="./assets/icons/reference-small.svg" alt="{{change.changeAttrs.username}}" /></span>
+    </div>
     <mat-card-title class="change-title">{{change.changeAttrs.username}}</mat-card-title>
     <mat-card-subtitle class="change-subtitle">{{getDate(change.changeAttrs.date)}}</mat-card-subtitle>
   </mat-card-header>
@@ -12,11 +15,17 @@
         color:change.type == 'deletion'?'black':change.changeAttrs.user == currUserId?'white':change.changeAttrs.userContrastColor
       }">{{change.changeTxt}}</div>
     </div>
-    <div class="change-action-button-container">
-      <arpha-button *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'&&ydocService.curUserRole!='Commenter'" (clickEvent)="!previewMode.mode?acceptChange(change.type,change.changeAttrs):undefined" class="small secondary change-action-button" label="Accept" icon="check_small" style="margin-right:29px;">
-      </arpha-button>
-      <arpha-button *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'&&ydocService.curUserRole!='Commenter'" (clickEvent)="!previewMode.mode?declineChange(change.type,change.changeAttrs):undefined" class="small secondary change-action-button change-decline-button" label="Decline" icon="close">
-      </arpha-button>
+
+    <div class="comment-btns" fxLayout="row nowrap" fxLayoutGap="30px" fxLayoutAlign="center center">
+      <button mat-flat-button color="primary"
+              *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'&&ydocService.curUserRole!='Commenter'"
+              (click)="!previewMode.mode?acceptChange(change.type,change.changeAttrs):undefined">
+        Accept
+      </button>
+      <button mat-stroked-button *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'&&ydocService.curUserRole!='Commenter'"
+              (click)="!previewMode.mode?declineChange(change.type,change.changeAttrs):undefined">
+        Decline
+      </button>
     </div>
   </mat-card-content>
 </mat-card>

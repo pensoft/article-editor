@@ -1,10 +1,10 @@
 <div *ngIf="searchResults.length>0" class="auto-complete-container">
   <div *ngFor="let user of searchResults;let i = index" (click)="selectedUser(user)" class="user-option {{i == selectedUserIndex?'selected-option':''}}">
     <div class="avatar-autocomplete">
-      <ngx-avatar mat-card-avatar size="36" [gravatarId]="user.email" [name]="user.name"></ngx-avatar>
+      <ngx-avatar mat-card-avatar size="28" [gravatarId]="user.email" [name]="user.name"></ngx-avatar>
     </div>
-    <div class="email-autocomplete">
-      <div [innerHTML]="user.email | makeTextBold : lastSearchVal">
+    <div class="text-autocomplete">
+      <div [innerHTML]="user.name | makeTextBold : lastSearchVal">
       </div>
     </div>
   </div>

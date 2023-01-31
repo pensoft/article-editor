@@ -68,44 +68,6 @@
   }
 }
 
-app-change {
-  border: 1px solid #d6d6d6;
-  border-radius: 12px;
-  display: block;
-  background: white;
-  transition: all 0.1s linear;
-}
-
-app-change:hover {
-  box-shadow: 0px 0px 7px 0px #00000069;
-}
-
-
-.change-container {
-  transition: width .3s linear, top .3s linear, padding-left .3s linear, padding-right .3s linear, opacity .2s ease-in-out .3s;
-  padding-left: 18px;
-  padding-right: 18px;
-  padding-top: 9px;
-  padding-bottom: 9px;
-  position: absolute;
-  display: block;
-  width: calc(100% - 36px);
-  border-radius: 12px;
-  top: 0;
-}
-
-.selected-change {
-  padding-left: 6px !important;
-  padding-right: 6px !important;
-  width: calc(100% - 12px) !important;
-  padding-top: 3px !important;
-  padding-bottom: 3px !important;
-  z-index: 2;
-  app-change {
-    box-shadow: 0px 0px 7px 0px #00000069 !important;
-  }
-}
-
 .changes-footer {
   width: 100%;
   flex: 0 1 70px;
