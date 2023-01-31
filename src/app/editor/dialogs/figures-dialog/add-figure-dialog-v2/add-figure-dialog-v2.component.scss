@@ -28,12 +28,12 @@
   padding: 4px;
 }
 
-.component-action-btns{
+.component-action-btns {
   height: 60px;
   border-top: 1px solid #32b1b2;
   position: relative;
 
-  .drag-container{
+  .drag-container {
     width: 30%;
     text-align: left;
     display: inline-block;
@@ -65,11 +65,10 @@
 }
 
 .columns-select{
-  margin-top: 20px;
-  text-align: center;
+  margin: 0;
 }
 
-.example-container {
+.reorder-grid {
   display: flex;
   flex-wrap: wrap;
   max-width: 900px;
@@ -79,10 +78,9 @@
 
 
 
-app-figure-component-preview{
-  width: calc(100% - 60px);
-  height: 100%;
-}
+
+
+
 
 
 .example-box {
@@ -101,14 +99,20 @@ app-figure-component-preview{
   box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
   0 2px 2px 0 rgba(0, 0, 0, 0.14),
   0 1px 5px 0 rgba(0, 0, 0, 0.12);
+
+  &:active {
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+    0 8px 10px 1px rgba(0, 0, 0, 0.14),
+    0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    opacity: .6;
+  }
+
+  app-figure-component-preview {
+    width: calc(100% - 60px);
+    height: 100%;
+  }
 }
 
-.example-box:active {
-  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-  0 8px 10px 1px rgba(0, 0, 0, 0.14),
-  0 3px 14px 2px rgba(0, 0, 0, 0.12);
-  opacity: .6;
-}
 
 .cdk-drop-list {
   display: flex;

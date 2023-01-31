@@ -15,6 +15,7 @@ import { html } from '@codemirror/lang-html';
 import { uuidv4 } from 'lib0/random';
 import { pageDimensionsInPT } from '../../edit-before-export/edit-before-export.component';
 import { AddFigureComponentDialogComponent } from './add-figure-component-dialog/add-figure-component-dialog.component';
+
 let figuresHtmlTemplate = `
 <block-figure [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.figure_number]="data.figureNumber" [attr.figure_id]="data.figureID">
     <figure-components-container contenteditablenode="false">
