@@ -1,19 +1,28 @@
-::ng-deep .mat-form-field {
-  .mat-input-element {
+::ng-deep .mat-form-field-infix {
+  .mat-select {
     height: 35px;
     padding-left: 6px;
     border: 1px solid #e3e3e3 !important;
-    transition: all ease-in-out 300ms;
     border-radius: 6px !important;
+    transition: all ease-in-out 300ms;
 
     &:focus {
       border: 1px solid #00b1b2 !important;
     }
+    .mat-select-trigger {
+      .mat-select-arrow-wrapper {
+        padding: 16px 12px 6px;
+      }
+
+      .mat-select-value {
+        padding-top: 11px
+      }
+    }   
   }
 
   .mat-form-field-label-wrapper {
     .mat-form-field-label {
-      padding: 10px 6px 6px 8px;
+      padding: 10px 6px 6px;
     }
   }
 }
