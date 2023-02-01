@@ -25,22 +25,26 @@
       </div>
     </div>
     <div class="section_btn_container">
-      <button *ngIf="node.edit.active" [style.display]="'none'" [ngStyle]="{'order':'2','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" (click)="editNodeHandle(node, nodeFormGroup);node.active = true"><mat-icon class="matIcon" >edit</mat-icon></button>
+      <button *ngIf="node.edit.active" [style.display]="'none'" [ngStyle]="{'order':'1'}" mat-mini-fab class="section_btn_outerList hidden" (click)="editNodeHandle(node, nodeFormGroup);node.active = true"><mat-icon class="matIcon" >edit</mat-icon></button>
       <button *ngIf="
       node?.add?.active && (
       enforcer.newBeahviorSubject |
       hasPermission:'/articles/sections/*':
       'GET' |
       async
-      )" [style.display]="'none'" [ngStyle]="{'order':'1','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" (click)="addNodeHandle(node.sectionID);showButtons(cdkDragSection,false,
-      !isComplex?'sectionBorder':'sectionBorderListItem','selectedEditor',node)"><mat-icon class="matIcon">add</mat-icon ></button>
-      <button [style.display]="'none'" [ngStyle]="{'order':'3','margin': '2px'}" mat-mini-fab class="section_btn_outerList hidden" *ngIf="node?.delete?.active" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
+      )" [style.display]="'none'" [ngStyle]="{'order':'2'}" mat-mini-fab class="section_btn_outerList hidden" (click)="addNodeHandle(node.sectionID);showButtons(cdkDragSection,false,
+      !isComplex?'sectionBorder':'sectionBorderListItem','selectedEditor',node)">
+        <img src="./assets/icons/plus2.svg" alt="{{node.title.label}}">
+      </button>
+      <button [style.display]="'none'" [ngStyle]="{'order':'3'}" mat-mini-fab class="section_btn_outerList hidden is-delete" *ngIf="node?.delete?.active" (click)="deleteNodeHandle(node.sectionID)">
+        <img src="./assets/icons/delete_forever-red.svg" alt="{{node.title.label}}">
+      </button>
       <button *ngIf="(node?.addSubSection?.active) &&
       (enforcer.newBeahviorSubject |
       hasPermission:'/articles/sections/*':
       'GET' |
       async)
-      " [style.display]="'none'" [ngStyle]="{'order':'4','margin-top': '3px'}" mat-mini-fab class="addSectionBtn section_btn_nestedList hidden" (click)="addSectionToNode(node, nodeFormGroup)"><mat-icon class="matIcon">post_add</mat-icon></button>
+      " [style.display]="'none'" [ngStyle]="{'order':'4'}" mat-mini-fab class="addSectionBtn section_btn_nestedList hidden" (click)="addSectionToNode(node, nodeFormGroup)"><mat-icon class="matIcon">post_add</mat-icon></button>
     </div>
   </div>
   <div #listDiv class="example-list-dropdownbox" [style.display]="'none'" #childrenDiv>
@@ -77,12 +81,18 @@
       </div>
     </div>
     <div class="section_btn_container">
-      <button [style.display]="'none'" [ngStyle]="{'order':'2','margin': '2px'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node.edit.active" (click)="editNodeHandle(node, nodeFormGroup)"><mat-icon class="matIcon">edit</mat-icon></button>
-      <button [style.display]="'none'" [ngStyle]="{'order':'1','margin': '2px'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node?.add?.active" (click)="addNodeHandle(node.sectionID);showButtons(cdkDragSection,false,
+      <button [style.display]="'none'" [ngStyle]="{'order':'1'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node.edit.active" (click)="editNodeHandle(node, nodeFormGroup)">
+        <img src="./assets/icons/edit2.svg" alt="{{node.title.label}}">
+      </button>
+      <button [style.display]="'none'" [ngStyle]="{'order':'2'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node?.add?.active" (click)="addNodeHandle(node.sectionID);showButtons(cdkDragSection,false,
       !isComplex?'sectionBorderNested':'sectionBorderListNested',
-      !isComplex?'selectedEditorNestedLeaf':'selectedEditorNestedList',node)"><mat-icon class="matIcon">add</mat-icon></button>
-      <button [style.display]="'none'" [ngStyle]="{'order':'3','margin': '2px'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node?.delete?.active" (click)="deleteNodeHandle(node.sectionID)"><mat-icon class="matIcon">remove_circle_outline</mat-icon></button>
-      <button [style.display]="'none'" [ngStyle]="{'order':'4','margin-top': '3px'}" mat-mini-fab class="addSectionBtn section_btn_nestedList hidden" *ngIf="node?.addSubSection?.active" (click)="addSectionToNode(node, nodeFormGroup)"><mat-icon class="matIcon">post_add</mat-icon></button>
+      !isComplex?'selectedEditorNestedLeaf':'selectedEditorNestedList',node)">
+        <img src="./assets/icons/plus2.svg" alt="{{node.title.label}}">
+      </button>
+      <button [style.display]="'none'" [ngStyle]="{'order':'3'}" mat-mini-fab class="section_btn_nestedList hidden is-delete" *ngIf="node?.delete?.active" (click)="deleteNodeHandle(node.sectionID)">
+        <img src="./assets/icons/delete_forever-red.svg" alt="{{node.title.label}}">
+      </button>
+      <button [style.display]="'none'" [ngStyle]="{'order':'4'}" mat-mini-fab class="addSectionBtn section_btn_nestedList hidden" *ngIf="node?.addSubSection?.active" (click)="addSectionToNode(node, nodeFormGroup)"><mat-icon class="matIcon">post_add</mat-icon></button>
     </div>
   </div>
   <div #listDiv class="example-list-dropdownbox-nested" [style.display]="'none'" #childrenDiv>

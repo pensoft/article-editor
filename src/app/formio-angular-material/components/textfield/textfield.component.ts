@@ -38,7 +38,7 @@ export const TEXTFIELD_TEMPLATE = `
 @Component({
   selector: 'mat-formio-textfield',
   styleUrls: ['./textfield.scss'],
-  template: TEXTFIELD_TEMPLATE
+  templateUrl: './textfield.component.html',
 })
 export class MaterialTextfieldComponent extends MaterialComponent implements AfterContentInit {
   public inputType = 'text';

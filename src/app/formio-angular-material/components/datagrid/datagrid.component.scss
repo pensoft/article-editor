@@ -11,6 +11,11 @@
 }
 
 ::ng-deep .mat-cell {
+  padding-top: 10px !important;
   padding-left: 10px !important;
   padding-right: 10px !important;
+
+  &:nth-of-type(6) {
+    padding-top: 0px !important;
+  }
 }
