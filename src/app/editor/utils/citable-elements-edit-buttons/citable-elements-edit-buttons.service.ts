@@ -136,7 +136,7 @@ export class CitableElementsEditButtonsService {
     editButton.setAttribute('tabindex',"-1")
     editButton.style.cursor = 'pointer'
     editButton.title = 'Edit item.'
-    let editImg = createCustomIcon('edit2.svg', 12, 12, 0, 1.5, 1.3)
+    let editImg = createCustomIcon('edit-green.svg', 12, 12, 0, 1.5, 1.3)
     editImg.dom.className = 'edit-citable-item-img'
     editImg.dom.style.pointerEvents = 'all'
     editImg.dom.style.cursor = 'pointer'
@@ -151,7 +151,7 @@ export class CitableElementsEditButtonsService {
     deleteButton.setAttribute('tabindex',"-1")
     deleteButton.style.cursor = 'pointer'
     deleteButton.title = 'Delete item.'
-    let deleteImg = createCustomIcon('delete_forever.svg', 12, 12, 0, 1.5, 1.3)
+    let deleteImg = createCustomIcon('delete_forever-red.svg', 12, 12, 0, 1.5, 1.3)
     deleteImg.dom.className = 'delete-citable-item-img'
     deleteImg.dom.style.cursor = 'pointer'
     deleteImg.dom.style.pointerEvents = 'all'
