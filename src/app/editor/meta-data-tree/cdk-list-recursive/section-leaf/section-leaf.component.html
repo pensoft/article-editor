@@ -82,7 +82,7 @@
     </div>
     <div class="section_btn_container">
       <button [style.display]="'none'" [ngStyle]="{'order':'1'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node.edit.active" (click)="editNodeHandle(node, nodeFormGroup)">
-        <img src="./assets/icons/edit2.svg" alt="{{node.title.label}}">
+        <mat-icon class="matIcon">edit</mat-icon>
       </button>
       <button [style.display]="'none'" [ngStyle]="{'order':'2'}" mat-mini-fab class="section_btn_nestedList hidden" *ngIf="node?.add?.active" (click)="addNodeHandle(node.sectionID);showButtons(cdkDragSection,false,
       !isComplex?'sectionBorderNested':'sectionBorderListNested',
