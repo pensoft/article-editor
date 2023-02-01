@@ -21,8 +21,12 @@
 }
 
 .select-ref-form-field{
-  width: 100%;
+  width: 98%;
   margin-top: 20px;
+}
+
+.mat-select {
+  margin-top: 10px;
 }
 
 ::ng-deep .add-new-ref-tabs{
