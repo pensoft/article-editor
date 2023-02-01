@@ -784,9 +784,152 @@ export class ProsemirrorEditorsService {
     return editorCont
   }
 
+  renderDocumentHeadEditor(EditorContainer: HTMLDivElement): editorContainer {
+    let editorId = 'headEditor'
+
+    if (this.editorContainers[editorId]) {
+      EditorContainer.appendChild(this.editorContainers[editorId].containerDiv);
+      return this.editorContainers[editorId]
+    }
+
+    let container = document.createElement('div');
+    let editorView: EditorView;
+    let colors = this.colors
+    let colorMapping = this.colorMapping
+    let permanentUserData = this.permanentUserData
+    let editorID = editorId;
+
+    let menuContainerClass = "menu-container";
+    let xmlFragment = this.getXmlFragment('documentMode', editorID)
+    let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
+    yCursorPlugin(this.provider!.awareness, this.serviceShare, this.userData),
+    ]
+
+    container.setAttribute('class', 'editor-container');
+    this.initDocumentReplace[editorID] = true;
+
+
+    setTimeout(() => {
+      this.initDocumentReplace[editorID] = false;
+    }, 600);
+
+    this.editorsEditableObj[editorID] = true
+    let edState = EditorState.create({
+      schema: schema,
+      plugins: [
+        ...yjsPlugins,
+        mathPlugin,
+        keymap({
+          'Mod-z': this.yjsHistory.undo,
+          'Mod-y': this.yjsHistory.redo,
+          'Mod-Shift-z': this.yjsHistory.undo,
+          'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
+          'Tab': goToNextCell(1),
+          'Shift-Tab': goToNextCell(-1)
+        }),
+        history(),
+        getToolTipPlugin(this.serviceShare),
+        this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures }),
+        ...menuBar({
+          floating: true,
+          content: this.menuTypes, containerClass: menuContainerClass,serviceShare:this.serviceShare,sectionID: editorID
+        })
+      ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */history: false, containerClass: menuContainerClass }))
+      ,
+      // @ts-ignore
+      sectionName: editorID,
+      // @ts-ignore
+      sectionID: editorID,
+      // @ts-ignore
+    });
+
+    let lastStep: any
+
+    const dispatchTransaction = (transaction: Transaction) => {
+      this.transactionCount++
+      try {
+        if (lastStep == transaction.steps[0] && !transaction.getMeta('emptyTR')) {
+          if (lastStep) { return }
+        }
+        let isMath = false
+        if (transaction.selection instanceof NodeSelection && (transaction.selection.node.type.name == 'math_inline' || transaction.selection.node.type.name == 'math_display')) {
+          let hasmarkAddRemoveStep = transaction.steps.filter((step) => {
+            return (step instanceof AddMarkStep || step instanceof RemoveMarkStep)
+          }).length > 0;
+          if (hasmarkAddRemoveStep) {
+            return
+          }
+          isMath = true
+        }
+        lastStep = transaction.steps[0];
+        if (transaction.steps.length > 0) {
+          let undoManager = this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager;
+          let undoManagerStatus = undoManager.status;
+
+          //@ts-ignore
+          if (this.preventAddToHistory || transaction.getMeta('y-sync$') || transaction.meta['y-sync$']) {
+          } else {
+            if (undoManagerStatus !== 'capturing') {
+              this.yjsHistory.YjsHistoryKey.getState(editorView.state).undoManager.status = 'capturing'
+            }
+          }
+        }
+        let state = editorView?.state.apply(transaction);
+        editorView?.updateState(state!);
+      } catch (err) { console.error(err); }
+    };
+    editorView = new EditorView(container, {
+      state: edState,
+      clipboardTextSerializer: (slice: Slice) => {
+        return mathSerializer.serializeSlice(slice);
+      },
+      editable: (state: EditorState) => {
+        /*return !this.mobileVersion  && this.editorsEditableObj[editorID] */
+        return false
+        // mobileVersion is true when app is in mobile mod | editable() should return return false to set editor not editable so we return !mobileVersion
+      },
+      dispatchTransaction,
+      handleClick: handleClick(),
+      handleClickOn: handleClickOn(),
+      handlePaste: handlePaste(this.serviceShare),
+      handleTripleClickOn,
+      handleKeyDown: handleKeyDown(this.serviceShare),
+    });
+    EditorContainer.appendChild(container);
+
+    let editorCont: any = {
+      editorID: editorID,
+      containerDiv: container,
+      editorState: edState,
+      editorView: editorView,
+      dispatchTransaction: dispatchTransaction
+    };
+    this.editorContainers[editorID] = editorCont;
+
+    let count = 0;
+    let countActiveSections = (item: articleSection) => {
+      if (item.type == 'complex' && item.children.length > 0) {
+        item.children.forEach((child) => {
+          countActiveSections(child)
+        })
+      }
+      if (item.active == true && item.mode != 'noSchemaSectionMode') {
+        count++;
+      }
+    }
+    this.treeService.articleSectionsStructure?.forEach(item => {
+      countActiveSections(item)
+    })
+    if (count == 0) {
+      this.runFuncAfterRender()
+    }
+
+    return editorCont
+  }
+
   endDocIsEmpty = true;
 
-  renderDocumentEndEditor(EditorContainer: HTMLDivElement, figures: figure[]): editorContainer {
+  renderDocumentEndEditor(EditorContainer: HTMLDivElement): editorContainer {
     let editorId = 'endEditor'
     let hideshowPluginKEey = this.trackChangesService.hideshowPluginKey;
 

@@ -11,7 +11,7 @@
     <mat-card-title class="comment-title">{{userComment!.initialComment.userData.name}}</mat-card-title>
     <mat-card-subtitle class="comment-subtitle" >{{userComment!.initialComment.date | date:'medium'}}</mat-card-subtitle>
 
-    <div *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'" class="header-actions">
+    <div *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'" class="header-actions">
       <ng-container *ngIf="authService.currentUserSubject | async as user">
         <button mat-flat-button color="primary"
                 *ngIf="!mobileVersion && userComment!.initialComment.userData.email == user.email"
@@ -49,7 +49,7 @@
       'comment-display-none':commentSpan.offsetWidth < 306 && commentSpan.offsetHeight < 20
     }">{{initialShowMore ? 'Show less': 'Show more' }}</a>
 
-    <div *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'">
+    <div *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'">
       <div class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
       <div  #ReplyDiv class="reply-container" style="display: none;">
         <mat-form-field appearance="outline" class="reply-form-field">

@@ -147,7 +147,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       const signInResult = await lpClient.signIn();
       await this.processSigninResult(signInResult);
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 
@@ -157,12 +157,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       const signInResult = await ssoClient.signIn();
       await this.processSigninResult(signInResult);
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 
   async processSigninResult(signInResult){
-    console.log(signInResult);
     if(signInResult){
       const token = await lpClient.getToken();
       this.authService.storeToken('token', token);
