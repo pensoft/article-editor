@@ -45,7 +45,6 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
       let descContainer = document.createElement('div');
       descContainer.innerHTML = this.data.component.description;
       let prosemirrorNode = PMDomParser.parse(descContainer);
-      console.log(prosemirrorNode);
       let descPmView = this.componentDescriptionPmContainer.editorView;
       let state = descPmView.state;
       descPmView.dispatch(state.tr.replaceWith(0, state.doc.content.size, prosemirrorNode.content));

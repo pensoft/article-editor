@@ -30,7 +30,6 @@ export class RefsApiService {
   mapRefItems(refItemsFromBackend: any) {
     let refs: any[] = [];
     let ydocRefs = this.serviceShare.YdocService.referenceCitationsMap?JSON.parse(JSON.stringify(this.serviceShare.YdocService.referenceCitationsMap?.get('localRefs'))):{};
-    console.log(refItemsFromBackend,ydocRefs);
     if(!this.serviceShare.YdocService.articleData){
       return refs
     }

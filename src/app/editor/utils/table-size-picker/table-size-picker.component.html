@@ -1,15 +1,16 @@
-<div mat-dialog-content>
+<h2 mat-dialog-title>Add Table</h2>
 
+<mat-dialog-content class="dynamic-content-height">
   <div class="table-size-picker">
     <div class="table-size-picker-row" *ngFor="let row of [0,1,2,3,4,5,6,7]">
-      <div [id]="SIZE*row + cell" [style.background]="idsToHover.includes(SIZE*row + cell) ? 'gray' : 'white'"
-        (mouseenter)=" tablePickerHover($event)" (click)="chooseSize()" class="table-size-picker-cell"
-        *ngFor="let cell of [0,1,2,3,4,5,6,7]">
+      <div [id]="SIZE*row + cell" class="{{idsToHover.includes(SIZE*row + cell) ? 'is-selected' : ''}}"
+           (mouseenter)=" tablePickerHover($event)" (click)="chooseSize()"
+           *ngFor="let cell of [0,1,2,3,4,5,6,7]">
       </div>
-    </div>
-    <div class="size-bar">
-      {{selectedRow}} x {{selectedCell}}
     </div>
   </div>
 
-</div>
+  <div class="table-size-bar">
+    {{selectedRow}} x {{selectedCell}}
+  </div>
+</mat-dialog-content>

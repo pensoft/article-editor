@@ -561,7 +561,6 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
       })
     }
 
-    console.log('validation',data);
   })
 }
 
