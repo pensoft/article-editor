@@ -151,7 +151,7 @@ export class CitableElementsEditButtonsService {
     deleteButton.setAttribute('tabindex',"-1")
     deleteButton.style.cursor = 'pointer'
     deleteButton.title = 'Delete item.'
-    let deleteImg = createCustomIcon('delete_forever-24px.svg', 12, 12, 0, 1.5, 1.3)
+    let deleteImg = createCustomIcon('delete_forever-red.svg', 12, 12, 0, 1.5, 1.3)
     deleteImg.dom.className = 'delete-citable-item-img'
     deleteImg.dom.style.cursor = 'pointer'
     deleteImg.dom.style.pointerEvents = 'all'
