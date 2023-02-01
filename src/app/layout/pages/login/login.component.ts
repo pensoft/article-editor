@@ -12,6 +12,7 @@ import { uuidv4 } from "lib0/random";
 import { lpClient, ssoClient } from "@core/services/oauth-client";
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-login',
@@ -175,6 +176,10 @@ export class LoginComponent implements OnInit, OnDestroy {
         });
       this.unsubscribe.push(loginSubscr);
     }
+  }
+
+  goToRegister() {
+    window.location.href = `${environment.authServer}/register?return_uri=${encodeURIComponent(window.location.href)}`
   }
 
   ngOnDestroy() {
