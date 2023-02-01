@@ -40,7 +40,6 @@ export class ArphaNavigationComponent implements AfterViewInit {
     })
   }
   openchooseDialog() {
-    console.log(this.router);
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
     this.router.navigate(['dashboard']);
     this.serviceShare.shouldOpenNewArticleDialog = true;

@@ -111,7 +111,6 @@ export class AddFigureDialogComponent implements AfterViewInit,AfterViewChecked 
       if (!this.data.fig) {
         this.renderForm = true
       } else {
-        console.log(this.data);
         //@ts-ignore
         this.sectionContent.components[0].columns[0].components[0].defaultValue = this.data.fig.description
         let componentsDefaultValues: any = []

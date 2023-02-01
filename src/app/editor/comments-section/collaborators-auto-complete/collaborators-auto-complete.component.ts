@@ -31,11 +31,9 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
     // should get all the users at the rendering of this component
 
     this.currCollaboratorsIneditor = this.serviceShare.YdocService.collaborators.get('collaborators')
-    console.log('get contributors autocomplete',this.currCollaboratorsIneditor);
     this.collabSub = this.serviceShare.YdocService.collaboratorsSubject.subscribe((collaborators)=>{
       this.currCollaboratorsIneditor = collaborators
       this.authorsList = this.serviceShare.YdocService.collaborators.get('authorsList');
-      console.log('set authorsList',this.authorsList);
     })
   }
 
@@ -142,7 +140,6 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
           'message': string
         }) => {
           if (result.usersChipList.length > 0 && result.accessSelect && result.accessSelect != '' && this.currCollaboratorsIneditor) {
-            console.log(result);
             this.serviceShare.ProsemirrorEditorsService.spinSpinner()
             let collaboratorsCopy = [...this.currCollaboratorsIneditor.collaborators];
             result.usersChipList.forEach((newColaborator) => {
@@ -155,7 +152,6 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
             }
 
             this.addDataToBackend(emailsInText, newCollaborators,result.accessSelect).subscribe((data)=>{
-              console.log('set contributors autocomplete invite',{ collaborators: collaboratorsCopy });
               this.serviceShare.YdocService.collaborators.set('collaborators', { collaborators: collaboratorsCopy });
               this.serviceShare.ProsemirrorEditorsService.stopSpinner()
               func(...args)

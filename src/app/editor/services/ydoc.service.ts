@@ -445,7 +445,6 @@ export class YdocService {
       this.setArticleOwnerInfo()
     }
     let collaborators = this.collaborators.get('collaborators').collaborators as any[]
-    console.log('get collaborators check if user is in article',this.collaborators.get('collaborators').collaborators);
 
     let userInArticle = collaborators.find((user) => user.email == currUserEmail)
     this.serviceShare.EnforcerService.enforceAsync('is-admin', 'admin-can-do-anything').subscribe((admin) => {
@@ -467,7 +466,6 @@ export class YdocService {
   collaboratorsSubject = new Subject()
   observeCollaboratorsFunc = (event: YMapEvent<any>, transaction: YTransaction) => {
     let collaboratorsData = this.collaborators.get('collaborators')
-    console.log('get collaborators observeCollaboratorsFunc',collaboratorsData);
     if (collaboratorsData) {
       this.checkIfUserIsInArticle()
     }
@@ -727,10 +725,7 @@ export class YdocService {
   setArticleOwnerInfo() {
     this.shouldSetTheOwnerForTheNewArticle = false
     if (this.roomName == this.newArticleId) {
-      console.log('set contributors owner',{ collaborators: [{ ...this.ownerInfo.data, access: 'Owner',role:"Author",affiliations:[] }] });
       this.collaborators.set('collaborators', { collaborators: [{ ...this.ownerInfo.data, access: 'Owner',role:"Author"  }],affiliations:[] });
-      console.log('initial set authorsList',[{authorId:this.ownerInfo.data.id,authorEmail:this.ownerInfo.data.email}]);
-
       this.collaborators.set('authorsList', [{authorId:this.ownerInfo.data.id,authorEmail:this.ownerInfo.data.email}]);
     }
     this.ownerInfo = undefined

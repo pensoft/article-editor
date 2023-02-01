@@ -90,40 +90,56 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.edited) {
         let editedContributors = [...this.collaborators.collaborators]
+        let authorsListCopy:authorListData[] = [...this.authorsList];
         let userIndex
         if(contrData.id){
-          userIndex = editedContributors.findIndex((user) => user.authorId == contrData.id)
+          userIndex = editedContributors.findIndex((user) => user.id == contrData.id)
         }else{
-          userIndex = editedContributors.findIndex((user) => user.authorEmail == contrData.email)
+          userIndex = editedContributors.findIndex((user) => user.email == contrData.email)
         }
         let userInCollaboratorsArr = editedContributors[userIndex]
         if (result.removed && userInCollaboratorsArr) {
           editedContributors.splice(userIndex, 1)
           if(userInCollaboratorsArr.role ==  'Author' || userInCollaboratorsArr.role == 'Co-author'){
-            let authorsListCopy:authorListData[] = [...this.authorsList];
+
             if(userInCollaboratorsArr.id&&authorsListCopy.some(x=>x.authorId == userInCollaboratorsArr.id)){
               authorsListCopy = authorsListCopy.filter(x=>x.authorId != userInCollaboratorsArr.id)
             }else if(!userInCollaboratorsArr.id&&userInCollaboratorsArr.email&&authorsListCopy.some(x=>x.authorEmail == userInCollaboratorsArr.email)){
               authorsListCopy = authorsListCopy.filter(x=>x.authorEmail != userInCollaboratorsArr.email)
             }
-            if(authorsListCopy.length<this.authorsList.length){
-              console.log(authorsListCopy);
-              this.sharedService.YdocService.collaborators.set('authorsList', authorsListCopy);
-            }
+
           }
         } else if (result.access) {
+          if((userInCollaboratorsArr.role ==  'Author' || userInCollaboratorsArr.role == 'Co-author')&&result.role == 'Contributor'){
+            let prop
+            let val
+            if(userInCollaboratorsArr.id){
+              prop = 'authorId'
+              val = userInCollaboratorsArr.id
+            }else{
+              prop = 'authorEmail'
+              val = userInCollaboratorsArr.email
+            }
+            let indexOfAuthor = authorsListCopy.findIndex(user=>user[prop] == val);
+            if(indexOfAuthor>=0){
+              authorsListCopy.splice(indexOfAuthor,1);
+            }
+          }else if(userInCollaboratorsArr.role ==  'Contributor'&&(result.role ==  'Author' || result.role == 'Co-author')){
+            authorsListCopy.push({authorEmail:userInCollaboratorsArr.email,authorId:userInCollaboratorsArr.id});
+          }
           editedContributors[userIndex].access = result.access;
           editedContributors[userIndex].role = result.role;
           editedContributors[userIndex].affiliations = result.affiliations;
         }
-        console.log('set contributors after change',{ collaborators: editedContributors });
+        if(authorsListCopy.length!=this.authorsList.length){
+          this.sharedService.YdocService.collaborators.set('authorsList', authorsListCopy);
+        }
         this.sharedService.YdocService.collaborators.set('collaborators', { collaborators: editedContributors })
       }
     });
   }
 
   drop(event: CdkDragDrop<any[]>) {
-    console.log(event.previousIndex, event.currentIndex);
     let authorsCopy = [...this.authorsList]
     moveItemInArray(authorsCopy, event.previousIndex, event.currentIndex);
     moveItemInArray(this.authors, event.previousIndex, event.currentIndex);
@@ -153,9 +169,7 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
   setCollaboratorsData(collaboratorsData: any) {
     setTimeout(() => {
       this.collaborators = collaboratorsData
-      console.log('get contributors setCollaboratorsData add dialog',collaboratorsData);
       this.authorsList = this.sharedService.YdocService.collaborators.get('authorsList');
-      console.log('get authorsList',this.authorsList);
 
       this.authors = this.authorsList.map((user)=>{
         let prop
@@ -250,7 +264,6 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
       'message': string
     }) => {
       if (result.usersChipList.length > 0 && result.accessSelect && result.accessSelect != '' && this.collaborators) {
-        console.log(result);
         this.sharedService.ProsemirrorEditorsService.spinSpinner()
         let collaboratorsCopy = [...this.collaborators.collaborators];
         result.usersChipList.forEach((newColaborator) => {
@@ -275,9 +288,7 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
         }
         this.allUsersService.sendInviteInformation(postBody).subscribe(
           (res) => {
-            console.log('set contributors after add',{ collaborators: collaboratorsCopy });
             this.sharedService.YdocService.collaborators.set('collaborators', { collaborators: collaboratorsCopy })
-            console.log('set authorsList',authorsListCopy);
             this.sharedService.YdocService.collaborators.set('authorsList', authorsListCopy)
             this.sharedService.ProsemirrorEditorsService.stopSpinner()
           },

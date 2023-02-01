@@ -97,11 +97,9 @@ export class SendInvitationComponent implements OnInit, AfterViewInit, OnDestroy
     public allUsersService:AllUsersService,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
-    console.log(this.inviteUsersForm);
     this.invitedPeople.valueChanges.subscribe((value)=>{
       this.allUsersService.getAllUsersV2({page:1,pageSize:10,'filter[search]':value}).subscribe((val:any)=>{
         if(val.meta.filter && val.meta.filter.search){
-          console.log(this.users);
           this.resultData.next(val.data.filter(user => {
             return (
               !this.collaborators.collaborators.find((col) =>{
@@ -196,7 +194,6 @@ export class SendInvitationComponent implements OnInit, AfterViewInit, OnDestroy
   setCollaboratorsData(collaboratorsData: any) {
     setTimeout(() => {
       this.collaborators = collaboratorsData
-      console.log('get contributors setCollaboratorsData add dialog',collaboratorsData);
     }, 30)
   }
 

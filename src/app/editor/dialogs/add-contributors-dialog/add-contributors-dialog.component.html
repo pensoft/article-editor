@@ -26,7 +26,7 @@
 <mat-dialog-content class="fixed-dialog-content-height">
   <div class="container-shadow-contributor">
     <div *ngIf="this.collaborators &&this.collaborators.collaborators">
-      <div *ngIf="this.authors" cdkDropList class="authors-list container-contributers" fxLayout="column nowrap" fxLayoutGap="10px" (cdkDropListDropped)="drop($event)">
+      <div *ngIf="this.authors&&this.authors.length>0" cdkDropList class="authors-list container-contributers" fxLayout="column nowrap" fxLayoutGap="10px" (cdkDropListDropped)="drop($event)">
         <h1 class="authors-list-h">Authors and Co-authors:</h1>
         <ng-container *ngFor="let author of authors">
           <div *ngIf="author.access == 'Owner'" fxLayout="row nowrap" fxLayoutAlign="flex-start center" fxLayoutGap="16px" cdkDragLockAxis="y"  class="contributor-row is-owner author-box" cdkDrag>
@@ -60,7 +60,7 @@
           </div>
         </ng-container>
       </div>
-      <div *ngIf="this.contributors" class="contributors-list container-contributers" fxLayout="column nowrap" fxLayoutGap="10px" >
+      <div *ngIf="this.contributors&&this.contributors.length>0" class="contributors-list container-contributers" fxLayout="column nowrap" fxLayoutGap="10px" >
         <h1 class="contributors-list-h">Contributors:</h1>
         <ng-container *ngFor="let author of contributors">
           <div *ngIf="author.access == 'Owner'" fxLayout="row nowrap" fxLayoutAlign="flex-start center" fxLayoutGap="16px" class="contributor-row is-owner">

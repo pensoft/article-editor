@@ -62,8 +62,7 @@
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
   <button mat-stroked-button color="warn" (click)="askremove = true">Remove User</button>
-  <button mat-flat-button color="primary" [disabled]="nothingIsEdited()"
-          (click)="accessSelect.value==data.contrData.access?undefined:editCollaborator()">Edit User</button>
+  <button mat-flat-button color="primary" [disabled]="nothingIsEdited()" (click)="editCollaborator()">Edit User</button>
 </mat-dialog-actions>
 
 

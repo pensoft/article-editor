@@ -1,0 +1,19 @@
+::ng-deep app-head-prosemirror-view{
+  .editorHeadContainer {
+    .ProseMirror {
+      form-field {
+        margin-top: 10px;
+        margin-bottom: 25px;
+        border: 1px solid #e2e2dc;
+        background: #fafaf8;
+        padding: 5px 10px;
+        -webkit-border-radius: 5px;
+        display: block;
+        -moz-border-radius: 5px;
+        -ms-border-radius: 5px;
+        -o-border-radius: 5px;
+        border-radius: 5px;
+      }
+    }
+  }
+}
