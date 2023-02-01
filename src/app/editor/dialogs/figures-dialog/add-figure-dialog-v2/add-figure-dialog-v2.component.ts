@@ -84,6 +84,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
   columns = [1, 2, 3, 4]
   columnsFormControl = new FormControl()
+  columnWidth:number
 
   constructor(
     private prosemirrorEditorsService: ProsemirrorEditorsService,
@@ -110,6 +111,9 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
         let gridParent = this.gridContainer.nativeElement as HTMLDivElement
         //let newGridWidth = ((312 * columns) + 10) + 'px'
         //gridParent.style.maxWidth = newGridWidth;
+
+        //this.columnWidth = gridParent.getBoundingClientRect().width / columns;
+
         gridParent.setAttribute('data-cols', columns);
         setTimeout(()=>{
           this.updatePreview(false)
