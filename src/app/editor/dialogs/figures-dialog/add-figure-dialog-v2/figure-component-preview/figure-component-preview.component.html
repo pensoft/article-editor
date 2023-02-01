@@ -1,9 +1,6 @@
-<div class="component-container">
-  <div class="img-container">
-    <img src="{{component.url}}" alt="">
-  </div>
-  <div>{{component.componentType}}</div>
-  <div class="component-content" [innerHTML]="component.description">
-  </div>
+<div class="drag-container-inner">
+  <mat-icon class="move-icon">drag_indicator</mat-icon>
+  <img src="{{ component.url }}" alt="{{ component.componentType }}">
+  <p class="component-description" [innerHTML]="component.description"></p>
 </div>
 
