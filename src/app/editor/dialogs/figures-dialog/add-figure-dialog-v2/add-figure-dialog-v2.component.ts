@@ -188,7 +188,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
   editComponent(component: any, i: number) {
     console.log('should edit component ', component, i);
     this.dialog.open(AddFigureComponentDialogComponent, {
-      width: '60%',
+      width: '532px',
       data: { component },
       disableClose: false
     }).afterClosed().subscribe((result: { component: any }) => {
