@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-landing',
@@ -11,4 +12,7 @@ export class LandingComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  goToRegister() {
+    window.location.href = `${environment.authServer}/register?return_uri=${encodeURIComponent(window.location.href)}`
+  }
 }
