@@ -10,6 +10,7 @@ import { debounceTime, distinctUntilChanged, filter, map, startWith } from 'rxjs
 import { environment } from '@env';
 import { genereteNewReference } from '@app/layout/pages/library/lib-service/refs-funcs';
 import { harvardStyle } from '@app/layout/pages/library/lib-service/csl.service';
+import { CiToTypes } from '@app/layout/pages/library/lib-service/editors-refs-manager.service';
 
 @Component({
   selector: 'app-refs-add-new-in-article-dialog',
@@ -27,7 +28,9 @@ export class RefsAddNewInArticleDialogComponent implements OnInit {
   lastFilter = null;
 
   referenceFormControl = new FormControl(null, [Validators.required]);
+  citoFormControl = new FormControl(null, [Validators.required]);
   referenceTypesFromBackend
+  CiToTypes = CiToTypes
   dataSave: any
   formIOSchema: any = undefined;
   referenceForms: FormGroup = new FormGroup({})
@@ -51,6 +54,11 @@ export class RefsAddNewInArticleDialogComponent implements OnInit {
           this.referenceFormControl.setValue(this.referenceTypesFromBackend[0]);
         } else {
           this.referenceFormControl.setValue(this.referenceFormControl.value);
+        }
+        if (!this.citoFormControl.value) {
+          this.citoFormControl.setValue(this.CiToTypes[0]);
+        } else {
+          this.citoFormControl.setValue(this.citoFormControl.value);
         }
         this.loadingRefDataFromBackend = false;
       })
@@ -180,6 +188,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit {
       citation:refBasicCitation,
       ref_last_modified:Date.now(),
       refType:this.referenceFormControl.value,
+      refCiTO:this.citoFormControl.value,
       refStyle
     }
     this.dialogRef.close([{ref}])

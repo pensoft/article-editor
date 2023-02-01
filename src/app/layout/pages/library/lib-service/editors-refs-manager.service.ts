@@ -8,6 +8,12 @@ import { DOMParser, DOMSerializer, Fragment, Node, Schema } from 'prosemirror-mo
 import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 
+export let CiToTypes = [
+  {label:"agrees with" ,link:"http://purl.org/spar/cito/agreesWith"},
+  {label:"cites as authority",link: "http://purl.org/spar/cito/citesAsAuthority"},
+  {label:"cites as recommended reading",link:"http://purl.org/spar/cito/citesAsRecommendedReading"},
+]
+
 export function getHtmlInlineNodes(htmlSteing: string) {
   let container = document.createElement('p');
   let html = htmlSteing.replace(/<p[^>]+>|<div[^>]+>|<\/p>|<\/div>/gm, '');
