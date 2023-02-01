@@ -39,7 +39,9 @@ export class FiguresProsemirrorViewComponent implements AfterViewInit {
   }
 
   renderEndEditor = ()=>{
-    this.endEditorContainer = this.prosemirrEditorsService.renderDocumentEndEditor(this.ProsemirrorEditor?.nativeElement,this.figures);
+    this.endEditorContainer = this.prosemirrEditorsService.renderDocumentEndEditor(this.ProsemirrorEditor?.nativeElement);
+
   }
+
 
 }

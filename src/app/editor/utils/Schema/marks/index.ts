@@ -67,7 +67,6 @@ export const marks: MarkSpec = {
     supplementary_file_citation,
     ...basicmarks,
     invalid: {
-
         parseDOM: [
             { tag: 'div.invalid' },
         ],

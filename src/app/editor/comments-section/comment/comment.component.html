@@ -8,7 +8,7 @@
     <mat-card-title class="comment-title">{{userComment!.initialComment.userData.name}}</mat-card-title>
     <mat-card-subtitle class="comment-subtitle" >{{userComment!.initialComment.date | date:'medium'}}</mat-card-subtitle>
 
-    <div *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'" class="header-actions">
+    <div *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'" class="header-actions">
       <ng-container *ngIf="authService.currentUserSubject | async as user">
         <arpha-button *ngIf="!mobileVersion && userComment!.initialComment.userData.email == user.email" (clickEvent)="deleteComment()" label="Resolve" style="background-color: transparent;" class="small secondary resolve-button"></arpha-button>
       </ng-container>
@@ -42,7 +42,7 @@
       'comment-display-none':commentSpan.offsetWidth < 295 && commentSpan.offsetHeight < 20
     }">{{initialShowMore ? 'Show less': 'Show More' }}</a>
 
-    <div *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'">
+    <div *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'">
       <div  class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
       <div  #ReplyDiv style="display: none;">
         <mat-form-field appearance="outline" class="reply-form-field">

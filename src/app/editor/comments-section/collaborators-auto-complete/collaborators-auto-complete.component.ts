@@ -2,7 +2,7 @@ import { AfterViewInit, Component, EventEmitter, Input, OnDestroy, OnInit, Outpu
 import { FormControl } from '@angular/forms';
 import { MatDialog } from '@angular/material/dialog';
 import { AllUsersService } from '@app/core/services/all-users.service';
-import { contributorData, roleMaping } from '@app/editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
+import { contributorData, accessMaping, authorListData } from '@app/editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
 import { SendInvitationComponent } from '@app/editor/dialogs/add-contributors-dialog/send-invitation/send-invitation.component';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { Subscription } from 'rxjs';
@@ -19,7 +19,7 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
 
   @Input() inputFormControl!: FormControl;
   @Output() inputFormControlChange = new EventEmitter<FormControl>();
-
+  authorsList:authorListData[]
   allusers?: contributorData[]
   searchResults: contributorData[] = []
   currCollaboratorsIneditor: any
@@ -30,10 +30,10 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
     public dialog: MatDialog,) {
     // should get all the users at the rendering of this component
 
-
     this.currCollaboratorsIneditor = this.serviceShare.YdocService.collaborators.get('collaborators')
     this.collabSub = this.serviceShare.YdocService.collaboratorsSubject.subscribe((collaborators)=>{
       this.currCollaboratorsIneditor = collaborators
+      this.authorsList = this.serviceShare.YdocService.collaborators.get('authorsList');
     })
   }
 
@@ -65,7 +65,7 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
     }
   }
 
-  addDataToBackend(emailsInText: string[], newEmails: string[],role?:string) {
+  addDataToBackend(emailsInText: string[], newEmails: string[],access?:string) {
     let mappedNewCollaborators = newEmails.map((email) => {
       let actualUser = this.allusers.find((user) => user.email == email)
       if (actualUser) {
@@ -88,7 +88,7 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
     let message = this.inputFormControl.value;
     let commentMarkHash = this.commentmarkId
     let invited = invitedPeople.map((x:any)=>{
-      x.type = roleMaping[role];
+      x.type = accessMaping[access];
       return x
     })
     let postBody = {
@@ -123,19 +123,35 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
         })
         // should add contributers to editor do finish comment add
         const dialogRef = this.dialog.open(SendInvitationComponent, {
-          width: '550px',
+          maxWidth: '80%',
           data: { contributor: mappedNewCollaborators, fromComment: true },
         });
 
-        dialogRef.afterClosed().subscribe(result => {
-          if (result.usersChipList.length > 0 && result.selectOptions && result.selectOptions != '' && this.currCollaboratorsIneditor) {
+        dialogRef.afterClosed().subscribe((result:{
+          'usersChipList': any,
+          'notifyingPeople': any,
+          'accessSelect': string,
+          'roleSelect': string,
+          'affiliations':{
+            affiliation:string,
+            city:string,
+            country:string
+          }[],
+          'message': string
+        }) => {
+          if (result.usersChipList.length > 0 && result.accessSelect && result.accessSelect != '' && this.currCollaboratorsIneditor) {
             this.serviceShare.ProsemirrorEditorsService.spinSpinner()
             let collaboratorsCopy = [...this.currCollaboratorsIneditor.collaborators];
             result.usersChipList.forEach((newColaborator) => {
-              collaboratorsCopy.push({ ...newColaborator, role: result.selectOptions })
+              collaboratorsCopy.push({ ...newColaborator, access: result.accessSelect,role:result.roleSelect,affiliations:result.affiliations })
             })
 
-            this.addDataToBackend(emailsInText, newCollaborators,result.selectOptions).subscribe((data)=>{
+            let authorsListCopy:authorListData[] = [...this.authorsList];
+            if(result.roleSelect == 'Author' || result.roleSelect == 'Co-author'){
+              authorsListCopy.push(result.usersChipList.map(user=>{return {authorId:user.id,authorEmail:user.email}}));
+            }
+
+            this.addDataToBackend(emailsInText, newCollaborators,result.accessSelect).subscribe((data)=>{
               this.serviceShare.YdocService.collaborators.set('collaborators', { collaborators: collaboratorsCopy });
               this.serviceShare.ProsemirrorEditorsService.stopSpinner()
               func(...args)

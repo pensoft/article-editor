@@ -165,6 +165,7 @@ import { AddFigureDialogV2Component } from './editor/dialogs/figures-dialog/add-
 import { FigureComponentPreviewComponent } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/figure-component-preview/figure-component-preview.component';
 import { AddFigureComponentDialogComponent } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-component-dialog/add-figure-component-dialog.component';
 import { MAT_DIALOG_DEFAULT_OPTIONS, MatDialogConfig } from '@angular/material/dialog';
+import { HeadProsemirrorViewComponent } from './editor/article/head-prosemirror-view/head-prosemirror-view.component';
 
 //@ts-ignore
 EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE,'event-dispatcher']
@@ -172,8 +173,6 @@ EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERV
 EchoInterceptor.prototype.intercept = function(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
   const socketId = this.echoService.socketId;
-  /* console.log(this.routesToIntercept.some(x => req.url.includes(x)),req.url);
-  console.log(this.routesToIntercept); */
   if (this.routesToIntercept.some(x => req.url.includes(x))&&this.echoService.connected && socketId) {
     req = req.clone({headers: req.headers.append('X-Socket-ID', socketId)});
   }
@@ -307,6 +306,7 @@ const gravatarConfig: GravatarConfig = {
     RefsAddNewInArticleDialogComponent,
     AddFigureDialogV2Component,
     FigureComponentPreviewComponent,
+    HeadProsemirrorViewComponent,
   ],
   imports: [
     HttpClientJsonpModule,

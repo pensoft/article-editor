@@ -13,9 +13,9 @@
       }">{{change.changeTxt}}</div>
     </div>
     <div class="change-action-button-container">
-      <arpha-button *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'&&ydocService.curUserRole!='Commenter'" (clickEvent)="!previewMode.mode?acceptChange(change.type,change.changeAttrs):undefined" class="small secondary change-action-button" label="Accept" icon="check_small" style="margin-right:29px;">
+      <arpha-button *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'&&ydocService.curUserAccess!='Commenter'" (clickEvent)="!previewMode.mode?acceptChange(change.type,change.changeAttrs):undefined" class="small secondary change-action-button" label="Accept" icon="check_small" style="margin-right:29px;">
       </arpha-button>
-      <arpha-button *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'&&ydocService.curUserRole!='Commenter'" (clickEvent)="!previewMode.mode?declineChange(change.type,change.changeAttrs):undefined" class="small secondary change-action-button change-decline-button" label="Decline" icon="close">
+      <arpha-button *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'&&ydocService.curUserAccess!='Commenter'" (clickEvent)="!previewMode.mode?declineChange(change.type,change.changeAttrs):undefined" class="small secondary change-action-button change-decline-button" label="Decline" icon="close">
       </arpha-button>
     </div>
   </mat-card-content>

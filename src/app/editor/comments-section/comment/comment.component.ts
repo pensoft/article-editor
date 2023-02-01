@@ -153,7 +153,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
     let s: HTMLSpanElement = document.createElement('span');
     s.offsetWidth
     this.sharedService.CommentsService.lastSelectedCommentSubject.subscribe((comment) => {
-      if(this.ydocService.curUserRole&&this.ydocService.curUserRole=='Viewer'){
+      if(this.ydocService.curUserAccess&&this.ydocService.curUserAccess=='Viewer'){
         return
       }
       if (this.comment.commentAttrs.id == comment.commentId) {

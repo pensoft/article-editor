@@ -59,16 +59,15 @@ export class NotificationsService {
     private readonly echoService: EchoService,
   ) {
     ServiceShare.AuthService.getUserInfo().subscribe((user)=>{
-      console.log(user,ServiceShare.AuthService.currentUserValue);
       const token = ServiceShare.AuthService.getToken();
       this.echoService.echo.connector.options.auth.headers['Authorization'] = 'Bearer ' + token;
       this.echoService.join(`task_manager:private-tasks.${user.data.id}`, 'public')
         .listen(`task_manager:private-tasks.${user.data.id}`, '.TaskCreatedEvent')
-        .subscribe(data => { console.log(data); this.handleTaskUpdatesEvents(data) })
+        .subscribe(data => { this.handleTaskUpdatesEvents(data) })
 
       this.echoService.join(`task_manager:private-tasks.${user.data.id}`, 'public')
         .listen(`task_manager:private-tasks.${user.data.id}`, '.TaskUpdateEvent')
-        .subscribe(data => { console.log(data); this.handleTaskUpdatesEvents(data) })
+        .subscribe(data => { this.handleTaskUpdatesEvents(data) })
     })
     ServiceShare.shareSelf('NotificationsService', this)
   }
