@@ -109,8 +109,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
       this.renderProsemirrorEditor()
       this.columnsFormControl.valueChanges.subscribe((columns) => {
         let gridParent = this.gridContainer.nativeElement as HTMLDivElement
-        //let newGridWidth = ((312 * columns) + 10) + 'px'
-        //gridParent.style.maxWidth = newGridWidth;
+
 
         //this.columnWidth = gridParent.getBoundingClientRect().width / columns;
 

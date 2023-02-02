@@ -808,8 +808,8 @@ mat-radio-group {
     padding-bottom: 16px;
 
     .mat-card {
-      padding: 0 8px;
-      margin: 8px 0 0 0;
+      padding: 0 12px;
+      margin: 12px 0 0 0;
       box-shadow: unset;
 
       .mat-card-header {
@@ -821,7 +821,7 @@ mat-radio-group {
             width: 90px;
             height: 90px;
             object-fit: cover;
-            border-radius: 18px;
+            border-radius: 8px;
           }
 
           .video-thumb {
