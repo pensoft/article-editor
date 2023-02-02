@@ -156,7 +156,7 @@ export class EditorsRefsManagerService {
     })
     if (node) {
       let attrs = JSON.parse(JSON.stringify(node.attrs));
-      endEdView.dispatch(state.tr.replaceWith(from, to, Fragment.empty).setMeta('skipChange', true));
+      endEdView.dispatch(state.tr.replaceWith(from-1, to+1, Fragment.empty).setMeta('skipChange', true));
     }
   }
 

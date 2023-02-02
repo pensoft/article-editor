@@ -72,8 +72,8 @@ export class RefsInArticleDialogComponent implements OnDestroy {
           if (this.deletedRefsIds.includes(refId)) {
             this.deletedRefsIds = this.deletedRefsIds.filter(id => id != refId);
           }
-          this.passRefsToSubject()
         })
+        this.passRefsToSubject()
       }
     })
   }
