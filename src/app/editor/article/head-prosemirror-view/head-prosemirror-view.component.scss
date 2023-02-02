@@ -1,7 +1,7 @@
 ::ng-deep app-head-prosemirror-view{
   .editorHeadContainer {
     .ProseMirror {
-      form-field {
+      inline-block-container {
         margin-top: 10px;
         margin-bottom: 25px;
         border: 1px solid #e2e2dc;
@@ -13,6 +13,19 @@
         -ms-border-radius: 5px;
         -o-border-radius: 5px;
         border-radius: 5px;
+        position: relative;
+        form-field{
+          display: inline-block;
+        }
+        form-field:first-of-type{
+          max-width: calc(100% - 120px);
+        }
+        form-field:last-of-type{
+          position: absolute;
+          right: 20px;
+          top: 50%;
+          transform: translate(0px, -50%);
+        }
       }
     }
   }
