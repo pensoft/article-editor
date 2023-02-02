@@ -3,6 +3,69 @@
 <div class="popup-menu-container"></div>
 
 <mat-dialog-content>
+
+  <div class="grid-edit">
+
+    <div class="heading-container">
+      <div class="figure-description">
+        <h3>Figure Description:</h3>
+        <div class="pm-editor" #figureDescription>
+
+        </div>
+      </div>
+
+      <div class="columns-select">
+        <mat-form-field appearance="fill">
+          <mat-label>Num. of columns</mat-label>
+          <mat-select [formControl]="columnsFormControl">
+            <mat-option *ngFor="let col of columns" [value]="col">
+              {{col}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+      <!--
+       <div class="reorder-grid" cdkDropListGroup #gridContainer>
+         <div *ngFor="let component of figNewComponents; let i = index" cdkDropList [cdkDropListData]="i">
+           <div cdkDrag [cdkDragData]="i" (cdkDragEntered)="dragEntered($event)" class="reorder-box">
+             <app-figure-component-preview [(component)]="figNewComponents[i]"></app-figure-component-preview>
+             <div class="component-action-btns">
+               <div class="drag-container">
+                 <div class="drag-container-inner">
+                   <mat-icon class="move-icon" cdkDragHandle>drag_indicator</mat-icon>
+                 </div>
+               </div>
+               <div class="actions-container">
+                 <button mat-stroked-button color="primary" (click)="editComponent(component,i)">Edit</button>
+                 <button mat-flat-button color="primary" (click)="deleteComponent(component,i)">Delete</button>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+       -->
+
+       <div class="reorder-grid" cdkDropListGroup #gridContainer>
+         <div *ngFor="let component of figNewComponents; let i = index" cdkDropList [cdkDropListData]="i">
+           <div cdkDrag [cdkDragData]="i" (cdkDragEntered)="dragEntered($event)" class="reorder-box">
+             <div class="reorder-box-content">
+               <div class="drag-container">
+                 <app-figure-component-preview [(component)]="figNewComponents[i]"></app-figure-component-preview>
+               </div>
+               <div class="actions-container">
+                 <button mat-stroked-button color="primary" (click)="editComponent(component,i)">Edit</button>
+                 <button mat-stroked-button color="warn" (click)="deleteComponent(component,i)">Delete</button>
+               </div>
+             </div>
+           </div>
+         </div>
+       </div>
+
+  </div>
+
+
+
   <div #codemirrorHtmlTemplate class='codemirror-editor' [ngStyle]="{'display': showHTMLEditor ? 'block' : 'none'}"></div>
   <div class="pdf-view-container" [ngStyle]="{'display':showPdfView?'block':'none'}">
     <div class="a4-figure-preview" #a4 [ngStyle]="{'height':(a4.getBoundingClientRect().width*1.4142)+'px','border':'1px dashed black','overflow':'hidden'}">
@@ -19,47 +82,13 @@
       </div>
     </div>
   </div>
-  <div class="grid-edit">
-    <div class="columns-select">
-      <mat-form-field appearance="fill">
-        <mat-label>Num. of columns</mat-label>
-        <mat-select [formControl]="columnsFormControl">
-          <mat-option *ngFor="let col of columns" [value]="col">
-            {{col}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-    </div>
-    <div class="example-container" cdkDropListGroup #gridContainer>
-      <div *ngFor="let component of figNewComponents; let i = index" cdkDropList [cdkDropListData]="i">
-        <div cdkDrag [cdkDragData]="i" (cdkDragEntered)="dragEntered($event)" class="example-box">
-          <app-figure-component-preview [(component)]="figNewComponents[i]"></app-figure-component-preview>
-          <div class="component-action-btns">
-            <div class="drag-container">
-              <div class="drag-container-inner">
-                <mat-icon class="move-icon" cdkDragHandle>drag_indicator</mat-icon>
-              </div>
-            </div>
-            <div class="actions-container">
-              <button mat-stroked-button color="primary" (click)="editComponent(component,i)">Edit</button>
-              <button mat-flat-button color="primary" (click)="deleteComponent(component,i)">Delete</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-  <h3>Figure Description:</h3>
-  <div class="pm-editor" #figureDescription>
 
-  </div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
-
   <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
   <button mat-stroked-button color="{{showHTMLEditor?'primary':'accent'}}" (click)="showHTMLEditor=!showHTMLEditor">Edit HTML</button>
   <button mat-stroked-button color="{{showPdfView?'primary':'accent'}}" (click)="showPdfView=!showPdfView">Show PDF View</button>
-  <button mat-flat-button color="primary" (click)="addComponent()">Add Component</button>
+  <button mat-stroked-button color="primary" (click)="addComponent()">Add Component</button>
   <button mat-flat-button color="primary" (click)="submitFigure()">Submit figure</button>
 </mat-dialog-actions>
