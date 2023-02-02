@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef } from '@angular/material/dialog';
 import { MatTabChangeEvent } from '@angular/material/tabs';
@@ -11,13 +11,14 @@ import { environment } from '@env';
 import { genereteNewReference } from '@app/layout/pages/library/lib-service/refs-funcs';
 import { harvardStyle } from '@app/layout/pages/library/lib-service/csl.service';
 import { CiToTypes } from '@app/layout/pages/library/lib-service/editors-refs-manager.service';
+import { MatOption } from '@angular/material/core';
 
 @Component({
   selector: 'app-refs-add-new-in-article-dialog',
   templateUrl: './refs-add-new-in-article-dialog.component.html',
   styleUrls: ['./refs-add-new-in-article-dialog.component.scss']
 })
-export class RefsAddNewInArticleDialogComponent implements OnInit {
+export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
 
   searchReferencesControl = new FormControl('');
   loading = false;
@@ -192,6 +193,68 @@ export class RefsAddNewInArticleDialogComponent implements OnInit {
       refStyle
     }
     this.dialogRef.close([{ref}])
+  }
+
+  getToolTipForRef(option){
+    return  '<div data-html="true">'+JSON.stringify(option.formIOData, null, 4) +'</div>';
+  }
+
+  updatePos(event:MouseEvent){
+    let toolTips = Array.from(document.body.getElementsByClassName('option-tooltip-refs-autocomplete'))
+    let div : HTMLDivElement
+    if(toolTips.length>0){
+      div = toolTips[0] as HTMLDivElement
+    }
+    if(div){
+      div.style.left = event.clientX + 60 + 'px'
+      div.style.top = event.clientY + 'px'
+    }
+  }
+
+  showTooltip(event:MouseEvent,option){
+    let toolTips = Array.from(document.body.getElementsByClassName('option-tooltip-refs-autocomplete'))
+    let div : HTMLDivElement
+    if(toolTips.length>0){
+      div = toolTips[0] as HTMLDivElement
+    }else{
+      div = document.createElement('div')
+      div.className = 'option-tooltip-refs-autocomplete';
+      let arrowDiv = document.createElement('div')
+      let arrowContainerDiv = document.createElement('div')
+      arrowContainerDiv.className = 'arrow-div-container-option-tooltip-refs-autocomplete';
+      arrowContainerDiv.append(arrowDiv)
+      let tooltipContent = document.createElement('div')
+      arrowDiv.className = 'arrow-div-option-tooltip-refs-autocomplete';
+      tooltipContent.className = 'content-option-tooltip-refs-autocomplete';
+      div.append(arrowContainerDiv,tooltipContent)
+      document.body.appendChild(div)
+
+    }
+
+    div.getElementsByClassName('content-option-tooltip-refs-autocomplete')[0].innerHTML = this.getToolTipForRef(option)
+    div.style.left = event.clientX + 60  + 'px'
+    div.style.top = event.clientY+ 'px'
+    if(div.style.display!='block'){
+      div.style.display = 'block'
+    }
+  }
+  hideTooltip(){
+    let toolTips = Array.from(document.body.getElementsByClassName('option-tooltip-refs-autocomplete'))
+    let div : HTMLDivElement
+    if(toolTips.length>0){
+      div = toolTips[0] as HTMLDivElement
+    }
+    if(div&&div.style.display!='none'){
+      div.style.display = 'none'
+    }
+  }
+
+  ngOnDestroy(): void {
+    let toolTips = Array.from(document.body.getElementsByClassName('option-tooltip-refs-autocomplete'))
+    let div : HTMLDivElement
+    if(div){
+      document.body.removeChild(div);
+    }
   }
 
   closeDialog(){

@@ -1,5 +1,6 @@
 <h2 mat-dialog-title class="title-margin-bottom">Add Reference</h2>
 
+
 <mat-dialog-content>
   <mat-spinner class="loading-data-spinner" [ngStyle]="{display:loadingRefDataFromBackend?'block':'none'}">
   </mat-spinner>
@@ -25,7 +26,11 @@
               </mat-option>
             </ng-container>
             <ng-container *ngIf="searchData">
-              <mat-option [class.demo-row-is-clicked]="option == externalSelection" *ngFor="let option of searchData" [value]="option" (click)="select(option, 'external');$event.stopPropagation(); trigger.openPanel()">
+              <mat-option #optionEl
+              (mouseover)="showTooltip($event,option)"
+              (mouseout)="hideTooltip()"
+              (mousemove)="updatePos($event)"
+              [class.demo-row-is-clicked]="option == externalSelection" *ngFor="let option of searchData" [value]="option" (click)="select(option, 'external');$event.stopPropagation(); trigger.openPanel()">
                 {{option.ref.title}}
               </mat-option>
             </ng-container>
