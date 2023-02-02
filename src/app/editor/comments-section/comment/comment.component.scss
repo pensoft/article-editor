@@ -1,24 +1,43 @@
 ::ng-deep {
   .reply-form-field {
-    font-size: 14px!important;
-    height: 37px!important;
-    color: black !important;
-    width: 90% !important;
+    font-size: 12px;
+    height: 34px;
+    width: 100%;
+
     .mat-form-field-wrapper {
-      margin-top: 0!important;
-      margin-bottom: 0!important;
-      padding-bottom: 0!important;
-      height: 37px!important;
-      .mat-form-field-outline {
-        height: 37px!important;
+      margin: 0;
+      padding: 0;
+      height: 34px;
+
+      > .mat-form-field-flex {
+        padding: 0 12px;
       }
+
+      .mat-form-field-outline {
+        height: 34px;
+      }
+
+      .mat-form-field-suffix {
+        top: -5px;
+        right: 3px;
+      }
+
       .mat-form-field-infix {
-        height: 37px!important;
-        padding: 4px 0 0 0!important;
+        height: 34px;
+        padding: 0;
+        border: 0;
+
+        > input {
+          line-height: 18px;
+          padding: 8px 0;
+          margin: 3px 0 0 0;
+        }
       }
     }
     .comment-reply-field-icon {
       color: #bbbaba9e !important;
+      height: 16px;
+      width: 16px;
     }
   }
 }
@@ -31,70 +50,6 @@ app-collaborators-auto-complete{
 }
 
 ::ng-deep {
-  .comment-box-replies {
-    padding: 16px 15px 16px 16px !important;
-    margin-right: 10px;
-    margin-left: 44px;
-    border-radius: 10px !important;
-    border-left: 2px solid transparent;
-    .comment-avatar {
-      height: 36px;
-      width: 36px;
-      background-image: url("https://material.angular.io/assets/img/examples/shiba1.jpg");
-      background-size: cover;
-    }
-    .mat-card-content {
-      margin-top: 3px;
-    }
-    .mat-card-header-text {
-      margin-left: 6px;
-      margin-right: 5px;
-    }
-    .comment-subtitle {
-      margin-bottom: 0px !important;
-    }
-    .header-actions {
-      position: absolute;
-      right: 0px;
-      top: 10px;
-      align-self: end;
-      color: var(--color-e3e3e3);
-    }
-    /* &:hover {
-      // background: var(--color-f5f5f5);
-      background-color: #f1f1f1;
-      border: 1px solid #00000050;
-    } */
-  }
-  .comment-box {
-    padding: 16px 15px 16px 16px !important;
-    border-radius: 11px !important;
-    .comment-avatar {
-      height: 36px;
-      width: 36px;
-      background-image: url("https://material.angular.io/assets/img/examples/shiba1.jpg");
-      background-size: cover;
-    }
-    .mat-card-header-text {
-      margin-left: 6px !important;
-      margin-right: 5px;
-    }
-    .header-actions {
-      display: flex;
-      position: absolute;
-      margin-left: 0;
-      margin-right: auto;
-      right: 0;
-      mat-icon {
-        vertical-align: initial;
-        color: var(--color-e3e3e3);
-      }
-    }
-    /* &:hover {
-      background-color: #f1f1f1;
-      border: 1px solid #00000050;
-    } */
-  }
   .mat-card {
     box-shadow: none !important;
   }
@@ -139,40 +94,10 @@ app-collaborators-auto-complete{
   }
 }
 
-.selected-text {
-  margin-bottom: 12px;
-  .selected-text-title {
-    font-family: var(--font-family-open-sans);
-    font-style: var(--font-style-normal);
-    font-weight: var(--font-weight-bold);
-    font-size: var(--font-size-12);
-    line-height: var(--line-spacing-20);
-    letter-spacing: var(--character-spacing-0);
-    color: var(--color-192956);
-  }
-  .selected-text-content {
-    font-family: var(--font-family-open-sans);
-    font-style: var(--font-style-normal);
-    font-weight: var(--font-weight-normal);
-    font-size: var(--font-size-12);
-    line-height: var(--line-spacing-20);
-    letter-spacing: var(--character-spacing-0);
-    color: var(--color-818181);
-    border-left: 2px solid;
-    border-color: var(--color-559efe);
-    padding-left: 5px;
-  }
-}
-
 .comment-elipsis-content {
   white-space: nowrap;
   text-overflow: ellipsis;
   width: 100%;
-}
-
-.morelessBtn {
-  color: #8fc0f1;
-  cursor: pointer;
 }
 
 .comment-display-none {
@@ -214,19 +139,6 @@ app-collaborators-auto-complete{
 .show {
   overflow: visible;
   height: auto;
-}
-
-.reply {
-  font-family: var(--font-family-open-sans);
-  font-style: var(--font-style-normal);
-  font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-12);
-  line-height: var(--line-spacing-16);
-  letter-spacing: var(--character-spacing-0);
-  color: var(--color-192956);
-  cursor: pointer;
-  width: 33px;
-  margin-bottom: 4px;
 }
 
 .reply-input {
@@ -276,43 +188,4 @@ app-collaborators-auto-complete{
 ::-ms-input-placeholder {
   /* Microsoft Edge */
   color: #c8c4c4;
-}
-
-.comment-reply-btns {
-  text-align: left;
-  margin-top: 17px;
-  button {
-    margin-right: 6px;
-    border-radius: 18px;
-    height: 27px !important;
-    line-height: 25px !important;
-    font-size: 13 !important;
-    box-shadow: none;
-  }
-  .cencel-button {
-    background-color: transparent;
-    color: #818181 !important;
-    border: none;
-  }
-  .comment-button {
-    background-color: transparent;
-    border: 1px solid var(--color-00b1b2);
-    border-width: 1.5px;
-    border-color: #00b1b2 !important;
-    color: #00b1b2 !important;
-    /* &:hover{
-      background-color: #EBEBEB;
-    } */
-    &:disabled {
-      background-color: #f5f5f5;
-      color: #cacdd3 !important;
-      border-color: #cacdd3 !important;
-      opacity: 0.7;
-       ::ng-deep {
-        .mat-button-wrapper {
-          opacity: 0.7;
-        }
-      }
-    }
-  }
 }

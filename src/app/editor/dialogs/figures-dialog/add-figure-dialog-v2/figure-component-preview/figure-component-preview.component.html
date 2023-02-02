@@ -1,9 +1,13 @@
-<div class="component-container">
-  <div class="img-container">
-    <img src="{{component.url}}" alt="">
+<div class="drag-container-inner">
+  <mat-icon class="move-icon">drag_indicator</mat-icon>
+  <div *ngIf="component.componentType == 'video'">
+    <div class="video-thumb">
+      <mat-icon>ondemand_video</mat-icon>
+    </div>
   </div>
-  <div>{{component.componentType}}</div>
-  <div class="component-content" [innerHTML]="component.description">
+  <div *ngIf="component.componentType == 'image'">
+    <img src="{{ component.url }}" alt="{{ component.componentType }}" />
   </div>
+  <div class="component-description" [innerHTML]="component.description"></div>
 </div>
 

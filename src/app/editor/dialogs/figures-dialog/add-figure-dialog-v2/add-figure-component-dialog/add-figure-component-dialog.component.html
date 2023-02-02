@@ -1,10 +1,11 @@
-<h2 mat-dialog-title>Figure component:</h2>
+<h2 mat-dialog-title>Add figure component:</h2>
 
 <div class="pm-pdf-menu-container"></div>
 
-<mat-dialog-content>
+<mat-dialog-content class="dynamic-content-height">
   <div class="figure-component-edit">
-    <div>
+
+    <div class="row-container">
       <mat-form-field class="url-edit-field">
         <mat-label>URL:</mat-label>
         <input type="url" matInput [formControl]="urlFormControl" placeholder="http://example.url">
@@ -28,18 +29,24 @@
       </mat-form-field>
     </div>
 
-    <h3>Component Description:</h3>
-    <div class="pm-editor" #componentDescription>
+    <div class="row-container">
+
+      <div class="description-edit-container">
+        <h3>Component Description:</h3>
+        <div class="pm-editor" #componentDescription></div>
+      </div>
+
+      <div class="figure-component-edit-preview">
+        <div *ngIf="typeFromControl.valid&&urlFormControl.valid">
+          <img *ngIf="typeFromControl.value == 'image'" src="{{urlFormControl.value}}" alt="">
+          <iframe *ngIf="typeFromControl.value == 'video'" [src]="urlFormControl.value | safe">
+          </iframe>
+        </div>
+      </div>
 
     </div>
   </div>
-  <div class="figure-component-edit-preview">
-    <div *ngIf="typeFromControl.valid&&urlFormControl.valid">
-      <img *ngIf="typeFromControl.value == 'image'" src="{{urlFormControl.value}}" alt="">
-      <iframe *ngIf="typeFromControl.value == 'video'" [src]="urlFormControl.value | safe">
-      </iframe>
-    </div>
-  </div>
+
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">

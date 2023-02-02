@@ -15,6 +15,7 @@ import { html } from '@codemirror/lang-html';
 import { uuidv4 } from 'lib0/random';
 import { pageDimensionsInPT } from '../../edit-before-export/edit-before-export.component';
 import { AddFigureComponentDialogComponent } from './add-figure-component-dialog/add-figure-component-dialog.component';
+
 let figuresHtmlTemplate = `
 <block-figure [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.figure_number]="data.figureNumber" [attr.figure_id]="data.figureID">
     <figure-components-container contenteditablenode="false">
@@ -83,6 +84,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
   columns = [1, 2, 3, 4]
   columnsFormControl = new FormControl()
+  columnWidth:number
 
   constructor(
     private prosemirrorEditorsService: ProsemirrorEditorsService,
@@ -107,8 +109,11 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
       this.renderProsemirrorEditor()
       this.columnsFormControl.valueChanges.subscribe((columns) => {
         let gridParent = this.gridContainer.nativeElement as HTMLDivElement
-        let newGridWidth = ((312 * columns) + 10) + 'px'
-        gridParent.style.maxWidth = newGridWidth;
+
+
+        //this.columnWidth = gridParent.getBoundingClientRect().width / columns;
+
+        gridParent.setAttribute('data-cols', columns);
         setTimeout(()=>{
           this.updatePreview(false)
         })
@@ -179,7 +184,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
   editComponent(component: any, i: number) {
     this.dialog.open(AddFigureComponentDialogComponent, {
-      width: '60%',
+      width: '620px',
       data: { component },
       disableClose: false
     }).afterClosed().subscribe((result: { component: any }) => {
@@ -198,7 +203,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
   addComponent() {
     this.dialog.open(AddFigureComponentDialogComponent, {
-      width: '60%',
+      width: '620px',
       disableClose: false
     }).afterClosed().subscribe((result: { component: any }) => {
       if (result) {

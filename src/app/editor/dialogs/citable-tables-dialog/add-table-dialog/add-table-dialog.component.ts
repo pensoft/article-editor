@@ -91,7 +91,8 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
       if (!this.data.table) {
         let rows, cols;
         const tableSizePickerDialog = this.dialog.open(TableSizePickerComponent, {
-          width: '275px',
+          width: '284px',
+          disableClose: true,
           data: { rows: rows, cols: cols }
         });
 

@@ -1,0 +1,9 @@
+<div [ngClass]="{'prosemirror-textarea-wrapper-error': validity.length > 0, 'prosemirror-textarea-wrapper': validity.length <= 0}">
+  <div #ProsemirrorEditor></div>
+</div>
+<textarea [ngStyle]="{ display: 'none' }" #textarea></textarea>
+<mat-error class="pm-errors">
+  <div *ngIf="validity.length > 0">
+    {{ validity[0].message }}
+  </div>
+</mat-error>
