@@ -64,8 +64,6 @@ export class FiguresDialogComponent implements AfterViewInit {
 
   editFigure(fig: figure, figIndex: number){
     this.dialog.open(AddFigureDialogV2Component, {
-      width: '100%',
-      // height: '90%',
       data: { fig, updateOnSave: false, index: figIndex, figID: fig.figureID },
       disableClose: false
     }).afterClosed().subscribe((result: { figure: figure }) => {
@@ -90,8 +88,6 @@ export class FiguresDialogComponent implements AfterViewInit {
 
   addFigure(){
     this.dialog.open(AddFigureDialogV2Component, {
-      width: '100%',
-      // height: '90%',
       data: { fig: undefined, updateOnSave: false, index: this.figuresNumbers?.length },
       disableClose: false
     }).afterClosed().subscribe((result: { figure: figure }) => {

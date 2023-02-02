@@ -38,16 +38,16 @@
             <!--            <app-avatar user="user"></app-avatar>-->
           </ng-container>
 
-          <ng-container *ngIf="usersInArticle.length > 2">
+          <ng-container *ngIf="usersInArticle.length > 3">
 
             <button mat-mini-fab color="accent" [matMenuTriggerFor]="avatars_menu" aria-label="Show all avatars">
-              +{{ usersInArticle.length - 2 }}
+              +{{ usersInArticle.length - 3 }}
             </button>
 
             <mat-menu #avatars_menu="matMenu" class="article-users-list">
 
-              <ng-container *ngFor="let user of usersInArticle">
-                <mat-card class="user-card" *ngIf="user&&user.userInfo&&user.userInfo.data">
+              <ng-container *ngFor="let user of usersInArticle | skipCurrent; index as i">
+                <mat-card class="user-card" *ngIf="user&&user.userInfo&&user.userInfo.data&&i>1">
                   <mat-card-header>
                     <div mat-card-avatar>
                       <ngx-avatar class="avatar-container" size="36" [gravatarId]="user.userInfo.data.email"

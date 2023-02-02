@@ -1,14 +1,3 @@
-.container{
-  width: 100%;
-  height: 100%;
-}
-
-.template-buttons {
-  button {
-      margin-right: 20px;
-      margin-bottom: 10px;
-  }
-}
 .codemirror-editor {
   width: 100%;
   height: 350px;
@@ -28,61 +17,136 @@
   padding: 4px;
 }
 
-.component-action-btns{
-  height: 60px;
-  border-top: 1px solid #32b1b2;
-  position: relative;
+.columns-select {
+  margin: 0;
+}
 
-  .drag-container{
-    width: 30%;
-    text-align: left;
-    display: inline-block;
+.reorder-box {
+  display: block;
+  padding: 4px;
+  box-sizing: border-box;
+  width: 600px;
+  height: 220px;
+
+  .reorder-box-content {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: stretch;
+    align-items: flex-start;
+    width: 100%;
     height: 100%;
-    position: absolute;
-    left: 0;
-    top: 0;
+    border: solid 1px #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
 
-    .drag-container-inner{
-      display: inline-block;
-      .move-icon{
-        cursor: move;
-        margin: 18px;
+    .drag-container {
+      display: block;
+      width: 100%;
+      cursor: move;
+    }
+
+    .actions-container {
+      display: flex;
+      flex-flow: row wrap;
+      align-items: flex-start;
+      justify-content: flex-end;
+      width: 100%;
+      margin-top: auto;
+      padding: 4px 8px 12px 8px;
+      box-sizing: border-box;
+      border-top: 1px solid #ccc;
+
+      button {
+        margin: 8px 0 0 16px;
+
+        &:first-of-type {
+          margin: 8px 0 0 0;
+        }
       }
     }
   }
-  .actions-container{
-    width: 70%;
-    text-align: right;
-    display: inline-block;
-    height: 100%;
-    position: absolute;
-    right: 0;
-    top: 0;
-    button{
-      margin: 12px;
+}
+
+.grid-edit {
+  .heading-container {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    align-items: flex-start;
+    width: 100%;
+    padding: 0 0 32px 0;
+
+    .figure-description {
+      flex-grow: 1;
+      padding-right: 16px;
+    }
+
+    .columns-select {
+      flex-shrink: 0;
+    }
+  }
+
+  .reorder-grid {
+    display: flex;
+    flex-flow: row wrap;
+    margin: 0 auto;
+    overflow-x: auto;
+
+    .cdk-drag-placeholder {
+      .reorder-box-content {
+        background: #e0f3f4;
+        border: 1px dashed #1ebabb;
+        transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+      }
+    }
+
+    .cdk-drop-list {
+      display: block;
+      box-sizing: border-box;
+    }
+
+    &[data-cols="1"] {
+      width: 800px;
+
+      .reorder-box {
+        width: 800px;
+        height: 170px;
+      }
+    }
+
+    &[data-cols="2"] {
+      width: 800px;
+
+      .reorder-box {
+        width: 400px;
+        height: 220px;
+      }
+    }
+
+    &[data-cols="3"] {
+      width: 800px;
+
+      .reorder-box {
+        width: 265px;
+      }
+    }
+
+    &[data-cols="4"] {
+      width: 800px;
+
+      .reorder-box {
+        width: 200px;
+      }
     }
   }
 }
 
-.columns-select{
-  margin-top: 20px;
-  text-align: center;
-}
-
-.example-container {
-  display: flex;
-  flex-wrap: wrap;
-  max-width: 900px;
-  margin-right: auto;
-  margin-left: auto;
-}
 
 
 
-app-figure-component-preview{
-  width: calc(100% - 60px);
-  height: 100%;
-}
+
+
+
 
 
 .example-box {
@@ -101,56 +165,36 @@ app-figure-component-preview{
   box-shadow: 0 3px 1px -2px rgba(0, 0, 0, 0.2),
   0 2px 2px 0 rgba(0, 0, 0, 0.14),
   0 1px 5px 0 rgba(0, 0, 0, 0.12);
+
+  &:active {
+    box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
+    0 8px 10px 1px rgba(0, 0, 0, 0.14),
+    0 3px 14px 2px rgba(0, 0, 0, 0.12);
+    opacity: .6;
+  }
+
+  app-figure-component-preview {
+    width: calc(100% - 60px);
+    height: 100%;
+  }
 }
 
-.example-box:active {
-  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-  0 8px 10px 1px rgba(0, 0, 0, 0.14),
-  0 3px 14px 2px rgba(0, 0, 0, 0.12);
-  opacity: .6;
-}
 
-.cdk-drop-list {
-  display: flex;
-  padding-right: 10px;
-  padding-bottom: 10px;
-}
 
-.cdk-drag-preview {
-  box-sizing: border-box;
-  border-radius: 4px;
-  box-shadow: 0 5px 5px -3px rgba(0, 0, 0, 0.2),
-  0 8px 10px 1px rgba(0, 0, 0, 0.14),
-  0 3px 14px 2px rgba(0, 0, 0, 0.12);
-}
 
-.cdk-drag-placeholder {
-  opacity: .3;
-}
 
 .cdk-drag-animating {
   transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
 }
 
-button {
-  margin-right: 4px;
-}
 
 .preview-component {
   display: inline-block;
   margin: 7px;
 }
 
-.row-select {
-  display: inline-block;
-  width: 45%;
-  margin-right: 5%;
-}
 
-.preview-description {
-  display: inline-block;
-  width: 45%;
-}
+
 
 .items-on-row-form-field {
   width: 100%;

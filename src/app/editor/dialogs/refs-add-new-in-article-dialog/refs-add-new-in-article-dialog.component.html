@@ -55,7 +55,7 @@
     </mat-tab>
     <mat-tab label="Manual input">
       <div class="tab1">
-        <mat-form-field appearance="fill" #referenceType class="select-ref-form-field">
+        <mat-form-field #referenceType class="select-ref-form-field">
           <mat-label class="">Types:</mat-label>
           <mat-select [formControl]="referenceFormControl" class="select-reference" (selectionChange)="generateFormIOJSON(referenceFormControl.value)">
             <mat-option *ngFor="let type of referenceTypesFromBackend " [value]="type">
