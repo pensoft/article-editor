@@ -4,25 +4,45 @@
   height: 48.14px;
 }
 .figure-component-edit{
-  width: 60%;
-  display: inline-block;
-  .url-edit-field{
-    width: 40%;
+  display: flex;
+  flex-flow: column nowrap;
+  width: 100%;
 
-  }
-  .type-edit-field{
-    width: 25%;
-    margin-left: 30px;
-  }
-  .pm-editor{
-    border-bottom: 1px solid #00b1b2;
-    padding: 18px;
+  .row-container {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    margin: 24px 0 0 0;
+
+    .url-edit-field {
+      width: calc(50% - 8px);
+    }
+
+    .type-edit-field {
+      width: calc(50% - 8px);
+      margin-left: 30px;
+    }
+
+    .description-edit-container {
+      display: block;
+      width: calc(50% - 8px);
+
+      .pm-editor {
+        border-bottom: 1px solid #00b1b2;
+        padding: 0;
+      }
+    }
+
+    .figure-component-edit-preview {
+      display: block;
+      width: calc(50% - 8px);
+      padding: 8px;
+
+      img,
+      iframe {
+        width: 100%;
+      }
+    }
   }
 }
-.figure-component-edit-preview{
-  width: 40%;
-  display: inline-block;
-  img{
-    width: 100%;
-  }
-}
+
