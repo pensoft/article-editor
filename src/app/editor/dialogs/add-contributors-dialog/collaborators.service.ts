@@ -92,29 +92,39 @@ export class CollaboratorsService {
         prev.push(par)
         return prev
       },[]),
-      ns.form_field.create({},[
-        ns.paragraph.create({},[
-          schema.text('Corresponding author: '),...coAuthors.reduce((prev,curr,index)=>{
-            let nameText = schema.text(curr.collaborator.name+' ');
-            let email = schema.text("("+curr.collaborator.email+")",[schema.mark('link',{href:'mailto: '+curr.collaborator.email})]);
-            if(index>0){
-              prev.push(schema.text(', '),nameText,email)
-            }else{
-              prev.push(nameText,email)
-            }
-            return prev
-          },[])
+      ns.inline_block_container.create({},[
+        ns.form_field.create({},[
+          ns.paragraph.create({},[
+            schema.text('Corresponding author: '),...coAuthors.reduce((prev,curr,index)=>{
+              let nameText = schema.text(curr.collaborator.name+' ');
+              let email = schema.text("("+curr.collaborator.email+")",[schema.mark('link',{href:'mailto: '+curr.collaborator.email})]);
+              if(index>0){
+                prev.push(schema.text(', '),nameText,email)
+              }else{
+                prev.push(nameText,email)
+              }
+              return prev
+            },[])
+          ]),
+          ns.paragraph.create({},[
+            schema.text('© '),...authorsAndSymbols.reduce((prev,curr,index)=>{
+              let nameText = schema.text(curr.collaborator.name);
+              if(index>0){
+                prev.push(schema.text(', '),nameText)
+              }else{
+                prev.push(nameText)
+              }
+              return prev
+            },[])
+          ]),
+          ns.paragraph.create({},[
+            schema.text('Citation:')
+          ])
         ]),
-        ns.paragraph.create({},[
-          schema.text('© '),...authorsAndSymbols.reduce((prev,curr,index)=>{
-            let nameText = schema.text(curr.collaborator.name);
-            if(index>0){
-              prev.push(schema.text(', '),nameText)
-            }else{
-              prev.push(nameText)
-            }
-            return prev
-          },[])
+        ns.form_field.create({},[
+          ns.paragraph.create({},[
+            ns.image.create({src:'./assets/img/open_access_icon_colour.svg'})
+          ]),
         ])
       ])
     ])
