@@ -49,7 +49,6 @@ export class FigurePreviewComponent extends MaterialComponent implements AfterVi
   updatePreview(checkDiff:boolean){
     let hasEmptyFields = false;
     let differrance = false;
-    console.log(this.instance.data.figureComponents);
     this.instance.data.figureComponents.forEach((comp: any, i: number) => {
       let { componentType, url, description } = comp.container;
       if (componentType == '' || url == '' || description == '') {
