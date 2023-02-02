@@ -954,8 +954,8 @@ mat-radio-group {
       > .mat-form-field-infix {
         font-size: 16px;
         font-weight: 400;
-        line-height: 18px;
-        padding: 12px 4px;
+        line-height: 22px;
+        padding: 10px 4px;
         color: var(--color-000000);
         border: 0;
       }
@@ -964,6 +964,20 @@ mat-radio-group {
     .mat-form-field-underline {
       display: none;
     }
+  }
+
+  &.is-small {
+    .mat-form-field-wrapper {
+      > .mat-form-field-flex {
+        > .mat-form-field-infix {
+          padding: 8px 4px;
+        }
+      }
+    }
+  }
+
+  &.has-fixed-width {
+    max-width: 476px;
   }
 }
 
@@ -1438,6 +1452,144 @@ mat-radio-group {
 
     img {
       width: 15px;
+    }
+  }
+}
+
+/* Dashboard Overrides */
+.dashboard-table {
+  th.mat-column-title {
+    .mat-sort-header-container {
+      .mat-sort-header-arrow {
+        color: var(--color-707070);
+      }
+    }
+  }
+
+  th.mat-column-date, th.mat-column-id {
+    .mat-sort-header-container {
+      align-items: center;
+      justify-content: center;
+
+      > div:first-child {
+        margin: 0 0 0 16px;
+      }
+
+      .mat-sort-header-arrow {
+        color: var(--color-707070);
+      }
+    }
+  }
+}
+
+/* Dashboard Paginator Overrides */
+.dashboard-paginator {
+  margin: 48px 0 64px 0;
+
+  .mat-paginator-container {
+    min-height: auto;
+
+    .mat-paginator-range-actions {
+      position: relative;
+      padding: 0;
+
+      .mat-paginator-range-label {
+        position: absolute;
+        top: 0;
+        right: 0;
+        left: 0;
+        margin: 0;
+        padding: 0 28px;
+        text-align: center;
+        transform: none;
+        font-size: 14px;
+        font-weight: bold;
+        line-height: 28px;
+        color: var(--color-000000);
+      }
+
+      button {
+        background: var(--color-white);
+        box-shadow: 0 3px 6px #00B1B22D;
+
+        span {
+          display: flex;
+          flex-flow: column nowrap;
+          align-items: center;
+          justify-content: center;
+          overflow: hidden;
+
+          svg {
+            display: none;
+          }
+        }
+
+        &.mat-button-disabled {
+          opacity: 0.3;
+          background: var(--color-ffffff) !important;
+        }
+
+        &:last-of-type {
+          span {
+            background: url('./assets/icons/chevron-circle-left.svg');
+            background-size: 28px 28px;
+            transform: rotate(180deg);
+          }
+        }
+
+        &:first-of-type {
+          span {
+            background: url('./assets/icons/chevron-circle-left.svg');
+            background-size: 28px 28px;
+          }
+        }
+      }
+    }
+  }
+}
+
+/* Dashboard search field Override */
+.search-form {
+  .mat-form-field-search {
+
+    .mat-form-field-wrapper {
+      > .mat-form-field-flex {
+        border-color: var(--color-00b1b2);
+
+        > .mat-form-field-prefix {
+          mat-icon {
+            margin: 2px 0 0 0;
+            color: var(--color-cacdd3);
+          }
+        }
+      }
+    }
+  }
+
+  mat-form-field:last-of-type {
+    .mat-form-field-wrapper {
+      .mat-form-field-flex {
+        .mat-form-field-infix {
+          mat-select {
+            .mat-select-arrow-wrapper {
+              .mat-select-arrow {
+                position: relative;
+                width: 16px;
+                height: 9px;
+                background: url('./assets/icons/chevron-down-green.svg');
+                background-size: 16px 9px;
+                border: 0;
+                margin: 6px 0 0 0;
+                left: 0;
+              }
+            }
+          }
+        }
+      }
+
+      .mat-form-field-underline {
+        display: none;
+      }
     }
   }
 }

@@ -2,19 +2,26 @@
   <div class="container-shadow br-15px mt35px p26px h867px">
     <article fxLayout="row" fxFill>
       <div class="mt20px">
-        <button mat-button *ngIf="
+        <button *ngIf="
         enforcer.newBeahviorSubject| hasPermission:
         '/layouts':
         'POST' |
         async" (click)="openchooseDialog()" class="btn-start-new-project">
-          <mat-icon svgIcon="dasboardNewProject" class="icon-plus"></mat-icon>Start new project
+          <mat-icon svgIcon="dasboardNewProject" class="icon-plus"></mat-icon>
+          <span>Start new project</span>
         </button>
       </div>
     </article>
     <article fxLayout="row" fxLayoutAlign="start center">
-      <form (keydown)="search(inputText)" fxFlex="90%" fxLayoutAlign="start center">
-        <mat-form-field class="width-input">
-          <input matInput type="text" #inputText class="input-search" placeholder="Search by Name">
+      <form (keydown)="search(inputText)" fxFlex="100%" fxLayoutGap="32px" fxLayoutAlign="start center" class="search-form">
+
+        <mat-form-field class="mat-form-field-search is-small has-fixed-width" appearance="fill">
+          <input type="text"
+                 #inputText
+                 class="input-search"
+                 placeholder="Search by name"
+                 matInput
+                 autocomplete="off">
           <mat-icon matPrefix class="prefix-icon">search</mat-icon>
         </mat-form-field>
         <mat-form-field class="width-select">
@@ -38,7 +45,7 @@
 
     <div class="example-table-container">
 
-      <table mat-table [dataSource]="data" class="example-table" matSort matSortActive="created" matSortDisableClear matSortDirection="desc">
+      <table mat-table [dataSource]="data" class="example-table dashboard-table" matSort matSortActive="created" matSortDisableClear matSortDirection="desc">
         <!-- Number Column -->
         <ng-container matColumnDef="id">
           <th mat-header-cell *matHeaderCellDef mat-sort-header disableClear>ID</th>
@@ -48,41 +55,41 @@
         <!-- Title Column -->
         <ng-container matColumnDef="title">
           <th mat-header-cell *matHeaderCellDef mat-sort-header disableClear>Title</th>
-          <td mat-cell *matCellDef="let row" (click)="editArticle(row)" style="cursor:pointer;">{{row.name}}</td>
+          <td mat-cell *matCellDef="let row" (click)="editArticle(row)" style="cursor:pointer;">
+            <span>{{row.name}}</span>
+          </td>
         </ng-container>
 
         <!-- State Column -->
         <ng-container matColumnDef="layout-type">
-          <th mat-header-cell *matHeaderCellDef>Layout Type</th>
+          <th mat-header-cell *matHeaderCellDef>Layout</th>
           <td mat-cell *matCellDef="let row">
-            {{row.layout?row.layout.name + ' v.' + row.layout.version: 'DELETED'}}
+            <span>{{row.layout?row.layout.name + ' v.' + row.layout.version: 'DELETED'}}</span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="template-type">
-          <th mat-header-cell *matHeaderCellDef>Template Type</th>
+          <th mat-header-cell *matHeaderCellDef>Type</th>
           <td mat-cell *matCellDef="let row">
-            {{row.layout ? row.layout.template.name + ' v.' + row.layout.template.version : '---'}}
+            <span>{{row.layout ? row.layout.template.name + ' v.' + row.layout.template.version : '---'}}</span>
           </td>
         </ng-container>
 
         <ng-container matColumnDef="lastupdated">
           <th mat-header-cell *matHeaderCellDef>Last updated</th>
-          <td mat-cell *matCellDef="let row">{{row.updated_at | date }}</td>
+          <td mat-cell *matCellDef="let row">{{row.updated_at | date:'yyyy-MM-dd' }}</td>
         </ng-container>
         <!-- Created Column -->
         <ng-container matColumnDef="date">
           <th mat-header-cell *matHeaderCellDef mat-sort-header disableClear>Date</th>
-          <td mat-cell *matCellDef="let row">{{row.created_at | date}}</td>
+          <td mat-cell *matCellDef="let row">{{row.created_at | date:'yyyy-MM-dd'}}</td>
         </ng-container>
 
         <ng-container matColumnDef="autor">
-          <th mat-header-cell *matHeaderCellDef>Autor</th>
+          <th mat-header-cell *matHeaderCellDef>Author</th>
           <td mat-cell *matCellDef="let row">
             <div class="more-avatar">
-              <ngx-avatar size="36" [gravatarId]="row.user.email" [name]="row.user.name" ></ngx-avatar>
-<!--              <ngx-avatar size="36" [name]="row.name"></ngx-avatar>-->
-              <div>{{row.user.email}}</div>
+              <ngx-avatar size="32" [gravatarId]="row.user.email" [name]="row.user.name"></ngx-avatar>
             </div>
           </td>
         </ng-container>
@@ -93,7 +100,7 @@
             <button mat-icon-button [matMenuTriggerFor]="menu" aria-label="Example icon-button with a menu">
             <mat-icon>more_vert</mat-icon>
           </button>
-            <mat-menu class="buttons-menu" #menu="matMenu">
+            <mat-menu class="buttons-menu" #menu="matMenu" xPosition="after">
               <button mat-menu-item>
               <mat-icon svgIcon="dashboardClock" class="clock-icon"></mat-icon>
             </button>
@@ -113,7 +120,7 @@
       </table>
     </div>
   </div>
-  <div class="paginator" fxLayoutAlign="center center">
+  <div class="paginator dashboard-paginator" fxLayoutAlign="center center">
     <mat-paginator [pageSize]="7" [length]="resultsLength">
     </mat-paginator>
   </div>
