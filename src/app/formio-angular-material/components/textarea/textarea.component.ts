@@ -18,18 +18,7 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
 @Component({
   selector: 'mat-formio-textarea',
   styleUrls: ['./textarea.component.scss'],
-  template: `
-  <div class="prosemirror-textarea-wrapper">
-    <div #ProsemirrorEditor></div>
-  </div>
-  <textarea [ngStyle]="{'display':'none'}" #textarea></textarea>
-  <mat-error  class="pm-errors" >
-    <div *ngIf="validity.length>0">
-      {{ validity[0].message  }}
-    </div>
-  </mat-error>
-  <!-- <mat-error class="pm-errors" [ngStyle]="{'display':instance.error?'none':'block'}"]>{{ instance.error.message }}</mat-error> -->
-  `
+  templateUrl: './textarea.component.html',
 })
 export class MaterialTextareaComponent extends MaterialComponent implements AfterViewInit {
   renderEditor = false;

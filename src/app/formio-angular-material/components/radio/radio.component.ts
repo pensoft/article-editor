@@ -6,6 +6,7 @@ import { redoItem } from 'yjs/dist/src/internals';
 
 @Component({
   selector: 'mat-formio-radio',
+  styleUrls: ['./radio.component.scss'],
   template: `
     <mat-formio-form-field [instance]="instance" [componentTemplate]="componentTemplate"></mat-formio-form-field>
     <ng-template #componentTemplate let-hasLabel>
