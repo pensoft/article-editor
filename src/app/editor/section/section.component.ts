@@ -126,7 +126,6 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
     }else{
       this.isValid
       this.formIoSubmission = change.data
-      console.log(change);
       if(change.changed&&change.changed.instance){
         this.formIoRoot = change.changed.instance.root
       }
@@ -176,7 +175,6 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
 
   onSubmit = async (submision?: any) => {
     try {
-      console.log(submision);
       let prosemirrorNewNodeContent: any
 
       prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);

@@ -91,7 +91,8 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
       if (!this.data.table) {
         let rows, cols;
         const tableSizePickerDialog = this.dialog.open(TableSizePickerComponent, {
-          width: '275px',
+          width: '284px',
+          disableClose: true,
           data: { rows: rows, cols: cols }
         });
 
@@ -150,7 +151,6 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
     }else{
       this.isValid
       this.formIoSubmission = change.data
-      console.log(change);
       if(change.changed&&change.changed.instance){
         this.formIoRoot = change.changed.instance.root
       }
