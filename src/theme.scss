@@ -1123,7 +1123,7 @@ mat-radio-group {
     box-shadow: none;
     padding: 16px 16px 0 16px;
     border-radius: 0;
-    background: var(--color-ffffff);
+    background: transparent;
     transition: all 0.2s ease-in-out;
 
     .mat-card-header {
@@ -1238,6 +1238,7 @@ mat-radio-group {
       display: flex;
       flex-flow: column nowrap;
       padding: 0 0 16px 0;
+      border-bottom: 1px solid var(--color-cacdd3);
 
       .selected-text, .selected-commet-text, .edited-text {
         .selected-text-title, .selected-commet-text-title, .edited-text-title {
@@ -1352,11 +1353,6 @@ mat-radio-group {
     &.comment-box-replies {
       padding: 16px 16px 0 26px;
       border-left: 2px solid transparent;
-      background: var(--color-f5f5f5);
-
-      .mat-card-content {
-        border-bottom: 1px solid var(--color-e3e3e3);
-      }
     }
 
     &.comment-box {
@@ -1364,6 +1360,8 @@ mat-radio-group {
     }
 
     &.change-box {
+      border-left: 2px solid transparent;
+
       .mat-card-content {
         .edited-text {
           .edited-text-content {
@@ -1374,17 +1372,24 @@ mat-radio-group {
         }
       }
     }
-
-    &:last-child {
-      .mat-card-content {
-        border: 0;
-      }
-    }
   }
 
   &.selected-comment {
+    margin: -1px 0 0 0;
+
+    app-comment {
+      > mat-card {
+        &:last-child {
+          .mat-card-content {
+            border-bottom-color: transparent;
+          }
+        }
+      }
+    }
+
     .comment-box, .comment-box-replies {
       border-color: var(--color-559efe);
+      background: var(--color-ffffff);
 
       .mat-card-header {
         .header-actions {
@@ -1392,6 +1397,33 @@ mat-radio-group {
             display: none;
           }
         }
+      }
+
+      .mat-card-content {
+        border-color: var(--color-e3e3e3);
+      }
+    }
+  }
+
+  &.selected-change {
+    margin: -1px 0 0 0;
+
+    .change-box {
+      border-color: var(--color-559efe);
+      background: var(--color-ffffff);
+
+      .mat-card-content {
+        border-bottom-color: transparent;
+      }
+    }
+  }
+
+  &.add-comment-box {
+    background: var(--color-ffffff);
+
+    .commentBox {
+      .mat-card-content {
+        border-bottom-color: transparent;
       }
     }
   }
