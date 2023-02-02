@@ -25,7 +25,7 @@
   display: block;
   padding: 4px;
   box-sizing: border-box;
-  width: 300px;
+  width: 600px;
   height: 220px;
 
   .reorder-box-content {
@@ -34,6 +34,7 @@
     justify-content: stretch;
     align-items: flex-start;
     width: 100%;
+    height: 100%;
     border: solid 1px #ccc;
     border-radius: 4px;
 
@@ -49,12 +50,17 @@
       align-items: flex-start;
       justify-content: flex-end;
       width: 100%;
-      padding: 12px;
+      margin-top: auto;
+      padding: 4px 8px 12px 8px;
       box-sizing: border-box;
       border-top: 1px solid #ccc;
 
       button {
-        margin: 0 0 0 16px;
+        margin: 8px 0 0 16px;
+
+        &:first-of-type {
+          margin: 8px 0 0 0;
+        }
       }
     }
   }
@@ -67,6 +73,7 @@
     justify-content: flex-start;
     align-items: flex-start;
     width: 100%;
+    padding: 0 0 32px 0;
 
     .figure-description {
       flex-grow: 1;
@@ -81,8 +88,8 @@
   .reorder-grid {
     display: flex;
     flex-flow: row wrap;
-    margin: 0 -4px;
-    width: 300px;
+    margin: 0 auto;
+    overflow-x: auto;
 
     .cdk-drag-placeholder {
       .reorder-box-content {
@@ -98,21 +105,38 @@
     }
 
     &[data-cols="1"] {
+      width: 600px;
 
+      .reorder-box {
+        width: 600px;
+        height: 160px;
+      }
     }
 
     &[data-cols="2"] {
       width: 600px;
+
+      .reorder-box {
+        width: 300px;
+        height: 220px;
+      }
     }
 
     &[data-cols="3"] {
-      width: 900px;
+      width: 600px;
+
+      .reorder-box {
+        width: 200px;
+      }
     }
 
     &[data-cols="4"] {
-      width: 1200px;
-    }
+      width: 800px;
 
+      .reorder-box {
+        width: 200px;
+      }
+    }
   }
 }
 
