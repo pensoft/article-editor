@@ -37,6 +37,7 @@
     height: 100%;
     border: solid 1px #ccc;
     border-radius: 4px;
+    box-sizing: border-box;
 
     .drag-container {
       display: block;
@@ -105,28 +106,28 @@
     }
 
     &[data-cols="1"] {
-      width: 600px;
+      width: 800px;
 
       .reorder-box {
-        width: 600px;
-        height: 160px;
+        width: 800px;
+        height: 170px;
       }
     }
 
     &[data-cols="2"] {
-      width: 600px;
+      width: 800px;
 
       .reorder-box {
-        width: 300px;
+        width: 400px;
         height: 220px;
       }
     }
 
     &[data-cols="3"] {
-      width: 600px;
+      width: 800px;
 
       .reorder-box {
-        width: 200px;
+        width: 265px;
       }
     }
 
