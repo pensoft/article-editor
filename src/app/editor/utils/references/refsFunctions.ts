@@ -130,8 +130,15 @@ const mappingObj: any = {
   "type": {
     type: 'string', cslProp: {
       prop: 'type', func: `(function a(type,refobj,formioobj,extRef){
-        if (type) {
-          maped['type'] = type.replace(' ', '-').toLocaleLowerCase()
+        let refTypesToLocal = {
+          'book':"book",
+          'book chapter':"chapter",
+          'conference proceedings':"paper-conference",
+          'journal article':"article-journal",
+          'thesis':"thesis",
+        };
+        if (type&&refTypesToLocal[type]) {
+          maped['type'] = refTypesToLocal[type]
         } else {
           maped['type'] = 'article-journal'
         }
@@ -228,7 +235,7 @@ const mappingObj: any = {
   "source": undefined,
   "issue": { type: 'string', cslProp: 'issue', formIOprop: "issue" },
 }
-function mapRef1(ref: any) {
+export function mapRef1(ref: any) {
   let maped: any = {};
   let formIOData: any = {}
   Object.keys(ref).forEach((key: any) => {
@@ -267,6 +274,7 @@ function mapRef1(ref: any) {
   return { ref: maped, formIOData }
 }
 function mapRef(ref: any) {
+  console.log(ref);
   let maped: any = {};
   let formIOData: any = {}
   if (ref.authors && ref.authors instanceof Array && ref.authors.length > 0) {
@@ -409,8 +417,6 @@ export let mapExternalRefs = (data1: string) => {
   //map data in csl lib format
   let mapedReferences: any[] = []
   data.forEach((ref) => {
-    let mapedRef = mapRef(ref)
-
     let mapedRef1 = mapRef1(ref)
     mapedReferences.push(mapedRef1)
   })

@@ -55,8 +55,8 @@ export class RefsInArticleCiteDialogComponent implements OnInit, OnDestroy {
           this.refsInYdoc[refId] = refInstance.ref
           this.addRefsThisSession.push(refId);
           this.checkedRefs.push(refId);
-          this.saveNewRefsInYdoc()
         })
+        this.saveNewRefsInYdoc()
       }
     })
   }

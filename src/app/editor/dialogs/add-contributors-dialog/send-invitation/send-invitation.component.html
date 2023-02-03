@@ -72,7 +72,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
-  <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
+  <button mat-stroked-button [mat-dialog-close]>Cancel</button>
   <button mat-flat-button color="primary" [disabled]="users.length==0||
               !inviteUsersForm.controls.accessSelect.value||
               ((!inviteUsersForm.controls.message.value||
