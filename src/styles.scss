@@ -365,6 +365,11 @@ supplementary-file-citation[nonexistingelement="true"] {
   color: white;
 }
 
+reference-citation[nonexistingelement="true"] {
+  background-color: rgb(194, 54, 54);
+  color: white;
+}
+
 .pdf-edit-and-preview .mat-dialog-container {
   padding: 1em;
   width: 100%;

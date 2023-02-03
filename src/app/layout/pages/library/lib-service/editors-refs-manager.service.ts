@@ -10,9 +10,9 @@ import { EditorState } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 
 export let CiToTypes = [
-  {label:"agrees with" ,link:"http://purl.org/spar/cito/agreesWith"},
-  {label:"cites as authority",link: "http://purl.org/spar/cito/citesAsAuthority"},
-  {label:"cites as recommended reading",link:"http://purl.org/spar/cito/citesAsRecommendedReading"},
+  { label: "agrees with", link: "http://purl.org/spar/cito/agreesWith" },
+  { label: "cites as authority", link: "http://purl.org/spar/cito/citesAsAuthority" },
+  { label: "cites as recommended reading", link: "http://purl.org/spar/cito/citesAsRecommendedReading" },
 ]
 
 export function getHtmlInlineNodes(htmlSteing: string) {
@@ -36,10 +36,10 @@ export class EditorsRefsManagerService {
 
   dothSaveToHistory = false;
 
-  citateSelectedReferencesInEditor(citedRefs: string[], view: EditorView,citedRefsAtPos?:{
-    citedRefsAtPos:string[],
-    citationAtPos:Node,
-    citationPos:number
+  citateSelectedReferencesInEditor(citedRefs: string[], view: EditorView, citedRefsAtPos?: {
+    citedRefsAtPos: string[],
+    citationAtPos: Node,
+    citationPos: number
   }) {
 
     let refsInYdoc = this.serviceShare.YdocService.referenceCitationsMap.get('refsAddedToArticle');
@@ -66,10 +66,10 @@ export class EditorsRefsManagerService {
     this.serviceShare.YjsHistoryService.captureBigOperation();
 
     let citationTxt = schema.text(refsTxts.join(', '));
-    if(!citedRefsAtPos){
+    if (!citedRefsAtPos) {
       view.dispatch(state.tr.replaceSelectionWith(schema.nodes.reference_citation.create(nodeAttrs, citationTxt)));
-    }else{
-      view.dispatch(state.tr.replaceWith(citedRefsAtPos.citationPos,citedRefsAtPos.citationPos+citedRefsAtPos.citationAtPos.nodeSize,schema.nodes.reference_citation.create(nodeAttrs, citationTxt)))
+    } else {
+      view.dispatch(state.tr.replaceWith(citedRefsAtPos.citationPos, citedRefsAtPos.citationPos + citedRefsAtPos.citationAtPos.nodeSize, schema.nodes.reference_citation.create(nodeAttrs, citationTxt)))
     }
     this.checkIfAnyRefsShouldBeAddedToEndEditor(citedRefs);
     this.checkIfAnyRefsShouldBeRemovedFromEndEditor();
@@ -78,7 +78,7 @@ export class EditorsRefsManagerService {
     this.serviceShare.YjsHistoryService.endBigOperationCapture()
   }
 
-  updateRefsInEndEditorAndTheirCitations(){
+  updateRefsInEndEditorAndTheirCitations() {
     this.checkIfAnyRefsShouldBeRemovedFromEndEditor();
     this.checkIfShouldUpdateRefs();
   }
@@ -135,7 +135,7 @@ export class EditorsRefsManagerService {
     })
     this.updateCitationsDisplayTextAndBibliography(refsInEndEditor)
 
-    deleatedRefsIds.forEach((refId)=>{
+    deleatedRefsIds.forEach((refId) => {
       this.removeBibliographyOfDeletedRef(refId)
     })
   }
@@ -159,11 +159,11 @@ export class EditorsRefsManagerService {
     })
     if (node) {
       let attrs = JSON.parse(JSON.stringify(node.attrs));
-      endEdView.dispatch(state.tr.replaceWith(from-1, to+1, Fragment.empty).setMeta('skipChange', true));
+      endEdView.dispatch(state.tr.replaceWith(from - 1, to + 1, Fragment.empty).setMeta('skipChange', true));
     }
   }
 
-  updateCitationsDisplayTextAndBibliography(refs: any, fromEditDialog?: true) {
+  updateCitationsDisplayTextAndBibliography(refs: any) {
     let countObj: any = {}
 
     let updatedAnyDisplayText = false
@@ -219,8 +219,63 @@ export class EditorsRefsManagerService {
       setTimeout(() => {
         this.updateReferenceCitats(updatedReferences, refs);
       }, 10)
+    } else {
+      this.checkIfShouldMarkRefsCitationsAsDeleted(refs)
     }
     return refs
+  }
+
+  checkIfShouldMarkRefsCitationsAsDeleted(refs: any) {
+    Object.keys(this.serviceShare.ProsemirrorEditorsService!.editorContainers).forEach((sectionId) => {
+      let edView = this.serviceShare.ProsemirrorEditorsService!.editorContainers[sectionId].editorView
+      let allCitationsWithNonExistentRefs = this.getAllCitationsIdsWithNonExistantRefs(edView, refs)
+      allCitationsWithNonExistentRefs.forEach((citeId) => {
+        this.markRefCitationAsPointionToDeletedRef(edView, refs, citeId)
+      })
+    })
+  }
+
+  markRefCitationAsPointionToDeletedRef(view: EditorView, refs: any, citeId: string) {
+    let edView = view;
+
+    let node: any;
+    let from: any;
+    let to: any;
+
+    let state = edView.state;
+    let found = false;
+    let docSize = state.doc.content.size
+
+    state.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
+      if (n.type.name == 'reference_citation' && n.attrs.refCitationID == citeId) {
+        found = true
+        node = n;
+        from = p;
+        to = n.nodeSize + p;
+      }
+    })
+    if (found) {
+      let attrs = JSON.parse(JSON.stringify(node.attrs));
+      attrs.citedRefsIds = ['pointing-to-deleted-ref']
+      attrs.nonexistingelement = true;
+      let newNode = state.schema.nodes.reference_citation.create(attrs, state.schema.text(' Cited item deleted '))
+      edView.dispatch(state.tr.replaceWith(from, to, newNode).setMeta('addToLastHistoryGroup', true));
+    }
+  }
+
+  getAllCitationsIdsWithNonExistantRefs(view: EditorView, refs: any) {
+    let edView = view;
+    let state = edView.state;
+    let docSize = state.doc.content.size
+
+    let citaitonIds = []
+    state.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
+      if (n.type.name == 'reference_citation' && !n.attrs.citedRefsIds.reduce((prev, curr) => { return (refs[curr] && prev) }, true) && (n.attrs.nonexistingelement == false || n.attrs.nonexistingelement == 'false')) {
+        let citationId = n.attrs.refCitationID;
+        citaitonIds.push(citationId)
+      }
+    })
+    return citaitonIds
   }
 
   updateReferenceCitats(updatedReferences: string[], refs: any) {
@@ -229,16 +284,16 @@ export class EditorsRefsManagerService {
       this.updateBibliography(refs, refid)
     })
     //update citation of refs
-    Object.keys(this.serviceShare.ProsemirrorEditorsService!.editorContainers).forEach((sectionId)=>{
+    Object.keys(this.serviceShare.ProsemirrorEditorsService!.editorContainers).forEach((sectionId) => {
       let edView = this.serviceShare.ProsemirrorEditorsService!.editorContainers[sectionId].editorView
       let allRefsCitationIdsInEditors = this.getAllCitationsIdsInEditor(edView)
-      allRefsCitationIdsInEditors.forEach((citeId)=>{
-        this.updateRefsCitationsInEditor(edView,refs,citeId)
+      allRefsCitationIdsInEditors.forEach((citeId) => {
+        this.updateRefsCitationsInEditor(edView, refs, citeId)
       })
     })
   }
 
-  getAllCitationsIdsInEditor(view:EditorView){
+  getAllCitationsIdsInEditor(view: EditorView) {
     let edView = view;
     let state = edView.state;
     let docSize = state.doc.content.size
@@ -253,44 +308,44 @@ export class EditorsRefsManagerService {
     return citaitonIds
   }
 
-  updateRefsCitationsInEditor(view,refs,citeId){
-      let edView = view;
+  updateRefsCitationsInEditor(view, refs, citeId) {
+    let edView = view;
 
-      let node: any;
-      let from: any;
-      let to: any;
+    let node: any;
+    let from: any;
+    let to: any;
 
-      let state = edView.state;
-      let found = false;
-      let citatNewTxt;
-      let docSize = state.doc.content.size
+    let state = edView.state;
+    let found = false;
+    let citatNewTxt;
+    let docSize = state.doc.content.size
 
-      let allRefsIds = Object.keys(refs)
-      state.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
-        if (n.type.name == 'reference_citation'&&n.attrs.refCitationID == citeId) {
-          let citationTextContent = n.textContent;
-          let citationCurrTextContent: string = allRefsIds.reduce<string[]>((prev: string[], key: string, i: number) => {
-            if (n.attrs.citedRefsIds.includes(key)) {
-              let ref = refs[key];
-              prev.push(ref.citationDisplayText)
-            }
-            return prev
-          }, []).join(', ');
-          if(citationTextContent != citationCurrTextContent){
-            citatNewTxt = citationCurrTextContent
-            found = true
-            node = n;
-            from = p;
-            to = n.nodeSize + p;
+    let allRefsIds = Object.keys(refs)
+    state.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
+      if (n.type.name == 'reference_citation' && n.attrs.refCitationID == citeId && n.attrs.citedRefsIds.some(x=>allRefsIds.includes(x))) {
+        let citationTextContent = n.textContent;
+        let citationCurrTextContent: string = allRefsIds.reduce<string[]>((prev: string[], key: string, i: number) => {
+          if (n.attrs.citedRefsIds.includes(key)) {
+            let ref = refs[key];
+            prev.push(ref.citationDisplayText)
           }
+          return prev
+        }, []).join(', ');
+        if (citationTextContent != citationCurrTextContent) {
+          citatNewTxt = citationCurrTextContent
+          found = true
+          node = n;
+          from = p;
+          to = n.nodeSize + p;
         }
-      })
-      if (found) {
-        let attrs = JSON.parse(JSON.stringify(node.attrs));
-        attrs.citedRefsIds = attrs.citedRefsIds.filter(x=>allRefsIds.includes(x));
-        let newNode = state.schema.nodes.reference_citation.create(attrs, state.schema.text(citatNewTxt))
-        edView.dispatch(state.tr.replaceWith(from, to, newNode).setMeta('addToLastHistoryGroup', true));
       }
+    })
+    if (found) {
+      let attrs = JSON.parse(JSON.stringify(node.attrs));
+      attrs.citedRefsIds = attrs.citedRefsIds.filter(x => allRefsIds.includes(x));
+      let newNode = state.schema.nodes.reference_citation.create(attrs, state.schema.text(citatNewTxt))
+      edView.dispatch(state.tr.replaceWith(from, to, newNode).setMeta('addToLastHistoryGroup', true));
+    }
   }
 
   updateBibliography(ydocRefs: any, refId: string) {
