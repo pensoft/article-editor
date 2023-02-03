@@ -422,7 +422,6 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
 
     }
 
-    //chanking if the JSON has a submit btn and if it does not add one
 
     if ((this.sectionContent.components as Array<any>).find((val) => {
       return (val.key == 'submit' && val.type == 'button')

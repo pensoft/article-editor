@@ -132,7 +132,7 @@ export class CslService {
           this.refsAPI.getStyles().subscribe((refStyles: any) => {
             let referenceStyles = refStyles.data
             let referenceTypesFromBackend = refTypes.data;
-            let oldData = { refData: { formioData: ref.formIOData }, refType: ref.refType, refStyle: ref.refStyle }
+            let oldData = { refData: { formioData: ref.formIOData }, refType: ref.refType, refStyle: ref.refStyle,refCiTO:ref.refCiTO }
             const dialogRef = this.dialog.open(ReferenceEditComponent, {
               data: { referenceTypesFromBackend, oldData, referenceStyles },
               panelClass: 'edit-reference-panel',
@@ -174,6 +174,7 @@ export class CslService {
                   citation: refBasicCitation,
                   refType: result.referenceScheme,
                   ref_last_modified: Date.now(),
+                  refCiTO:result.refCiTO,
                   refStyle
                 }
                 let refId = attrs.referenceData.refId;
