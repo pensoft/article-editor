@@ -1111,9 +1111,10 @@ mat-radio-group {
   width: 100%;
   transition: width .3s linear, top .3s linear, padding-left .3s linear, padding-right .3s linear, opacity .2s ease-in-out .3s;
   position: absolute;
-  display: block;
-  border-radius: 0;
   top: 0;
+  display: block;
+  background: var(--color-efefef);
+  border-radius: 0;
 
   .comment-box, .comment-box-replies, .commentBox, .change-box {
     display: flex;
@@ -1375,6 +1376,7 @@ mat-radio-group {
 
   &.selected-comment {
     margin: -1px 0 0 0;
+    background: var(--color-ffffff);
 
     app-comment {
       > mat-card {
@@ -1388,7 +1390,6 @@ mat-radio-group {
 
     .comment-box, .comment-box-replies {
       border-color: var(--color-559efe);
-      background: var(--color-ffffff);
 
       .mat-card-header {
         .header-actions {
@@ -1406,10 +1407,10 @@ mat-radio-group {
 
   &.selected-change {
     margin: -1px 0 0 0;
+    background: var(--color-ffffff);
 
     .change-box {
       border-color: var(--color-559efe);
-      background: var(--color-ffffff);
 
       .mat-card-content {
         border-bottom-color: transparent;
