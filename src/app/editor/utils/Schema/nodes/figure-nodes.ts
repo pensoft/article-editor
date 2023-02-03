@@ -102,7 +102,7 @@ export const block_figure = {
       return {
         figure_number: dom.getAttribute('figure_number'),
         figure_id: dom.getAttribute('figure_id'),
-        figure_columns: 4,
+        figure_columns: 2,
         viewed_by_citat: dom.getAttribute('viewed_by_citat'),
         ...parseGenericAttributes(dom)
       }
@@ -112,7 +112,7 @@ export const block_figure = {
     return ["block-figure", {
       'figure_number': node.attrs.figure_number,
       'figure_id': node.attrs.figure_id,
-      'figure_columns': 4,
+      'figure_columns': 2,
       'viewed_by_citat': node.attrs.viewed_by_citat,
       ...genericAttributtesToDom(node)
     }, 0]
