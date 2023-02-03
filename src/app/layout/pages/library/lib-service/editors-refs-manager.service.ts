@@ -1,5 +1,6 @@
 import { E } from '@angular/cdk/keycodes';
 import { Injectable } from '@angular/core';
+import { clearRefFromFormControl } from '@app/editor/dialogs/refs-in-article-dialog/refs-in-article-dialog.component';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { PMDomParser } from '@app/editor/utils/Schema';
 import { uuidv4 } from 'lib0/random';
@@ -123,7 +124,9 @@ export class EditorsRefsManagerService {
       })
       refsInEndEditor = newRefsInEdnEditor;
     }
-    this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsInEndEditor);
+
+    let refsWithNoFormControls = clearRefFromFormControl(refsInEndEditor)
+    this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsWithNoFormControls);
 
     Object.keys(refsInEndEditor).forEach((key) => {
       refsInEndEditor[key].originalDisplayText = refsInEndEditor[key].citation.data.text;
@@ -395,7 +398,9 @@ export class EditorsRefsManagerService {
         newRefs[key] = refs[key];
       }
     })
-    this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', newRefs)
+
+    let refsWithNoFormControls = clearRefFromFormControl(newRefs)
+    this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsWithNoFormControls)
 
   }
 
@@ -410,7 +415,9 @@ export class EditorsRefsManagerService {
       let ref = refsInYdoc[refId];
       allCitedRefs[refId] = ref
     });
-    this.serviceShare.YdocService.referenceCitationsMap.set('referencesInEditor', allCitedRefs);
+
+    let refsWithNoFormControls = clearRefFromFormControl(allCitedRefs)
+    this.serviceShare.YdocService.referenceCitationsMap.set('referencesInEditor', refsWithNoFormControls);
 
     newRefs.forEach((refId) => {
       let ref = refsInYdoc[refId];

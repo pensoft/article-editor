@@ -11,6 +11,24 @@ import { Subject } from 'rxjs';
 import { YMap } from 'yjs/dist/src/internals';
 import { RefsAddNewInArticleDialogComponent } from '../refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
 
+export let clearRefFromFormControl = (newRefs:any)=>{
+  let refsWithNoFormControls = {}
+    Object.keys(newRefs).forEach((key:any,i)=>{
+      let ref = newRefs[key]
+      if(!ref.refCiTO && ref.refCiTOControl){
+        ref.refCiTO = ref.refCiTOControl.value;
+      }
+      let newRef = {}
+      Object.keys(ref).forEach((keyInRef)=>{
+        if(keyInRef != 'refCiTOControl'){
+          newRef[keyInRef] = ref[keyInRef]
+        }
+      })
+      refsWithNoFormControls[key] = newRef
+    })
+  return refsWithNoFormControls
+}
+
 @Component({
   selector: 'app-refs-in-article-dialog',
   templateUrl: './refs-in-article-dialog.component.html',
@@ -115,14 +133,8 @@ export class RefsInArticleDialogComponent implements OnDestroy {
 
   saveRefsInArticle() {
     let newRefs = this.getRefsForCurrEditSession();
-    let refsToPass = [...Object.values(newRefs)]
-    refsToPass.forEach((ref:any,i)=>{
-      if(ref.refCiTOControl){
-        ref.refCiTO = ref.refCiTOControl.value;
-        ref.refCiTOControl = undefined;
-      }
-    })
-    this.refMap.set('refsAddedToArticle', newRefs);
+    let refsWithNoFormControls = clearRefFromFormControl(newRefs)
+    this.refMap.set('refsAddedToArticle', refsWithNoFormControls);
     this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
     this.dialogRef.close()
   }

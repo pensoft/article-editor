@@ -285,7 +285,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
     let container = serviceShare.ProsemirrorEditorsService.editorContainers[secId]
     if(container){
       let secview = container.editorView;
-      parseSection(secview, body, serviceShare, sec);
+      parseSection(secview, body, serviceShare, sec,{refObj});
     }
   })
   /**/
@@ -308,6 +308,8 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   let refsList = back.ele('ref-list');
   /*        */
   let refsListTitle = refsList.ele('title').txt('References');
+
+  console.log(refObj);
   // loop and build refs as xml
   Object.keys(refObj).forEach((refActualId) => {
     let actualRef = refObj[refActualId]
@@ -549,7 +551,6 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
       },5);
     }else{
       serviceShare.openSnackBar('The generated JATS xml is not valid. You can view errors in notifications','',()=>{},5);
-        //serviceShare.openJatsErrorsDialog(data.errors)
       serviceShare.NotificationsService.addLocalNotification({
         date: Date.now(),
         event: 'JATS errors',
@@ -586,7 +587,7 @@ function parseMaterial(material: articleSection, matList: XMLBuilder, serviceSha
   })
 }
 
-function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serviceShare: ServiceShare, section: articleSection) {
+function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serviceShare: ServiceShare, section: articleSection,options:any) {
   let xmlTaxon = container.ele('tp:taxon-treatment');
   if (section.children && section.children.length > 0) {
     let taxNomencl = section.children.find((sec) => sec.title.name == '[MM] Nomenclature');
@@ -684,7 +685,7 @@ function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serv
               subsec.children.forEach((subsecchild) => {
                 let chId = subsecchild.sectionID;
                 let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-                parseSection(view, taxonSection, serviceShare, subsecchild);
+                parseSection(view, taxonSection, serviceShare, subsecchild,options);
               })
             }
           })
@@ -741,16 +742,16 @@ function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serv
   }
 }
 
-function parseSection(view: EditorView | undefined, container: XMLBuilder, serviceShare: ServiceShare, section: articleSection) {
+function parseSection(view: EditorView | undefined, container: XMLBuilder, serviceShare: ServiceShare, section: articleSection,options:any) {
   if (section.title.name != 'Taxon' && section.title.name != '[MM] Materials' && section.title.name != 'Material' && section.title.name != 'Taxon' && section.title.name != '[MM] Taxon treatments') { // not a custum section
     let secXml = container.ele('sec', {"sec-type": section.title.name});
     let title = secXml.ele('title').txt(section.title.label.length > 0 ? section.title.label : section.title.name)
-    view ? parseNode(view.state.toJSON().doc, secXml, false, '--', 0) : undefined;
+    view ? parseNode(view.state.toJSON().doc, secXml, false, '--', 0,options) : undefined;
     if (section.type == 'complex' && section.children && section.children.length > 0) {
       section.children.forEach((child) => {
         let chId = child.sectionID;
         let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-        parseSection(view, secXml, serviceShare, child);
+        parseSection(view, secXml, serviceShare, child,options);
       })
     }
     if (secXml.some((node, i) => {
@@ -762,12 +763,12 @@ function parseSection(view: EditorView | undefined, container: XMLBuilder, servi
   } else if (section.title.name == '[MM] Taxon treatments') {
     // render taxons section
     let secXml = container.ele('sec', {"sec-type": 'Taxon treatments'});
-    view ? parseNode(view.state.toJSON().doc, secXml, false, '--', 0) : undefined;
+    view ? parseNode(view.state.toJSON().doc, secXml, false, '--', 0,options) : undefined;
     if (section.type == 'complex' && section.children && section.children.length > 0) {
       section.children.forEach((child) => {
         let chId = child.sectionID;
         let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-        parseTaxon(view, secXml, serviceShare, child);
+        parseTaxon(view, secXml, serviceShare, child,options);
       })
     }
   } else {
@@ -776,7 +777,7 @@ function parseSection(view: EditorView | undefined, container: XMLBuilder, servi
       section.children.forEach((child) => {
         let chId = child.sectionID;
         let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-        parseSection(view, secXml, serviceShare, child);
+        parseSection(view, secXml, serviceShare, child,options);
       })
     }
   }
@@ -787,6 +788,7 @@ let mathCount = 1;
 let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string, index: number,options:any) {
   let newParNode: XMLBuilder
   let shouldSkipNextBlockElements = false;
+  let shouldContinueRendering = true
   if (node.type == 'heading') {
     if (index == 0) {
       newParNode = xmlPar.ele('title')
@@ -801,7 +803,16 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
     processPmMarkAsXML(node, xmlPar, before)
     return;
   } else if (node.type == "reference_citation") {
-    newParNode = xmlPar.ele('xref', {"ref-type": "bibr", "rid": refIdsG[node.attrs.actualRefId]})
+    let citedRefs = node.attrs.citedRefsIds
+    citedRefs.forEach(x=>{
+      let actualRef = options.refObj[x];
+      let rid = refIdsG[x];
+      let refTxt = actualRef.citation.data.text;
+      let CiTO = actualRef.refCiTO.link
+      let xmlref = xmlPar.ele('xref', {"ref-type": "bibr", "rid": rid,"custom-type":CiTO})
+      xmlref.txt(refTxt);
+    })
+    shouldContinueRendering  = false;
   } else if (node.type == "paragraph") {
     newParNode = xmlPar.ele('p')
   } else if (node.type == 'math_inline') {
@@ -868,7 +879,7 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
     }
     return;
   }
-  if (node.content && node.content.length > 0) {
+  if (node.content && node.content.length > 0 && shouldContinueRendering) {
     node.content.forEach((ch:any, indx:number) => {
       parseNode(ch, newParNode, shouldSkipNextBlockElements, before + "|--", indx,options)
     })
@@ -993,7 +1004,7 @@ function parseNode(node: any, xmlPar: XMLBuilder, shouldSkipBlockElements: boole
   if (nodesToSkip.includes(node.type) || (shouldSkipBlockElements && isBlockNode(node.type) && !nodesNotToLoop.includes(node.type) && !nodesThatShouldNotBeSkipped.includes(node.type))) { // nodes that should be skipped and looped through their children
     if (node.content && node.content.length > 0) {
       node.content.forEach((ch, i) => {
-        parseNode(ch, xmlPar, shouldSkipBlockElements, before, index)
+        parseNode(ch, xmlPar, shouldSkipBlockElements, before, index,options)
       })
     }
   } else if (nodesNotToLoop.includes(node.type)) { // nodes that should not be looped nor their children
