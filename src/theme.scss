@@ -1109,7 +1109,6 @@ mat-radio-group {
 }
 
 /* Editor Comment Box Override */
-
 .comment-container, .add-comment-box, .change-container {
   width: 100%;
   transition: width .3s linear, top .3s linear, padding-left .3s linear, padding-right .3s linear, opacity .2s ease-in-out .3s;
@@ -1431,6 +1430,87 @@ mat-radio-group {
   }
 }
 
+/* Editor inserted links override */
+#app-article-element {
+  .editor-container {
+    .ProseMirror {
+      > form-field {
+        > p {
+          > a {
+            position: relative;
+            display: inline-block;
+            color: var(--color-00b1b2);
+            text-decoration: underline;
+
+            > div {
+              top: unset;
+              bottom: calc(100% + 9px);
+              left: 50%;
+              right: unset;
+              padding: 0;
+              max-width: 300px;
+              background: var(--color-ffffff);
+              box-shadow: 0 3px 6px #67676766;
+              border-color: var(--color-e3e3e3);
+              transform: translateX(-50%);
+              transition: all 0.2s ease-in-out;
+              white-space: nowrap;
+
+              &:before {
+                content: '';
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                width: 0;
+                height: 0;
+                margin: 0 auto;
+                border-top: 8px solid var(--color-ffffff);
+                border-left: 10px solid transparent;
+                border-right: 10px solid transparent;
+                z-index: 1;
+                transition: all 0.2s ease-in-out;
+              }
+
+              &:after {
+                content: '';
+                position: absolute;
+                top: 100%;
+                left: 0;
+                right: 0;
+                width: 0;
+                height: 0;
+                margin: 0 auto;
+                border-top: 9px solid var(--color-e3e3e3);
+                border-left: 12px solid transparent;
+                border-right: 12px solid transparent;
+              }
+
+              > a {
+                font-size: 14px;
+                font-weight: 400;
+                line-height: 20px;
+                padding: 6px 12px;
+                color: var(--color-00b1b2);
+                text-overflow: ellipsis;
+                overflow: hidden;
+              }
+
+              &:hover {
+                background: var(--color-f5f5f5);
+
+                &:before {
+                  border-top-color: var(--color-f5f5f5);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
 /* Data Tree icons position global override */
 .outer-list {
   > app-section-leaf {
@@ -1624,6 +1704,69 @@ mat-radio-group {
       .mat-form-field-underline {
         display: none;
       }
+    }
+  }
+}
+
+block-figure {
+  padding: 0;
+
+  > figure-components-container {
+    padding: 0;
+    width: 100%;
+    grid-template-columns: repeat(1, minmax(0,1fr));
+    grid-column-gap: 15px;
+
+    > figure-component {
+      padding: 0;
+      margin: 0 auto;
+      border: 0;
+
+      > code {
+        font-family: var(--font-family-open-sans);
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 18px;
+        color: #1929566E;
+        margin: 0 0 8px 0;
+      }
+
+      img {
+        max-width: 100%;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #e2e2dc;
+      }
+    }
+  }
+
+  > figure-descriptions-container {
+    border-radius: 6px;
+    border-width: 1px;
+    padding: 0 12px 8px 12px;
+    margin: 15px 0 0 0;
+
+    > h3 {
+      font-size: 15px;
+      font-weight: 600;
+    }
+  }
+
+  &[figure_columns="2"] {
+    > figure-components-container {
+      grid-template-columns: repeat(2, minmax(0,1fr));
+    }
+  }
+
+  &[figure_columns="3"] {
+    > figure-components-container {
+      grid-template-columns: repeat(3, minmax(0,1fr));
+    }
+  }
+
+  &[figure_columns="4"] {
+    > figure-components-container {
+      grid-template-columns: repeat(4, minmax(0,1fr));
     }
   }
 }
