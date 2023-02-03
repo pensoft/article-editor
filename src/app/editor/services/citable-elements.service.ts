@@ -58,7 +58,7 @@ export let citationElementMap = {
     deletedElTxt: ' Cited item deleted ',
     getElsStrings: function (elementData) {
       let elStrings = '';
-      elStrings = elStrings.concat(elementData.brief_description)
+      elStrings = elementData ? elStrings.concat(elementData.brief_description) : '';
       return elStrings
     },
     setSectionData: function (elementData, sectionId, citeId) {

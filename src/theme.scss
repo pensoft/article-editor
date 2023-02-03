@@ -1718,11 +1718,24 @@ block-figure {
     grid-column-gap: 15px;
 
     > figure-component {
-      border-radius: 7px;
-      border-width: 1px;
+      padding: 0;
+      margin: 0 auto;
+      border: 0;
+
+      > code {
+        font-family: var(--font-family-open-sans);
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 18px;
+        color: #1929566E;
+        margin: 0 0 8px 0;
+      }
 
       img {
         max-width: 100%;
+        object-fit: cover;
+        border-radius: 6px;
+        border: 1px solid #e2e2dc;
       }
     }
   }
@@ -1732,6 +1745,11 @@ block-figure {
     border-width: 1px;
     padding: 0 12px 8px 12px;
     margin: 15px 0 0 0;
+
+    > h3 {
+      font-size: 15px;
+      font-weight: 600;
+    }
   }
 
   &[figure_columns="2"] {
