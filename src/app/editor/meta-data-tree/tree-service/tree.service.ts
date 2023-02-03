@@ -9,7 +9,9 @@ import { articleSection, editorData } from '../../utils/interfaces/articleSectio
 import { FormGroup } from '@angular/forms';
 import {
   checkIfSectionsAreAboveOrAtMax,
+  checkIfSectionsAreAboveOrAtMaxAtParentList,
   checkIfSectionsAreUnderOrAtMin,
+  checkIfSectionsAreUnderOrAtMinAtParentList,
   editorFactory,
   renderSectionFunc
 } from '@app/editor/utils/articleBasicStructure';
@@ -132,6 +134,7 @@ export class TreeService implements OnDestroy {
     this.guid = undefined
     this.sectionFormGroups = {}
     this.sectionProsemirrorNodes = {}
+    this.parentListRules = undefined
   }
 
   registerConnection(id: string) {
@@ -184,6 +187,7 @@ export class TreeService implements OnDestroy {
         this.metadatachangeMap?.set('change', { ...data, guid })
         this.setArticleSectionStructureFlat()
       })
+      this.setParentListSectionMinMaxRules()
     }
     if (this.ydocService.editorIsBuild) {
       this.metadatachangeMap = ydocService.getYDoc().getMap('editorMetadataChange')
@@ -195,6 +199,25 @@ export class TreeService implements OnDestroy {
         buildFunc()
       }
     });
+  }
+
+  parentListRules:{sectionName:string,min:number,max:number}[]
+  setParentListSectionMinMaxRules(){
+    let rules = this.ydocService.articleData.layout.rules
+    if(rules){
+      let parentListSectionRules = []
+      rules.forEach(x=>{
+        if(x.key == "min_max_section_instances"){
+          let sectionNames = x.config.names.split('|');
+          let min = x.config.min
+          let max = x.config.max
+          sectionNames.forEach((sec)=>{
+            parentListSectionRules.push({sectionName:sec,min,max})
+          })
+        }
+      })
+      this.parentListRules = parentListSectionRules
+    }
   }
 
   ngOnDestroy(): void {
@@ -421,23 +444,26 @@ export class TreeService implements OnDestroy {
   }
 
   deleteNodeChange(nodeId: string, parentId: string) {
-    let doc = this.serviceShare.ProsemirrorEditorsService.editorContainers[nodeId].editorView.state.doc;
-    let docSize = doc.content.size
-    let deletedRefCitations: any[] = []
-    doc.nodesBetween(0, docSize - 2, (node, pos, par, i) => {
-      if (node.type.name == 'reference_citation') {
-        deletedRefCitations.push(JSON.parse(JSON.stringify(node.attrs)))
+    let editorContainer = this.serviceShare.ProsemirrorEditorsService.editorContainers[nodeId]
+    if(editorContainer){
+      let doc = editorContainer.editorView.state.doc;
+      let docSize = doc.content.size
+      let deletedRefCitations: any[] = []
+      doc.nodesBetween(0, docSize - 2, (node, pos, par, i) => {
+        if (node.type.name == 'reference_citation') {
+          deletedRefCitations.push(JSON.parse(JSON.stringify(node.attrs)))
+        }
+      })
+      if (deletedRefCitations.length > 0) {
+        setTimeout(()=>{
+          this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
+          this.serviceShare.YjsHistoryService.capturingNewItem = true
+          this.serviceShare.EditorsRefsManagerService!.updateRefsInEndEditorAndTheirCitations();
+          setTimeout(() => {
+            this.serviceShare.YjsHistoryService.stopBigNumberItemsCapturePrevention()
+          }, 30)
+        },30)
       }
-    })
-    if (deletedRefCitations.length > 0) {
-      setTimeout(()=>{
-        this.serviceShare.YjsHistoryService.preventCaptureOfBigNumberOfUpcomingItems()
-        this.serviceShare.YjsHistoryService.capturingNewItem = true
-        this.serviceShare.EditorsRefsManagerService!.updateRefsInEndEditorAndTheirCitations();
-        setTimeout(() => {
-          this.serviceShare.YjsHistoryService.stopBigNumberItemsCapturePrevention()
-        }, 30)
-      },30)
     }
     let { nodeRef, i } = this.deleteNodeById(nodeId);
     setTimeout(() => {
@@ -573,6 +599,8 @@ export class TreeService implements OnDestroy {
     let parentNode = this.findParentNodeWithChildID(node.sectionID)!;
     if (parentNode && parentNode !== 'parentNode') {
       r = checkIfSectionsAreUnderOrAtMin(node, parentNode)
+    }else if(parentNode == 'parentNode'){
+      r = checkIfSectionsAreUnderOrAtMinAtParentList(this.articleSectionsStructure,node,this.parentListRules)
     }
     return r
   }
@@ -582,6 +610,8 @@ export class TreeService implements OnDestroy {
     let parentNode = this.findParentNodeWithChildID(node.sectionID)!;
     if (parentNode && parentNode !== 'parentNode') {
       r = checkIfSectionsAreAboveOrAtMax(node, parentNode)
+    }else if(parentNode == 'parentNode'){
+      r = checkIfSectionsAreAboveOrAtMaxAtParentList(this.articleSectionsStructure,node,this.parentListRules)
     }
     return r
   }

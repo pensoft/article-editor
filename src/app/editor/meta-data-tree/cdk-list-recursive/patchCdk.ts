@@ -3,6 +3,7 @@ import {DragRef, DropListRef} from "@angular/cdk/drag-drop";
 import {MatCardXlImage} from "@angular/material/card";
 import {
   checkCompatibilitySection,
+  checkIfSectionsAreUnderOrAtMinAtParentList,
   checkMaxWhenMoovingASectionIn,
   checkMinWhenMoovingASectionOut
 } from "@app/editor/utils/articleBasicStructure";
@@ -82,6 +83,15 @@ function canMoveOut(target: any, item: any, treeService: TreeService) {
           }
         }
       }
+    }else if(item._initialContainer.data.id == "parentList"){
+      let moovingNode = item.data.data.node;
+      let canMove = treeService.showDeleteButton(moovingNode)
+      if (!canMove) {
+        if (item?.data?.data?.canDropBool) {
+          item.data.data.canDropBool[0] = false;
+          item.data.data.canDropBool[1] = 'Cannot move more of these type of sections out of this list.'
+        }
+      }
     }
   }
 }
@@ -98,6 +108,15 @@ function canMoveIn(target: any, item: any, treeService: TreeService) {
           item.data.data.canDropBool[0] = false;
           item.data.data.canDropBool[1] = 'Cannot move in more of these type of section in this list.'
         }
+      }
+    }
+  }else if(target.data.id == "parentList"){
+    let moovingNode = item.data.data.node;
+    let canMove = treeService.showAddBtn(moovingNode)
+    if (!canMove) {
+      if (item?.data?.data?.canDropBool) {
+        item.data.data.canDropBool[0] = false;
+        item.data.data.canDropBool[1] = 'Cannot move in more of these type of section in this list.'
       }
     }
   }
