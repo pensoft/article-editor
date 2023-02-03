@@ -290,14 +290,15 @@ $altTheme: (primary: $theme-primary,
   }
 
   .popup-menu-container {
-    padding: 0 20px;
-    margin: 12px 0 0 0;
+    padding: 0;
+    margin: 8px 0 0 0;
+    min-height: 60px;
     width: auto;
     min-width: auto;
 
     .ProseMirror-menubar {
       min-height: auto;
-      padding: 20px;
+      padding: 16px 40px;
       box-shadow: 0 5px 5px #1bb1b22b;
       position: relative;
       z-index: 1;
@@ -733,10 +734,11 @@ mat-radio-group {
   display: flex;
   flex-flow: row nowrap;
   margin: 0 4px;
+  padding: 0 0 0 16px;
 
   .avatar {
     transition: all 0.2s ease-in-out;
-    margin-left: -15px;
+    margin-left: -16px;
     text-decoration: none;
     border: 2px solid var(--color-ffffff);
     background: var(--color-ffffff);
@@ -749,7 +751,7 @@ mat-radio-group {
   }
 
   .mat-mini-fab {
-    margin-left: -15px;
+    margin-left: -16px;
     border: 2px solid var(--color-ffffff);
 
     .mat-button-wrapper {
