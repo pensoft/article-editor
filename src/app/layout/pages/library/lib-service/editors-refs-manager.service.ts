@@ -150,15 +150,21 @@ export class EditorsRefsManagerService {
     let state = endEdView.state;
 
     let docsize = state.doc.content.size
+    let end_editor_refs_container
     state.doc.nodesBetween(0, docsize - 1, (n, pos, parent, index) => {
       if (n.type.name == 'reference_citation_end' && n.attrs.referenceData.refId == refId) {
         node = n
         from = pos;
         to = n.nodeSize + pos;
+      }else if(n.type.name == 'reference_container'){
+        end_editor_refs_container = n
       }
     })
     if (node) {
-      let attrs = JSON.parse(JSON.stringify(node.attrs));
+      if(end_editor_refs_container && end_editor_refs_container.content.childCount == 1){
+        from = from - 19
+        to = to+1
+      }
       endEdView.dispatch(state.tr.replaceWith(from - 1, to + 1, Fragment.empty).setMeta('skipChange', true));
     }
   }
@@ -408,13 +414,11 @@ export class EditorsRefsManagerService {
       })
     })
 
-    if (refsIdsInEndEditor.length > allcitedReferencesIdsInAllEditors.length) {
       // there are reference in the end editor that are cited so we should remove them
       let refsIdsToRemoveFormEndEditor: string[] = refsIdsInEndEditor.filter(x => !allcitedReferencesIdsInAllEditors.includes(x));
       refsIdsToRemoveFormEndEditor.forEach((id) => {
         this.removeRefFromEndEditorById(id);
       })
-    }
   }
 
   removeRefFromEndEditorById(refId: string) {
@@ -426,11 +430,13 @@ export class EditorsRefsManagerService {
     let from: any;
     let to: any;
     let docSize = st.doc.content.size
+    let end_editor_refs_container:Node
     if (nOfRefs == 1) {
       st.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
         if (n.type.name == 'reference_container') {
-          from = p - 16;
+          from = p - 18;
           to = p + n.nodeSize
+          end_editor_refs_container = n
         }
       })
     } else {
@@ -438,11 +444,14 @@ export class EditorsRefsManagerService {
         if (n.type.name == 'reference_citation_end' && n.attrs.referenceData.refId == refId) {
           from = p - 1;
           to = p + n.nodeSize + 1
+        }else if(n.type.name == 'reference_container'){
+          end_editor_refs_container = n
         }
       })
     }
 
     if (from || to) {
+
       view.dispatch(
         st.tr.replaceWith(from, to, Fragment.empty));
     }
