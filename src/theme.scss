@@ -734,10 +734,11 @@ mat-radio-group {
   display: flex;
   flex-flow: row nowrap;
   margin: 0 4px;
+  padding: 0 0 0 16px;
 
   .avatar {
     transition: all 0.2s ease-in-out;
-    margin-left: -15px;
+    margin-left: -16px;
     text-decoration: none;
     border: 2px solid var(--color-ffffff);
     background: var(--color-ffffff);
@@ -750,7 +751,7 @@ mat-radio-group {
   }
 
   .mat-mini-fab {
-    margin-left: -15px;
+    margin-left: -16px;
     border: 2px solid var(--color-ffffff);
 
     .mat-button-wrapper {
