@@ -57,7 +57,6 @@ import {JitCompilerFactory} from '@angular/platform-browser-dynamic';
 import {FormControlNameDirective} from './editor/directives/form-control-name.directive';
 import {ArticleMetadataComponent} from './editor/article-metadata/article-metadata.component';
 import {FiguresDialogComponent} from './editor/dialogs/figures-dialog/figures-dialog.component';
-import {AddFigureDialogComponent} from './editor/dialogs/figures-dialog/add-figure-dialog/add-figure-dialog.component';
 import {FigureComponent} from './editor/dialogs/figures-dialog/figure/figure.component';
 import {LogSwUpdatesService} from './app-services/log-sw-updates.service';
 import {PipesModule} from './shared/pipes.module';
@@ -228,7 +227,6 @@ const gravatarConfig: GravatarConfig = {
     FormControlNameDirective,
     ArticleMetadataComponent,
     FiguresDialogComponent,
-    AddFigureDialogComponent,
     FigureComponent,
     SectionLeafComponent,
     FiguresProsemirrorViewComponent,
