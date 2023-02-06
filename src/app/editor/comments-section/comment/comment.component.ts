@@ -178,6 +178,9 @@ export class CommentComponent implements OnInit, AfterViewInit {
       }
     })
     if (actualComment) {
+
+      console.log('view: ', view);
+
       //let commentMiddlePos = Math.floor((actualComment.pmDocStartPos+ actualComment.pmDocEndPos)/2)
       view.focus()
       view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualComment.pmDocStartPos), view.state.doc.resolve(actualComment.pmDocEndPos))).setMeta('selected-comment',true))
@@ -206,6 +209,17 @@ export class CommentComponent implements OnInit, AfterViewInit {
     this.userComment = commentData;
   }
 
+  showReply(replyDiv: HTMLDivElement, mainResolveBtn: HTMLDivElement) {
+    replyDiv.style.display = 'block';
+    mainResolveBtn.style.display = 'none';
+  }
+
+  hideReply(replyDiv: HTMLDivElement, mainResolveBtn: HTMLButtonElement, input: HTMLInputElement) {
+    replyDiv.style.display = 'none';
+    mainResolveBtn.style.display = 'block';
+    input.value = '';
+  }
+
   showHideReply(replyDiv: HTMLDivElement, select?: true) {
     let actualComment: commentData
     let allComments = this.sharedService.CommentsService.commentsObj
@@ -223,7 +237,9 @@ export class CommentComponent implements OnInit, AfterViewInit {
       }
     }
 
-    /*  let commentsArray = this.commentsMap.get(this.comment?.attrs.id);
+    /*
+
+     let commentsArray = this.commentsMap.get(this.comment?.attrs.id);
      let commentContent;
      let userCommentId = uuidv4();
      const dialogRef = this.sharedDialog.open(AddCommentDialogComponent, { width: 'auto', data: { url: commentContent, type: 'comment' } });
@@ -237,7 +253,9 @@ export class CommentComponent implements OnInit, AfterViewInit {
          this.commentsMap.set(this.comment?.attrs.id, [userComment, ...commentsArray]);
          this.userComments = [userComment, ...commentsArray];
        }
-     }); */
+     });
+
+     */
   }
 
   editComment(id: string, comment: string) {
@@ -293,9 +311,10 @@ export class CommentComponent implements OnInit, AfterViewInit {
     });
   }
 
-  cancelReplyBtnHandle(replyDiv: HTMLDivElement) {
+  cancelReplyBtnHandle(replyDiv: HTMLDivElement, input: HTMLInputElement) {
 
     replyDiv.style.display = 'none';
+    input.value = '';
 
   }
 

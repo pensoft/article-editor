@@ -14,6 +14,7 @@
     <div *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'" class="header-actions">
       <ng-container *ngIf="authService.currentUserSubject | async as user">
         <button mat-flat-button color="primary"
+                #mainResolveBtn
                 *ngIf="!mobileVersion && userComment!.initialComment.userData.email == user.email"
                 (click)="deleteComment()">
           Resolve
@@ -50,20 +51,31 @@
     }">{{initialShowMore ? 'Show less': 'Show more' }}</a>
 
     <div *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'">
-      <div class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
-      <div  #ReplyDiv class="reply-container" style="display: none;">
+
+    <!-- <div class="reply" (click)="showHideReply(ReplyDiv)">Reply</div> -->
+
+      <div class="reply-container">
         <mat-form-field appearance="outline" class="reply-form-field">
-          <input #input matInput type="text" placeholder="Write a reply..." autocomplete="off" [formControl]="replyFormControl" (keydown)="autocomplete.keyHandle($event)">
+          <input #input matInput type="text"
+                 placeholder="Write a reply..."
+                 autocomplete="off"
+                 [formControl]="replyFormControl"
+                 (focus)="showReply(ReplyDiv)"
+                 (blur)="hideReply(ReplyDiv, input)"
+                 (keydown)="autocomplete.keyHandle($event)">
           <app-collaborators-auto-complete [(commentmarkId)]="comment.commentMarkId" [(inputFormControl)]="replyFormControl" #autocomplete></app-collaborators-auto-complete>
           <mat-icon matSuffix class="comment-reply-field-icon">alternate_email</mat-icon>
         </mat-form-field>
-        <div class="comment-reply-btns comment-btns" fxLayout="row nowrap" fxLayoutGap="12px">
-          <button mat-stroked-button (click)="cancelReplyBtnHandle(ReplyDiv)">Cancel</button>
-          <button mat-flat-button color="primary"
-                  (click)="autocomplete.canFinishComment(commentReplyBtnHandle,[ReplyDiv])"
-                  [disabled]="input.value.length === 0">Reply</button>
+        <div #ReplyDiv style="display: none;">
+          <div class="comment-reply-btns comment-btns" fxLayout="row nowrap" fxLayoutGap="12px">
+            <button mat-stroked-button (click)="cancelReplyBtnHandle(ReplyDiv, input)">Cancel</button>
+            <button mat-flat-button color="primary"
+                    (click)="autocomplete.canFinishComment(commentReplyBtnHandle,[ReplyDiv])"
+                    [disabled]="input.value.length === 0">Reply</button>
+          </div>
         </div>
       </div>
+
     </div>
   </mat-card-content>
 </mat-card>

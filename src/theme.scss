@@ -1391,14 +1391,6 @@ mat-radio-group {
     .comment-box, .comment-box-replies {
       border-color: var(--color-559efe);
 
-      .mat-card-header {
-        .header-actions {
-          > button.mat-primary {
-            display: none;
-          }
-        }
-      }
-
       .mat-card-content {
         border-color: var(--color-e3e3e3);
       }
