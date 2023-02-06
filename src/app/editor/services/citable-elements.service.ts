@@ -181,6 +181,7 @@ export let citationElementMap = {
       serializedFigureToFormIOsubmission.figureID = elementData.figureID
       serializedFigureToFormIOsubmission.figureNumber = elementData.figureNumber
       serializedFigureToFormIOsubmission.viewed_by_citat = citatID
+      serializedFigureToFormIOsubmission.nOfColumns = elementData.canvasData.nOfColumns;
       return serializedFigureToFormIOsubmission
     },
     buildElementFormGroup: function (submision: any): FormGroup {
