@@ -173,8 +173,8 @@ td {
         $first-child-in-last-row: "&#{$any-child-in-the-last-row}";
         #{$first-child-in-last-row},
         #{$first-child-in-last-row} ~ & {
-          border-bottom-right-radius: 0px;
-          border-bottom-left-radius: 0px;
+          // border-bottom-right-radius: 0px;
+          // border-bottom-left-radius: 0px;
         }
       }
     }
@@ -225,8 +225,8 @@ block-figure {
       $first-child-in-last-row: "&#{$any-child-in-the-last-row}";
       #{$first-child-in-last-row},
       #{$first-child-in-last-row} ~ & {
-        border-bottom-right-radius: 0px;
-        border-bottom-left-radius: 0px;
+        // border-bottom-right-radius: 0px;
+        // border-bottom-left-radius: 0px;
       }
     }
   }
@@ -894,7 +894,7 @@ insert-image-dialog {
   position: absolute;
   display: inline-flex;
   background-color: #e4f6f6;
-  border-color: #00b1b2 !important;
+  // border-color: #00b1b2 !important;
   border: 1.8px solid;
   border-radius: 17px;
   padding: 6px;
