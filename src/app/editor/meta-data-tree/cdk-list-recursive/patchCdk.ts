@@ -1,9 +1,9 @@
 import {coerceElement} from "@angular/cdk/coercion";
 import {DragRef, DropListRef} from "@angular/cdk/drag-drop";
+import { ClassGetter } from "@angular/compiler/src/output/output_ast";
 import {MatCardXlImage} from "@angular/material/card";
 import {
   checkCompatibilitySection,
-  checkIfSectionsAreUnderOrAtMinAtParentList,
   checkMaxWhenMoovingASectionIn,
   checkMinWhenMoovingASectionOut
 } from "@app/editor/utils/articleBasicStructure";
@@ -85,7 +85,7 @@ function canMoveOut(target: any, item: any, treeService: TreeService) {
       }
     }else if(item._initialContainer.data.id == "parentList"){
       let moovingNode = item.data.data.node;
-      let canMove = treeService.showDeleteButton(moovingNode)
+      let canMove = treeService.checkIfCanMoveNodeOutOfParentList(moovingNode)
       if (!canMove) {
         if (item?.data?.data?.canDropBool) {
           item.data.data.canDropBool[0] = false;
@@ -112,7 +112,7 @@ function canMoveIn(target: any, item: any, treeService: TreeService) {
     }
   }else if(target.data.id == "parentList"){
     let moovingNode = item.data.data.node;
-    let canMove = treeService.showAddBtn(moovingNode)
+    let canMove = treeService.checkIfCanMoveNodeInParentList(moovingNode)
     if (!canMove) {
       if (item?.data?.data?.canDropBool) {
         item.data.data.canDropBool[0] = false;

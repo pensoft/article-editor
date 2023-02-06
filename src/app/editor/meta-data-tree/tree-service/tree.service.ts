@@ -605,6 +605,14 @@ export class TreeService implements OnDestroy {
     return r
   }
 
+  checkIfCanMoveNodeOutOfParentList(node:articleSection){
+    return checkIfSectionsAreUnderOrAtMinAtParentList(this.articleSectionsStructure,node,this.parentListRules)
+  }
+
+  checkIfCanMoveNodeInParentList(node:articleSection){
+    return checkIfSectionsAreAboveOrAtMaxAtParentList(this.articleSectionsStructure,node,this.parentListRules)
+  }
+
   showAddBtn(node: articleSection) {
     let r = true
     let parentNode = this.findParentNodeWithChildID(node.sectionID)!;
