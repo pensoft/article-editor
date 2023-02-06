@@ -26,7 +26,7 @@ export const articleBasicStructure: articleSection[] = [
     prosemirrorHTMLNodesTempl: htmlNodeTemplates['taxonomicCoverage'],
     children: [],
     type: 'simple',
-    sectionVersionId: 0,
+    sectionIdFromBackend: 0,
       menusAndSchemasDefs:{menus:{},schemas:{}},
       sectionTypeVersion: 1,
     sectionTypeID: 1,
@@ -41,7 +41,7 @@ export const articleBasicStructure: articleSection[] = [
     add: {active: true, main: false},
     delete: {active: true, main: false},
     mode: 'documentMode',
-    sectionVersionId: 0,
+    sectionIdFromBackend: 0,
     formIOSchema: formIOTemplates['collectionData'],
     defaultFormIOValues: formIODefaultValues['collectionData'],
     prosemirrorHTMLNodesTempl: htmlNodeTemplates['collectionData'],
@@ -148,7 +148,7 @@ export const renderSectionFunc:
       defaultFormIOValues: sectionFromBackend.defaultFormIOValues ? sectionFromBackend.defaultFormIOValues : undefined,
       prosemirrorHTMLNodesTempl: sectionTemplate,
       children: children,
-      sectionVersionId: sectionFromBackend.version_id,
+      sectionIdFromBackend: sectionFromBackend.id,
       type: 'simple',
       custom:sectionFromBackend.customSection?true:undefined,
       sectionTypeID: sectionFromBackend.id,
@@ -182,7 +182,7 @@ export const renderSectionFunc:
       children: children,
       type:  'complex' ,
       custom:sectionFromBackend.customSection?true:undefined,
-      sectionVersionId: sectionFromBackend.version_id,
+      sectionIdFromBackend: sectionFromBackend.id,
       sectionTypeID: sectionFromBackend.id,
       sectionTypeVersion: sectionFromBackend.version,
       sectionMeta: {main: false},
@@ -194,9 +194,12 @@ export const renderSectionFunc:
       sectionFromBackend.complex_section_settings.forEach((secMinMax: {
         "min_instances": number,
         "max_instances": number,
-        "version_id": number
+        "version_id": number,
+        section_id:number,
+        label:string,
+        index:number
       }) => {
-        minmaxValds[secMinMax.version_id] = {min: secMinMax.min_instances, max: secMinMax.max_instances};
+        minmaxValds[secMinMax.section_id] = {min: secMinMax.min_instances, max: secMinMax.max_instances};
       })
       newArticleSection.subsectionValidations = minmaxValds;
     }
@@ -235,7 +238,7 @@ export const renderSectionFunc:
       override: sectionFromBackend.schema.override,
       type: 'complex',
       custom:true,
-      sectionVersionId: sectionFromBackend.version_id,
+      sectionIdFromBackend: sectionFromBackend.id,
       sectionTypeID: sectionFromBackend.id,
       sectionTypeVersion: sectionFromBackend.version,
       sectionMeta: {main: false},
@@ -248,9 +251,12 @@ export const renderSectionFunc:
       sectionFromBackend.complex_section_settings.forEach((secMinMax: {
         "min_instances": number,
         "max_instances": number,
-        "version_id": number
+        "version_id": number,
+        section_id:number,
+        label:string,
+        index:number
       }) => {
-        minmaxValds[secMinMax.version_id] = {min: secMinMax.min_instances, max: secMinMax.max_instances};
+        minmaxValds[secMinMax.section_id] = {min: secMinMax.min_instances, max: secMinMax.max_instances};
       })
       newArticleSection.subsectionValidations = minmaxValds;
     }
@@ -281,15 +287,15 @@ export const renderSectionFunc:
 export const checkIfSectionsAreUnderOrAtMin = (childToCheck: articleSection, parentNode: articleSection, container?: articleSection[]) => {
   let v = parentNode.subsectionValidations
   if (v && Object.keys(v).length > 0) {
-    let nodeVersionID = childToCheck.sectionVersionId;
-    if (v[nodeVersionID]) {
+    let nodeID = childToCheck.sectionIdFromBackend;
+    if (v[nodeID]) {
       let nOfNodesOfSameType = 0;
       (container ? container : parentNode.children).forEach((child: articleSection) => {
-        if (child.sectionVersionId == nodeVersionID) {
+        if (child.sectionIdFromBackend == nodeID) {
           nOfNodesOfSameType++;
         }
       })
-      if (v[nodeVersionID].min >= nOfNodesOfSameType) {
+      if (v[nodeID].min >= nOfNodesOfSameType) {
         return false;
       }
     }
@@ -297,11 +303,11 @@ export const checkIfSectionsAreUnderOrAtMin = (childToCheck: articleSection, par
   return true
 }
 
-export let getSubSecCountWithValidation = (complexSection: articleSection, validation: { secVersionId: number }, complexSectionChildren?: articleSection[]) => {
+export let getSubSecCountWithValidation = (complexSection: articleSection, validation: { secIdBackEnd: number }, complexSectionChildren?: articleSection[]) => {
   let count = 0;
   (complexSectionChildren ? complexSectionChildren : complexSection.children).forEach((child: articleSection) => {
     if (
-      child.sectionVersionId == validation.secVersionId
+      child.sectionIdFromBackend == validation.secIdBackEnd
     ) {
       count++
     }
@@ -310,14 +316,14 @@ export let getSubSecCountWithValidation = (complexSection: articleSection, valid
 }
 export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFromBackend: any[], complexSection: articleSection, sectionChildren?: articleSection[]) => {
   return sectionsFromBackend.filter((section, index) => {
-    let sectionVersionId = section.version_id;
+    let secIdFromBackend = section.id;
     if (
       complexSection.subsectionValidations &&
-      complexSection.subsectionValidations[sectionVersionId]
+      complexSection.subsectionValidations[secIdFromBackend]
     ) {
-      let min = complexSection.subsectionValidations[sectionVersionId].min;
-      let max = complexSection.subsectionValidations[sectionVersionId].max;
-      let count = getSubSecCountWithValidation(complexSection, {secVersionId: sectionVersionId}, sectionChildren)
+      let min = complexSection.subsectionValidations[secIdFromBackend].min;
+      let max = complexSection.subsectionValidations[secIdFromBackend].max;
+      let count = getSubSecCountWithValidation(complexSection, {secIdBackEnd: secIdFromBackend}, sectionChildren)
       if (count >= max) {
         return false
       }
@@ -325,26 +331,65 @@ export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFrom
 
     return true;
   })
-
 }
 
 export const checkIfSectionsAreAboveOrAtMax = (childToCheck: articleSection, parentNode: articleSection, container?: articleSection[]) => {
   let v = parentNode.subsectionValidations
   if (v && Object.keys(v).length > 0) {
-    let secVersionId = childToCheck.sectionVersionId;
-    if (v[secVersionId]) {
+    let secIDFromBackend = childToCheck.sectionIdFromBackend;
+    if (v[secIDFromBackend]) {
       let nOfNodesOfSameType = 0;
       (container ? container : parentNode.children).forEach((child: articleSection) => {
-        if (child.sectionVersionId == secVersionId) {
+        if (child.sectionIdFromBackend == secIDFromBackend) {
           nOfNodesOfSameType++;
         }
       })
-      if (v[secVersionId].max <= nOfNodesOfSameType) {
+      if (v[secIDFromBackend].max <= nOfNodesOfSameType) {
         return false;
       }
     }
   }
   return true
+}
+
+export const checkIfSectionsAreAboveOrAtMaxAtParentList = (listSections:articleSection[],sectionToCheck:articleSection,parentListRules?:{sectionName:string,min:number,max:number}[]) => {
+  if(parentListRules && parentListRules.length > 0){
+    let ruleForCurrSec = parentListRules.find((r)=>{
+      return r.sectionName == sectionToCheck.title.name;
+    })
+    if(ruleForCurrSec){
+      let count = 0;
+      listSections.forEach((sec)=>{
+        if(sec.title.name == ruleForCurrSec.sectionName){
+          count++;
+        }
+      })
+      if (ruleForCurrSec.max <= count) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+export const checkIfSectionsAreUnderOrAtMinAtParentList = (listSections:articleSection[],sectionToCheck:articleSection,parentListRules?:{sectionName:string,min:number,max:number}[]) => {
+  if(parentListRules && parentListRules.length > 0){
+    let ruleForCurrSec = parentListRules.find((r)=>{
+      return r.sectionName == sectionToCheck.title.name;
+    })
+    if(ruleForCurrSec){
+      let count = 0;
+      listSections.forEach((sec)=>{
+        if(sec.title.name == ruleForCurrSec.sectionName){
+          count++;
+        }
+      })
+      if (ruleForCurrSec.min >= count) {
+        return false;
+      }
+    }
+  }
+  return true;
 }
 
 export const checkMinWhenMoovingASectionOut = (moovingNode: articleSection, outOfNode: articleSection) => {

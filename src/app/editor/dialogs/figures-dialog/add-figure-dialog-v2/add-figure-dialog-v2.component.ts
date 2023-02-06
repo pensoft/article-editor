@@ -17,7 +17,7 @@ import { pageDimensionsInPT } from '../../edit-before-export/edit-before-export.
 import { AddFigureComponentDialogComponent } from './add-figure-component-dialog/add-figure-component-dialog.component';
 
 let figuresHtmlTemplate = `
-<block-figure [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.figure_number]="data.figureNumber" [attr.figure_id]="data.figureID">
+<block-figure [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.figure_number]="data.figureNumber" [attr.figure_id]="data.figureID" [attr.figure_columns]="data.nOfColumns">
     <figure-components-container contenteditablenode="false">
       <ng-container *ngFor="let figure of data.figureComponents;let i = index">
         <ng-container *ngIf="figure">

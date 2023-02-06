@@ -3,7 +3,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { AddTableDialogComponent } from '@app/editor/dialogs/citable-tables-dialog/add-table-dialog/add-table-dialog.component';
 import { AddEndNoteComponent } from '@app/editor/dialogs/end-notes/add-end-note/add-end-note.component';
 import { AddFigureDialogV2Component } from '@app/editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-dialog-v2.component';
-import { AddFigureDialogComponent } from '@app/editor/dialogs/figures-dialog/add-figure-dialog/add-figure-dialog.component';
 import { AddSupplementaryFileComponent } from '@app/editor/dialogs/supplementary-files/add-supplementary-file/add-supplementary-file.component';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { Node } from 'prosemirror-model';
