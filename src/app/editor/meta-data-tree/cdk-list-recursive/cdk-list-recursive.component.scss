@@ -44,19 +44,28 @@ $itemHeight: 30px;
     align-items: center;
     justify-content: center;
     width: 100%;
-    height: 30px;
+    height: 34px;
     padding: 0;
 
     img, mat-icon {
       width: auto;
-      height: 18px;
+      height: 20px;
+    }
+  }
+
+  &:first-child {
+    .mat-button-wrapper {
+      mat-icon {
+        font-size: 20px !important;
+        height: 22px;
+      }
     }
   }
 
   &.is-delete {
     .mat-button-wrapper {
       img {
-        height: 20px;
+        height: 22px;
       }
     }
   }
@@ -64,9 +73,9 @@ $itemHeight: 30px;
   &.addSectionBtn {
     .mat-button-wrapper {
       mat-icon {
-        font-size: 21px !important;
+        font-size: 22px !important;
         transform: none;
-        height: 22px;
+        height: 23px;
         margin: 0 0 0 1px;
       }
     }
@@ -240,7 +249,6 @@ $itemHeight: 30px;
 .example-list-dropdownbox {
   display: block;
   padding-top: 5px;
-  margin-left: -17px;
   padding-bottom: 5px;
 }
 
@@ -315,25 +323,25 @@ $itemHeight: 30px;
 }
 
 .nested-empty-placeholder {
-  margin-left: 30px;
-  vertical-align: middle;
-  display: grid;
-  align-content: center;
-  opacity: 0.4;
-  height: 30px;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+  justify-content: center;
+  height: 32px;
 }
 
 .nested-list {
-  margin-left: 20px;
-}
+  margin: 0 0 0 40px;
 
-.outer-empty-placeholder {
-  margin-left: 27px;
-  vertical-align: middle;
-  display: grid;
-  align-content: center;
-  opacity: 0.4;
-  height: 30px;
+  &.is-empty {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+    justify-content: center;
+    font-size: 13px;
+    color: var(--color-cacdd3);
+    height: 32px;
+  }
 }
 
 .border-placeholder {
@@ -444,9 +452,12 @@ $itemHeight: 30px;
 }
 
 .example-list-dropdownbox-nested {
-  display: block;
-  padding-top: 5px;
-  padding-bottom: 5px;
+  display: inline-flex;
+  height: 34px;
+  z-index: 4;
+  width: 100%;
+  border-left: 1px solid var(--color-00b1b2);
+  box-sizing: border-box;
 }
 
 .selectedEditor {

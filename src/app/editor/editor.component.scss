@@ -156,7 +156,7 @@ app-prosemirror-editor {
 
 $treeSpace: 341px;
 .main-container {
-  background: var(--color-efefef);
+  background: var(--color-f9fafc);
   height: calc(100vh - 197px);
   display: flex;
 
@@ -300,7 +300,7 @@ $treeSpace: 341px;
 .sidebar-container {
   width: 341px;
   height: 100%;
-  background: var(--color-efefef);
+  background: var(--color-f9fafc);
   box-shadow: -2px 0px 1px #1bb1b22b;
   display: inline-flex;
 }
