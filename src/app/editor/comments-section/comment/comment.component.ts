@@ -209,14 +209,38 @@ export class CommentComponent implements OnInit, AfterViewInit {
     this.userComment = commentData;
   }
 
-  showReply(replyDiv: HTMLDivElement, mainResolveBtn: HTMLDivElement) {
-    replyDiv.style.display = 'block';
-    mainResolveBtn.style.display = 'none';
+  shwHideReplyBtns() {
+    console.log('shwHideReplyBtns called');
   }
 
-  hideReply(replyDiv: HTMLDivElement, mainResolveBtn: HTMLButtonElement, input: HTMLInputElement) {
+  showReply(replyDiv: HTMLDivElement) {
+
+    console.log('showReply called!');
+
+    let view = this.sharedService.ProsemirrorEditorsService.editorContainers[this.comment.section].editorView;
+    view.dispatch(view.state.tr.setMeta('write-replay',true));
+
+    /*
+
+    let resolveBtn:HTMLButtonElement = replyDiv.closest('.comment-box').querySelector('.main-resolve-btn');
+
+    console.log('replyDiv: ', replyDiv);
+    console.log('resolveBtn: ', resolveBtn);
+
+    resolveBtn.style.display = 'none';
+    replyDiv.style.display = 'block';
+
+     */
+  }
+
+  hideReply(replyDiv: HTMLDivElement, input: HTMLInputElement) {
+
+    console.log('hideReply called!');
+
+    let resolveBtn:HTMLButtonElement = replyDiv.closest('.comment-box').querySelector('.main-resolve-btn');
+
+    resolveBtn.style.display = 'block';
     replyDiv.style.display = 'none';
-    mainResolveBtn.style.display = 'block';
     input.value = '';
   }
 
