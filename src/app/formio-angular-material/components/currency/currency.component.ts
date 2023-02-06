@@ -7,6 +7,7 @@ import _ from 'lodash';
 @Component({
   selector: 'mat-formio-currency',
   templateUrl: '../textfield/textfield.component.html',
+  styleUrls: ['../textfield/textfield.scss'],
 })
 export class MaterialCurrencyComponent extends MaterialNumberComponent {
   public inputType = 'text';

@@ -6,7 +6,13 @@ import {ControlContainer, FormGroup} from "@angular/forms";
 @Component({
   selector: 'mat-formio',
   styles: [
-    `.alert-danger {
+    `* {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -moz-box-sizing: border-box;
+    }
+    .alert-danger {
       color: #721c24;
       background-color: #f8d7da;
       border-color: #f5c6cb;

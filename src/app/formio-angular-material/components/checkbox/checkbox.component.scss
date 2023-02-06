@@ -1,0 +1,9 @@
+::ng-deep .mat-checkbox.validation-error .mat-checkbox-frame {
+  border-color: red;
+}
+
+::ng-deep mat-formio-checkbox {
+    .mat-checkbox-indeterminate.mat-accent .mat-checkbox-background, .mat-checkbox-checked.mat-accent .mat-checkbox-background {
+        background-color: #00B1B2;
+    }
+}
