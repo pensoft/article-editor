@@ -1069,7 +1069,7 @@ mat-radio-group {
 
 /* Editor page overrides */
 .mat-drawer-container {
-  background-color: var(--color-efefef);
+  background-color: var(--color-f9fafc);
 }
 
 /* Material Form Field Hint Custom */
@@ -1113,7 +1113,7 @@ mat-radio-group {
   position: absolute;
   top: 0;
   display: block;
-  background: var(--color-efefef);
+  background: var(--color-f9fafc);
   border-radius: 0;
 
   .comment-box, .comment-box-replies, .comment-box-form, .commentBox, .change-box {
@@ -1727,6 +1727,7 @@ block-figure {
         object-fit: cover;
         border-radius: 6px;
         border: 1px solid #e2e2dc;
+        height: unset;
       }
     }
   }
@@ -1758,6 +1759,47 @@ block-figure {
   &[figure_columns="4"] {
     > figure-components-container {
       grid-template-columns: repeat(4, minmax(0,1fr));
+    }
+  }
+}
+
+/* Data Tree Subsections Override */
+app-section-leaf[ng-reflect-is-complex=true] {
+  > .node-box-dropdownbox {
+    > .example-list-dropdownbox {
+      > app-cdk-list-recursive {
+        > .nested-list {
+          app-section-leaf {
+            &:last-child {
+              > .node-box-dropdownbox-nested {
+                > .dropdown-wrapper {
+                  > .sectionBorderListNestedInactive {
+                    border-left-color: transparent;
+                  }
+
+                  > .sectionBorderListNested {
+                    border: 0;
+                    margin: 0 0 0 1px;
+                  }
+                }
+              }
+
+              > .node-box-nested {
+                > .dropdown-wrapper {
+                  > .sectionBorderNestedInactive {
+                    border-left-color: transparent;
+                  }
+
+                  > .sectionBorderNested {
+                    border: 0;
+                    margin: 0 0 0 1px;
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
   }
 }
