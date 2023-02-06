@@ -9,7 +9,6 @@
       'GET' |
       async
 " mat-stroked-button color="primary" [ngStyle]="{display:previewMode.mode?'none':'inline-block'}" class="article-metadata-button" (click)="!previewMode.mode?addNewSectionToArticle():undefined">Add Section</button>
-<button mat-stroked-button color="primary" class="article-metadata-button" (click)="logData()">Log Data</button>
 <button [ngStyle]="{display:'none'}" mat-stroked-button color="primary" class="article-metadata-button" (click)="resetCitatsObj()">Reset citats Obj</button>
 <button [ngStyle]="{display:'none'}" mat-stroked-button color="primary" class="article-metadata-button" (click)="refreshToken()">Refresh Token</button>
 <!-- <button [ngStyle]="{display:'none'}" mat-stroked-button class="article-metadata-button" (click)="updateFigures()">Update Figures</button> -->

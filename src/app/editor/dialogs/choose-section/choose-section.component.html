@@ -1,13 +1,15 @@
 <h2 mat-dialog-title>Add section to Article</h2>
-
+<!-- <div #getSectionsSpinner class="get-sections-spinner-container">
+  <mat-spinner class="get-sections-spinner"></mat-spinner>
+</div> -->
 <div class="search-field-wrapper">
-  <form (keydown.enter)="search(inputText.value)" fxFlex="100%" fxLayout="column">
+  <form (keydown)="passSearchVal(inputText)" fxFlex="100%" fxLayout="column">
     <label>Select a section</label>
     <mat-form-field floatLabel="never" appearance="standard">
-      <input matInput type="text" #inputText placeholder="Search for section">
-      <button mat-flat-button color="primary" type="submit" matSuffix (click)="search(inputText.value)">
+      <input matInput class="section-search" type="text" #inputText placeholder="Search for section">
+      <!-- <button mat-flat-button color="primary" type="submit" matSuffix (click)="search(inputText.value)">
         Search
-      </button>
+      </button> -->
     </mat-form-field>
   </form>
 </div>

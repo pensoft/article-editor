@@ -363,7 +363,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, treatmentSectionsCustom, 'end');
     } else {
       taxonSection.parent = node;
-      this.serviceShare.ArticleSectionsService!.getAllSections({page: 1, pageSize: 999}).pipe(map((res: any) => {
+      this.serviceShare.ArticleSectionsService!.getAllSections({page: 1, pageSize: 10}).pipe(map((res: any) => {
         //res.data.push(taxonSectionData);
         return res
       })).subscribe((response: any) => {
@@ -382,7 +382,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
           const dialogRef = this.dialog.open(ChooseSectionComponent, {
             width: '563px',
             panelClass: 'choose-namuscript-dialog',
-            data: {templates: sectionTemplates, sectionlevel}
+            data: {templates: sectionTemplates, sectionlevel:sectionlevel+1,node}
           });
           dialogRef.afterClosed().subscribe(result => {
             if(result){
