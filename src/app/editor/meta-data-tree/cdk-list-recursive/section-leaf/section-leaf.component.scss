@@ -5,9 +5,10 @@ $itemHeight: 34px;
 ::ng-deep .drag_btn {
   height: 20px !important;
   width: 20px !important;
-  line-height: 0px;
+  line-height: 0;
+
   .mat-icon {
-    font-size: 15px;
+    font-size: 17px;
     vertical-align: baseline;
   }
 }
@@ -154,7 +155,6 @@ $itemHeight: 34px;
   display: inline-flex;
   padding-left: 30px;
   background-color: white;
-  border-radius: 4px;
   z-index: 10;
   position: relative;
   height: $itemHeight;
@@ -168,10 +168,10 @@ $itemHeight: 34px;
   width: 20px !important;
   margin: 0 0 0 10px;
   align-self: center;
-  line-height: 0px !important;
+  line-height: 0 !important;
 
   .mat-icon {
-    font-size: 20px !important;
+    font-size: 22px !important;
     line-height: 20px !important;
     width: 20px;
     height: 20px;
@@ -185,8 +185,9 @@ $itemHeight: 34px;
 
 .drag_btn_leaf_node {
   position: absolute;
-  transform: translate(-34px);
+  left: 0;
   align-self: center;
+
   .mat-icon {
     height: 20px;
     width: 20px;
@@ -245,10 +246,9 @@ $itemHeight: 34px;
   font-size: $textFontSize;
   font-weight: $textFontWeight;
   line-height: 20px;
-  color: #223361;
-  height: $itemHeight;
-  margin: 0 0 0 4px;
+  color: var(--color-192956);
   padding: 0 42px 0 0;
+  margin: 8px 0;
 }
 
 .cdk-drag-preview {
