@@ -1,5 +1,6 @@
 import {coerceElement} from "@angular/cdk/coercion";
 import {DragRef, DropListRef} from "@angular/cdk/drag-drop";
+import { ClassGetter } from "@angular/compiler/src/output/output_ast";
 import {MatCardXlImage} from "@angular/material/card";
 import {
   checkCompatibilitySection,
@@ -82,6 +83,15 @@ function canMoveOut(target: any, item: any, treeService: TreeService) {
           }
         }
       }
+    }else if(item._initialContainer.data.id == "parentList"){
+      let moovingNode = item.data.data.node;
+      let canMove = treeService.checkIfCanMoveNodeOutOfParentList(moovingNode)
+      if (!canMove) {
+        if (item?.data?.data?.canDropBool) {
+          item.data.data.canDropBool[0] = false;
+          item.data.data.canDropBool[1] = 'Cannot move more of these type of sections out of this list.'
+        }
+      }
     }
   }
 }
@@ -98,6 +108,15 @@ function canMoveIn(target: any, item: any, treeService: TreeService) {
           item.data.data.canDropBool[0] = false;
           item.data.data.canDropBool[1] = 'Cannot move in more of these type of section in this list.'
         }
+      }
+    }
+  }else if(target.data.id == "parentList"){
+    let moovingNode = item.data.data.node;
+    let canMove = treeService.checkIfCanMoveNodeInParentList(moovingNode)
+    if (!canMove) {
+      if (item?.data?.data?.canDropBool) {
+        item.data.data.canDropBool[0] = false;
+        item.data.data.canDropBool[1] = 'Cannot move in more of these type of section in this list.'
       }
     }
   }
