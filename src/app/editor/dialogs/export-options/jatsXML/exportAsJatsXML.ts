@@ -160,29 +160,82 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   let articleTitle = titleGroup.ele('article-title').txt(serviceShare.YdocService.articleData ? serviceShare.YdocService.articleData.name : 'Untitled')
   /*          */
   let contribGroup = article_meta.ele('contrib-group', {"content-type": "authors"})
-  /*              */
-  let contrib = contribGroup.ele('contrib', {"contrib-type": "author", "corresp": "yes", "xlink:type": "simple"}) // should probably come from the backend
-  /*                  */
-  let name = contrib.ele('name', {"name-style": "western"})
-  /*                      */
-  let surname = name.ele('surname').txt('Gottschling')
-  /*                      */
-  let givenNames = name.ele('given-names').txt('Marc')
-  /*                  */
-  let email = contrib.ele('email', {"xlink:type": "simple"}).txt('gottschling@bio.lmu.de')
-  /*                  let xref = contrib.ele('xref', { "ref-type": "aff", "rid": "A3" }).txt('3')*/
-  /*          */
-  let aff = article_meta.ele('aff', {"id": "A1"}) // should probably come from the backend and is maybe linked with contributors
-  /*              */
-  let label = aff.ele('label').txt('1');
-  /*              */
-  let addrLineVer = aff.ele('addr-line', {"content-type": "verbatim"}).txt('NIRDBS/Stejarul Research Centre for Biological Sciences, Piatra Neamţ, Romania');
-  /*              */
-  let institution = aff.ele('institution', {"xlink:type": "simple"}).txt('NIRDBS/Stejarul Research Centre for Biological Sciences');
-  /*              */
-  let addrLineCity = aff.ele('addr-line', {"content-type": "city"}).txt('Piatra Neamţ');
-  /*              */
-  let country = aff.ele('country', {'country': 'RO'}).txt('Romania');
+
+  let collaborators = serviceShare.YdocService.collaborators.get('collaborators').collaborators
+  let authors = serviceShare.YdocService.collaborators.get('authorsList');
+
+  let authorsAndSymbols:{collaborator:any,affiliationSymbols:string[]}[] = []
+  let affiliationsFound:{key:string,displayTxt:string,symbol:string,rid?:string,affiliation:any}[] = [];
+
+  serviceShare.CollaboratorsService.fillAffiliationsData(authors,collaborators,affiliationsFound,authorsAndSymbols)
+
+  affiliationsFound.forEach((aff,index)=>{
+    aff.rid = 'A'+(index+1);
+    authorsAndSymbols.forEach((user)=>{
+      if(user.collaborator.affiliations && user.collaborator.affiliations.length>0){
+        user.collaborator.affiliations.forEach((aff1)=>{
+          if(aff1.affiliation == aff.affiliation.affiliation&& aff1.city == aff.affiliation.city&& aff1.country== aff.affiliation.country){
+            aff1.rid = aff.rid
+            aff1.symbol = aff.symbol
+          }
+        })
+      }
+    })
+  })
+
+  authorsAndSymbols.forEach((author)=>{
+    let user = author.collaborator
+    /*              */
+    let contrib = contribGroup.ele('contrib', {"contrib-type": user.role.toLowerCase(), "corresp": user.role == 'Co-author'?'yes':'no',/*  "xlink:type": "simple" */}) // should probably come from the backend
+    /*                  */
+    let nameArr = user.name.split(' ');
+    let name = contrib.ele('name', {"name-style": "western"})
+    /*                      */
+    let surname = name.ele('surname').txt(nameArr[nameArr.length-1]);
+    /*                      */
+    let givenNames = name.ele('given-names').txt(nameArr[0])
+    /*                  */
+    let email = contrib.ele('email', {"xlink:type": "simple"}).txt(user.email)
+
+    if(user.affiliations&&user.affiliations.length>0){
+      user.affiliations.forEach(aff=>{
+        let rid = aff.rid;
+        let xref = contrib.ele('xref', { "ref-type": "aff", "rid": rid }).txt(aff.symbol);
+      })
+    }
+  })
+
+  collaborators.forEach((author)=>{
+    if(author.role != 'Co-author' && author.role != 'Author'){
+      let user = author
+      /*              */
+      let contrib = contribGroup.ele('contrib', {"contrib-type": user.role.toLowerCase(), "corresp": user.role == 'Co-author'?'yes':'no',/*  "xlink:type": "simple" */}) // should probably come from the backend
+      /*                  */
+      let nameArr = user.name.split(' ');
+      let name = contrib.ele('name', {"name-style": "western"})
+      /*                      */
+      let surname = name.ele('surname').txt(nameArr[nameArr.length-1]);
+      /*                      */
+      let givenNames = name.ele('given-names').txt(nameArr[0])
+      /*                  */
+      let email = contrib.ele('email', {"xlink:type": "simple"}).txt(user.email)
+    }
+  })
+
+  affiliationsFound.forEach((affiliation)=>{
+    let aff = article_meta.ele('aff', {"id": affiliation.rid}) // should probably come from the backend and is maybe linked with contributors
+    /*              */
+    let label = aff.ele('label').txt(affiliation.symbol);
+    /*              */
+    let addrLineVer = aff.ele('addr-line', {"content-type": "verbatim"}).txt([affiliation.affiliation.affiliation,affiliation.affiliation.city,affiliation.affiliation.country].join(', '));
+    /*              */
+    let institution = aff.ele('institution', {"xlink:type": "simple"}).txt(affiliation.affiliation.affiliation);
+    /*              */
+    let addrLineCity = aff.ele('addr-line', {"content-type": "city"}).txt(affiliation.affiliation.city);
+    /*              */
+    let country = aff.ele('country', {'country': 'RO'}).txt(affiliation.affiliation.country);
+  })
+
   /*          */
   let authorNotes = article_meta.ele('author-notes') // should probably come from the backend
   /*              */
@@ -309,7 +362,6 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   /*        */
   let refsListTitle = refsList.ele('title').txt('References');
 
-  console.log(refObj);
   // loop and build refs as xml
   Object.keys(refObj).forEach((refActualId) => {
     let actualRef = refObj[refActualId]

@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { Location } from '@angular/common';
 import { ENTER, COMMA } from '@angular/cdk/keycodes';
@@ -17,7 +17,7 @@ export let countryNames = ["Afghanistan","Albania","Algeria","Andorra","Angola",
   templateUrl: './send-invitation.component.html',
   styleUrls: ['./send-invitation.component.scss']
 })
-export class SendInvitationComponent implements OnInit, AfterViewInit, OnDestroy {
+export class SendInvitationComponent implements OnInit, AfterViewInit, OnDestroy, AfterViewChecked {
 
 
   getAffiliationGroup(){
@@ -95,6 +95,7 @@ export class SendInvitationComponent implements OnInit, AfterViewInit, OnDestroy
     private formBuilder: FormBuilder,
     public dialogRef: MatDialogRef<SendInvitationComponent>,
     public allUsersService:AllUsersService,
+    private ref:ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.invitedPeople.valueChanges.subscribe((value)=>{
@@ -190,6 +191,11 @@ export class SendInvitationComponent implements OnInit, AfterViewInit, OnDestroy
     });
     this.setCollaboratorsData(this.serviceShare.YdocService.collaborators.get('collaborators'))
   }
+
+  ngAfterViewChecked(): void {
+    this.ref.detectChanges()
+  }
+
   collaborators
   setCollaboratorsData(collaboratorsData: any) {
     setTimeout(() => {

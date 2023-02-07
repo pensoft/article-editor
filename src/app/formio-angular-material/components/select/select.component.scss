@@ -1,4 +1,4 @@
-mat-formio-form-field {
+::ng-deep mat-formio-form-field {
   .mat-form-field {
     max-height: 35px;
     padding-left: 6px;
@@ -16,28 +16,8 @@ mat-formio-form-field {
       color: #192956;
     }
   }
-}
 
-// ::ng-deep mat-formio-form-field {
-//   .mat-form-field {
-//     .mat-select-trigger {
-//       .mat-select-arrow-wrapper {
-//         padding-right: 6px;
-//       }
-
-//       .mat-select-value {
-//         padding-top: -11px;
-//       }
-//     }
-//   }
-
-//   .mat-form-field-label-wrapper {
-//     .mat-form-field-label {
-//       padding: 10px 6px 6px;
-//     }
-//   }
-// }
-
-::ng-deep .mat-form-field-underline {
-  display: none;
+  .mat-form-field-underline {
+    display: none;
+  }
 }
