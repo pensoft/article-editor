@@ -33,6 +33,9 @@ mat-formio-datagrid {
 }
 
 ::ng-deep mat-card .mat-card-content {
+  table {
+    padding-bottom: 20px;
+  }
   th.mat-header-cell:first-of-type, td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type {
     padding-left: 10px !important;
   }

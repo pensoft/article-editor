@@ -31,6 +31,16 @@
       color: #192956;
     }
   }
+
+  .mat-form-field-suffix {
+    padding-right: 6px;
+    cursor: pointer;
+    color: #8890A8;
+  }
+
+  .mat-form-field-underline {
+    display: none;
+  }
 }
 
 ::ng-deep mat-formio-form-field {
@@ -43,8 +53,4 @@
 
 mat-formio-form-field .mat-form-field.mat-focused {
   border: 1px solid #00b1b2 !important;
-}
-
-.mat-form-field-underline {
-  display: none;
 }

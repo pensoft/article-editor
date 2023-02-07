@@ -38,6 +38,9 @@
             {{author.name}}{{author.email == currentUser.email?" (you)":''}}
             </span>
             <span class="contributor-role">{{author.access}}</span>
+            <button *ngIf="isOwner" class="edit-contributor-btn" (click)="editContr(author)">
+              <mat-icon svgIcon="editGreen"></mat-icon>
+            </button>
           </div>
           <div *ngIf="author.access != 'Owner'" class="contributor-row author-box" fxLayout="row nowrap" cdkDragLockAxis="y"  fxLayoutAlign="flex-start center" fxLayoutGap="16px" cdkDrag>
             <div class="author-handle" cdkDragHandle fxLayout="column nowrap" fxLayoutAlign="center center">
