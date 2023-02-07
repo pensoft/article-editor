@@ -209,39 +209,18 @@ export class CommentComponent implements OnInit, AfterViewInit {
     this.userComment = commentData;
   }
 
-  shwHideReplyBtns() {
-    console.log('shwHideReplyBtns called');
-  }
-
-  showReply(replyDiv: HTMLDivElement) {
+  showReplyFocusHandle(replyDiv: HTMLDivElement) {
 
     console.log('showReply called!');
 
-    let view = this.sharedService.ProsemirrorEditorsService.editorContainers[this.comment.section].editorView;
-    view.dispatch(view.state.tr.setMeta('write-replay',true));
-
-    /*
-
-    let resolveBtn:HTMLButtonElement = replyDiv.closest('.comment-box').querySelector('.main-resolve-btn');
-
-    console.log('replyDiv: ', replyDiv);
-    console.log('resolveBtn: ', resolveBtn);
-
-    resolveBtn.style.display = 'none';
-    replyDiv.style.display = 'block';
-
-     */
+    replyDiv.closest('.comment-container').classList.add('write-replay');
   }
 
-  hideReply(replyDiv: HTMLDivElement, input: HTMLInputElement) {
+  hideReplyBlurHandle(replyDiv: HTMLDivElement) {
 
     console.log('hideReply called!');
 
-    let resolveBtn:HTMLButtonElement = replyDiv.closest('.comment-box').querySelector('.main-resolve-btn');
-
-    resolveBtn.style.display = 'block';
-    replyDiv.style.display = 'none';
-    input.value = '';
+    replyDiv.closest('.comment-container').classList.remove('write-replay');
   }
 
   showHideReply(replyDiv: HTMLDivElement, select?: true) {
@@ -337,9 +316,11 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
   cancelReplyBtnHandle(replyDiv: HTMLDivElement, input: HTMLInputElement) {
 
-    replyDiv.style.display = 'none';
-    input.value = '';
+    let replyInput: HTMLInputElement = replyDiv.querySelector('.reply-input');
+    let replyButtonsContainer: HTMLDivElement = replyDiv.querySelector('.comment-btns');
 
+    replyButtonsContainer.style.display = 'none';
+    replyInput.value = '';
   }
 
   getDate = getDate

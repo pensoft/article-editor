@@ -55,34 +55,6 @@ app-collaborators-auto-complete{
   }
 }
 
-.selected-comment {
-  background: var(--color-f5f5f5);
-  border-color: var(--color-559efe);
-}
-
-.comment-title {
-  font-family: var(--font-family-open-sans);
-  font-style: var(--font-style-normal);
-  font-weight: var(--font-weight-bold);
-  font-size: var(--font-size-14);
-  line-height: var(--line-spacing-19);
-  letter-spacing: var(--character-spacing-0);
-  color: var(--color-192956);
-  margin-bottom: 0 !important;
-}
-
-.comment-subtitle {
-  font-family: var(--font-family-open-sans);
-  font-style: var(--font-style-normal);
-  font-weight: var(--font-weight-normal);
-  font-size: var(--font-size-12);
-  line-height: var(--line-spacing-17);
-  letter-spacing: var(--character-spacing-0);
-  color: var(--color-818181);
-  margin-top: 0 !important;
-  margin-bottom: 12px;
-}
-
 .resolve-button {
    ::ng-deep {
     button {
@@ -141,6 +113,7 @@ app-collaborators-auto-complete{
   height: auto;
 }
 
+/*
 .reply-input {
   input {
     border: none;
@@ -179,13 +152,14 @@ app-collaborators-auto-complete{
 
 // calcel color #818181
 ::placeholder {
-  /* Chrome, Firefox, Opera, Safari 10.1+ */
+  // Chrome, Firefox, Opera, Safari 10.1+
   color: #c8c4c4;
   opacity: 1;
-  /* Firefox */
 }
 
 ::-ms-input-placeholder {
-  /* Microsoft Edge */
+  // Microsoft Edge
   color: #c8c4c4;
 }
+
+*/

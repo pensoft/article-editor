@@ -87,31 +87,32 @@
   </mat-card-content>
 </mat-card>
 
-<mat-card class="comment-box-form">
+<mat-card class="comment-box-" >
   <mat-card-content>
     <div *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'">
 
-      <div class="reply-container">
+      <div class="reply-container" #ReplyDiv>
         <mat-form-field appearance="outline" class="reply-form-field">
-          <input #input matInput type="text"
+          <input #input matInput
+                 class="reply-input"
+                 type="text"
                  placeholder="Write a reply..."
                  autocomplete="off"
                  [formControl]="replyFormControl"
-                 (click)="shwHideReplyBtns();$event.stopPropagation()"
-                 (focus)="showReply(ReplyDiv)"
-                 (blur)="hideReply(ReplyDiv, input)"
+                 (focus)="showReplyFocusHandle(ReplyDiv);$event.stopPropagation()"
+                 (blur)="hideReplyBlurHandle(ReplyDiv);$event.stopPropagation()"
                  (keydown)="autocomplete.keyHandle($event)">
           <app-collaborators-auto-complete [(commentmarkId)]="comment.commentMarkId" [(inputFormControl)]="replyFormControl" #autocomplete></app-collaborators-auto-complete>
           <mat-icon matSuffix class="comment-reply-field-icon">alternate_email</mat-icon>
         </mat-form-field>
-        <div #ReplyDiv style="display: none;">
-          <div class="comment-reply-btns comment-btns" fxLayout="row nowrap" fxLayoutGap="12px">
-            <button mat-stroked-button (click)="cancelReplyBtnHandle(ReplyDiv, input)">Cancel</button>
-            <button mat-flat-button color="primary"
-                    (click)="autocomplete.canFinishComment(commentReplyBtnHandle,[ReplyDiv])"
-                    [disabled]="input.value.length === 0">Reply</button>
-          </div>
+
+        <div class="comment-reply-btns comment-btns" fxLayout="row nowrap" fxLayoutGap="12px">
+          <button mat-stroked-button (click)="cancelReplyBtnHandle(ReplyDiv, input)">Cancel</button>
+          <button mat-flat-button color="primary"
+                  (click)="autocomplete.canFinishComment(commentReplyBtnHandle,[ReplyDiv])"
+                  [disabled]="input.value.length === 0">Reply</button>
         </div>
+
       </div>
 
     </div>

@@ -26,10 +26,10 @@
           <mat-card-subtitle class="commentBox-subtitle"></mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <div class="selected-commet-text">
-            <div class="selected-commet-text-title">Selected text:</div>
-            <div *ngIf="selectedTextInEditors[lastFocusedEditor!] && commentAllowdIn[lastFocusedEditor!]" class="selected-commet-text-content">{{selectedTextInEditors[lastFocusedEditor!]}}</div>
-            <div *ngIf="!commentAllowdIn[lastFocusedEditor!]" class="selected-commet-text-content-no-selection">{{errorMessages[lastFocusedEditor!]}}</div>
+          <div class="selected-comment-text">
+            <div class="selected-comment-text-title">Selected text:</div>
+            <div *ngIf="selectedTextInEditors[lastFocusedEditor!] && commentAllowdIn[lastFocusedEditor!]" class="selected-comment-text-content">{{selectedTextInEditors[lastFocusedEditor!]}}</div>
+            <div *ngIf="!commentAllowdIn[lastFocusedEditor!]" class="selected-comment-text-content-no-selection">{{errorMessages[lastFocusedEditor!]}}</div>
           </div>
 
           <input #input class="comment-input" type="text" placeholder="Leave a comment..." [formControl]="commentInputFormControl" (keydown)="autocomplete.keyHandle($event)">
