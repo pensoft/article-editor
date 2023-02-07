@@ -114,9 +114,11 @@ export let getYdocData = function (ydoc) {
   })
   ydocData.articleComments = articleComments;
 
-  let collaborators = ydoc.getMap('articleCollaborators'); // ------------
-  let collaborators1 = collaborators.get('collaborators')
-  ydocData.collaborators = collaborators1;
+  let collaboratorsMap = ydoc.getMap('articleCollaborators'); // ------------
+  let collaborators = collaboratorsMap.get('collaborators').collaborators
+  let authors = collaboratorsMap.get('authorsList');
+  ydocData.collaborators = collaborators;
+  ydocData.authors = authors;
 
   return ydocData
 }

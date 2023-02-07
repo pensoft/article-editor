@@ -616,6 +616,11 @@ export class TreeService implements OnDestroy {
   showAddBtn(node: articleSection) {
     let r = true
     let parentNode = this.findParentNodeWithChildID(node.sectionID)!;
+    let level = this.getNodeLevel(node) + 1;
+    if(level == 4){
+      return false
+    }
+    console.log(level)
     if (parentNode && parentNode !== 'parentNode') {
       r = checkIfSectionsAreAboveOrAtMax(node, parentNode)
     }else if(parentNode == 'parentNode'){
