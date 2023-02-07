@@ -15,7 +15,7 @@ export let clearRefFromFormControl = (newRefs:any)=>{
   let refsWithNoFormControls = {}
     Object.keys(newRefs).forEach((key:any,i)=>{
       let ref = newRefs[key]
-      if(!ref.refCiTO && ref.refCiTOControl){
+      if(ref.refCiTOControl && JSON.stringify({value:ref.refCiTOControl.value}) != JSON.stringify({value:ref.refCiTO}) ){
         ref.refCiTO = ref.refCiTOControl.value;
       }
       let newRef = {}

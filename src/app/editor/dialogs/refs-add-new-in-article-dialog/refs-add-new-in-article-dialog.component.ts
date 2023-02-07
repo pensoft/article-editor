@@ -54,7 +54,6 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
     this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
       this.refsAPI.getStyles().subscribe((refStyles: any) => {
         this.referenceTypesFromBackend = refTypes.data;
-        console.log(refTypes.data);
         if (!this.referenceFormControl.value) {
           this.referenceFormControl.setValue(this.referenceTypesFromBackend[0]);
         } else {
@@ -115,7 +114,6 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
     this.changeDetectorRef.detectChanges()
     this.oldSub = this.http.get(environment.EXTERNAL_REFS_API, {
       responseType: 'text',
-
       params: {
         search: 'simple',
         text: searchText,
@@ -124,7 +122,6 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
       let parsedJson = JSON.parse(data1);
       if (parsedJson.length > 0) {
         this.searchData = parsedJson;
-        console.log(this.searchData);
         this.loading = false;
         this.changeDetectorRef.detectChanges()
       }
@@ -195,7 +192,6 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
       let container = document.createElement('div');
       container.innerHTML = refBasicCitation.bibliography;
       refBasicCitation.textContent = container.textContent;
-      console.log(refIns);
       let ref = {
         ...refIns,
         citation: refBasicCitation,

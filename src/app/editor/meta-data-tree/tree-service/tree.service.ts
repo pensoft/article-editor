@@ -620,7 +620,6 @@ export class TreeService implements OnDestroy {
     if(level == 4){
       return false
     }
-    console.log(level)
     if (parentNode && parentNode !== 'parentNode') {
       r = checkIfSectionsAreAboveOrAtMax(node, parentNode)
     }else if(parentNode == 'parentNode'){
