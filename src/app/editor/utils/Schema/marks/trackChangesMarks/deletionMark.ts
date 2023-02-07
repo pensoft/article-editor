@@ -26,8 +26,8 @@ const deletion = {
         return {
           class: dom.getAttribute('class'),
           style: dom.getAttribute('style'),
-      userColor: dom.getAttribute('usercolor'),
-      userContrastColor:dom.getAttribute('usercontrastcolor'),
+          userColor: dom.getAttribute('usercolor'),
+          userContrastColor:dom.getAttribute('usercontrastcolor'),
           id: dom.dataset.id,
           user: dom.getAttribute('user'),
           connectedTo: dom.getAttribute('connectedto'),
@@ -40,15 +40,6 @@ const deletion = {
     },
   ],
   toDOM(node:Node) {
-    /* let deletionSpan = document.createElement('span');
-    Object.keys(node.attrs).forEach((key:string)=>{
-      deletionSpan.setAttribute(key,node.attrs[key]);
-    })
-    deletionSpan.addEventListener('mouseover',(e)=>{
-      let mouseX = e.clientX
-      let mouseY = e.clientY
-    })
-    return deletionSpan */
     return [
       'span',
       {
