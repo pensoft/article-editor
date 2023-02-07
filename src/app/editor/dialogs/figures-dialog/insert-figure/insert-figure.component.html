@@ -20,11 +20,19 @@
                         [color]='"primary"' (change)="setSelection($event.checked,figureId,i,j)">
             Fig. {{i + 1}}{{getCharValue(j)}}
           </mat-checkbox>
-          <img src="{{component.url}}" alt="Figure {{i + 1}}{{getCharValue(j)}}" height="140"/>
+          <img *ngIf="component.componentType == 'image'"
+               src="{{component.url}}" alt="Figure {{i + 1}}{{getCharValue(j)}}" height="140" />
+
+          <div class="video-thumb" *ngIf="component.componentType == 'video'">
+            <mat-icon>ondemand_video</mat-icon>
+          </div>
+          <!--
           <iframe *ngIf="component.componentType == 'video'"
-                  width="200" height="100" [src]="component.url | safe" title="YouTube video player" frameborder="0"
+                  width="249" height="140" [src]="component.url | safe" title="Figure {{i + 1}}{{getCharValue(j)}}"
+                  frameborder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                   allowfullscreen=""></iframe>
+          -->
         </mat-card>
       </div>
     </div>
