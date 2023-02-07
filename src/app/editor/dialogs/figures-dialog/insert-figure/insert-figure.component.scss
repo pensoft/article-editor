@@ -40,6 +40,25 @@
     img {
       border-radius: 4px;
     }
+
+    .video-thumb {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 140px;
+      width: 140px;
+      border-radius: 4px;
+      background-color: var(--color-676767);
+      color: var(--color-ffffff);
+      transition: all 0.2s ease-in-out;
+      box-sizing: border-box;
+
+      mat-icon {
+        width: 46px;
+        height: 46px;
+        font-size: 46px;
+      }
+    }
   }
 
   &:last-child {
