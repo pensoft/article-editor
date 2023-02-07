@@ -5,49 +5,33 @@
     You have not selected any figures.
   </div>
 
-  <div *ngFor="let figureId of figuresData;let i = index"
-       class="figure-box-container"
-       fxLayout="column nowrap"
-       fxLayoutGap="8px">
-    <div class="figureNumber">
-      <div class="checkbox-wrapper">
-        <mat-checkbox class="example-margin"
-                      [checked]="selectedFigures[i]"
-                      [color]='"primary"'
-                      (change)="setSelection($event.checked,figureId,i)">
-          Figure {{i + 1}}
-        </mat-checkbox>
-      </div>
-    </div>
-    <div class="figure-preview-components" fxLayout="row wrap" fxLayoutGap="12px">
-      <div class="preview-component" *ngFor="let component of figures[figureId].components;let j = index">
-        <div class="figure_component" *ngIf="component.componentType == 'image'">
-          <div class="checkbox-figure-components">
-            <mat-checkbox class="component-checkbox" [checked]="figuresComponentsChecked[figureId][j]"
-                          [color]='"primary"' (change)="setSelection($event.checked,figureId,i,j)">
-              Figure {{i + 1}}{{getCharValue(j)}}
-            </mat-checkbox>
-          </div>
-          <img src='{{component.url}}' height="100"/>
-        </div>
-        <div class="figure_component" *ngIf="component.componentType == 'video'">
-          <div class="checkbox-figure-components">
-            <mat-checkbox class="component-checkbox" [checked]="figuresComponentsChecked[figureId][j]"
-                          [color]='"primary"' (change)="setSelection($event.checked,figureId,i,j)">
-              {{getCharValue(j) + ' :'}}
-            </mat-checkbox>
-          </div>
-          <iframe width="200" height="100" [src]="component.url | safe" title="YouTube video player" frameborder="0"
+  <ng-container *ngFor="let figureId of figuresData;let i = index" fxLayoutGap="12px">
+    <div class="figure-container">
+      <mat-checkbox class="figure-title-checkbox"
+                    [checked]="selectedFigures[i]"
+                    [color]='"primary"'
+                    (change)="setSelection($event.checked,figureId,i)">
+        Figure {{i + 1}}
+      </mat-checkbox>
+
+      <div fxLayout="row wrap" fxLayoutGap="16px">
+        <mat-card class="figure-card" *ngFor="let component of figures[figureId].components;let j = index" fxLayout="column nowrap">
+          <mat-checkbox class="component-checkbox" [checked]="figuresComponentsChecked[figureId][j]"
+                        [color]='"primary"' (change)="setSelection($event.checked,figureId,i,j)">
+            Fig. {{i + 1}}{{getCharValue(j)}}
+          </mat-checkbox>
+          <img src="{{component.url}}" alt="Figure {{i + 1}}{{getCharValue(j)}}" height="140"/>
+          <iframe *ngIf="component.componentType == 'video'"
+                  width="200" height="100" [src]="component.url | safe" title="YouTube video player" frameborder="0"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowfullscreen="">
-          </iframe>
-        </div>
+                  allowfullscreen=""></iframe>
+        </mat-card>
       </div>
     </div>
-  </div>
+  </ng-container>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
-  <button mat-stroked-button [mat-dialog-close]>Cancel</button>
+  <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
   <button mat-flat-button color="primary" (click)="citateFigures()">Cite Figures</button>
 </mat-dialog-actions>
