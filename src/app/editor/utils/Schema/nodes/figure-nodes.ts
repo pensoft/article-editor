@@ -245,27 +245,6 @@ export const figure_component_description = {
   }
 }
 
-
-
-/* export const figure = {
-    content: "block_figure+",
-    group: 'block',
-    attrs: {
-        ...getGenericAttributes(),
-    },
-    parseDOM: [{
-        tag: "figure-component", getAttrs(dom: any) {
-            return {
-                ...parseGenericAttributes(dom)
-            }
-        }
-    }],
-    toDOM(node: any) {
-        return ["figure-component", {
-            ...genericAttributtesToDom(node)
-        }, 0]
-    }
-} */
 export const figureNodes = {
   image,
   video,
@@ -280,20 +259,4 @@ export const figureNodes = {
   figure_description,
 }
 
-/* export const figure_description = {
-    group: 'block+',
-    content: "inline+",
-    attrs:{
-        ...getGenericAttributes(),
-    },
-    parseDOM: [{ tag: "figure-description" ,getAttrs(dom:any){
-        return{
-            ...parseGenericAttributes(dom)
-        }
-    }}],
-    toDOM(node:Node) {
-        return ["figure-description", {
-            ...genericAttributtesToDom(node)
-        },0]
-    }
-} */
+

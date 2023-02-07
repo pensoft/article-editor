@@ -180,58 +180,6 @@ export const table_content = {
   }
 }
 
-/* export const table_component_description = {
-  content: "block+",
-  isolating: true,
-  group: "block",
-  inline: false,
-  attrs: {
-    component_number: {},
-    viewed_by_citat: { default: "" },
-    ...getGenericAttributes()
-  },
-  parseDOM: [{
-    tag: "table-component-description", getAttrs(dom: any) {
-      return {
-        component_number: dom.getAttribute('component_number'),
-        viewed_by_citat: dom.getAttribute('viewed_by_citat'),
-        ...parseGenericAttributes(dom),
-      }
-    },
-  }],
-  toDOM(node: any) {
-    let attributesToDom: any = {
-      'viewed_by_citat': node.attrs.viewed_by_citat,
-      'component_number': node.attrs.component_number,
-      ...genericAttributtesToDom(node),
-      style: 'display:flex;'
-
-    }
-    return ["table-component-description", attributesToDom, 0];
-  }
-} */
-
-
-
-/* export const table = {
-    content: "block_table+",
-    group: 'block',
-    attrs: {
-        ...getGenericAttributes(),
-    },
-    parseDOM: [{
-        tag: "table-component", getAttrs(dom: any) {
-            return {
-                ...parseGenericAttributes(dom)
-            }
-        }
-    }],
-    toDOM(node: any) {
-        return ["table-component", {
-            ...genericAttributtesToDom(node)
-        }, 0]
-    }
-} */
 export const tableNodes = {
   tables_nodes_container,
   block_table,
@@ -241,21 +189,3 @@ export const tableNodes = {
   table_content,
   table_container,
 }
-
-/* export const table_description = {
-    group: 'block+',
-    content: "inline+",
-    attrs:{
-        ...getGenericAttributes(),
-    },
-    parseDOM: [{ tag: "table-description" ,getAttrs(dom:any){
-        return{
-            ...parseGenericAttributes(dom)
-        }
-    }}],
-    toDOM(node:Node) {
-        return ["table-description", {
-            ...genericAttributtesToDom(node)
-        },0]
-    }
-} */
