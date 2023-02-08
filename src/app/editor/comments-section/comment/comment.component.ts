@@ -232,6 +232,8 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
   cancelReplyBtnHandle(replyDiv: HTMLDivElement) {
 
+    console.log('cancelReplyBtnHandle called!');
+
     let replyInput: HTMLInputElement = replyDiv.querySelector('.reply-input');
     let commentsContainer = replyDiv.closest('.comment-container');
 
