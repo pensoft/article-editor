@@ -2,13 +2,13 @@
 
 <mat-dialog-content>
   <p>Enter link and text,representing the link</p>
+  <mat-label class="upper-label">Link</mat-label>
   <mat-form-field [style.width]='"100%"' appearance="fill">
-    <mat-label>Link...</mat-label>
     <input matInput [(ngModel)]="data.url" [formControl]="text" required>
     <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
   </mat-form-field>
+  <mat-label class="upper-label">Text</mat-label>
   <mat-form-field [style.width]='"100%"' appearance="fill">
-    <mat-label>Text...</mat-label>
     <input matInput [(ngModel)]="data.text" [formControl]="text" required>
     <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
   </mat-form-field>

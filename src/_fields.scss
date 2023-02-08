@@ -1,51 +1,71 @@
-mat-form-field.mat-form-field:not(.titel-form-control):not(.search-box-comments):not(.search-box-changes):not(.reply-form-field):not(.mat-form-field-search) {
+mat-form-field.mat-form-field:not(.titel-form-control):not(.search-box-comments):not(.search-box-changes):not(.reply-form-field):not(.mat-form-field-search):not(.mat-form-field-select-pill):not(.width-select) {
+  display: block;
 
-  /* Global */
-  .mat-form-field-flex {
-    font-size: 14px;
-    line-height: 22px;
-    background: var(--color-ffffff);
-    border: 1px solid var(--color-e3e3e3);
-    border-radius: 6px;
-    transition: all 0.2s ease-in-out;
-    padding: 8px 12px 0 12px;
-    letter-spacing: 0;
+  .mat-form-field-wrapper {
+    padding-bottom: 24px;
 
-    .mat-form-field-infix {
-      padding: 0 0 8px 0;
-      border-top: 0;
+    /* Global */
+    .mat-form-field-flex {
+      font-size: 14px;
+      line-height: 22px;
+      background: var(--color-ffffff);
+      border: 1px solid var(--color-e3e3e3);
+      border-radius: 6px;
+      transition: all 0.2s ease-in-out;
+      padding: 8px 12px 0 12px;
+      letter-spacing: 0;
 
-      .mat-form-field-label-wrapper {
-        display: none;
-      }
+      .mat-form-field-infix {
+        padding: 0 0 8px 0;
+        border-top: 0;
 
-      > input {
-        &::-webkit-input-placeholder {
-          display: block !important;
+        .mat-form-field-label-wrapper {
+          display: none;
         }
 
-        &::placeholder {
-          display: block !important;
+        > input {
+          &::-webkit-input-placeholder {
+            display: block !important;
+          }
+
+          &::placeholder {
+            display: block !important;
+          }
+        }
+
+        > textarea {
+          resize: none;
         }
       }
+    }
 
-      > textarea {
-        resize: none;
+    /* Underline */
+    .mat-form-field-underline {
+      display: none;
+    }
+
+    .mat-form-field-subscript-wrapper {
+      margin: -2px 0 0 0;
+      letter-spacing: 0;
+      padding: 0;
+
+      mat-error {
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 16px;
+        color: var(--color-e56b87);
       }
     }
   }
 
-  /* Underline */
-  .mat-form-field-underline {
-    display: none;
-  }
-
   /* Select */
   &.mat-form-field-type-mat-select {
-    .mat-form-field-flex {
-      .mat-form-field-infix {
-        .mat-select-arrow-wrapper {
-          transform: none;
+    .mat-form-field-wrapper {
+      .mat-form-field-flex {
+        .mat-form-field-infix {
+          .mat-select-arrow-wrapper {
+            transform: none;
+          }
         }
       }
     }
@@ -53,19 +73,23 @@ mat-form-field.mat-form-field:not(.titel-form-control):not(.search-box-comments)
 
   /* Focus */
   &.mat-focused {
-    .mat-form-field-flex {
-      border-color: var(--color-00b1b2);
+    .mat-form-field-wrapper {
+      .mat-form-field-flex {
+        border-color: var(--color-00b1b2);
+      }
     }
   }
 
   /* Error */
   &.mat-form-field-invalid {
-    .mat-form-field-flex {
-      border-color: var(--color-e56b87);
+    .mat-form-field-wrapper {
+      .mat-form-field-flex {
+        border-color: var(--color-e56b87);
 
-      .mat-form-field-infix {
-        .mat-form-field-label {
-          color: var(--color-e56b87);
+        .mat-form-field-infix {
+          .mat-form-field-label {
+            color: var(--color-e56b87);
+          }
         }
       }
     }
@@ -73,8 +97,14 @@ mat-form-field.mat-form-field:not(.titel-form-control):not(.search-box-comments)
 
   /* Disabled */
   &.mat-form-field-disabled {
-    .mat-form-field-flex {
-      background: var(--color-f1f2f2);
+    .mat-form-field-wrapper {
+      .mat-form-field-flex {
+        background: var(--color-f1f2f2);
+      }
+
+      .mat-select-value, .mat-select-arrow {
+        color: var(--color-818181);
+      }
     }
   }
 }
@@ -111,4 +141,8 @@ mat-form-field.mat-form-field:not(.titel-form-control):not(.search-box-comments)
       border-color: var(--color-00b1b2);
     }
   }
+}
+
+mat-formio-textfield, mat-formio-textarea {
+  margin: 0 !important;
 }

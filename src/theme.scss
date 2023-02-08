@@ -578,6 +578,12 @@ mat-radio-group {
     padding: 8px 12px 8px 28px;
     gap: 12px;
 
+    > mat-form-field {
+      .mat-form-field-wrapper {
+        padding: 0 !important;
+      }
+    }
+
     > div {
       &:first-child {
         flex-grow: 1;
@@ -1055,7 +1061,7 @@ mat-radio-group {
             letter-spacing: 0;
             color: #303030;
             padding-left: 16px !important;
-            padding-top: 10px !important;
+            padding-top: 12px !important;
           }
         }
       }
@@ -1077,7 +1083,6 @@ mat-radio-group {
 .mat-form-field-hint-custom {
   display: inline-block;
   line-height: 1.2;
-  padding: 0 10px;
 
   a {
     color: var(--color-00b1b2);
@@ -1802,7 +1807,7 @@ block-figure {
         margin: 0 0 8px 0;
       }
 
-      img {
+      img, iframe {
         max-width: 100%;
         object-fit: cover;
         border-radius: 6px;

@@ -3,7 +3,7 @@
 <div class="search-field-wrapper">
   <form (keydown)="search(inputText)" fxFlex="100%" fxLayout="column" class="search-form">
     <label>Select a Template</label>
-    <mat-form-field class="s" floatLabel="never" appearance="standard">
+    <mat-form-field class="s mat-form-field-search" floatLabel="never" appearance="standard">
       <input matInput type="text" #inputText placeholder="Search for topics">
       <button mat-flat-button color="primary" type="submit" matSuffix (click)="search(inputText)">
         Search

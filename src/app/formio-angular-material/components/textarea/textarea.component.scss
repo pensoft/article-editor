@@ -39,12 +39,16 @@
 }
 
 .pm-errors {
-  font-size: 14px;
-  font-weight: 500;
-  width: 100%;
-  height: 17px;
-  padding-top: 6px;
-  color: var(--color-e56b87);
+  height: 24px;
+
+  > div {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 16px;
+    color: var(--color-e56b87);
+    padding: 4px 0 0 0;
+    letter-spacing: 0;
+  }
 }
 
 ::ng-deep .prosemirror-textarea-wrapper,

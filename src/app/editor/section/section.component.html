@@ -14,13 +14,14 @@
     <div #codemirrorMenusAndSchemasDefs class='codemirror-editor' [ngStyle]="{'display': hideDefsjson ? 'none' : 'block'}"></div>
     <div *ngIf="error"><pre class="errors-container">{{errorMessage}}</pre></div>
     <ng-container *ngIf='renderForm'>
+      <!--
       <div class="complex-section-tree" *ngIf="complexSection">
         <app-complex-edit-tree [(section)]="section" [(sectionChildren)]="childrenTreeCopy!" [(deletedSections)]="complexSectionDeletedChildren" [(addedSections)]="complexSectionAddedChildren"></app-complex-edit-tree>
-        <!-- <div class="submit-complex-btn-container">
+        <div class="submit-complex-btn-container">
           <button mat-raised-button class="bottom-complex-action-btn" (click)="cancelComplexSectionEdit()">Cancel</button>
           <button mat-raised-button class="bottom-complex-action-btn" (click)="submitComplexSectionEdit()">Submit</button>
-        </div> -->
-      </div>
+        </div>
+      </div>  -->
       <div *ngIf="section.title.name != 'Taxon' && section.title.name != '[MM] Materials' && section.title.name != 'Material'" [ngClass]="{'formio-edit-section':true,'formio-taxonomicComponent':section.title.name == 'Taxonomic coverage','complex-section-formio':complexSection}">
         <mat-formio #formio [form]="sectionContent" (ready)="ready($event)" (change)="onChange($event)" (submit)="onSubmit($event)"></mat-formio>
       </div>

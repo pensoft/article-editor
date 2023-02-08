@@ -3,6 +3,7 @@
 <mat-dialog-content>
   <form [formGroup]="inviteUsersForm" fxLayout="column nowrap">
 
+    <mat-label class="upper-label">Users</mat-label>
     <mat-form-field class="form-chips" appearance="fill" fxFlex="48">
       <mat-chip-list #chipList aria-label="Select user">
         <mat-chip *ngFor="let user of users" (removed)="remove(user)">

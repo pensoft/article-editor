@@ -1,7 +1,7 @@
 export const tableJson = {
   "components": [
     {
-      "label": "Header : ",
+      "label": "Header",
       "autoExpand": false,
       "tableView": true,
       "defaultValue": `<p align="set-align-left" class="set-align-left">Header for the table.</p>`,
@@ -16,7 +16,7 @@ export const tableJson = {
       "input": true
     },
     {
-      "label": "Table content : ",
+      "label": "Table content",
       "autoExpand": false,
       "tableView": true,
       "defaultValue":
@@ -34,7 +34,7 @@ export const tableJson = {
       "type": "textarea",
       "input": true
     },{
-      "label": "Footer : ",
+      "label": "Footer",
       "autoExpand": false,
       "tableView": true,
       "defaultValue": `<p align="set-align-left" class="set-align-left">Footer for the table.</p>`,
