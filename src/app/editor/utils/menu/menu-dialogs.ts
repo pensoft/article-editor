@@ -469,7 +469,7 @@ function addMathInline(mathType: string) {
         const dialogRef = sharedDialog.open(AddCommentDialogComponent, {
           width: '582px',
           panelClass: 'insert-figure-in-editor',
-          data: { url: mathExpresion, type: 'mathinline' }
+          data: { url: mathExpresion, type: 'mathinline', mathType }
         });
         dialogRef.afterClosed().subscribe(result => {
           mathExpresion = result

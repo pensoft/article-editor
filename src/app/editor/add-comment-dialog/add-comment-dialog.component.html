@@ -14,7 +14,8 @@
     <mat-label *ngIf="type == 'video'">Video embed link</mat-label>
     <mat-label *ngIf="type == 'comment'">Comment...</mat-label>
     <mat-label *ngIf="type == 'anchorTag'">Anchor id...</mat-label>
-    <input matInput  [(ngModel)]="data.url" [formControl]="text" required style="color: black !important;">
+    <input *ngIf="mathType !== 'math_display'" matInput [(ngModel)]="data.url" [formControl]="text" required style="color: black !important;">
+    <textarea *ngIf="mathType == 'math_display'" matInput  [(ngModel)]="data.url" [formControl]="text" required style="color: black !important;"></textarea>
     <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
   </mat-form-field>
   <small class="mat-form-field-hint-custom" *ngIf="type == 'mathinline'">
@@ -22,6 +23,7 @@
     <a href="https://katex.org/docs/supported.html"  target="_blank">https://katex.org/docs/supported.html</a>
     for supported functions, operators and etc.
   </small>
+  <div *ngIf="type == 'mathinline'" #mathPreview></div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
