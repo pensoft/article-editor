@@ -398,7 +398,7 @@ mat-radio-button {
       -webkit-line-clamp: 2;
       line-clamp: 2;
       -webkit-box-orient: vertical;
-      white-space: break-spaces;
+      white-space: normal;
       padding-left: 13px;
     }
   }
@@ -430,7 +430,7 @@ mat-radio-group {
         -webkit-line-clamp: 2;
         line-clamp: 2;
         -webkit-box-orient: vertical;
-        white-space: break-spaces;
+        white-space: normal;
         padding-left: 6px;
       }
     }
@@ -905,7 +905,7 @@ mat-radio-group {
         -webkit-line-clamp: 1;
         line-clamp: 1;
         -webkit-box-orient: vertical;
-        white-space: break-spaces;
+        white-space: normal;
         word-break: break-all;
       }
 
@@ -922,7 +922,7 @@ mat-radio-group {
         -webkit-line-clamp: 1;
         line-clamp: 1;
         -webkit-box-orient: vertical;
-        white-space: break-spaces;
+        white-space: normal;
         word-break: break-all;
       }
     }
@@ -1264,7 +1264,7 @@ mat-radio-group {
           -webkit-line-clamp: 3;
           line-clamp: 3;
           -webkit-box-orient: vertical;
-          white-space: break-spaces;
+          white-space: normal;
           word-break: break-word;
 
           &.edited-text-content {
