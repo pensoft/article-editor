@@ -1,9 +1,10 @@
 <h2 mat-dialog-title>Edit comment</h2>
 
-<mat-dialog-content>
+<mat-dialog-content class="dynamic-content-height">
   <div>
+    <mat-label class="upper-label">Comment</mat-label>
     <mat-form-field class="example-full-width">
-      <mat-label>Comment</mat-label>
+
       <textarea matInput
                 placeholder="Write a comment"
                 [formControl]="editCommentControl"
@@ -17,7 +18,7 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
-  <button mat-stroked-button [mat-dialog-close]>Cancel</button>
+  <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
   <button mat-flat-button color="primary" (click)="autocomplete.canFinishComment(submitEdit,[])">Edit Comment</button>
 </mat-dialog-actions>
 
