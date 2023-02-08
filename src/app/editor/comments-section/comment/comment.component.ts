@@ -178,6 +178,9 @@ export class CommentComponent implements OnInit, AfterViewInit {
       }
     })
     if (actualComment) {
+
+      console.log('view: ', view);
+
       //let commentMiddlePos = Math.floor((actualComment.pmDocStartPos+ actualComment.pmDocEndPos)/2)
       view.focus()
       view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualComment.pmDocStartPos), view.state.doc.resolve(actualComment.pmDocEndPos))).setMeta('selected-comment',true))
@@ -206,6 +209,39 @@ export class CommentComponent implements OnInit, AfterViewInit {
     this.userComment = commentData;
   }
 
+  showReplyFocusHandle(replyDiv: HTMLDivElement) {
+
+    console.log('showReply called!');
+
+    let commentsContainer = replyDiv.closest('.comment-container');
+
+    commentsContainer.classList.add('write-reply');
+  }
+
+  hideReplyBlurHandle(replyDiv: HTMLDivElement) {
+
+    console.log('hideReply called!');
+
+    let replyInput: HTMLInputElement = replyDiv.querySelector('.reply-input');
+    let commentsContainer = replyDiv.closest('.comment-container');
+
+    if (replyInput.value == '') {
+      commentsContainer.classList.remove('write-reply');
+    }
+  }
+
+  cancelReplyBtnHandle(replyDiv: HTMLDivElement) {
+
+    console.log('cancelReplyBtnHandle called!');
+
+    let replyInput: HTMLInputElement = replyDiv.querySelector('.reply-input');
+    let commentsContainer = replyDiv.closest('.comment-container');
+
+    replyInput.value == '';
+    commentsContainer.classList.remove('write-reply');
+
+  }
+
   showHideReply(replyDiv: HTMLDivElement, select?: true) {
     let actualComment: commentData
     let allComments = this.sharedService.CommentsService.commentsObj
@@ -223,7 +259,9 @@ export class CommentComponent implements OnInit, AfterViewInit {
       }
     }
 
-    /*  let commentsArray = this.commentsMap.get(this.comment?.attrs.id);
+    /*
+
+     let commentsArray = this.commentsMap.get(this.comment?.attrs.id);
      let commentContent;
      let userCommentId = uuidv4();
      const dialogRef = this.sharedDialog.open(AddCommentDialogComponent, { width: 'auto', data: { url: commentContent, type: 'comment' } });
@@ -237,7 +275,9 @@ export class CommentComponent implements OnInit, AfterViewInit {
          this.commentsMap.set(this.comment?.attrs.id, [userComment, ...commentsArray]);
          this.userComments = [userComment, ...commentsArray];
        }
-     }); */
+     });
+
+     */
   }
 
   editComment(id: string, comment: string) {
@@ -291,12 +331,6 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
       }
     });
-  }
-
-  cancelReplyBtnHandle(replyDiv: HTMLDivElement) {
-
-    replyDiv.style.display = 'none';
-
   }
 
   getDate = getDate

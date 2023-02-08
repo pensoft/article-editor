@@ -1,4 +1,4 @@
-<mat-card class="comment-box">
+<mat-card class="comment-box" (click)="selectComment()">
 
   <mat-card-header>
     <!-- <div mat-card-avatar class="comment-avatar"></div> -->
@@ -13,7 +13,8 @@
 
     <div *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'" class="header-actions">
       <ng-container *ngIf="authService.currentUserSubject | async as user">
-        <button mat-flat-button color="primary"
+        <button mat-flat-button color="primary" class="main-resolve-btn"
+                #mainResolveBtn
                 *ngIf="!mobileVersion && userComment!.initialComment.userData.email == user.email"
                 (click)="deleteComment()">
           Resolve
@@ -36,38 +37,23 @@
   <mat-card-content>
     <div class="selected-text">
       <div class="selected-text-title">Selected text:</div>
-      <div class="selected-text-content" (click)="selectComment()">{{comment!.commentTxt}}</div>
+      <div class="selected-text-content">{{comment!.commentTxt}}</div>
     </div>
 
     <div #content [ngClass]="{
       'comment-content':true,
       'comment-elipsis-content':!initialShowMore,
       'comment-full-content':initialShowMore
-    }" (click)="selectComment()"><span #commentSpan [innerHtml]="userComment!.initialComment.comment | email"></span></div>
+    }" ><span #commentSpan [innerHtml]="userComment!.initialComment.comment | email"></span></div>
     <a (click)="initialShowMore = !initialShowMore;showMoreLessClick()" [ngClass]="{
       'morelessBtn':true,
       'comment-display-none':commentSpan.offsetWidth < 306 && commentSpan.offsetHeight < 20
     }">{{initialShowMore ? 'Show less': 'Show more' }}</a>
-
-    <div *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'">
-      <div class="reply" (click)="showHideReply(ReplyDiv)">Reply</div>
-      <div  #ReplyDiv class="reply-container" style="display: none;">
-        <mat-form-field appearance="outline" class="reply-form-field">
-          <input #input matInput type="text" placeholder="Write a reply..." autocomplete="off" [formControl]="replyFormControl" (keydown)="autocomplete.keyHandle($event)">
-          <app-collaborators-auto-complete [(commentmarkId)]="comment.commentMarkId" [(inputFormControl)]="replyFormControl" #autocomplete></app-collaborators-auto-complete>
-          <mat-icon matSuffix class="comment-reply-field-icon">alternate_email</mat-icon>
-        </mat-form-field>
-        <div class="comment-reply-btns comment-btns" fxLayout="row nowrap" fxLayoutGap="12px">
-          <button mat-stroked-button (click)="cancelReplyBtnHandle(ReplyDiv)">Cancel</button>
-          <button mat-flat-button color="primary"
-                  (click)="autocomplete.canFinishComment(commentReplyBtnHandle,[ReplyDiv])"
-                  [disabled]="input.value.length === 0">Reply</button>
-        </div>
-      </div>
-    </div>
   </mat-card-content>
 </mat-card>
-<mat-card class="comment-box-replies" *ngFor="let comment of userComment!.commentReplies;let index=index">
+
+
+<mat-card class="comment-box-replies" (click)="selectComment()" *ngFor="let comment of userComment!.commentReplies;let index=index">
 
   <mat-card-header>
 
@@ -99,20 +85,40 @@
     <div #content [ngClass]="{'comment-content':true,'comment-elipsis-content':!repliesShowMore[index],'comment-full-content':repliesShowMore[index]}"><span #commentSpan [innerHTML]="comment.comment|email"></span></div>
     <a (click)="repliesShowMore[index] = !repliesShowMore[index];showMoreLessClick()" [ngClass]="{'morelessBtn':true,'comment-display-none':commentSpan.offsetWidth < 295 && commentSpan.offsetHeight < 20}">{{repliesShowMore[index] ? 'Show less': 'Show more' }}</a>
 
-    <!-- <div class="reply" style="display: none;" (click)="showHideReply(ReplyDiv)">Reply</div>
-    <div #ReplyDiv style="display: none;">
-      <div class="reply-input">
-        <div class="input_div">
-          <input #input type="text" placeholder="Write a reply...">
+
+  </mat-card-content>
+</mat-card>
+
+<mat-card class="comment-box-form">
+  <mat-card-content>
+    <div *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'">
+
+      <div class="reply-container" #ReplyDiv>
+        <mat-form-field appearance="outline" class="reply-form-field">
+          <input #input matInput
+                 class="reply-input"
+                 type="text"
+                 placeholder="Write a reply..."
+                 autocomplete="off"
+                 [formControl]="replyFormControl"
+                 (focus)="showReplyFocusHandle(ReplyDiv)"
+                 (blur)="hideReplyBlurHandle(ReplyDiv)"
+                 (keydown)="autocomplete.keyHandle($event)">
+          <app-collaborators-auto-complete [(commentmarkId)]="comment.commentMarkId" [(inputFormControl)]="replyFormControl" #autocomplete></app-collaborators-auto-complete>
+          <mat-icon matSuffix class="comment-reply-field-icon">alternate_email</mat-icon>
+        </mat-form-field>
+
+        <div class="comment-btns-container">
+          <div class="comment-btns" align="end" fxLayoutGap="12px">
+            <button mat-stroked-button (click)="cancelReplyBtnHandle(ReplyDiv)">Cancel</button>
+            <button mat-flat-button color="primary"
+                    (click)="autocomplete.canFinishComment(commentReplyBtnHandle,[ReplyDiv])"
+                    [disabled]="input.value.length === 0">Reply</button>
+          </div>
         </div>
-        <div class="input_icon">
-          <mat-icon class="maticon">alternate_email</mat-icon>
-        </div>
+
       </div>
-      <div class="comment-reply-btns">
-        <button mat-button label="Cancel" (click)="cancelReplyBtnHandle(ReplyDiv)" class="small  secondary cencel-button">Cancel</button>
-        <button mat-button label="Comment" (click)="commentReplyBtnHandle(input,ReplyDiv)" [disabled]="input.value.length === 0" class="small  secondary comment-button">Reply</button>
-      </div>
-    </div> -->
+
+    </div>
   </mat-card-content>
 </mat-card>
