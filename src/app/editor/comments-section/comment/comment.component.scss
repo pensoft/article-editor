@@ -1,69 +1,8 @@
-::ng-deep {
-  .reply-form-field {
-    font-size: 12px;
-    height: 34px;
-    width: 100%;
-
-    .mat-form-field-wrapper {
-      margin: 0;
-      padding: 0;
-      height: 34px;
-
-      > .mat-form-field-flex {
-        padding: 0 12px;
-      }
-
-      .mat-form-field-outline {
-        height: 34px;
-      }
-
-      .mat-form-field-suffix {
-        top: -5px;
-        right: 3px;
-      }
-
-      .mat-form-field-infix {
-        height: 34px;
-        padding: 0;
-        border: 0;
-
-        > input {
-          line-height: 18px;
-          padding: 8px 0;
-          margin: 3px 0 0 0;
-        }
-      }
-    }
-    .comment-reply-field-icon {
-      color: #bbbaba9e !important;
-      height: 16px;
-      width: 16px;
-    }
-  }
-}
-
-app-collaborators-auto-complete{
+app-collaborators-auto-complete {
   position: relative;
     top: 10px;
     width: 1px;
     right: 45%;
-}
-
-::ng-deep {
-  .mat-card {
-    box-shadow: none !important;
-  }
-}
-
-.resolve-button {
-   ::ng-deep {
-    button {
-      height: 25px !important;
-      width: 78px !important;
-      line-height: 17px !important;
-      font-size: 12px !important;
-    }
-  }
 }
 
 .comment-elipsis-content {
@@ -112,54 +51,3 @@ app-collaborators-auto-complete{
   overflow: visible;
   height: auto;
 }
-
-/*
-.reply-input {
-  input {
-    border: none;
-    background-color: transparent;
-  }
-  div {
-    display: inline-flex;
-  }
-  .input_div {
-    margin-top: 9px;
-  }
-  .input_icon {
-    float: right;
-    margin-right: 9px;
-    margin-top: 5px;
-    mat-icon {
-      font-size: 23px;
-      height: 23px;
-      width: 23px;
-      color: #cacdd3;
-    }
-  }
-  textarea:focus,
-  input:focus {
-    outline: none;
-  }
-  background-color: transparent;
-  border: 1.5px solid #e3e1e1;
-  border-radius: 9px;
-  height: 33px;
-  width: 84%;
-  margin-right: 2px;
-  padding-left: 10px;
-  margin-top: 10px;
-}
-
-// calcel color #818181
-::placeholder {
-  // Chrome, Firefox, Opera, Safari 10.1+
-  color: #c8c4c4;
-  opacity: 1;
-}
-
-::-ms-input-placeholder {
-  // Microsoft Edge
-  color: #c8c4c4;
-}
-
-*/

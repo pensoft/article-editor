@@ -51,6 +51,8 @@
     }">{{initialShowMore ? 'Show less': 'Show more' }}</a>
   </mat-card-content>
 </mat-card>
+
+
 <mat-card class="comment-box-replies" (click)="selectComment()" *ngFor="let comment of userComment!.commentReplies;let index=index">
 
   <mat-card-header>
@@ -87,7 +89,7 @@
   </mat-card-content>
 </mat-card>
 
-<mat-card class="comment-box-" >
+<mat-card class="comment-box-form">
   <mat-card-content>
     <div *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'">
 
@@ -99,18 +101,20 @@
                  placeholder="Write a reply..."
                  autocomplete="off"
                  [formControl]="replyFormControl"
-                 (focus)="showReplyFocusHandle(ReplyDiv);$event.stopPropagation()"
-                 (blur)="hideReplyBlurHandle(ReplyDiv);$event.stopPropagation()"
+                 (focus)="showReplyFocusHandle(ReplyDiv)"
+                 (blur)="hideReplyBlurHandle(ReplyDiv)"
                  (keydown)="autocomplete.keyHandle($event)">
           <app-collaborators-auto-complete [(commentmarkId)]="comment.commentMarkId" [(inputFormControl)]="replyFormControl" #autocomplete></app-collaborators-auto-complete>
           <mat-icon matSuffix class="comment-reply-field-icon">alternate_email</mat-icon>
         </mat-form-field>
 
-        <div class="comment-reply-btns comment-btns" fxLayout="row nowrap" fxLayoutGap="12px">
-          <button mat-stroked-button (click)="cancelReplyBtnHandle(ReplyDiv, input)">Cancel</button>
-          <button mat-flat-button color="primary"
-                  (click)="autocomplete.canFinishComment(commentReplyBtnHandle,[ReplyDiv])"
-                  [disabled]="input.value.length === 0">Reply</button>
+        <div class="comment-btns-container">
+          <div class="comment-btns" align="end" fxLayoutGap="12px">
+            <button mat-stroked-button (click)="cancelReplyBtnHandle(ReplyDiv)">Cancel</button>
+            <button mat-flat-button color="primary"
+                    (click)="autocomplete.canFinishComment(commentReplyBtnHandle,[ReplyDiv])"
+                    [disabled]="input.value.length === 0">Reply</button>
+          </div>
         </div>
 
       </div>

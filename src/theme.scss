@@ -1116,7 +1116,7 @@ mat-radio-group {
   background: var(--color-f9fafc);
   border-radius: 0;
 
-  .comment-box, .comment-box-replies, .comment-box-form .commentBox, .change-box {
+  .comment-box, .comment-box-replies, .comment-box-form, .commentBox, .change-box {
     display: flex;
     flex-flow: column nowrap;
     gap: 14px;
@@ -1311,6 +1311,60 @@ mat-radio-group {
 
       .reply-container {
         margin: 8px 0 0 0;
+
+        .reply-form-field {
+          font-size: 12px;
+          height: 34px;
+          width: 100%;
+
+          .mat-form-field-wrapper {
+            margin: 0;
+            padding: 0;
+            height: 34px;
+
+            > .mat-form-field-flex {
+              padding: 0 12px;
+            }
+
+            .mat-form-field-outline {
+              height: 34px;
+            }
+
+            .mat-form-field-suffix {
+              top: -5px;
+              right: 3px;
+            }
+
+            .mat-form-field-infix {
+              height: 34px;
+              padding: 0;
+              border: 0;
+
+              > input {
+                line-height: 18px;
+                padding: 8px 0;
+                margin: 3px 0 0 0;
+              }
+            }
+          }
+          .comment-reply-field-icon {
+            color: #bbbaba9e !important;
+            height: 16px;
+            width: 16px;
+          }
+        }
+      }
+
+      .comment-btns-container {
+        .comment-btns {
+          margin: 16px 0 0 0;
+
+          > button {
+            font-size: 12px;
+            font-weight: 700;
+            line-height: 24px;
+          }
+        }
       }
 
       .comment-input {
@@ -1336,18 +1390,20 @@ mat-radio-group {
         }
       }
 
-      .comment-btns {
-        margin: 16px 0 0 0;
-
-        > button {
-          font-size: 12px;
-          font-weight: 700;
-          line-height: 24px;
-        }
-      }
-
       a {
         color: var(--color-00b1b2);
+      }
+    }
+
+    &.comment-box-form {
+      display: none;
+
+      .mat-card-content {
+        border-bottom: 0;
+
+        .comment-btns-container {
+          visibility: hidden;
+        }
       }
     }
 
@@ -1370,10 +1426,6 @@ mat-radio-group {
     }
   }
 
-  &.comment-box-form {
-    border-bottom: 0;
-  }
-
   &.selected-comment {
     margin: -1px 0 0 0;
     background: var(--color-ffffff);
@@ -1389,11 +1441,15 @@ mat-radio-group {
       }
     }
 
-    .comment-box, .comment-box-replies, .comment-box-form  {
+    .comment-box, .comment-box-replies  {
 
       .mat-card-content {
         border-color: var(--color-e3e3e3);
       }
+    }
+
+    .comment-box-form {
+      display: flex;
     }
   }
 
@@ -1417,6 +1473,28 @@ mat-radio-group {
     .commentBox {
       .mat-card-content {
         border-bottom-color: transparent;
+      }
+    }
+  }
+
+  &.write-reply {
+
+    .mat-card-header {
+
+      .header-actions {
+        .mat-primary {
+          display: none;
+        }
+      }
+    }
+
+    .comment-box-form {
+
+      .mat-card-content {
+
+        .comment-btns-container {
+          visibility: visible;
+        }
       }
     }
   }

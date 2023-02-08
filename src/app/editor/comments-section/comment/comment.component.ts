@@ -213,14 +213,31 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
     console.log('showReply called!');
 
-    replyDiv.closest('.comment-container').classList.add('write-replay');
+    let commentsContainer = replyDiv.closest('.comment-container');
+
+    commentsContainer.classList.add('write-reply');
   }
 
   hideReplyBlurHandle(replyDiv: HTMLDivElement) {
 
     console.log('hideReply called!');
 
-    replyDiv.closest('.comment-container').classList.remove('write-replay');
+    let replyInput: HTMLInputElement = replyDiv.querySelector('.reply-input');
+    let commentsContainer = replyDiv.closest('.comment-container');
+
+    if (replyInput.value == '') {
+      commentsContainer.classList.remove('write-reply');
+    }
+  }
+
+  cancelReplyBtnHandle(replyDiv: HTMLDivElement) {
+
+    let replyInput: HTMLInputElement = replyDiv.querySelector('.reply-input');
+    let commentsContainer = replyDiv.closest('.comment-container');
+
+    replyInput.value == '';
+    commentsContainer.classList.remove('write-reply');
+
   }
 
   showHideReply(replyDiv: HTMLDivElement, select?: true) {
@@ -312,15 +329,6 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
       }
     });
-  }
-
-  cancelReplyBtnHandle(replyDiv: HTMLDivElement, input: HTMLInputElement) {
-
-    let replyInput: HTMLInputElement = replyDiv.querySelector('.reply-input');
-    let replyButtonsContainer: HTMLDivElement = replyDiv.querySelector('.comment-btns');
-
-    replyButtonsContainer.style.display = 'none';
-    replyInput.value = '';
   }
 
   getDate = getDate
