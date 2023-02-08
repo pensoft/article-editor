@@ -31,17 +31,18 @@
       </a>
     </div>
 
-    <div class="comment-btns" fxLayout="row nowrap" fxLayoutGap="30px" fxLayoutAlign="center center">
-      <button mat-flat-button color="primary"
-              *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'&&ydocService.curUserAccess!='Commenter'"
-              (click)="!previewMode.mode?acceptChange(change.type,change.changeAttrs):undefined">
-        Accept
-      </button>
-      <button mat-stroked-button *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'&&ydocService.curUserAccess!='Commenter'"
-              (click)="!previewMode.mode?declineChange(change.type,change.changeAttrs):undefined">
-        Decline
-      </button>
-
+    <div class="comment-btns-container">
+      <div class="comment-btns" fxLayout="row nowrap" fxLayoutGap="30px" fxLayoutAlign="center center">
+        <button mat-flat-button color="primary"
+                *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'&&ydocService.curUserAccess!='Commenter'"
+                (click)="!previewMode.mode?acceptChange(change.type,change.changeAttrs):undefined">
+          Accept
+        </button>
+        <button mat-stroked-button *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'&&ydocService.curUserAccess!='Commenter'"
+                (click)="!previewMode.mode?declineChange(change.type,change.changeAttrs):undefined">
+          Decline
+        </button>
+      </div>
     </div>
   </mat-card-content>
 </mat-card>
