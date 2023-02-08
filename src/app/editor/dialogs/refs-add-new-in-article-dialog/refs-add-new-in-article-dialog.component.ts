@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { RefsApiService } from '@app/layout/pages/library/lib-service/refs-api.service';
@@ -14,6 +14,7 @@ import { CiToTypes } from '@app/layout/pages/library/lib-service/editors-refs-ma
 import { MatOption } from '@angular/material/core';
 import { uuidv4 } from 'lib0/random';
 import { mapRef1 } from '@app/editor/utils/references/refsFunctions';
+import { ReferenceEditComponent } from '@app/layout/pages/library/reference-edit/reference-edit.component';
 
 
 @Component({
@@ -44,6 +45,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
   constructor(
     private refsAPI: RefsApiService,
     public dialogRef: MatDialogRef<RefsAddNewInArticleDialogComponent>,
+    public dialog: MatDialog,
     private serviceShare: ServiceShare,
     private changeDetectorRef: ChangeDetectorRef,
     private http: HttpClient,
@@ -54,7 +56,6 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
     this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
       this.refsAPI.getStyles().subscribe((refStyles: any) => {
         this.referenceTypesFromBackend = refTypes.data;
-        console.log(refTypes.data);
         if (!this.referenceFormControl.value) {
           this.referenceFormControl.setValue(this.referenceTypesFromBackend[0]);
         } else {
@@ -99,7 +100,9 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
     return
   }
   loadingRefDataFromBackend = false;
+  tabIndex = 0;
   tabChanged(change: MatTabChangeEvent) {
+    this.tabIndex = change.index
     if (change.index == 1) {
       this.generateFormIOJSON(this.referenceFormControl.value)
     }
@@ -115,7 +118,6 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
     this.changeDetectorRef.detectChanges()
     this.oldSub = this.http.get(environment.EXTERNAL_REFS_API, {
       responseType: 'text',
-
       params: {
         search: 'simple',
         text: searchText,
@@ -124,7 +126,6 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
       let parsedJson = JSON.parse(data1);
       if (parsedJson.length > 0) {
         this.searchData = parsedJson;
-        console.log(this.searchData);
         this.loading = false;
         this.changeDetectorRef.detectChanges()
       }
@@ -133,7 +134,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
 
   select(row: any, lastSelect) {
     this.lastSelect = lastSelect;
-    this.externalSelection = row;
+    this.getRefWithCitation([row],'refindit')
   }
 
   displayFn(option: any): string {
@@ -148,7 +149,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
   onSubmit() {
     let newRef = genereteNewReference(this.referenceFormControl.value, this.dataSave)
     let refObj = { ref: newRef, formIOData: this.dataSave };
-    this.getRefWithCitation([refObj])
+    this.getRefWithCitation([refObj],'manual')
   }
 
   onChange(change: any) {
@@ -161,11 +162,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
     }
   }
 
-  addReFindItRef() {
-    this.getRefWithCitation([this.externalSelection])
-  }
-
-  getRefWithCitation(refInfo: { ref: any, formIOData: any }[]) {
+  getRefWithCitation(refInfo: { ref: any, formIOData: any }[],source:'file'|'manual'|'refindit') {
     let refStyle
     if (
       this.serviceShare.YdocService.articleData &&
@@ -195,7 +192,6 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
       let container = document.createElement('div');
       container.innerHTML = refBasicCitation.bibliography;
       refBasicCitation.textContent = container.textContent;
-      console.log(refIns);
       let ref = {
         ...refIns,
         citation: refBasicCitation,
@@ -206,7 +202,83 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
       }
       refsToAdd.push({ref})
     })
-    this.dialogRef.close(refsToAdd)
+    if(source == 'refindit'){
+      console.log(refsToAdd);
+      this.editRefinditRefBeforeSubmit(refsToAdd[0].ref,(refdata:any)=>{
+        if(refdata){
+          this.dialogRef.close(refdata)
+        }else{
+          this.searchReferencesControl.setValue('');
+        }
+      })
+    }else{
+      this.dialogRef.close(refsToAdd)
+    }
+  }
+
+  editRefinditRefBeforeSubmit(ref,callback:any){
+    if(!ref.ref.id){
+      ref.ref.id = uuidv4()
+    }
+    this.loadingRefDataFromBackend = true;
+    this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
+      this.refsAPI.getStyles().subscribe((refStyles: any) => {
+        let referenceStyles = refStyles.data
+        let referenceTypesFromBackend = refTypes.data;
+        let oldData = { refData: { formioData: ref.formIOData }, refType: ref.refType, refStyle: ref.refStyle,refCiTO:ref.refCiTO }
+        this.loadingRefDataFromBackend = false;
+
+        const dialogRef = this.dialog.open(ReferenceEditComponent, {
+          data: { referenceTypesFromBackend, oldData, referenceStyles },
+          panelClass: ['edit-reference-panel', 'editor-dialog-container'],
+          //width: '100%',
+          // height: '90%',
+          // maxWidth: '100%'
+        });
+
+        dialogRef.afterClosed().subscribe((result: any) => {
+          if (result) {
+            let newRef = genereteNewReference(result.referenceScheme, result.submissionData.data)
+            let refObj = { ref: newRef, formIOData: result.submissionData.data };
+            let refStyle
+            if (
+              this.serviceShare.YdocService.articleData &&
+              this.serviceShare.YdocService.articleData.layout.citation_style) {
+              let style = this.serviceShare.YdocService.articleData.layout.citation_style
+              refStyle = {
+                "name": style.name,
+                "label": style.title,
+                "style": style.style_content,
+                "last_modified": (new Date(style.style_updated).getTime())
+              }
+            } else {
+              refStyle = {
+                "name": "harvard-cite-them-right",
+                "label": "Harvard Cite Them Right",
+                "style": harvardStyle,
+                "last_modified": 1649665699315
+              }
+            }
+            refObj.ref.id = ref.ref.id
+            let refBasicCitation:any = this.serviceShare.CslService.getBasicCitation(refObj.ref, refStyle.style);
+            let container = document.createElement('div');
+            container.innerHTML = refBasicCitation.bibliography;
+            refBasicCitation.textContent = container.textContent;
+            let refInstance = {
+              ...refObj,
+              citation: refBasicCitation,
+              refType: result.referenceScheme,
+              ref_last_modified:Date.now(),
+              refCiTO:result.refCiTO,
+              refStyle
+            }
+            callback([{ref:refInstance}])
+          }else{
+            callback()
+          }
+        })
+      })
+    })
   }
 
   getToolTipForRef(option) {
@@ -384,7 +456,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
             };
           })
           let refsToLocalType = mapedRefs.map(mapRef1);
-          this.getRefWithCitation(refsToLocalType)
+          this.getRefWithCitation(refsToLocalType,'file')
         }
       })
     }catch(e){

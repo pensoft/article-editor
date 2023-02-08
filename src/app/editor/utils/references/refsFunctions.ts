@@ -244,7 +244,11 @@ export function mapRef1(ref: any) {
     if (mapObjVal && mapObjVal.cslProp) {
       let cslP = mapObjVal.cslProp
       if (typeof cslP == 'string') {
-        maped[cslP] = val
+        if(key == 'title'&&typeof val == 'object'){
+          maped[cslP] = val['_']
+        }else{
+          maped[cslP] = val
+        }
       } else if (typeof cslP == 'object') {
         let prop = cslP.prop;
         let func = eval(cslP.func);
@@ -259,7 +263,11 @@ export function mapRef1(ref: any) {
     if (mapObjVal && mapObjVal.formIOprop) {
       let formioProp = mapObjVal.formIOprop
       if (typeof formioProp == 'string') {
-        formIOData[formioProp] = val
+        if(key == 'title'&&typeof val == 'object'){
+          formIOData[formioProp] = val['_']
+        }else{
+          formIOData[formioProp] = val
+        }
       } else if (typeof formioProp == 'object') {
         let prop = formioProp.prop;
         let func = eval(formioProp.func);
@@ -270,11 +278,15 @@ export function mapRef1(ref: any) {
       }
     }
   })
-
+  maped.autocompleteView = {
+    firstAuthor:ref.firstauthor.join(' '),
+    year:ref.year,
+    title:maped.title,
+    source:ref.source
+  }
   return { ref: maped, formIOData }
 }
 function mapRef(ref: any) {
-  console.log(ref);
   let maped: any = {};
   let formIOData: any = {}
   if (ref.authors && ref.authors instanceof Array && ref.authors.length > 0) {
