@@ -12,11 +12,11 @@ mat-form-field.mat-form-field:not(.titel-form-control):not(.search-box-comments)
       border: 1px solid var(--color-e3e3e3);
       border-radius: 6px;
       transition: all 0.2s ease-in-out;
-      padding: 8px 12px 0 12px;
+      padding: 6px 12px 0 12px;
       letter-spacing: 0;
 
       .mat-form-field-infix {
-        padding: 0 0 8px 0;
+        padding: 0 0 6px 0;
         border-top: 0;
 
         .mat-form-field-label-wrapper {
@@ -62,6 +62,8 @@ mat-form-field.mat-form-field:not(.titel-form-control):not(.search-box-comments)
   &.mat-form-field-type-mat-select {
     .mat-form-field-wrapper {
       .mat-form-field-flex {
+        padding: 6px 8px 0 12px;
+        
         .mat-form-field-infix {
           .mat-select-arrow-wrapper {
             transform: none;
@@ -126,7 +128,7 @@ mat-form-field.mat-form-field:not(.titel-form-control):not(.search-box-comments)
     border: 1px solid var(--color-e3e3e3);
     border-radius: 6px;
     transition: all 0.2s ease-in-out;
-    padding: 8px 12px;
+    padding: 6px 12px;
     letter-spacing: 0;
 
     .ProseMirror__placeholder {
