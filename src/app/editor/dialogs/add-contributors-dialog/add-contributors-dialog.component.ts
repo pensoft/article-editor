@@ -76,8 +76,14 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
     })
   }
 
-  clickedOutOdInput() {
-    this.searchFormControl.setValue('')
+  hideResults(){
+    this.searchResults = []
+  }
+
+  showResult(){
+    let val = this.searchFormControl.value;
+    if(!val||val.length == 0) return
+    this.searchResults = this.searchData
   }
 
   editContr(contrData: any) {
@@ -263,7 +269,7 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
       }[],
       'message': string
     }) => {
-      if (result.usersChipList.length > 0 && result.accessSelect && result.accessSelect != '' && this.collaborators) {
+      if (result&&result.usersChipList.length > 0 && result.accessSelect && result.accessSelect != '' && this.collaborators) {
         this.sharedService.ProsemirrorEditorsService.spinSpinner()
         let collaboratorsCopy = [...this.collaborators.collaborators];
         result.usersChipList.forEach((newColaborator) => {
