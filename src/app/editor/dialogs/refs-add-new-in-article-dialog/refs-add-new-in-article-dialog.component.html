@@ -1,6 +1,5 @@
 <h2 mat-dialog-title class="title-margin-bottom">Add Reference</h2>
 
-
 <mat-dialog-content>
   <mat-spinner class="loading-data-spinner" [ngStyle]="{display:loadingRefDataFromBackend?'block':'none'}">
   </mat-spinner>
@@ -55,16 +54,16 @@
     </mat-tab>
     <mat-tab label="Manual input">
       <div class="tab1">
+        <mat-label class="upper-label">Types</mat-label>
         <mat-form-field #referenceType class="select-ref-form-field">
-          <mat-label class="">Types:</mat-label>
           <mat-select [formControl]="referenceFormControl" class="select-reference" (selectionChange)="generateFormIOJSON(referenceFormControl.value)">
             <mat-option *ngFor="let type of referenceTypesFromBackend " [value]="type">
               {{type.label}}
             </mat-option>
           </mat-select>
         </mat-form-field>
+        <mat-label class="upper-label">Citation Typing Ontology</mat-label>
         <mat-form-field appearance="fill" #referenceType class="select-ref-form-field">
-          <mat-label class="">Citation Typing Ontology:</mat-label>
           <mat-select [formControl]="citoFormControl" class="select-reference">
             <mat-option *ngFor="let type of CiToTypes " [value]="type">
               {{type.label}}
