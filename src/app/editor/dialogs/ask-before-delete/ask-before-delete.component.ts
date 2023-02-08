@@ -8,10 +8,21 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 })
 export class AskBeforeDeleteComponent implements OnInit {
 
+  mapping = {
+    section:{
+      objType:'section',
+      objTypeCapital:'Section'
+    },
+    reference:{
+      objType:'reference',
+      objTypeCapital:'Reference'
+    }
+  }
+
   constructor(
     public dialog: MatDialog,
     private dialogRef: MatDialogRef<AskBeforeDeleteComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: {sectionName:string}
+    @Inject(MAT_DIALOG_DATA) public data: {objName:string,type:string}
     ) { }
 
   ngOnInit(): void {

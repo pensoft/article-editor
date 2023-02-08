@@ -9,6 +9,7 @@ import { genereteNewReference } from '@app/layout/pages/library/lib-service/refs
 import { ReferenceEditComponent } from '@app/layout/pages/library/reference-edit/reference-edit.component';
 import { Subject } from 'rxjs';
 import { YMap } from 'yjs/dist/src/internals';
+import { AskBeforeDeleteComponent } from '../ask-before-delete/ask-before-delete.component';
 import { RefsAddNewInArticleDialogComponent } from '../refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
 
 export let clearRefFromFormControl = (newRefs:any)=>{
@@ -144,8 +145,16 @@ export class RefsInArticleDialogComponent implements OnDestroy {
   }
 
   deleteRef(ref) {
-    this.deletedRefsIds.push(ref.ref.id);
-    this.passRefsToSubject();
+    let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
+      data: {objName: ref.ref.title,type:'reference'},
+      panelClass: 'ask-before-delete-dialog',
+    })
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        this.deletedRefsIds.push(ref.ref.id);
+        this.passRefsToSubject();
+      }
+    })
   }
 
   preventClick(event: Event) {
