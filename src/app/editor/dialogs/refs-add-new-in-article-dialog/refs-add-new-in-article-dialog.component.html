@@ -10,13 +10,13 @@
         <div class="mat-form-field-search-label">Search in CrossRef, PubMed, RefBank, Agris, DataCite & GNUB</div>
         <mat-form-field class="search-in-refindit mat-form-field-search" appearance="fill">
           <input type="text"
-                 placeholder="Type here..."
-                 aria-label="References"
-                 matInput
-                 #trigger="matAutocompleteTrigger"
-                 matAutocompletePosition="below"
-                 [formControl]="searchReferencesControl"
-                 [matAutocomplete]="auto">
+                  placeholder="Type here..."
+                  aria-label="References"
+                  matInput
+                  #trigger="matAutocompleteTrigger"
+                  matAutocompletePosition="below"
+                  [formControl]="searchReferencesControl"
+                  [matAutocomplete]="auto">
           <mat-icon matPrefix class="prefix-icon">search</mat-icon>
           <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
             <ng-container>
@@ -25,19 +25,18 @@
               </mat-option>
             </ng-container>
             <ng-container *ngIf="searchData">
-              <mat-option #optionEl
-              (mouseover)="showTooltip($event,option)"
-              (mouseout)="hideTooltip()"
-              (mousemove)="updatePos($event)"
+              <mat-option class="refindit-autocomplete-option"
               [class.demo-row-is-clicked]="option == externalSelection" *ngFor="let option of searchData" [value]="option" (click)="select(option, 'external');$event.stopPropagation(); trigger.openPanel()">
-                {{option.ref.title}}
+                <div class="option-refindit-view">
+                  <div class="refindit-first-author">{{option.ref.autocompleteView.firstAuthor}}</div>
+                  <div class="refindit-year">{{option.ref.autocompleteView.year}}</div>
+                  <div class="refindit-title">{{option.ref.autocompleteView.title}}</div>
+                  <div class="refindit-source">{{option.ref.autocompleteView.source}}</div>
+                </div>
               </mat-option>
             </ng-container>
           </mat-autocomplete>
         </mat-form-field>
-      </div>
-      <div class="btn-container">
-        <button mat-flat-button color="primary" (click)="addReFindItRef()" [disabled]="!externalSelection">Add Reference</button>
       </div>
       <div>
         <div class="mat-form-field-search-label">Select references from Zotero, EndNote or RefManager XML file</div>
@@ -75,9 +74,6 @@
             <mat-formio #formio [form]="formIOSchema" (change)="onChange($event)"></mat-formio>
           </div>
         </div>
-        <div class="btn-container">
-          <button mat-raised-button (click)="onSubmit()" [disabled]="!dataSave||!isModified||!isValid">Add Reference</button>
-        </div>
       </div>
     </mat-tab>
   </mat-tab-group>
@@ -85,5 +81,5 @@
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button (click)="closeDialog()">Cancel</button>
-  <button mat-flat-button color="primary">Add Reference</button>
+  <button *ngIf="tabIndex == 1" mat-flat-button color="primary" [disabled]="!dataSave||!isValid" (click)="onSubmit()">Add Reference</button>
 </mat-dialog-actions>

@@ -105,7 +105,6 @@ import {
   AddContributorsDialogComponent
 } from './editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
 import {SearchFilterPipe} from './shared/pipes/search-filter.pipe';
-import {LibraryPage} from './layout/pages/library/library.component';
 import {ReferenceEditComponent} from './layout/pages/library/reference-edit/reference-edit.component';
 import {
   CitateReferenceDialogComponent
@@ -260,7 +259,6 @@ const gravatarConfig: GravatarConfig = {
     RecentComponent,
     AddContributorsDialogComponent,
     SearchFilterPipe,
-    LibraryPage,
     ReferenceEditComponent,
     CitateReferenceDialogComponent,
     SaveComponent,

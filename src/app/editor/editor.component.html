@@ -82,8 +82,6 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
-<app-library *ngIf="active=='library'" class="user-reference-lib"></app-library>
-
 <div *ngIf="shouldBuild"
      [ngStyle]="{'display':active == 'editor'?'block':'none','align-items':'center','width':'100%','height':'100%'}">
   <div class="actions-container">

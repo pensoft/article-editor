@@ -33,7 +33,6 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
             x.url?.includes('http://localhost:4200/find') ||
             x.url?.includes('https://refindit.org/find')
           ) {
-
             return x.clone({body: mapExternalRefs(x.body)})
           }
         }

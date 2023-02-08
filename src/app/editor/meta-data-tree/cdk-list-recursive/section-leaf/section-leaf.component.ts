@@ -262,7 +262,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   deleteNodeHandle(nodeId: string) {
     let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
       width: '563px',
-      data: {sectionName: this.treeService.findNodeById(nodeId)?.title.label},
+      data: {objName: this.treeService.findNodeById(nodeId)?.title.label,type:'section'},
       panelClass: 'ask-before-delete-dialog',
     })
     dialogRef.afterClosed().subscribe((data: any) => {
