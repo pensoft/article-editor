@@ -164,6 +164,7 @@ import { FigureComponentPreviewComponent } from './editor/dialogs/figures-dialog
 import { AddFigureComponentDialogComponent } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-component-dialog/add-figure-component-dialog.component';
 import { MAT_DIALOG_DEFAULT_OPTIONS, MatDialogConfig } from '@angular/material/dialog';
 import { HeadProsemirrorViewComponent } from './editor/article/head-prosemirror-view/head-prosemirror-view.component';
+import { FigurePdfPreviewComponent } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/figure-pdf-preview/figure-pdf-preview.component';
 
 //@ts-ignore
 EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE,'event-dispatcher']
@@ -303,6 +304,7 @@ const gravatarConfig: GravatarConfig = {
     AddFigureDialogV2Component,
     FigureComponentPreviewComponent,
     HeadProsemirrorViewComponent,
+    FigurePdfPreviewComponent,
   ],
   imports: [
     HttpClientJsonpModule,
