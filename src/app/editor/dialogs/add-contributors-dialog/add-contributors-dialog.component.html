@@ -1,13 +1,13 @@
 <h2 mat-dialog-title class="title-margin-bottom">Add Collaborators</h2>
 
-<div class="search-field-wrapper">
+<div class="search-field-wrapper" (clickOutside)="hideResults()">
 
   <div class="mat-form-field-search-label">Invite people</div>
   <mat-form-field class="mat-form-field-search" appearance="fill">
-    <input type="text" class="input-search" placeholder="Search by name" matInput [formControl]="searchFormControl" autocomplete="off">
+    <input type="text" class="input-search" placeholder="Search by name" (focus)="showResult()" matInput [formControl]="searchFormControl" autocomplete="off">
     <mat-icon matPrefix class="prefix-icon">search</mat-icon>
   </mat-form-field>
-  <div class="search-result-container">
+  <div class="search-result-container" >
     <div *ngIf="searchResults.length>0" class="search-results">
       <ng-container *ngFor="let contributor of searchResults">
         <div fxLayout="row nowrap" fxLayoutAlign="flex-start center" fxLayoutGap="16px" class="results-row" (click)="openAddContrDialog(contributor)">
