@@ -81,6 +81,7 @@ export class EditContributorComponent implements AfterViewInit, AfterViewChecked
   ngAfterViewInit(): void {
     if(this.data.contrData.access == 'Owner'){
       this.accessOptions.push({name:'Owner'});
+      this.accessSelect.disable();
     }
     this.accessSelect.setValue(this.data.contrData.access)
     this.roleSelect.setValue(this.data.contrData.role)
@@ -88,8 +89,6 @@ export class EditContributorComponent implements AfterViewInit, AfterViewChecked
       this.affiliations.push(this.getAffiliationGroup(affiliation));
     })
   }
-
-  afte
 
   removeCollaborator(){
     this.dialogRef.close({edited:true,removed:true})
