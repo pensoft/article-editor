@@ -20,6 +20,33 @@
   margin-bottom: 100px;
 }
 
+::ng-deep .refindit-autocomplete-option{
+  .mat-option-text{
+    display: block !important;
+    .option-refindit-view{
+      width: 100%;
+      font-size: 14px;
+      .refindit-first-author, .refindit-title, .refindit-year, .refindit-source{
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .refindit-first-author{
+        width: 20%;
+      }
+      .refindit-year{
+        width: 7%;
+      }
+      .refindit-source{
+        width: 10%;
+      }
+      .refindit-title{
+        width: 63%;
+      }
+    }
+  }
+}
+
 .select-ref-form-field{
   width: 98%;
   margin-top: 20px;

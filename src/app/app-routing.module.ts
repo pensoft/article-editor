@@ -23,7 +23,6 @@ import { ProfileInfoComponent } from './layout/pages/profile/profile-info/profil
 import { RecentPermissionComponent } from './layout/pages/recent-permission/recent-permission.component';
 
 import { AddContributorsDialogComponent } from './editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
-import { LibraryPage } from './layout/pages/library/library.component';
 import {OauthCallbackComponent} from "@app/layout/pages/oauth-callback/oauth-callback.component";
 import { TestPageComponent } from './casbin/test-page/test-page.component';
 import { LoadedCasbinGuard } from './core/guards/loaded-casbin.guard';
@@ -70,7 +69,6 @@ const routes: Routes = [
       { path: 'profile', canActivate: [AuthGuard, AnyProjectsGuard], component: ProfileComponent },
       { path: 'profile-info', canActivate: [AuthGuard, AnyProjectsGuard], component: ProfileInfoComponent },
       { path: 'recent-permisson', canActivate: [AuthGuard, AnyProjectsGuard], component: RecentPermissionComponent },
-      { path: 'library', canActivate: [AuthGuard, AnyProjectsGuard], component: LibraryPage },
       { path: 'casbin-tes', canActivate: [AuthGuard, AnyProjectsGuard], component:  TestPageComponent},
       { path: ':id', canActivate: [AuthGuard] ,children:[
         {path:'',canActivate:[LoadedCasbinGuard],children:[
