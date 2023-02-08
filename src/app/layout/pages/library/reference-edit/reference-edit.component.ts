@@ -113,16 +113,20 @@ export class ReferenceEditComponent implements AfterViewInit {
   isValid:boolean = true;
   formIoSubmission:any
   formIoRoot:any
+  isModified:boolean = false;
   onChange(change: any) {
     if(change instanceof Event){
 
     }else{
       this.isValid = change.isValid
       this.formIoSubmission = change.data
+      this.isModified = change.isModified
+
       if(change.changed&&change.changed.instance){
         this.formIoRoot = change.changed.instance.root
       }
     }
+    console.log(this.isValid)
   }
 
   ready(event: any) {
