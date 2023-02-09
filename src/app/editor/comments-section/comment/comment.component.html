@@ -12,7 +12,7 @@
     <mat-card-subtitle class="comment-subtitle" >{{userComment!.initialComment.date | date:'medium'}}</mat-card-subtitle>
 
     <div *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'" class="header-actions">
-      <ng-container *ngIf="authService.currentUserSubject | async as user">
+      <ng-container *ngIf="!activeReply&&authService.currentUserSubject | async as user">
         <button mat-flat-button color="primary" class="main-resolve-btn"
                 #mainResolveBtn
                 *ngIf="!mobileVersion && userComment!.initialComment.userData.email == user.email"
@@ -51,7 +51,6 @@
     }">{{initialShowMore ? 'Show less': 'Show more' }}</a>
   </mat-card-content>
 </mat-card>
-
 
 <mat-card class="comment-box-replies" (click)="selectComment()" *ngFor="let comment of userComment!.commentReplies;let index=index">
 
@@ -108,7 +107,7 @@
           <mat-icon matSuffix class="comment-reply-field-icon">alternate_email</mat-icon>
         </mat-form-field>
 
-        <div class="comment-btns-container">
+        <div *ngIf="activeReply" class="comment-btns-container">
           <div class="comment-btns" align="end" fxLayoutGap="12px">
             <button mat-stroked-button (click)="cancelReplyBtnHandle(ReplyDiv)">Cancel</button>
             <button mat-flat-button color="primary"
