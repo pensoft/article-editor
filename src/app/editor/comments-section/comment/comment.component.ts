@@ -239,7 +239,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
     let commentContent: any = comment;
     const dialogRef = this.sharedDialog.open(EditCommentDialogComponent, {
       panelClass:'comment-edit-dialog',
-      width: '350px',
+      width: '582px',
       data: {
         comment: commentContent,
         type: 'comment',
@@ -263,7 +263,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
     let commentContent: any = comment;
     const dialogRef = this.sharedDialog.open(EditCommentDialogComponent, {
       panelClass:'comment-edit-dialog',
-      width: '350px',
+      width: '582px',
       data: { comment:
         commentContent,
         type: 'comment',
