@@ -9,6 +9,12 @@
       <img src="./assets/logo/arpha.svg" width="150" height="40" title="Home" alt="Home">
     </a>
     <div class="add-article-navigation">
+      <button mat-button [matMenuTriggerFor]="menu">{{'lang' | translate }}</button>
+      <mat-menu #menu="matMenu">
+        <button mat-menu-item  (click)="setLanguage(language)" *ngFor="let language of languages">
+          {{ language | translate }}
+        </button>
+      </mat-menu>
       <button mat-button *ngIf="
       !this.router.routerState.snapshot.url.endsWith('dashboard')&&(
       enforcer.newBeahviorSubject| hasPermission:

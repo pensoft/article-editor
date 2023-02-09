@@ -40,6 +40,8 @@
         "@formio/angular": "^5.2.0",
         "@manuscripts/prosemirror-recreate-steps": "^0.1.4",
         "@ngneat/until-destroy": "^9.0.0",
+        "@ngx-translate/core": "^13.0.0",
+        "@ngx-translate/http-loader": "^6.0.0",
         "@types/codemirror": "^5.60.5",
         "@types/katex": "^0.11.1",
         "@types/lodash": "^4.14.175",
