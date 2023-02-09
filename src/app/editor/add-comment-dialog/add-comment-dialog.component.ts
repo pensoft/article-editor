@@ -1,6 +1,7 @@
-import {Component, Inject, OnInit} from '@angular/core';
+import {Component, ElementRef, Inject, OnInit, ViewChild} from '@angular/core';
 import {FormControl, Validators} from '@angular/forms';
 import {MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
+import * as katex from 'katex';
 
 interface DialogData {
   url: string;
@@ -17,10 +18,24 @@ export class AddCommentDialogComponent {
 
   type: string
 
+  mathType: string
+
+  @ViewChild('mathPreview') mathPreview: ElementRef;
+
   constructor(
     public dialogRef: MatDialogRef<AddCommentDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any) {
     this.type = data.type
+    this.mathType = data.mathType
+
+    this.text.valueChanges.subscribe((katexFormula) => {
+      if (katexFormula) {
+        katex.render(katexFormula, this.mathPreview.nativeElement, {
+          displayMode: true,
+          throwOnError: false,
+        })
+      }
+    })
   }
 
   onNoClick(): void {
