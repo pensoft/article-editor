@@ -7,6 +7,7 @@ import { AuthService } from '@core/services/auth.service';
 import { TreeService } from 'src/app/editor/meta-data-tree/tree-service/tree.service';
 import { CantOpenArticleDialogComponent } from './cant-open-article-dialog/cant-open-article-dialog.component';
 import { UsersRoleIsChangedComponent } from './users-role-is-changed/users-role-is-changed.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'arpha-navigation',
@@ -16,21 +17,23 @@ import { UsersRoleIsChangedComponent } from './users-role-is-changed/users-role-
 export class ArphaNavigationComponent implements AfterViewInit {
   public icon = 'expand_more';
   changeText = false;
-  mobileVersion:boolean = false;
+  mobileVersion: boolean = false;
+  languages = ['en', 'bg', 'de'];
   constructor(
     private treeService: TreeService,
     public authService: AuthService,
     public router: Router,
-    private serviceShare:ServiceShare,
+    private serviceShare: ServiceShare,
     public sharedDialog: MatDialog,
-    public enforcer:EnforcerService,
+    public enforcer: EnforcerService,
+    private translate: TranslateService
   ) {
 
   }
 
-  openNotAddedToEditorDialog=()=>{
+  openNotAddedToEditorDialog = () => {
     let cantOpenDialog = this.sharedDialog.open(CantOpenArticleDialogComponent)
-    cantOpenDialog.afterClosed().subscribe(()=>{
+    cantOpenDialog.afterClosed().subscribe(() => {
       this.openDashBoard()
       this.serviceShare.resetServicesData()
     })
@@ -44,8 +47,12 @@ export class ArphaNavigationComponent implements AfterViewInit {
     this.router.navigate(['dashboard']);
     this.serviceShare.shouldOpenNewArticleDialog = true;
   }
-  openNotifyUserAccessChangeDialog = (oldAccess:string,newAccess:string)=>{
-    let cantOpenDialog = this.sharedDialog.open(UsersRoleIsChangedComponent,{data:{oldAccess,newAccess}})
+  openNotifyUserAccessChangeDialog = (oldAccess: string, newAccess: string) => {
+    let cantOpenDialog = this.sharedDialog.open(UsersRoleIsChangedComponent, { data: { oldAccess, newAccess } })
+  }
+
+  setLanguage(lang: string) {
+    this.translate.use(lang)
   }
 
 
