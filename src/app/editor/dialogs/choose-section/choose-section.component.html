@@ -20,11 +20,12 @@
     There are no allowed sections
   </div>
 
-  <mat-selection-list #topic [multiple]="false">
-    <mat-list-option *ngFor="let section of searchResults" [value]="section.id">
-      {{section.name}}
-    </mat-list-option>
-  </mat-selection-list>
+
+    <mat-selection-list #topic [multiple]="false" [ngClass]="{'no-results': searchResults.length == 0}">
+      <mat-list-option *ngFor="let section of searchResults" [value]="section.id">
+        {{section.name}}
+      </mat-list-option>
+    </mat-selection-list>
 
 </mat-dialog-content>
 
