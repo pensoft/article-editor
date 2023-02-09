@@ -8,15 +8,15 @@
 
     <div class="heading-container">
       <div class="figure-description">
-        <h3>Figure Description:</h3>
-        <div class="pm-editor" #figureDescription>
+        <span class="upper-label">Figure Description</span>
+        <div class="pm-editor pm-editor-override" #figureDescription>
 
         </div>
       </div>
 
-      <div class="columns-select">
+      <div class="columns-select" fxLayout="column nowrap">
+        <mat-label class="upper-label">Num. of columns</mat-label>
         <mat-form-field appearance="fill">
-          <mat-label>Num. of columns</mat-label>
           <mat-select [formControl]="columnsFormControl">
             <mat-option *ngFor="let col of columns" [value]="col">
               {{col}}

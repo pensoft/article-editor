@@ -1,15 +1,19 @@
-
-.affiliations-container{
-  margin: 8px;
-  .form-affiliations{
-    margin: 8px;
-  }
+.affiliations-container {
+  padding-bottom: 24px;
 }
-.remove-affiliation-btn{
-  margin-top: 17px;
-    height: fit-content;
-    display: inline-block;
-    width: 173px;
+
+.remove-affiliation-btn {
+  margin: 28px 0 24px 0;
+  width: auto;
+  white-space: nowrap;
+}
+
+.form-chips {
+  .mat-standard-chip {
+    padding: 6px 8px 6px 10px;
+    margin: 4px 8px 4px 0;
+    min-height: 30px;
+  }
 }
 
 ::ng-deep .contributors-invite-search-result{
