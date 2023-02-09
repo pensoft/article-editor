@@ -1837,35 +1837,37 @@ block-figure {
 }
 
 /* Data Tree Subsections Override */
-app-section-leaf[ng-reflect-is-complex=true] {
-  > .node-box-dropdownbox {
-    > .example-list-dropdownbox {
-      > app-cdk-list-recursive {
-        > .nested-list {
-          app-section-leaf {
-            &:last-child {
-              > .node-box-dropdownbox-nested {
-                > .dropdown-wrapper {
-                  > .sectionBorderListNestedInactive {
-                    border-left-color: transparent;
-                  }
+#parentList {
+  app-section-leaf {
+    > .node-box-dropdownbox {
+      > .example-list-dropdownbox {
+        > app-cdk-list-recursive {
+          > .nested-list {
+            app-section-leaf {
+              &:last-child {
+                > .node-box-dropdownbox-nested {
+                  > .dropdown-wrapper {
+                    > .sectionBorderListNestedInactive {
+                      border-left-color: transparent;
+                    }
 
-                  > .sectionBorderListNested {
-                    border: 0;
-                    margin: 0 0 0 1px;
+                    > .sectionBorderListNested {
+                      border: 0;
+                      margin: 0 0 0 1px;
+                    }
                   }
                 }
-              }
 
-              > .node-box-nested {
-                > .dropdown-wrapper {
-                  > .sectionBorderNestedInactive {
-                    border-left-color: transparent;
-                  }
+                > .node-box-nested {
+                  > .dropdown-wrapper {
+                    > .sectionBorderNestedInactive {
+                      border-left-color: transparent;
+                    }
 
-                  > .sectionBorderNested {
-                    border: 0;
-                    margin: 0 0 0 1px;
+                    > .sectionBorderNested {
+                      border: 0;
+                      margin: 0 0 0 1px;
+                    }
                   }
                 }
               }
