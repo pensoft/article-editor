@@ -51,7 +51,6 @@
         <div class="import-manually-actions">
           <input type="file" id="reference_file" (change)="onfileInputChange($event)">
           <label for="reference_file">Upload File</label>
-
           <button mat-flat-button color="primary" (click)="onFileUpload()" [disabled]="(file | json) != '{}'">Parse File</button>
         </div>
       </div>
