@@ -58,6 +58,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
   replyFormControl = new FormControl('');
   showAutoComplete =  false;
+  activeReply = false;
 
 
   constructor(
@@ -213,20 +214,15 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
     console.log('showReply called!');
 
-    let commentsContainer = replyDiv.closest('.comment-container');
-
-    commentsContainer.classList.add('write-reply');
+    this.activeReply = true;
   }
 
   hideReplyBlurHandle(replyDiv: HTMLDivElement) {
 
     console.log('hideReply called!');
 
-    let replyInput: HTMLInputElement = replyDiv.querySelector('.reply-input');
-    let commentsContainer = replyDiv.closest('.comment-container');
-
-    if (replyInput.value == '') {
-      commentsContainer.classList.remove('write-reply');
+    if (this.replyFormControl.value == '') {
+      this.activeReply = false;
     }
   }
 
@@ -234,50 +230,8 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
     console.log('cancelReplyBtnHandle called!');
 
-    let replyInput: HTMLInputElement = replyDiv.querySelector('.reply-input');
-    let commentsContainer = replyDiv.closest('.comment-container');
-
-    replyInput.value == '';
-    commentsContainer.classList.remove('write-reply');
-
-  }
-
-  showHideReply(replyDiv: HTMLDivElement, select?: true) {
-    let actualComment: commentData
-    let allComments = this.sharedService.CommentsService.commentsObj
-    Object.keys(allComments).forEach((commentid) => {
-      let com = allComments[commentid]
-      if (com && com.commentAttrs.id == this.comment.commentAttrs.id) {
-        actualComment = com
-      }
-    })
-    if (actualComment) {
-      if (replyDiv.style.display == 'block' && !select) {
-        this.sharedService.CommentsService.lastSelectedCommentSubject.next({ commentId: undefined, pos: undefined, sectionId: undefined })
-      } else {
-        this.sharedService.CommentsService.lastSelectedCommentSubject.next({ commentId: actualComment.commentAttrs.id, pos: actualComment.pmDocStartPos, sectionId: actualComment.section, commentMarkId: actualComment.commentAttrs.commentmarkid })
-      }
-    }
-
-    /*
-
-     let commentsArray = this.commentsMap.get(this.comment?.attrs.id);
-     let commentContent;
-     let userCommentId = uuidv4();
-     const dialogRef = this.sharedDialog.open(AddCommentDialogComponent, { width: 'auto', data: { url: commentContent, type: 'comment' } });
-     dialogRef.afterClosed().subscribe(result => {
-       commentContent = result
-       if (result) {
-         let userComment = {
-           id: userCommentId,
-           comment: commentContent
-         }
-         this.commentsMap.set(this.comment?.attrs.id, [userComment, ...commentsArray]);
-         this.userComments = [userComment, ...commentsArray];
-       }
-     });
-
-     */
+    this.replyFormControl.setValue('');
+    this.activeReply = false;
   }
 
   editComment(id: string, comment: string) {
@@ -359,11 +313,10 @@ export class CommentComponent implements OnInit, AfterViewInit {
     commentData.commentReplies.push(userComment);
     this.commentsMap?.set(this.comment?.commentAttrs.id, commentData);
     this.userComment = commentData;
-    this.replyFormControl.setValue('')
-    replyDiv.style.display = 'none';
+    this.replyFormControl.setValue('');
+    this.activeReply = false;
     setTimeout(()=>{
       this.doneRenderingCommentsSubject.next('replay_rerender')
     },400)
   }
 }
-
