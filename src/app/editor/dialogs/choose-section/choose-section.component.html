@@ -3,7 +3,7 @@
 <div class="search-field-wrapper">
   <form (keydown.enter)="search(inputText.value)" fxFlex="100%" fxLayout="column">
     <label>Select a section</label>
-    <mat-form-field floatLabel="never" appearance="standard">
+    <mat-form-field floatLabel="never" appearance="standard" class="mat-form-field-search">
       <input matInput type="text" #inputText placeholder="Search for section">
       <button mat-flat-button color="primary" type="submit" matSuffix (click)="search(inputText.value)">
         Search

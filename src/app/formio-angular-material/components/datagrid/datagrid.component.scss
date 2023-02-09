@@ -21,6 +21,7 @@ th.mat-header-cell:first-of-type, td.mat-cell:first-of-type, td.mat-footer-cell:
 th.mat-header-cell, td.mat-cell, td.mat-footer-cell {
   border: none !important;
   padding-left: 12px;
+  padding-top: 0 !important;
   // transform: translateY(-10px) !important;
 }
 
@@ -32,17 +33,12 @@ mat-formio-datagrid {
   margin-bottom: 12px !important;
 }
 
-::ng-deep mat-card .mat-card-content {
-  table {
-    padding-bottom: 20px;
-  }
-  th.mat-header-cell:first-of-type, td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type {
-    padding-left: 10px !important;
-  }
-  
-  th.mat-header-cell, td.mat-cell, td.mat-footer-cell {
-    padding-bottom: 10px !important;
-  }
+::ng-deep mat-card .mat-card-title {
+  margin: 8px 0 16px !important;
+}
+
+::ng-deep mat-card .mat-card-actions {
+  padding-bottom: 1.25em !important;
 }
 
 ::ng-deep .mat-cell {
