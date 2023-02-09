@@ -61,3 +61,30 @@
 .add-new-ref-tabs {
   gap: 24px;
 }
+
+.import-manually-container {
+  padding: 16px 0 0 0;
+  margin: 24px 0 0 0;
+  border-top: 1px solid var(--color-e3e3e3);
+
+  > p {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    color: var(--color-121212);
+    margin: 0;
+
+    > a {
+      color: var(--color-00b1b2);
+    }
+  }
+
+  .import-manually-actions {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 16px;
+    margin: 20px 0 0 0;
+  }
+}

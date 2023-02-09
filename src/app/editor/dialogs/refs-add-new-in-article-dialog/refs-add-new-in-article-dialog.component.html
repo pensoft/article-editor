@@ -38,17 +38,21 @@
           </mat-autocomplete>
         </mat-form-field>
       </div>
-      <div>
+      <div class="import-manually-container">
         <div class="mat-form-field-search-label">Select references from Zotero, EndNote or RefManager XML file</div>
-        <div class="input-title" style="margin-top: 3px">Please follow the instructions to prepare files from
+        <p>
+          Please follow the instructions to prepare files from
           <a target="_blank" href="http://arpha.pensoft.net/tips/Zotero">Zotero</a>,
           <a target="_blank" href="http://arpha.pensoft.net/tips/EndNote">EndNote</a> or
-          <a target="_blank" href="http://arpha.pensoft.net/tips/Reference-manager">RefManager</a>. <br>
-          <p style="margin: 5px 0">If you encounter any issues, please email <a href="mailto:development@pensoft.net">development@pensoft.net</a> and attach the file.</p>
+          <a target="_blank" href="http://arpha.pensoft.net/tips/Reference-manager">RefManager</a>.
+          If you encounter any issues, please send an email to
+          <a href="mailto:development@pensoft.net">development@pensoft.net</a> and attach the file.
+        </p>
+        <div class="import-manually-actions">
+          <input type="file"
+                 (change)="onfileInputChange($event)">
+          <button mat-flat-button color="primary" (click)="onFileUpload()">Parse file</button>
         </div>
-        <input type="file"
-            (change)="onfileInputChange($event)">
-        <button mat-flat-button color="primary" (click)="onFileUpload()">Parse file</button>
       </div>
     </mat-tab>
     <mat-tab label="Manual input">
