@@ -5,12 +5,16 @@
   }
 } */
 
+.edit-ref-cito{
+  width: 100%;
+}
+
 ::ng-deep .right-side-nav {
   width: 1200px;
   .mat-drawer-inner-container {
     overflow: hidden;
     height: 100%;
-    background-color: var(--color-efefef);
+    background-color: var(--color-f9fafc);
   }
   .rightside-header {
     height: 49px;

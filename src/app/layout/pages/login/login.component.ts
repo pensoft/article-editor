@@ -12,6 +12,7 @@ import { uuidv4 } from "lib0/random";
 import { lpClient, ssoClient } from "@core/services/oauth-client";
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import { environment } from '@env';
 
 @Component({
   selector: 'app-login',
@@ -146,7 +147,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       const signInResult = await lpClient.signIn();
       await this.processSigninResult(signInResult);
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 
@@ -156,12 +157,11 @@ export class LoginComponent implements OnInit, OnDestroy {
       const signInResult = await ssoClient.signIn();
       await this.processSigninResult(signInResult);
     } catch (e) {
-      console.log(e);
+      console.error(e);
     }
   }
 
   async processSigninResult(signInResult){
-    console.log(signInResult);
     if(signInResult){
       const token = await lpClient.getToken();
       this.authService.storeToken('token', token);
@@ -176,6 +176,10 @@ export class LoginComponent implements OnInit, OnDestroy {
         });
       this.unsubscribe.push(loginSubscr);
     }
+  }
+
+  goToRegister() {
+    window.location.href = `${environment.authServer}/register?return_uri=${encodeURIComponent(window.location.href)}`
   }
 
   ngOnDestroy() {

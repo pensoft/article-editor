@@ -201,8 +201,9 @@ export const insertFigure = new MenuItem({
       data = JSON.parse(JSON.stringify(citatmark![0].attrs));
     }
     const dialogRef = sharedDialog.open(InsertFigureComponent, {
-      width: '582px',
+      width: 'max-content',
       // height: '90%',
+      minWidth : '582px',
       panelClass: 'insert-figure-in-editor',
       data: { view, citatData: data }
     });

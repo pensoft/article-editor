@@ -3,7 +3,8 @@
 @import "../../../assets/colors";
 .example-container {
   // position: relative;
-  width: 1098px;
+  width: 100%;
+  max-width: 1098px;
   margin: 0 auto;
 }
 
@@ -11,50 +12,68 @@
   position: relative;
   min-height: 200px;
   height: auto;
-  max-height: 800px;
   overflow: auto;
 }
 
 table {
   width: 100%;
-}
-
-.input-search {
-  border-radius: 18px;
-  border: 1px solid $primary-green;
-  line-height: 39px;
-  padding-left: 25px;
-  width: 99%;
-  color: $black;
-  vertical-align: middle;
+  overflow-y: auto;
 }
 
 ::ng-deep .buttons-menu {
+  min-height: 32px;
+  box-shadow: 0 3px 6px #00000029;
+
+  .mat-menu-content {
+    padding: 0;
+
+    > button {
+      display: flex;
+      flex-flow: column nowrap;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      width: 100%;
+      padding: 0 4px;
+
+      &:first-child {
+        padding: 0 0 0 6px;
+      }
+
+      &:last-child {
+        padding: 0 6px 0 0;
+      }
+
+      > mat-icon {
+        vertical-align: baseline;
+        width: 24px;
+        height: 24px;
+
+        &.delete-icon {
+          width: 18px;
+          height: 20px;
+        }
+      }
+    }
+  }
+
   div {
     display: flex;
+
     button {
-      width: 100%;
-      margin: 0;
-      margin-right: 8px;
-      margin-right: 8px;
+
       mat-icon {
         margin: 0 !important;
       }
-    }
-    button:first-of-type {
-      margin-left: 16px;
-    }
-    button:last-of-type {
-      margin-right: 16px;
     }
   }
 }
 
 .example-loading-shade {
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  bottom: 56px;
+  bottom: 0;
   right: 0;
   background: rgba(0, 0, 0, 0.15);
   z-index: 1;
@@ -81,9 +100,24 @@ table {
 }
 
 .btn-start-new-project {
-  color: $h-green;
-  font-size: 18px;
-  padding: 0;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  padding: 8px 0;
+  margin: 0 0 6px 0;
+  background: transparent;
+  cursor: pointer;
+
+  span {
+    font-family: var(--font-family-open-sans);
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 22px;
+    margin: 0 0 6px 2px;
+    color: #00B3B4;
+  }
 }
 
 .icon-plus {
@@ -97,7 +131,8 @@ table {
 }
 
 .width-select {
-  width: 100px;
+  width: 68px;
+  letter-spacing: 0;
 }
 
 .type-select-label {
@@ -107,36 +142,22 @@ table {
 }
 
 .p26px {
-  padding: 0 26px 26px 26px;
-}
-
-.prefix-icon {
-  margin-right: -40px;
-  color: $light-grey;
-  z-index: 1;
-  position: relative;
-  top: 5px;
-  left: 5px;
+  padding: 0 26px;
 }
 
 .mat-select-arrow-wrapper {
   padding: 10px 0 0 0;
 }
 
-.ng-star-inserted {
-  padding-top: 10px !important;
-  padding-bottom: 10px !important;
-  // padding-left: 35px !important;
-}
-
 .mat-header-row {
-  background: $dropzone-bg;
+  background: #E4F6F6;
 }
 
 th {
   font-size: 16px;
   font-weight: bold;
   color: #000000;
+  border-bottom: 0 !important;
 }
 
 th:first-child {
@@ -162,10 +183,6 @@ td:first-child {
   flex-direction: row;
 }
 
-.paginator {
-  margin: 15px 0 0 0;
-}
-
 .paginator.mat-paginator-range-actions>button {
   background: $primary-green;
   color: #fff;
@@ -184,3 +201,96 @@ td:first-child {
     color: $primary-green !important;
   }
 }
+
+td.mat-cell {
+  padding: 12px 16px;
+  min-height: 40px;
+  color: var(--color-000000);
+  letter-spacing: 0;
+
+  &:not(.mat-column-title) {
+    text-align: center;
+    white-space: nowrap;
+  }
+
+  &:last-of-type {
+    padding: 12px 0;
+
+    button {
+      transition: all 0.2s ease-in-out;
+      &:hover {
+        color: var(--color-00b1b2);
+      }
+    }
+  }
+
+  &.mat-column-title {
+    transition: all 0.2s ease-in-out;
+
+    &:hover {
+      color: var(--color-00b1b2);
+    }
+  }
+
+  &.mat-column-title, &.mat-column-layout-type, &.mat-column-template-type {
+    > span {
+      display: -webkit-box;
+      overflow: hidden;
+      line-height: 20px;
+      text-overflow: ellipsis;
+      -webkit-line-clamp: 2;
+      line-clamp: 2;
+      -webkit-box-orient: vertical;
+      white-space: break-spaces;
+    }
+  }
+}
+
+tr.mat-row {
+  &:last-child {
+    td {
+      border-bottom: 0;
+    }
+  }
+}
+
+th.mat-header-cell {
+  padding: 0 16px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  letter-spacing: 0;
+
+  &.mat-column-id {
+    width: 8%;
+  }
+
+  &.mat-column-title {
+    width: 34%;
+    min-width: 220px;
+  }
+
+  &.mat-column-date, &.mat-column-lastupdated {
+    text-align: center;
+    width: 12%;
+  }
+
+  &.mat-column-layout-type, &.mat-column-template-type {
+    text-align: center;
+    width: 15%;
+  }
+
+  &.mat-column-autor {
+    width: 8%;
+    text-align: center;
+  }
+
+  &.mat-column-buttons {
+    width: 0;
+  }
+}
+
+.search-form {
+  margin: 10px 0 12px 0;
+}
+
+

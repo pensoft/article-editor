@@ -130,8 +130,15 @@ const mappingObj: any = {
   "type": {
     type: 'string', cslProp: {
       prop: 'type', func: `(function a(type,refobj,formioobj,extRef){
-        if (type) {
-          maped['type'] = type.replace(' ', '-').toLocaleLowerCase()
+        let refTypesToLocal = {
+          'book':"book",
+          'book chapter':"chapter",
+          'conference proceedings':"paper-conference",
+          'journal article':"article-journal",
+          'thesis':"thesis",
+        };
+        if (type&&refTypesToLocal[type]) {
+          maped['type'] = refTypesToLocal[type]
         } else {
           maped['type'] = 'article-journal'
         }
@@ -228,7 +235,7 @@ const mappingObj: any = {
   "source": undefined,
   "issue": { type: 'string', cslProp: 'issue', formIOprop: "issue" },
 }
-function mapRef1(ref: any) {
+export function mapRef1(ref: any) {
   let maped: any = {};
   let formIOData: any = {}
   Object.keys(ref).forEach((key: any) => {
@@ -237,7 +244,11 @@ function mapRef1(ref: any) {
     if (mapObjVal && mapObjVal.cslProp) {
       let cslP = mapObjVal.cslProp
       if (typeof cslP == 'string') {
-        maped[cslP] = val
+        if(key == 'title'&&typeof val == 'object'){
+          maped[cslP] = val['_']
+        }else{
+          maped[cslP] = val
+        }
       } else if (typeof cslP == 'object') {
         let prop = cslP.prop;
         let func = eval(cslP.func);
@@ -252,7 +263,11 @@ function mapRef1(ref: any) {
     if (mapObjVal && mapObjVal.formIOprop) {
       let formioProp = mapObjVal.formIOprop
       if (typeof formioProp == 'string') {
-        formIOData[formioProp] = val
+        if(key == 'title'&&typeof val == 'object'){
+          formIOData[formioProp] = val['_']
+        }else{
+          formIOData[formioProp] = val
+        }
       } else if (typeof formioProp == 'object') {
         let prop = formioProp.prop;
         let func = eval(formioProp.func);
@@ -263,7 +278,12 @@ function mapRef1(ref: any) {
       }
     }
   })
-
+  maped.autocompleteView = {
+    firstAuthor:ref.firstauthor.join(' '),
+    year:ref.year,
+    title:maped.title,
+    source:ref.source
+  }
   return { ref: maped, formIOData }
 }
 function mapRef(ref: any) {
@@ -409,8 +429,6 @@ export let mapExternalRefs = (data1: string) => {
   //map data in csl lib format
   let mapedReferences: any[] = []
   data.forEach((ref) => {
-    let mapedRef = mapRef(ref)
-
     let mapedRef1 = mapRef1(ref)
     mapedReferences.push(mapedRef1)
   })

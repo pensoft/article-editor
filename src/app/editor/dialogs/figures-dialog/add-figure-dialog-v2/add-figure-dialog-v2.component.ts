@@ -15,8 +15,10 @@ import { html } from '@codemirror/lang-html';
 import { uuidv4 } from 'lib0/random';
 import { pageDimensionsInPT } from '../../edit-before-export/edit-before-export.component';
 import { AddFigureComponentDialogComponent } from './add-figure-component-dialog/add-figure-component-dialog.component';
+import { FigurePdfPreviewComponent } from './figure-pdf-preview/figure-pdf-preview.component';
+
 let figuresHtmlTemplate = `
-<block-figure [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.figure_number]="data.figureNumber" [attr.figure_id]="data.figureID">
+<block-figure [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.figure_number]="data.figureNumber" [attr.figure_id]="data.figureID" [attr.figure_columns]="data.nOfColumns">
     <figure-components-container contenteditablenode="false">
       <ng-container *ngFor="let figure of data.figureComponents;let i = index">
         <ng-container *ngIf="figure">
@@ -55,7 +57,6 @@ let figuresHtmlTemplate = `
 })
 export class AddFigureDialogV2Component implements AfterViewInit, AfterViewChecked {
   showHTMLEditor = false;
-  showPdfView = false;
 
   @ViewChild('codemirrorHtmlTemplate', { read: ElementRef }) codemirrorHtmlTemplate?: ElementRef;
   @ViewChild('container', { read: ViewContainerRef }) container?: ViewContainerRef;
@@ -71,11 +72,6 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
   figNewComponents: any[] = []
 
   figureComponentsInPrevew = []
-  figureRows:any[][] = []
-  maxImgHeightPers
-  rowTemplate:any[] = []
-  maxImgWidthPers?:number;
-  bottomOffset = 0.30; // offset the figures images from the bottom of the list in preview- figure description space
   // offset is in persentage
   rowOrder :number[] = [];
   displayPreviewComponents = false
@@ -83,6 +79,14 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
   columns = [1, 2, 3, 4]
   columnsFormControl = new FormControl()
+  columnWidth:number
+
+  showPdfView = false;
+  figureRows:any[][] = []
+  maxImgHeightPers
+  rowTemplate:any[] = []
+  maxImgWidthPers?:number;
+  bottomOffset = 0.30; // offset the figures images from the bottom of the list in preview- figure description space
 
   constructor(
     private prosemirrorEditorsService: ProsemirrorEditorsService,
@@ -107,8 +111,11 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
       this.renderProsemirrorEditor()
       this.columnsFormControl.valueChanges.subscribe((columns) => {
         let gridParent = this.gridContainer.nativeElement as HTMLDivElement
-        let newGridWidth = ((312 * columns) + 10) + 'px'
-        gridParent.style.maxWidth = newGridWidth;
+
+
+        //this.columnWidth = gridParent.getBoundingClientRect().width / columns;
+
+        gridParent.setAttribute('data-cols', columns);
         setTimeout(()=>{
           this.updatePreview(false)
         })
@@ -123,12 +130,10 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
         let descContainer = document.createElement('div');
         descContainer.innerHTML = this.data.fig.description;
         let prosemirrorNode = PMDomParser.parse(descContainer);
-        console.log(prosemirrorNode);
         let descPmView = this.figureDescriptionPmContainer.editorView;
         let state = descPmView.state;
         descPmView.dispatch(state.tr.replaceWith(0, state.doc.content.size, prosemirrorNode.content));
       }
-      console.log(this.figData);
       this.figNewComponents = JSON.parse(JSON.stringify(this.figData.components));
     } catch (e) {
       console.error(e);
@@ -179,19 +184,13 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
   }
 
 
-  add() {
-    console.log('should add ');
-  }
-
   editComponent(component: any, i: number) {
-    console.log('should edit component ', component, i);
     this.dialog.open(AddFigureComponentDialogComponent, {
-      width: '60%',
+      width: '620px',
       data: { component },
       disableClose: false
     }).afterClosed().subscribe((result: { component: any }) => {
       if (result) {
-        console.log(result);
         this.figNewComponents.splice(i, 1, result.component)
         this.updatePreview(false)
       } else {
@@ -200,19 +199,16 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
   }
 
   deleteComponent(component: any, i: number) {
-    console.log('should delete component ', component, i);
     this.figNewComponents.splice(i, 1);
     this.updatePreview(false)
   }
 
   addComponent() {
-    console.log('should add component ');
     this.dialog.open(AddFigureComponentDialogComponent, {
-      width: '60%',
+      width: '620px',
       disableClose: false
     }).afterClosed().subscribe((result: { component: any }) => {
       if (result) {
-        console.log(result);
         this.figNewComponents.push(result.component)
         this.updatePreview(false)
       } else {
@@ -232,6 +228,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
     phContainer.parentElement.insertBefore(phElement, phContainer);
 
     moveItemInArray(this.figNewComponents, dragIndex, dropIndex);
+    this.updatePreview(false)
   }
 
   getMappedComponentsForPreviw(){
@@ -241,7 +238,6 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
   }
 
   updatePreview(checkDiff:boolean){
-    console.log('updatePreview');
     let hasEmptyFields = false;
     let differrance = false;
     this.getMappedComponentsForPreviw().forEach((comp: any, i: number) => {
@@ -262,7 +258,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
       }
 
     })
-    let key = 'A3'
+    let key = 'A4'
     let a4Pixels = [pageDimensionsInPT[key][0], pageDimensionsInPT[key][1]-(pageDimensionsInPT[key][1]*this.bottomOffset)];
     if(differrance||!checkDiff){
       if(!hasEmptyFields){
@@ -303,7 +299,6 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
         let maxImgHeight = a4Pixels[1]/rowsN;
         let maxImgWidth = a4Pixels[0]/collsN;
-        console.log(maxImgHeight,maxImgWidth);
         this.maxImgHeightPers = maxImgHeight*100/a4Pixels[1];
         this.maxImgWidthPers = maxImgWidth*100/a4Pixels[0];
 
@@ -316,28 +311,24 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
             figComp.container.h = img.naturalHeight
             figComp.container.w = img.naturalWidth
-            console.log(figComp.container.h,figComp.container.w);
           }else if(img.naturalHeight/maxImgHeight > img.naturalWidth/maxImgWidth){
             figComp.container.height = maxImgHeight/a4PixelRec[1];
 
             let scalePers = maxImgHeight/img.naturalHeight;
             figComp.container.h = maxImgHeight
             figComp.container.w = scalePers*img.naturalWidth
-            console.log(figComp.container.h,figComp.container.w);
           }else if(img.naturalHeight/maxImgHeight < img.naturalWidth/maxImgWidth){
             figComp.container.width = maxImgWidth/a4PixelRec[0];
 
             let scalePers = maxImgWidth/img.naturalWidth;
             figComp.container.h = scalePers*img.naturalHeight;
             figComp.container.w = maxImgWidth
-            console.log(figComp.container.h,figComp.container.w);
           }else if(img.naturalHeight/maxImgHeight == img.naturalWidth/maxImgWidth){
             figComp.container.height = maxImgHeight/a4PixelRec[1];
             figComp.container.width = maxImgWidth/a4PixelRec[0];
 
             figComp.container.h = maxImgHeight
             figComp.container.w = maxImgWidth
-            console.log(figComp.container.h,figComp.container.w);
           }
         }
         for(let i = 0;i<this.figureRows.length;i++){
@@ -361,5 +352,19 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
         this.displayPreviewComponents = true;
       }
     }
+  }
+
+  openFigurePdfPreview(){
+    this.dialog.open(FigurePdfPreviewComponent, {
+      width: '620px',
+      disableClose: false,
+      data:{
+        figureRows:this.figureRows,
+        maxImgHeightPers:this.maxImgHeightPers,
+        rowTemplate:this.rowTemplate,
+        maxImgWidthPers:this.maxImgWidthPers,
+        bottomOffset:this.bottomOffset,
+      },
+    })
   }
 }

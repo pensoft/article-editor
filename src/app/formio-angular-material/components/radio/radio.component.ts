@@ -6,34 +6,8 @@ import { redoItem } from 'yjs/dist/src/internals';
 
 @Component({
   selector: 'mat-formio-radio',
-  template: `
-    <mat-formio-form-field [instance]="instance" [componentTemplate]="componentTemplate"></mat-formio-form-field>
-    <ng-template #componentTemplate let-hasLabel>
-      <div fxLayout="column">
-        <mat-label *ngIf="hasLabel">
-          <span [instance]="instance" matFormioLabel></span>
-        </mat-label>
-
-        <mat-radio-group
-                (change)="onChange()"
-                [formControl]="control"
-                fxFlexOffset="10px"
-                fxLayout="{{ getLayout() }}"
-                fxLayoutGap="10px"
-        >
-          <mat-radio-button *ngFor="let option of instance.component.values"
-                            value="{{ option.value }}"
-                            [checked]="isRadioChecked(option,radioCheck)"
-                            (keyup.space)="clearValue($event, option)"
-                            (click)="clearValue($event, option)"
-                            #radioCheck>
-            {{ option.label }}
-          </mat-radio-button>
-          <mat-error *ngIf="instance.error">{{ instance.error.message }}</mat-error>
-        </mat-radio-group>
-      </div>
-    </ng-template>
-  `
+  styleUrls: ['./radio.component.scss'],
+  templateUrl: './radio.component.html',
 })
 export class MaterialRadioComponent extends MaterialComponent {
   constructor(public element: ElementRef, public ref: ChangeDetectorRef) {

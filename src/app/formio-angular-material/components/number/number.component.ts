@@ -1,12 +1,13 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Renderer2 } from '@angular/core';
-import { MaterialTextfieldComponent, TEXTFIELD_TEMPLATE } from '../textfield/textfield.component';
+import { MaterialTextfieldComponent} from '../textfield/textfield.component';
 //@ts-ignore
 import NumberComponent from 'formiojs/components/number/Number.js';
 import _ from 'lodash';
 
 @Component({
   selector: 'mat-formio-number',
-  template: TEXTFIELD_TEMPLATE
+  templateUrl: '../textfield/textfield.component.html',
+  styleUrls: ['../textfield/textfield.scss'],
 })
 export class MaterialNumberComponent extends MaterialTextfieldComponent implements AfterViewInit {
   public inputType = 'text';

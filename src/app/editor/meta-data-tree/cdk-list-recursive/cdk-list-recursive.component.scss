@@ -32,23 +32,60 @@ $itemHeight: 30px;
   font-size: 18px !important;
 }
 
-::ng-deep .section_btn_outerList {
+::ng-deep .section_btn_outerList, ::ng-deep .section_btn_nestedList {
   height: 30px !important;
   width: 30px !important;
   padding: 0px;
   line-height: 0px;
+
   .mat-button-wrapper {
-    padding: 0px;
-    padding-top: 7px;
-    line-height: 0px;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 34px;
+    padding: 0;
+
+    img, mat-icon {
+      width: auto;
+      height: 20px;
+    }
+  }
+
+  &:first-child {
+    .mat-button-wrapper {
+      mat-icon {
+        font-size: 20px !important;
+        height: 22px;
+      }
+    }
+  }
+
+  &.is-delete {
+    .mat-button-wrapper {
+      img {
+        height: 22px;
+      }
+    }
+  }
+
+  &.addSectionBtn {
+    .mat-button-wrapper {
+      mat-icon {
+        font-size: 22px !important;
+        transform: none;
+        height: 23px;
+        margin: 0 0 0 1px;
+      }
+    }
   }
 }
 
 .section_btn_outerList {
   color: #223361;
   background-color: white;
-  margin-right: 1px;
-  margin-left: 2px;
+  margin: 0 2px;
   z-index: 5;
   vertical-align: middle;
   box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
@@ -59,11 +96,6 @@ $itemHeight: 30px;
   width: 30px !important;
   padding: 0px;
   line-height: 0px;
-  .mat-button-wrapper {
-    padding: 0px;
-    padding-top: 7px;
-    line-height: 0px;
-  }
 }
 
 ::ng-deep .section_btn_nestedList {
@@ -71,11 +103,6 @@ $itemHeight: 30px;
   width: 30px !important;
   padding: 0px;
   line-height: 0px;
-  .mat-button-wrapper {
-    padding: 0px;
-    padding-top: 7px;
-    line-height: 0px;
-  }
 }
 
 .sectionBorderNestedInactive {
@@ -222,7 +249,6 @@ $itemHeight: 30px;
 .example-list-dropdownbox {
   display: block;
   padding-top: 5px;
-  margin-left: -17px;
   padding-bottom: 5px;
 }
 
@@ -297,25 +323,25 @@ $itemHeight: 30px;
 }
 
 .nested-empty-placeholder {
-  margin-left: 30px;
-  vertical-align: middle;
-  display: grid;
-  align-content: center;
-  opacity: 0.4;
-  height: 30px;
+  display: flex;
+  flex-flow: column nowrap;
+  align-items: flex-start;
+  justify-content: center;
+  height: 32px;
 }
 
 .nested-list {
-  margin-left: 20px;
-}
+  margin: 0 0 0 40px;
 
-.outer-empty-placeholder {
-  margin-left: 27px;
-  vertical-align: middle;
-  display: grid;
-  align-content: center;
-  opacity: 0.4;
-  height: 30px;
+  &.is-empty {
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: flex-start;
+    justify-content: center;
+    font-size: 13px;
+    color: var(--color-cacdd3);
+    height: 32px;
+  }
 }
 
 .border-placeholder {
@@ -403,8 +429,7 @@ $itemHeight: 30px;
 .section_btn_nestedList {
   color: #223361;
   background-color: white;
-  margin-right: 1px;
-  margin-left: 2px;
+  margin: 0 2px;
   z-index: 5;
   vertical-align: top;
   box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
@@ -427,9 +452,12 @@ $itemHeight: 30px;
 }
 
 .example-list-dropdownbox-nested {
-  display: block;
-  padding-top: 5px;
-  padding-bottom: 5px;
+  display: inline-flex;
+  height: 34px;
+  z-index: 4;
+  width: 100%;
+  border-left: 1px solid var(--color-00b1b2);
+  box-sizing: border-box;
 }
 
 .selectedEditor {
@@ -487,6 +515,11 @@ $itemHeight: 30px;
   white-space: nowrap;
 }
 
+.outer-list {
+  padding: 24px 0;
+  border-bottom: 1px solid #d6d6d6;
+}
+
 @media screen and (max-width: 600px) {
   .outer-list {
     .node-box-dropdownbox {
@@ -539,9 +572,3 @@ $itemHeight: 30px;
   }
 }
 
-.outer-list {
-  padding-top: 55px;
-}
-.outer-list:last-child {
-  margin-bottom: 60px;
-}

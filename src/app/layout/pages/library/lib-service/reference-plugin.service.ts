@@ -30,10 +30,10 @@ export class ReferencePluginService {
         },
         apply:(tr, prev, editorState, newState)=> {
           let decs: Decoration[] = [];
-          if (refsObj.refs&&!serviceShare.ProsemirrorEditorsService!.previewArticleMode.mode) {
+          if (/* refsObj.refs&& */!serviceShare.ProsemirrorEditorsService!.previewArticleMode.mode) {
             let docSize = editorState.doc.content.size
             editorState.doc.nodesBetween(0, docSize - 1, (node, pos, parent, index) => {
-              if (node.type.name == 'reference_citation_end'&&node.attrs.refInstance == 'local') {
+              if (node.type.name == 'reference_citation_end') {
 /*                 let nodeRefData = node.attrs.referenceData;
                 let nodeStyleData = node.attrs.referenceStyle;
                 let actualRef = refsObj.refs.find((ref: any) => {

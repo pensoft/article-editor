@@ -1,0 +1,40 @@
+.affiliations-container {
+  padding-bottom: 24px;
+}
+
+.remove-affiliation-btn {
+  margin: 28px 0 24px 0;
+  width: auto;
+  white-space: nowrap;
+}
+
+.form-chips {
+  .mat-standard-chip {
+    padding: 6px 8px 6px 10px;
+    margin: 4px 8px 4px 0;
+    min-height: 30px;
+  }
+}
+
+::ng-deep .contributors-invite-search-result{
+  .mat-option-text{
+    display: block !important;
+    padding: 8px 0 !important;
+    border: none !important;
+    .contributors-avatar{
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    .contributor-text{
+      display: inline-block;
+      vertical-align: middle;
+      .name-div{
+        margin: 7px;
+      }
+      .email-div{
+        margin: 7px;
+      }
+    }
+  }
+}

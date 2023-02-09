@@ -160,29 +160,82 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   let articleTitle = titleGroup.ele('article-title').txt(serviceShare.YdocService.articleData ? serviceShare.YdocService.articleData.name : 'Untitled')
   /*          */
   let contribGroup = article_meta.ele('contrib-group', {"content-type": "authors"})
-  /*              */
-  let contrib = contribGroup.ele('contrib', {"contrib-type": "author", "corresp": "yes", "xlink:type": "simple"}) // should probably come from the backend
-  /*                  */
-  let name = contrib.ele('name', {"name-style": "western"})
-  /*                      */
-  let surname = name.ele('surname').txt('Gottschling')
-  /*                      */
-  let givenNames = name.ele('given-names').txt('Marc')
-  /*                  */
-  let email = contrib.ele('email', {"xlink:type": "simple"}).txt('gottschling@bio.lmu.de')
-  /*                  let xref = contrib.ele('xref', { "ref-type": "aff", "rid": "A3" }).txt('3')*/
-  /*          */
-  let aff = article_meta.ele('aff', {"id": "A1"}) // should probably come from the backend and is maybe linked with contributors
-  /*              */
-  let label = aff.ele('label').txt('1');
-  /*              */
-  let addrLineVer = aff.ele('addr-line', {"content-type": "verbatim"}).txt('NIRDBS/Stejarul Research Centre for Biological Sciences, Piatra Neamţ, Romania');
-  /*              */
-  let institution = aff.ele('institution', {"xlink:type": "simple"}).txt('NIRDBS/Stejarul Research Centre for Biological Sciences');
-  /*              */
-  let addrLineCity = aff.ele('addr-line', {"content-type": "city"}).txt('Piatra Neamţ');
-  /*              */
-  let country = aff.ele('country', {'country': 'RO'}).txt('Romania');
+
+  let collaborators = serviceShare.YdocService.collaborators.get('collaborators').collaborators
+  let authors = serviceShare.YdocService.collaborators.get('authorsList');
+
+  let authorsAndSymbols:{collaborator:any,affiliationSymbols:string[]}[] = []
+  let affiliationsFound:{key:string,displayTxt:string,symbol:string,rid?:string,affiliation:any}[] = [];
+
+  serviceShare.CollaboratorsService.fillAffiliationsData(authors,collaborators,affiliationsFound,authorsAndSymbols)
+
+  affiliationsFound.forEach((aff,index)=>{
+    aff.rid = 'A'+(index+1);
+    authorsAndSymbols.forEach((user)=>{
+      if(user.collaborator.affiliations && user.collaborator.affiliations.length>0){
+        user.collaborator.affiliations.forEach((aff1)=>{
+          if(aff1.affiliation == aff.affiliation.affiliation&& aff1.city == aff.affiliation.city&& aff1.country== aff.affiliation.country){
+            aff1.rid = aff.rid
+            aff1.symbol = aff.symbol
+          }
+        })
+      }
+    })
+  })
+
+  authorsAndSymbols.forEach((author)=>{
+    let user = author.collaborator
+    /*              */
+    let contrib = contribGroup.ele('contrib', {"contrib-type": user.role.toLowerCase(), "corresp": user.role == 'Co-author'?'yes':'no',/*  "xlink:type": "simple" */}) // should probably come from the backend
+    /*                  */
+    let nameArr = user.name.split(' ');
+    let name = contrib.ele('name', {"name-style": "western"})
+    /*                      */
+    let surname = name.ele('surname').txt(nameArr[nameArr.length-1]);
+    /*                      */
+    let givenNames = name.ele('given-names').txt(nameArr[0])
+    /*                  */
+    let email = contrib.ele('email', {"xlink:type": "simple"}).txt(user.email)
+
+    if(user.affiliations&&user.affiliations.length>0){
+      user.affiliations.forEach(aff=>{
+        let rid = aff.rid;
+        let xref = contrib.ele('xref', { "ref-type": "aff", "rid": rid }).txt(aff.symbol);
+      })
+    }
+  })
+
+  collaborators.forEach((author)=>{
+    if(author.role != 'Co-author' && author.role != 'Author'){
+      let user = author
+      /*              */
+      let contrib = contribGroup.ele('contrib', {"contrib-type": user.role.toLowerCase(), "corresp": user.role == 'Co-author'?'yes':'no',/*  "xlink:type": "simple" */}) // should probably come from the backend
+      /*                  */
+      let nameArr = user.name.split(' ');
+      let name = contrib.ele('name', {"name-style": "western"})
+      /*                      */
+      let surname = name.ele('surname').txt(nameArr[nameArr.length-1]);
+      /*                      */
+      let givenNames = name.ele('given-names').txt(nameArr[0])
+      /*                  */
+      let email = contrib.ele('email', {"xlink:type": "simple"}).txt(user.email)
+    }
+  })
+
+  affiliationsFound.forEach((affiliation)=>{
+    let aff = article_meta.ele('aff', {"id": affiliation.rid}) // should probably come from the backend and is maybe linked with contributors
+    /*              */
+    let label = aff.ele('label').txt(affiliation.symbol);
+    /*              */
+    let addrLineVer = aff.ele('addr-line', {"content-type": "verbatim"}).txt([affiliation.affiliation.affiliation,affiliation.affiliation.city,affiliation.affiliation.country].join(', '));
+    /*              */
+    let institution = aff.ele('institution', {"xlink:type": "simple"}).txt(affiliation.affiliation.affiliation);
+    /*              */
+    let addrLineCity = aff.ele('addr-line', {"content-type": "city"}).txt(affiliation.affiliation.city);
+    /*              */
+    let country = aff.ele('country', {'country': 'RO'}).txt(affiliation.affiliation.country);
+  })
+
   /*          */
   let authorNotes = article_meta.ele('author-notes') // should probably come from the backend
   /*              */
@@ -285,7 +338,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
     let container = serviceShare.ProsemirrorEditorsService.editorContainers[secId]
     if(container){
       let secview = container.editorView;
-      parseSection(secview, body, serviceShare, sec);
+      parseSection(secview, body, serviceShare, sec,{refObj});
     }
   })
   /**/
@@ -308,6 +361,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   let refsList = back.ele('ref-list');
   /*        */
   let refsListTitle = refsList.ele('title').txt('References');
+
   // loop and build refs as xml
   Object.keys(refObj).forEach((refActualId) => {
     let actualRef = refObj[refActualId]
@@ -549,7 +603,6 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
       },5);
     }else{
       serviceShare.openSnackBar('The generated JATS xml is not valid. You can view errors in notifications','',()=>{},5);
-        //serviceShare.openJatsErrorsDialog(data.errors)
       serviceShare.NotificationsService.addLocalNotification({
         date: Date.now(),
         event: 'JATS errors',
@@ -561,7 +614,6 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
       })
     }
 
-    console.log('validation',data);
   })
 }
 
@@ -587,7 +639,7 @@ function parseMaterial(material: articleSection, matList: XMLBuilder, serviceSha
   })
 }
 
-function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serviceShare: ServiceShare, section: articleSection) {
+function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serviceShare: ServiceShare, section: articleSection,options:any) {
   let xmlTaxon = container.ele('tp:taxon-treatment');
   if (section.children && section.children.length > 0) {
     let taxNomencl = section.children.find((sec) => sec.title.name == '[MM] Nomenclature');
@@ -685,7 +737,7 @@ function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serv
               subsec.children.forEach((subsecchild) => {
                 let chId = subsecchild.sectionID;
                 let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-                parseSection(view, taxonSection, serviceShare, subsecchild);
+                parseSection(view, taxonSection, serviceShare, subsecchild,options);
               })
             }
           })
@@ -742,16 +794,16 @@ function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serv
   }
 }
 
-function parseSection(view: EditorView | undefined, container: XMLBuilder, serviceShare: ServiceShare, section: articleSection) {
+function parseSection(view: EditorView | undefined, container: XMLBuilder, serviceShare: ServiceShare, section: articleSection,options:any) {
   if (section.title.name != 'Taxon' && section.title.name != '[MM] Materials' && section.title.name != 'Material' && section.title.name != 'Taxon' && section.title.name != '[MM] Taxon treatments') { // not a custum section
     let secXml = container.ele('sec', {"sec-type": section.title.name});
     let title = secXml.ele('title').txt(section.title.label.length > 0 ? section.title.label : section.title.name)
-    view ? parseNode(view.state.toJSON().doc, secXml, false, '--', 0) : undefined;
+    view ? parseNode(view.state.toJSON().doc, secXml, false, '--', 0,options) : undefined;
     if (section.type == 'complex' && section.children && section.children.length > 0) {
       section.children.forEach((child) => {
         let chId = child.sectionID;
         let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-        parseSection(view, secXml, serviceShare, child);
+        parseSection(view, secXml, serviceShare, child,options);
       })
     }
     if (secXml.some((node, i) => {
@@ -763,12 +815,12 @@ function parseSection(view: EditorView | undefined, container: XMLBuilder, servi
   } else if (section.title.name == '[MM] Taxon treatments') {
     // render taxons section
     let secXml = container.ele('sec', {"sec-type": 'Taxon treatments'});
-    view ? parseNode(view.state.toJSON().doc, secXml, false, '--', 0) : undefined;
+    view ? parseNode(view.state.toJSON().doc, secXml, false, '--', 0,options) : undefined;
     if (section.type == 'complex' && section.children && section.children.length > 0) {
       section.children.forEach((child) => {
         let chId = child.sectionID;
         let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-        parseTaxon(view, secXml, serviceShare, child);
+        parseTaxon(view, secXml, serviceShare, child,options);
       })
     }
   } else {
@@ -777,7 +829,7 @@ function parseSection(view: EditorView | undefined, container: XMLBuilder, servi
       section.children.forEach((child) => {
         let chId = child.sectionID;
         let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-        parseSection(view, secXml, serviceShare, child);
+        parseSection(view, secXml, serviceShare, child,options);
       })
     }
   }
@@ -788,6 +840,7 @@ let mathCount = 1;
 let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string, index: number,options:any) {
   let newParNode: XMLBuilder
   let shouldSkipNextBlockElements = false;
+  let shouldContinueRendering = true
   if (node.type == 'heading') {
     if (index == 0) {
       newParNode = xmlPar.ele('title')
@@ -802,7 +855,16 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
     processPmMarkAsXML(node, xmlPar, before)
     return;
   } else if (node.type == "reference_citation") {
-    newParNode = xmlPar.ele('xref', {"ref-type": "bibr", "rid": refIdsG[node.attrs.actualRefId]})
+    let citedRefs = node.attrs.citedRefsIds
+    citedRefs.forEach(x=>{
+      let actualRef = options.refObj[x];
+      let rid = refIdsG[x];
+      let refTxt = actualRef.citation.data.text;
+      let CiTO = actualRef.refCiTO.link
+      let xmlref = xmlPar.ele('xref', {"ref-type": "bibr", "rid": rid,"custom-type":CiTO})
+      xmlref.txt(refTxt);
+    })
+    shouldContinueRendering  = false;
   } else if (node.type == "paragraph") {
     newParNode = xmlPar.ele('p')
   } else if (node.type == 'math_inline') {
@@ -869,7 +931,7 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
     }
     return;
   }
-  if (node.content && node.content.length > 0) {
+  if (node.content && node.content.length > 0 && shouldContinueRendering) {
     node.content.forEach((ch:any, indx:number) => {
       parseNode(ch, newParNode, shouldSkipNextBlockElements, before + "|--", indx,options)
     })
@@ -994,7 +1056,7 @@ function parseNode(node: any, xmlPar: XMLBuilder, shouldSkipBlockElements: boole
   if (nodesToSkip.includes(node.type) || (shouldSkipBlockElements && isBlockNode(node.type) && !nodesNotToLoop.includes(node.type) && !nodesThatShouldNotBeSkipped.includes(node.type))) { // nodes that should be skipped and looped through their children
     if (node.content && node.content.length > 0) {
       node.content.forEach((ch, i) => {
-        parseNode(ch, xmlPar, shouldSkipBlockElements, before, index)
+        parseNode(ch, xmlPar, shouldSkipBlockElements, before, index,options)
       })
     }
   } else if (nodesNotToLoop.includes(node.type)) { // nodes that should not be looped nor their children

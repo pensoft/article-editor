@@ -9,11 +9,13 @@ export const reference_citation = {
     ...getGenericAttributes(),
     refCitationID:{default:''},
     citedRefsIds:{default:[]},
+    nonexistingelement:{ default:'false' },
   },
   parseDOM: [{
     tag: "reference-citation", getAttrs(dom: any) {
       return {
         ...parseGenericAttributes(dom),
+        nonexistingelement: dom.getAttribute('nonexistingelement'),
         refCitationID : dom.getAttribute('refCitationID'),
         citedRefsIds : dom.getAttribute('citedRefsIds')?dom.getAttribute('citedRefsIds').split(','):[],
       }
@@ -23,6 +25,7 @@ export const reference_citation = {
     let attributesToDom: any = {
       ...genericAttributtesToDom(node),
       refCitationID:node.attrs.refCitationID,
+      "nonexistingelement": node.attrs.nonexistingelement,
       citedRefsIds:node.attrs.citedRefsIds.join(','),
     }
     return ["reference-citation", attributesToDom, 0];

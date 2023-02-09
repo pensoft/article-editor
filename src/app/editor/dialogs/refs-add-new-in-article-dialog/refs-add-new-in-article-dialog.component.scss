@@ -20,9 +20,35 @@
   margin-bottom: 100px;
 }
 
+::ng-deep .refindit-autocomplete-option{
+  .mat-option-text{
+    display: block !important;
+    .option-refindit-view{
+      width: 100%;
+      font-size: 14px;
+      .refindit-first-author, .refindit-title, .refindit-year, .refindit-source{
+        display: inline-block;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .refindit-first-author{
+        width: 20%;
+      }
+      .refindit-year{
+        width: 7%;
+      }
+      .refindit-source{
+        width: 10%;
+      }
+      .refindit-title{
+        width: 63%;
+      }
+    }
+  }
+}
+
 .select-ref-form-field{
   width: 100%;
-  margin-top: 20px;
 }
 
 ::ng-deep .add-new-ref-tabs{
@@ -34,4 +60,51 @@
 
 .add-new-ref-tabs {
   gap: 24px;
+}
+
+.import-manually-container {
+  padding: 16px 0 0 0;
+  margin: 24px 0 0 0;
+  border-top: 1px solid var(--color-e3e3e3);
+
+  > p {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 22px;
+    color: var(--color-121212);
+    margin: 0;
+
+    > a {
+      color: var(--color-00b1b2);
+    }
+  }
+
+  .import-manually-actions {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: flex-start;
+    justify-content: flex-start;
+    gap: 16px;
+    margin: 20px 0 0 0;
+
+    > label {
+      padding: 8px 15px;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 18px;
+      border: 1px solid var(--color-00b1b2);
+      border-radius: 4px;
+      color: var(--color-00b1b2);
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+
+      &:hover {
+        background: rgba(0, 177, 178, 0.04);
+      }
+    }
+
+    #reference_file {
+      display: none;
+    }
+  }
 }

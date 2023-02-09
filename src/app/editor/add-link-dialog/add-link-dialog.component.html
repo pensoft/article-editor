@@ -2,19 +2,19 @@
 
 <mat-dialog-content>
   <p>Enter link and text,representing the link</p>
+  <mat-label class="upper-label">Link</mat-label>
   <mat-form-field [style.width]='"100%"' appearance="fill">
-    <mat-label>Link...</mat-label>
-    <input matInput [(ngModel)]="data.url" [formControl]="text" required>
+    <input matInput [(ngModel)]="data.url" [formControl]="text" required placeholder="Enter link url">
     <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
   </mat-form-field>
+  <mat-label class="upper-label">Text</mat-label>
   <mat-form-field [style.width]='"100%"' appearance="fill">
-    <mat-label>Text...</mat-label>
-    <input matInput [(ngModel)]="data.text" [formControl]="text" required>
+    <input matInput [(ngModel)]="data.text" [formControl]="text" required placeholder="Enter link text">
     <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
   </mat-form-field>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
-  <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
+  <button mat-stroked-button [mat-dialog-close]>Cancel</button>
   <button mat-flat-button color="primary" [mat-dialog-close]="data" cdkFocusInitial>Insert Link</button>
 </mat-dialog-actions>

@@ -181,6 +181,7 @@ export let citationElementMap = {
       serializedFigureToFormIOsubmission.figureID = elementData.figureID
       serializedFigureToFormIOsubmission.figureNumber = elementData.figureNumber
       serializedFigureToFormIOsubmission.viewed_by_citat = citatID
+      serializedFigureToFormIOsubmission.nOfColumns = elementData.canvasData.nOfColumns;
       return serializedFigureToFormIOsubmission
     },
     buildElementFormGroup: function (submision: any): FormGroup {
@@ -576,7 +577,6 @@ export class CitableElementsService {
   }
 
   writeElementDataGlobal( newElements: { [key: string]: any }, elementsNumbers: string[],type:string) {
-    console.log(newElements,elementsNumbers);
     let elementMapping = citationElementMap[type];
     let oldCitats = JSON.parse(JSON.stringify(this.serviceShare.YdocService.citableElementsMap?.get('elementsCitations')));
     let oldElNums = JSON.parse(JSON.stringify(this.serviceShare.YdocService[elementMapping.yjsMap].get(elementMapping.elementNumbersObj)))

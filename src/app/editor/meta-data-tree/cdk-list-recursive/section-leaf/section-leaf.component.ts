@@ -261,7 +261,8 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
   deleteNodeHandle(nodeId: string) {
     let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
-      data: {sectionName: this.treeService.findNodeById(nodeId)?.title.label},
+      width: '563px',
+      data: {objName: this.treeService.findNodeById(nodeId)?.title.label,type:'section'},
       panelClass: 'ask-before-delete-dialog',
     })
     dialogRef.afterClosed().subscribe((data: any) => {
@@ -411,16 +412,16 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     }
     Array.from(div.children).forEach((el: any) => {
       if (el.classList.contains('section_btn_container')) {
-        Array.from(el.children).forEach((el: any, index) => {
+        Array.from(el.children).forEach((el: HTMLButtonElement, index) => {
           if (el.classList.contains('hidden')) {
             if (mouseOn) {
-              if (index == 1 && this.treeService.showAddBtn(node)) { // add btn
+              if (el.getAttribute('buttonaction') == 'add'&& this.treeService.showAddBtn(node)) { // add btn
                 el.style.display = 'inline';
-              } else if (index == 2 && this.treeService.showDeleteButton(node)) { // delete btn
+              } else if (el.getAttribute('buttonaction') == 'delete'&& this.treeService.showDeleteButton(node)) { // delete btn
                 el.style.display = 'inline';
-              } else if (index == 3 && node.type == 'complex') {
+              } else if (el.getAttribute('buttonaction') == 'post_add'&& node.type == 'complex') {
                 el.style.display = 'inline';
-              } else if (index == 0) {
+              } else if (el.getAttribute('buttonaction') == 'edit') {
                 el.style.display = 'inline';
               }
             } else {

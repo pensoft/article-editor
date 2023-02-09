@@ -1,22 +1,48 @@
 <mat-card *ngIf="change" class="change-box" >
   <mat-card-header>
-    <ngx-avatar mat-card-avatar size="36" [fgColor]="change.changeAttrs.user == currUserId?'white':change.changeAttrs.userContrastColor" [bgColor]="change.changeAttrs.user == currUserId?'#00B1B2':change.changeAttrs.userColor" [name]="change.changeAttrs.username"></ngx-avatar>
+    <div class="mat-card-avatar-container">
+      <ngx-avatar mat-card-avatar size="36" [fgColor]="change.changeAttrs.user == currUserId?'white':change.changeAttrs.userContrastColor" [bgColor]="change.changeAttrs.user == currUserId?'#00B1B2':change.changeAttrs.userColor" [name]="change.changeAttrs.username"></ngx-avatar>
+      <span><img src="./assets/icons/reference-small.svg" alt="{{change.changeAttrs.username}}" /></span>
+    </div>
     <mat-card-title class="change-title">{{change.changeAttrs.username}}</mat-card-title>
     <mat-card-subtitle class="change-subtitle">{{getDate(change.changeAttrs.date)}}</mat-card-subtitle>
   </mat-card-header>
   <mat-card-content>
     <div class="edited-text">
       <div class="edited-text-title">{{change.type == 'deletion'?'Deleted:':change.type=='format_change'?'Formated:':'Inserted:'}}</div>
-      <div class="edited-text-content {{change.type}} target" [ngStyle]="{
+
+      <div class="edited-text-content {{change.type}} target"
+           [ngClass]="{
+      'is-cropped':!initialShowMore,
+      'is-shown':initialShowMore
+      }" [ngStyle]="{
         background:change.type == 'deletion'?'#ffd0d0':change.changeAttrs.user == currUserId?'#00B1B2':change.changeAttrs.userColor,
         color:change.type == 'deletion'?'black':change.changeAttrs.user == currUserId?'white':change.changeAttrs.userContrastColor
-      }">{{change.changeTxt}}</div>
+      }">
+        <span #changeSpan>{{change.changeTxt}}</span>
+      </div>
+      <a (click)="initialShowMore = !initialShowMore;"
+         [ngClass]="{
+         'morelessBtn':true,
+         'is-hidden':changeSpan.offsetHeight < 60
+         }"
+      >
+        {{initialShowMore ? 'Show less': 'Show more' }}
+      </a>
     </div>
-    <div class="change-action-button-container">
-      <arpha-button *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'&&ydocService.curUserRole!='Commenter'" (clickEvent)="!previewMode.mode?acceptChange(change.type,change.changeAttrs):undefined" class="small secondary change-action-button" label="Accept" icon="check_small" style="margin-right:29px;">
-      </arpha-button>
-      <arpha-button *ngIf="ydocService.curUserRole&&ydocService.curUserRole!='Viewer'&&ydocService.curUserRole!='Commenter'" (clickEvent)="!previewMode.mode?declineChange(change.type,change.changeAttrs):undefined" class="small secondary change-action-button change-decline-button" label="Decline" icon="close">
-      </arpha-button>
+
+    <div class="comment-btns-container">
+      <div class="comment-btns" fxLayout="row nowrap" fxLayoutGap="30px" fxLayoutAlign="center center">
+        <button mat-flat-button color="primary"
+                *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'&&ydocService.curUserAccess!='Commenter'"
+                (click)="!previewMode.mode?acceptChange(change.type,change.changeAttrs):undefined">
+          Accept
+        </button>
+        <button mat-stroked-button *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'&&ydocService.curUserAccess!='Commenter'"
+                (click)="!previewMode.mode?declineChange(change.type,change.changeAttrs):undefined">
+          Decline
+        </button>
+      </div>
     </div>
   </mat-card-content>
 </mat-card>

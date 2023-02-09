@@ -16,26 +16,36 @@
 <div class="comments-wrapper">
   <div style="height:100%;" class="all-comments-container">
     <div [ngStyle]="{'opacity':showAddCommentBox?'1':'0'}" class="add-comment-box">
-      <mat-card class="commentBox ">
+      <mat-card class="commentBox">
         <mat-card-header>
-          <ngx-avatar mat-card-avatar size="36" [bgColor]="'#00B1B2'" [name]="prosemirrorEditorsService.userInfo.data.name"></ngx-avatar>
+          <div class="mat-card-avatar-container">
+            <ngx-avatar mat-card-avatar size="36" [bgColor]="'#00B1B2'" [name]="prosemirrorEditorsService.userInfo.data.name"></ngx-avatar>
+            <span><img src="./assets/icons/comments-small.svg" alt="{{prosemirrorEditorsService.userInfo.data.name}}" /></span>
+          </div>
           <mat-card-title class="commentBox-title">{{prosemirrorEditorsService.userInfo.data.name}}</mat-card-title>
           <mat-card-subtitle class="commentBox-subtitle"></mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <div class="selected-commet-text">
-            <div class="selected-commet-text-title">Selected text:</div>
-            <div *ngIf="selectedTextInEditors[lastFocusedEditor!] && commentAllowdIn[lastFocusedEditor!]" class="selected-commet-text-content">{{selectedTextInEditors[lastFocusedEditor!]}}</div>
-            <div *ngIf="!commentAllowdIn[lastFocusedEditor!]" class="selected-commet-text-content-no-selection">{{errorMessages[lastFocusedEditor!]}}</div>
+          <div class="selected-comment-text">
+            <div class="selected-comment-text-title">Selected text:</div>
+            <div *ngIf="selectedTextInEditors[lastFocusedEditor!] && commentAllowdIn[lastFocusedEditor!]" class="selected-comment-text-content">{{selectedTextInEditors[lastFocusedEditor!]}}</div>
+            <div *ngIf="!commentAllowdIn[lastFocusedEditor!]" class="selected-comment-text-content-no-selection">{{errorMessages[lastFocusedEditor!]}}</div>
+          </div>
+
+          <input #input class="comment-input" type="text" placeholder="Leave a comment..." [formControl]="commentInputFormControl" (keydown)="autocomplete.keyHandle($event)">
+          <app-collaborators-auto-complete [(commentmarkId)]="newCommentMarkId" [(inputFormControl)]="commentInputFormControl" #autocomplete></app-collaborators-auto-complete>
+
+          <div class="comment-btns-container">
+            <div class="comment-btns" align="end" fxLayoutGap="12px">
+              <button mat-stroked-button (click)="cancelBtnHandle()">Cancel</button>
+              <button mat-flat-button color="primary"
+                      (click)="autocomplete.canFinishComment(commentBtnHandle,[input,input.value])"
+                      [disabled]="!selectedTextInEditors[lastFocusedEditor!] || input.value.length === 0 || !commentAllowdIn[lastFocusedEditor!]">
+                Comment
+              </button>
+            </div>
           </div>
         </mat-card-content>
-        <input #input class="comment-input" type="text" placeholder="Leave a comment..." [formControl]="commentInputFormControl" (keydown)="autocomplete.keyHandle($event)">
-        <app-collaborators-auto-complete [(commentmarkId)]="newCommentMarkId" [(inputFormControl)]="commentInputFormControl" #autocomplete></app-collaborators-auto-complete>
-
-        <div class="comment-btns">
-          <button mat-button label="Cancel" (click)="cancelBtnHandle()" class="small  secondary cencel-button">Cancel</button>
-          <button mat-button label="Comment" (click)="autocomplete.canFinishComment(commentBtnHandle,[input,input.value])" [disabled]="!selectedTextInEditors[lastFocusedEditor!] || input.value.length === 0 || !commentAllowdIn[lastFocusedEditor!]" class="small  secondary comment-button">Comment</button>
-        </div>
       </mat-card>
     </div>
     <div *ngFor="let comment of this.allComments" class="comment-container" style="opacity: 0;" attr.commentId="{{comment.commentAttrs.id}}" attr.sectionId="{{comment.section}}" #commentContainer>

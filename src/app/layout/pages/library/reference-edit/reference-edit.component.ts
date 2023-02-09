@@ -2,6 +2,7 @@ import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit } from '@an
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { formioAuthorsDataGrid, formIOTextFieldTemplate, reference } from '../data/data';
+import { CiToTypes } from '../lib-service/editors-refs-manager.service';
 import { SaveComponent } from './save/save.component';
 
 @Component({
@@ -17,6 +18,10 @@ export class ReferenceEditComponent implements AfterViewInit {
   referenceTypesFromBackend: any[] = []
   dataSave:any
   referenceStyles:any
+  CiToTypes = CiToTypes
+  citoFormControl = new FormControl(null, [Validators.required]);
+
+
   constructor(
     public dialogRef: MatDialogRef<ReferenceEditComponent>,
     public dialog: MatDialog,
@@ -38,6 +43,13 @@ export class ReferenceEditComponent implements AfterViewInit {
         component.defaultValue = val
       }
     })
+    if ((newFormIOJSON.components as Array<any>).find((val) => {
+      return (val.key == 'submit' && val.type == 'button')
+    })) {
+      newFormIOJSON.components = newFormIOJSON.components.filter((val) => {
+        return (val.key != 'submit' || val.type != 'button')
+      })
+    }
     setTimeout(() => {
       this.formIOSchema = newFormIOJSON;
       this.cahngeDetectorRef.detectChanges();
@@ -53,13 +65,21 @@ export class ReferenceEditComponent implements AfterViewInit {
       this.stylesFormControl.setValue(this.referenceStyles[0])
     } else {
       let oldBuildData = this.data.oldData;
-
+      if(this.CiToTypes.find((cito) => {
+        return (cito.label == oldBuildData.refCiTO.label)
+      })){
+        let indexCito = this.CiToTypes.findIndex((cito) => {
+          return (cito.label == oldBuildData.refCiTO.label)
+        });
+        this.citoFormControl.setValue(this.CiToTypes[indexCito])
+      }
       if (this.referenceTypesFromBackend.find((ref) => {
         return (ref.name == oldBuildData.refType.name||ref.type == oldBuildData.refType.type)
       })) {
         let index = this.referenceTypesFromBackend.findIndex((ref) => {
           return (ref.name == oldBuildData.refType.name||ref.type == oldBuildData.refType.type)
         });
+
         this.referenceFormControl.setValue(this.referenceTypesFromBackend[index]);
       }else{
         this.referenceFormControl.setValue(this.referenceTypesFromBackend[0]);
@@ -86,14 +106,35 @@ export class ReferenceEditComponent implements AfterViewInit {
       submissionData: submission,
       referenceScheme: this.referenceFormControl.value,
       referenceStyle: this.stylesFormControl.value,
+      refCiTO:this.citoFormControl.value,
     })
   }
 
+  isValid:boolean = true;
+  formIoSubmission:any
+  formIoRoot:any
+  isModified:boolean = false;
   onChange(change: any) {
-    this.dataSave = change.data;
+    if(change instanceof Event){
+
+    }else{
+      this.isValid = change.isValid
+      this.formIoSubmission = change.data
+      this.isModified = change.isModified
+
+      if(change.changed&&change.changed.instance){
+        this.formIoRoot = change.changed.instance.root
+      }
+    }
+    console.log(this.isValid)
   }
 
   ready(event: any) {
   }
 
+  submitRef(){
+    if(this.formIoRoot){
+      this.formIoRoot.submit()
+    }
+  }
 }

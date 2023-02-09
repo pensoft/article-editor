@@ -59,13 +59,13 @@ export interface articleSection {
   override?: any,
   prosemirrorHTMLNodesTempl?: string,
   formIOSchema?: any,
-  sectionVersionId: number,
+  sectionIdFromBackend: number,
   defaultFormIOValues?: any,
   type: 'complex' | 'simple' ,
   sectionTypeID: number,
   sectionTypeVersion: number,
   sectionMeta: { main: boolean },
-  subsectionValidations?: { [version_id: number]: { min: number, max: number } },
+  subsectionValidations?: { [sec_id_backend: number]: { min: number, max: number } },
   compatibility?: { allow: { all: boolean, values: number[] }, deny: { all: boolean, values: number[] } }
   custom?:true,
   customSchema:{isCustom:boolean,schema?:{nodes:string[],marks:string[]}};

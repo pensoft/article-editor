@@ -93,6 +93,7 @@ export const block_figure = {
   attrs: {
     figure_number: {},
     figure_id: {},
+    figure_columns: { default: "" },
     viewed_by_citat: { default: "" },
     ...getGenericAttributes(),
   },
@@ -101,6 +102,7 @@ export const block_figure = {
       return {
         figure_number: dom.getAttribute('figure_number'),
         figure_id: dom.getAttribute('figure_id'),
+        figure_columns: dom.getAttribute('figure_columns'),
         viewed_by_citat: dom.getAttribute('viewed_by_citat'),
         ...parseGenericAttributes(dom)
       }
@@ -110,6 +112,7 @@ export const block_figure = {
     return ["block-figure", {
       'figure_number': node.attrs.figure_number,
       'figure_id': node.attrs.figure_id,
+      'figure_columns': node.attrs.figure_columns,
       'viewed_by_citat': node.attrs.viewed_by_citat,
       ...genericAttributtesToDom(node)
     }, 0]
@@ -242,27 +245,6 @@ export const figure_component_description = {
   }
 }
 
-
-
-/* export const figure = {
-    content: "block_figure+",
-    group: 'block',
-    attrs: {
-        ...getGenericAttributes(),
-    },
-    parseDOM: [{
-        tag: "figure-component", getAttrs(dom: any) {
-            return {
-                ...parseGenericAttributes(dom)
-            }
-        }
-    }],
-    toDOM(node: any) {
-        return ["figure-component", {
-            ...genericAttributtesToDom(node)
-        }, 0]
-    }
-} */
 export const figureNodes = {
   image,
   video,
@@ -277,20 +259,4 @@ export const figureNodes = {
   figure_description,
 }
 
-/* export const figure_description = {
-    group: 'block+',
-    content: "inline+",
-    attrs:{
-        ...getGenericAttributes(),
-    },
-    parseDOM: [{ tag: "figure-description" ,getAttrs(dom:any){
-        return{
-            ...parseGenericAttributes(dom)
-        }
-    }}],
-    toDOM(node:Node) {
-        return ["figure-description", {
-            ...genericAttributtesToDom(node)
-        },0]
-    }
-} */
+

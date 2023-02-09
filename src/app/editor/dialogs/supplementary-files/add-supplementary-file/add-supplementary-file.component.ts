@@ -138,7 +138,6 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
     }else{
       this.isValid
       this.formIoSubmission = change.data
-      console.log(change);
       if(change.changed&&change.changed.instance){
         this.formIoRoot = change.changed.instance.root
       }

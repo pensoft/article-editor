@@ -180,7 +180,6 @@ export class ValidationSectionComponent implements OnDestroy {
             if (sec.active && sec.mode != 'noSchemaSectionMode') {
               let editorView = editorsContainers[sec.sectionID].editorView;
               symbolCount += editorView.state.doc.textContent.length;
-              console.log(symbolCount);
             }
           })
         }
@@ -408,17 +407,16 @@ export class ValidationSectionComponent implements OnDestroy {
                 let validateComplexSecMinMax = (complexSection: articleSection, sectionsFromBackend: any) => {
                   let errors: string[] = []
                   let children = complexSection.children;
-                  Object.keys(complexSection.subsectionValidations!).forEach((sectionVersionID: any) => {
-                    let subSecMinMax = complexSection.subsectionValidations![sectionVersionID];
+                  Object.keys(complexSection.subsectionValidations!).forEach((sectionIdFromBackend: any) => {
+                    let subSecMinMax = complexSection.subsectionValidations![sectionIdFromBackend];
                     let countOfType = 0;
 
                     children.forEach((child) => {
-                      if (child.sectionVersionId == sectionVersionID) {
+                      if (child.sectionIdFromBackend == sectionIdFromBackend) {
                         countOfType++;
                       }
                     })
-                    let sectionFromBackend = sectionsFromBackend.find((el: any) => el.version_id == sectionVersionID)
-                    console.log(sectionVersionID,sectionFromBackend,sectionsFromBackend,complexSection.subsectionValidations);
+                    let sectionFromBackend = sectionsFromBackend.find((el: any) => el.id == sectionIdFromBackend)
                     if(sectionFromBackend){
                       let secName = sectionFromBackend.name
                       if (countOfType < subSecMinMax.min) {
@@ -435,7 +433,6 @@ export class ValidationSectionComponent implements OnDestroy {
                     this.complexSectionsMinMaxErrors.push({ fulfilled: false, errorMessage: `Complex section "${complexSection.title.label}" should match the required minimum and maximum validations. ${errors.join('. ')}` })
                   }
                 }
-                console.log(this.ydocService.articleData);
                 this.articleSectionsService.getAllSections({ page: 1, pageSize: 999 }).subscribe((resData: any) => {
                   let loopTree = (section: articleSection) => {
                     if (section.type == 'complex' && section.subsectionValidations && Object.keys(section.subsectionValidations).length > 0) {
@@ -464,7 +461,6 @@ export class ValidationSectionComponent implements OnDestroy {
                     nonCitedRefs[key] = refsInArticle[key]
                   }
                 })
-                console.log('nonCitedRefs',nonCitedRefs);
                 Object.keys(nonCitedRefs).forEach((refId)=>{
                   let refText = nonCitedRefs[refId].citation.textContent;
                   this.nonCitedReferences.push({ fulfilled: false, errorMessage: `Reference "${refText}" is not cited.` });

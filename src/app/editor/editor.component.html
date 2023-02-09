@@ -38,16 +38,16 @@
             <!--            <app-avatar user="user"></app-avatar>-->
           </ng-container>
 
-          <ng-container *ngIf="usersInArticle.length > 2">
+          <ng-container *ngIf="usersInArticle.length > 3">
 
             <button mat-mini-fab color="accent" [matMenuTriggerFor]="avatars_menu" aria-label="Show all avatars">
-              +{{ usersInArticle.length - 2 }}
+              +{{ usersInArticle.length - 3 }}
             </button>
 
             <mat-menu #avatars_menu="matMenu" class="article-users-list">
 
-              <ng-container *ngFor="let user of usersInArticle">
-                <mat-card class="user-card" *ngIf="user&&user.userInfo&&user.userInfo.data">
+              <ng-container *ngFor="let user of usersInArticle | skipCurrent; index as i">
+                <mat-card class="user-card" *ngIf="user&&user.userInfo&&user.userInfo.data&&i>1">
                   <mat-card-header>
                     <div mat-card-avatar>
                       <ngx-avatar class="avatar-container" size="36" [gravatarId]="user.userInfo.data.email"
@@ -82,8 +82,6 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
-<app-library *ngIf="active=='library'" class="user-reference-lib"></app-library>
-
 <div *ngIf="shouldBuild"
      [ngStyle]="{'display':active == 'editor'?'block':'none','align-items':'center','width':'100%','height':'100%'}">
   <div class="actions-container">
@@ -93,13 +91,13 @@
     </button>
     </div> -->
     <div class="prosemirror_menu_container">
-      <app-editor-menu [ngStyle]="{'display':(userRole == 'Commenter'||userRole == 'Viewer')?'none':'inline'}">
+      <app-editor-menu [ngStyle]="{'display':(userAccess == 'Commenter'||userAccess == 'Viewer')?'none':'inline'}">
       </app-editor-menu>
     </div>
 
 
     <div class="side-navbar-actions">
-      <button *ngIf="!(userRole == 'Commenter'||userRole == 'Viewer')" #trackChangesOnOffBtn
+      <button *ngIf="!(userAccess == 'Commenter'||userAccess == 'Viewer')" #trackChangesOnOffBtn
               [ngStyle]="{'color':previewMode.mode?'gray':this.shouldTrackChanges?'#19d928':'#f37b4a'}" mat-icon-button
               class="changes_state_btn" [matMenuTriggerFor]="beforeMenu">
         <mat-icon>{{previewMode.mode ? 'visibility' : this.shouldTrackChanges ? 'mode_edit' : 'edit_off'}}</mat-icon>
@@ -156,14 +154,14 @@
         <!-- <app-prosemirror-editor style="height:97%;"></app-prosemirror-editor> -->
         <!-- <app-formio ></app-formio> -->
         <!-- <app-taxonomy-editor></app-taxonomy-editor> -->
-        <div [ngStyle]="{'display':(userRole == 'Viewer')?'none':'block'}" class="editor_buttons">
+        <div [ngStyle]="{'display':(userAccess == 'Viewer')?'none':'block'}" class="editor_buttons">
           <div class="editor_buttons_wrapper">
             <div class="commentBtnDiv">
               <button class="commentsBtn" mat-icon-button>
                 <mat-icon svgIcon="comments"></mat-icon>
               </button>
             </div>
-            <div [ngStyle]="{'display':(userRole == 'Commenter'||userRole == 'Viewer')?'none':'block'}"
+            <div [ngStyle]="{'display':(userAccess == 'Commenter'||userAccess == 'Viewer')?'none':'block'}"
                  class="trackChangesBtnDiv">
               <button [ngClass]="shouldTrackChanges?'changes_on_editor_side_btn':'changes_off_editor_side_btn'"
                       (click)="turnOnOffTrachChanges()" class="trackChangesBtn" mat-icon-button>

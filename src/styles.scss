@@ -10,6 +10,39 @@ citation {
   white-space: pre;
 }
 
+.option-tooltip-refs-autocomplete{
+  position: absolute;
+  width: 300px;
+  white-space: pre;
+  background-color: #abababe3;
+  border-radius: 8px;
+  padding: 10px;
+  border: 1px solid #0404044f;
+  z-index: 1001;
+  display: block;
+  transform: translate(0%, -50%);
+  box-shadow: 0px 11px 15px -7px rgb(0 0 0 / 20%), 0px 24px 38px 3px rgb(0 0 0 / 14%), 0px 9px 46px 8px rgb(0 0 0 / 12%);
+  .arrow-div-container-option-tooltip-refs-autocomplete{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    transform: translate(0px, 50%);
+    .arrow-div-option-tooltip-refs-autocomplete{
+      width: 0px;
+      height: 0px;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-right: 10px solid #2f2f2fb5;
+      transform: translate(-11px, -16px);
+    }
+  }
+  .content-option-tooltip-refs-autocomplete{
+    overflow:hidden;
+  }
+}
+
 end-note-citation {
   background: #b2f0f0;
   white-space: pre;
@@ -29,12 +62,8 @@ block-table {
 }
 
 table-content {
-  border: 1px solid #e2e2dd;
   display: block;
-  padding: 5px;
-  border-radius: 5px;
   background: white;
-  margin-top: 2px;
 }
 
 table-citation {
@@ -144,8 +173,8 @@ td {
         $first-child-in-last-row: "&#{$any-child-in-the-last-row}";
         #{$first-child-in-last-row},
         #{$first-child-in-last-row} ~ & {
-          border-bottom-right-radius: 0px;
-          border-bottom-left-radius: 0px;
+          // border-bottom-right-radius: 0px;
+          // border-bottom-left-radius: 0px;
         }
       }
     }
@@ -196,8 +225,8 @@ block-figure {
       $first-child-in-last-row: "&#{$any-child-in-the-last-row}";
       #{$first-child-in-last-row},
       #{$first-child-in-last-row} ~ & {
-        border-bottom-right-radius: 0px;
-        border-bottom-left-radius: 0px;
+        // border-bottom-right-radius: 0px;
+        // border-bottom-left-radius: 0px;
       }
     }
   }
@@ -332,6 +361,11 @@ table-citation[nonexistingelement="true"] {
 }
 
 supplementary-file-citation[nonexistingelement="true"] {
+  background-color: rgb(194, 54, 54);
+  color: white;
+}
+
+reference-citation[nonexistingelement="true"] {
   background-color: rgb(194, 54, 54);
   color: white;
 }
@@ -860,7 +894,7 @@ insert-image-dialog {
   position: absolute;
   display: inline-flex;
   background-color: #e4f6f6;
-  border-color: #00b1b2 !important;
+  // border-color: #00b1b2 !important;
   border: 1.8px solid;
   border-radius: 17px;
   padding: 6px;

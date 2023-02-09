@@ -25,6 +25,8 @@ export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
   @Output() selected = new EventEmitter<boolean>();
 
   sub?:Subscription
+
+  initialShowMore = false;
   previewMode
   constructor(
     public changesService: TrackChangesService,
@@ -50,7 +52,7 @@ export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
       this.doneRenderingChangesSubject.next('rendered')
     }, 10)
     this.changesService.lastSelectedChangeSubject.subscribe((change) => {
-      if(this.ydocService.curUserRole&&this.ydocService.curUserRole=='Viewer'){
+      if(this.ydocService.curUserAccess&&this.ydocService.curUserAccess=='Viewer'){
         return
       }
       if (this.change.changeMarkId == change.changeMarkId) {
