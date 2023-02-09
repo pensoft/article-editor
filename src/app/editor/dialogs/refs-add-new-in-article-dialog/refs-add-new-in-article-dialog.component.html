@@ -49,9 +49,9 @@
           <a href="mailto:development@pensoft.net">development@pensoft.net</a> and attach the file.
         </p>
         <div class="import-manually-actions">
-          <input type="file"
-                 (change)="onfileInputChange($event)">
-          <button mat-flat-button color="primary" (click)="onFileUpload()">Parse file</button>
+          <input type="file" id="reference_file" (change)="onfileInputChange($event)">
+          <label for="reference_file">Upload File</label>
+          <button mat-flat-button color="primary" (click)="onFileUpload()">Parse File</button>
         </div>
       </div>
     </mat-tab>
@@ -85,5 +85,6 @@
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button (click)="closeDialog()">Cancel</button>
+  <button mat-stroked-button color="primary" (click)="closeDialog()">Cancel</button>
   <button *ngIf="tabIndex == 1" mat-flat-button color="primary" [disabled]="!dataSave||!isValid" (click)="onSubmit()">Add Reference</button>
 </mat-dialog-actions>

@@ -81,10 +81,30 @@
 
   .import-manually-actions {
     display: flex;
-    flex-flow: column nowrap;
+    flex-flow: row nowrap;
     align-items: flex-start;
-    justify-content: center;
+    justify-content: flex-start;
     gap: 16px;
     margin: 20px 0 0 0;
+
+    > label {
+      padding: 8px 15px;
+      font-size: 14px;
+      font-weight: 400;
+      line-height: 18px;
+      border: 1px solid var(--color-00b1b2);
+      border-radius: 4px;
+      color: var(--color-00b1b2);
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+
+      &:hover {
+        background: rgba(0, 177, 178, 0.04);
+      }
+    }
+
+    #reference_file {
+      display: none;
+    }
   }
 }
