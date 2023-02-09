@@ -107,8 +107,8 @@
           <mat-icon matSuffix class="comment-reply-field-icon">alternate_email</mat-icon>
         </mat-form-field>
 
-        <div *ngIf="activeReply" class="comment-btns-container">
-          <div class="comment-btns" align="end" fxLayoutGap="12px">
+        <div class="comment-btns-container">
+          <div *ngIf="activeReply" class="comment-btns" align="end" fxLayoutGap="12px">
             <button mat-stroked-button (click)="cancelReplyBtnHandle(ReplyDiv)">Cancel</button>
             <button mat-flat-button color="primary"
                     (click)="autocomplete.canFinishComment(commentReplyBtnHandle,[ReplyDiv])"
