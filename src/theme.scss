@@ -533,6 +533,10 @@ mat-radio-group {
   padding: 0 !important;
   overflow: hidden;
 
+  &.no-results {
+    border-color: transparent;
+  }
+
   .mat-list-option {
     border-bottom: 1px solid $primary-dark-grey;
 
