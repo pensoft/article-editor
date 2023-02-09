@@ -15,6 +15,7 @@ import { html } from '@codemirror/lang-html';
 import { uuidv4 } from 'lib0/random';
 import { pageDimensionsInPT } from '../../edit-before-export/edit-before-export.component';
 import { AddFigureComponentDialogComponent } from './add-figure-component-dialog/add-figure-component-dialog.component';
+import { FigurePdfPreviewComponent } from './figure-pdf-preview/figure-pdf-preview.component';
 
 let figuresHtmlTemplate = `
 <block-figure [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.figure_number]="data.figureNumber" [attr.figure_id]="data.figureID" [attr.figure_columns]="data.nOfColumns">
@@ -56,7 +57,6 @@ let figuresHtmlTemplate = `
 })
 export class AddFigureDialogV2Component implements AfterViewInit, AfterViewChecked {
   showHTMLEditor = false;
-  showPdfView = false;
 
   @ViewChild('codemirrorHtmlTemplate', { read: ElementRef }) codemirrorHtmlTemplate?: ElementRef;
   @ViewChild('container', { read: ViewContainerRef }) container?: ViewContainerRef;
@@ -72,11 +72,6 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
   figNewComponents: any[] = []
 
   figureComponentsInPrevew = []
-  figureRows:any[][] = []
-  maxImgHeightPers
-  rowTemplate:any[] = []
-  maxImgWidthPers?:number;
-  bottomOffset = 0.30; // offset the figures images from the bottom of the list in preview- figure description space
   // offset is in persentage
   rowOrder :number[] = [];
   displayPreviewComponents = false
@@ -85,6 +80,13 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
   columns = [1, 2, 3, 4]
   columnsFormControl = new FormControl()
   columnWidth:number
+
+  showPdfView = false;
+  figureRows:any[][] = []
+  maxImgHeightPers
+  rowTemplate:any[] = []
+  maxImgWidthPers?:number;
+  bottomOffset = 0.30; // offset the figures images from the bottom of the list in preview- figure description space
 
   constructor(
     private prosemirrorEditorsService: ProsemirrorEditorsService,
@@ -226,6 +228,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
     phContainer.parentElement.insertBefore(phElement, phContainer);
 
     moveItemInArray(this.figNewComponents, dragIndex, dropIndex);
+    this.updatePreview(false)
   }
 
   getMappedComponentsForPreviw(){
@@ -255,7 +258,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
       }
 
     })
-    let key = 'A3'
+    let key = 'A4'
     let a4Pixels = [pageDimensionsInPT[key][0], pageDimensionsInPT[key][1]-(pageDimensionsInPT[key][1]*this.bottomOffset)];
     if(differrance||!checkDiff){
       if(!hasEmptyFields){
@@ -349,5 +352,19 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
         this.displayPreviewComponents = true;
       }
     }
+  }
+
+  openFigurePdfPreview(){
+    this.dialog.open(FigurePdfPreviewComponent, {
+      width: '620px',
+      disableClose: false,
+      data:{
+        figureRows:this.figureRows,
+        maxImgHeightPers:this.maxImgHeightPers,
+        rowTemplate:this.rowTemplate,
+        maxImgWidthPers:this.maxImgWidthPers,
+        bottomOffset:this.bottomOffset,
+      },
+    })
   }
 }
