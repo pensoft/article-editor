@@ -33,24 +33,27 @@ mat-formio-datagrid {
   margin-bottom: 12px !important;
 }
 
-::ng-deep mat-card .mat-card-title {
-  margin: 8px 0 16px !important;
+.mat-card {
+
+  .mat-card-title {
+    margin: 8px 0 16px;
+  }
+
+  .mat-card-actions {
+    padding-bottom: 1.25em;
+  }
 }
 
-::ng-deep mat-card .mat-card-actions {
-  padding-bottom: 1.25em !important;
-}
-
-::ng-deep .mat-cell {
+.mat-cell {
   padding-top: 10px !important;
   padding-left: 10px !important;
   padding-right: 10px !important;
 
   &:nth-child(1) {
-    padding-left: 0px !important;
+    padding-left: 0 !important;
   }
 
   &:nth-of-type(6) {
-    padding-top: 20px !important;
+    padding-right: 0 !important;
   }
 }
