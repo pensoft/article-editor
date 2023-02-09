@@ -7,31 +7,33 @@
     </div>
   </div>
 
-  <div class="reference-box" *ngFor="let ref of ydocAndChangedRefsSubject | async ; let i = index">
-    <div>
-      <div class="reference-view">
-        <div class="reference">
-          <div>
-            <!--<strong [innerHTML]="ref.ref.title"></strong>-->
-            <span [innerHTML]="ref.citation.textContent"></span>
+  <div class="references-list">
+    <div class="reference-box" *ngFor="let ref of ydocAndChangedRefsSubject | async ; let i = index">
+      <div>
+        <div class="reference-view">
+          <div class="reference">
+            <div>
+              <!--<strong [innerHTML]="ref.ref.title"></strong>-->
+              <span [innerHTML]="ref.citation.textContent"></span>
+            </div>
           </div>
         </div>
-      </div>
-      <mat-form-field *ngIf="ref.refCiTOControl" appearance="fill" #referenceType class="edit-ref-cito">
-        <mat-label class="">Citation Typing Ontology:</mat-label>
-        <mat-select class="select-reference" [formControl]="ref.refCiTOControl">
-          <mat-option *ngFor="let type of CiToTypes " [value]="type">
-            {{type.label}}
-          </mat-option>
-        </mat-select>
-      </mat-form-field>
-      <div class="button-group">
-        <button mat-stroked-button color="primary" (click)="editRef(ref)">
-          Edit reference
-        </button>
-        <button mat-stroked-button color="warn" (click)="deleteRef(ref)">
-          Delete reference
-        </button>
+        <mat-form-field *ngIf="ref.refCiTOControl" appearance="fill" #referenceType class="edit-ref-cito">
+          <mat-label class="">Citation Typing Ontology:</mat-label>
+          <mat-select class="select-reference" [formControl]="ref.refCiTOControl">
+            <mat-option *ngFor="let type of CiToTypes " [value]="type">
+              {{type.label}}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+        <div class="button-group">
+          <button mat-stroked-button color="primary" (click)="editRef(ref)">
+            Edit reference
+          </button>
+          <button mat-stroked-button color="warn" (click)="deleteRef(ref)">
+            Delete reference
+          </button>
+        </div>
       </div>
     </div>
   </div>

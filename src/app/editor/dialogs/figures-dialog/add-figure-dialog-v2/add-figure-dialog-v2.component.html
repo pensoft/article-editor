@@ -8,15 +8,15 @@
 
     <div class="heading-container">
       <div class="figure-description">
-        <h3>Figure Description:</h3>
-        <div class="pm-editor" #figureDescription>
+        <span class="upper-label">Figure Description</span>
+        <div class="pm-editor pm-editor-override" #figureDescription>
 
         </div>
       </div>
 
-      <div class="columns-select">
+      <div class="columns-select" fxLayout="column nowrap">
+        <mat-label class="upper-label">Num. of columns</mat-label>
         <mat-form-field appearance="fill">
-          <mat-label>Num. of columns</mat-label>
           <mat-select [formControl]="columnsFormControl">
             <mat-option *ngFor="let col of columns" [value]="col">
               {{col}}
@@ -25,47 +25,29 @@
         </mat-form-field>
       </div>
     </div>
-      <!--
-       <div class="reorder-grid" cdkDropListGroup #gridContainer>
-         <div *ngFor="let component of figNewComponents; let i = index" cdkDropList [cdkDropListData]="i">
-           <div cdkDrag [cdkDragData]="i" (cdkDragEntered)="dragEntered($event)" class="reorder-box">
-             <app-figure-component-preview [(component)]="figNewComponents[i]"></app-figure-component-preview>
-             <div class="component-action-btns">
-               <div class="drag-container">
-                 <div class="drag-container-inner">
-                   <mat-icon class="move-icon" cdkDragHandle>drag_indicator</mat-icon>
-                 </div>
-               </div>
-               <div class="actions-container">
-                 <button mat-stroked-button color="primary" (click)="editComponent(component,i)">Edit</button>
-                 <button mat-flat-button color="primary" (click)="deleteComponent(component,i)">Delete</button>
-               </div>
-             </div>
-           </div>
-         </div>
-       </div>
-       -->
 
-       <div class="reorder-grid" cdkDropListGroup #gridContainer>
-         <div *ngFor="let component of figNewComponents; let i = index" cdkDropList [cdkDropListData]="i">
-           <div cdkDrag [cdkDragData]="i" (cdkDragEntered)="dragEntered($event)" class="reorder-box">
-             <div class="reorder-box-content">
-               <div class="drag-container">
-                 <app-figure-component-preview [(component)]="figNewComponents[i]"></app-figure-component-preview>
-               </div>
-               <div class="actions-container">
-                 <button mat-stroked-button color="primary" (click)="editComponent(component,i)">Edit</button>
-                 <button mat-stroked-button color="warn" (click)="deleteComponent(component,i)">Delete</button>
-               </div>
-             </div>
-           </div>
-         </div>
-       </div>
+    <div class="reorder-grid-content">
+      <div class="reorder-grid" cdkDropListGroup #gridContainer>
+        <div *ngFor="let component of figNewComponents; let i = index" cdkDropList [cdkDropListData]="i">
+          <div cdkDrag [cdkDragData]="i" (cdkDragEntered)="dragEntered($event)" class="reorder-box">
+            <div class="reorder-box-content">
+              <div class="drag-container">
+                <app-figure-component-preview [(component)]="figNewComponents[i]"></app-figure-component-preview>
+              </div>
+              <div class="actions-container">
+                <button mat-stroked-button color="primary" (click)="editComponent(component,i)">Edit</button>
+                <button mat-stroked-button color="warn" (click)="deleteComponent(component,i)">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-
-
   <div #codemirrorHtmlTemplate class='codemirror-editor' [ngStyle]="{'display': showHTMLEditor ? 'block' : 'none'}"></div>
+
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">

@@ -26,22 +26,24 @@
           <mat-card-subtitle class="commentBox-subtitle"></mat-card-subtitle>
         </mat-card-header>
         <mat-card-content>
-          <div class="selected-commet-text">
-            <div class="selected-commet-text-title">Selected text:</div>
-            <div *ngIf="selectedTextInEditors[lastFocusedEditor!] && commentAllowdIn[lastFocusedEditor!]" class="selected-commet-text-content">{{selectedTextInEditors[lastFocusedEditor!]}}</div>
-            <div *ngIf="!commentAllowdIn[lastFocusedEditor!]" class="selected-commet-text-content-no-selection">{{errorMessages[lastFocusedEditor!]}}</div>
+          <div class="selected-comment-text">
+            <div class="selected-comment-text-title">Selected text:</div>
+            <div *ngIf="selectedTextInEditors[lastFocusedEditor!] && commentAllowdIn[lastFocusedEditor!]" class="selected-comment-text-content">{{selectedTextInEditors[lastFocusedEditor!]}}</div>
+            <div *ngIf="!commentAllowdIn[lastFocusedEditor!]" class="selected-comment-text-content-no-selection">{{errorMessages[lastFocusedEditor!]}}</div>
           </div>
 
           <input #input class="comment-input" type="text" placeholder="Leave a comment..." [formControl]="commentInputFormControl" (keydown)="autocomplete.keyHandle($event)">
           <app-collaborators-auto-complete [(commentmarkId)]="newCommentMarkId" [(inputFormControl)]="commentInputFormControl" #autocomplete></app-collaborators-auto-complete>
 
-          <div class="comment-btns" fxLayout="row nowrap" fxLayoutGap="12px">
-            <button mat-stroked-button (click)="cancelBtnHandle()">Cancel</button>
-            <button mat-flat-button color="primary"
-                    (click)="autocomplete.canFinishComment(commentBtnHandle,[input,input.value])"
-                    [disabled]="!selectedTextInEditors[lastFocusedEditor!] || input.value.length === 0 || !commentAllowdIn[lastFocusedEditor!]">
-              Comment
-            </button>
+          <div class="comment-btns-container">
+            <div class="comment-btns" align="end" fxLayoutGap="12px">
+              <button mat-stroked-button (click)="cancelBtnHandle()">Cancel</button>
+              <button mat-flat-button color="primary"
+                      (click)="autocomplete.canFinishComment(commentBtnHandle,[input,input.value])"
+                      [disabled]="!selectedTextInEditors[lastFocusedEditor!] || input.value.length === 0 || !commentAllowdIn[lastFocusedEditor!]">
+                Comment
+              </button>
+            </div>
           </div>
         </mat-card-content>
       </mat-card>

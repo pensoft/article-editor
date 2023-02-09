@@ -3,7 +3,7 @@
 <div class="search-field-wrapper">
   <form (keydown.enter)="search(inputText.value)" fxFlex="100%" fxLayout="column">
     <label>Select a section</label>
-    <mat-form-field floatLabel="never" appearance="standard">
+    <mat-form-field floatLabel="never" appearance="standard" class="mat-form-field-search">
       <input matInput type="text" #inputText placeholder="Search for section">
       <button mat-flat-button color="primary" type="submit" matSuffix (click)="search(inputText.value)">
         Search
@@ -16,15 +16,16 @@
 
   <div *ngIf="showError" class="error">No Section selected.</div>
 
-  <div *ngIf="sectionTemplates.length == 0">
-    There are no manuscripts found with this criteria
+  <div *ngIf="searchResults.length == 0">
+    There are no allowed sections
   </div>
 
-  <mat-selection-list #topic [multiple]="false">
-    <mat-list-option *ngFor="let section of searchResults" [value]="section.id">
-      {{section.name}}
-    </mat-list-option>
-  </mat-selection-list>
+
+    <mat-selection-list #topic [multiple]="false" [ngClass]="{'no-results': searchResults.length == 0}">
+      <mat-list-option *ngFor="let section of searchResults" [value]="section.id">
+        {{section.name}}
+      </mat-list-option>
+    </mat-selection-list>
 
 </mat-dialog-content>
 

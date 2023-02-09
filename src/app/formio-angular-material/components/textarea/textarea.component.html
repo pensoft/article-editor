@@ -1,9 +1,15 @@
-<div [ngClass]="{'prosemirror-textarea-wrapper-error': validity.length > 0, 'prosemirror-textarea-wrapper': validity.length <= 0}">
+<div [ngClass]="{
+  'prosemirror-textarea-wrapper-error': validity.length > 0 && !isProseMirrorFocused,
+  'prosemirror-textarea-wrapper': validity.length <= 0 && !isProseMirrorFocused,
+  'prosemirror-textarea-wrapper-focused': isProseMirrorFocused
+}">
   <div #ProsemirrorEditor></div>
+
+  <mat-error class="pm-errors">
+    <div *ngIf="validity.length > 0 && !isProseMirrorFocused">
+      {{ validity[0].message }}
+    </div>
+  </mat-error>
 </div>
-<textarea [ngStyle]="{ display: 'none' }" #textarea></textarea>
-<mat-error class="pm-errors">
-  <div *ngIf="validity.length > 0">
-    {{ validity[0].message }}
-  </div>
-</mat-error>
+
+<textarea matInput [ngStyle]="{ display: 'none' }" #textarea></textarea>

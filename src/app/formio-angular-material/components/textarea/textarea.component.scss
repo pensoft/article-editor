@@ -1,46 +1,68 @@
 .mat-input-element {
-    min-height: 16px;
+  min-height: 16px;
 }
 
 ::ng-deep .prosemirror-textarea-wrapper {
-    margin-right: 13px;
-
-  .prosemirror-label-tag {
-    padding-bottom: 4px;
-    font-size: 14px;
-    font-weight: bold;
-    color: #192956;
-  }
-
   .editor-container {
-    border: 1px solid #e3e3e3 !important;
+    border: 1px solid var(--color-e3e3e3);
     transition: all ease-in-out 300ms;
-    border-radius: 6px !important;
+    border-radius: 6px;
+    padding: 6px 12px;
   }
+}
+
+::ng-deep .prosemirror-label-tag {
+  display: inline-block;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 20px;
+  margin: 0 0 8px 0;
+  color: var(--color-192956);
 }
 
 ::ng-deep .prosemirror-textarea-wrapper-error {
-    
-    .editor-container {
-        border: 1px solid #e56b87 !important;
-        transition: all ease-in-out 300ms;
-        border-radius: 6px !important;
-    }
+  .editor-container {
+    border: 1px solid var(--color-e56b87);
+    transition: all ease-in-out 300ms;
+    border-radius: 6px;
+    padding: 6px 12px;
+  }
+}
+
+::ng-deep .prosemirror-textarea-wrapper-focused {
+  .editor-container {
+    border: 1px solid var(--color-00b1b2);
+    transition: all ease-in-out 300ms;
+    border-radius: 6px;
+    padding: 6px 12px;
+  }
 }
 
 .pm-errors {
-    font-size: 14px;
-    font-weight: 500;
-    width: 100%;
-    height: 17px;
-    padding-top: 6px;
-    color: #e56b87 !important;
+  height: 24px;
+
+  > div {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 16px;
+    color: var(--color-e56b87);
+    padding: 4px 0 0 0;
+    letter-spacing: 0;
+  }
 }
 
-::ng-deep .prosemirror-textarea-wrapper, ::ng-deep .prosemirror-textarea-wrapper-error {
-    .ProseMirror {
-        p, span {
-            margin: 0px 0px 2px 6px !important;
-        }
+::ng-deep .prosemirror-textarea-wrapper,
+::ng-deep .prosemirror-textarea-wrapper-error,
+::ng-deep .prosemirror-textarea-wrapper-focused {
+
+  .ProseMirror {
+    p,
+    span {
+      margin-top: -10px;
     }
+    table p,
+    span {
+      margin-top: 0;
+    }
+  }
 }

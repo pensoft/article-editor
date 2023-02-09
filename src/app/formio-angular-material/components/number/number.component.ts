@@ -7,6 +7,7 @@ import _ from 'lodash';
 @Component({
   selector: 'mat-formio-number',
   templateUrl: '../textfield/textfield.component.html',
+  styleUrls: ['../textfield/textfield.scss'],
 })
 export class MaterialNumberComponent extends MaterialTextfieldComponent implements AfterViewInit {
   public inputType = 'text';
