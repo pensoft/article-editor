@@ -1,4 +1,5 @@
-<h2 mat-dialog-title>Add figure</h2>
+<h2 mat-dialog-title *ngIf="data.component">Edit media</h2>
+<h2 mat-dialog-title *ngIf="!data.component">Add media</h2>
 
 <div class="pm-pdf-menu-container"></div>
 
@@ -19,7 +20,7 @@
         </mat-form-field>
       </div>
       <div fxLayout="column nowrap">
-        <mat-label class="upper-label">Component type</mat-label>
+        <mat-label class="upper-label">Media type</mat-label>
         <mat-form-field class="type-edit-field" appearance="fill">
           <mat-select [formControl]="typeFromControl">
             <mat-option *ngFor="let type of types" [value]="type">
@@ -36,7 +37,7 @@
     <div class="row-container">
 
       <div class="description-edit-container">
-        <span class="upper-label">Component Description</span>
+        <span class="upper-label">Media Description</span>
         <div class="pm-editor pm-editor-override" #componentDescription></div>
       </div>
 
@@ -55,5 +56,5 @@
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button color="primary" (click)="closeDialog()">Cancel</button>
-  <button mat-flat-button color="primary" [disabled]="!typeFromControl.valid||!urlFormControl.valid" (click)="submitDialog()">Submit</button>
+  <button mat-flat-button color="primary" [disabled]="!typeFromControl.valid||!urlFormControl.valid" (click)="submitDialog()">Save</button>
 </mat-dialog-actions>
