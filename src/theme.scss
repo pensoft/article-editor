@@ -16,6 +16,10 @@
 @import './src/assets/colors';
 @import './styles/fields';
 
+body * {
+  box-sizing: border-box;
+}
+
 $fontConfig: (display-4: mat.define-typography-level(112px, 112px, 300, var(--font-family-open-sans), -0.0134em),
   display-3: mat.define-typography-level(56px, 56px, 400, var(--font-family-open-sans), -0.0089em),
   display-2: mat.define-typography-level(45px, 48px, 400, var(--font-family-open-sans), 0.0000em),
@@ -1505,19 +1509,20 @@ mat-radio-group {
             color: var(--color-00b1b2);
             text-decoration: underline;
 
-            > div {
-              top: unset;
+            .link_popup_div {
+              position: absolute;
+              display: block;
               bottom: calc(100% + 9px);
               left: 50%;
-              right: unset;
               padding: 0;
               max-width: 300px;
+              white-space: nowrap;
+              border-radius: 4px;
               background: var(--color-ffffff);
               box-shadow: 0 3px 6px #67676766;
               border-color: var(--color-e3e3e3);
               transform: translateX(-50%);
               transition: all 0.2s ease-in-out;
-              white-space: nowrap;
 
               &:before {
                 content: '';
@@ -1550,6 +1555,7 @@ mat-radio-group {
               }
 
               > a {
+                display: block;
                 font-size: 14px;
                 font-weight: 400;
                 line-height: 20px;
