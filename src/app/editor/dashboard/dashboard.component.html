@@ -95,7 +95,7 @@
               <ngx-avatar class="avatar" size="36" [gravatarId]="row.user.email" [name]="row.user.name"></ngx-avatar>
 
               <ng-container *ngFor="let collaborator of row.collaborators index as i">
-                <ngx-avatar class="avatar" *ngIf="collaborator&&collaborator.user_email&&collaborator.user_name&&i<1" size="36" [gravatarId]="collaborator.user_email"
+                <ngx-avatar class="avatar" *ngIf="collaborator&&collaborator.user_email&&collaborator.user_name&&i<2" size="36" [gravatarId]="collaborator.user_email"
                             [name]="collaborator.user_name"></ngx-avatar>
               </ng-container>
 
