@@ -9,7 +9,6 @@ export const tableJson = {
         "required": true
       },
       "properties":{
-        "addTableEditor":true
       },
       "key": "tableHeader",
       "type": "textarea",
@@ -20,15 +19,11 @@ export const tableJson = {
       "autoExpand": false,
       "tableView": true,
       "defaultValue":
-      `<table-container>
-      </table-container>`,
+      `<form-field><p align="set-align-left" class="set-align-left">Content for the table.</p></form-field>`,
       "validate": {
         "required": true
       },
       "properties": {
-        "menuType":"fullMenu",
-        "addTableEditor":true,
-        "rawNodeContent":true
       },
       "key": "tableContent",
       "type": "textarea",
@@ -42,7 +37,6 @@ export const tableJson = {
         "required": true
       },
       "properties":{
-        "addTableEditor":true
       },
       "key": "tableFooter",
       "type": "textarea",

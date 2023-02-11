@@ -156,7 +156,7 @@ export const table_container = {
 }
 
 export const table_content = {
-  content: "table_container",
+  content: "block",
   group: "block",
   isolating: true,
   inline: false,

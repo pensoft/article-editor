@@ -22,7 +22,7 @@ let getAttrValueIfAnyAtPos = (resolvedPos:ResolvedPos,attrName : string) => {
 export let FullSchemaDOMPMSerializer = DOMSerializer.fromSchema(schema)
 export let FullSchemaDOMPMParser = DOMParser.fromSchema(schema)
 
-export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDefs:{nodes:any,marks:any})=>{
+export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare)=>{
 
 
     let menusAndSchemasDefs = serviceShare.YdocService.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
@@ -39,10 +39,12 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
         //@ts-ignore
         let importantSchemaDefsForSection =  {
           ...(menusAndSchemasDefs['layoutDefinitions']||{schemas:{}}).schemas,
-          ...(menusAndSchemasDefs[sectionID]||{schemas:{}}).schemas
+          ...(menusAndSchemasDefs[sectionID]||{schemas:{}}).schemas,
+          ...(menusAndSchemasDefs['citableElementMenusAndSchemaDefs'].allCitableElementsSchemas)
         }
         let schemaDefForNode = importantSchemaDefsForSection[editorSchemaDEFKey];
         let nodeSchema = schemaDefForNode?serviceShare.ProsemirrorEditorsService.buildSchemaFromKeysDef(schemaDefForNode):schema;
+        console.log(schemaDefForNode);
         if(!schemaDefForNode){
           console.error(`There is no schema def with this name ["${editorSchemaDEFKey}"]. Available schema defs are : ["${Object.keys(importantSchemaDefsForSection).join('","')}"]`)
         }
@@ -102,7 +104,7 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
 
       let cleanedSlice = nodeSchemaParser.parseSlice(newDocFr)
       let srializedCleanStruct = nodeSchemaSerializer.serializeFragment(cleanedSlice.content);
-
+      console.log(cleanedSlice);
       let newSlice = FullSchemaDOMPMParser.parseSlice(srializedCleanStruct)
       return newSlice
     }
@@ -129,21 +131,42 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
               !allowedTagsOnNode&&
               lastFormControlName&&
               //@ts-ignore
+              view.globalMenusAndSchemasSectionsDefs&&
+              //@ts-ignore
               view.globalMenusAndSchemasSectionsDefs[view.sectionID]&&
               //@ts-ignore
-              view.globalMenusAndSchemasSectionsDefs[view.sectionID][lastFormControlName]
+              view.globalMenusAndSchemasSectionsDefs[view.sectionID][lastFormControlName]&&
+              //@ts-ignore
+              view.globalMenusAndSchemasSectionsDefs[view.sectionID][lastFormControlName].schema
             ){
               //@ts-ignore
               let formIOJSONDefs = view.globalMenusAndSchemasSectionsDefs[view.sectionID][lastFormControlName];
               editorSchemaDEFKey = formIOJSONDefs.schema
+            }else if(
+              !allowedTagsOnNode&&
+              lastFormControlName&&
+              //@ts-ignore
+              view.citableElementMenusAndSchemaDefs&&
+              //@ts-ignore
+              view.citableElementMenusAndSchemaDefs.allCitableElementsSchemas&&
+              //@ts-ignore
+              view.citableElementMenusAndSchemaDefs.allCitableElementsSchemas[lastFormControlName]&&
+              //@ts-ignore
+              view.citableElementMenusAndSchemaDefs.allCitableElementsSchemas[lastFormControlName].schema
+            ){
+              //@ts-ignore
+              editorSchemaDEFKey = view.citableElementMenusAndSchemaDefs.allCitableElementsSchemas[lastFormControlName].schema
             }else if(allowedTagsOnNode){
               editorSchemaDEFKey = allowedTagsOnNode
             }
             if(editorSchemaDEFKey){
+              console.log(editorSchemaDEFKey);
               //@ts-ignore
               let newSlice = getFilteredSlice(slice,editorSchemaDEFKey,view.sectionID)
               view.dispatch(view.state.tr.replaceRange(from,to,newSlice))
               return true;
+            }else{
+              console.log('no editorSchemaDEFKey');
             }
           }
           return false;

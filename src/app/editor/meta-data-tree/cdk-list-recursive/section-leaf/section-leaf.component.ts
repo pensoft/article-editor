@@ -159,7 +159,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   editNodeHandle(node: articleSection, formGroup: FormGroup) {
     try {
       let defaultValues = formGroup.value;
-      filterFieldsValues( node.formIOSchema,{data:defaultValues},this.serviceShare,node.sectionID,true,'')
+      filterFieldsValues( node.formIOSchema,{data:defaultValues},this.serviceShare,node.sectionID,true,'',false)
       let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID, formGroup);
 
       let updateYdoc = new Y.Doc();

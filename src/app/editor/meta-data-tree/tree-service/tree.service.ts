@@ -616,10 +616,6 @@ export class TreeService implements OnDestroy {
   showAddBtn(node: articleSection) {
     let r = true
     let parentNode = this.findParentNodeWithChildID(node.sectionID)!;
-    let level = this.getNodeLevel(node) + 1;
-    if(level == 4){
-      return false
-    }
     if (parentNode && parentNode !== 'parentNode') {
       r = checkIfSectionsAreAboveOrAtMax(node, parentNode)
     }else if(parentNode == 'parentNode'){
@@ -688,7 +684,7 @@ export class TreeService implements OnDestroy {
 
   applyEditChangeV2(id:string){
     let nodeRef = this.findNodeById(id)!;
-    let {sectionMenusAndSchemaDefsFromJSON,formIOJSON,sectionMenusAndSchemasDefsfromJSONByfieldsTags} = parseSecFormIOJSONMenuAndSchemaDefs(nodeRef.formIOSchema);
+    let {sectionMenusAndSchemaDefsFromJSON,formIOJSON,sectionMenusAndSchemasDefsfromJSONByfieldsTags} = parseSecFormIOJSONMenuAndSchemaDefs(nodeRef.formIOSchema,{menusL:"customSectionJSONMenuType",tagsL:'customSectionJSONAllowedTags'});
     this.serviceShare.ProsemirrorEditorsService.globalMenusAndSchemasSectionsDefs[id] = sectionMenusAndSchemasDefsfromJSONByfieldsTags;
   }
 

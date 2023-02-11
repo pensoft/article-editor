@@ -21,6 +21,8 @@ import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-edit
 import { citationElementMap } from '@app/editor/services/citable-elements.service';
 import { supplementaryFileJSON } from '@app/editor/utils/section-templates/form-io-json/supplementaryFileFormIOJson';
 import { supplementaryFile } from '@app/editor/utils/interfaces/supplementaryFile';
+import { filterFieldsValues } from '@app/editor/utils/fieldsMenusAndScemasFns';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 
 
 let supplementaryFileHtmlTemplate = `
@@ -89,6 +91,7 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
     private changeDetectorRef: ChangeDetectorRef,
     private dialogRef: MatDialogRef<AddSupplementaryFileComponent>,
     private ydocService: YdocService,
+    private serviceShare: ServiceShare,
     @Inject(MAT_DIALOG_DATA) public data:  { supplementaryFile:supplementaryFile, updateOnSave: boolean, index: number, supplementaryFileID: string }
   ) {
 
@@ -105,6 +108,9 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
     }
     try {
       this.supplementaryFileID = this.data.supplementaryFileID || uuidv4();
+      this.sectionContent.props = {isCitableElement:true}
+
+      let supplementaryFileHTML = this.renderCodemMirrorEditors(this.supplementaryFileID!)
       if (this.data.supplementaryFile) {
         let titleContainer = document.createElement('div');
         titleContainer.innerHTML = this.data.supplementaryFile.title;
@@ -119,11 +125,20 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
         this.sectionContent.components[2].defaultValue = dataTypeContainer.textContent;
         this.sectionContent.components[3].defaultValue = this.data.supplementaryFile.brief_description;
         this.sectionContent.components[4].defaultValue = urlContainer.textContent;
+        let submision = {data:citationElementMap.supplementary_file_citation.getElFormIOSubmission(this.data.supplementaryFile,'endEditor')}
+        filterFieldsValues(this.sectionContent,submision,this.serviceShare,undefined,false,supplementaryFileHTML,false)
+        let filterdTableData ={
+          "brief_description":submision.data.supplementaryFileBriefDescription,
+        }
+        titleContainer.innerHTML = submision.data.title;
+        authorsContainer.innerHTML = submision.data.authors;
+        dataTypeContainer.innerHTML = submision.data.data_type;
+        urlContainer.innerHTML = submision.data.url;
+        this.sectionContent.components[3].defaultValue = filterdTableData.brief_description;
         this.renderForm = true
       }else{
         this.renderForm = true
       }
-      this.renderCodemMirrorEditors(this.supplementaryFileID!)
     } catch (e) {
       console.error(e);
     }
@@ -226,6 +241,7 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
         }),
         parent: this.codemirrorHtmlTemplate?.nativeElement,
       })
+      return prosemirrorNodesHtml
     } catch (e) {
       console.error(e);
     }

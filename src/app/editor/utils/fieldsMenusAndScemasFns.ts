@@ -317,17 +317,18 @@ export let mapSchemaDef = (def:{nodes?:string[],marks?:string[]})=>{
   return mappedSchema;
 }
 
-export let filterFieldsValues = (formIOJSON:any,submission:any,serviceShare:ServiceShare,sectionID:string,withDefsOnlyInFORMioSCHEMA:boolean,htmlTemplate:string)=>{
+export let filterFieldsValues = (formIOJSON:any,submission:any,serviceShare:ServiceShare,sectionID:string,withDefsOnlyInFORMioSCHEMA:boolean,htmlTemplate:string,citableElement:boolean)=>{
   let menusAndSchemasDefs = serviceShare.YdocService.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
   let importantSchemaDefsForSection = {
     ...(menusAndSchemasDefs['layoutDefinitions']||{schemas:{}}).schemas,
-    ...(menusAndSchemasDefs[sectionID]||{schemas:{}}).schemas
+    ...(menusAndSchemasDefs[sectionID]||{schemas:{}}).schemas,
+    ...(menusAndSchemasDefs['citableElementMenusAndSchemaDefs'].allCitableElementsSchemas)
   }
-  let {sectionMenusAndSchemasDefsfromJSONByfieldsTags} = parseSecFormIOJSONMenuAndSchemaDefs(formIOJSON);
+  let {sectionMenusAndSchemasDefsfromJSONByfieldsTags} = parseSecFormIOJSONMenuAndSchemaDefs(formIOJSON,{menusL:"customSectionJSONMenuType",tagsL:'customSectionJSONAllowedTags'});
   let defsOnFieldsInHTML:any = {}
-
+  let citableElementDefsByTags = menusAndSchemasDefs['citableElementMenusAndSchemaDefs'].allCitableElementsDefsByTags
   if(!withDefsOnlyInFORMioSCHEMA){
-    let allFormFieldsStings = htmlTemplate.match(/<form-field[\s\S]*?(?=>)>/gm)
+    let allFormFieldsStings = htmlTemplate.match(/<(.+)[^><]*formControlName="[^<>]*(?=>)>/gm)
     allFormFieldsStings?allFormFieldsStings.forEach((formField)=>{
       let fieldKey = formField.match(/formControlName="([\S]*)"/);
       let menuType = formField.match(/menuType="([\S]*)"/)
@@ -340,15 +341,22 @@ export let filterFieldsValues = (formIOJSON:any,submission:any,serviceShare:Serv
   }
 
   Object.keys(submission.data).forEach((fieldKey)=>{
-    let customDefsForField  = sectionMenusAndSchemasDefsfromJSONByfieldsTags[fieldKey] // only used when there is no shcema in the HTML template
+    let customDefsForField
+    console.log(defsOnFieldsInHTML);
+    if(citableElement){
+      customDefsForField  = citableElementDefsByTags[fieldKey] // only used when there is no shcema in the HTML template
+    }else{
+      customDefsForField  = sectionMenusAndSchemasDefsfromJSONByfieldsTags[fieldKey] // only used when there is no shcema in the HTML template
+    }
     if(!withDefsOnlyInFORMioSCHEMA&&defsOnFieldsInHTML[fieldKey]&&defsOnFieldsInHTML[fieldKey].allowedTags){ // customDefsForField is ised from the html definitions if there is any
       customDefsForField = {schema:defsOnFieldsInHTML[fieldKey].allowedTags}
     }
     if(customDefsForField&&customDefsForField.schema){
       let nodeSchemaDef = importantSchemaDefsForSection[customDefsForField.schema]
+      console.log(customDefsForField,customDefsForField.schema,nodeSchemaDef);
       let nodeSchema = nodeSchemaDef?serviceShare.ProsemirrorEditorsService.buildSchemaFromKeysDef(nodeSchemaDef):schema;
       if(!nodeSchemaDef){
-        console.error(`There is no schema def this whis name ["${customDefsForField.schema}"]. Available schema defs are : ["${Object.keys(importantSchemaDefsForSection).join('","')}"]`)
+        console.error(`There is no schema def this with name ["${customDefsForField.schema}"]. Available schema defs are : ["${Object.keys(importantSchemaDefsForSection).join('","')}"]`)
       }
       let nodeSchemaParser = DOMParser.fromSchema(nodeSchema);
       let nodeSchemaSerializer = DOMSerializer.fromSchema(nodeSchema);
@@ -412,7 +420,7 @@ let loopComponents = (component: any,fnc:any)=> {
 
 }
 
-export let parseSecFormIOJSONMenuAndSchemaDefs = (formIOJSON:any)=>{
+export let parseSecFormIOJSONMenuAndSchemaDefs = (formIOJSON:any,labels:{menusL:string,tagsL:string})=>{
   let sectionMenusAndSchemaDefsFromJSON = {
     menus:{},
     schemas:{}
@@ -433,7 +441,7 @@ export let parseSecFormIOJSONMenuAndSchemaDefs = (formIOJSON:any)=>{
           menutype = JSON.parse(menutypeObjJson);
         }
         if(menutype.menuType instanceof Array){
-          let customSectiomMenuDefKey = 'customSectionJSONMenuType'+sectionMenuDefsCount;
+          let customSectiomMenuDefKey = labels.menusL+sectionMenuDefsCount;
           sectionMenusAndSchemaDefsFromJSON.menus[customSectiomMenuDefKey] = menutype.menuType;
           component.properties.menuType = customSectiomMenuDefKey
           sectionMenuDefsCount++
@@ -451,7 +459,7 @@ export let parseSecFormIOJSONMenuAndSchemaDefs = (formIOJSON:any)=>{
           allowedtags = JSON.parse(allowedtagsObjJson);
         }
         if(typeof allowedtags.allowedTags == 'object'){
-          let customSectiomSchemaDefKey = 'customSectionJSONAllowedTags'+sectionSchemaDefsCount;
+          let customSectiomSchemaDefKey = labels.tagsL+sectionSchemaDefsCount;
           sectionMenusAndSchemaDefsFromJSON.schemas[customSectiomSchemaDefKey] = mapSchemaDef(allowedtags.allowedTags);
           component.properties.allowedTags = customSectiomSchemaDefKey
           sectionSchemaDefsCount++
@@ -470,7 +478,7 @@ export let parseSecFormIOJSONMenuAndSchemaDefs = (formIOJSON:any)=>{
   return {sectionMenusAndSchemaDefsFromJSON,formIOJSON,sectionMenusAndSchemasDefsfromJSONByfieldsTags}
 }
 
-export let parseSecHTMLMenuAndSchemaDefs = (html:string)=>{
+export let parseSecHTMLMenuAndSchemaDefs = (html:string,labels:{menusL:string,tagsL:string})=>{
   let newHTML = html
   let menuStringRegex = /menuType="(.*?)"/gm
   let schemaStringRegex = /allowedTags="(.*?)"/gm
@@ -506,7 +514,7 @@ export let parseSecHTMLMenuAndSchemaDefs = (html:string)=>{
       menutype = menuTypeStr
     }
     if(menutype.menuType instanceof Array){
-      let customSectiomMenuDefKey = 'customSectionHTMLMenuType'+sectionMenuDefsCount;
+      let customSectiomMenuDefKey = labels.menusL+sectionMenuDefsCount;
       sectionMenusAndSchemaHTMLDefs.menus[customSectiomMenuDefKey] = menutype.menuType;
       newHTML = newHTML.replace(result[1],customSectiomMenuDefKey);
       sectionMenuDefsCount++
@@ -523,7 +531,7 @@ export let parseSecHTMLMenuAndSchemaDefs = (html:string)=>{
       allowedtags = allowedTagsStr
     }
     if(typeof allowedtags.allowedTags == 'object'){
-      let customSectiomSchemaDefKey = 'customSectionHTMLAllowedTags'+sectionSchemaDefsCount;
+      let customSectiomSchemaDefKey = labels.tagsL+sectionSchemaDefsCount;
       sectionMenusAndSchemaHTMLDefs.schemas[customSectiomSchemaDefKey] = mapSchemaDef(allowedtags.allowedTags);
       newHTML = newHTML.replace(result[1],customSectiomSchemaDefKey);
       sectionSchemaDefsCount++
@@ -693,3 +701,156 @@ let AllTagsSchema = {
      "underline"
   ]
 }
+
+
+/*
+{
+  "menus": {
+    "BasicMenu": [
+      [
+        "toggleStrong",
+        "toggleEm",
+        "undoItem",
+        "redoItem"
+      ],
+      [
+        "insertSupplementaryFile",
+        "insertEndNote",
+        "insertTable",
+        "insertFigure"
+      ]
+    ],
+    "FullMenu": [
+      [
+        "addMathInlineMenuItem",
+        "addMathBlockMenuItem",
+        "insertSupplementaryFile",
+        "insertEndNote",
+        "toggleStrong",
+        "insertTable",
+        "toggleEm",
+        "toggleCode",
+        "insertImage",
+        "wrapBulletList",
+        "wrapOrderedList",
+        "wrapBlockQuote",
+        "makeParagraph",
+        "makeCodeBlock",
+        "headings",
+        "insertPageBreak",
+        "insertHorizontalRule",
+        "insertSupplementaryFile",
+        "undoItem",
+        "redoItem",
+        "undoItemPM",
+        "redoItemPM",
+        "insertEndNote",
+        "toggleSuperscriptItem",
+        "toggleSubscriptItem",
+        "insertLink",
+        "setAlignLeft",
+        "setAlignCenter",
+        "setAlignRight",
+        "citateReference",
+        "insertVideoItem",
+        "selectParentNodeItem",
+        "tableMenu",
+        "alignMenu",
+        "addAnchorTagMenuItem",
+        "insertSpecialSymbol",
+        "getLinkMenuItem",
+        "starMenuItem",
+        "highLightMenuItem",
+        "footnoteMenuItem",
+        "spellCheckMenuItem",
+        "toggleUnderline",
+        "logNodesMenuItem",
+        "insertFigure"
+      ]
+    ],
+    "OnlyMarksAndHeadingsMenu": [
+      [
+        "headings",
+        "alignMenu"
+      ],
+      [
+        "toggleStrong",
+        "toggleEm",
+        "toggleUnderline",
+        "toggleCode",
+        "toggleSubscriptItem",
+        "toggleSuperscriptItem"
+      ]
+    ],
+    "OnlyCitableElementsAndCommentsMenu": [
+      [
+        "insertFigure",
+        "insertTable",
+        "insertSupplementaryFile",
+        "insertEndNote",
+        "citateReference"
+      ]
+    ]
+  },
+  "allowed_tags": {
+    "OnlyMarksAndHeadingsSchema": {
+      "nodes": [
+        "headings"
+      ],
+      "marks": [
+        "em",
+        "strong",
+        "code",
+        "underline",
+        "subscript",
+        "superscript",
+        "comment"
+      ]
+    },
+    "AllTagsSchema": {
+      "nodes": [
+        "citable-tables",
+        "citable-figures",
+        "tables",
+        "image",
+        "video",
+        "inline_block_container",
+        "reference-citation",
+        "blockquote",
+        "horizontal_rule",
+        "headings",
+        "code_block",
+        "hard_break",
+        "page_break",
+        "math_inline",
+        "math_display",
+        "bullet_list",
+        "ordered_list"
+      ],
+      "marks": [
+        "subscript",
+        "superscript",
+        "comment",
+        "link",
+        "em",
+        "strong",
+        "code",
+        "anchorTag",
+        "underline"
+      ]
+    },
+    "OnlyCitableElementsAndCommentsSchema": {
+      "nodes": [
+        "citable-figures",
+        "citable-tables",
+        "supplementary-files",
+        "end-notes",
+        "reference-citation"
+      ],
+      "marks": [
+        "comment"
+      ]
+    }
+  }
+}
+*/

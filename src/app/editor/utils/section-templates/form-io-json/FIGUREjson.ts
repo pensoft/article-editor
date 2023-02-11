@@ -118,7 +118,6 @@ export const figureJson = {
                 "required": true
               },
               "properties": {
-                "addFigureEditor": true
               },
               "key": "figureDescription",
               "type": "textarea",
@@ -250,7 +249,6 @@ export const figureJson = {
                         "required": true
                       },
                       "properties": {
-                        "addFigureEditor": true
                       },
                       "key": "description",
                       "type": "textarea",
