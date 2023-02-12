@@ -624,6 +624,10 @@ export class TreeService implements OnDestroy {
     return r
   }
 
+  showAddSubsectionBtn(node: articleSection) {
+    return this.getNodeLevel(node)+1 < 4
+  }
+
   findParentNodeWithChildID(nodeid: string) {
     let parent: undefined | articleSection | 'parentNode' = undefined
     let find = (container: articleSection[], parentNode: articleSection | 'parentNode') => {

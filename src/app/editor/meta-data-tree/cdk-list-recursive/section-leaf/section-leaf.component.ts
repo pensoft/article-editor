@@ -419,7 +419,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
                 el.style.display = 'inline';
               } else if (el.getAttribute('buttonaction') == 'delete'&& this.treeService.showDeleteButton(node)) { // delete btn
                 el.style.display = 'inline';
-              } else if (el.getAttribute('buttonaction') == 'post_add'&& node.type == 'complex') {
+              } else if (el.getAttribute('buttonaction') == 'post_add'&& node.type == 'complex'&&this.treeService.showAddSubsectionBtn(node)) { // add subsection btn
                 el.style.display = 'inline';
               } else if (el.getAttribute('buttonaction') == 'edit') {
                 el.style.display = 'inline';
