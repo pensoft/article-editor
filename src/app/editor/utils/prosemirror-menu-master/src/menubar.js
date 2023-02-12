@@ -149,6 +149,8 @@ class MenuBarView {
                   menuTypeOnNode = this.editorView.globalMenusAndSchemasSectionsDefs[this.editorView.sectionID][firstFormControlName].menu
               }else if(
                 firstFormControlName &&
+                this.editorView.citableElementMenusAndSchemaDefs&&
+                this.editorView.citableElementMenusAndSchemaDefs.allCitableElementsDefsByTags&&
                 this.editorView.citableElementMenusAndSchemaDefs.allCitableElementsDefsByTags[firstFormControlName]&&
                 this.editorView.citableElementMenusAndSchemaDefs.allCitableElementsDefsByTags[firstFormControlName].menu
               ){

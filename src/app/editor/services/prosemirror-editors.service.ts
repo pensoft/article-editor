@@ -1002,8 +1002,8 @@ export class ProsemirrorEditorsService {
           'Tab': goToNextCell(1),
           'Shift-Tab': goToNextCell(-1)
         }),
-        //columnResizing({}),
-        //tableEditing(),
+        columnResizing({}),
+        tableEditing(),
         history(),
         //this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
@@ -1118,9 +1118,10 @@ export class ProsemirrorEditorsService {
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
     });
     EditorContainer.appendChild(container);
-    console.log(menusAndSchemasForCitableElements);
-    //@ts-ignore
+    //@ts-ignorer
     editorView.citableElementMenusAndSchemaDefs = menusAndSchemasForCitableElements
+    //@ts-ignore
+    editorView.globalMenusAndSchemasSectionsDefs = this.globalMenusAndSchemasSectionsDefs
     //@ts-ignore
     editorView.editorType = 'editorWithCustomSchema'
     let editorCont: any = {

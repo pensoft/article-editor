@@ -29,7 +29,12 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare)=>{
 
     let DOMParsersAndSerializersBySchemaKeys:{[key:string]:{domSerializer:DOMSerializer,domParser:DOMParser}} = {}
 
-    let getDOMParserAndSerializerForSchema = (editorSchemaDEFKey:string,sectionID:string)=>{
+    let getDOMParserAndSerializerForSchema = (editorSchemaDEFKey:string|undefined,sectionID:string)=>{
+      if(!editorSchemaDEFKey){
+        let nodeSchemaParser = FullSchemaDOMPMParser
+        let nodeSchemaSerializer = FullSchemaDOMPMSerializer
+        return {nodeSchemaParser,nodeSchemaSerializer}
+      }
       let nodeSchemaParser
       let nodeSchemaSerializer
       if(DOMParsersAndSerializersBySchemaKeys[editorSchemaDEFKey]){
@@ -44,7 +49,6 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare)=>{
         }
         let schemaDefForNode = importantSchemaDefsForSection[editorSchemaDEFKey];
         let nodeSchema = schemaDefForNode?serviceShare.ProsemirrorEditorsService.buildSchemaFromKeysDef(schemaDefForNode):schema;
-        console.log(schemaDefForNode);
         if(!schemaDefForNode){
           console.error(`There is no schema def with this name ["${editorSchemaDEFKey}"]. Available schema defs are : ["${Object.keys(importantSchemaDefsForSection).join('","')}"]`)
         }
@@ -90,10 +94,17 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare)=>{
       let pastedDomHTMLStr = container.innerHTML;
       //let htmlWithNoStyle = pastedDomHTMLStr.replace(/ /gm,'&nbsp;')
       let htmlWithNoStyle = pastedDomHTMLStr.replace(/style="[^"]+"/gm,'style=""');
-      htmlWithNoStyle = htmlWithNoStyle.replace(/class="[^"]+"/gm,'class=""');
-      htmlWithNoStyle.match(/>[^<]+</gm).forEach((val)=>{
-        htmlWithNoStyle = htmlWithNoStyle.replace(val,val.replace(/ /gm,'&nbsp;'));
-      })
+      if(htmlWithNoStyle){
+        htmlWithNoStyle = htmlWithNoStyle.replace(/class="[^"]+"/gm,'class=""');
+      }
+      let matches = htmlWithNoStyle.match(/>[^<]+</gm)
+      if(matches){
+        matches.forEach((val)=>{
+          if(htmlWithNoStyle){
+            htmlWithNoStyle = htmlWithNoStyle.replace(val,val.replace(/ /gm,'&nbsp;'));
+          }
+        })
+      }
       let newDocFr = document.createDocumentFragment();
       let container1= document.createElement('div');
 
@@ -104,7 +115,6 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare)=>{
 
       let cleanedSlice = nodeSchemaParser.parseSlice(newDocFr)
       let srializedCleanStruct = nodeSchemaSerializer.serializeFragment(cleanedSlice.content);
-      console.log(cleanedSlice);
       let newSlice = FullSchemaDOMPMParser.parseSlice(srializedCleanStruct)
       return newSlice
     }
@@ -160,13 +170,15 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare)=>{
               editorSchemaDEFKey = allowedTagsOnNode
             }
             if(editorSchemaDEFKey){
-              console.log(editorSchemaDEFKey);
               //@ts-ignore
               let newSlice = getFilteredSlice(slice,editorSchemaDEFKey,view.sectionID)
-              view.dispatch(view.state.tr.replaceRange(from,to,newSlice))
+              view.dispatch(view.state.tr.replaceWith(from,to,newSlice.content))
               return true;
             }else{
-              console.log('no editorSchemaDEFKey');
+              //@ts-ignore
+              let newSlice = getFilteredSlice(slice,undefined,view.sectionID)
+              view.dispatch(view.state.tr.replaceWith(from,to,newSlice.content))
+              return true;
             }
           }
           return false;
@@ -190,6 +202,7 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare)=>{
           if(editorSchemaDEFKey){
             //@ts-ignore
             let newSlice = getFilteredSlice(slice,editorSchemaDEFKey,view.sectionID)
+
             let state = view.state
             let newTr = state.tr
             if(moved){
