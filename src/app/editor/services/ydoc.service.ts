@@ -458,6 +458,7 @@ export class YdocService {
           this.serviceShare.openNotifyUserAccessChangeDialog(this.curUserAccess, userInArticle.access)
         }
         this.curUserAccess = userInArticle.access;
+        this.userInfo.data.access = this.curUserAccess;
         this.currUserRoleSubject.next(userInArticle);
       }
     })
