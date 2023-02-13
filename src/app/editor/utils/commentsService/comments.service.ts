@@ -363,14 +363,7 @@ export class CommentsService {
       if (!view.hasFocus()) {
         return
       }
-      if (!commentsStatus.allow) {
-        commentBtnDiv.style.display = 'none'
-        return
-      }
-      if (empty || from == to) {
-        editorBtnsWrapper.style.display = 'none'
-        return
-      }
+
       commentBtn.removeAllListeners!('click');
       let sectionName = commentPluginKey.getState(view.state).sectionName
 
@@ -379,10 +372,21 @@ export class CommentsService {
       let averageValueTop = (coordinatesAtFrom.top + coordinatesAtTo.top) / 2
       let editorBtns = editor.getElementsByClassName('editor_buttons').item(0) as HTMLDivElement;
       editorBtnsWrapper.style.display = 'block'
-      commentBtnDiv.style.display = 'inline-flex'
       editorBtnsWrapper.style.top = (averageValueTop - 42) + 'px';
       editorBtnsWrapper.style.position = 'fixed'
       editorBtnsWrapper.style.marginLeft = '-6px'
+      if (!commentsStatus.allow) {
+        commentBtnDiv.style.visibility = 'hidden'
+        commentBtnDiv.style.opacity = '0'
+        return
+      }
+      commentBtnDiv.style.visibility = 'visible'
+      commentBtnDiv.style.opacity = '1'
+
+     /*  if (empty || from == to) {
+        editorBtnsWrapper.style.display = 'none'
+        return
+      } */
       commentBtn.addEventListener('click', () => {
         this.addCommentSubject.next({ type: 'commentData', sectionName, showBox: true })
         setTimeout(() => {

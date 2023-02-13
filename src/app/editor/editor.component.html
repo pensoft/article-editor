@@ -162,10 +162,30 @@
               </button>
             </div>
             <div [ngStyle]="{'display':(userAccess == 'Commenter'||userAccess == 'Viewer')?'none':'block'}"
-                 class="trackChangesBtnDiv">
+                class="trackChangesBtnDiv">
               <button [ngClass]="shouldTrackChanges?'changes_on_editor_side_btn':'changes_off_editor_side_btn'"
                       (click)="turnOnOffTrachChanges()" class="trackChangesBtn" mat-icon-button>
                 <mat-icon svgIcon="reference"></mat-icon>
+              </button>
+            </div>
+            <div [ngStyle]="{
+              'visibility':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'hidden':'visible',
+              'opacity':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'0':'1'
+            }"
+                class="tag-words-btn-div">
+              <button (click)="taxonService.tagText(false)" [ngClass]="'tag_text_as_taxon_side_btn'" [matTooltip]="'Tag this text as Taxon.'"
+                      class="tag-single" mat-icon-button>
+                <mat-icon >bookmark</mat-icon>
+              </button>
+            </div>
+            <div [ngStyle]="{
+              'visibility':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'hidden':'visible',
+              'opacity':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'0':'1'
+            }"
+                class="tag-words-btn-div">
+              <button (click)="taxonService.tagText(true)" [ngClass]="'tag_text_as_taxon_side_btn'" [matTooltip]="'Tag all occurrence of this text as Taxon.'"
+                      class="tag-multiple" mat-icon-button>
+                <mat-icon >bookmarks</mat-icon>
               </button>
             </div>
           </div>
