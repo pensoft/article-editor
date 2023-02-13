@@ -14,8 +14,9 @@
   <mat-label class="upper-label" *ngIf="type == 'comment'">Comment</mat-label>
   <mat-label class="upper-label" *ngIf="type == 'anchorTag'">Anchor id</mat-label>
   <mat-form-field [style.width]='"100%"' appearance="fill">
-    <input *ngIf="type == 'mathinline'" matInput [(ngModel)]="data.url"
+    <input  *ngIf="mathType != 'math_display'" matInput [(ngModel)]="data.url"
            [formControl]="text" required style="color: black !important;" placeholder="Enter math expression">
+    <textarea *ngIf="mathType == 'math_display'" matInput  [(ngModel)]="data.url" [formControl]="text" required style="color: black !important;"></textarea>
     <input *ngIf="type == 'video'" matInput [(ngModel)]="data.url"
            [formControl]="text" required style="color: black !important;" placeholder="Enter video url">
     <input *ngIf="type == 'comment'" matInput [(ngModel)]="data.url"
@@ -29,6 +30,7 @@
     <a href="https://katex.org/docs/supported.html"  target="_blank">https://katex.org/docs/supported.html</a>
     for supported functions, operators and etc.
   </small>
+  <div *ngIf="type == 'mathinline'" #mathPreview></div>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">

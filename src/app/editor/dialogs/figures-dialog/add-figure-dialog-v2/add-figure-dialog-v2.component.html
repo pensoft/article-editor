@@ -53,7 +53,7 @@
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]>Cancel</button>
   <button mat-stroked-button color="{{showHTMLEditor?'primary':'accent'}}" (click)="showHTMLEditor=!showHTMLEditor">Edit HTML</button>
-  <button mat-stroked-button color="{{showPdfView?'primary':'accent'}}" (click)="openFigurePdfPreview()">Show PDF View</button>
-  <button mat-stroked-button color="primary" (click)="addComponent()">Add Component</button>
-  <button mat-flat-button color="primary" (click)="submitFigure()">Submit figure</button>
+  <button mat-stroked-button color="primary" (click)="openFigurePdfPreview()">Print preview</button>
+  <button mat-stroked-button color="primary" (click)="addComponent()">Add Media</button>
+  <button mat-flat-button color="primary" (click)="submitFigure()">Save</button>
 </mat-dialog-actions>
