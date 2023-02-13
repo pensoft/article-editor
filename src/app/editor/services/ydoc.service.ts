@@ -16,7 +16,7 @@ import { articleBasicStructure } from '../utils/articleBasicStructure';
 import { ServiceShare } from './service-share.service';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { Transaction as YTransaction } from 'yjs';
-import { layoutMenuAndSchemaSettings, mapSchemaDef } from '../utils/fieldsMenusAndScemasFns';
+import { layoutMenuAndSchemaSettings, mapSchemaDef, parseSecFormIOJSONMenuAndSchemaDefs, parseSecHTMLMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
 
 @Injectable({
   providedIn: 'root'
@@ -287,6 +287,10 @@ export class YdocService {
     this.PMMenusAndSchemasDefsMap = this.ydoc.getMap('PMMenusAndSchemasDefsMap');
     let menusAndSchemasDefs = this.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
 
+    let citableElementMenusAndSchemaDefs:any = {}
+    let allCitableElementsMenus = {}
+    let allCitableElementsSchemas = {}
+    let allCitableElementsDefsByTags = {}
     if (this.citableElementsSchemasSection) {
       let tablesInitialTemplateRegex = /<ng-template #Tables>([\s\S]+?(?=<\/ng-template>))<\/ng-template>/gm;
       let supplementaryFilesInitialTemplateRegex = /<ng-template #SupplementaryMaterials>([\s\S]+?(?=<\/ng-template>))<\/ng-template>/gm;
@@ -304,31 +308,68 @@ export class YdocService {
       let supplementaryFilesFormIoJson = formIOSchemas.SupplementaryMaterials
       let endNotesFormIoJson = formIOSchemas.Footnotes
 
+      // extract citable element menutypes and allowed tags defs
+
+      let parseCitableElementFormIODefs = (formIOJSON:any,labels:{menusL:string,tagsL:string},defsLable:string) =>{
+        let result = parseSecFormIOJSONMenuAndSchemaDefs(formIOJSON,labels)
+        citableElementMenusAndSchemaDefs[defsLable] = {
+          sectionMenusAndSchemaDefsFromJSON:result.sectionMenusAndSchemaDefsFromJSON,
+          sectionMenusAndSchemasDefsfromJSONByfieldsTags:result.sectionMenusAndSchemasDefsfromJSONByfieldsTags
+        }
+        Object.assign(allCitableElementsMenus, result.sectionMenusAndSchemaDefsFromJSON.menus);
+        Object.assign(allCitableElementsSchemas, result.sectionMenusAndSchemaDefsFromJSON.schemas);
+        Object.assign(allCitableElementsDefsByTags,result.sectionMenusAndSchemasDefsfromJSONByfieldsTags)
+        console.log("parseCitableElementFormIODefs",result)
+        return result
+      }
+
+      let parseCitableElementHTMLDefs = (html:string,labels:{menusL:string,tagsL:string},defsLable:string) =>{
+        let result = parseSecHTMLMenuAndSchemaDefs(html,labels)
+        citableElementMenusAndSchemaDefs[defsLable] = {
+          sectionMenusAndSchemaHTMLDefs:result.sectionMenusAndSchemaHTMLDefs,
+        }
+        Object.assign(allCitableElementsMenus, result.sectionMenusAndSchemaHTMLDefs.menus);
+        Object.assign(allCitableElementsSchemas, result.sectionMenusAndSchemaHTMLDefs.schemas);
+        console.log("parseCitableElementHTMLDefs",result)
+        return result
+      }
+
       if (tablesSchemaResult && !tablesInitialTemplate) {
-        this.tablesMap!.set('tablesInitialTemplate', tablesSchemaResult[1]);
+        let result = parseCitableElementHTMLDefs(tablesSchemaResult[1],{menusL:"customTableHTMLMenuType",tagsL:"customTableHTMLAllowedTags"},"tablesHTMLDefs");
+        this.tablesMap!.set('tablesInitialTemplate', result.sectionTemplate);
+
       }
 
       if (tablesFormIoJson && !tablesInitialFormIOJson) {
-        this.tablesMap!.set('tablesInitialFormIOJson', tablesFormIoJson);
+        let result = parseCitableElementFormIODefs(tablesFormIoJson,{menusL:"customTableJSONMenuType",tagsL:'customTableJSONAllowedTags'},'tablesFormIODefs');
+        this.tablesMap!.set('tablesInitialFormIOJson', result.formIOJSON);
       }
 
       if (supplementaryFilesSchemaResult && !supplementaryFilesInitialTemplate) {
-        this.supplementaryFilesMap!.set('supplementaryFilesInitialTemplate', supplementaryFilesSchemaResult[1]);
+        let result = parseCitableElementHTMLDefs(supplementaryFilesSchemaResult[1],{menusL:"customSupplementaryFilesHTMLMenuType",tagsL:"customSupplementaryFilesHTMLAllowedTags"},"supplementaryFilesHTMLDefs");
+        this.supplementaryFilesMap!.set('supplementaryFilesInitialTemplate', result.sectionTemplate);
       }
 
       if (supplementaryFilesFormIoJson && !supplementaryFilesInitialFormIOJson) {
-        this.supplementaryFilesMap!.set('supplementaryFilesInitialFormIOJson', supplementaryFilesFormIoJson);
+        let result = parseCitableElementFormIODefs(supplementaryFilesFormIoJson,{menusL:"customSupplementaryFilesJSONMenuType",tagsL:'customSupplementaryFilesJSONAllowedTags'},'supplementaryFilesFormIODefs');
+        this.supplementaryFilesMap!.set('supplementaryFilesInitialFormIOJson', result.formIOJSON);
       }
 
       if (endNotesSchemaResult && !endNotesInitialTemplate) {
-        this.endNotesMap!.set('endNotesInitialTemplate', endNotesSchemaResult[1]);
+        let result = parseCitableElementHTMLDefs(endNotesSchemaResult[1],{menusL:"customEndNotesHTMLMenuType",tagsL:"customEndNotesHTMLAllowedTags"},"endNotesHTMLDefs");
+        this.endNotesMap!.set('endNotesInitialTemplate', result.sectionTemplate);
       }
 
       if (endNotesFormIoJson && !endNotesInitialFormIOJson) {
-        this.endNotesMap!.set('endNotesInitialFormIOJson', endNotesFormIoJson);
+        let result = parseCitableElementFormIODefs(endNotesFormIoJson,{menusL:"customEndNotesJSONMenuType",tagsL:'customEndNotesJSONAllowedTags'},'endNotesFormIODefs');
+        this.endNotesMap!.set('endNotesInitialFormIOJson', result.formIOJSON);
       }
     }
 
+    citableElementMenusAndSchemaDefs.allCitableElementsMenus = allCitableElementsMenus
+    citableElementMenusAndSchemaDefs.allCitableElementsSchemas = allCitableElementsSchemas
+    citableElementMenusAndSchemaDefs.allCitableElementsDefsByTags = allCitableElementsDefsByTags
+    citableElementMenusAndSchemaDefs.allCitableElementFieldsKeys = Object.keys(allCitableElementsDefsByTags);
     if (!endNotesTemplates) {
       this.endNotesMap.set('endNotesTemplates', {})
     }
@@ -361,7 +402,7 @@ export class YdocService {
           layoutMenusAndAllowedTagsSettings.menus = settings.menus;
         }
       }
-      this.PMMenusAndSchemasDefsMap.set('menusAndSchemasDefs', this.buildLayoutMenusAndSchemasDefs(layoutMenusAndAllowedTagsSettings))
+      this.PMMenusAndSchemasDefsMap.set('menusAndSchemasDefs', {citableElementMenusAndSchemaDefs,...this.buildLayoutMenusAndSchemasDefs(layoutMenusAndAllowedTagsSettings)})
     }
     if (!elementsCitations) {
       this.citableElementsMap.set('elementsCitations', {})
@@ -734,3 +775,4 @@ export class YdocService {
 
 
 }
+

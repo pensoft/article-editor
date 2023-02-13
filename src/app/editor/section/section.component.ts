@@ -31,7 +31,7 @@ import {updateYFragment} from '../../y-prosemirror-src/plugins/sync-plugin.js';
 import {DOMParser as DOMParserPM} from 'prosemirror-model';
 import {HelperService} from "@app/editor/section/helpers/helper.service";
 import { ServiceShare } from '../services/service-share.service';
-import { filterFieldsValues, parseSecFormIOJSONMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
+import { filterFieldsValues } from '../utils/fieldsMenusAndScemasFns';
 import { schema } from '../utils/Schema';
 
 @Component({
@@ -179,7 +179,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
 
       prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
 
-      filterFieldsValues(this.sectionContent,submision,this.serviceShare,this.section.sectionID,false,prosemirrorNewNodeContent)
+      filterFieldsValues(this.sectionContent,submision,this.serviceShare,this.section.sectionID,false,prosemirrorNewNodeContent,false)
 
       if (this.section.type == 'complex') {
         this.submitComplexSectionEdit()
@@ -273,7 +273,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
 
         }, */
       })
-      let {importantMenusDefsForSection,importantScehmasDefsForSection} = this.prosemirrorEditorsService.getMenusAndSchemaDefsImportantForSection(this.section.sectionID)
+      let {importantMenusDefsForSection,importantScehmasDefsForSection,menusAndSchemasForCitableElements} = this.prosemirrorEditorsService.getMenusAndSchemaDefsImportantForSection(this.section.sectionID)
       this.codemirrorMenusAndSchemasDefsEditor = new EditorView({
         state: EditorState.create({
           doc:

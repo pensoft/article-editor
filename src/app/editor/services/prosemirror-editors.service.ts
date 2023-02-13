@@ -322,10 +322,11 @@ export class ProsemirrorEditorsService {
   getMenusAndSchemaDefsImportantForSection(sectionID){
     let menuAndSchemasDefsObj = this.ydocService.PMMenusAndSchemasDefsMap.get('menusAndSchemasDefs');
     let layoutMenusAndSchamasDefs = menuAndSchemasDefsObj['layoutDefinitions'];
+    let menusAndSchemasForCitableElements = menuAndSchemasDefsObj['citableElementMenusAndSchemaDefs'];
     let editorMenusAndSchemasDefs = menuAndSchemasDefsObj[sectionID];
     let importantMenusDefsForSection = {...(layoutMenusAndSchamasDefs||{menus:{},schemas:{}}).menus,...(editorMenusAndSchemasDefs||{menus:{},schemas:{}}).menus}
     let importantScehmasDefsForSection = {...(layoutMenusAndSchamasDefs||{menus:{},schemas:{}}).schemas,...(editorMenusAndSchemasDefs||{menus:{},schemas:{}}).schemas}
-    return {importantMenusDefsForSection,importantScehmasDefsForSection}
+    return {importantMenusDefsForSection,importantScehmasDefsForSection,menusAndSchemasForCitableElements}
   }
 
   renderEditorInWithId(EditorContainer: HTMLDivElement, editorId: string, section: articleSection): editorContainer {
@@ -333,7 +334,7 @@ export class ProsemirrorEditorsService {
 
     if (this.editorContainers[editorId]) {
       EditorContainer.appendChild(this.editorContainers[editorId].containerDiv);
-      return this.editorContainers[editorId]
+      return this.editorContainers[editorId];
     }
     let editorSchema = schema;
 
@@ -344,7 +345,6 @@ export class ProsemirrorEditorsService {
       blockMathInputRule = this.makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, editorSchema.nodes.math_display, (match: any) => { return { math_id: uuidv4() } });
     }
 
-    //let menuTypes = this.menuService.buildMenuTypes('addFigureEditor')
 
     if(section.sectionMenusAndSchemasDefsfromJSONByfieldsTags){
       this.globalMenusAndSchemasSectionsDefs[section.sectionID] = section.sectionMenusAndSchemasDefsfromJSONByfieldsTags
@@ -357,10 +357,8 @@ export class ProsemirrorEditorsService {
     let permanentUserData = this.permanentUserData
     let editorID = editorId;
 
-    let {importantMenusDefsForSection,
-    } = this.getMenusAndSchemaDefsImportantForSection(editorID)
-
-    let menuTypes = this.menuService.buildPassedMenuTypes(importantMenusDefsForSection)
+    let {importantMenusDefsForSection,menusAndSchemasForCitableElements}  = this.getMenusAndSchemaDefsImportantForSection(editorID)
+    let menuTypes = this.menuService.buildPassedMenuTypes({...importantMenusDefsForSection,...menusAndSchemasForCitableElements.allCitableElementsMenus})
     let menuContainerClass = "menu-container";
     let xmlFragment = this.getXmlFragment(section.mode, editorID)
     let yjsPlugins = [ySyncPlugin(xmlFragment, { colors, colorMapping, permanentUserData }),
@@ -534,7 +532,7 @@ export class ProsemirrorEditorsService {
         //history({renderFiguresFunc:this.rerenderFigures}),
         this.placeholderPluginService.getPlugin(),
         getToolTipPlugin(this.serviceShare),
-        getFilterNodesBySchemaDefPlugin(this.serviceShare,{nodes:nodesDefinitions,marks:marksDefinitions}),
+        getFilterNodesBySchemaDefPlugin(this.serviceShare),
         this.citableElementEditButtonsPluginService.citableElementsEditButtonsPlugin,
         transactionControllerPlugin,
         handleRefDelete,
@@ -749,6 +747,8 @@ export class ProsemirrorEditorsService {
     //@ts-ignore
     editorView.globalMenusAndSchemasSectionsDefs = this.globalMenusAndSchemasSectionsDefs
     //@ts-ignore
+    editorView.citableElementMenusAndSchemaDefs = menusAndSchemasForCitableElements
+    //@ts-ignore
     editorView.sectionID = editorID
     //@ts-ignore
     editorView.editorType = 'editorWithCustomSchema'
@@ -938,6 +938,10 @@ export class ProsemirrorEditorsService {
       EditorContainer.appendChild(this.editorContainers[editorId].containerDiv);
       return this.editorContainers[editorId]
     }
+
+    let {importantMenusDefsForSection,menusAndSchemasForCitableElements}  = this.getMenusAndSchemaDefsImportantForSection(editorId)
+    let menuTypes = this.menuService.buildPassedMenuTypes({...importantMenusDefsForSection,...menusAndSchemasForCitableElements.allCitableElementsMenus});
+
     let transactionControllerPluginKey = new PluginKey('transactionControllerPlugin');
     let transactionControllerPlugin = new Plugin({
       key: transactionControllerPluginKey,
@@ -998,13 +1002,14 @@ export class ProsemirrorEditorsService {
           'Tab': goToNextCell(1),
           'Shift-Tab': goToNextCell(-1)
         }),
-        //columnResizing({}),
-        //tableEditing(),
+        columnResizing({}),
+        tableEditing(),
         history(),
         //this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         getToolTipPlugin(this.serviceShare),
         this.detectFocusService.getPlugin(),
+        getFilterNodesBySchemaDefPlugin(this.serviceShare),
         this.serviceShare.CitableElementsContextMenuService.getPlugin(),
         divideEndEditorFromTopPlugin,
         this.serviceShare.ReferencePluginService?.referencePlugin,
@@ -1016,7 +1021,7 @@ export class ProsemirrorEditorsService {
         this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures }),
         ...menuBar({
           floating: true,
-          content: this.menuTypes, containerClass: menuContainerClass,serviceShare:this.serviceShare,sectionID: editorID
+          content: menuTypes, containerClass: menuContainerClass,serviceShare:this.serviceShare,sectionID: editorID
         })
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */history: false, containerClass: menuContainerClass }))
       ,
@@ -1113,7 +1118,12 @@ export class ProsemirrorEditorsService {
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
     });
     EditorContainer.appendChild(container);
-
+    //@ts-ignorer
+    editorView.citableElementMenusAndSchemaDefs = menusAndSchemasForCitableElements
+    //@ts-ignore
+    editorView.globalMenusAndSchemasSectionsDefs = this.globalMenusAndSchemasSectionsDefs
+    //@ts-ignore
+    editorView.editorType = 'editorWithCustomSchema'
     let editorCont: any = {
       editorID: editorID,
       containerDiv: container,
@@ -1151,11 +1161,21 @@ export class ProsemirrorEditorsService {
     let menuTypes = this.menuTypes
     let editorSchema = schema
     let importantMenusDefsForSectionPrim,importantScehmasDefsForSectionPrim
+    let citableElementMenusAndSchemaDefs
     if(sectionID){
-      let {importantMenusDefsForSection,importantScehmasDefsForSection} = this.getMenusAndSchemaDefsImportantForSection(sectionID)
+      let {importantMenusDefsForSection,importantScehmasDefsForSection,menusAndSchemasForCitableElements} = this.getMenusAndSchemaDefsImportantForSection(sectionID)
+      citableElementMenusAndSchemaDefs = menusAndSchemasForCitableElements
       importantMenusDefsForSectionPrim = importantMenusDefsForSection
       importantScehmasDefsForSectionPrim = importantScehmasDefsForSection
       menuTypes = this.menuService.buildPassedMenuTypes(importantMenusDefsForSection)
+    }else if(options.isCitableElement){
+      let {importantMenusDefsForSection,importantScehmasDefsForSection,menusAndSchemasForCitableElements} = this.getMenusAndSchemaDefsImportantForSection(sectionID)
+      importantMenusDefsForSectionPrim = {...menusAndSchemasForCitableElements.allCitableElementsMenus,...importantMenusDefsForSection}
+      importantScehmasDefsForSectionPrim = {...menusAndSchemasForCitableElements.allCitableElementsSchemas,...importantScehmasDefsForSection}
+      menuTypes = this.menuService.buildPassedMenuTypes(importantMenusDefsForSectionPrim)
+      if(nodesArray&&options.allowedTags&&importantScehmasDefsForSectionPrim[options.allowedTags]){
+
+      }
     }
     let CustomDOMPMSerializer = DOMSerializer.fromSchema(editorSchema)
     let placeholder = (formIOComponentInstance.component.placeholder && formIOComponentInstance.component.placeholder !== '') ? formIOComponentInstance.component.placeholder : undefined
@@ -1189,9 +1209,6 @@ export class ProsemirrorEditorsService {
       doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({allowedTags}, editorSchema.nodes.paragraph.create({})))
     } else {
       doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({allowedTags}, nodesArray.content))
-    }
-    if(options.rawNodeContent){
-      doc = editorSchema.nodes.doc.create({},nodesArray.content);
     }
     let menuContainerClass = "popup-menu-container";
 
@@ -1242,12 +1259,6 @@ export class ProsemirrorEditorsService {
     })*/
 
     this.editorsEditableObj[editorID] = true
-    if(options.addTableEditor){
-      menuTypes = this.menuService.buildMenuTypes('addTableEditor')
-    }
-    if(options.addFigureEditor){
-      menuTypes = this.menuService.buildMenuTypes('addFigureEditor')
-    }
     let menu: any = undefined
     if (options.menuType) {
       if(menuTypes[options.menuType]){
@@ -1283,7 +1294,7 @@ export class ProsemirrorEditorsService {
       plugins: [
         mathPlugin,
         keymap(keymapObj),
-        getFilterNodesBySchemaDefPlugin(this.serviceShare,{nodes:nodesDefinitions,marks:marksDefinitions}),
+        getFilterNodesBySchemaDefPlugin(this.serviceShare),
         this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         this.trackChangesService.getHideShowPlugin(),
@@ -1388,6 +1399,8 @@ export class ProsemirrorEditorsService {
     EditorContainer.appendChild(container);
     //@ts-ignore
     editorView.globalMenusAndSchemasSectionsDefs = this.globalMenusAndSchemasSectionsDefs
+    //@ts-ignore
+    editorView.citableElementMenusAndSchemaDefs = citableElementMenusAndSchemaDefs
     //@ts-ignore
     editorView.sectionID = sectionID
     //@ts-ignore

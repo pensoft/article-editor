@@ -62,14 +62,14 @@ export const renderSectionFunc:
   /*  */(sectionFromBackend: any, parentContainer: articleSection[], ydoc: Y.Doc, index?: number | string) => articleSection
   = /**/(sectionFromBackend: any, parentContainer: articleSection[], ydoc: Y.Doc, index?: number | string) => {
     let sectionTemplateRaw = sectionFromBackend.template || taxonTreatmentSection.template;
-    let {sectionMenusAndSchemaHTMLDefs,sectionTemplate} = parseSecHTMLMenuAndSchemaDefs(sectionTemplateRaw);
+    let {sectionMenusAndSchemaHTMLDefs,sectionTemplate} = parseSecHTMLMenuAndSchemaDefs(sectionTemplateRaw,{menusL:"customSectionHTMLMenuType",tagsL:"customSectionHTMLAllowedTags"});
     let sectionJSON;
     if(sectionFromBackend.type == 0 || sectionFromBackend.type == 1){
       sectionJSON = sectionFromBackend.schema;
     }else if(sectionFromBackend.type == 2){
       sectionJSON = sectionFromBackend.schema?.schema ? sectionFromBackend.schema?.schema : taxonTreatmentSection.schema;
     }
-    let {sectionMenusAndSchemaDefsFromJSON,formIOJSON,sectionMenusAndSchemasDefsfromJSONByfieldsTags} = parseSecFormIOJSONMenuAndSchemaDefs(sectionJSON);
+    let {sectionMenusAndSchemaDefsFromJSON,formIOJSON,sectionMenusAndSchemasDefsfromJSONByfieldsTags} = parseSecFormIOJSONMenuAndSchemaDefs(sectionJSON,{menusL:"customSectionJSONMenuType",tagsL:'customSectionJSONAllowedTags'});
 
     let sectionMenusAndSchemaDefs = {
       menus:{...sectionMenusAndSchemaHTMLDefs.menus,...sectionMenusAndSchemaDefsFromJSON.menus},
