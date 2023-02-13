@@ -36,6 +36,11 @@ export const CursorBuilder = userInfo => {
   userDiv.setAttribute('style', `background-color: ${userInfo.color.userColor};color:${userInfo.color.userContrastColor}`)
   userDiv.insertBefore(document.createTextNode(userInfo.data.name), null)
   cursor.insertBefore(userDiv, null)
+
+  if (userInfo.data.access === 'Viewer') {
+    cursor.setAttribute('style', 'display: none');
+  }
+  
   return cursor
 }
 
