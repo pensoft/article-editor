@@ -22,6 +22,8 @@ import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-edit
 import { citationElementMap } from '@app/editor/services/citable-elements.service';
 import { endNoteJSON } from '@app/editor/utils/section-templates/form-io-json/endNoteFormIOJSON';
 import { endNote } from '@app/editor/utils/interfaces/endNotes';
+import { ServiceShare } from '@app/editor/services/service-share.service';
+import { filterFieldsValues } from '@app/editor/utils/fieldsMenusAndScemasFns';
 
 
 let endNoteHtmlTemplate = `
@@ -61,6 +63,7 @@ export class AddEndNoteComponent implements AfterViewInit,AfterViewChecked {
     private compiler: Compiler,
     private changeDetectorRef: ChangeDetectorRef,
     private dialogRef: MatDialogRef<AddEndNoteComponent>,
+    private serviceShare: ServiceShare,
     private ydocService: YdocService,
     @Inject(MAT_DIALOG_DATA) public data:  { endNote:endNote, updateOnSave: boolean, index: number, endNoteID: string }
   ) {
@@ -98,14 +101,22 @@ export class AddEndNoteComponent implements AfterViewInit,AfterViewChecked {
       if(endNotesInitialFormIOJson){
         this.sectionContent = JSON.parse(JSON.stringify(endNotesInitialFormIOJson))
       }
-      this.endNoteID = this.data.endNoteID || uuidv4();
+    this.endNoteID = this.data.endNoteID || uuidv4();
+    this.sectionContent.props = {isCitableElement:true}
+    let endNoteHTML = this.renderCodemMirrorEditors(this.endNoteID!)
+
       if (this.data.endNote) {
         this.sectionContent.components[0].defaultValue = this.data.endNote.end_note;
+        let submision = {data:citationElementMap.end_note_citation.getElFormIOSubmission(this.data.endNote,'endEditor')}
+        filterFieldsValues(this.sectionContent,submision,this.serviceShare,undefined,false,endNoteHTML,false)
+        let filterdTableData ={
+          "end_note":submision.data.endNote,
+        }
+        this.sectionContent.components[0].defaultValue = filterdTableData.end_note;
         this.renderForm = true
       }else{
         this.renderForm = true
       }
-      this.renderCodemMirrorEditors(this.endNoteID!)
     } catch (e) {
       console.error(e);
     }
@@ -180,6 +191,7 @@ export class AddEndNoteComponent implements AfterViewInit,AfterViewChecked {
         }),
         parent: this.codemirrorHtmlTemplate?.nativeElement,
       })
+      return prosemirrorNodesHtml
     } catch (e) {
       console.error(e);
     }

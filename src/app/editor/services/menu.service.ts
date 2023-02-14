@@ -258,11 +258,6 @@ export class MenuService {
         filterMenus(this.sectionMenus[key]);
       })
     }
-    if(editorType == 'addTableEditor'){
-      removeItemFormMenu('insertTable')
-    }if(editorType == 'addFigureEditor'){
-      removeItemFormMenu('insertFigure')
-    }
     menuTypes.SimpleMenu = this.attachMenuItems('SimpleMenu');
     menuTypes.main = this.attachMenuItems('SimpleMenu');
     Object.keys(this.sectionMenus).forEach((key) => {

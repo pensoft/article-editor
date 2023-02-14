@@ -4,7 +4,6 @@ import { YdocService } from '../../services/ydoc.service';
 import { treeNode } from '../../utils/interfaces/treeNode';
 //@ts-ignore
 import * as Y from 'yjs'
-import { uuidv4 } from 'lib0/random';
 import { articleSection, editorData } from '../../utils/interfaces/articleSection';
 import { FormGroup } from '@angular/forms';
 import {
@@ -15,14 +14,9 @@ import {
   editorFactory,
   renderSectionFunc
 } from '@app/editor/utils/articleBasicStructure';
-import { formIODefaultValues, formIOTemplates, htmlNodeTemplates } from '@app/editor/utils/section-templates';
 import { FormBuilderService } from '@app/editor/services/form-builder.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-import { ArticlesService } from '@app/core/services/articles.service';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
-import { reject } from 'lodash';
-import { complexSectionFormIoSchema } from '@app/editor/utils/section-templates/form-io-json/complexSection';
-import { ReturnStatement } from '@angular/compiler';
 import { installPatch } from '../cdk-list-recursive/patchCdk';
 import { CdkDropList, DropListRef, transferArrayItem } from '@angular/cdk/drag-drop';
 import { parseSecFormIOJSONMenuAndSchemaDefs } from '@app/editor/utils/fieldsMenusAndScemasFns';
@@ -91,14 +85,12 @@ export class TreeService implements OnDestroy {
           this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, data, formGroup).then((newTitle: string) => {
             let container = document.createElement('div')
             container.innerHTML = newTitle;
-            container.innerHTML = container.textContent!;
             node.title.label = container.textContent!;
           })
         } else {
           this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle: string) => {
             let container = document.createElement('div')
             container.innerHTML = newTitle;
-            container.innerHTML = container.textContent!;
             node.title.label = container.textContent!;
           })
         }
@@ -343,6 +335,7 @@ export class TreeService implements OnDestroy {
 
   async addNodeChange(nodeId: string,callback?:()=>void) {
     let newChild = await this.attachChildToNode(nodeId, undefined);
+    console.log(newChild);
     this.ydocService.saveSectionMenusAndSchemasDefs([newChild])
     this.treeVisibilityChange.next({ action: 'addNode', parentId: nodeId, newChild });
     callback();
@@ -616,16 +609,16 @@ export class TreeService implements OnDestroy {
   showAddBtn(node: articleSection) {
     let r = true
     let parentNode = this.findParentNodeWithChildID(node.sectionID)!;
-    let level = this.getNodeLevel(node) + 1;
-    if(level == 4){
-      return false
-    }
     if (parentNode && parentNode !== 'parentNode') {
       r = checkIfSectionsAreAboveOrAtMax(node, parentNode)
     }else if(parentNode == 'parentNode'){
       r = checkIfSectionsAreAboveOrAtMaxAtParentList(this.articleSectionsStructure,node,this.parentListRules)
     }
     return r
+  }
+
+  showAddSubsectionBtn(node: articleSection) {
+    return this.getNodeLevel(node)+1 < 4
   }
 
   findParentNodeWithChildID(nodeid: string) {
@@ -688,7 +681,7 @@ export class TreeService implements OnDestroy {
 
   applyEditChangeV2(id:string){
     let nodeRef = this.findNodeById(id)!;
-    let {sectionMenusAndSchemaDefsFromJSON,formIOJSON,sectionMenusAndSchemasDefsfromJSONByfieldsTags} = parseSecFormIOJSONMenuAndSchemaDefs(nodeRef.formIOSchema);
+    let {sectionMenusAndSchemaDefsFromJSON,formIOJSON,sectionMenusAndSchemasDefsfromJSONByfieldsTags} = parseSecFormIOJSONMenuAndSchemaDefs(nodeRef.formIOSchema,{menusL:"customSectionJSONMenuType",tagsL:'customSectionJSONAllowedTags'});
     this.serviceShare.ProsemirrorEditorsService.globalMenusAndSchemasSectionsDefs[id] = sectionMenusAndSchemasDefsfromJSONByfieldsTags;
   }
 

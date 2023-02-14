@@ -34,6 +34,8 @@ import { uuidv4 } from 'lib0/random';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
 import { citationElementMap } from '@app/editor/services/citable-elements.service';
 import { TableSizePickerComponent } from '@app/editor/utils/table-size-picker/table-size-picker.component';
+import { filterFieldsValues } from '@app/editor/utils/fieldsMenusAndScemasFns';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 
 
 let tablesHtmlTemplate = `
@@ -76,6 +78,7 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
     private changeDetectorRef: ChangeDetectorRef,
     private dialogRef: MatDialogRef<AddTableDialogComponent>,
     private ydocService: YdocService,
+    private serviceShare:ServiceShare,
     @Inject(MAT_DIALOG_DATA) public data: { table: citableTable | undefined, updateOnSave: boolean, index: number, tableID: string | undefined }
   ) {
 
@@ -87,9 +90,13 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
       if(tableInitioalFormIOJSON){
         this.sectionContent = JSON.parse(JSON.stringify(tableInitioalFormIOJSON));
       }
+
       this.tableID = this.data.tableID || uuidv4();
+      let tableHTML = this.renderCodemMirrorEditors(this.tableID!)
+      this.sectionContent.props = {isCitableElement:true}
+
       if (!this.data.table) {
-        let rows, cols;
+        /* let rows, cols;
         const tableSizePickerDialog = this.dialog.open(TableSizePickerComponent, {
           width: '284px',
           disableClose: true,
@@ -123,16 +130,30 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
             </table-container>
             `
 
-          this.renderForm = true
-        });
+        }); */
+
+        this.renderForm = true
       } else {
         //@ts-ignore
         this.sectionContent.components[0].defaultValue = this.data.table.header
         this.sectionContent.components[1].defaultValue = this.data.table.content;
         this.sectionContent.components[2].defaultValue = this.data.table.footer;
+        let submission = {data:citationElementMap.table_citation.getElFormIOSubmission(this.data.table,this.data.table.viewed_by_citat)}
+        filterFieldsValues(this.sectionContent,submission,this.serviceShare,undefined,false,tableHTML,true)
+        let filterdTableData = {
+          tableNumber: this.data.index,
+          content: submission.data.tableContent,
+          header: submission.data.tableHeader,
+          footer: submission.data.tableFooter,
+          "tableID": submission.data.tableID,
+          "tablePlace": this.data.tableID ? this.data.table?.tablePlace! : "endEditor",
+          "viewed_by_citat": this.data.tableID ? this.data.table?.viewed_by_citat! : "endEditor",
+        }
+        this.sectionContent.components[0].defaultValue = filterdTableData.header
+        this.sectionContent.components[1].defaultValue = filterdTableData.content;
+        this.sectionContent.components[2].defaultValue = filterdTableData.footer;
         this.renderForm = true
       }
-      this.renderCodemMirrorEditors(this.tableID!)
     } catch (e) {
       console.error(e);
     }
@@ -198,7 +219,10 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
       interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, tableFormGroup);
       let templ = document.createElement('div')
       templ.innerHTML = interpolated
-      let Slice = DOMParser.fromSchema(schema).parse(templ.firstChild!)
+      let Slice = DOMParser.fromSchema(schema).parse(templ.firstChild!);
+      filterFieldsValues(this.sectionContent,submision,this.serviceShare,undefined,false,prosemirrorNewNodeContent,true)
+      console.log(submision);
+
       let newTable: citableTable = {
         tableNumber: this.data.index,
         content: submision.data.tableContent,
@@ -240,6 +264,7 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
         }),
         parent: this.codemirrorHtmlTemplate?.nativeElement,
       })
+      return prosemirrorNodesHtml
     } catch (e) {
       console.error(e);
     }

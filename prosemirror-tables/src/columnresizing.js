@@ -233,11 +233,11 @@ function updateColumnWidth(view, cell, width,event) {
   let tableHTMLNode
   let i = 0;
   while(!tableHTMLNode){
-    let el = event.path[i];
-    i++;
-    if(el.tagName == "TR"){
-      tableHTMLNode = el
-    }
+      let el = event.path?event.path[i]:event.composedPath()[i];
+      i++;
+      if(el.tagName == "TR"){
+        tableHTMLNode = el
+      }
   }
   let tableWidth = tableHTMLNode.getBoundingClientRect().width;
   let col = map.colCount($cell.pos - start) + $cell.nodeAfter.attrs.colspan - 1;

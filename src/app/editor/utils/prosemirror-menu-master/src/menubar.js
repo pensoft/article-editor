@@ -92,26 +92,28 @@ class MenuBarView {
             let { from, to,$anchor,anchor } = editorView.state.selection
             let menuKey = this.options.menuKey
             let menuTypeOnNode = 'main';
-            let menuItAttrs = false;
+            let menuInAttrs = false;
             let userIsInSectionTreeTitleNode = false;
-            let lastFormControlName
+            let firstFormControlName // the first when we loop form inside to the outside in the node structure -> the outer formControl name
             let doc = editorView.state.doc
             let docSize = doc.content.size
             let foundMenu = ()=>{
-              return menuItAttrs||userIsInSectionTreeTitleNode||lastFormControlName
+              return menuInAttrs||userIsInSectionTreeTitleNode||firstFormControlName
             }
             let searchPathForNodeWithMenu = (path)=>{
               if(!foundMenu()){
                 for(let i = path.length-3;i>=0;i-=3){
-                  let node = path[i];
-                  if (node.attrs.menuType && node.attrs.menuType !== '') {
-                    menuTypeOnNode = node.attrs.menuType;
-                    menuItAttrs = true;
-                  }
-                  if(node.attrs.formControlName&&node.attrs.formControlName.length>0){
-                    lastFormControlName = node.attrs.formControlName;
-                    if(node.attrs.formControlName=="sectionTreeTitle"){
-                      userIsInSectionTreeTitleNode = true;
+                  if(!foundMenu()){
+                    let node = path[i];
+                    if (node.attrs.menuType && node.attrs.menuType !== '') {
+                      menuTypeOnNode = node.attrs.menuType;
+                      menuInAttrs = true;
+                    }
+                    if(node.attrs.formControlName&&node.attrs.formControlName.length>0){
+                      firstFormControlName = node.attrs.formControlName;
+                      if(node.attrs.formControlName=="sectionTreeTitle"){
+                        userIsInSectionTreeTitleNode = true;
+                      }
                     }
                   }
                 }
@@ -133,25 +135,36 @@ class MenuBarView {
                 count++
               }
             }
-            if(editorView.hasFocus()){
+            if(editorView.hasFocus()&&menuTypeOnNode!="main"){
             }
-            if(!userIsInSectionTreeTitleNode&&!menuItAttrs&&this.editorView.editorType&&this.editorView.editorType == 'editorWithCustomSchema'){
+            if(!userIsInSectionTreeTitleNode&&!menuInAttrs&&this.editorView.editorType&&this.editorView.editorType == 'editorWithCustomSchema'){
               if(
-                lastFormControlName &&
+                firstFormControlName &&
+                this.options.sectionID&&
+                this.editorView.globalMenusAndSchemasSectionsDefs&&
                 this.editorView.globalMenusAndSchemasSectionsDefs[this.editorView.sectionID]&&
-                this.editorView.globalMenusAndSchemasSectionsDefs[this.editorView.sectionID][lastFormControlName]
+                this.editorView.globalMenusAndSchemasSectionsDefs[this.editorView.sectionID][firstFormControlName]&&
+                this.editorView.globalMenusAndSchemasSectionsDefs[this.editorView.sectionID][firstFormControlName].menu
                 ){
-                  let formIOJsonMenuAndSchemaDefForField = this.editorView.globalMenusAndSchemasSectionsDefs[this.editorView.sectionID][lastFormControlName];
-                  if(formIOJsonMenuAndSchemaDefForField.menu){
-                    menuTypeOnNode = formIOJsonMenuAndSchemaDefForField.menu;
-                  }
+                  menuTypeOnNode = this.editorView.globalMenusAndSchemasSectionsDefs[this.editorView.sectionID][firstFormControlName].menu
+              }else if(
+                firstFormControlName &&
+                this.editorView.citableElementMenusAndSchemaDefs&&
+                this.editorView.citableElementMenusAndSchemaDefs.allCitableElementsDefsByTags&&
+                this.editorView.citableElementMenusAndSchemaDefs.allCitableElementsDefsByTags[firstFormControlName]&&
+                this.editorView.citableElementMenusAndSchemaDefs.allCitableElementsDefsByTags[firstFormControlName].menu
+              ){
+                menuTypeOnNode = this.editorView.citableElementMenusAndSchemaDefs.allCitableElementsDefsByTags[firstFormControlName].menu
+              }else{
+                if(menuTypeOnNode!='main'){
+                }
               }
             }
-            if(!userIsInSectionTreeTitleNode&&this.options.sectionID){
+            if(!userIsInSectionTreeTitleNode&&this.options.sectionID&&this.options.sectionID != 'headEditor'){
 
               let menusAndSchemasDefs = this.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
 
-              let importantMenusForCurrNode = [...Object.keys(menusAndSchemasDefs.layoutDefinitions.menus)]
+              let importantMenusForCurrNode = [...Object.keys(menusAndSchemasDefs.layoutDefinitions.menus),...Object.keys(this.editorView.citableElementMenusAndSchemaDefs.allCitableElementsMenus)]
               if(menusAndSchemasDefs[this.options.sectionID]){
                 importantMenusForCurrNode.push(...Object.keys(menusAndSchemasDefs[this.options.sectionID].menus))
               }
@@ -160,10 +173,10 @@ class MenuBarView {
               }
             }
             if (!userIsInSectionTreeTitleNode&&menuTypeOnNode == menuKey && editorView.hasFocus()) {
-                Array.from(this.menuContainer.children).forEach((child) => {
-                    child.style.display = 'none';
-                })
-                this.menu.style.display = 'block';
+              Array.from(this.menuContainer.children).forEach((child) => {
+                  child.style.display = 'none';
+              })
+              this.menu.style.display = 'block';
             }
             if(userIsInSectionTreeTitleNode && editorView.hasFocus()){
               Array.from(this.menuContainer.children).forEach((child) => {

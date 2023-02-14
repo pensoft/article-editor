@@ -203,6 +203,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       this.DOMPMSerializer = DOMSerializer.fromSchema(viewSchema);
       this.DOMPMParser = DOMParser.fromSchema(viewSchema)
       options.sectionID = sectionProps?sectionProps.sectionID:undefined
+      options.isCitableElement = (sectionProps&&sectionProps.isCitableElement)?sectionProps.isCitableElement:false
       let temp = document.createElement('div');
       temp.innerHTML = this.value!;
       let node = this.value! ? this.DOMPMParser.parseSlice(temp) : undefined;
@@ -246,7 +247,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       this.isProseMirrorFocused = false;
     }
   }
-  
+
   ngAfterViewInit() {
     if (this.ProsemirrorEditor) {
       this.ProsemirrorEditor.nativeElement.addEventListener('click', () => {
