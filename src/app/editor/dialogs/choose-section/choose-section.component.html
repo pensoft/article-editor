@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Add section to Article</h2>
+<h2 mat-dialog-title>Add Section</h2>
 
 <div class="search-field-wrapper">
   <form (keydown.enter)="search(inputText.value)" fxFlex="100%" fxLayout="column">
@@ -34,6 +34,6 @@
     Cancel
   </button>
   <button mat-flat-button color="primary" (click)="chooseSection(topic.selectedOptions.selected[0]?.value)">
-    Add Section
+    Save
   </button>
 </mat-dialog-actions>
