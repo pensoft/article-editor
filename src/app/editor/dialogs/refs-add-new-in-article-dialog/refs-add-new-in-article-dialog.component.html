@@ -85,6 +85,5 @@
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button (click)="closeDialog()">Cancel</button>
-  <button mat-stroked-button color="primary" (click)="closeDialog()">Cancel</button>
-  <button *ngIf="tabIndex == 1" mat-flat-button color="primary" [disabled]="!dataSave||!isValid" (click)="onSubmit()">Add Reference</button>
+  <button mat-flat-button color="primary" [disabled]="tabIndex!=1||!dataSave||!isValid" (click)="onSubmit()">Save</button>
 </mat-dialog-actions>
