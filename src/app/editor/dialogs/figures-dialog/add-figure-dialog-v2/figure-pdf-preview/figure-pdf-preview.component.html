@@ -1,18 +1,16 @@
 <h2 mat-dialog-title>Figure pdf preview:</h2>
 <mat-dialog-content>
   <div class="pdf-view-container" [ngStyle]="{'display':showPdfView?'block':'none'}">
-    <div class="a4-figure-preview" #a4 [ngStyle]="{'height':(a4.getBoundingClientRect().width*1.4142)+'px','border':'1px dashed black','overflow':'hidden'}">
-      <div class="row-component" *ngFor="let row of figureRows" [ngStyle]="{'max-height':maxImgHeightPers+'%',width:'100%'}">
-        <div class="cell-component" *ngFor="let i of rowTemplate" [ngStyle]="{width:maxImgWidthPers+'%',height:'100%'}">
-          <div *ngIf="row[i]" class="fig-img">
-            <img *ngIf="row[i].container.hpers&&row[i].container.wpers" src='{{row[i].container.url}}' [ngStyle]="{width:row[i].container.wpers*a4.getBoundingClientRect().width+'px',height:row[i].container.hpers*a4.getBoundingClientRect().height*(1-bottomOffset)+'px'}">
-            <img *ngIf="!(row[i].container.hpers&&row[i].container.wpers)&&row[i].container.height&&!row[i].container.width" src='{{row[i].container.url}}' [ngStyle]="{height:row[i].container.height*a4.getBoundingClientRect().height*(1-bottomOffset)+'px'}" />
-            <img *ngIf="!(row[i].container.hpers&&row[i].container.wpers)&&row[i].container.width&&!row[i].container.height" src='{{row[i].container.url}}' [ngStyle]="{width:row[i].container.width*a4.getBoundingClientRect().width+'px'}" />
-            <img *ngIf="!(row[i].container.hpers&&row[i].container.wpers)&&row[i].container.width&&row[i].container.height" src='{{row[i].container.url}}' [ngStyle]="{width:row[i].container.width*a4.getBoundingClientRect().width+'px',height:row[i].container.height*a4.getBoundingClientRect().height*(1-bottomOffset)+'px'}"
-            />
+    <div class="grid-component" [attr.figure_columns]="nOfColumns">
+      <ng-container *ngFor="let row of figureRows; let r=index">
+        <div class="cell-component" *ngFor="let i of rowTemplate;">
+          <code>{{getCharValue(r * nOfColumns + i)}}</code>
+          <img *ngIf="row[i].container.componentType == 'image'" src="{{row[i].container.url}}" alt="" title="default image" />
+          <div class="video-thumb" *ngIf="row[i].container.componentType == 'video'">
+            <mat-icon>ondemand_video</mat-icon>
           </div>
         </div>
-      </div>
+      </ng-container>
     </div>
   </div>
 </mat-dialog-content>
