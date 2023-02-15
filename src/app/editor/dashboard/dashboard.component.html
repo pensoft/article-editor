@@ -95,8 +95,8 @@
               <ngx-avatar class="avatar" size="36" [gravatarId]="row.user.email" [name]="row.user.name"></ngx-avatar>
 
               <ng-container *ngFor="let collaborator of row.collaborators index as i">
-                <ngx-avatar class="avatar" *ngIf="collaborator&&collaborator.user_email&&collaborator.user_name&&i<2" size="36" [gravatarId]="collaborator.user_email"
-                            [name]="collaborator.user_name"></ngx-avatar>
+                <ngx-avatar class="avatar" *ngIf="i<2" size="36" [gravatarId]="collaborator.user_email"
+                            [name]="collaborator.user_name??collaborator.type"></ngx-avatar>
               </ng-container>
 
               <ng-container *ngIf="row.collaborators.length > 2">
@@ -108,11 +108,11 @@
                 <mat-menu #avatars_menu="matMenu" class="article-users-list">
 
                   <ng-container *ngFor="let collaborator of row.collaborators; index as i">
-                    <mat-card class="user-card" *ngIf="collaborator&&collaborator.user_email&&collaborator.user_name&&i>1">
+                    <mat-card class="user-card" *ngIf="i>1">
                       <mat-card-header>
                         <div mat-card-avatar>
                           <ngx-avatar class="avatar-container" size="36" [gravatarId]="collaborator.user_email"
-                                      [name]="collaborator.user_name"></ngx-avatar>
+                                      [name]="collaborator.user_name??collaborator.type"></ngx-avatar>
                         </div>
                         <mat-card-title>{{ collaborator.user_name }}</mat-card-title>
                         <mat-card-subtitle>{{ collaborator.user_email }}</mat-card-subtitle>
