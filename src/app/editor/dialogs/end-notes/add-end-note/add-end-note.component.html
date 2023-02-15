@@ -1,4 +1,5 @@
-<h2 mat-dialog-title>End Note</h2>
+<h2 mat-dialog-title *ngIf="data&&data.endNoteID">Edit End Note</h2>
+<h2 mat-dialog-title *ngIf="!data||!data.endNoteID">Add End Note</h2>
 
 <div class="popup-menu-container"></div>
 

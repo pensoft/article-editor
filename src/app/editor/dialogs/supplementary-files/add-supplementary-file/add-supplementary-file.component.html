@@ -1,4 +1,5 @@
-<h2 mat-dialog-title>Supplementary File</h2>
+<h2 mat-dialog-title *ngIf="data&&data.supplementaryFileID">Edit Supplementary File</h2>
+<h2 mat-dialog-title *ngIf="!data||!data.supplementaryFileID">Add Supplementary File</h2>
 
 <div class="popup-menu-container"></div>
 
