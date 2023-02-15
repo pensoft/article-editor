@@ -99,7 +99,6 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     public config: FormioAppConfig,
     public enforcer: EnforcerService,
     private authService: AuthService,
-    public taxonService:TaxonService,
     private editorsRefsManager:EditorsRefsManagerService,
     private articleSectionsService: ArticleSectionsService,
     private articlesService: ArticlesService,
@@ -108,11 +107,11 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     private CitableElementsContextMenuService:CitableElementsContextMenuService,
     private refsAPI:RefsApiService,
     private changeDetection: ChangeDetectorRef,
-    private referencePluginService:ReferencePluginService
-  ) {
-    this.taxonService.canTagSelectionSubject.subscribe((canCreateTag)=>{
+    private referencePluginService:ReferencePluginService,
+    public taxonService:TaxonService
+    ) {
+    this.serviceShare.TaxonService.canTagSelectionSubject.subscribe((canCreateTag)=>{
       this.canCreateTag = canCreateTag
-      console.log(canCreateTag,this.taxonService.tagCreateData);
     })
     this.prosemirrorEditorServie.spinSpinner();
     this.previewMode = this.prosemirrorEditorServie.previewArticleMode

@@ -1,92 +1,477 @@
-import { Injectable } from '@angular/core';
-import { Plugin, PluginKey, TextSelection } from 'prosemirror-state';
+import { Injectable, OnDestroy } from '@angular/core';
+import { uuidv4 } from 'lib0/random';
+import { Mark, Node } from 'prosemirror-model';
+import { AllSelection, Plugin, PluginKey, TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { Subject } from 'rxjs';
 import { ServiceShare } from '../services/service-share.service';
+import { articlePosOffset } from '../utils/commentsService/comments.service';
+import { articleSection } from '../utils/interfaces/articleSection';
 import { schema } from '../utils/Schema';
+
+export interface ydocTaxon {
+  description: string,
+  img: string,
+  title: string
+}
+
+export interface ydocTaxonsObj { [key: string]: ydocTaxon }
+
+export interface taxonMarkData {
+  pmDocStartPos: number,
+  pmDocEndPos: number,
+  domTop: number,
+  section: string,
+  taxonAttrs: any,
+  taxonTxt:string
+  taxonMarkId: string,
+  selected: boolean
+}
 
 @Injectable({
   providedIn: 'root'
 })
-export class TaxonService {
-  taxonPlugin:Plugin
+export class TaxonService implements OnDestroy {
+  taxonPlugin: Plugin
   taxonPluginKey = new PluginKey('taxonPlugin');
 
   canTagSelectionSubject = new Subject<boolean>()
-  tagCreateData?:{view:EditorView}
+  tagCreateData?: { view: EditorView }
 
-  constructor(
-    private serviceShare:ServiceShare
-  ) {
-    this.serviceShare.shareSelf('TaxonService',this)
-    this.taxonPlugin = new Plugin({
-      key: this.taxonPluginKey,
-      state: {
-        init: (_:any, state) => {
-          let getPluginData:()=>{ sectionName: string ,view:undefined|EditorView} = ()=>{
-            return { sectionName: _.sectionName ,view:undefined}
-          }
-          return getPluginData();
-        },
-        apply:(tr, prev, oldState, newState) =>{
-          if(!prev.view){
-            if(serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName]){
-              prev.view = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName].editorView
-            }
-          }
-          if(
-            tr.selection instanceof TextSelection &&
-            !tr.selection.empty &&
-            prev.view &&
-            prev.view.hasFocus()
-          ){
-            this.canTagSelectionSubject.next(true);
-            this.tagCreateData = {
-              view:prev.view
-            }
-          }else if(prev.view.hasFocus()){
-            this.canTagSelectionSubject.next(false);
-            this.tagCreateData = undefined
-          }
-          return prev
-        },
-      },
-      view: function () {
-        return {
-          update: (view, prevState) => {},
-          destroy: () => { }
-        }
-      },
-    });
+  taxonsDataObj: ydocTaxonsObj
+  taxonsDataObjSubject = new Subject()
+
+  TaxonObjChange = () => {
+    this.taxonsDataObj = this.serviceShare.YdocService.TaxonsMap.get('taxonsDataObj');
+    this.taxonsDataObjSubject.next(this.taxonsDataObj);
   }
 
-  getPlugin(){
+  setUpTaxonDataObjListener() {
+    this.serviceShare.YdocService.TaxonsMap.observe(this.TaxonObjChange)
+    this.TaxonObjChange()
+  }
+
+  ngOnDestroy(): void {
+    this.serviceShare.YdocService.TaxonsMap.unobserve(this.TaxonObjChange);
+  }
+
+  taxonMarkInSelection = (actualMark: Mark, pos: number,sectionId:string) => {
+
+    if (this.sameAsLastSelectedTaxonMark( pos, sectionId, actualMark.attrs.taxmarkid)) {
+      return
+    } else {
+      this.setLastSelectedTaxonMark( pos, sectionId, actualMark.attrs.taxmarkid)
+      this.lastSelectedMarks[actualMark.attrs.taxmarkid] = {
+        taxonMarkId: actualMark.attrs.taxmarkid,
+        sectionId: sectionId,
+        pos
+      }
+    }
+  }
+
+  thereIsTaxonInSel(view: EditorView,sectionId:string) {
+    let { from, to, $from, $to } = view.state.selection;
+    let taxonInSel = false;
+    let taxonMark:Mark
+    let markPos:number
+    view.state.doc.nodesBetween(from, to, (node, pos, parent, i) => {
+      if (
+        node.marks &&
+        node.marks.length > 0 &&
+        node.marks.some((mark) => mark.type.name == 'taxon')
+      ) {
+        taxonInSel = true;
+        taxonMark = node.marks.find((mark) => mark.type.name == 'taxon')
+        markPos = pos
+      }
+    })
+    if (!taxonInSel && !(view.state.selection instanceof AllSelection) && view  && view.hasFocus() ) {
+      let sel = view.state.selection
+      let nodeAfterSelection = sel.$to.nodeAfter
+      let nodeBeforeSelection = sel.$from.nodeBefore
+      if (nodeAfterSelection) {
+        let pos = sel.to
+        let taxonMarkFoundMark = nodeAfterSelection.marks.find(mark => mark.type.name == 'taxon')
+        if (taxonMarkFoundMark) {
+          taxonMark = taxonMarkFoundMark
+          taxonInSel = true;
+          markPos = pos
+      }
+      }
+      if (nodeBeforeSelection) {
+        let pos = sel.from - nodeBeforeSelection.nodeSize
+        let taxonMarkFoundMark = nodeBeforeSelection.marks.find(mark => mark.type.name == 'taxon')
+        if (taxonMarkFoundMark  ) {
+          taxonMark = taxonMarkFoundMark
+          taxonInSel = true;
+          markPos = pos
+      }
+      }
+    }
+    if(taxonInSel && taxonMark && ( taxonMark.attrs.removedtaxon == 'false' || taxonMark.attrs.removedtaxon == false) && view.hasFocus()){
+      this.taxonMarkInSelection(taxonMark,markPos,sectionId)
+    }
+    return taxonInSel
+  }
+
+  updateAllTaxonsMarks() {
+    this.getTaxonsInAllEditors()
+    this.updateTimestamp = Date.now();
+  }
+
+  updateTimestamp = 0;
+  updateTimeout
+
+  changeInEditors = () => {
+    let now = Date.now();
+    if (!this.updateTimestamp) {
+      this.updateTimestamp = Date.now();
+      this.updateAllTaxonsMarks()
+    }
+    if (this.updateTimeout) {
+      clearTimeout(this.updateTimeout);
+    }
+    if (now - this.updateTimestamp > 500) {
+      this.updateAllTaxonsMarks()
+    }
+    this.updateTimeout = setTimeout(() => {
+      this.updateAllTaxonsMarks()
+    }, 500)
+  }
+
+  lastSelectedTaxonMarkSubject:Subject<{
+    taxonMarkId?: string, sectionId?: string,pos?:number
+  }> = new Subject()
+  lastTaxonMarkSelected: { taxonMarkId?: string, sectionId?: string,pos?:number}
+  constructor(
+    private serviceShare: ServiceShare
+  ) {
+    this.lastSelectedTaxonMarkSubject.subscribe((data) => {
+      this.lastTaxonMarkSelected.pos = data.pos
+      this.lastTaxonMarkSelected.sectionId = data.sectionId
+      this.lastTaxonMarkSelected.taxonMarkId = data.taxonMarkId
+    })
+    this.serviceShare.shareSelf('TaxonService', this)
+    let lastSelectedMarks: { [key: string]: {  taxonMarkId: string, sectionId: string,pos:number  } } = {}
+    let lastTaxonMarkSelected: { taxonMarkId?: string, sectionId?: string,pos?:number} = {}
+    this.lastTaxonMarkSelected = lastTaxonMarkSelected
+    this.lastSelectedMarks = lastSelectedMarks
+    let init = () => {
+      this.setUpTaxonDataObjListener()
+      this.taxonPlugin = new Plugin({
+        key: this.taxonPluginKey,
+        state: {
+          init: (_: any, state) => {
+            let getPluginData: () => { sectionName: string, view: undefined | EditorView } = () => {
+              return { sectionName: _.sectionName, view: undefined }
+            }
+            return getPluginData();
+          },
+          apply: (tr, prev, oldState, newState) => {
+            if (!prev.view) {
+              if (serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName]) {
+                prev.view = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName].editorView
+              }
+            }
+            let thereIsTaxonInSel
+            if(prev.view && prev.view.hasFocus()){
+              thereIsTaxonInSel = this.thereIsTaxonInSel(prev.view,prev.sectionName)
+            }
+            if (
+              tr.selection instanceof TextSelection &&
+              !tr.selection.empty &&
+              prev.view &&
+              prev.view.hasFocus() &&
+              !thereIsTaxonInSel
+            ) {
+              this.canTagSelectionSubject.next(true);
+              this.tagCreateData = {
+                view: prev.view
+              }
+            } else if (prev.view.hasFocus()) {
+              this.canTagSelectionSubject.next(false);
+              this.tagCreateData = undefined
+            }
+            if (!(newState.selection instanceof AllSelection) /* && view.hasFocus() && tr.steps.length > 0 */) {
+              this.changeInEditors()
+            }
+            return prev
+          },
+        },
+        view: function () {
+          return {
+            update: (view, prevState) => { },
+            destroy: () => { }
+          }
+        },
+      });
+    }
+    if (this.serviceShare.YdocService.editorIsBuild) {
+      init();
+    } else {
+      this.serviceShare.YdocService.ydocStateObservable.subscribe((event) => {
+        if (event == 'docIsBuild') {
+          init();
+        }
+      });
+    }
+  }
+
+  getPlugin() {
     return this.taxonPlugin;
   }
 
-  tagText(allOccurrence:boolean){
-    if(allOccurrence){
+  tagText(allOccurrence: boolean) {
+    if (allOccurrence) {
       this.tagAllOccurrenceOfTextInCurrSelection()
-    }else{
+    } else {
       this.tagOnlyTextInCurrSelection()
     }
   }
 
-  tagOnlyTextInCurrSelection(){
-    console.log('tagOnlyTextInCurrSelection');
-    if(this.tagCreateData){
-      let {from,to} = this.tagCreateData.view.state.selection
-      let text = this.tagCreateData.view.state.doc.textBetween(from,to);
-      this.tagCreateData.view.dispatch(this.tagCreateData.view.state.tr.addMark(from,to,schema.mark('taxon',{
-        taxmarkid: 1,
-        taxonid: 2,
-        removedtaxon: false,
-      })))
+  addTaxonToYdocIfNotAdded(taxonKey: string) {
+    if (!this.taxonsDataObj[taxonKey]) {
+      this.taxonsDataObj[taxonKey] = {
+        description: 'Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Pellentesque in ipsum id orci porta dapibus. Nulla quis lorem ut libero malesuada feugiat. Curabitur aliquet quam id dui posuere blandit. Vestibulum ac diam sit amet quam vehicula elementum sed sit amet dui. Donec rutrum congue leo eget malesuada. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Praesent sapien massa, convallis a pellentesque nec, egestas non nisi. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Donec velit neque, auctor sit amet aliquam vel, ullamcorper sit amet ligula. Nulla quis lorem ut libero malesuada feugiat. Curabitur non nulla sit amet nisl tempus convallis quis ac lectus.',
+        img: 'https://media.licdn.com/dms/image/C560BAQHMnA03XDdf3w/company-logo_200_200/0/1519855918965?e=2147483647&v=beta&t=J3kUMZwIphc90TFKH5oOO9Sa9K59fimgJf-s_okU3zs',
+        title: uuidv4()
+      }
+      this.serviceShare.YdocService.TaxonsMap.set('taxonsDataObj', this.taxonsDataObj);
     }
   }
 
-  tagAllOccurrenceOfTextInCurrSelection(){
-    console.log('tagAllOccurrenceOfTextInCurrSelection');
+  markTextAsTaxon(from: number, to: number, taxonKey: string, view: EditorView) {
+    this.tagCreateData.view.dispatch(this.tagCreateData.view.state.tr.addMark(from, to, schema.mark('taxon', {
+      taxmarkid: uuidv4(),
+      removedtaxon: false,
+    })))
+  }
 
+  tagOnlyTextInCurrSelection() {
+    if (this.tagCreateData) {
+      let view = this.tagCreateData.view
+      let state = view.state
+      let { from, to } = state.selection
+      let taxonKey = state.doc.textBetween(from, to);
+      this.addTaxonToYdocIfNotAdded(taxonKey);
+      this.markTextAsTaxon(from, to, taxonKey, view)
+    }
+  }
+
+  tagAllOccurrenceOfTextInCurrSelection() {
+    if (this.tagCreateData) {
+      let view = this.tagCreateData.view
+      let state = view.state
+      let { from, to } = state.selection
+      let taxonKey = state.doc.textBetween(from, to);
+      this.addTaxonToYdocIfNotAdded(taxonKey);
+      this.markAllOccurrencesOfTextInAllEditors([taxonKey])
+    }
+  }
+
+  markAllOccurrencesOfTextInAllEditors(taxonKey: string[]) {
+    let treeScructure = this.serviceShare.TreeService.articleSectionsStructure;
+    let editorContainers = this.serviceShare.ProsemirrorEditorsService.editorContainers;
+    let loop = (sections: articleSection[], callback: (view: EditorView, taxonKey: string[]) => any) => {
+      sections.forEach((sec) => {
+        if (sec.type == 'complex' && sec.children && sec.children.length) {
+          loop(sec.children, callback);
+        }
+        if (editorContainers[sec.sectionID] && editorContainers[sec.sectionID].editorView) {
+          callback(editorContainers[sec.sectionID].editorView, taxonKey)
+        }
+      })
+    }
+    loop(treeScructure, this.markAllOccurrencesOfTextInEditor)
+  }
+
+  getCountOfTagableText(doc: Node, taxonKeys: string[]) {
+    let count = 0;
+    let docSize = doc.content.size;
+    let allMatches = [];
+    doc.nodesBetween(0, docSize, (node, pos, parent, index) => {
+      if (node.type.isTextblock) {
+        let match
+        let str = node.textContent;
+        let matchArr = []
+        let matchObj = {}
+        taxonKeys.forEach((taxon)=>{
+          let re = new RegExp(taxon,'gm')
+          while ((match = re.exec(str)) != null) {
+            matchArr.push(match);
+            matchObj[match.index] = true;
+            matchObj[match.index + match[0].length] = true;
+          }
+        })
+        if(matchArr.length == 0) return false;
+        // map plain text positions of matches to pm position
+        let positionsWithTaxons = []
+
+        let plainTextPos = 0;
+        let addition = 0;
+        let loopDescendents = (node1:Node,level) => {
+          let nodeTxt = node1.textContent
+          if(node1.type.name == 'text'){
+            for(let i = 0 ; i < nodeTxt.length;i++){
+              if(matchObj[plainTextPos] && !node1.marks.some(m=>m.type.name == 'taxon')){
+                matchObj[plainTextPos] = plainTextPos+addition
+              }else if(matchObj[plainTextPos] && node1.marks.some(m=>m.type.name == 'taxon')){
+                positionsWithTaxons.push(plainTextPos)
+              }
+              plainTextPos++;
+            }
+          }
+          if(node1.childCount>0){
+            addition+=1
+            node1.descendants((child,posOfChild)=>{
+              loopDescendents(child,level+1);
+              return false;
+            })
+            addition+=1
+          }
+        }
+        if(node.childCount>0){
+          addition+=1;
+          node.descendants((child,posOfChild)=>{
+            loopDescendents(child,1);
+            return false;
+          })
+        }
+        matchArr.forEach((match)=>{
+          if(!positionsWithTaxons.includes(match.index)&&!positionsWithTaxons.includes(match.index+match[0].length)){
+            allMatches.push({
+              from:matchObj[match.index] + pos,
+              to:matchObj[match.index+match[0].length]+pos,
+              taxon:match[0]
+            })
+          }
+        })
+        return false;
+      }
+      return true;
+    })
+    let taxonsInEditor:{form:number,to:number,removedTaxon:boolean}[] = []
+    doc.nodesBetween(0, docSize, (node, pos, parent, index) => {
+      let taxonMarkOnNode = node.marks.find(x=>x.type.name == 'taxon');
+      if(taxonMarkOnNode){
+        taxonsInEditor.push({form:pos,to:pos+node.nodeSize,removedTaxon:taxonMarkOnNode.attrs.removedtaxon});
+      }
+    })
+
+    return allMatches.sort((a,b)=>b.from-a.from);
+  }
+
+  markAllOccurrencesOfTextInEditor = (view: EditorView, taxonKeys: string[]) => {
+    let countOfTextOccurrencesThanCanBeMarkedAsTaxons = this.getCountOfTagableText(view.state.doc, taxonKeys);
+    if(countOfTextOccurrencesThanCanBeMarkedAsTaxons.length>0){
+      let tr = view.state.tr;
+      countOfTextOccurrencesThanCanBeMarkedAsTaxons.forEach((taxPos)=>{
+        tr = tr.addMark(taxPos.from,taxPos.to,schema.marks.taxon.create({removedtaxon: false,taxmarkid:uuidv4()}))
+      })
+      view.dispatch(tr);
+    }
+  }
+
+  taxonsMarksObj: { [key: string]: taxonMarkData } = {}
+  taxonsMarksObjChangeSubject: Subject<any> = new Subject()
+
+  getTaxonsInAllEditors = () => {
+    this.taxonsMarksObj = {}
+    let edCont = this.serviceShare.ProsemirrorEditorsService.editorContainers
+    Object.keys(edCont).filter(x=>x!='headEditor').forEach((sectionId) => {
+      let view = edCont[sectionId].editorView;
+      this.getTaxonsInEditor(view, sectionId);
+    })
+    this.taxonsMarksObjChangeSubject.next('taxons pos calc for all sections');
+  }
+
+  lastSelectedMarks: { [key: string]: {  taxonMarkId: string, sectionId: string,pos:number } }
+  getTaxonsInEditor = (view: EditorView, sectionId: string) => {
+    let taxonMark = view.state.schema.marks.taxon
+    let doc = view.state.doc
+    let docSize: number = doc.content.size;
+    doc.nodesBetween(0, docSize - 1, (node, pos, parent, index) => {
+      const actualMark = node.marks.find(mark => mark.type === taxonMark);
+      if (actualMark && (
+        actualMark.attrs.removedtaxon == 'false'||
+        actualMark.attrs.removedtaxon == false
+        )) {
+      // should get the top position , the node document position , the section id of this view
+        let articleElement = document.getElementById('app-article-element') as HTMLDivElement
+        let articleElementRactangle = articleElement.getBoundingClientRect()
+        let domCoords = view.coordsAtPos(pos)
+        let markIsLastSelected = false
+
+        let selTaxon = this.lastSelectedMarks[actualMark.attrs.taxmarkid];
+        if (selTaxon) {
+          if (!this.serviceShare.ProsemirrorEditorsService.editorContainers[selTaxon.sectionId]) {
+            this.lastSelectedMarks[actualMark.attrs.id] = undefined
+          } else if (selTaxon.pos == pos&& selTaxon.taxonMarkId == actualMark.attrs.taxmarkid && selTaxon.sectionId == sectionId) {
+            markIsLastSelected = true
+          }
+        }
+        let lastSelected: true | undefined
+        if (
+          this.lastTaxonMarkSelected.taxonMarkId == actualMark.attrs.taxmarkid &&
+          this.lastTaxonMarkSelected.sectionId == sectionId&&
+          this.lastTaxonMarkSelected.pos == pos
+        ) {
+          lastSelected = true
+        }
+        if (lastSelected) {
+        }
+        if (markIsLastSelected || lastSelected || (!(markIsLastSelected || lastSelected) && !this.taxonsMarksObj[actualMark.attrs.taxmarkid])) {
+          this.taxonsMarksObj[actualMark.attrs.taxmarkid] = {
+            taxonMarkId: actualMark.attrs.taxmarkid,
+            pmDocStartPos: pos,
+            pmDocEndPos: pos + node.nodeSize,
+            section: sectionId,
+            taxonTxt: node.textContent,
+            domTop: domCoords.top - articleElementRactangle.top - articlePosOffset,
+            taxonAttrs: actualMark.attrs,
+            selected: markIsLastSelected,
+          }
+        }
+      }
+    })
+  }
+
+  sameAsLastSelectedTaxonMark = (pos?:number,sectionId?: string, taxonMarkId?: string ) => {
+    if (
+      this.lastTaxonMarkSelected.sectionId != sectionId ||
+      this.lastTaxonMarkSelected.taxonMarkId != taxonMarkId ||
+      this.lastTaxonMarkSelected.pos!=pos
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
+  setLastSelectedTaxonMark = ( pos?: number, sectionId?: string, taxonMarkId?: string,focus?:true) => {
+    if (!this.sameAsLastSelectedTaxonMark( pos, sectionId, taxonMarkId)||focus) {
+      this.lastSelectedTaxonMarkSubject.next({ pos, sectionId, taxonMarkId })
+    }
+  }
+
+  markTaxonsWithBackendService(){
+    let articleTxt:{[key:string]:{txt:string,taxons?:string[]}} = {}
+    let edCont = this.serviceShare.ProsemirrorEditorsService.editorContainers
+    Object.keys(edCont).filter(x=>x!='headEditor').forEach((sectionId) => {
+      articleTxt[sectionId] = {txt:edCont[sectionId].editorView.state.doc.textContent};
+    })
+    let newFormData = new FormData();
+    newFormData.append('text',Object.values(articleTxt).map(x=>x.txt).join(''))
+    newFormData.append('format','json')
+    newFormData.append('returnContent','true')
+    newFormData.append('unique','true')
+    this.serviceShare.httpClient.post('https://gnrd.globalnames.org/find',newFormData).subscribe((results:any)=>{
+      let taxonNames:string[] = results.names.map((x)=>x.name);
+      Object.keys(articleTxt).forEach((key)=>{
+        articleTxt[key].taxons = taxonNames.filter((name)=>articleTxt[key].txt.includes(name));
+        let view = edCont[key].editorView;
+        this.markAllOccurrencesOfTextInEditor(view,articleTxt[key].taxons)
+      })
+    })
   }
 }

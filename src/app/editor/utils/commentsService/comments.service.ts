@@ -15,6 +15,8 @@ import { YMap } from 'yjs/dist/src/internals';
 import { checkAllEditorsIfMarkOfCommentExists } from './commentMarksHelpers';
 import { I } from '@angular/cdk/keycodes';
 
+export const articlePosOffset = 24;
+
 export let selInComment = (sel:Selection,node:Node,nodePos:number) =>{
   let nodestart= nodePos;
   let nodeend = nodePos+node.nodeSize;
@@ -468,7 +470,7 @@ export class CommentsService {
             pmDocStartPos: pos,
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
-            domTop: domCoords.top - articleElementRactangle.top,
+            domTop: domCoords.top - articleElementRactangle.top-articlePosOffset,
             commentTxt: node.textContent,
             commentAttrs: actualMark.attrs,
             selected: markIsLastSelected,

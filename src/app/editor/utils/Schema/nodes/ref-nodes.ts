@@ -1,7 +1,7 @@
 import { genericAttributtesToDom, getGenericAttributes, parseGenericAttributes } from "../helpers";
 
 export const reference_citation = {
-  content: "inline",
+  content: "inline*",
   group: "inline",
   inline:true,
   isolating: true,

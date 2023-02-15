@@ -777,7 +777,7 @@ export class ProsemirrorEditorsService {
     this.treeService.articleSectionsStructure?.forEach(item => {
       countActiveSections(item)
     })
-    let renderedSections = Object.keys(this.editorContainers).filter(key => key !== 'endEditor').length
+    let renderedSections = Object.keys(this.editorContainers).filter(key => (key !== 'endEditor'&&key!=='headEditor')).length
     let allActiveSections = count;
     if (renderedSections == allActiveSections) {
       this.runFuncAfterRender()
@@ -1560,7 +1560,7 @@ export class ProsemirrorEditorsService {
     updateArticleUserStates()
     setTimeout(() => {
       this.serviceShare.YjsHistoryService.stopBigNumberItemsCapturePrevention();
-      this,this.stopSpinner()
+      this.stopSpinner()
     }, 20)
   }
 

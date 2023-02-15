@@ -951,7 +951,7 @@ page-break:after {
   color: #777;
 }
 
-span.taxon{
+span.taxon[removedtaxon="false"]{
   background-color: #7989ffb8;
 }
 

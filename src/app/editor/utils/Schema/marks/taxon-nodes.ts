@@ -3,7 +3,6 @@ export const taxon = {
   attrs: {
     class: { default: 'taxon' },
     taxmarkid: { default: '' },
-    taxonid: { deafult: '' },
     removedtaxon: { deafult: 'false' }
   },
   inclusive: false,

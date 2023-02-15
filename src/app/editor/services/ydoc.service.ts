@@ -17,6 +17,7 @@ import { ServiceShare } from './service-share.service';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { Transaction as YTransaction } from 'yjs';
 import { layoutMenuAndSchemaSettings, mapSchemaDef, parseSecFormIOJSONMenuAndSchemaDefs, parseSecHTMLMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
+import { TaxonService } from '../taxons/taxon.service';
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +36,7 @@ export class YdocService {
   constructor(
     private http: HttpClient,
     private serviceShare: ServiceShare,
-    private articleService: ArticlesService
+    private articleService: ArticlesService,
   ) {
     this.serviceShare.shareSelf('YdocService', this)
   }
@@ -58,6 +59,7 @@ export class YdocService {
   customSectionProps?: YMap<any>
   collaborators?: YMap<any>
   PMMenusAndSchemasDefsMap?: YMap<any>
+  TaxonsMap?: YMap<any>
   userInfo: any
   getCommentsMap(): YMap<any> {
     return this.comments!
@@ -287,6 +289,13 @@ export class YdocService {
     this.PMMenusAndSchemasDefsMap = this.ydoc.getMap('PMMenusAndSchemasDefsMap');
     let menusAndSchemasDefs = this.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
 
+    this.TaxonsMap = this.ydoc.getMap('TaxonsMap');
+    let taxonsDataObj = this.TaxonsMap.get('taxonsDataObj');
+
+    if(!taxonsDataObj){
+      this.TaxonsMap.set('taxonsDataObj',{});
+    }
+
     let citableElementMenusAndSchemaDefs:any = {}
     let allCitableElementsMenus = {}
     let allCitableElementsSchemas = {}
@@ -319,7 +328,6 @@ export class YdocService {
         Object.assign(allCitableElementsMenus, result.sectionMenusAndSchemaDefsFromJSON.menus);
         Object.assign(allCitableElementsSchemas, result.sectionMenusAndSchemaDefsFromJSON.schemas);
         Object.assign(allCitableElementsDefsByTags,result.sectionMenusAndSchemasDefsfromJSONByfieldsTags)
-        console.log("parseCitableElementFormIODefs",result)
         return result
       }
 
@@ -330,7 +338,6 @@ export class YdocService {
         }
         Object.assign(allCitableElementsMenus, result.sectionMenusAndSchemaHTMLDefs.menus);
         Object.assign(allCitableElementsSchemas, result.sectionMenusAndSchemaHTMLDefs.schemas);
-        console.log("parseCitableElementHTMLDefs",result)
         return result
       }
 
