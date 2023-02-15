@@ -20,10 +20,10 @@
           </div>
           <div class="supplementary-file-control-buttons button-group">
             <button mat-stroked-button color="primary" (click)="editSupplementaryFile(supplementaryFiles![supplementaryFileNum],i)">
-              Edit file
+              Edit
             </button>
             <button mat-stroked-button color="warn" (click)="deleteSupplementaryFile(supplementaryFiles![supplementaryFileNum],i)">
-              Delete file
+              Delete
             </button>
           </div>
         </div>
@@ -35,6 +35,6 @@
 <mat-dialog-actions *ngIf="supplementaryFilesNumbers" align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]>Cancel</button>
   <button mat-stroked-button color="primary" (click)="addSupplementaryFile()">Add File</button>
-  <button mat-flat-button color="primary" (click)="saveSupplementaryFiles()">Save Files</button>
+  <button mat-flat-button color="primary" (click)="saveSupplementaryFiles()">Save</button>
 </mat-dialog-actions>
 

@@ -1,5 +1,5 @@
-<h2 mat-dialog-title *ngIf="data.component">Edit media</h2>
-<h2 mat-dialog-title *ngIf="!data.component">Add media</h2>
+<h2 mat-dialog-title *ngIf="data&&data.component">Edit Media</h2>
+<h2 mat-dialog-title *ngIf="!data||!data.component">Add Media</h2>
 
 <div class="pm-pdf-menu-container"></div>
 

@@ -53,7 +53,7 @@
           </ng-container>
         </ng-container>
       </div>
-      <button class="form-affiliations" mat-flat-button color="primary" (click)="addAffiliation()">Add affiliation</button>
+      <button class="form-affiliations" mat-flat-button color="primary" (click)="addAffiliation()">Add Affiliation</button>
     </div>
     <mat-card *ngIf="askremove" class="mat-card-delete">
       <mat-card-content>
@@ -69,8 +69,8 @@
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]>Cancel</button>
-  <button mat-stroked-button color="warn" (click)="askremove = true">Remove User</button>
-  <button mat-flat-button color="primary" [disabled]="nothingIsEdited()" (click)="editCollaborator()">Edit User</button>
+  <button mat-stroked-button color="warn" (click)="askremove = true">Remove</button>
+  <button mat-flat-button color="primary" [disabled]="nothingIsEdited()" (click)="editCollaborator()">Save</button>
 </mat-dialog-actions>
 
 

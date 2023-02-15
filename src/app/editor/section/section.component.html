@@ -2,7 +2,7 @@
 <!-- <mat-formio class="article-section" [form]="sectionContent" (submit)='submit($event)'></mat-formio> -->
 
 <!-- If section is inside a modal -->
-<h2 mat-dialog-title *ngIf="section.mode == 'editMode'">Edit section</h2>
+<h2 mat-dialog-title *ngIf="section.mode == 'editMode'">Edit Section</h2>
 
 <div *ngIf='section.mode == "editMode"' class="popup-menu-container"></div>
 
@@ -44,7 +44,7 @@
   <button mat-stroked-button color="primary" (click)="hidehtml=!hidehtml">Edit HTML</button>
   <button mat-stroked-button color="primary" (click)="hidejson=!hidejson">Show JSON</button>
   <button mat-stroked-button color="primary" (click)="hideDefsjson=!hideDefsjson">Show Menus And Schema Defs</button>
-  <button mat-flat-button color="primary" (click)="submitSection()" [disabled]="!isValid">Submit section</button>
+  <button mat-flat-button color="primary" (click)="submitSection()" [disabled]="!isValid">Save</button>
 </mat-dialog-actions>
 
 <!-- If section is inside the Editor -->
