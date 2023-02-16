@@ -198,7 +198,6 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
               this.searchResults = []
             }else{
               this.searchResults = res
-              console.log(this.searchResults)
             }
             this.selectedUserIndex = 0
           })

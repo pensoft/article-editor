@@ -14,7 +14,6 @@ export class BoldPipe implements PipeTransform {
   }
 
   replace(str, regex) {
-    console.log(str)
     return str.replace(new RegExp(`(${regex})`, 'gm'), '<b>$1</b>');
   }
 

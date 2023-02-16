@@ -49,6 +49,7 @@ import { TrackChangesService } from './utils/trachChangesService/track-changes.s
 import { CitableElementsService } from './services/citable-elements.service';
 import { CitableElementsEditButtonsService } from './utils/citable-elements-edit-buttons/citable-elements-edit-buttons.service';
 import { CollaboratorsService } from './dialogs/add-contributors-dialog/collaborators.service';
+import { TaxonService } from './taxons/taxon.service';
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
@@ -81,6 +82,9 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
   innerWidth: any;
   trackChangesData?: any;
   usersInArticle :any[] = []
+
+  canCreateTag = false;
+
   constructor(
     private ydocService: YdocService,
     private route: ActivatedRoute,
@@ -103,9 +107,12 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     private CitableElementsContextMenuService:CitableElementsContextMenuService,
     private refsAPI:RefsApiService,
     private changeDetection: ChangeDetectorRef,
-    private referencePluginService:ReferencePluginService
-  ) {
-
+    private referencePluginService:ReferencePluginService,
+    public taxonService:TaxonService
+    ) {
+    this.serviceShare.TaxonService.canTagSelectionSubject.subscribe((canCreateTag)=>{
+      this.canCreateTag = canCreateTag
+    })
     this.prosemirrorEditorServie.spinSpinner();
     this.previewMode = this.prosemirrorEditorServie.previewArticleMode
     this.titleControl.valueChanges
@@ -153,6 +160,19 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
         this.sidebar = 'changes';
         setTimeout(()=>{
           this.serviceShare.TrackChangesService.lastSelectedChangeSubject.next(data)
+        },20)
+      }
+    })
+
+    this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject.subscribe((data)=>{
+      if(!data.pos||!data.sectionId||!data.taxonMarkId) return ;
+      if (!this.sidebarDrawer?.opened) {
+        this.sidebarDrawer?.toggle();
+      }
+      if (this.sidebar != 'taxons') {
+        this.sidebar = 'taxons';
+        setTimeout(()=>{
+          this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject.next(data)
         },20)
       }
     })

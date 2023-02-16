@@ -342,7 +342,6 @@ export let filterFieldsValues = (formIOJSON: any, submission: any, serviceShare:
 
   Object.keys(submission.data).forEach((fieldKey) => {
     let customDefsForField
-    console.log(defsOnFieldsInHTML);
     if (citableElement) {
       customDefsForField = citableElementDefsByTags[fieldKey] // only used when there is no shcema in the HTML template
     } else {
@@ -380,7 +379,6 @@ export let filterFieldsValues = (formIOJSON: any, submission: any, serviceShare:
         } else {
           containerFilteredContent.append(serializedCleanStruct);
         }
-        console.log('set', fieldKey, 'from', submission.data[fieldKey], 'to', containerFilteredContent.innerHTML);
         submission.data[fieldKey] = containerFilteredContent.innerHTML
       }
     }
