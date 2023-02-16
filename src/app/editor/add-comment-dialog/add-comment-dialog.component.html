@@ -14,9 +14,7 @@
   <mat-label class="upper-label" *ngIf="type == 'comment'">Comment</mat-label>
   <mat-label class="upper-label" *ngIf="type == 'anchorTag'">Anchor id</mat-label>
   <mat-form-field [style.width]='"100%"' appearance="fill">
-    <input  *ngIf="mathType != 'math_display'" matInput [(ngModel)]="data.url"
-           [formControl]="text" required style="color: black !important;" placeholder="Enter math expression">
-    <textarea *ngIf="mathType == 'math_display'" matInput  [(ngModel)]="data.url" [formControl]="text" required style="color: black !important;"></textarea>
+    <textarea *ngIf="type == 'mathinline'" matInput  [(ngModel)]="data.url" [formControl]="text" required style="color: black !important;"></textarea>
     <input *ngIf="type == 'video'" matInput [(ngModel)]="data.url"
            [formControl]="text" required style="color: black !important;" placeholder="Enter video url">
     <input *ngIf="type == 'comment'" matInput [(ngModel)]="data.url"
@@ -30,12 +28,16 @@
     <a href="https://katex.org/docs/supported.html"  target="_blank">https://katex.org/docs/supported.html</a>
     for supported functions, operators and etc.
   </small>
-  <div *ngIf="type == 'mathinline'" #mathPreview></div>
+  <mat-radio-group *ngIf="type == 'mathinline'" [formControl]="mathType" [(ngModel)]="selectedMathExample">
+    <mat-radio-button *ngFor="let preview of this.mathPreviews" [value]="preview.value">
+     <div [innerHTML]="sanitize(preview.html)" style="overflow: auto"></div>
+    </mat-radio-button>
+  </mat-radio-group>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button (click)="onNoClick()">Cancel</button>
-  <button mat-flat-button color="primary" [mat-dialog-close]="data.url" *ngIf="type == 'mathinline'" cdkFocusInitial>
+  <button mat-flat-button color="primary" [mat-dialog-close]="{text, mathType}" *ngIf="type == 'mathinline'" cdkFocusInitial>
     Insert Expression
   </button>
   <button mat-flat-button color="primary" [mat-dialog-close]="data.url" *ngIf="type == 'comment'" cdkFocusInitial>

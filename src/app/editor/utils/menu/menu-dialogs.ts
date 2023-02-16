@@ -459,25 +459,26 @@ export const addAnchorTagItem = new MenuItem({
   icon: createCustomIcon('anchortag.svg', 19)
 })
 
-function addMathInline(mathType: string) {
+function addMathInline() {
   return (state: EditorState, dispatch: any, view: EditorView) => {
     let sel = state.selection
     if (dispatch) {
       if (sel.empty) {
         let mathExpresion;
         let { from, to } = state.selection
-        let mathNode = state.schema.nodes[mathType]
         const dialogRef = sharedDialog.open(AddCommentDialogComponent, {
           width: '582px',
           panelClass: 'insert-figure-in-editor',
-          data: { url: mathExpresion, type: 'mathinline', mathType }
+          data: { url: mathExpresion, type: 'mathinline' }
         });
         dialogRef.afterClosed().subscribe(result => {
-          mathExpresion = result
+          const { text, mathType } = result
+          mathExpresion = text.value
+          let mathNode = state.schema.nodes[mathType.value]
           let newmathNode = mathNode.create(undefined, state.schema.text(mathExpresion))
           let tr = view.state.tr.replaceSelectionWith(newmathNode);
           view.dispatch(tr)
-          if (mathType == 'math_display') {
+          if (mathType.value == 'math_display') {
             view.dispatch(view.state.tr.setSelection(NodeSelection.create(tr.doc, from - 1)));
           }
         });
