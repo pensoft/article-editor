@@ -10,6 +10,7 @@ import { Subject } from 'rxjs';
 import { DocumentHelpers } from 'wax-prosemirror-utilities';
 import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../../services/ydoc.service';
+import { articlePosOffset } from '../commentsService/comments.service';
 import { acceptChange, rejectChange } from '../trackChanges/acceptReject';
 export let selInChange = (sel:Selection,node:Node,nodePos:number) =>{
   let nodestart= nodePos;
@@ -136,7 +137,7 @@ export class TrackChangesService {
             pmDocStartPos: pos,
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
-            domTop: domCoords.top - articleElementRactangle.top,
+            domTop: domCoords.top - articleElementRactangle.top - articlePosOffset,
             changeTxt: node.textContent,
             changeAttrs: actualMark.attrs,
             type:actualMark.type.name,

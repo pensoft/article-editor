@@ -9,6 +9,7 @@ import citation from "./trackChangesMarks/citation";
 import  table_citation  from "./trackChangesMarks/table-citation";
 import supplementary_file_citation from "./trackChangesMarks/supplementary-file-citation";
 import end_note_citation from "./trackChangesMarks/end-note-citation";
+import { taxon } from "./taxon-nodes";
 
 const calcYChangeStyle = (ychange: any) => {
     switch (ychange.type) {
@@ -65,6 +66,7 @@ export const marks: MarkSpec = {
     end_note_citation,
     citation,
     supplementary_file_citation,
+    taxon,
     ...basicmarks,
     invalid: {
         parseDOM: [

@@ -1140,7 +1140,7 @@ mat-radio-group {
 }
 
 /* Editor Comment Box Override */
-.comment-container, .add-comment-box, .change-container {
+.comment-container, .add-comment-box, .change-container, .taxon-container {
   width: 100%;
   transition: width .3s linear, top .3s linear, padding-left .3s linear, padding-right .3s linear, opacity .2s ease-in-out .3s;
   position: absolute;
@@ -1149,7 +1149,7 @@ mat-radio-group {
   background: var(--color-f9fafc);
   border-radius: 0;
 
-  .comment-box, .comment-box-replies, .comment-box-form, .commentBox, .change-box {
+  .comment-box, .taxon-box, .comment-box-replies, .comment-box-form, .commentBox, .change-box {
     display: flex;
     flex-flow: column nowrap;
     gap: 14px;
@@ -1469,6 +1469,32 @@ mat-radio-group {
 
     .comment-box, .comment-box-replies  {
 
+      .mat-card-content {
+        border-color: var(--color-e3e3e3);
+      }
+    }
+
+    .comment-box-form {
+      display: flex;
+    }
+  }
+
+  &.selected-taxon {
+    margin: -1px 0 0 0;
+    background: var(--color-ffffff);
+    border-color: var(--color-559efe);
+
+    app-comment {
+      > mat-card {
+        &:last-child {
+          .mat-card-content {
+            border-bottom-color: transparent;
+          }
+        }
+      }
+    }
+
+    .taxon-box  {
       .mat-card-content {
         border-color: var(--color-e3e3e3);
       }
@@ -1886,6 +1912,74 @@ block-figure {
             }
           }
         }
+      }
+    }
+  }
+}
+
+/* Formio Textarea Override */
+mat-formio-textarea {
+  .prosemirror-textarea-wrapper {
+    .editor-container {
+      border: 1px solid var(--color-e3e3e3);
+      transition: all ease-in-out 300ms;
+      border-radius: 6px;
+      padding: 6px 12px;
+    }
+  }
+  
+  .prosemirror-label-tag {
+    display: inline-block;
+    font-size: 14px;
+    font-weight: bold;
+    line-height: 20px;
+    margin: 0 0 8px 0;
+    color: var(--color-192956);
+  }
+  
+  .prosemirror-textarea-wrapper-error {
+    .editor-container {
+      border: 1px solid var(--color-e56b87);
+      transition: all ease-in-out 300ms;
+      border-radius: 6px;
+      padding: 6px 12px;
+    }
+  }
+  
+  .prosemirror-textarea-wrapper-focused {
+    .editor-container {
+      border: 1px solid var(--color-00b1b2);
+      transition: all ease-in-out 300ms;
+      border-radius: 6px;
+      padding: 6px 12px;
+    }
+  }
+  
+  .pm-errors {
+    height: 24px;
+  
+    > div {
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 16px;
+      color: var(--color-e56b87);
+      padding: 4px 0 0 0;
+      letter-spacing: 0;
+    }
+  }
+  
+  .prosemirror-textarea-wrapper,
+  .prosemirror-textarea-wrapper-error,
+  .prosemirror-textarea-wrapper-focused {
+  
+    .ProseMirror {
+      p,
+      span {
+        margin-top: -10px;
+      }
+      table p,
+      span {
+        margin-top: 0;
       }
     }
   }

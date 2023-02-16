@@ -203,7 +203,6 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
       refsToAdd.push({ref})
     })
     if(source == 'refindit'){
-      console.log(refsToAdd);
       this.editRefinditRefBeforeSubmit(refsToAdd[0].ref,(refdata:any)=>{
         if(refdata){
           this.dialogRef.close(refdata)

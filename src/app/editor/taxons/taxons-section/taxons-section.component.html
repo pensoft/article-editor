@@ -1,0 +1,25 @@
+<div class="search-taxons">
+  <mat-form-field class="search-box-taxons" style="background:white;" appearance="fill">
+    <mat-label class="character-style-9 label">Search taxons...</mat-label>
+    <mat-icon class="search-icon" matPrefix>search</mat-icon>
+    <input [formControl]="searchForm" matInput style="color: black !important;">
+  </mat-form-field>
+  <div class="results-from-search" *ngIf="searching">
+    <div class="number-results">
+      {{searchIndex+1}}/{{searchResults.length}}
+    </div>
+    <button mat-icon-button [disabled]="searchIndex == 0" (click)="selectPrevComFromSearch()"><mat-icon>arrow_upward</mat-icon></button>
+    <button mat-icon-button [disabled]="searchResults&&searchResults.length-1 == searchIndex" (click)="selectNextComFromSearch()"><mat-icon>arrow_downward</mat-icon></button>
+    <button mat-icon-button class="end-search-btn" (click)="endSearch()"><mat-icon>close</mat-icon></button>
+  </div>
+</div>
+<div class="use-taxon-finder-container">
+  <button mat-flat-button color="primary" class="use-taxon-finder-btn" (click)="findTaxonsWithBackendService()">Use taxon finder</button>
+</div>
+<div class="taxons-wrapper">
+  <div style="height:100%;" class="all-taxons-container">
+    <div *ngFor="let taxon of this.allTaxons" class="taxon-container" style="opacity: 0;" attr.taxonid="{{taxon.taxonMarkId}}" attr.sectionId="{{taxon.section}}" #taxonContainer>
+      <app-taxon [taxon]="taxon" [(doneRenderingTaxonsSubject)]="doneRenderingTaxonsSubject" (selected)="changeParentContainer($event,taxonContainer,taxon)"></app-taxon>
+    </div>
+  </div>
+</div>

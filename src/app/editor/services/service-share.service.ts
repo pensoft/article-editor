@@ -33,6 +33,7 @@ import { JatsErrorsDialogComponent } from '../dialogs/jats-errors-dialog/jats-er
 import { CitableElementsContextMenuService } from '../utils/citable-elements-context-menu/citable-elements-context-menu.service';
 import { ChangesSectionComponent } from '../changes-section/changes-section.component';
 import { CollaboratorsService } from '../dialogs/add-contributors-dialog/collaborators.service';
+import { TaxonService } from '../taxons/taxon.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -40,6 +41,7 @@ export class ServiceShare {
 
   articleLayouts:any
 
+  TaxonService?:TaxonService
   CollaboratorsService?:CollaboratorsService
   ChangesSectionComponent?:ChangesSectionComponent
   CitableElementsService?:CitableElementsService

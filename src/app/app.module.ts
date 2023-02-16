@@ -167,6 +167,8 @@ import { HeadProsemirrorViewComponent } from './editor/article/head-prosemirror-
 import { FigurePdfPreviewComponent } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/figure-pdf-preview/figure-pdf-preview.component';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { TaxonsSectionComponent } from './editor/taxons/taxons-section/taxons-section.component';
+import { TaxonComponent } from './editor/taxons/taxon/taxon.component';
 
 //@ts-ignore
 EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE, 'event-dispatcher']
@@ -312,6 +314,8 @@ const gravatarConfig: GravatarConfig = {
     FigureComponentPreviewComponent,
     HeadProsemirrorViewComponent,
     FigurePdfPreviewComponent,
+    TaxonsSectionComponent,
+    TaxonComponent,
   ],
   imports: [
     HttpClientJsonpModule,

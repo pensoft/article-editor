@@ -43,9 +43,7 @@
             <button mat-mini-fab color="accent" [matMenuTriggerFor]="avatars_menu" aria-label="Show all avatars">
               +{{ usersInArticle.length - 3 }}
             </button>
-
             <mat-menu #avatars_menu="matMenu" class="article-users-list">
-
               <ng-container *ngFor="let user of usersInArticle | skipCurrent; index as i">
                 <mat-card class="user-card" *ngIf="user&&user.userInfo&&user.userInfo.data&&i>1">
                   <mat-card-header>
@@ -130,6 +128,10 @@
         <mat-icon svgIcon="reference"></mat-icon>
       </button>
 
+      <button (click)="toggleSidebar('taxons')" mat-icon-button [class.active]="sidebar=='taxons'">
+        <mat-icon>hub</mat-icon>
+      </button>
+
       <button class="open-comments-sidebar" (click)="toggleSidebar('comments')" mat-icon-button
               [class.active]="sidebar=='comments'">
         <mat-icon [matBadgeHidden]="noComments" matBadge="{{commentsNumberChange | async}}" matBadgeSize="small" matBadgeColor="warn"
@@ -161,10 +163,30 @@
               </button>
             </div>
             <div [ngStyle]="{'display':(userAccess == 'Commenter'||userAccess == 'Viewer')?'none':'block'}"
-                 class="trackChangesBtnDiv">
+                class="trackChangesBtnDiv">
               <button [ngClass]="shouldTrackChanges?'changes_on_editor_side_btn':'changes_off_editor_side_btn'"
                       (click)="turnOnOffTrachChanges()" class="trackChangesBtn" mat-icon-button>
                 <mat-icon svgIcon="reference"></mat-icon>
+              </button>
+            </div>
+            <div [ngStyle]="{
+              'visibility':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'hidden':'visible',
+              'opacity':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'0':'1'
+            }"
+                class="tag-words-btn-div">
+              <button (click)="taxonService.tagText(false)" [ngClass]="'tag_text_as_taxon_side_btn'" [matTooltip]="'Tag this text as Taxon.'"
+                      class="tag-single" mat-icon-button>
+                <mat-icon >bookmark</mat-icon>
+              </button>
+            </div>
+            <div [ngStyle]="{
+              'visibility':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'hidden':'visible',
+              'opacity':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'0':'1'
+            }"
+                class="tag-words-btn-div">
+              <button (click)="taxonService.tagText(true)" [ngClass]="'tag_text_as_taxon_side_btn'" [matTooltip]="'Tag all occurrence of this text as Taxon.'"
+                      class="tag-multiple" mat-icon-button>
+                <mat-icon >bookmarks</mat-icon>
               </button>
             </div>
           </div>
@@ -195,6 +217,9 @@
   </button>
   <button (click)="toggleSidebar('changes')" mat-menu-item>
     <mat-icon svgIcon="reference"></mat-icon>
+  </button>
+  <button (click)="toggleSidebar('taxons')" mat-menu-item>
+    <mat-icon>hub</mat-icon>
   </button>
 </mat-menu>
 
