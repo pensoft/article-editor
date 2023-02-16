@@ -82,8 +82,8 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
-<div *ngIf="shouldBuild"
-     [ngStyle]="{'display':active == 'editor'?'block':'none','align-items':'center','width':'100%','height':'100%'}">
+<div *ngIf="shouldBuild" class="main-editor-container"
+     [ngStyle]="{'display':active == 'editor'?'flex':'none'}">
   <div class="actions-container">
     <!-- <div *ngIf="innerWidth<=600" class="tree_btn_container">
         <button (click)="showTreeContainer()" class="editor_tree_btn_mobile" mat-icon-button>

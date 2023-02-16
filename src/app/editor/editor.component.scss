@@ -1,6 +1,8 @@
 .controls-toolbar {
+  flex: 0 0 71px;
   border-bottom: 1px solid;
   border-color: var(--color-f1f2f2);
+
   .controls-toolbar-row {
     min-height: 70px;
     justify-content: space-between;
@@ -19,6 +21,12 @@
       }
     }
   }
+}
+
+.main-editor-container {
+  flex-flow: column nowrap;
+  width: 100%;
+  flex: 1 1 auto;
 }
 
 ::ng-deep .open-comments-sidebar{
