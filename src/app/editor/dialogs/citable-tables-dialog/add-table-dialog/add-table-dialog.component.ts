@@ -221,7 +221,6 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
       templ.innerHTML = interpolated
       let Slice = DOMParser.fromSchema(schema).parse(templ.firstChild!);
       filterFieldsValues(this.sectionContent,submision,this.serviceShare,undefined,false,prosemirrorNewNodeContent,true)
-      console.log(submision);
 
       let newTable: citableTable = {
         tableNumber: this.data.index,

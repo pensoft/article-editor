@@ -151,8 +151,6 @@ export class CommentComponent implements OnInit, AfterViewInit {
     this.userComment?.commentReplies.forEach((comment, index) => {
       this.repliesShowMore[index] = false
     })
-    let s: HTMLSpanElement = document.createElement('span');
-    s.offsetWidth
     this.sharedService.CommentsService.lastSelectedCommentSubject.subscribe((comment) => {
       if(this.ydocService.curUserAccess&&this.ydocService.curUserAccess=='Viewer'){
         return
@@ -179,9 +177,6 @@ export class CommentComponent implements OnInit, AfterViewInit {
       }
     })
     if (actualComment) {
-
-      console.log('view: ', view);
-
       //let commentMiddlePos = Math.floor((actualComment.pmDocStartPos+ actualComment.pmDocEndPos)/2)
       view.focus()
       view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualComment.pmDocStartPos), view.state.doc.resolve(actualComment.pmDocEndPos))).setMeta('selected-comment',true))
@@ -211,25 +206,16 @@ export class CommentComponent implements OnInit, AfterViewInit {
   }
 
   showReplyFocusHandle(replyDiv: HTMLDivElement) {
-
-    console.log('showReply called!');
-
     this.activeReply = true;
   }
 
   hideReplyBlurHandle(replyDiv: HTMLDivElement) {
-
-    console.log('hideReply called!');
-
     if (this.replyFormControl.value == '') {
       this.activeReply = false;
     }
   }
 
   cancelReplyBtnHandle(replyDiv: HTMLDivElement) {
-
-    console.log('cancelReplyBtnHandle called!');
-
     this.replyFormControl.setValue('');
     this.activeReply = false;
   }

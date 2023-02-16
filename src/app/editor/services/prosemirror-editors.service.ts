@@ -544,6 +544,7 @@ export class ProsemirrorEditorsService {
         this.detectFocusService.getPlugin(),
         this.serviceShare.ReferencePluginService?.referencePlugin,
         this.commentsService.getPlugin(),
+        this.serviceShare.TaxonService.getPlugin(),
         this.trackChangesService.getHideShowPlugin(),
         this.citatContextPluginService.citatContextPlugin,
         this.linkPopUpPluginService.linkPopUpPlugin,
@@ -776,7 +777,7 @@ export class ProsemirrorEditorsService {
     this.treeService.articleSectionsStructure?.forEach(item => {
       countActiveSections(item)
     })
-    let renderedSections = Object.keys(this.editorContainers).filter(key => key !== 'endEditor').length
+    let renderedSections = Object.keys(this.editorContainers).filter(key => (key !== 'endEditor'&&key!=='headEditor')).length
     let allActiveSections = count;
     if (renderedSections == allActiveSections) {
       this.runFuncAfterRender()
@@ -1013,6 +1014,7 @@ export class ProsemirrorEditorsService {
         this.serviceShare.CitableElementsContextMenuService.getPlugin(),
         divideEndEditorFromTopPlugin,
         this.serviceShare.ReferencePluginService?.referencePlugin,
+        this.serviceShare.TaxonService.getPlugin(),
         this.commentsService.getPlugin(),
         this.citableElementEditButtonsPluginService.citableElementsEditButtonsPlugin,
         this.trackChangesService.getHideShowPlugin(),
@@ -1558,7 +1560,7 @@ export class ProsemirrorEditorsService {
     updateArticleUserStates()
     setTimeout(() => {
       this.serviceShare.YjsHistoryService.stopBigNumberItemsCapturePrevention();
-      this,this.stopSpinner()
+      this.stopSpinner()
     }, 20)
   }
 

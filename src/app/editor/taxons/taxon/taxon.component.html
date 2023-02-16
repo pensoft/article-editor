@@ -1,0 +1,20 @@
+<div class="taxon-box"  (click)="selectComment()">
+  <mat-card-header>
+    Taxon: {{taxon.taxonTxt}}
+  </mat-card-header>
+  <mat-card-content>
+    <div class="comment-btns-container">
+      <div class="comment-btns" fxLayout="row nowrap" fxLayoutGap="30px" fxLayoutAlign="center center">
+        <button mat-flat-button color="primary"
+                *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'&&ydocService.curUserAccess!='Commenter'"
+                (click)="!previewMode.mode?removeThisTaxon():undefined">
+          Remove
+        </button>
+        <button mat-stroked-button *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'&&ydocService.curUserAccess!='Commenter'"
+                (click)="!previewMode.mode?removeAllOccurrencesOfTaxon():undefined">
+          Remove All
+        </button>
+      </div>
+    </div>
+  </mat-card-content>
+</div>
