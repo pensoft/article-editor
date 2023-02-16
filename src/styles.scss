@@ -955,6 +955,10 @@ page-break:after {
   color: #777;
 }
 
+span.taxon[removedtaxon="false"]{
+  background-color: #7989ffb8;
+}
+
 .comment {
   background-color: gold;
   span {
