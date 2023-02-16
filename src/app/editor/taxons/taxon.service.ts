@@ -465,6 +465,7 @@ export class TaxonService implements OnDestroy {
   }
 
   markTaxonsWithBackendService(){
+    this.serviceShare.ProsemirrorEditorsService.spinSpinner();
     let articleTxt:{[key:string]:{txt:string,taxons?:string[]}} = {}
     let edCont = this.serviceShare.ProsemirrorEditorsService.editorContainers
     Object.keys(edCont).filter(x=>x!='headEditor').forEach((sectionId) => {
@@ -482,6 +483,7 @@ export class TaxonService implements OnDestroy {
         let view = edCont[key].editorView;
         this.markAllOccurrencesOfTextInEditor(view,articleTxt[key].taxons)
       })
+      this.serviceShare.ProsemirrorEditorsService.stopSpinner();
     })
   }
 

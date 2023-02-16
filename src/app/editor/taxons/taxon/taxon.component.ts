@@ -47,19 +47,19 @@ export class TaxonComponent implements OnInit,AfterViewInit {
     this.sharedService.TaxonService.removeAllTaxon(this.taxon)
   }
 
-  selectComment() {
+  selectTaxon() {
     let view = this.sharedService.ProsemirrorEditorsService.editorContainers[this.taxon.section].editorView;
-    let actualComment: taxonMarkData
-    let allComments = this.sharedService.TaxonService.taxonsMarksObj
-    Object.keys(allComments).forEach((commentid) => {
-      let com = allComments[commentid]
-      if (com && com.taxonMarkId == this.taxon.taxonMarkId) {
-        actualComment = com
+    let actualTaxon: taxonMarkData
+    let allTaxons = this.sharedService.TaxonService.taxonsMarksObj
+    Object.keys(allTaxons).forEach((taxonid) => {
+      let tax = allTaxons[taxonid]
+      if (tax && tax.taxonMarkId == this.taxon.taxonMarkId) {
+        actualTaxon = tax
       }
     })
-    if (actualComment) {
+    if (actualTaxon) {
       view.focus()
-      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualComment.pmDocStartPos), view.state.doc.resolve(actualComment.pmDocEndPos))).setMeta('selected-comment',true))
+      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualTaxon.pmDocStartPos), view.state.doc.resolve(actualTaxon.pmDocEndPos))).setMeta('selected-comment',true))
       this.sharedService.ProsemirrorEditorsService.dispatchEmptyTransaction()
     }
   }
