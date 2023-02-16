@@ -85,7 +85,11 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare)=>{
 
     let getFilteredSlice = (slice:Slice,editorSchemaDEFKey,sectionID:string) => {
       let pastedSliceDOMInitial = FullSchemaDOMPMSerializer.serializeFragment(slice.content);
-      let container = document.createElement('div');
+      let container = document.createElement('pre');
+      /* container.style.whiteSpace = 'pre-wrap';
+      container.setAttribute('style','white-space: pre-wrap;'); */
+      console.log(slice.content.firstChild.textContent)
+      console.log(container);
       if(pastedSliceDOMInitial instanceof HTMLElement){
         container.append(pastedSliceDOMInitial)
       }else if(pastedSliceDOMInitial instanceof DocumentFragment){
@@ -101,14 +105,16 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare)=>{
       if(matches){
         matches.forEach((val)=>{
           if(htmlWithNoStyle){
-            htmlWithNoStyle = htmlWithNoStyle.replace(val,val.replace(/ /gm,'&nbsp;'));
+            //htmlWithNoStyle = htmlWithNoStyle.replace(val,val.replace(/ /gm,'&nbsp;'));
           }
         })
       }
       let newDocFr = document.createDocumentFragment();
-      let container1= document.createElement('div');
-
+      let container1= document.createElement('pre');
+     /*  container1.style.whiteSpace = 'pre-wrap';
+      container1.setAttribute('style','white-space: pre-wrap;'); */
       container1.innerHTML = htmlWithNoStyle;
+      console.log(container1);
       newDocFr.append(...Array.from(container1.childNodes));
       //@ts-ignore
       let {nodeSchemaParser,nodeSchemaSerializer} = getDOMParserAndSerializerForSchema(editorSchemaDEFKey,sectionID);
@@ -172,12 +178,18 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare)=>{
             if(editorSchemaDEFKey){
               //@ts-ignore
               let newSlice = getFilteredSlice(slice,editorSchemaDEFKey,view.sectionID)
-              view.dispatch(view.state.tr.replaceWith(from,to,newSlice.content))
+              console.log('with schema filter');
+              console.log('new slice',newSlice);
+              console.log('old slice',slice);
+              view.dispatch(view.state.tr.replaceRange(from,to,newSlice))
               return true;
             }else{
               //@ts-ignore
               let newSlice = getFilteredSlice(slice,undefined,view.sectionID)
-              view.dispatch(view.state.tr.replaceWith(from,to,newSlice.content))
+              console.log('with no schema filter');
+              console.log('new slice',newSlice);
+              console.log('old slice',slice);
+              view.dispatch(view.state.tr.replaceRange(from,to,newSlice))
               return true;
             }
           }

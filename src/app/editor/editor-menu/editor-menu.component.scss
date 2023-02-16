@@ -1,6 +1,11 @@
 ::ng-deep {
   .ProseMirror-menu {
-    margin: 0 -4px;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 3px;
+    margin: 0;
     line-height: 1;
   }
   .ProseMirror-tooltip .ProseMirror-menu {
@@ -9,7 +14,6 @@
     white-space: pre;
   }
   .ProseMirror-menuitem {
-    margin-right: 3px;
     display: inline-block;
   }
   .ProseMirror-menuseparator {
@@ -23,12 +27,12 @@
     white-space: nowrap;
   }
   .ProseMirror-menu-dropdown {
-    vertical-align: 1px;
+    vertical-align: bottom;
     cursor: pointer;
     position: relative;
     padding-right: 15px;
     margin-right: 2px;
-    display: inline;
+    display: inline-block;
     margin-left: 9px;
   }
   .ProseMirror-menu-dropdown-wrap {
@@ -123,7 +127,7 @@
     position: relative;
     min-height: 1em;
     color: #666;
-    padding: 10px 6px;
+    padding: 6px;
     top: 0;
     left: 0;
     right: 0;
@@ -185,21 +189,14 @@
     } */
   }
   .menu-container {
-    @media screen and (max-width: 600px) {
-      height: unset;
-      width: 100%;
-      margin-left: 0;
-    }
-    color: #666;
-    background: white;
-    overflow: visible;
-    height: 65px;
-    text-align: center;
-    position: relative;
     display: inline-flex;
-    width: calc(100% - 504px);
-    margin-left: 233px;
     align-items: center;
     justify-content: center;
+    width: 100%;
+    color: #666;
+    background: white;
+    overflow: hidden;
+    text-align: center;
+    position: relative;
   }
 }

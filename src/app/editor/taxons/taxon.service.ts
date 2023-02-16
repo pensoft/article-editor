@@ -293,6 +293,13 @@ export class TaxonService implements OnDestroy {
     let count = 0;
     let docSize = doc.content.size;
     let allMatches = [];
+    let taxonsIntervals:{from:number,to:number,attrs:any}[] = []
+    doc.nodesBetween(0,docSize,(node,pos,parent,index)=>{
+      let taxon:Mark = node.marks.find(m=>m.type.name == 'taxon')
+      if(taxon){
+        taxonsIntervals.push({from:pos,to:node.nodeSize+pos,attrs:taxon.attrs});
+      }
+    })
     doc.nodesBetween(0, docSize, (node, pos, parent, index) => {
       if (node.type.isTextblock) {
         let match
@@ -311,22 +318,16 @@ export class TaxonService implements OnDestroy {
         // map plain text positions of matches to pm position
         let positionsWithTaxons = []
 
+
         let plainTextPos = 0;
         let addition = 0;
         let loopDescendents = (node1:Node,level) => {
           let nodeTxt = node1.textContent
           if(node1.type.name == 'text'){
-            for(let i = 0 ; i < nodeTxt.length;i++){
-              if(matchObj[plainTextPos] && (
-                !node1.marks.some(m=>m.type.name == 'taxon')||
-                (manual && node1.marks.some(m=>{return m.type.name == 'taxon'&&(m.attrs.removedtaxon == 'true'||m.attrs.removedtaxon == true)}))
-                )){
+
+            for(let i = 0 ; i < nodeTxt.length+1;i++){
+              if(matchObj[plainTextPos]){
                 matchObj[plainTextPos] = plainTextPos+addition
-              }else if(matchObj[plainTextPos] && (
-                (node1.marks.some(m=>m.type.name == 'taxon')&&!manual)||
-                (manual && node1.marks.some(m=>{return m.type.name == 'taxon'&&(m.attrs.removedtaxon == 'false'||m.attrs.removedtaxon == false)}))
-                )){
-                positionsWithTaxons.push(plainTextPos)
               }
               plainTextPos++;
             }
@@ -348,14 +349,34 @@ export class TaxonService implements OnDestroy {
           })
         }
         matchArr.forEach((match)=>{
-          if(!positionsWithTaxons.includes(match.index)&&!positionsWithTaxons.includes(match.index+match[0].length)){
+          let newTaxFrom = matchObj[match.index] + pos
+          let newTaxTo = matchObj[match.index+match[0].length]+pos
+          let taxonInNewTaxonPosition = taxonsIntervals.find((x)=>{return (
+            (newTaxFrom<x.from&&newTaxTo>x.from)||
+            (newTaxFrom<x.to&&newTaxTo>x.to)||
+            (newTaxFrom>x.from&&newTaxFrom<x.to)||
+            (newTaxTo>x.from&&newTaxTo<x.to)||
+            (newTaxFrom==x.from&&newTaxTo==x.to)
+            )})
+          if(manual && (
+            !taxonInNewTaxonPosition||
+            (taxonInNewTaxonPosition&&(taxonInNewTaxonPosition.attrs.removedtaxon == 'true'||taxonInNewTaxonPosition.attrs.removedtaxon == true))
+          )){
             allMatches.push({
-              from:matchObj[match.index] + pos,
-              to:matchObj[match.index+match[0].length]+pos,
+              from:newTaxFrom,
+              to:newTaxTo,
+              taxon:match[0]
+            })
+          }else if(!manual && !taxonInNewTaxonPosition){
+            allMatches.push({
+              from:newTaxFrom,
+              to:newTaxTo,
               taxon:match[0]
             })
           }
         })
+        console.log(allMatches,matchObj,taxonsIntervals);
+
         return false;
       }
       return true;
@@ -477,9 +498,9 @@ export class TaxonService implements OnDestroy {
     newFormData.append('returnContent','true')
     newFormData.append('unique','true')
     this.serviceShare.httpClient.post('https://gnrd.globalnames.org/find',newFormData).subscribe((results:any)=>{
-      let taxonNames:string[] = results.names.map((x)=>x.name);
+      let taxonNames:string[] = results.names.map((x)=>x.name/* .replace(' ','( | )') */);
       Object.keys(articleTxt).forEach((key)=>{
-        articleTxt[key].taxons = taxonNames.filter((name)=>articleTxt[key].txt.includes(name));
+        articleTxt[key].taxons = taxonNames/* .filter((name)=>articleTxt[key].txt.includes(name)); */
         let view = edCont[key].editorView;
         this.markAllOccurrencesOfTextInEditor(view,articleTxt[key].taxons)
       })
