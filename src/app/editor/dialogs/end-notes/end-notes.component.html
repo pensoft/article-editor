@@ -1,4 +1,4 @@
-<h2 mat-dialog-title *ngIf="endNotesNumbers" class="title-margin-bottom">End notes</h2>
+<h2 mat-dialog-title *ngIf="endNotesNumbers" class="title-margin-bottom">End Notes</h2>
 
 <mat-dialog-content *ngIf="endNotesNumbers">
   <div *ngIf="endNotesNumbers.length==0">
@@ -16,8 +16,8 @@
             <app-end-note [(endNote)]="endNotes![endNoteNum]" [endNoteIndex]="i"></app-end-note>
           </div>
           <div class="end-note-control-buttons button-group">
-            <button mat-stroked-button color="primary" (click)="editEndNote(endNotes![endNoteNum],i)">Edit note</button>
-            <button mat-stroked-button color="warn" (click)="deleteEndNote(endNotes![endNoteNum],i)">Delete note</button>
+            <button mat-stroked-button color="primary" (click)="editEndNote(endNotes![endNoteNum],i)">Edit</button>
+            <button mat-stroked-button color="warn" (click)="deleteEndNote(endNotes![endNoteNum],i)">Delete</button>
           </div>
         </div>
       </div>
@@ -28,7 +28,7 @@
 <mat-dialog-actions *ngIf="endNotesNumbers" align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]>Cancel</button>
   <button mat-stroked-button color="primary" (click)="addEndNote()">Add Note</button>
-  <button mat-flat-button color="primary" (click)="saveEndNotes()">Save Notes</button>
+  <button mat-flat-button color="primary" (click)="saveEndNotes()">Save</button>
 </mat-dialog-actions>
 
 

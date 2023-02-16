@@ -297,9 +297,9 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
       // determine what kind of change it is
       if (JSON.stringify(oldPos) != JSON.stringify(newPos) || cause || this.tryMoveItemsUp) {
         if (JSON.stringify(idsOldOrder) == JSON.stringify(idsNewOrder) || cause || this.tryMoveItemsUp) { // comments are in same order
-          if (oldPos[oldPos.length - 1].top > newPos[newPos.length - 1].top) {  // comments have decreased top should loop from top
+          if (oldPos[oldPos.length - 1]&&oldPos[oldPos.length - 1].top > newPos[newPos.length - 1].top) {  // comments have decreased top should loop from top
             this.loopFromTopAndOrderTaxons(sortedTaxons, taxons)
-          } else if (oldPos[oldPos.length - 1].top < newPos[newPos.length - 1].top) { // comments have increased top should loop from bottom
+          } else if (oldPos[oldPos.length - 1]&&oldPos[oldPos.length - 1].top < newPos[newPos.length - 1].top) { // comments have increased top should loop from bottom
             this.loopFromBottomAndOrderTaxons(sortedTaxons, taxons, container)
           }/*  else if (cause == 'hide_comment_box' || cause == 'replay_rerender' || cause == 'change_in_comments_in_ydoc' || cause == 'show_more_less_click') {
             this.loopFromTopAndOrderComments(sortedComments, comments)

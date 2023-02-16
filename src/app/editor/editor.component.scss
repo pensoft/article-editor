@@ -149,7 +149,6 @@ app-prosemirror-editor {
 .actions-container {
   height: 65px;
   background: var(--color-ffffff);
-  box-shadow: 0 5px 5px #1bb1b22b;
   position: relative;
   z-index: 2;
 }
@@ -173,9 +172,10 @@ $treeSpace: 341px;
   .editor-container {
     display: block;
     width: 100%;
-    height: 100%;
-    margin: 0;
+    height: calc(100% - 24px);
+    margin: 20px 0 0 0;
     background: var(--color-ffffff);
+    border-radius: 20px 0 0 20px;
     box-shadow: 0 4px 4px #1bb1b22b;
     overflow: hidden;
     overflow-y: auto;
