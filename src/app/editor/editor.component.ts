@@ -164,6 +164,19 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
       }
     })
 
+    this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject.subscribe((data)=>{
+      if(!data.pos||!data.sectionId||!data.taxonMarkId) return ;
+      if (!this.sidebarDrawer?.opened) {
+        this.sidebarDrawer?.toggle();
+      }
+      if (this.sidebar != 'taxons') {
+        this.sidebar = 'taxons';
+        setTimeout(()=>{
+          this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject.next(data)
+        },20)
+      }
+    })
+
     this.serviceShare.CommentsService.lastSelectedCommentSubject.subscribe((data)=>{
       if(!data.commentId||!data.commentMarkId||!data.pos||!data.sectionId) return ;
       if (!this.sidebarDrawer?.opened) {

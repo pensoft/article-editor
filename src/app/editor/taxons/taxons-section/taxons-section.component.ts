@@ -22,16 +22,6 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
       if (this.rendered < this.nOfTaxThatShouldBeRendered) {
         this.rendered++;
       }
-      if (data == 'replay_rerender') {
-        this.doneRendering('replay_rerender')
-        return;
-      }
-      if(data == 'change_in_comments_in_ydoc'){
-        this.doneRendering('change_in_comments_in_ydoc')
-      }
-      if(data == 'show_more_less_click'){
-        this.doneRendering('show_more_less_click');
-      }
       if (this.rendered == this.nOfTaxThatShouldBeRendered) {
         this.doneRendering()
       }
@@ -68,11 +58,11 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
     this.searchForm.valueChanges.pipe(debounce(val => interval(700))).subscribe((val) => {
       if (val && val != "" && typeof val == 'string' && val.trim().length > 0) {
         let searchVal = val.toLocaleLowerCase()
-        let foundComs = this.allTaxons.filter(x=>x.taxonTxt.toLocaleLowerCase().includes(searchVal))
-        if (foundComs.length > 0) {
-          this.searchResults = foundComs
+        let foundTaxons = this.allTaxons.filter(x=>x.taxonTxt.toLocaleLowerCase().includes(searchVal))
+        if (foundTaxons.length > 0) {
+          this.searchResults = foundTaxons
           this.searchIndex = 0;
-          this.selectComent(foundComs[0])
+          this.selectTaxon(foundTaxons[0])
           this.searching = true;
         } else {
           this.searching = false;
@@ -102,14 +92,12 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
       this.lastArticleScrollPosition = articleElement.scrollTop
       if (this.lastSorted && this.lastSorted.length > 0) {
         let lastElement = this.lastSorted[this.lastSorted.length - 1];
-        let dispPos = this.displayedCommentsPositions[lastElement.taxonMarkId]
+        let dispPos = this.displayedTaxonsPositions[lastElement.taxonMarkId]
         let elBottom = dispPos.displayedTop + dispPos.height;
         let containerH = ctaxonContainer.getBoundingClientRect().height
         if (containerH < elBottom) {
           ctaxonContainer.style.height = (elBottom + 30) + 'px'
-        }/* else if(containerH > elBottom+100){
-          commentsContainer.style.height = (elBottom + 30) + 'px'
-        } */
+        }
         let editorH = editorsElement.getBoundingClientRect().height
         let spaceElementH = spaceElement.getBoundingClientRect().height
         let actualEditorH = editorH - spaceElementH
@@ -136,86 +124,86 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
     })
   }
 
-  loopFromTopAndOrderComments(sortedComments: taxonMarkData[], comContainers: HTMLDivElement[],) {
+  loopFromTopAndOrderTaxons(sortedTaxons: taxonMarkData[], taxContainers: HTMLDivElement[],) {
     let lastElementBottom = 0;
-    sortedComments.forEach((com, index) => {
+    sortedTaxons.forEach((com, index) => {
       let id = com.taxonMarkId;
-      let domElement = comContainers.find((element) => {
+      let domElement = taxContainers.find((element) => {
         return element.getAttribute('taxonid') == id
       })
       let h = domElement.getBoundingClientRect().height
-      if (!this.displayedCommentsPositions[id]||(this.displayedCommentsPositions[id].height != h || (com.domTop <= this.displayedCommentsPositions[id].displayedTop))) { // old and new comment either dont have the same top or comment's height is changed
+      if (!this.displayedTaxonsPositions[id]||(this.displayedTaxonsPositions[id].height != h || (com.domTop <= this.displayedTaxonsPositions[id].displayedTop))) { // old and new taxon either dont have the same top or taxon's height is changed
         if (lastElementBottom < com.domTop) {
           let pos = com.domTop
           domElement.style.top = pos + 'px';
-          this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
+          this.displayedTaxonsPositions[id] = { displayedTop: pos, height: h }
           lastElementBottom = pos + h;
         } else {
           let pos = lastElementBottom
           domElement.style.top = pos + 'px';
-          this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
+          this.displayedTaxonsPositions[id] = { displayedTop: pos, height: h }
           lastElementBottom = pos + h;
         }
       } else {
-        lastElementBottom = this.displayedCommentsPositions[id].displayedTop + this.displayedCommentsPositions[id].height
+        lastElementBottom = this.displayedTaxonsPositions[id].displayedTop + this.displayedTaxonsPositions[id].height
       }
     })
   }
   lastSorted: taxonMarkData[]
-  displayedCommentsPositions: { [key: string]: { displayedTop: number, height: number } } = {}
+  displayedTaxonsPositions: { [key: string]: { displayedTop: number, height: number } } = {}
   notRendered = true
-  loopFromBottomAndOrderComments(sortedComments: taxonMarkData[], comContainers: HTMLDivElement[], addComContainer: HTMLDivElement) {
-    let lastCommentTop = addComContainer.getBoundingClientRect().height;
-    let i = sortedComments.length - 1
+  loopFromBottomAndOrderTaxons(sortedTaxons: taxonMarkData[], taxContainers: HTMLDivElement[], addTaxContainer: HTMLDivElement) {
+    let lastTaxonTop = addTaxContainer.getBoundingClientRect().height;
+    let i = sortedTaxons.length - 1
     while (i >= 0) {
-      let com = sortedComments[i]
+      let com = sortedTaxons[i]
       let id = com.taxonMarkId;
-      let domElement = comContainers.find((element) => {
+      let domElement = taxContainers.find((element) => {
         return element.getAttribute('taxonid') == id
       })
       let h = domElement.getBoundingClientRect().height
-      if (!this.displayedCommentsPositions[id]||(this.displayedCommentsPositions[id].height != h || (this.displayedCommentsPositions[id].displayedTop <= com.domTop))) { // old and new comment either dont have the same top or comment's height is changed
-        if (lastCommentTop > com.domTop + h) {
+      if (!this.displayedTaxonsPositions[id]||(this.displayedTaxonsPositions[id].height != h || (this.displayedTaxonsPositions[id].displayedTop <= com.domTop))) { // old and new taxon either dont have the same top or taxon's height is changed
+        if (lastTaxonTop > com.domTop + h) {
           let pos = com.domTop
           domElement.style.top = pos + 'px';
-          this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
-          lastCommentTop = pos;
+          this.displayedTaxonsPositions[id] = { displayedTop: pos, height: h }
+          lastTaxonTop = pos;
         } else {
-          let pos = lastCommentTop - h
+          let pos = lastTaxonTop - h
           domElement.style.top = pos + 'px';
-          this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
-          lastCommentTop = pos;
+          this.displayedTaxonsPositions[id] = { displayedTop: pos, height: h }
+          lastTaxonTop = pos;
         }
       } else {
-        lastCommentTop = this.displayedCommentsPositions[id].displayedTop
+        lastTaxonTop = this.displayedTaxonsPositions[id].displayedTop
       }
       i--;
     }
   }
 
-  initialRenderComments(sortedComments: taxonMarkData[], comContainers: HTMLDivElement[]) {
+  initialRenderTaxons(sortedTaxons: taxonMarkData[], taxContainers: HTMLDivElement[]) {
     this.notRendered = false;
     let lastElementPosition = 0;
     let i = 0;
-    while (i < sortedComments.length) {
-      let com = sortedComments[i]
-      let id = com.taxonMarkId
-      let section = com.section
-      let domElement = comContainers.find((element) => {
+    while (i < sortedTaxons.length) {
+      let tax = sortedTaxons[i]
+      let id = tax.taxonMarkId
+      let section = tax.section
+      let domElement = taxContainers.find((element) => {
         return element.getAttribute('taxonid') == id
       })
       let h = domElement.getBoundingClientRect().height
-      if (lastElementPosition < com.domTop) {
-        let pos = com.domTop
+      if (lastElementPosition < tax.domTop) {
+        let pos = tax.domTop
         domElement.style.top = pos + 'px';
         domElement.style.opacity = '1';
-        this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
+        this.displayedTaxonsPositions[id] = { displayedTop: pos, height: h }
         lastElementPosition = pos + h;
       } else {
         let pos = lastElementPosition
         domElement.style.top = pos + 'px';
         domElement.style.opacity = '1';
-        this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
+        this.displayedTaxonsPositions[id] = { displayedTop: pos, height: h }
         lastElementPosition = pos + h;
       }
       i++
@@ -234,7 +222,7 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
     }
   }
 
-  selectComent(com: taxonMarkData) {
+  selectTaxon(com: taxonMarkData) {
     let actualMark = this.serviceShare.TaxonService.taxonsMarksObj[com.taxonMarkId];
     let edView = this.serviceShare.ProsemirrorEditorsService.editorContainers[actualMark.section].editorView;
     let st = edView.state
@@ -254,13 +242,13 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
   selectPrevComFromSearch() {
     this.searchIndex--;
     let com = this.searchResults[this.searchIndex]
-    this.selectComent(com)
+    this.selectTaxon(com)
   }
 
   selectNextComFromSearch() {
     this.searchIndex++;
     let com = this.searchResults[this.searchIndex]
-    this.selectComent(com)
+    this.selectTaxon(com)
   }
 
   changeParentContainer(event: boolean, taxonContainer: HTMLDivElement, taxon: taxonMarkData) {
@@ -270,146 +258,145 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
       taxonContainer.classList.remove('selected-taxon');
     }
   }
-  preventRerenderUntilCommentAdd = { bool: false, id: '' }
+  preventRerenderUntilTaxonAdd = { bool: false, id: '' }
 
   doneRendering(cause?: string) {
-    let comments = Array.from(document.getElementsByClassName('taxon-container')) as HTMLDivElement[];
+    let taxons = Array.from(document.getElementsByClassName('taxon-container')) as HTMLDivElement[];
     let container = document.getElementsByClassName('all-taxons-container')[0] as HTMLDivElement;
-    let allCommentCopy: taxonMarkData[] = JSON.parse(JSON.stringify(this.allTaxons));
-    let sortedComments = allCommentCopy.sort((c1, c2) => {
+    let allTaxonsCopy: taxonMarkData[] = JSON.parse(JSON.stringify(this.allTaxons));
+    let sortedTaxons = allTaxonsCopy.sort((c1, c2) => {
       if (c1.domTop != c2.domTop) {
         return c1.domTop - c2.domTop
       } else {
         return c1.pmDocStartPos - c2.pmDocStartPos
       }
     })
-    if ((!container || comments.length == 0) && cause != 'show_comment_box') {
-      this.lastSorted = JSON.parse(JSON.stringify(sortedComments))
+    if ((!container || taxons.length == 0) && cause != 'show_comment_box') {
+      this.lastSorted = JSON.parse(JSON.stringify(sortedTaxons))
       return
     }
     let selectedComment = this.serviceShare.TaxonService.lastTaxonMarkSelected
     if (this.notRendered) {
-      this.initialRenderComments(sortedComments, comments)
-    } else if (!this.notRendered && sortedComments.length > 0) {
+      this.initialRenderTaxons(sortedTaxons, taxons)
+    } else if (!this.notRendered && sortedTaxons.length > 0) {
       if (this.shouldScrollSelected && (!selectedComment.sectionId || !selectedComment.taxonMarkId || !selectedComment.pos)) {
         this.shouldScrollSelected = false;
       }
       let idsOldOrder: string[] = []
       let oldPos = this.lastSorted.reduce<{ top: number, id: string }[]>((prev, curr) => { idsOldOrder.push(curr.taxonMarkId); return [...prev, { top: curr.domTop, id: curr.taxonMarkId }] }, [])
       let idsNewOrder: string[] = []
-      let newPos = sortedComments.reduce<{ top: number, id: string }[]>((prev, curr) => { idsNewOrder.push(curr.taxonMarkId); return [...prev, { top: curr.domTop, id: curr.taxonMarkId }] }, [])
-      if (this.preventRerenderUntilCommentAdd.bool) {
-        let newComId = this.preventRerenderUntilCommentAdd.id;
+      let newPos = sortedTaxons.reduce<{ top: number, id: string }[]>((prev, curr) => { idsNewOrder.push(curr.taxonMarkId); return [...prev, { top: curr.domTop, id: curr.taxonMarkId }] }, [])
+      if (this.preventRerenderUntilTaxonAdd.bool) {
+        let newComId = this.preventRerenderUntilTaxonAdd.id;
         if (!idsNewOrder.includes(newComId)) {
           return
         } else {
-          this.preventRerenderUntilCommentAdd.bool = false
+          this.preventRerenderUntilTaxonAdd.bool = false
         }
       }
       // determine what kind of change it is
       if (JSON.stringify(oldPos) != JSON.stringify(newPos) || cause || this.tryMoveItemsUp) {
         if (JSON.stringify(idsOldOrder) == JSON.stringify(idsNewOrder) || cause || this.tryMoveItemsUp) { // comments are in same order
           if (oldPos[oldPos.length - 1].top > newPos[newPos.length - 1].top) {  // comments have decreased top should loop from top
-            this.loopFromTopAndOrderComments(sortedComments, comments)
+            this.loopFromTopAndOrderTaxons(sortedTaxons, taxons)
           } else if (oldPos[oldPos.length - 1].top < newPos[newPos.length - 1].top) { // comments have increased top should loop from bottom
-            this.loopFromBottomAndOrderComments(sortedComments, comments, container)
-          } else if (cause == 'hide_comment_box' || cause == 'replay_rerender' || cause == 'change_in_comments_in_ydoc' || cause == 'show_more_less_click') {
+            this.loopFromBottomAndOrderTaxons(sortedTaxons, taxons, container)
+          }/*  else if (cause == 'hide_comment_box' || cause == 'replay_rerender' || cause == 'change_in_comments_in_ydoc' || cause == 'show_more_less_click') {
             this.loopFromTopAndOrderComments(sortedComments, comments)
             this.loopFromBottomAndOrderComments(sortedComments, comments, container)
-          } else if (this.tryMoveItemsUp) {
-            this.loopFromTopAndOrderComments(sortedComments, comments)
+          } */ else if (this.tryMoveItemsUp) {
+            this.loopFromTopAndOrderTaxons(sortedTaxons, taxons)
             this.tryMoveItemsUp = false;
           } else { // moved an existing comment
-            this.loopFromBottomAndOrderComments(sortedComments, comments, container)
-            this.loopFromTopAndOrderComments(sortedComments, comments)
+            this.loopFromBottomAndOrderTaxons(sortedTaxons, taxons, container)
+            this.loopFromTopAndOrderTaxons(sortedTaxons, taxons)
           }
         } else { // comments are not in the same order
           if (idsOldOrder.length < idsNewOrder.length) { // added a comment
-            let addedCommentId = idsNewOrder.find((comid) => !idsOldOrder.includes(comid))
-            let sortedComment = sortedComments.find((com) => com.taxonMarkId == addedCommentId);
-            let commentContainer = comments.find((element) => {
-              return element.getAttribute('taxonid') == addedCommentId
-            })
-            commentContainer.style.top = sortedComment.domTop + 'px';
-            commentContainer.style.opacity = '1';
+            let addedCommentIds = idsNewOrder.filter((comid) => !idsOldOrder.includes(comid))
+            addedCommentIds.forEach((addedCommentId)=>{
+              let sortedComment = sortedTaxons.find((com) => com.taxonMarkId == addedCommentId);
+              let commentContainer = taxons.find((element) => {
+                return element.getAttribute('taxonid') == addedCommentId
+              })
+              commentContainer.style.top = sortedComment.domTop + 'px';
+              commentContainer.style.opacity = '1';
 
-            this.displayedCommentsPositions[addedCommentId] = { displayedTop: sortedComment.domTop, height: commentContainer.getBoundingClientRect().height }
-            this.loopFromTopAndOrderComments(sortedComments, comments)
+              this.displayedTaxonsPositions[addedCommentId] = { displayedTop: sortedComment.domTop, height: commentContainer.getBoundingClientRect().height }
+            })
+            this.loopFromTopAndOrderTaxons(sortedTaxons, taxons)
           } else if (idsNewOrder.length < idsOldOrder.length) { // removed a comment
-            this.loopFromTopAndOrderComments(sortedComments, comments)
-            this.loopFromBottomAndOrderComments(sortedComments, comments, container)
+            this.loopFromTopAndOrderTaxons(sortedTaxons, taxons)
+            this.loopFromBottomAndOrderTaxons(sortedTaxons, taxons, container)
           } else if (idsNewOrder.length == idsOldOrder.length) { // comments are reordered
-            //this.loopFromTopAndOrderComments(sortedComments, comments)
-            //this.loopFromBottomAndOrderComments(sortedComments, comments, container)
-            //this.loopFromTopAndOrderComments(sortedComments, comments)
-            this.initialRenderComments(sortedComments, comments)
+            this.initialRenderTaxons(sortedTaxons, taxons)
           }
         }
       }
     }
     if (this.shouldScrollSelected && selectedComment.taxonMarkId && selectedComment.pos && selectedComment.sectionId) {
-      let selectedCommentIndex = sortedComments.findIndex((com) => {
+      let selectedCommentIndex = sortedTaxons.findIndex((com) => {
         return com.taxonMarkId == selectedComment.taxonMarkId;
       })
-      let selectedCommentSorted = sortedComments[selectedCommentIndex];
-      let commentContainer = comments.find((element) => {
+      let selectedCommentSorted = sortedTaxons[selectedCommentIndex];
+      let commentContainer = taxons.find((element) => {
         return element.getAttribute('taxonid') == selectedComment.taxonMarkId
       })
       commentContainer.style.top = selectedCommentSorted.domTop + 'px';
-      this.displayedCommentsPositions[selectedComment.taxonMarkId] = { displayedTop: selectedCommentSorted.domTop, height: commentContainer.getBoundingClientRect().height }
+      this.displayedTaxonsPositions[selectedComment.taxonMarkId] = { displayedTop: selectedCommentSorted.domTop, height: commentContainer.getBoundingClientRect().height }
 
       //loop comments up in the group and move them if any
       let lastCommentTop = selectedCommentSorted.domTop;
       let i = selectedCommentIndex - 1
       let commentsGrouTopEnd = false
       while (i >= 0 && !commentsGrouTopEnd) {
-        let com = sortedComments[i]
+        let com = sortedTaxons[i]
         let id = com.taxonMarkId;
-        let domElement = comments.find((element) => {
+        let domElement = taxons.find((element) => {
           return element.getAttribute('taxonId') == id
         })
         let h = domElement.getBoundingClientRect().height
         if (lastCommentTop > com.domTop + h) {
           let pos = com.domTop
           domElement.style.top = pos + 'px';
-          this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
+          this.displayedTaxonsPositions[id] = { displayedTop: pos, height: h }
           lastCommentTop = pos;
         } else {
           let pos = lastCommentTop - h
           domElement.style.top = pos + 'px';
-          this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
+          this.displayedTaxonsPositions[id] = { displayedTop: pos, height: h }
           lastCommentTop = pos;
         }
         i--;
       }
       let lastElementBottom = selectedCommentSorted.domTop + commentContainer.getBoundingClientRect().height;
       let i1 = selectedCommentIndex + 1
-      let n = sortedComments.length
+      let n = sortedTaxons.length
       let commentsGrouBottomEnd = false
       while (i1 < n && !commentsGrouBottomEnd) {
-        let com = sortedComments[i1];
+        let com = sortedTaxons[i1];
         let index = i1
         let id = com.taxonMarkId;
-        let domElement = comments.find((element) => {
+        let domElement = taxons.find((element) => {
           return element.getAttribute('taxonid') == id
         })
         let h = domElement.getBoundingClientRect().height
         if (lastElementBottom < com.domTop) {
           let pos = com.domTop
           domElement.style.top = pos + 'px';
-          this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
+          this.displayedTaxonsPositions[id] = { displayedTop: pos, height: h }
           lastElementBottom = pos + h;
         } else {
           let pos = lastElementBottom
           domElement.style.top = pos + 'px';
-          this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
+          this.displayedTaxonsPositions[id] = { displayedTop: pos, height: h }
           lastElementBottom = pos + h;
         }
         i1++
       }
       this.shouldScrollSelected = false;
     }
-    this.lastSorted = JSON.parse(JSON.stringify(sortedComments))
+    this.lastSorted = JSON.parse(JSON.stringify(sortedTaxons))
   }
   rendered = 0;
   nOfTaxThatShouldBeRendered = 0
@@ -492,7 +479,7 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
         while (taxonsToRemove.length > 0) {
           let taxonToRemove = taxonsToRemove.pop();
           let taxonIndex = this.allTaxons.findIndex((taxon) => {
-            this.displayedCommentsPositions[taxonToRemove.taxonMarkId] = undefined
+            this.displayedTaxonsPositions[taxonToRemove.taxonMarkId] = undefined
             return taxon.taxonMarkId == taxonToRemove.taxonMarkId && taxon.section == taxonToRemove.section;
           })
           this.allTaxons.splice(taxonIndex, 1);

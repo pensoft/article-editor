@@ -151,8 +151,6 @@ export class CommentComponent implements OnInit, AfterViewInit {
     this.userComment?.commentReplies.forEach((comment, index) => {
       this.repliesShowMore[index] = false
     })
-    let s: HTMLSpanElement = document.createElement('span');
-    s.offsetWidth
     this.sharedService.CommentsService.lastSelectedCommentSubject.subscribe((comment) => {
       if(this.ydocService.curUserAccess&&this.ydocService.curUserAccess=='Viewer'){
         return

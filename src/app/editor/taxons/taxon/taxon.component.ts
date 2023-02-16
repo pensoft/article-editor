@@ -24,17 +24,27 @@ export class TaxonComponent implements OnInit,AfterViewInit {
     public ydocService:YdocService
   ) {
     this.previewMode = sharedService.ProsemirrorEditorsService!.previewArticleMode
+    this.sharedService.TaxonService.lastSelectedTaxonMarkSubject.subscribe((taxon) => {
+      if(this.ydocService.curUserAccess&&this.ydocService.curUserAccess=='Viewer'){
+        return
+      }
+      if (this.taxon.taxonMarkId == taxon.taxonMarkId) {
+        this.selected.emit(true);
+      } else {
+        this.selected.emit(false);
+      }
+    })
   }
 
   ngOnInit(): void {
   }
 
   removeThisTaxon(){
-    console.log('removeThisTaxon');
+    this.sharedService.TaxonService.removeSingleTaxon(this.taxon)
   }
 
   removeAllOccurrencesOfTaxon(){
-    console.log('removeAllOccurrencesOfTaxon');
+    this.sharedService.TaxonService.removeAllTaxon(this.taxon)
   }
 
   selectComment() {

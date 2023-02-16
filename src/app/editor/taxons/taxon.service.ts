@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { uuidv4 } from 'lib0/random';
-import { Mark, Node } from 'prosemirror-model';
-import { AllSelection, Plugin, PluginKey, TextSelection } from 'prosemirror-state';
+import { Fragment, Mark, Node, Slice } from 'prosemirror-model';
+import { AllSelection, Plugin, PluginKey, Selection, TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { Subject } from 'rxjs';
 import { ServiceShare } from '../services/service-share.service';
@@ -56,7 +56,6 @@ export class TaxonService implements OnDestroy {
   }
 
   taxonMarkInSelection = (actualMark: Mark, pos: number,sectionId:string) => {
-
     if (this.sameAsLastSelectedTaxonMark( pos, sectionId, actualMark.attrs.taxmarkid)) {
       return
     } else {
@@ -110,7 +109,12 @@ export class TaxonService implements OnDestroy {
     }
     if(taxonInSel && taxonMark && ( taxonMark.attrs.removedtaxon == 'false' || taxonMark.attrs.removedtaxon == false) && view.hasFocus()){
       this.taxonMarkInSelection(taxonMark,markPos,sectionId)
+    }else if(taxonInSel && taxonMark && ( taxonMark.attrs.removedtaxon == true || taxonMark.attrs.removedtaxon == 'true') && view.hasFocus()){
+      taxonInSel = false;
+    }else if (!taxonInSel && !(view.state.selection instanceof AllSelection) && view  && view.hasFocus() ) {
+      this.setLastSelectedTaxonMark(undefined, undefined, undefined)
     }
+
     return taxonInSel
   }
 
@@ -272,20 +276,20 @@ export class TaxonService implements OnDestroy {
   markAllOccurrencesOfTextInAllEditors(taxonKey: string[]) {
     let treeScructure = this.serviceShare.TreeService.articleSectionsStructure;
     let editorContainers = this.serviceShare.ProsemirrorEditorsService.editorContainers;
-    let loop = (sections: articleSection[], callback: (view: EditorView, taxonKey: string[]) => any) => {
+    let loop = (sections: articleSection[], callback: (view: EditorView, taxonKey: string[],manual?:boolean) => any) => {
       sections.forEach((sec) => {
         if (sec.type == 'complex' && sec.children && sec.children.length) {
           loop(sec.children, callback);
         }
         if (editorContainers[sec.sectionID] && editorContainers[sec.sectionID].editorView) {
-          callback(editorContainers[sec.sectionID].editorView, taxonKey)
+          callback(editorContainers[sec.sectionID].editorView, taxonKey,true)
         }
       })
     }
     loop(treeScructure, this.markAllOccurrencesOfTextInEditor)
   }
 
-  getCountOfTagableText(doc: Node, taxonKeys: string[]) {
+  getCountOfTagableText(doc: Node, taxonKeys: string[],manual?:boolean) {
     let count = 0;
     let docSize = doc.content.size;
     let allMatches = [];
@@ -313,9 +317,15 @@ export class TaxonService implements OnDestroy {
           let nodeTxt = node1.textContent
           if(node1.type.name == 'text'){
             for(let i = 0 ; i < nodeTxt.length;i++){
-              if(matchObj[plainTextPos] && !node1.marks.some(m=>m.type.name == 'taxon')){
+              if(matchObj[plainTextPos] && (
+                !node1.marks.some(m=>m.type.name == 'taxon')||
+                (manual && node1.marks.some(m=>{return m.type.name == 'taxon'&&(m.attrs.removedtaxon == 'true'||m.attrs.removedtaxon == true)}))
+                )){
                 matchObj[plainTextPos] = plainTextPos+addition
-              }else if(matchObj[plainTextPos] && node1.marks.some(m=>m.type.name == 'taxon')){
+              }else if(matchObj[plainTextPos] && (
+                (node1.marks.some(m=>m.type.name == 'taxon')&&!manual)||
+                (manual && node1.marks.some(m=>{return m.type.name == 'taxon'&&(m.attrs.removedtaxon == 'false'||m.attrs.removedtaxon == false)}))
+                )){
                 positionsWithTaxons.push(plainTextPos)
               }
               plainTextPos++;
@@ -361,8 +371,8 @@ export class TaxonService implements OnDestroy {
     return allMatches.sort((a,b)=>b.from-a.from);
   }
 
-  markAllOccurrencesOfTextInEditor = (view: EditorView, taxonKeys: string[]) => {
-    let countOfTextOccurrencesThanCanBeMarkedAsTaxons = this.getCountOfTagableText(view.state.doc, taxonKeys);
+  markAllOccurrencesOfTextInEditor = (view: EditorView, taxonKeys: string[],manual?:boolean) => {
+    let countOfTextOccurrencesThanCanBeMarkedAsTaxons = this.getCountOfTagableText(view.state.doc, taxonKeys,manual);
     if(countOfTextOccurrencesThanCanBeMarkedAsTaxons.length>0){
       let tr = view.state.tr;
       countOfTextOccurrencesThanCanBeMarkedAsTaxons.forEach((taxPos)=>{
@@ -427,7 +437,7 @@ export class TaxonService implements OnDestroy {
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
             taxonTxt: node.textContent,
-            domTop: domCoords.top - articleElementRactangle.top - articlePosOffset,
+            domTop: domCoords.top - articleElementRactangle.top - articlePosOffset - 45,
             taxonAttrs: actualMark.attrs,
             selected: markIsLastSelected,
           }
@@ -472,6 +482,53 @@ export class TaxonService implements OnDestroy {
         let view = edCont[key].editorView;
         this.markAllOccurrencesOfTextInEditor(view,articleTxt[key].taxons)
       })
+    })
+  }
+
+  removeSingleTaxon(taxon:taxonMarkData){
+    let view = this.serviceShare.ProsemirrorEditorsService.editorContainers[taxon.section].editorView;
+    let markAttr = taxon.taxonAttrs;
+    markAttr.removedtaxon = true;
+    let mark = schema.marks.taxon.create(markAttr)
+    let slice = new Slice(Fragment.from(schema.text(taxon.taxonTxt,[mark])),0,0)
+    let tr = view.state.tr.replaceWith(taxon.pmDocStartPos,taxon.pmDocEndPos,Fragment.empty)
+    view.dispatch(tr);
+    let tr2 = view.state.tr.replace(taxon.pmDocStartPos,taxon.pmDocStartPos,slice)
+    view.dispatch(tr2);
+    let tr3 = view.state.tr.setSelection(TextSelection.create(view.state.doc,taxon.pmDocStartPos,taxon.pmDocEndPos))
+    view.dispatch(tr3);
+  }
+
+  getPositionsOfNonEmptyMarksSameAsTaxon(doc:Node,txt:string){
+    let count = 0;
+    let docSize = doc.content.size
+    let positions:{from:number,to:number,attrs:any}[] = []
+    doc.nodesBetween(0,docSize,(node,pos,par,i)=>{
+      let mark = node.marks.find((x)=>x.type.name == 'taxon');
+      if(mark && (mark.attrs.removedtaxon == 'false' || mark.attrs.removedtaxon == false)&&txt == node.textContent  ){
+        positions.push({from:pos,to:pos+node.nodeSize,attrs:mark.attrs});
+      }
+    })
+    return positions.sort((a,b)=>b.from-a.from);
+  }
+
+  removeAllTaxon(taxon:taxonMarkData){
+    let containers = this.serviceShare.ProsemirrorEditorsService.editorContainers
+    Object.keys(containers).forEach((key)=>{
+      if(key == 'headEditor') return ;
+      let view = containers[key].editorView
+      let state = view.state;
+      let positions = this.getPositionsOfNonEmptyMarksSameAsTaxon(state.doc,taxon.taxonTxt)
+      let tr = view.state.tr;
+      positions.forEach((pos)=>{
+        let attrs = {...pos.attrs};
+        attrs.removedtaxon = true;
+        let mark = schema.marks.taxon.create(attrs)
+        let slice = new Slice(Fragment.from(schema.text(taxon.taxonTxt,[mark])),0,0)
+        tr = tr.replaceWith(pos.from,pos.to,Fragment.empty)
+        tr = tr.replace(pos.from,pos.from,slice)
+      })
+      view.dispatch(tr);
     })
   }
 }
