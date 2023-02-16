@@ -259,6 +259,13 @@ $altTheme: (primary: $theme-primary,
   }
 }
 
+#mat-badge-content-1 {
+  width: 20px;
+  height: 20px;
+  background-color: #E56B87 !important;
+  border: 2px solid white !important;
+}
+
 // radio and chechbox border
 
 .mat-checkbox-frame,

@@ -26,13 +26,14 @@
 .main-editor-container {
   flex-flow: column nowrap;
   width: 100%;
-  flex: 1 1 auto;
+  flex: 0 1 auto;
+  overflow: hidden;
+  overflow-x: auto;
 }
 
-::ng-deep .open-comments-sidebar{
-  #mat-badge-content-1{
-    background-color: #E56B87 !important;
-    border: 2px solid white !important;
+.open-comments-sidebar {
+  .mat-badge-warn {
+
   }
 }
 
@@ -102,12 +103,13 @@
 }
 
 .side-navbar-actions {
-  height: 60px;
-  display: inline-flex;
-  justify-content: center;
+  display: flex;
+  height: 100%;
+  justify-content: flex-end;
   align-items: center;
-  float: right;
-  margin-right: 8px;
+  padding: 0 16px 0 0;
+  gap: 16px;
+
   .active {
     background: var(--color-e4f6f6) !important;
      ::ng-deep {
@@ -138,10 +140,10 @@ text-content-type {
 
 app-article {
   display: block;
-  width: calc(100% - 61px);
+  width: 100%;
   height: fit-content;
   margin: 0;
-  padding: 24px;
+  padding: 24px 61px 24px 24px;
 }
 
 app-prosemirror-editor {
@@ -155,16 +157,33 @@ app-prosemirror-editor {
 }
 
 .actions-container {
-  height: 65px;
+  display: grid;
+  grid-template-columns: 341px auto 341px;
+  min-width: 1366px;
+  flex: 1 0 65px;
   background: var(--color-ffffff);
   position: relative;
   z-index: 2;
 }
 
+.scrollable-editor-content {
+  min-width: 1366px;
+  flex: 0 1 auto;
+  overflow: hidden;
+
+  .mat-drawer-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+
+
 $treeSpace: 341px;
 .main-container {
   background: var(--color-f9fafc);
-  height: calc(100vh - 197px);
+  height: 100%;
   display: flex;
 
   .data-tree {
@@ -250,10 +269,11 @@ $treeSpace: 341px;
 }
 
 .prosemirror_menu_container {
-  margin-top: 0px !important;
-  width: calc(100% - 40px);
-  display: inline;
-  vertical-align: middle;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  width: 100%;
 }
 
 .changes_off_btn {
