@@ -123,7 +123,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
       if(this.refsCiTOsControls[ref.ref.id]){
         formC = this.refsCiTOsControls[ref.ref.id]
       }else{
-        formC = new FormControl(this.CiToTypes.find(x=>x.label == ref.refCiTO.label),[Validators.required]);
+        formC = new FormControl(ref.refCiTO?this.CiToTypes.find(x=>x.label == ref.refCiTO.label):null);
         this.refsCiTOsControls[ref.ref.id] = formC
       }
 
@@ -215,7 +215,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
               refStyle
             }
             if(this.refsCiTOsControls[ref.ref.id]){
-              this.refsCiTOsControls[ref.ref.id].setValue(this.CiToTypes.find(x=>x.label == result.refCiTO.label))
+              this.refsCiTOsControls[ref.ref.id].setValue(result.refCiTO?this.CiToTypes.find(x=>x.label == result.refCiTO.label):null)
             }
             let refId = refInstance.ref.id;
             this.changedOrAddedRefs[refId] = refInstance
