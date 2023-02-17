@@ -118,13 +118,15 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
   }
 
   isValid:boolean = true;
+  isModified:boolean = false;
   formIoSubmission:any
   formIoRoot:any
   onChange(change: any) {
     if(change instanceof Event){
 
     }else{
-      this.isValid
+      this.isValid = change.isValid
+      this.isModified = change.isModified
       this.formIoSubmission = change.data
       if(change.changed&&change.changed.instance){
         this.formIoRoot = change.changed.instance.root
