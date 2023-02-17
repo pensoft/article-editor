@@ -375,8 +375,6 @@ export class TaxonService implements OnDestroy {
             })
           }
         })
-        console.log(allMatches,matchObj,taxonsIntervals);
-
         return false;
       }
       return true;

@@ -220,7 +220,15 @@ export class ValidationSectionComponent implements OnDestroy {
                   })
                 }
                 let formGroups = this.treeService.sectionFormGroups
-                let expressionsObj = JSON.parse(el.config.expressions)
+                console.log(el.config.expressions);
+                let expressionsObj
+                try{
+                  expressionsObj = JSON.parse(el.config.expressions)
+                }catch(e){
+                  expressionsObj = []
+                  console.error(e);
+                  console.error('Prop el.config.expressions in ',el)
+                }
                 let validataWithDataFromBackend = (data: any) => {
                   let allSectionNamesFromBackend = data.data.map((section: any) => {
                     return section.name;
@@ -327,7 +335,15 @@ export class ValidationSectionComponent implements OnDestroy {
                     }
                   })
                 }
-                let expressionsObj = JSON.parse(el.config.expressions)
+
+                let expressionsObj
+                try{
+                  expressionsObj = JSON.parse(el.config.expressions)
+                }catch(e){
+                  expressionsObj = []
+                  console.error(e);
+                  console.error('Prop el.config.expressions in ',el)
+                }
                 let validataWithDataFromBackend = (data: any) => {
                   let allSectionNamesFromBackend = data.data.map((section: any) => {
                     return section.name;
