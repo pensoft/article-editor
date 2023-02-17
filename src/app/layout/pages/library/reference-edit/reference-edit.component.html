@@ -13,8 +13,7 @@
     </mat-form-field>
   </div>
   <mat-form-field appearance="fill" #referenceType class="edit-ref-cito">
-    <mat-label class="">Citation Typing Ontology:</mat-label>
-    <mat-select [formControl]="citoFormControl" class="select-reference">
+    <mat-select [formControl]="citoFormControl" class="select-reference" placeholder="Citation Typing Ontology">
       <mat-option *ngFor="let type of CiToTypes " [value]="type">
         {{type.label}}
       </mat-option>

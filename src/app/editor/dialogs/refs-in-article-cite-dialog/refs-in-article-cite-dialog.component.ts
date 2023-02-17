@@ -2,9 +2,11 @@ import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { YdocService } from '@app/editor/services/ydoc.service';
+import { CiToTypes } from '@app/layout/pages/library/lib-service/editors-refs-manager.service';
 import { Subject } from 'rxjs';
 import { YMap } from 'yjs/dist/src/internals';
 import { RefsAddNewInArticleDialogComponent } from '../refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
+import { clearRefFromFormControl } from '../refs-in-article-dialog/refs-in-article-dialog.component';
 
 interface refsObj{
   [key:string]:articleRef
@@ -25,6 +27,7 @@ export class RefsInArticleCiteDialogComponent implements OnInit, OnDestroy {
   refMap: YMap<any>;
   addRefsThisSession:string[] = []
   checkedRefs:string[] = []
+  CiToTypes = CiToTypes
 
   ydocRefsSubject = new Subject<any>();
 
@@ -62,7 +65,8 @@ export class RefsInArticleCiteDialogComponent implements OnInit, OnDestroy {
   }
 
   saveNewRefsInYdoc(){
-    this.refMap.set('refsAddedToArticle',this.refsInYdoc)
+    let refsWithNoFormControls = clearRefFromFormControl(this.refsInYdoc)
+    this.refMap.set('refsAddedToArticle', refsWithNoFormControls);
   }
 
   observeRefMapChanges = (Yevent, tr) => {
@@ -75,9 +79,23 @@ export class RefsInArticleCiteDialogComponent implements OnInit, OnDestroy {
       this.passRefsToSubject()
     }, 20)
   }
+  refsCiTOsControls:{[key:string]:FormControl} = {}
 
   passRefsToSubject() {
     let newRefs = this.refsInYdoc
+    Object.values(newRefs).forEach((ref:any,i)=>{
+      let formC:FormControl
+      if(this.refsCiTOsControls[ref.ref.id]){
+        formC = this.refsCiTOsControls[ref.ref.id]
+      }else{
+        formC = new FormControl(ref.refCiTO?this.CiToTypes.find(x=>x.label == ref.refCiTO.label):null);
+        this.refsCiTOsControls[ref.ref.id] = formC
+      }
+      formC.valueChanges.subscribe((change)=>{
+        this.saveNewRefsInYdoc()
+      })
+      ref.refCiTOControl = formC
+    })
     this.ydocRefsSubject.next([...Object.values(newRefs).filter((x:any)=>{
       if(!x.citation.textContent){
         let container = document.createElement('div');
@@ -118,6 +136,7 @@ export class RefsInArticleCiteDialogComponent implements OnInit, OnDestroy {
   }
 
   citeSelectedRefs(){
-    this.dialogRef.close({citedRefs:this.checkedRefs,refsInYdoc:this.refsInYdoc})
+    let refsWithNoFormControls = clearRefFromFormControl(this.refsInYdoc)
+    this.dialogRef.close({citedRefs:this.checkedRefs,refsInYdoc:refsWithNoFormControls})
   }
 }

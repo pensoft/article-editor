@@ -16,13 +16,22 @@
 <mat-dialog-content class="fixed-dialog-content-height">
   <div class="all-refs-container">
     <div class="mat-checkbox-group" fxLayout="column nowrap">
-      <ng-container *ngFor="let ref of ydocRefsSubject | async" class="ref-container">
-        <mat-checkbox
-          [checked]="checkedRefs.includes(ref.ref.id)"
-          (change)="checkBoxChange($event.checked,ref)"
-          [color]='"primary"'>
-          <span [innerHTML]="ref.citation.textContent | makeTextBold : searchValue"></span>
-        </mat-checkbox>
+      <ng-container *ngFor="let ref of ydocRefsSubject | async">
+        <div class="ref-container">
+          <mat-checkbox class="ref-checkbox"
+            [checked]="checkedRefs.includes(ref.ref.id)"
+            (change)="checkBoxChange($event.checked,ref)"
+            [color]='"primary"'>
+              <span class="ref-txt" [innerHTML]="ref.citation.textContent | makeTextBold : searchValue"></span>
+            </mat-checkbox>
+            <mat-form-field class="ref-cito-select" *ngIf="ref.refCiTOControl" appearance="fill" #referenceType>
+              <mat-select class="select-reference" [formControl]="ref.refCiTOControl" placeholder="CiTO...">
+                <mat-option *ngFor="let type of CiToTypes " [value]="type">
+                  {{type.label}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+        </div>
       </ng-container>
     </div>
   </div>

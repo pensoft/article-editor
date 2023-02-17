@@ -860,8 +860,15 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
       let actualRef = options.refObj[x];
       let rid = refIdsG[x];
       let refTxt = actualRef.citation.data.text;
-      let CiTO = actualRef.refCiTO.link
-      let xmlref = xmlPar.ele('xref', {"ref-type": "bibr", "rid": rid,"custom-type":CiTO})
+      let xrefAttr = {
+        "ref-type": "bibr", "rid": rid
+      }
+      let CiTO = actualRef.refCiTO
+      if(CiTO){
+        let CiTOlink = CiTO.link
+        xrefAttr['custom-type'] = CiTOlink
+      }
+      let xmlref = xmlPar.ele('xref', xrefAttr)
       xmlref.txt(refTxt);
     })
     shouldContinueRendering  = false;

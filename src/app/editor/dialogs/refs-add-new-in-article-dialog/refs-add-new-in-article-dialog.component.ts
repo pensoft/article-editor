@@ -62,7 +62,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
           this.referenceFormControl.setValue(this.referenceFormControl.value);
         }
         if (!this.citoFormControl.value) {
-          this.citoFormControl.setValue(this.CiToTypes[0]);
+          this.citoFormControl.setValue(null);
         } else {
           this.citoFormControl.setValue(this.citoFormControl.value);
         }
@@ -197,7 +197,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
         citation: refBasicCitation,
         ref_last_modified: Date.now(),
         refType: refMappedType,
-        refCiTO: this.citoFormControl.value,
+        refCiTO: (source == 'file'||source == 'refindit')?null:this.citoFormControl.value,
         refStyle
       }
       refsToAdd.push({ref})
