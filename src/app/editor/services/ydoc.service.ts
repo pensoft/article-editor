@@ -536,10 +536,12 @@ export class YdocService {
     this.articleData = data;
   }
 
-  setArticleData(articleData: any) {
+  setArticleData(articleData: any,newarticle?:boolean) {
     this.saveArticleData(articleData)
     //this.articleData.layout.citation_style.style_updated = Date.now()
-    this.creatingANewArticle = true;
+    if(newarticle){
+      this.creatingANewArticle = true;
+    }
     this.checkLastTimeUpdated();
   }
 
@@ -646,10 +648,20 @@ export class YdocService {
         console.log("---", WSErrorEvent, (new Date()).getTime());
       });
       this.provider.on('synced', (isSynced: boolean) => {
+        let oldSize = this.ydoc.share.size;
+        let sameSizeCount = 0;
         let checkSyncStatus = setInterval(() => {
-          if (this.ydoc.store.clients.size !== 0 || this.ydoc.getXmlFragment().length > 0 || this.creatingANewArticle) {
+          let newSize = this.ydoc.share.size
+          if(oldSize == newSize){
+            sameSizeCount++;
+          }else{
+            sameSizeCount = 0;
+          }
+          oldSize = newSize
+          if ((sameSizeCount>2&&oldSize>0) || this.creatingANewArticle) {
             setTimeout(() => {
               this.buildEditor();
+              this.creatingANewArticle = false;
             }, 1000)
             clearInterval(checkSyncStatus)
           }
