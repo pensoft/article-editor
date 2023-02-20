@@ -1,4 +1,4 @@
-import { Node } from "prosemirror-model";
+import { Mark } from "prosemirror-model";
 export const taxon = {
   attrs: {
     class: { default: 'taxon' },
@@ -6,6 +6,7 @@ export const taxon = {
     removedtaxon: { deafult: 'false' }
   },
   inclusive: false,
+  excludes:"_",
   parseDOM: [{
     tag: 'span.taxon',
     getAttrs(dom: any) {
@@ -17,7 +18,7 @@ export const taxon = {
       }
     },
   }],
-  toDOM(node: Node) {
+  toDOM(node: Mark) {
     return [
       'span',
       {
