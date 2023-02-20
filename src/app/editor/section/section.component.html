@@ -2,7 +2,7 @@
 <!-- <mat-formio class="article-section" [form]="sectionContent" (submit)='submit($event)'></mat-formio> -->
 
 <!-- If section is inside a modal -->
-<h2 mat-dialog-title *ngIf="section.mode == 'editMode'">Edit Section</h2>
+<h2 mat-dialog-title *ngIf="section.mode == 'editMode'">Edit{{sectionTreeTitleValue?': '+sectionTreeTitleValue:''}}</h2>
 
 <div *ngIf='section.mode == "editMode"' class="popup-menu-container"></div>
 
