@@ -423,16 +423,16 @@ export class ValidationSectionComponent implements OnDestroy {
                 let validateComplexSecMinMax = (complexSection: articleSection, sectionsFromBackend: any) => {
                   let errors: string[] = []
                   let children = complexSection.children;
-                  Object.keys(complexSection.subsectionValidations!).forEach((sectionIdFromBackend: any) => {
-                    let subSecMinMax = complexSection.subsectionValidations![sectionIdFromBackend];
+                  Object.keys(complexSection.subsectionValidations!).forEach((pivotId: any) => {
+                    let subSecMinMax = complexSection.subsectionValidations![pivotId];
                     let countOfType = 0;
 
                     children.forEach((child) => {
-                      if (child.sectionIdFromBackend == sectionIdFromBackend) {
+                      if (child.pivotId == pivotId) {
                         countOfType++;
                       }
                     })
-                    let sectionFromBackend = sectionsFromBackend.find((el: any) => el.id == sectionIdFromBackend)
+                    let sectionFromBackend = sectionsFromBackend.find((el: any) => el.pivot_id == pivotId)
                     if(sectionFromBackend){
                       let secName = sectionFromBackend.name
                       if (countOfType < subSecMinMax.min) {

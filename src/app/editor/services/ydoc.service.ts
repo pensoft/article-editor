@@ -533,6 +533,7 @@ export class YdocService {
       data.layout.template.sections = data.layout.template.sections.filter(x => x.name != 'Citable Elements Schemas');
       this.saveCitableElementsSchemas(artilceCitableElementsSchemas);
     }
+    console.log(data);
     this.articleData = data;
   }
 

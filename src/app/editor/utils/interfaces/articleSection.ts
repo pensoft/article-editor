@@ -53,6 +53,7 @@ export interface articleSection {
   edit: { active: boolean, main: boolean },
   delete: { active: boolean, main: boolean },
   addSubSection?: { active: boolean, main: boolean },
+  pivotId:number|undefined,
   menusAndSchemasDefs:{ menus:{[key:string]:any[]},schemas:{[key:string]:{nodes:string[],marks:string[]}}}
   mode: 'documentMode' | 'editMode' | 'noSchemaSectionMode',
   title: titleContent,

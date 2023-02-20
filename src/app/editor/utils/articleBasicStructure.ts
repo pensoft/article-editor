@@ -12,6 +12,10 @@ export function editorFactory(data?: editorMeta): editorData {
   return {editorId: uuidv4(), menuType: 'fullMenu', editorMeta: data}
 }
 
+export function isValidNumber (num) {
+  return typeof num === 'number' && !isNaN(num);
+  }
+
 export const articleBasicStructure: articleSection[] = [
   {
     title: {label: 'Taxonomic coverage', name: 'Taxonomic coverage', template: 'Taxonomic coverage', editable: true},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
@@ -30,6 +34,7 @@ export const articleBasicStructure: articleSection[] = [
       menusAndSchemasDefs:{menus:{},schemas:{}},
       sectionTypeVersion: 1,
     sectionTypeID: 1,
+    pivotId:-1,
     sectionMeta: {main: false},
     customSchema:{isCustom:false}
   },
@@ -41,6 +46,7 @@ export const articleBasicStructure: articleSection[] = [
     add: {active: true, main: false},
     delete: {active: true, main: false},
     mode: 'documentMode',
+    pivotId:-2,
     sectionIdFromBackend: 0,
     formIOSchema: formIOTemplates['collectionData'],
     defaultFormIOValues: formIODefaultValues['collectionData'],
@@ -126,7 +132,7 @@ export const renderSectionFunc:
   let newArticleSection: articleSection
 
   let sectionLabel = (sectionFromBackend.settings && sectionFromBackend.settings.label && sectionFromBackend.settings.label != "") ? sectionFromBackend.settings.label : sectionFromBackend.label
-
+  console.log('sectionFromBackend',sectionFromBackend);
   if (sectionFromBackend.type == 0) {
     newArticleSection = {
       title: {
@@ -142,6 +148,7 @@ export const renderSectionFunc:
       delete: sectionFromBackend.delete || {active: true, main: false},
       addSubSection: sectionFromBackend.addSubSection ||  {active: false, main: false},
       mode: 'documentMode',
+      pivotId:sectionFromBackend.pivot_id,
       menusAndSchemasDefs:sectionMenusAndSchemaDefs,
       initialRender: sectionFromBackend.initialRender ? sectionFromBackend.initialRender : undefined,
       formIOSchema: formIOJSON,
@@ -174,6 +181,7 @@ export const renderSectionFunc:
       addSubSection: sectionFromBackend.addSubSection ||{active: true, main: false},
       mode: 'documentMode',
       formIOSchema: formIOJSON,
+      pivotId:sectionFromBackend.pivot_id,
       menusAndSchemasDefs:sectionMenusAndSchemaDefs,
       initialRender: sectionFromBackend.initialRender ? sectionFromBackend.initialRender : undefined,
       active: sectionFromBackend.active ? sectionFromBackend.active : false,
@@ -195,11 +203,12 @@ export const renderSectionFunc:
         "min_instances": number,
         "max_instances": number,
         "version_id": number,
+        pivot_id:number,
         section_id:number,
         label:string,
         index:number
       }) => {
-        minmaxValds[secMinMax.section_id] = {min: secMinMax.min_instances, max: secMinMax.max_instances};
+        minmaxValds[secMinMax.pivot_id] = {min: secMinMax.min_instances, max: secMinMax.max_instances};
       })
       newArticleSection.subsectionValidations = minmaxValds;
     }
@@ -230,6 +239,7 @@ export const renderSectionFunc:
       addSubSection: {active: true, main: true},
       mode: 'documentMode',
       formIOSchema: formIOJSON,
+      pivotId:sectionFromBackend.pivot_id,
       initialRender: sectionFromBackend.initialRender ? sectionFromBackend.initialRender : (taxonTreatmentSection['initialRender'] ? taxonTreatmentSection['initialRender'] : (undefined)),
       active: sectionFromBackend.active ? sectionFromBackend.active : false,
       defaultFormIOValues: sectionFromBackend.defaultFormIOValues ? sectionFromBackend.defaultFormIOValues : undefined,
@@ -252,11 +262,12 @@ export const renderSectionFunc:
         "min_instances": number,
         "max_instances": number,
         "version_id": number,
+        pivot_id:number,
         section_id:number,
         label:string,
         index:number
       }) => {
-        minmaxValds[secMinMax.section_id] = {min: secMinMax.min_instances, max: secMinMax.max_instances};
+        minmaxValds[secMinMax.pivot_id] = {min: secMinMax.min_instances, max: secMinMax.max_instances};
       })
       newArticleSection.subsectionValidations = minmaxValds;
     }
@@ -287,11 +298,11 @@ export const renderSectionFunc:
 export const checkIfSectionsAreUnderOrAtMin = (childToCheck: articleSection, parentNode: articleSection, container?: articleSection[]) => {
   let v = parentNode.subsectionValidations
   if (v && Object.keys(v).length > 0) {
-    let nodeID = childToCheck.sectionIdFromBackend;
-    if (v[nodeID]) {
+    let nodeID = childToCheck.pivotId;
+    if (isValidNumber(nodeID)&&v[nodeID]) {
       let nOfNodesOfSameType = 0;
       (container ? container : parentNode.children).forEach((child: articleSection) => {
-        if (child.sectionIdFromBackend == nodeID) {
+        if (child.pivotId == nodeID) {
           nOfNodesOfSameType++;
         }
       })
@@ -307,7 +318,7 @@ export let getSubSecCountWithValidation = (complexSection: articleSection, valid
   let count = 0;
   (complexSectionChildren ? complexSectionChildren : complexSection.children).forEach((child: articleSection) => {
     if (
-      child.sectionIdFromBackend == validation.secIdBackEnd
+      child.pivotId == validation.secIdBackEnd
     ) {
       count++
     }
@@ -316,7 +327,7 @@ export let getSubSecCountWithValidation = (complexSection: articleSection, valid
 }
 export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFromBackend: any[], complexSection: articleSection, sectionChildren?: articleSection[]) => {
   return sectionsFromBackend.filter((section, index) => {
-    let secIdFromBackend = section.id;
+    let secIdFromBackend = section.pivot_id;
     if (
       complexSection.subsectionValidations &&
       complexSection.subsectionValidations[secIdFromBackend]
@@ -336,11 +347,11 @@ export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFrom
 export const checkIfSectionsAreAboveOrAtMax = (childToCheck: articleSection, parentNode: articleSection, container?: articleSection[]) => {
   let v = parentNode.subsectionValidations
   if (v && Object.keys(v).length > 0) {
-    let secIDFromBackend = childToCheck.sectionIdFromBackend;
-    if (v[secIDFromBackend]) {
+    let secIDFromBackend = childToCheck.pivotId;
+    if (isValidNumber(secIDFromBackend)&&v[secIDFromBackend]) {
       let nOfNodesOfSameType = 0;
       (container ? container : parentNode.children).forEach((child: articleSection) => {
-        if (child.sectionIdFromBackend == secIDFromBackend) {
+        if (child.pivotId == secIDFromBackend) {
           nOfNodesOfSameType++;
         }
       })
