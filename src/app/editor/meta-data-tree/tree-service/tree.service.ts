@@ -82,14 +82,24 @@ export class TreeService implements OnDestroy {
         if (node.title.name == '[MM] Materials' || node.title.name == 'Material') {
           let customPropsObj = this.ydocService.customSectionProps?.get('customPropsObj');
           let data = customPropsObj[node.sectionID];
-          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, data, formGroup).then((newTitle: string) => {
-            let container = document.createElement('div')
+          let valuesCopy = {};
+          let container = document.createElement('div')
+          Object.keys(data).forEach((key)=>{
+            container.innerHTML = data[key]
+            valuesCopy[key] = container.textContent
+          })
+          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, valuesCopy, formGroup).then((newTitle: string) => {
             container.innerHTML = newTitle;
             node.title.label = container.textContent!;
           })
         } else {
-          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle: string) => {
-            let container = document.createElement('div')
+          let container = document.createElement('div')
+          let valuesCopy = {};
+          Object.keys(formGroup.value).forEach((key)=>{
+            container.innerHTML = formGroup.value[key]
+            valuesCopy[key] = container.textContent
+          })
+          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, valuesCopy, formGroup).then((newTitle: string) => {
             container.innerHTML = newTitle;
             node.title.label = container.textContent!;
           })
