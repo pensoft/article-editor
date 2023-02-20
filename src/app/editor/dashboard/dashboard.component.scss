@@ -1,10 +1,9 @@
 /* Structure */
 
 @import "../../../assets/colors";
-.example-container {
-  // position: relative;
-  width: 100%;
-  max-width: 1098px;
+.dashboard-container {
+  width: 1100px;
+  max-width: 90vw;
   margin: 0 auto;
 }
 
@@ -12,17 +11,19 @@
   background: white;
 }
 
-.example-table-container {
+.dashboard-table-container {
   position: relative;
   min-height: 200px;
   height: auto;
   overflow: auto;
+
+  table {
+    width: 100%;
+    overflow-y: auto;
+  }
 }
 
-table {
-  width: 100%;
-  overflow-y: auto;
-}
+
 
 ::ng-deep .buttons-menu {
   min-height: 32px;

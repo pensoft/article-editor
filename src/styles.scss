@@ -1200,7 +1200,11 @@ app-root {
 
   app-main {
     flex: 0 1 auto;
-    overflow: auto;
+
+    app-dashboard {
+      height: 100%;
+      overflow: hidden;
+    }
 
     app-editor-container {
       height: 100%;
