@@ -1181,10 +1181,6 @@ body {
   overflow: hidden;
   margin: 0;
   padding: 0;
-}
-
-body {
-  margin: 0;
   font-family: 'Open Sans', sans-serif;
 }
 
@@ -1450,14 +1446,4 @@ router-outlet {
   width: 15px;
   height: 15px;
   margin-right: 5px;
-}
-
-html,
-body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  font-family: 'Open Sans', sans-serif;
 }
