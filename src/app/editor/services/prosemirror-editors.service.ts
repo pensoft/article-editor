@@ -1407,6 +1407,8 @@ export class ProsemirrorEditorsService {
     editorView.sectionID = sectionID
     //@ts-ignore
     editorView.editorType = 'editorWithCustomSchema'
+    //@ts-ignore
+    editorView.isPopupEditor = true;
     let editorCont: any = {
       editorID: editorID,
       containerDiv: container,
