@@ -67,7 +67,13 @@ class MenuBarView {
             this.contentUpdate = update
             this.menu.appendChild(dom)
             this.update()
-
+            setTimeout(()=>{
+              if(this.editorView.isPopupEditor){
+                this.editorView.dom.addEventListener('blur',($event)=>{
+                  this.menu.style.display = 'none'
+                })
+              }
+            },20)
             if (options.floating && !isIOS()) {
                 this.updateFloat()
                 let potentialScrollers = getAllWrapping(this.wrapper)
