@@ -102,30 +102,6 @@ animation: fade-out 1s;
   border-radius: 15px !important;
 }
 
-@media screen and (max-width: 600px) {
-  .arrow-icon,
-  .eye-icon,
-  .theme-toggle {
-    display: none !important;
-  }
-  .menu,
-  .logo,
-  .profile-details {
-    flex: 1;
-    display: flex;
-    align-items: center;
-  }
-  .menu {
-    justify-content: flex-start;
-  }
-  .logo {
-    justify-content: center;
-  }
-  .profile-details {
-    justify-content: flex-end;
-  }
-}
-
 .logo {
   display: flex;
   img {
