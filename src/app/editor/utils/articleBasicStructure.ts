@@ -372,6 +372,26 @@ export const checkIfSectionsAreAboveOrAtMaxAtParentList = (listSections:articleS
   return true;
 }
 
+export const checkIfSectionsAreAboveOrAtMaxAtParentListWithName = (listSections:articleSection[],sectionToCheckName:string,parentListRules?:{sectionName:string,min:number,max:number}[]) => {
+  if(parentListRules && parentListRules.length > 0){
+    let ruleForCurrSec = parentListRules.find((r)=>{
+      return r.sectionName == sectionToCheckName;
+    })
+    if(ruleForCurrSec){
+      let count = 0;
+      listSections.forEach((sec)=>{
+        if(sec.title.name == ruleForCurrSec.sectionName){
+          count++;
+        }
+      })
+      if (ruleForCurrSec.max <= count) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
 export const checkIfSectionsAreUnderOrAtMinAtParentList = (listSections:articleSection[],sectionToCheck:articleSection,parentListRules?:{sectionName:string,min:number,max:number}[]) => {
   if(parentListRules && parentListRules.length > 0){
     let ruleForCurrSec = parentListRules.find((r)=>{

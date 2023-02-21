@@ -9,6 +9,7 @@ import { FormGroup } from '@angular/forms';
 import {
   checkIfSectionsAreAboveOrAtMax,
   checkIfSectionsAreAboveOrAtMaxAtParentList,
+  checkIfSectionsAreAboveOrAtMaxAtParentListWithName,
   checkIfSectionsAreUnderOrAtMin,
   checkIfSectionsAreUnderOrAtMinAtParentList,
   editorFactory,
@@ -605,6 +606,10 @@ export class TreeService implements OnDestroy {
       r = checkIfSectionsAreUnderOrAtMinAtParentList(this.articleSectionsStructure,node,this.parentListRules)
     }
     return r
+  }
+
+  checkIfNodeIsAtMaxInParentListWithName(name:string){
+    return checkIfSectionsAreAboveOrAtMaxAtParentListWithName(this.articleSectionsStructure,name,this.parentListRules)
   }
 
   checkIfCanMoveNodeOutOfParentList(node:articleSection){
