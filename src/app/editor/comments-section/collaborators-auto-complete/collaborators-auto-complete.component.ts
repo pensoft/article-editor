@@ -150,11 +150,12 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
             }
             let authorsListCopy:authorListData[] = [...this.authorsList];
             if(result.roleSelect == 'Author' || result.roleSelect == 'Co-author'){
-              authorsListCopy.push(result.usersChipList.map(user=>{return {authorId:user.id,authorEmail:user.email}}));
+              authorsListCopy.push(...result.usersChipList.map(user=>{return {authorId:user.id,authorEmail:user.email}}));
             }
 
             this.addDataToBackend(emailsInText, newCollaborators,result.accessSelect).subscribe((data)=>{
               this.serviceShare.YdocService.collaborators.set('collaborators', { collaborators: collaboratorsCopy });
+              this.serviceShare.YdocService.collaborators.set('authorsList', authorsListCopy)
               this.serviceShare.ProsemirrorEditorsService.stopSpinner()
               func(...args)
             },
