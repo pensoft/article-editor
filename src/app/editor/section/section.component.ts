@@ -135,7 +135,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
           container.innerHTML = newTitle;
           this.sectionTreeTitleValue = container.textContent!;
         })
-      }else if(this.formIoSubmission.sectionTreeTitle){
+      }else if(this.formIoSubmission.sectionTreeTitle != null && this.formIoSubmission.sectionTreeTitle != undefined){
         this.sectionTreeTitleValue = this.formIoSubmission.sectionTreeTitle;
       }
       if(change.changed&&change.changed.instance){
