@@ -4,10 +4,6 @@
     <img src="./assets/img/logo1.svg" height="42px" width="197px" alt="arpha">
   </div>
 
-  <div class="logo-mobile">
-    <img src="./assets/logo/arpha.svg" width="144px" alt="arpha">
-  </div>
-
   <div class="register">
 
     <div class="title-container">Register</div>
@@ -38,9 +34,7 @@
             label="name*"
             placeholder="Name"
             id="name"
-
           >
-
         </div>
       </div>
       <div class="form-b">
@@ -53,8 +47,8 @@
             label="Password*"
             placeholder="Password"
             id="password"
-
           >
+          <mat-icon color="primary" aria-hidden="false" class="password-icon" svgIcon="dashboard"></mat-icon>
         </div>
         <!--        <input
                   formControlName="password"
@@ -76,12 +70,7 @@
     </form>
 
     <div class="link-container">
-      <arpha-button label="Pensoft" class="rensoft-login-btn secondary large icon-text" icon="dashboard" (click)="signIn()">
-      </arpha-button>
-    </div>
-
-    <div class="link-container-mobile">
-      <arpha-button label="Pensoft" class="rensoft-login-btn secondary large icon-text" icon="dashboard" (click)="signIn()">
+      <arpha-button label="Pensoft" class="pensoft-login-btn secondary large icon-text" icon="dashboard" (click)="signIn()">
       </arpha-button>
     </div>
 

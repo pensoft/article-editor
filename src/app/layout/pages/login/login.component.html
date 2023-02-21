@@ -4,10 +4,6 @@
     <img src="./assets/img/logo1.svg" height="42px" width="197px" alt="arpha">
   </div>
 
-  <div class="logo-mobile">
-    <img src="./assets/logo/arpha.svg" width="144px" alt="arpha">
-  </div>
-
   <div class="register">
 
     <div class="title-container">Login</div>
@@ -48,6 +44,7 @@
             id="password"
 
           >
+          <mat-icon color="primary" aria-hidden="false" class="password-icon" svgIcon="dashboard"></mat-icon>
         </div>
         <!--        <input
                   formControlName="password"
@@ -73,22 +70,9 @@
       <!--      <arpha-button label="Google" class="secondary small icon-text" icon="dashboard"></arpha-button>-->
       <!--      <arpha-button label="Linkedin" class="secondary small icon-text" icon="dashboard"></arpha-button>-->
       <!--      <arpha-button label="Facebook" class="secondary small icon-text" icon="dashboard"></arpha-button>-->
-      <arpha-button type="button" label="Pensoft" class="rensoft-login-btn secondary large icon-text" icon="dashboard"  (mouseup)="signIn()">
+      <arpha-button type="button" label="Pensoft" class="pensoft-login-btn secondary large icon-text" icon="dashboard"  (mouseup)="signIn()">
       </arpha-button>
       <arpha-button type="button" label="ORCID" class="secondary large icon-text" (mouseup)="orcidSignIn()"></arpha-button>
-    </div>
-
-    <div class="link-container-mobile">
-      <!--<div>
-        <arpha-button label="ORCID" class="secondary small icon-text" icon="dashboard"></arpha-button>
-        <arpha-button label="Google" class="secondary small icon-text" icon="dashboard"></arpha-button>
-      </div>
-      <div>
-        <arpha-button label="Linkedin" class="secondary small icon-text" icon="dashboard"></arpha-button>
-        <arpha-button label="Facebook" class="secondary small icon-text" icon="dashboard"></arpha-button>
-      </div>-->
-      <arpha-button type="button" label="Pensoft" class="rensoft-login-btn secondary large icon-text" icon="dashboard" (mouseup)="signIn()"></arpha-button>
-      <arpha-button type="button" label="ORCID" class="rensoft-login-btn secondary large icon-text" (mouseup)="orcidSignIn()"></arpha-button>
     </div>
 
   </div>
