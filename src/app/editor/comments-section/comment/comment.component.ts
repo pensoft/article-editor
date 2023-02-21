@@ -58,6 +58,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
   replyFormControl = new FormControl('');
   showAutoComplete =  false;
+  activeReply = false;
 
 
   constructor(
@@ -150,8 +151,6 @@ export class CommentComponent implements OnInit, AfterViewInit {
     this.userComment?.commentReplies.forEach((comment, index) => {
       this.repliesShowMore[index] = false
     })
-    let s: HTMLSpanElement = document.createElement('span');
-    s.offsetWidth
     this.sharedService.CommentsService.lastSelectedCommentSubject.subscribe((comment) => {
       if(this.ydocService.curUserAccess&&this.ydocService.curUserAccess=='Viewer'){
         return
@@ -206,38 +205,19 @@ export class CommentComponent implements OnInit, AfterViewInit {
     this.userComment = commentData;
   }
 
-  showHideReply(replyDiv: HTMLDivElement, select?: true) {
-    let actualComment: commentData
-    let allComments = this.sharedService.CommentsService.commentsObj
-    Object.keys(allComments).forEach((commentid) => {
-      let com = allComments[commentid]
-      if (com && com.commentAttrs.id == this.comment.commentAttrs.id) {
-        actualComment = com
-      }
-    })
-    if (actualComment) {
-      if (replyDiv.style.display == 'block' && !select) {
-        this.sharedService.CommentsService.lastSelectedCommentSubject.next({ commentId: undefined, pos: undefined, sectionId: undefined })
-      } else {
-        this.sharedService.CommentsService.lastSelectedCommentSubject.next({ commentId: actualComment.commentAttrs.id, pos: actualComment.pmDocStartPos, sectionId: actualComment.section, commentMarkId: actualComment.commentAttrs.commentmarkid })
-      }
-    }
+  showReplyFocusHandle(replyDiv: HTMLDivElement) {
+    this.activeReply = true;
+  }
 
-    /*  let commentsArray = this.commentsMap.get(this.comment?.attrs.id);
-     let commentContent;
-     let userCommentId = uuidv4();
-     const dialogRef = this.sharedDialog.open(AddCommentDialogComponent, { width: 'auto', data: { url: commentContent, type: 'comment' } });
-     dialogRef.afterClosed().subscribe(result => {
-       commentContent = result
-       if (result) {
-         let userComment = {
-           id: userCommentId,
-           comment: commentContent
-         }
-         this.commentsMap.set(this.comment?.attrs.id, [userComment, ...commentsArray]);
-         this.userComments = [userComment, ...commentsArray];
-       }
-     }); */
+  hideReplyBlurHandle(replyDiv: HTMLDivElement) {
+    if (this.replyFormControl.value == '') {
+      this.activeReply = false;
+    }
+  }
+
+  cancelReplyBtnHandle(replyDiv: HTMLDivElement) {
+    this.replyFormControl.setValue('');
+    this.activeReply = false;
   }
 
   editComment(id: string, comment: string) {
@@ -245,7 +225,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
     let commentContent: any = comment;
     const dialogRef = this.sharedDialog.open(EditCommentDialogComponent, {
       panelClass:'comment-edit-dialog',
-      width: '350px',
+      width: '582px',
       data: {
         comment: commentContent,
         type: 'comment',
@@ -269,7 +249,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
     let commentContent: any = comment;
     const dialogRef = this.sharedDialog.open(EditCommentDialogComponent, {
       panelClass:'comment-edit-dialog',
-      width: '350px',
+      width: '582px',
       data: { comment:
         commentContent,
         type: 'comment',
@@ -291,12 +271,6 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
       }
     });
-  }
-
-  cancelReplyBtnHandle(replyDiv: HTMLDivElement) {
-
-    replyDiv.style.display = 'none';
-
   }
 
   getDate = getDate
@@ -325,11 +299,10 @@ export class CommentComponent implements OnInit, AfterViewInit {
     commentData.commentReplies.push(userComment);
     this.commentsMap?.set(this.comment?.commentAttrs.id, commentData);
     this.userComment = commentData;
-    this.replyFormControl.setValue('')
-    replyDiv.style.display = 'none';
+    this.replyFormControl.setValue('');
+    this.activeReply = false;
     setTimeout(()=>{
       this.doneRenderingCommentsSubject.next('replay_rerender')
     },400)
   }
 }
-

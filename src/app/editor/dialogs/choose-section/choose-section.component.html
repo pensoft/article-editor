@@ -18,15 +18,16 @@
 
   <div *ngIf="showError" class="error">No Section selected.</div>
 
-  <div *ngIf="sectionTemplates.length == 0">
-    There are no manuscripts found with this criteria
+  <div *ngIf="searchResults.length == 0">
+    There are no allowed sections
   </div>
 
-  <mat-selection-list #topic [multiple]="false">
-    <mat-list-option *ngFor="let section of searchResults" [value]="section.id">
-      {{section.name}}
-    </mat-list-option>
-  </mat-selection-list>
+
+    <mat-selection-list #topic [multiple]="false" [ngClass]="{'no-results': searchResults.length == 0}">
+      <mat-list-option *ngFor="let section of searchResults" [value]="section.id">
+        {{section.name}}
+      </mat-list-option>
+    </mat-selection-list>
 
 </mat-dialog-content>
 
@@ -35,6 +36,6 @@
     Cancel
   </button>
   <button mat-flat-button color="primary" (click)="chooseSection(topic.selectedOptions.selected[0]?.value)">
-    Add Section
+    Save
   </button>
 </mat-dialog-actions>

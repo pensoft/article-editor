@@ -16,8 +16,8 @@
             <app-figure [(figure)]="figures![figure]" [figureIndex]="i"></app-figure>
           </div>
           <div class="figure-control-buttons button-group">
-            <button mat-stroked-button color="primary" (click)="editFigure(figures![figure],i)">Edit figure</button>
-            <button mat-stroked-button color="warn" (click)="deleteFigure(figures![figure],i)">Delete figure</button>
+            <button mat-stroked-button color="primary" (click)="editFigure(figures![figure],i)">Edit</button>
+            <button mat-stroked-button color="warn" (click)="deleteFigure(figures![figure],i)">Delete</button>
           </div>
         </div>
       </div>
@@ -28,5 +28,5 @@
 <mat-dialog-actions *ngIf="figuresNumbers" align="end" fxLayoutGap="8px">
   <button mat-stroked-button (click)="cancelFiguresEdit()">Cancel</button>
   <button mat-stroked-button color="primary" (click)="addFigure()">Add Figure</button>
-  <button mat-flat-button color="primary" (click)="saveFigures()">Save Figures</button>
+  <button mat-flat-button color="primary" (click)="saveFigures()">Save</button>
 </mat-dialog-actions>

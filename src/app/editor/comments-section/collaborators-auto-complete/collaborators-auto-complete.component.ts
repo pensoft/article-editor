@@ -145,7 +145,9 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
             result.usersChipList.forEach((newColaborator) => {
               collaboratorsCopy.push({ ...newColaborator, access: result.accessSelect,role:result.roleSelect,affiliations:result.affiliations })
             })
-
+            if(!this.authorsList){
+              this.authorsList = this.serviceShare.YdocService.collaborators.get('authorsList');
+            }
             let authorsListCopy:authorListData[] = [...this.authorsList];
             if(result.roleSelect == 'Author' || result.roleSelect == 'Co-author'){
               authorsListCopy.push(result.usersChipList.map(user=>{return {authorId:user.id,authorEmail:user.email}}));
@@ -195,7 +197,7 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
             if(!searchVal||searchVal.length == 0){
               this.searchResults = []
             }else{
-              this.searchResults = this.allusers.filter((user) => user.email.startsWith(searchVal));
+              this.searchResults = res
             }
             this.selectedUserIndex = 0
           })

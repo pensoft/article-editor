@@ -61,7 +61,7 @@
           </table>
         </mat-card-content>
         <mat-card-actions *ngIf="instance.hasAddButton() && instance.component.addAnotherPosition !== 'top'">
-          <button mat-raised-button color="primary" (click)="addAnother()">
+          <button mat-flat-button color="primary" (click)="addAnother()">
             <mat-icon>add</mat-icon>
             {{instance.component.addAnother || 'Add Another'}}
           </button>

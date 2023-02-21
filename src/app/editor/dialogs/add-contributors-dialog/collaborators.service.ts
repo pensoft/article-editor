@@ -27,11 +27,7 @@ export class CollaboratorsService {
     return affiliation.affiliation + affiliation.city + affiliation.country;
   }
 
-  renderMetaNodeInHeadEditor(collaborators:any[],authors:authorListData[]){
-
-    let authorsAndSymbols:{collaborator:any,affiliationSymbols:string[]}[] = []
-    let affiliationsFound:{key:string,displayTxt:string,symbol:string}[] = [];
-
+  fillAffiliationsData(authors,collaborators,affiliationsFound,authorsAndSymbols){
     authors.forEach((author)=>{
       let prop
       let val
@@ -52,7 +48,7 @@ export class CollaboratorsService {
             let affilSymbol
             if(!affiliationsFound.some(x=>x.key == affilKey)){
               affilSymbol = this.affiliationsSymbolMapping[affiliationsFound.length]
-              affiliationsFound.push({key:affilKey,displayTxt:`${affilSymbol} ${affiliation.affiliation}, ${affiliation.city}, ${affiliation.country}`,symbol:affilSymbol})
+              affiliationsFound.push({key:affilKey,displayTxt:`${affilSymbol} ${affiliation.affiliation}, ${affiliation.city}, ${affiliation.country}`,symbol:affilSymbol,affiliation})
             }else{
               affilSymbol = affiliationsFound.find(x=>x.key == affilKey).symbol
             }
@@ -64,7 +60,13 @@ export class CollaboratorsService {
         console.error('No callaborator with '+prop+" "+val);
       }
     })
+  }
 
+  renderMetaNodeInHeadEditor(collaborators:any[],authors:authorListData[]){
+    let authorsAndSymbols:{collaborator:any,affiliationSymbols:string[]}[] = []
+    let affiliationsFound:{key:string,displayTxt:string,symbol:string}[] = [];
+
+    this.fillAffiliationsData(authors,collaborators,affiliationsFound,authorsAndSymbols)
     let pmNode = this.getPmNode(authorsAndSymbols,affiliationsFound);
 
     let view = this.headEditorContainer.editorView;

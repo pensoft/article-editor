@@ -31,7 +31,7 @@ import {updateYFragment} from '../../y-prosemirror-src/plugins/sync-plugin.js';
 import {DOMParser as DOMParserPM} from 'prosemirror-model';
 import {HelperService} from "@app/editor/section/helpers/helper.service";
 import { ServiceShare } from '../services/service-share.service';
-import { filterFieldsValues, parseSecFormIOJSONMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
+import { filterFieldsValues } from '../utils/fieldsMenusAndScemasFns';
 import { schema } from '../utils/Schema';
 
 @Component({
@@ -56,6 +56,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
   editorData?: editorData;
   FormStructure: any
   renderSection = false;
+  sectionTreeTitleValue = ''
 
   childrenTreeCopy?: articleSection[]
   complexSection = false;
@@ -118,14 +119,25 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
   }
 
   isValid:boolean = true;
+  isModified:boolean = false;
   formIoSubmission:any
   formIoRoot:any
   onChange(change: any) {
     if(change instanceof Event){
 
     }else{
-      this.isValid
+      this.isValid = change.isValid
+      this.isModified = change.isModified
       this.formIoSubmission = change.data
+      if(/{{\s*\S*\s*}}/gm.test(this.section.title.template)){
+        this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(this.section.title.template, change.data, this.sectionForm).then((newTitle: string) => {
+          let container = document.createElement('div')
+          container.innerHTML = newTitle;
+          this.sectionTreeTitleValue = container.textContent!;
+        })
+      }else if(this.formIoSubmission.sectionTreeTitle){
+        this.sectionTreeTitleValue = this.formIoSubmission.sectionTreeTitle;
+      }
       if(change.changed&&change.changed.instance){
         this.formIoRoot = change.changed.instance.root
       }
@@ -179,7 +191,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
 
       prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
 
-      filterFieldsValues(this.sectionContent,submision,this.serviceShare,this.section.sectionID,false,prosemirrorNewNodeContent)
+      filterFieldsValues(this.sectionContent,submision,this.serviceShare,this.section.sectionID,false,prosemirrorNewNodeContent,false)
 
       if (this.section.type == 'complex') {
         this.submitComplexSectionEdit()
@@ -273,7 +285,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
 
         }, */
       })
-      let {importantMenusDefsForSection,importantScehmasDefsForSection} = this.prosemirrorEditorsService.getMenusAndSchemaDefsImportantForSection(this.section.sectionID)
+      let {importantMenusDefsForSection,importantScehmasDefsForSection,menusAndSchemasForCitableElements} = this.prosemirrorEditorsService.getMenusAndSchemaDefsImportantForSection(this.section.sectionID)
       this.codemirrorMenusAndSchemasDefsEditor = new EditorView({
         state: EditorState.create({
           doc:
@@ -376,7 +388,6 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
 
 
   }
-
   ngAfterViewInit(): void {
     //const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
 
@@ -422,7 +433,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
 
     }
 
-
+    this.sectionTreeTitleValue = this.section.title.label;
     if ((this.sectionContent.components as Array<any>).find((val) => {
       return (val.key == 'submit' && val.type == 'button')
     })) {

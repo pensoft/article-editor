@@ -1,4 +1,4 @@
-import { Component, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef } from '@angular/core';
+import { Component, ViewChild, ElementRef, AfterViewInit, ChangeDetectorRef, HostListener } from '@angular/core';
 import { MaterialComponent } from '../MaterialComponent';
 //@ts-ignore
 import TextAreaComponent from 'formiojs/components/textarea/TextArea.js';
@@ -65,7 +65,8 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   onChange(keepInputRaw?: boolean) {
     return
   }
-  validity:any[] = []
+  validity:any[] = [];
+  isProseMirrorFocused: boolean = false;
   onChange1 = (keepInputRaw: boolean, value1?: string) => {
     Validator
     let hasChanges = value1?.match(/<span class="(deletion|insertion|format-change)"/gm);
@@ -202,6 +203,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       this.DOMPMSerializer = DOMSerializer.fromSchema(viewSchema);
       this.DOMPMParser = DOMParser.fromSchema(viewSchema)
       options.sectionID = sectionProps?sectionProps.sectionID:undefined
+      options.isCitableElement = (sectionProps&&sectionProps.isCitableElement)?sectionProps.isCitableElement:false
       let temp = document.createElement('div');
       temp.innerHTML = this.value!;
       let node = this.value! ? this.DOMPMParser.parseSlice(temp) : undefined;
@@ -239,7 +241,19 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     }
   }
 
+  @HostListener('document:click', ['$event'])
+  clickout(event) {
+    if (this.ProsemirrorEditor && !this.ProsemirrorEditor.nativeElement.contains(event.target)) {
+      this.isProseMirrorFocused = false;
+    }
+  }
+
   ngAfterViewInit() {
+    if (this.ProsemirrorEditor) {
+      this.ProsemirrorEditor.nativeElement.addEventListener('click', () => {
+        this.isProseMirrorFocused = true;
+      });
+    }
     // Attach the element so the wysiwyg will work.
     let awaitValue = () => {
       setTimeout(() => {

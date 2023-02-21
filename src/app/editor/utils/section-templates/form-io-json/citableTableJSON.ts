@@ -1,7 +1,7 @@
 export const tableJson = {
   "components": [
     {
-      "label": "Header : ",
+      "label": "Header",
       "autoExpand": false,
       "tableView": true,
       "defaultValue": `<p align="set-align-left" class="set-align-left">Header for the table.</p>`,
@@ -9,32 +9,27 @@ export const tableJson = {
         "required": true
       },
       "properties":{
-        "addTableEditor":true
       },
       "key": "tableHeader",
       "type": "textarea",
       "input": true
     },
     {
-      "label": "Table content : ",
+      "label": "Table content",
       "autoExpand": false,
       "tableView": true,
       "defaultValue":
-      `<table-container>
-      </table-container>`,
+      `<form-field><p align="set-align-left" class="set-align-left">Content for the table.</p></form-field>`,
       "validate": {
         "required": true
       },
       "properties": {
-        "menuType":"fullMenu",
-        "addTableEditor":true,
-        "rawNodeContent":true
       },
       "key": "tableContent",
       "type": "textarea",
       "input": true
     },{
-      "label": "Footer : ",
+      "label": "Footer",
       "autoExpand": false,
       "tableView": true,
       "defaultValue": `<p align="set-align-left" class="set-align-left">Footer for the table.</p>`,
@@ -42,7 +37,6 @@ export const tableJson = {
         "required": true
       },
       "properties":{
-        "addTableEditor":true
       },
       "key": "tableFooter",
       "type": "textarea",

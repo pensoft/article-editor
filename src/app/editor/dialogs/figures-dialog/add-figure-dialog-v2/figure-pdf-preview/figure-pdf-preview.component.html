@@ -1,0 +1,19 @@
+<h2 mat-dialog-title>Figure Print Preview</h2>
+<mat-dialog-content>
+  <div class="pdf-view-container" [ngStyle]="{'display':showPdfView?'block':'none'}">
+    <div class="grid-component" [attr.figure_columns]="nOfColumns">
+      <ng-container *ngFor="let row of figureRows; let r=index">
+        <div class="cell-component" *ngFor="let i of rowTemplate;">
+          <code>{{getCharValue(r * nOfColumns + i)}}</code>
+          <img *ngIf="row[i].container.componentType == 'image'" src="{{row[i].container.url}}" alt="" title="default image" />
+          <div class="video-thumb" *ngIf="row[i].container.componentType == 'video'">
+            <mat-icon>ondemand_video</mat-icon>
+          </div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+</mat-dialog-content>
+<mat-dialog-actions align="end" fxLayoutGap="8px">
+  <button mat-stroked-button [mat-dialog-close]>Close</button>
+</mat-dialog-actions>

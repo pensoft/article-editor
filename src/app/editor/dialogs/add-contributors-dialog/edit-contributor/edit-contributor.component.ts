@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
+import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { countryNames } from '../send-invitation/send-invitation.component';
@@ -8,7 +8,7 @@ import { countryNames } from '../send-invitation/send-invitation.component';
   templateUrl: './edit-contributor.component.html',
   styleUrls: ['./edit-contributor.component.scss']
 })
-export class EditContributorComponent implements AfterViewInit {
+export class EditContributorComponent implements AfterViewInit, AfterViewChecked {
 
   getAffiliationGroup(data?:any){
     return new FormGroup({
@@ -60,6 +60,7 @@ export class EditContributorComponent implements AfterViewInit {
 
   constructor(
     public dialogRef: MatDialogRef<EditContributorComponent>,
+    private ref:ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) { }
 
@@ -78,6 +79,10 @@ export class EditContributorComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
+    if(this.data.contrData.access == 'Owner'){
+      this.accessOptions.push({name:'Owner'});
+      this.accessSelect.disable();
+    }
     this.accessSelect.setValue(this.data.contrData.access)
     this.roleSelect.setValue(this.data.contrData.role)
     this.data.contrData.affiliations.forEach((affiliation)=>{
@@ -106,4 +111,7 @@ export class EditContributorComponent implements AfterViewInit {
     })
   }
 
+  ngAfterViewChecked(): void {
+    this.ref.detectChanges()
+  }
 }

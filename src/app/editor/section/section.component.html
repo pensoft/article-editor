@@ -2,7 +2,7 @@
 <!-- <mat-formio class="article-section" [form]="sectionContent" (submit)='submit($event)'></mat-formio> -->
 
 <!-- If section is inside a modal -->
-<h2 mat-dialog-title *ngIf="section.mode == 'editMode'">Edit section</h2>
+<h2 mat-dialog-title *ngIf="section.mode == 'editMode'">Edit{{sectionTreeTitleValue?': '+sectionTreeTitleValue:''}}</h2>
 
 <div *ngIf='section.mode == "editMode"' class="popup-menu-container"></div>
 
@@ -14,13 +14,14 @@
     <div #codemirrorMenusAndSchemasDefs class='codemirror-editor' [ngStyle]="{'display': hideDefsjson ? 'none' : 'block'}"></div>
     <div *ngIf="error"><pre class="errors-container">{{errorMessage}}</pre></div>
     <ng-container *ngIf='renderForm'>
+      <!--
       <div class="complex-section-tree" *ngIf="complexSection">
         <app-complex-edit-tree [(section)]="section" [(sectionChildren)]="childrenTreeCopy!" [(deletedSections)]="complexSectionDeletedChildren" [(addedSections)]="complexSectionAddedChildren"></app-complex-edit-tree>
-        <!-- <div class="submit-complex-btn-container">
+        <div class="submit-complex-btn-container">
           <button mat-raised-button class="bottom-complex-action-btn" (click)="cancelComplexSectionEdit()">Cancel</button>
           <button mat-raised-button class="bottom-complex-action-btn" (click)="submitComplexSectionEdit()">Submit</button>
-        </div> -->
-      </div>
+        </div>
+      </div>  -->
       <div *ngIf="section.title.name != 'Taxon' && section.title.name != '[MM] Materials' && section.title.name != 'Material'" [ngClass]="{'formio-edit-section':true,'formio-taxonomicComponent':section.title.name == 'Taxonomic coverage','complex-section-formio':complexSection}">
         <mat-formio #formio [form]="sectionContent" (ready)="ready($event)" (change)="onChange($event)" (submit)="onSubmit($event)"></mat-formio>
       </div>
@@ -43,7 +44,7 @@
   <button mat-stroked-button color="primary" (click)="hidehtml=!hidehtml">Edit HTML</button>
   <button mat-stroked-button color="primary" (click)="hidejson=!hidejson">Show JSON</button>
   <button mat-stroked-button color="primary" (click)="hideDefsjson=!hideDefsjson">Show Menus And Schema Defs</button>
-  <button mat-flat-button color="primary" (click)="submitSection()" [disabled]="!isValid">Submit section</button>
+  <button mat-flat-button color="primary" (click)="submitSection()" [disabled]="!isValid">Save</button>
 </mat-dialog-actions>
 
 <!-- If section is inside the Editor -->

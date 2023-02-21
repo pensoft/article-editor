@@ -41,8 +41,7 @@ export class CitableTablesDialogComponent {
   editTable(table: citableTable, tableIndex: number) {
     //this.serviceShare.PmDialogSessionService!.createSubsession();
     this.dialog.open(AddTableDialogComponent, {
-      //width: '100%',
-      // height: '90%',
+      width: '1000px',
       data: { table, updateOnSave: false, index: tableIndex, tableID: table.tableID },
       disableClose: false
     }).afterClosed().subscribe((result: { table: citableTable, tableNode: Node }) => {
@@ -97,8 +96,7 @@ export class CitableTablesDialogComponent {
   addTable() {
     //this.serviceShare.PmDialogSessionService!.createSubsession();
     this.dialog.open(AddTableDialogComponent, {
-      //width: '100%',
-      // height: '90%',
+      width: '1000px',
       data: { fig: undefined, updateOnSave: false, index: this.tablesNumbers?.length },
       disableClose: false
     }).afterClosed().subscribe((result: { table: citableTable, tableNode: Node }) => {

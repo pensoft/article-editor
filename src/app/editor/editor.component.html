@@ -43,9 +43,7 @@
             <button mat-mini-fab color="accent" [matMenuTriggerFor]="avatars_menu" aria-label="Show all avatars">
               +{{ usersInArticle.length - 3 }}
             </button>
-
             <mat-menu #avatars_menu="matMenu" class="article-users-list">
-
               <ng-container *ngFor="let user of usersInArticle | skipCurrent; index as i">
                 <mat-card class="user-card" *ngIf="user&&user.userInfo&&user.userInfo.data&&i>1">
                   <mat-card-header>
@@ -82,18 +80,18 @@
   </mat-toolbar-row>
 </mat-toolbar>
 
-<app-library *ngIf="active=='library'" class="user-reference-lib"></app-library>
-
-<div *ngIf="shouldBuild"
-     [ngStyle]="{'display':active == 'editor'?'block':'none','align-items':'center','width':'100%','height':'100%'}">
+<div *ngIf="shouldBuild" class="main-editor-container"
+     [ngStyle]="{'display':active == 'editor'?'flex':'none'}">
   <div class="actions-container">
     <!-- <div *ngIf="innerWidth<=600" class="tree_btn_container">
         <button (click)="showTreeContainer()" class="editor_tree_btn_mobile" mat-icon-button>
     <mat-icon>account_tree</mat-icon>
     </button>
     </div> -->
+    <div class="left-column-placeholder"></div>
+
     <div class="prosemirror_menu_container">
-      <app-editor-menu [ngStyle]="{'display':(userAccess == 'Commenter'||userAccess == 'Viewer')?'none':'inline'}">
+      <app-editor-menu [ngStyle]="{'display':(userAccess == 'Commenter'||userAccess == 'Viewer')?'none':'block'}">
       </app-editor-menu>
     </div>
 
@@ -130,6 +128,10 @@
         <mat-icon svgIcon="reference"></mat-icon>
       </button>
 
+      <button (click)="toggleSidebar('taxons')" mat-icon-button [class.active]="sidebar=='taxons'">
+        <mat-icon>hub</mat-icon>
+      </button>
+
       <button class="open-comments-sidebar" (click)="toggleSidebar('comments')" mat-icon-button
               [class.active]="sidebar=='comments'">
         <mat-icon [matBadgeHidden]="noComments" matBadge="{{commentsNumberChange | async}}" matBadgeSize="small" matBadgeColor="warn"
@@ -138,7 +140,8 @@
     </div>
   </div>
 
-  <mat-drawer-container autosize hasBackdrop='false' class="editor-drawer">
+  <div class="scrollable-editor-content">
+    <mat-drawer-container hasBackdrop='false' class="editor-drawer">
     <div class="main-container">
       <mat-drawer #metaDataTreeDrawer class="metadataTreeDrawer" mode='over' position='start' *ngIf="innerWidth <= 600">
         <div #treeDataDiv class="data-tree no-scroll">
@@ -149,13 +152,9 @@
         <app-meta-data-tree></app-meta-data-tree>
         <app-article-metadata></app-article-metadata>
       </div>
-      <!-- <div class="editor-container" [ngClass]="{'editorSpace': !sidebar}" style="flex-direction: column!;"> -->
-      <div class="editor-container" style="flex-direction: column!;">
+
+      <div class="editor-container">
         <app-article id="app-article-element"></app-article>
-        <!-- <app-article id="app-article-element" style="display: table;"></app-article> -->
-        <!-- <app-prosemirror-editor style="height:97%;"></app-prosemirror-editor> -->
-        <!-- <app-formio ></app-formio> -->
-        <!-- <app-taxonomy-editor></app-taxonomy-editor> -->
         <div [ngStyle]="{'display':(userAccess == 'Viewer')?'none':'block'}" class="editor_buttons">
           <div class="editor_buttons_wrapper">
             <div class="commentBtnDiv">
@@ -164,10 +163,30 @@
               </button>
             </div>
             <div [ngStyle]="{'display':(userAccess == 'Commenter'||userAccess == 'Viewer')?'none':'block'}"
-                 class="trackChangesBtnDiv">
+                class="trackChangesBtnDiv">
               <button [ngClass]="shouldTrackChanges?'changes_on_editor_side_btn':'changes_off_editor_side_btn'"
                       (click)="turnOnOffTrachChanges()" class="trackChangesBtn" mat-icon-button>
                 <mat-icon svgIcon="reference"></mat-icon>
+              </button>
+            </div>
+            <div [ngStyle]="{
+              'visibility':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'hidden':'visible',
+              'opacity':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'0':'1'
+            }"
+                class="tag-words-btn-div">
+              <button (click)="taxonService.tagText(false)" [ngClass]="'tag_text_as_taxon_side_btn'" [matTooltip]="'Tag this text as Taxon.'"
+                      class="tag-single" mat-icon-button>
+                <mat-icon >bookmark</mat-icon>
+              </button>
+            </div>
+            <div [ngStyle]="{
+              'visibility':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'hidden':'visible',
+              'opacity':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'0':'1'
+            }"
+                class="tag-words-btn-div">
+              <button (click)="taxonService.tagText(true)" [ngClass]="'tag_text_as_taxon_side_btn'" [matTooltip]="'Tag all occurrence of this text as Taxon.'"
+                      class="tag-multiple" mat-icon-button>
+                <mat-icon >bookmarks</mat-icon>
               </button>
             </div>
           </div>
@@ -178,6 +197,7 @@
       <editor-sidebar [sidebar]="sidebar"></editor-sidebar>
     </mat-drawer>
   </mat-drawer-container>
+  </div>
 </div>
 
 <button mat-fab class="floating-button" [matMenuTriggerFor]="menu2" *ngIf="active == 'editor'">
@@ -197,6 +217,9 @@
   </button>
   <button (click)="toggleSidebar('changes')" mat-menu-item>
     <mat-icon svgIcon="reference"></mat-icon>
+  </button>
+  <button (click)="toggleSidebar('taxons')" mat-menu-item>
+    <mat-icon>hub</mat-icon>
   </button>
 </mat-menu>
 

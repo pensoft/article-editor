@@ -9,13 +9,14 @@ import { genereteNewReference } from '@app/layout/pages/library/lib-service/refs
 import { ReferenceEditComponent } from '@app/layout/pages/library/reference-edit/reference-edit.component';
 import { Subject } from 'rxjs';
 import { YMap } from 'yjs/dist/src/internals';
+import { AskBeforeDeleteComponent } from '../ask-before-delete/ask-before-delete.component';
 import { RefsAddNewInArticleDialogComponent } from '../refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
 
 export let clearRefFromFormControl = (newRefs:any)=>{
   let refsWithNoFormControls = {}
     Object.keys(newRefs).forEach((key:any,i)=>{
       let ref = newRefs[key]
-      if(!ref.refCiTO && ref.refCiTOControl){
+      if(ref.refCiTOControl && JSON.stringify({value:ref.refCiTOControl.value}) != JSON.stringify({value:ref.refCiTO}) ){
         ref.refCiTO = ref.refCiTOControl.value;
       }
       let newRef = {}
@@ -122,7 +123,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
       if(this.refsCiTOsControls[ref.ref.id]){
         formC = this.refsCiTOsControls[ref.ref.id]
       }else{
-        formC = new FormControl(this.CiToTypes.find(x=>x.label == ref.refCiTO.label),[Validators.required]);
+        formC = new FormControl(ref.refCiTO?this.CiToTypes.find(x=>x.label == ref.refCiTO.label):null);
         this.refsCiTOsControls[ref.ref.id] = formC
       }
 
@@ -144,8 +145,16 @@ export class RefsInArticleDialogComponent implements OnDestroy {
   }
 
   deleteRef(ref) {
-    this.deletedRefsIds.push(ref.ref.id);
-    this.passRefsToSubject();
+    let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
+      data: {objName: ref.ref.title,type:'reference'},
+      panelClass: 'ask-before-delete-dialog',
+    })
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        this.deletedRefsIds.push(ref.ref.id);
+        this.passRefsToSubject();
+      }
+    })
   }
 
   preventClick(event: Event) {
@@ -206,7 +215,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
               refStyle
             }
             if(this.refsCiTOsControls[ref.ref.id]){
-              this.refsCiTOsControls[ref.ref.id].setValue(this.CiToTypes.find(x=>x.label == result.refCiTO.label))
+              this.refsCiTOsControls[ref.ref.id].setValue(result.refCiTO?this.CiToTypes.find(x=>x.label == result.refCiTO.label):null)
             }
             let refId = refInstance.ref.id;
             this.changedOrAddedRefs[refId] = refInstance

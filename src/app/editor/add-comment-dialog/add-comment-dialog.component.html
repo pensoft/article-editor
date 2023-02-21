@@ -4,17 +4,23 @@
 <h2 mat-dialog-title *ngIf="type == 'video'">Embed Video</h2>
 
 <mat-dialog-content>
-  <p *ngIf="type == 'mathinline'">Enter katex mathematical expresion.</p>
-  <p *ngIf="type == 'comment'">White your comment here : </p>
-  <p *ngIf="type == 'anchorTag'">White your anchor id here : </p>
-  <p *ngIf="type == 'video'">Enter video url.Atention url must be embedable (youtube case: contain /embed) : https://www.youtube.com/embed/GDae7zmUHlc Tutorial on how to get embeded videos form youtube : https://www.youtube.com/watch?v=ZnuwB35GYMY&ab_channel=Techoist</p>
+  <p *ngIf="type == 'mathinline'">Enter katex mathematical expression.</p>
+  <p *ngIf="type == 'comment'">White your comment here.</p>
+  <p *ngIf="type == 'anchorTag'">White your anchor id here.</p>
+  <p *ngIf="type == 'video'">Enter video url. Attention url must be embeddable (youtube case: contain /embed) : https://www.youtube.com/embed/GDae7zmUHlc Tutorial on how to get embedded videos form youtube : https://www.youtube.com/watch?v=ZnuwB35GYMY&ab_channel=Techoist</p>
 
+  <mat-label class="upper-label" *ngIf="type == 'mathinline'">Math expression</mat-label>
+  <mat-label class="upper-label" *ngIf="type == 'video'">Video embed link</mat-label>
+  <mat-label class="upper-label" *ngIf="type == 'comment'">Comment</mat-label>
+  <mat-label class="upper-label" *ngIf="type == 'anchorTag'">Anchor id</mat-label>
   <mat-form-field [style.width]='"100%"' appearance="fill">
-    <mat-label *ngIf="type == 'mathinline'">expresion...</mat-label>
-    <mat-label *ngIf="type == 'video'">Video embed link</mat-label>
-    <mat-label *ngIf="type == 'comment'">Comment...</mat-label>
-    <mat-label *ngIf="type == 'anchorTag'">Anchor id...</mat-label>
-    <input matInput  [(ngModel)]="data.url" [formControl]="text" required style="color: black !important;">
+    <textarea *ngIf="type == 'mathinline'" matInput  [(ngModel)]="data.url" [formControl]="text" required style="color: black !important;"></textarea>
+    <input *ngIf="type == 'video'" matInput [(ngModel)]="data.url"
+           [formControl]="text" required style="color: black !important;" placeholder="Enter video url">
+    <input *ngIf="type == 'comment'" matInput [(ngModel)]="data.url"
+           [formControl]="text" required style="color: black !important;" placeholder="Enter comment">
+    <input *ngIf="type == 'anchorTag'" matInput [(ngModel)]="data.url"
+           [formControl]="text" required style="color: black !important;" placeholder="Enter anchor id">
     <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
   </mat-form-field>
   <small class="mat-form-field-hint-custom" *ngIf="type == 'mathinline'">
@@ -22,11 +28,16 @@
     <a href="https://katex.org/docs/supported.html"  target="_blank">https://katex.org/docs/supported.html</a>
     for supported functions, operators and etc.
   </small>
+  <mat-radio-group *ngIf="type == 'mathinline'" [formControl]="mathType" [(ngModel)]="selectedMathExample">
+    <mat-radio-button *ngFor="let preview of this.mathPreviews" [value]="preview.value">
+     <div [innerHTML]="sanitize(preview.html)" style="overflow: auto"></div>
+    </mat-radio-button>
+  </mat-radio-group>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button (click)="onNoClick()">Cancel</button>
-  <button mat-flat-button color="primary" [mat-dialog-close]="data.url" *ngIf="type == 'mathinline'" cdkFocusInitial>
+  <button mat-flat-button color="primary" [mat-dialog-close]="{text, mathType}" *ngIf="type == 'mathinline'" cdkFocusInitial>
     Insert Expression
   </button>
   <button mat-flat-button color="primary" [mat-dialog-close]="data.url" *ngIf="type == 'comment'" cdkFocusInitial>

@@ -19,7 +19,7 @@ export class ReferenceEditComponent implements AfterViewInit {
   dataSave:any
   referenceStyles:any
   CiToTypes = CiToTypes
-  citoFormControl = new FormControl(null, [Validators.required]);
+  citoFormControl = new FormControl(null);
 
 
   constructor(
@@ -65,13 +65,15 @@ export class ReferenceEditComponent implements AfterViewInit {
       this.stylesFormControl.setValue(this.referenceStyles[0])
     } else {
       let oldBuildData = this.data.oldData;
-      if(this.CiToTypes.find((cito) => {
+      if(oldBuildData.refCiTO&&this.CiToTypes.find((cito) => {
         return (cito.label == oldBuildData.refCiTO.label)
       })){
         let indexCito = this.CiToTypes.findIndex((cito) => {
           return (cito.label == oldBuildData.refCiTO.label)
         });
         this.citoFormControl.setValue(this.CiToTypes[indexCito])
+      }else{
+        this.citoFormControl.setValue(null)
       }
       if (this.referenceTypesFromBackend.find((ref) => {
         return (ref.name == oldBuildData.refType.name||ref.type == oldBuildData.refType.type)
@@ -113,12 +115,15 @@ export class ReferenceEditComponent implements AfterViewInit {
   isValid:boolean = true;
   formIoSubmission:any
   formIoRoot:any
+  isModified:boolean = false;
   onChange(change: any) {
     if(change instanceof Event){
 
     }else{
       this.isValid = change.isValid
       this.formIoSubmission = change.data
+      this.isModified = change.isModified
+
       if(change.changed&&change.changed.instance){
         this.formIoRoot = change.changed.instance.root
       }

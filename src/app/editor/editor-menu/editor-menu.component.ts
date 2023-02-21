@@ -41,6 +41,7 @@ export class EditorMenuComponent implements OnInit {
 
         })(class implements AfterViewInit {
           data = data ? JSON.parse(JSON.stringify(data)) : data;
+
           formGroup = formGroup;
 
           getCharValue(i:number){

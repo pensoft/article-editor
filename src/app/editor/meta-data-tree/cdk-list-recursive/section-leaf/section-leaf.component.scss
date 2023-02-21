@@ -1,13 +1,14 @@
 // level 0 css
-$textFontWeight: 500;
-$textFontSize: 15px;
-$itemHeight: 30px;
+$textFontWeight: 600;
+$textFontSize: 14px;
+$itemHeight: 34px;
 ::ng-deep .drag_btn {
   height: 20px !important;
   width: 20px !important;
-  line-height: 0px;
+  line-height: 0;
+
   .mat-icon {
-    font-size: 15px;
+    font-size: 17px;
     vertical-align: baseline;
   }
 }
@@ -28,8 +29,8 @@ $itemHeight: 30px;
 }
 
 ::ng-deep .section_btn_outerList {
-  height: 30px !important;
-  width: 30px !important;
+  height: 34px !important;
+  width: 34px !important;
   padding: 0px;
   line-height: 0px;
 }
@@ -37,10 +38,10 @@ $itemHeight: 30px;
 .section_btn_outerList {
   color: #223361;
   background-color: white;
-  margin: 0 2px;
+  margin: 0 4px;
   z-index: 5;
   vertical-align: middle;
-  box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
+  box-shadow: 0 2px 4px #1BB1B229;
 }
 
 ::ng-deep .section_btn {
@@ -51,119 +52,129 @@ $itemHeight: 30px;
 }
 
 ::ng-deep .section_btn_nestedList {
-  height: 30px !important;
-  width: 30px !important;
+  height: 34px !important;
+  width: 34px !important;
   padding: 0px;
   line-height: 0px;
 }
 
 .sectionBorderNestedInactive {
   display: inline-flex;
-  padding-left: 30px;
-  min-height: $itemHeight;
-  width: fit-content;
+  padding: 0 0 0 17px;
+  border-left: 1px solid var(--color-00b1b2);
+  height: 32px;
   z-index: 4;
-  width: calc(100% - 65px);
-  position: relative;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .sectionBorderNested {
   display: inline-flex;
-  padding-left: 30px;
-  margin-left: 0px !important;
   background-color: white;
-  border-radius: 4px;
-  height: $itemHeight;
+  height: 32px;
   z-index: 10;
-  width: calc(100% - 65px);
-  box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
+  width: 100%;
   position: relative;
+  box-sizing: border-box;
+  padding: 0 0 0 17px;
+  margin: 0 0 0 1px;
+  border: 0;
+  border-radius: 0;
+  box-shadow: 0 2px 4px #1bb1b229;
 }
 
 .sectionBorderListNestedInactive {
   display: inline-flex;
-  margin-left: 26px;
-  height: $itemHeight;
+  margin: 0;
+  padding: 0 0 0 13px;
+  height: 32px;
   z-index: 4;
-  width: calc(100% - 35px);
+  width: 100%;
   position: relative;
+  border-left: 1px solid var(--color-00b1b2);
+  box-sizing: border-box;
+  background: var(--color-f9fafc);
 }
 
 .sectionBorderListNested {
   display: inline-flex;
-  padding-left: 26px;
-  border-radius: 4px;
-  background-color: white;
-  height: $itemHeight;
+  background-color: var(--color-ffffff);
+  height: 32px;
   z-index: 10;
   position: relative;
-  width: calc(100% - 61px);
-  box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
-  position: relative;
+  width: 100%;
+  padding: 0 0 0 13px;
+  border-left: 1px solid var(--color-00b1b2);
+  box-sizing: border-box;
+  box-shadow: 0 2px 4px #1bb1b229;
 }
 
 .sectionBorderListItem {
   display: inline-flex;
-  background-color: white;
-  border-radius: 4px;
-  width: calc(100% - 37px);
+  background-color: var(--color-ffffff);
+  width: 100%;
   z-index: 10;
   position: relative;
   vertical-align: middle;
   height: $itemHeight;
-  box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
+  padding: 0 0 0 4px;
+  box-shadow: 0 2px 4px #1BB1B229;
+  box-sizing: border-box;
 }
 
 .sectionBorderListItemInactive {
   display: inline-flex;
-  width: fit-content;
   vertical-align: middle;
   height: $itemHeight;
-  width: calc(100% - 37px);
+  width: 100%;
   z-index: 4;
   position: relative;
+  padding: 0 0 0 4px;
+  background: var(--color-f9fafc);
+  box-sizing: border-box;
 }
 
 .sectionBorderInactive {
   display: inline-flex;
   padding-left: 30px;
   height: $itemHeight;
-  width: fit-content;
   z-index: 4;
-  width: calc(100% - 65px);
+  width: 100%;
   position: relative;
+  box-sizing: border-box;
 }
 
 .vertical_line_nestedList {
-  border-left: 2px solid #6cd0d2;
+  border-left: 1px solid var(--color-00b1b2);
   display: inline;
   position: absolute;
   height: 100%;
-  width: 60%;
-  transform: translate(17px, -37px);
 }
 
 .sectionBorder {
   display: inline-flex;
   padding-left: 30px;
   background-color: white;
-  border-radius: 4px;
   z-index: 10;
   position: relative;
   height: $itemHeight;
-  width: calc(100% - 65px);
-  box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
+  width: 100%;
+  box-shadow: 0 2px 4px #1BB1B229;
+  box-sizing: border-box;
 }
 
 ::ng-deep .expandBTN {
   height: 20px !important;
   width: 20px !important;
-  margin-left: 8px;
-  margin-right: 1px;
+  margin: 0 0 0 10px;
   align-self: center;
-  line-height: 0px !important;
+  line-height: 0 !important;
+
   .mat-icon {
+    font-size: 22px !important;
     line-height: 20px !important;
+    width: 20px;
+    height: 20px;
     vertical-align: baseline;
   }
 }
@@ -174,8 +185,9 @@ $itemHeight: 30px;
 
 .drag_btn_leaf_node {
   position: absolute;
-  transform: translate(-34px);
+  left: 0;
   align-self: center;
+
   .mat-icon {
     height: 20px;
     width: 20px;
@@ -185,8 +197,9 @@ $itemHeight: 30px;
 
 .drag_btn_list_node {
   position: absolute;
-  transform: translate(-4px);
+  left: 0;
   align-self: center;
+
   .mat-icon {
     height: 20px;
     width: 20px;
@@ -196,9 +209,6 @@ $itemHeight: 30px;
 
 .example-list-dropdownbox {
   display: block;
-  padding-top: 5px;
-  margin-left: -17px;
-  padding-bottom: 5px;
 }
 
 .text-placeholder-nested {
@@ -222,21 +232,23 @@ $itemHeight: 30px;
 }
 
 .node-box-dropdownbox {
-  position: relative !important;
-  color: rgba(0, 0, 0, 0.87);
-  margin-left: 7px;
-  min-height: 45px;
-  font-size: $textFontSize !important;
-  font-weight: $textFontWeight !important;
+  position: relative;
+  font-size: $textFontSize;
+  font-weight: $textFontWeight;
+  line-height: 20px;
+  color: #223361;
+  padding: 0 42px 0 0;
+  margin: 8px 0;
 }
 
 .node-box {
   position: relative;
-  color: rgba(0, 0, 0, 0.87);
   font-size: $textFontSize;
-  padding-left: 7px;
   font-weight: $textFontWeight;
-  height: 45px;
+  line-height: 20px;
+  color: #223361;
+  padding: 0 42px 0 0;
+  margin: 8px 0;
 }
 
 .cdk-drag-preview {
@@ -295,6 +307,7 @@ $itemHeight: 30px;
 
 .border {
   position: relative;
+  letter-spacing: 0;
 }
 
 .expand_more {
@@ -305,16 +318,16 @@ $itemHeight: 30px;
 .node-box-nested {
   position: relative;
   //padding-left: 20px;
-  color: rgba(0, 0, 0, 0.87);
+  color: #223361;
   height: 35px;
-  font-size: $textFontSize;
+  font-size: 13px;
   font-weight: $textFontWeight;
 }
 
 .node-box-dropdownbox-nested {
   position: relative !important;
-  color: rgba(0, 0, 0, 0.87);
-  font-size: $textFontSize;
+  color: #223361;
+  font-size: 13px;
   font-weight: $textFontWeight;
   //padding-left: 20px;
 }
@@ -325,16 +338,18 @@ $itemHeight: 30px;
   gap: 4px;
   position: absolute;
   top: 50%;
-  right: 2px;
+  right: 0;
+  left: 100%;
   z-index: 5;
-  width: 34px;
+  width: 42px;
   transform: translateY(-50%);
 }
 
 .drag_btn_leaf_node_nested {
   position: absolute;
-  transform: translate(-34px, 0px);
+  left: 0;
   align-self: center;
+
   .mat-icon {
     height: 20px;
     width: 20px;
@@ -344,8 +359,9 @@ $itemHeight: 30px;
 
 .drag_btn_list_node_nested {
   position: absolute;
-  transform: translate(-24px, 0px);
+  left: 0;
   align-self: center;
+
   .mat-icon {
     height: 20px;
     width: 20px;
@@ -356,10 +372,10 @@ $itemHeight: 30px;
 .section_btn_nestedList {
   color: #223361;
   background-color: white;
-  margin: 0 2px;
+  margin: 0 4px;
   z-index: 5;
   vertical-align: top;
-  box-shadow: 0px 1px 1px -3px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 1px 0px rgb(0 177 178 / 20%);
+  box-shadow: 0 2px 4px #1BB1B229;
 }
 
 ::ng-deep .expandBTNNested {
@@ -367,9 +383,12 @@ $itemHeight: 30px;
   width: 20px !important;
   align-self: center;
   line-height: 0 !important;
+  margin: 0 0 0 2px;
+
   .mat-icon {
     height: 20px;
     width: 20px;
+    font-size: 20px;
     line-height: 20px;
     vertical-align: baseline;
   }
@@ -377,130 +396,50 @@ $itemHeight: 30px;
 
 .example-list-dropdownbox-nested {
   display: block;
-  padding-top: 5px;
-  padding-bottom: 5px;
+}
+
+.dropdown-wrapper {
+  height: 32px;
 }
 
 .selectedEditor {
   background-color: #e4f6f6;
   z-index: 1;
-  /* width: calc(100% - 44px);
-    .text-section-div {
-        margin-left: 17px !important;
-    } */
 }
 
 .selectedEditorList {
+  font-weight: 700;
   background-color: #e4f6f6;
-  /* width: calc(100% - 44px);
-    .text-section-div {
-        margin-left: 17px !important;
-    } */
 }
 
 .selectedEditorNestedLeaf {
   background-color: #e4f6f6;
   z-index: 1;
-  /* margin-left: 18.7px;
-    padding-left: 11.3px;
-    width: calc(100% - 44px);
-    z-index: 4;
-    .text-section-div-nested {
-        margin-left: 17px !important;
-    } */
 }
 
 .selectedEditorNestedList {
   background-color: #e4f6f6;
-  /* margin-left: 19px;
-    padding-left: 7px;
-    width: calc(100% - 44px);
-    z-index: 4;
-    .text-section-div-nested {
-        margin-left: 17px !important;
-    } */
+  font-weight: 700;
 }
 
 .text-placeholder {
-  border-left: 2px solid #6cd0d2;
-  padding-left: 8px;
+  border-left: 1px solid var(--color-00b1b2);
+  padding-left: 11px;
   z-index: 3;
-  display: initial;
+  display: block;
   position: absolute;
-  height: 113%;
-  border-bottom: 2px solid #6cd0d2;
-  transform: translate(17px, -20px);
+  top: 0;
+  left: 0;
+  height: 16px;
+  z-index: 5;
+  border-bottom: 1px solid var(--color-00b1b2);
 }
 
-.node-box {
-  .text-section-div[contenteditable=true] {
-    overflow: visible;
-    text-overflow: clip;
-    width: calc(100% - 40px);
-    background-color: white;
-    display: inline-table;
-    z-index: 10;
-    height: 20px;
-    white-space: pre-line;
-    border: #8dc5c6 2px solid;
-    border-radius: 4px;
-    position: absolute;
-    line-break: anywhere;
-  }
-}
-
-.node-box-dropdownbox {
-  .text-section-div[contenteditable=true] {
-    overflow: visible;
-    text-overflow: clip;
-    width: calc(100% - 40px);
-    background-color: white;
-    display: inline-table;
-    z-index: 10;
-    height: 20px;
-    white-space: pre-line;
-    border: #8dc5c6 2px solid;
-    border-radius: 4px;
-    position: absolute;
-    margin-left: 30px;
-    line-break: anywhere;
-  }
-}
-
-.node-box-dropdownbox-nested {
-  .text-section-div-nested[contenteditable=true] {
-    overflow: visible;
-    text-overflow: clip;
-    width: calc(100% - 57px);
-    background-color: white;
-    display: inline-table;
-    border: #8dc5c6 2px solid;
-    border-radius: 4px;
-    height: 20px;
-    z-index: 10;
-    white-space: pre-line;
-    position: absolute;
-    margin-left: 20px;
-    line-break: anywhere;
-  }
-}
-
-.node-box-nested {
-  .text-section-div-nested[contenteditable=true] {
-    overflow: visible;
-    text-overflow: clip;
-    width: calc(100% - 37px);
-    background-color: white;
-    display: inline-table;
-    border: #8dc5c6 2px solid;
-    border-radius: 4px;
-    height: 20px;
-    z-index: 10;
-    white-space: pre-line;
-    position: absolute;
-    margin-left: 0px;
-    line-break: anywhere;
-  }
+.text-section-div[contenteditable=true], .text-section-div-nested[contenteditable=true] {
+  text-overflow: inherit;
+  box-shadow: none;
+  outline: none;
+  border: 0;
 }
 
 .text-section-div-nested {
@@ -509,6 +448,9 @@ $itemHeight: 30px;
   overflow: hidden;
   direction: ltr;
   white-space: nowrap;
+  flex-grow: 1;
+  cursor: text;
+  margin: 0 4px 0 2px;
 }
 
 .text-section-div {
@@ -517,6 +459,9 @@ $itemHeight: 30px;
   overflow: hidden;
   direction: ltr;
   white-space: nowrap;
+  flex-grow: 1;
+  cursor: text;
+  margin: 0 4px;
 }
 
 .text-section-list-item-div {

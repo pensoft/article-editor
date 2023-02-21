@@ -22,14 +22,19 @@ let getAttrValueIfAnyAtPos = (resolvedPos:ResolvedPos,attrName : string) => {
 export let FullSchemaDOMPMSerializer = DOMSerializer.fromSchema(schema)
 export let FullSchemaDOMPMParser = DOMParser.fromSchema(schema)
 
-export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDefs:{nodes:any,marks:any})=>{
+export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare)=>{
 
 
     let menusAndSchemasDefs = serviceShare.YdocService.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
 
     let DOMParsersAndSerializersBySchemaKeys:{[key:string]:{domSerializer:DOMSerializer,domParser:DOMParser}} = {}
 
-    let getDOMParserAndSerializerForSchema = (editorSchemaDEFKey:string,sectionID:string)=>{
+    let getDOMParserAndSerializerForSchema = (editorSchemaDEFKey:string|undefined,sectionID:string)=>{
+      if(!editorSchemaDEFKey){
+        let nodeSchemaParser = FullSchemaDOMPMParser
+        let nodeSchemaSerializer = FullSchemaDOMPMSerializer
+        return {nodeSchemaParser,nodeSchemaSerializer}
+      }
       let nodeSchemaParser
       let nodeSchemaSerializer
       if(DOMParsersAndSerializersBySchemaKeys[editorSchemaDEFKey]){
@@ -39,7 +44,8 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
         //@ts-ignore
         let importantSchemaDefsForSection =  {
           ...(menusAndSchemasDefs['layoutDefinitions']||{schemas:{}}).schemas,
-          ...(menusAndSchemasDefs[sectionID]||{schemas:{}}).schemas
+          ...(menusAndSchemasDefs[sectionID]||{schemas:{}}).schemas,
+          ...(menusAndSchemasDefs['citableElementMenusAndSchemaDefs'].allCitableElementsSchemas)
         }
         let schemaDefForNode = importantSchemaDefsForSection[editorSchemaDEFKey];
         let nodeSchema = schemaDefForNode?serviceShare.ProsemirrorEditorsService.buildSchemaFromKeysDef(schemaDefForNode):schema;
@@ -79,7 +85,11 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
 
     let getFilteredSlice = (slice:Slice,editorSchemaDEFKey,sectionID:string) => {
       let pastedSliceDOMInitial = FullSchemaDOMPMSerializer.serializeFragment(slice.content);
-      let container = document.createElement('div');
+      let container = document.createElement('pre');
+      /* container.style.whiteSpace = 'pre-wrap';
+      container.setAttribute('style','white-space: pre-wrap;'); */
+      console.log(slice.content.firstChild.textContent)
+      console.log(container);
       if(pastedSliceDOMInitial instanceof HTMLElement){
         container.append(pastedSliceDOMInitial)
       }else if(pastedSliceDOMInitial instanceof DocumentFragment){
@@ -88,21 +98,29 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
       let pastedDomHTMLStr = container.innerHTML;
       //let htmlWithNoStyle = pastedDomHTMLStr.replace(/ /gm,'&nbsp;')
       let htmlWithNoStyle = pastedDomHTMLStr.replace(/style="[^"]+"/gm,'style=""');
-      htmlWithNoStyle = htmlWithNoStyle.replace(/class="[^"]+"/gm,'class=""');
-      htmlWithNoStyle.match(/>[^<]+</gm).forEach((val)=>{
-        htmlWithNoStyle = htmlWithNoStyle.replace(val,val.replace(/ /gm,'&nbsp;'));
-      })
+      if(htmlWithNoStyle){
+        htmlWithNoStyle = htmlWithNoStyle.replace(/class="[^"]+"/gm,'class=""');
+      }
+      let matches = htmlWithNoStyle.match(/>[^<]+</gm)
+      if(matches){
+        matches.forEach((val)=>{
+          if(htmlWithNoStyle){
+            //htmlWithNoStyle = htmlWithNoStyle.replace(val,val.replace(/ /gm,'&nbsp;'));
+          }
+        })
+      }
       let newDocFr = document.createDocumentFragment();
-      let container1= document.createElement('div');
-
+      let container1= document.createElement('pre');
+     /*  container1.style.whiteSpace = 'pre-wrap';
+      container1.setAttribute('style','white-space: pre-wrap;'); */
       container1.innerHTML = htmlWithNoStyle;
+      console.log(container1);
       newDocFr.append(...Array.from(container1.childNodes));
       //@ts-ignore
       let {nodeSchemaParser,nodeSchemaSerializer} = getDOMParserAndSerializerForSchema(editorSchemaDEFKey,sectionID);
 
       let cleanedSlice = nodeSchemaParser.parseSlice(newDocFr)
       let srializedCleanStruct = nodeSchemaSerializer.serializeFragment(cleanedSlice.content);
-
       let newSlice = FullSchemaDOMPMParser.parseSlice(srializedCleanStruct)
       return newSlice
     }
@@ -129,19 +147,48 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
               !allowedTagsOnNode&&
               lastFormControlName&&
               //@ts-ignore
+              view.globalMenusAndSchemasSectionsDefs&&
+              //@ts-ignore
               view.globalMenusAndSchemasSectionsDefs[view.sectionID]&&
               //@ts-ignore
-              view.globalMenusAndSchemasSectionsDefs[view.sectionID][lastFormControlName]
+              view.globalMenusAndSchemasSectionsDefs[view.sectionID][lastFormControlName]&&
+              //@ts-ignore
+              view.globalMenusAndSchemasSectionsDefs[view.sectionID][lastFormControlName].schema
             ){
               //@ts-ignore
               let formIOJSONDefs = view.globalMenusAndSchemasSectionsDefs[view.sectionID][lastFormControlName];
               editorSchemaDEFKey = formIOJSONDefs.schema
+            }else if(
+              !allowedTagsOnNode&&
+              lastFormControlName&&
+              //@ts-ignore
+              view.citableElementMenusAndSchemaDefs&&
+              //@ts-ignore
+              view.citableElementMenusAndSchemaDefs.allCitableElementsSchemas&&
+              //@ts-ignore
+              view.citableElementMenusAndSchemaDefs.allCitableElementsSchemas[lastFormControlName]&&
+              //@ts-ignore
+              view.citableElementMenusAndSchemaDefs.allCitableElementsSchemas[lastFormControlName].schema
+            ){
+              //@ts-ignore
+              editorSchemaDEFKey = view.citableElementMenusAndSchemaDefs.allCitableElementsSchemas[lastFormControlName].schema
             }else if(allowedTagsOnNode){
               editorSchemaDEFKey = allowedTagsOnNode
             }
             if(editorSchemaDEFKey){
               //@ts-ignore
               let newSlice = getFilteredSlice(slice,editorSchemaDEFKey,view.sectionID)
+              console.log('with schema filter');
+              console.log('new slice',newSlice);
+              console.log('old slice',slice);
+              view.dispatch(view.state.tr.replaceRange(from,to,newSlice))
+              return true;
+            }else{
+              //@ts-ignore
+              let newSlice = getFilteredSlice(slice,undefined,view.sectionID)
+              console.log('with no schema filter');
+              console.log('new slice',newSlice);
+              console.log('old slice',slice);
               view.dispatch(view.state.tr.replaceRange(from,to,newSlice))
               return true;
             }
@@ -167,6 +214,7 @@ export let getFilterNodesBySchemaDefPlugin = (serviceShare:ServiceShare,schemaDe
           if(editorSchemaDEFKey){
             //@ts-ignore
             let newSlice = getFilteredSlice(slice,editorSchemaDEFKey,view.sectionID)
+
             let state = view.state
             let newTr = state.tr
             if(moved){

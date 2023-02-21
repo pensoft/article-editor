@@ -18,6 +18,12 @@
 .notifications-component{
   margin-right: 0px;
   margin-left: 15px;
+
+  .mat-badge {
+    .mat-badge-content {
+      border: 2px solid white;
+    }
+  }
 }
 
 .menu {

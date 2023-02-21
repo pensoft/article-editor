@@ -4,7 +4,6 @@ import { YdocService } from '../../services/ydoc.service';
 import { treeNode } from '../../utils/interfaces/treeNode';
 //@ts-ignore
 import * as Y from 'yjs'
-import { uuidv4 } from 'lib0/random';
 import { articleSection, editorData } from '../../utils/interfaces/articleSection';
 import { FormGroup } from '@angular/forms';
 import {
@@ -16,14 +15,9 @@ import {
   editorFactory,
   renderSectionFunc
 } from '@app/editor/utils/articleBasicStructure';
-import { formIODefaultValues, formIOTemplates, htmlNodeTemplates } from '@app/editor/utils/section-templates';
 import { FormBuilderService } from '@app/editor/services/form-builder.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-import { ArticlesService } from '@app/core/services/articles.service';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
-import { reject } from 'lodash';
-import { complexSectionFormIoSchema } from '@app/editor/utils/section-templates/form-io-json/complexSection';
-import { ReturnStatement } from '@angular/compiler';
 import { installPatch } from '../cdk-list-recursive/patchCdk';
 import { CdkDropList, DropListRef, transferArrayItem } from '@angular/cdk/drag-drop';
 import { parseSecFormIOJSONMenuAndSchemaDefs } from '@app/editor/utils/fieldsMenusAndScemasFns';
@@ -89,17 +83,25 @@ export class TreeService implements OnDestroy {
         if (node.title.name == '[MM] Materials' || node.title.name == 'Material') {
           let customPropsObj = this.ydocService.customSectionProps?.get('customPropsObj');
           let data = customPropsObj[node.sectionID];
-          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, data, formGroup).then((newTitle: string) => {
-            let container = document.createElement('div')
+          let valuesCopy = {};
+          let container = document.createElement('div')
+          Object.keys(data).forEach((key)=>{
+            container.innerHTML = data[key]
+            valuesCopy[key] = container.textContent
+          })
+          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, valuesCopy, formGroup).then((newTitle: string) => {
             container.innerHTML = newTitle;
-            container.innerHTML = container.textContent!;
             node.title.label = container.textContent!;
           })
         } else {
-          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle: string) => {
-            let container = document.createElement('div')
+          let container = document.createElement('div')
+          let valuesCopy = {};
+          Object.keys(formGroup.value).forEach((key)=>{
+            container.innerHTML = formGroup.value[key]
+            valuesCopy[key] = container.textContent
+          })
+          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, valuesCopy, formGroup).then((newTitle: string) => {
             container.innerHTML = newTitle;
-            container.innerHTML = container.textContent!;
             node.title.label = container.textContent!;
           })
         }
@@ -629,6 +631,10 @@ export class TreeService implements OnDestroy {
     return r
   }
 
+  showAddSubsectionBtn(node: articleSection) {
+    return this.getNodeLevel(node)+1 < 4
+  }
+
   findParentNodeWithChildID(nodeid: string) {
     let parent: undefined | articleSection | 'parentNode' = undefined
     let find = (container: articleSection[], parentNode: articleSection | 'parentNode') => {
@@ -689,7 +695,7 @@ export class TreeService implements OnDestroy {
 
   applyEditChangeV2(id:string){
     let nodeRef = this.findNodeById(id)!;
-    let {sectionMenusAndSchemaDefsFromJSON,formIOJSON,sectionMenusAndSchemasDefsfromJSONByfieldsTags} = parseSecFormIOJSONMenuAndSchemaDefs(nodeRef.formIOSchema);
+    let {sectionMenusAndSchemaDefsFromJSON,formIOJSON,sectionMenusAndSchemasDefsfromJSONByfieldsTags} = parseSecFormIOJSONMenuAndSchemaDefs(nodeRef.formIOSchema,{menusL:"customSectionJSONMenuType",tagsL:'customSectionJSONAllowedTags'});
     this.serviceShare.ProsemirrorEditorsService.globalMenusAndSchemasSectionsDefs[id] = sectionMenusAndSchemasDefsfromJSONByfieldsTags;
   }
 

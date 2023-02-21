@@ -1,6 +1,8 @@
 .controls-toolbar {
+  flex: 0 0 71px;
   border-bottom: 1px solid;
   border-color: var(--color-f1f2f2);
+
   .controls-toolbar-row {
     min-height: 70px;
     justify-content: space-between;
@@ -21,10 +23,17 @@
   }
 }
 
-::ng-deep .open-comments-sidebar{
-  #mat-badge-content-1{
-    background-color: #E56B87 !important;
-    border: 2px solid white !important;
+.main-editor-container {
+  flex-flow: column nowrap;
+  width: 100%;
+  flex: 0 1 auto;
+  overflow: hidden;
+  overflow-x: auto;
+}
+
+.open-comments-sidebar {
+  .mat-badge-warn {
+
   }
 }
 
@@ -94,12 +103,13 @@
 }
 
 .side-navbar-actions {
-  height: 60px;
-  display: inline-flex;
-  justify-content: center;
+  display: flex;
+  height: 100%;
+  justify-content: flex-end;
   align-items: center;
-  float: right;
-  margin-right: 8px;
+  padding: 0 16px 0 0;
+  gap: 16px;
+
   .active {
     background: var(--color-e4f6f6) !important;
      ::ng-deep {
@@ -130,10 +140,10 @@ text-content-type {
 
 app-article {
   display: block;
-  width: calc(100% - 61px);
+  width: 100%;
   height: fit-content;
   margin: 0;
-  padding: 24px;
+  padding: 24px 61px 24px 24px;
 }
 
 app-prosemirror-editor {
@@ -147,17 +157,33 @@ app-prosemirror-editor {
 }
 
 .actions-container {
-  height: 65px;
+  display: grid;
+  grid-template-columns: 341px auto 341px;
+  min-width: 1366px;
+  flex: 1 0 65px;
   background: var(--color-ffffff);
-  box-shadow: 0 5px 5px #1bb1b22b;
   position: relative;
   z-index: 2;
 }
 
+.scrollable-editor-content {
+  min-width: 1366px;
+  flex: 0 1 auto;
+  overflow: hidden;
+
+  .mat-drawer-container {
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+  }
+}
+
+
+
 $treeSpace: 341px;
 .main-container {
-  background: var(--color-efefef);
-  height: calc(100vh - 197px);
+  background: var(--color-f9fafc);
+  height: 100%;
   display: flex;
 
   .data-tree {
@@ -173,9 +199,10 @@ $treeSpace: 341px;
   .editor-container {
     display: block;
     width: 100%;
-    height: 100%;
-    margin: 0;
+    height: calc(100% - 24px);
+    margin: 20px 0 0 0;
     background: var(--color-ffffff);
+    border-radius: 20px 0 0 20px;
     box-shadow: 0 4px 4px #1bb1b22b;
     overflow: hidden;
     overflow-y: auto;
@@ -242,10 +269,11 @@ $treeSpace: 341px;
 }
 
 .prosemirror_menu_container {
-  margin-top: 0px !important;
-  width: calc(100% - 40px);
-  display: inline;
-  vertical-align: middle;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
+  width: 100%;
 }
 
 .changes_off_btn {
@@ -266,6 +294,10 @@ $treeSpace: 341px;
   box-shadow: 0px 1px 2px 1px #f37b4a, 0px 0px 0px 0px #f37b4a, 0px 1px 3px 0px #f37b4a !important;
 }
 
+.tag_text_as_taxon_side_btn {
+  box-shadow: 0px 1px 2px 1px #7989ff, 0px 0px 0px 0px #7989ff, 0px 1px 3px 0px #7989ff !important;
+}
+
 .track_changes_menu {
   background-color: turquoise;
 }
@@ -279,17 +311,23 @@ $treeSpace: 341px;
   align-self: flex-end;
   .editor_buttons_wrapper {
     display: none;
+    transition: top 0.1s linear 0s;
   }
   .commentBtnDiv {
-    height: 60px;
+    height: 50px;
     //height: 40px;
-    display: inline-flex;
+/*     display: inline-flex; */
+    transition: visibility 0s, opacity 0.2s linear;
     .commentsBtn {
       margin-bottom: 20px;
     }
   }
   .trackChangesBtnDiv {
-    height: 40px;
+    height: 50px;
+  }
+  .tag-words-btn-div{
+    height: 50px;
+    transition: visibility 0s, opacity 0.2s linear;
   }
   button {
     box-shadow: 0px 1px 5px 2px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 4px 0px rgb(0 177 178 / 20%);
@@ -300,7 +338,7 @@ $treeSpace: 341px;
 .sidebar-container {
   width: 341px;
   height: 100%;
-  background: var(--color-efefef);
+  background: var(--color-f9fafc);
   box-shadow: -2px 0px 1px #1bb1b22b;
   display: inline-flex;
 }

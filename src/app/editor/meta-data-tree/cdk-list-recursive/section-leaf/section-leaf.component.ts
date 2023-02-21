@@ -159,7 +159,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   editNodeHandle(node: articleSection, formGroup: FormGroup) {
     try {
       let defaultValues = formGroup.value;
-      filterFieldsValues( node.formIOSchema,{data:defaultValues},this.serviceShare,node.sectionID,true,'')
+      filterFieldsValues( node.formIOSchema,{data:defaultValues},this.serviceShare,node.sectionID,true,'',false)
       let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID, formGroup);
 
       let updateYdoc = new Y.Doc();
@@ -261,7 +261,8 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
   deleteNodeHandle(nodeId: string) {
     let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
-      data: {sectionName: this.treeService.findNodeById(nodeId)?.title.label},
+      width: '563px',
+      data: {objName: this.treeService.findNodeById(nodeId)?.title.label,type:'section'},
       panelClass: 'ask-before-delete-dialog',
     })
     dialogRef.afterClosed().subscribe((data: any) => {
@@ -418,7 +419,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
                 el.style.display = 'inline';
               } else if (el.getAttribute('buttonaction') == 'delete'&& this.treeService.showDeleteButton(node)) { // delete btn
                 el.style.display = 'inline';
-              } else if (el.getAttribute('buttonaction') == 'post_add'&& node.type == 'complex') {
+              } else if (el.getAttribute('buttonaction') == 'post_add'&& node.type == 'complex'&&this.treeService.showAddSubsectionBtn(node)) { // add subsection btn
                 el.style.display = 'inline';
               } else if (el.getAttribute('buttonaction') == 'edit') {
                 el.style.display = 'inline';

@@ -181,6 +181,7 @@ export let citationElementMap = {
       serializedFigureToFormIOsubmission.figureID = elementData.figureID
       serializedFigureToFormIOsubmission.figureNumber = elementData.figureNumber
       serializedFigureToFormIOsubmission.viewed_by_citat = citatID
+      serializedFigureToFormIOsubmission.nOfColumns = elementData.canvasData.nOfColumns;
       return serializedFigureToFormIOsubmission
     },
     buildElementFormGroup: function (submision: any): FormGroup {
@@ -1390,7 +1391,7 @@ export class CitableElementsService {
     this.sub = doneEditing.subscribe((data: any) => {
       try {
         let citatNewPosition: any
-        let wrappingNodes = ['paragraph', 'heading', 'table', 'code_block', 'ordered_list', 'bullet_list', 'math_inline', 'math_display']
+        let wrappingNodes = ['paragraph', 'heading', 'table', 'code_block', 'ordered_list', 'bullet_list', 'math_inline', 'math_display', 'form_field']
         let resolvedPositionOfCitat: any
         let posAtParentBorder: any
         let resolvedPositionATparentNodeBorder: any

@@ -16,7 +16,8 @@ import { articleBasicStructure } from '../utils/articleBasicStructure';
 import { ServiceShare } from './service-share.service';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { Transaction as YTransaction } from 'yjs';
-import { layoutMenuAndSchemaSettings, mapSchemaDef } from '../utils/fieldsMenusAndScemasFns';
+import { layoutMenuAndSchemaSettings, mapSchemaDef, parseSecFormIOJSONMenuAndSchemaDefs, parseSecHTMLMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
+import { TaxonService } from '../taxons/taxon.service';
 
 @Injectable({
   providedIn: 'root'
@@ -35,7 +36,7 @@ export class YdocService {
   constructor(
     private http: HttpClient,
     private serviceShare: ServiceShare,
-    private articleService: ArticlesService
+    private articleService: ArticlesService,
   ) {
     this.serviceShare.shareSelf('YdocService', this)
   }
@@ -58,6 +59,7 @@ export class YdocService {
   customSectionProps?: YMap<any>
   collaborators?: YMap<any>
   PMMenusAndSchemasDefsMap?: YMap<any>
+  TaxonsMap?: YMap<any>
   userInfo: any
   getCommentsMap(): YMap<any> {
     return this.comments!
@@ -287,6 +289,17 @@ export class YdocService {
     this.PMMenusAndSchemasDefsMap = this.ydoc.getMap('PMMenusAndSchemasDefsMap');
     let menusAndSchemasDefs = this.PMMenusAndSchemasDefsMap?.get('menusAndSchemasDefs');
 
+    this.TaxonsMap = this.ydoc.getMap('TaxonsMap');
+    let taxonsDataObj = this.TaxonsMap.get('taxonsDataObj');
+
+    if(!taxonsDataObj){
+      this.TaxonsMap.set('taxonsDataObj',{});
+    }
+
+    let citableElementMenusAndSchemaDefs:any = {}
+    let allCitableElementsMenus = {}
+    let allCitableElementsSchemas = {}
+    let allCitableElementsDefsByTags = {}
     if (this.citableElementsSchemasSection) {
       let tablesInitialTemplateRegex = /<ng-template #Tables>([\s\S]+?(?=<\/ng-template>))<\/ng-template>/gm;
       let supplementaryFilesInitialTemplateRegex = /<ng-template #SupplementaryMaterials>([\s\S]+?(?=<\/ng-template>))<\/ng-template>/gm;
@@ -304,31 +317,66 @@ export class YdocService {
       let supplementaryFilesFormIoJson = formIOSchemas.SupplementaryMaterials
       let endNotesFormIoJson = formIOSchemas.Footnotes
 
+      // extract citable element menutypes and allowed tags defs
+
+      let parseCitableElementFormIODefs = (formIOJSON:any,labels:{menusL:string,tagsL:string},defsLable:string) =>{
+        let result = parseSecFormIOJSONMenuAndSchemaDefs(formIOJSON,labels)
+        citableElementMenusAndSchemaDefs[defsLable] = {
+          sectionMenusAndSchemaDefsFromJSON:result.sectionMenusAndSchemaDefsFromJSON,
+          sectionMenusAndSchemasDefsfromJSONByfieldsTags:result.sectionMenusAndSchemasDefsfromJSONByfieldsTags
+        }
+        Object.assign(allCitableElementsMenus, result.sectionMenusAndSchemaDefsFromJSON.menus);
+        Object.assign(allCitableElementsSchemas, result.sectionMenusAndSchemaDefsFromJSON.schemas);
+        Object.assign(allCitableElementsDefsByTags,result.sectionMenusAndSchemasDefsfromJSONByfieldsTags)
+        return result
+      }
+
+      let parseCitableElementHTMLDefs = (html:string,labels:{menusL:string,tagsL:string},defsLable:string) =>{
+        let result = parseSecHTMLMenuAndSchemaDefs(html,labels)
+        citableElementMenusAndSchemaDefs[defsLable] = {
+          sectionMenusAndSchemaHTMLDefs:result.sectionMenusAndSchemaHTMLDefs,
+        }
+        Object.assign(allCitableElementsMenus, result.sectionMenusAndSchemaHTMLDefs.menus);
+        Object.assign(allCitableElementsSchemas, result.sectionMenusAndSchemaHTMLDefs.schemas);
+        return result
+      }
+
       if (tablesSchemaResult && !tablesInitialTemplate) {
-        this.tablesMap!.set('tablesInitialTemplate', tablesSchemaResult[1]);
+        let result = parseCitableElementHTMLDefs(tablesSchemaResult[1],{menusL:"customTableHTMLMenuType",tagsL:"customTableHTMLAllowedTags"},"tablesHTMLDefs");
+        this.tablesMap!.set('tablesInitialTemplate', result.sectionTemplate);
+
       }
 
       if (tablesFormIoJson && !tablesInitialFormIOJson) {
-        this.tablesMap!.set('tablesInitialFormIOJson', tablesFormIoJson);
+        let result = parseCitableElementFormIODefs(tablesFormIoJson,{menusL:"customTableJSONMenuType",tagsL:'customTableJSONAllowedTags'},'tablesFormIODefs');
+        this.tablesMap!.set('tablesInitialFormIOJson', result.formIOJSON);
       }
 
       if (supplementaryFilesSchemaResult && !supplementaryFilesInitialTemplate) {
-        this.supplementaryFilesMap!.set('supplementaryFilesInitialTemplate', supplementaryFilesSchemaResult[1]);
+        let result = parseCitableElementHTMLDefs(supplementaryFilesSchemaResult[1],{menusL:"customSupplementaryFilesHTMLMenuType",tagsL:"customSupplementaryFilesHTMLAllowedTags"},"supplementaryFilesHTMLDefs");
+        this.supplementaryFilesMap!.set('supplementaryFilesInitialTemplate', result.sectionTemplate);
       }
 
       if (supplementaryFilesFormIoJson && !supplementaryFilesInitialFormIOJson) {
-        this.supplementaryFilesMap!.set('supplementaryFilesInitialFormIOJson', supplementaryFilesFormIoJson);
+        let result = parseCitableElementFormIODefs(supplementaryFilesFormIoJson,{menusL:"customSupplementaryFilesJSONMenuType",tagsL:'customSupplementaryFilesJSONAllowedTags'},'supplementaryFilesFormIODefs');
+        this.supplementaryFilesMap!.set('supplementaryFilesInitialFormIOJson', result.formIOJSON);
       }
 
       if (endNotesSchemaResult && !endNotesInitialTemplate) {
-        this.endNotesMap!.set('endNotesInitialTemplate', endNotesSchemaResult[1]);
+        let result = parseCitableElementHTMLDefs(endNotesSchemaResult[1],{menusL:"customEndNotesHTMLMenuType",tagsL:"customEndNotesHTMLAllowedTags"},"endNotesHTMLDefs");
+        this.endNotesMap!.set('endNotesInitialTemplate', result.sectionTemplate);
       }
 
       if (endNotesFormIoJson && !endNotesInitialFormIOJson) {
-        this.endNotesMap!.set('endNotesInitialFormIOJson', endNotesFormIoJson);
+        let result = parseCitableElementFormIODefs(endNotesFormIoJson,{menusL:"customEndNotesJSONMenuType",tagsL:'customEndNotesJSONAllowedTags'},'endNotesFormIODefs');
+        this.endNotesMap!.set('endNotesInitialFormIOJson', result.formIOJSON);
       }
     }
 
+    citableElementMenusAndSchemaDefs.allCitableElementsMenus = allCitableElementsMenus
+    citableElementMenusAndSchemaDefs.allCitableElementsSchemas = allCitableElementsSchemas
+    citableElementMenusAndSchemaDefs.allCitableElementsDefsByTags = allCitableElementsDefsByTags
+    citableElementMenusAndSchemaDefs.allCitableElementFieldsKeys = Object.keys(allCitableElementsDefsByTags);
     if (!endNotesTemplates) {
       this.endNotesMap.set('endNotesTemplates', {})
     }
@@ -361,7 +409,7 @@ export class YdocService {
           layoutMenusAndAllowedTagsSettings.menus = settings.menus;
         }
       }
-      this.PMMenusAndSchemasDefsMap.set('menusAndSchemasDefs', this.buildLayoutMenusAndSchemasDefs(layoutMenusAndAllowedTagsSettings))
+      this.PMMenusAndSchemasDefsMap.set('menusAndSchemasDefs', {citableElementMenusAndSchemaDefs,...this.buildLayoutMenusAndSchemasDefs(layoutMenusAndAllowedTagsSettings)})
     }
     if (!elementsCitations) {
       this.citableElementsMap.set('elementsCitations', {})
@@ -458,6 +506,7 @@ export class YdocService {
           this.serviceShare.openNotifyUserAccessChangeDialog(this.curUserAccess, userInArticle.access)
         }
         this.curUserAccess = userInArticle.access;
+        this.userInfo.data.access = this.curUserAccess;
         this.currUserRoleSubject.next(userInArticle);
       }
     })
@@ -487,10 +536,12 @@ export class YdocService {
     this.articleData = data;
   }
 
-  setArticleData(articleData: any) {
+  setArticleData(articleData: any,newarticle?:boolean) {
     this.saveArticleData(articleData)
     //this.articleData.layout.citation_style.style_updated = Date.now()
-    this.creatingANewArticle = true;
+    if(newarticle){
+      this.creatingANewArticle = true;
+    }
     this.checkLastTimeUpdated();
   }
 
@@ -597,10 +648,20 @@ export class YdocService {
         console.log("---", WSErrorEvent, (new Date()).getTime());
       });
       this.provider.on('synced', (isSynced: boolean) => {
+        let oldSize = this.ydoc.share.size;
+        let sameSizeCount = 0;
         let checkSyncStatus = setInterval(() => {
-          if (this.ydoc.store.clients.size !== 0 || this.ydoc.getXmlFragment().length > 0 || this.creatingANewArticle) {
+          let newSize = this.ydoc.share.size
+          if(oldSize == newSize){
+            sameSizeCount++;
+          }else{
+            sameSizeCount = 0;
+          }
+          oldSize = newSize
+          if ((sameSizeCount>2&&oldSize>0) || this.creatingANewArticle) {
             setTimeout(() => {
               this.buildEditor();
+              this.creatingANewArticle = false;
             }, 1000)
             clearInterval(checkSyncStatus)
           }
@@ -734,3 +795,4 @@ export class YdocService {
 
 
 }
+

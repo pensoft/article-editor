@@ -3,66 +3,74 @@
 <mat-dialog-content>
   <form [formGroup]="editUserForm" fxLayout="column nowrap">
 
-  <mat-form-field floatLabel='never' class="form-access" appearance="fill" fxFlex="48">
-    <mat-label>Access</mat-label>
-    <mat-select formControlName="accessSelect">
-      <mat-option *ngFor="let option of accessOptions" [value]="option.name">{{option.name}}</mat-option>
-    </mat-select>
-  </mat-form-field>
+    <mat-label class="upper-label"><mat-label>Access</mat-label></mat-label>
+    <mat-form-field floatLabel='never' class="form-access" appearance="fill" fxFlex="48">
 
-  <mat-form-field floatLabel='never' class="form-role" appearance="fill" fxFlex="48">
-    <mat-label>Role</mat-label>
-    <mat-select formControlName="roleSelect">
-      <mat-option *ngFor="let option of roleOptions" [value]="option.name">{{option.name}}</mat-option>
-    </mat-select>
-  </mat-form-field>
+      <mat-select formControlName="accessSelect">
+        <mat-option *ngFor="let option of accessOptions" [value]="option.name">{{option.name}}</mat-option>
+      </mat-select>
+    </mat-form-field>
 
+    <mat-label class="upper-label">Role</mat-label>
+    <mat-form-field floatLabel='never' class="form-role" appearance="fill" fxFlex="48">
+      <mat-select formControlName="roleSelect">
+        <mat-option *ngFor="let option of roleOptions" [value]="option.name">{{option.name}}</mat-option>
+      </mat-select>
+    </mat-form-field>
 
-  <div class="affiliations-container" *ngIf="roleSelect.value == 'Author'||roleSelect.value == 'Co-author'" >
-    <div>
-      <ng-container formArrayName="affiliations">
-        <ng-container *ngFor="let  affiliation of affiliations.controls; let index = index">
-          <div [formGroupName]="index">
-            <mat-form-field floatLabel='never' class="form-affiliations" appearance="fill" fxFlex="48">
-              <mat-label>Affiliation</mat-label>
-              <input matInput formControlName="affiliation">
-            </mat-form-field>
-            <mat-form-field floatLabel='never' class="form-affiliations" appearance="fill" fxFlex="48">
-              <mat-label>City</mat-label>
-              <input matInput formControlName="city">
-            </mat-form-field>
-            <mat-form-field floatLabel='never' class="form-affiliations" appearance="fill" fxFlex="48">
-              <mat-label>Country</mat-label>
-              <input matInput type="text" [formControlName]="'country'" [formControl] [matAutocomplete]="auto1">
-              <mat-autocomplete #auto1="matAutocomplete">
-                <mat-option *ngFor="let option of filter($any(affiliation).controls.country.value)" [value]="option">
-                  {{option}}
-                </mat-option>
-              </mat-autocomplete>
-            </mat-form-field>
-            <button class="remove-affiliation-btn" mat-stroked-button color="primary" (click)="removeAffiliation(index)" [disabled]="affiliations.controls.length==1">Delete</button>
-          </div>
+    <div class="affiliations-container" *ngIf="roleSelect.value == 'Author'||roleSelect.value == 'Co-author'" >
+      <div>
+        <ng-container formArrayName="affiliations">
+          <ng-container *ngFor="let  affiliation of affiliations.controls; let index = index">
+            <div [formGroupName]="index">
+              <div fxLayout="row nowrap" fxLayoutGap="16px">
+                <div fxLayout="column nowrap" fxFlex="30">
+                  <mat-label class="upper-label">Affiliation</mat-label>
+                  <mat-form-field floatLabel='never' class="form-affiliations" appearance="fill">
+                    <input matInput formControlName="affiliation" placeholder="Affiliation">
+                  </mat-form-field>
+                </div>
+                <div fxLayout="column nowrap"  fxFlex="28">
+                  <mat-label class="upper-label">City</mat-label>
+                  <mat-form-field floatLabel='never' class="form-affiliations" appearance="fill">
+                    <input matInput formControlName="city" placeholder="City">
+                  </mat-form-field>
+                </div>
+                <div fxLayout="column nowrap" fxFlex="28">
+                  <mat-label class="upper-label">Country</mat-label>
+                  <mat-form-field floatLabel='never' class="form-affiliations" appearance="fill">
+                    <input matInput type="text" [formControlName]="'country'" [formControl] [matAutocomplete]="auto1" placeholder="Country">
+                    <mat-autocomplete #auto1="matAutocomplete">
+                      <mat-option *ngFor="let option of filter($any(affiliation).controls.country.value)" [value]="option">
+                        {{option}}
+                      </mat-option>
+                    </mat-autocomplete>
+                  </mat-form-field>
+                </div>
+                <button class="remove-affiliation-btn" mat-stroked-button color="primary" (click)="removeAffiliation(index)" [disabled]="affiliations.controls.length==1">Delete</button>
+              </div>
+            </div>
+          </ng-container>
         </ng-container>
-      </ng-container>
-    </div>
-    <button class="form-affiliations" mat-flat-button color="primary" (click)="addAffiliation()">Add affiliation.</button>
-  </div>
-  <mat-card *ngIf="askremove" class="mat-card-delete">
-    <mat-card-content>
-      <p>Are you sure you want to remove this person from the article?</p>
-      <div class="btns-container" fxLayout="row wrap" fxLayoutGap="16px" align="end" fxLayoutAlign="flex-end center">
-        <button mat-stroked-button color="primary" (click)="askremove=false">No</button>
-        <button mat-stroked-button color="warn" (click)="removeCollaborator()">Yes</button>
       </div>
-    </mat-card-content>
-  </mat-card>
+      <button class="form-affiliations" mat-flat-button color="primary" (click)="addAffiliation()">Add Affiliation</button>
+    </div>
+    <mat-card *ngIf="askremove" class="mat-card-delete">
+      <mat-card-content>
+        <p>Are you sure you want to remove this person from the article?</p>
+        <div class="btns-container" fxLayout="row wrap" fxLayoutGap="16px" align="end" fxLayoutAlign="flex-end center">
+          <button mat-stroked-button color="primary" (click)="askremove=false">No</button>
+          <button mat-stroked-button color="warn" (click)="removeCollaborator()">Yes</button>
+        </div>
+      </mat-card-content>
+    </mat-card>
   </form>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]>Cancel</button>
-  <button mat-stroked-button color="warn" (click)="askremove = true">Remove User</button>
-  <button mat-flat-button color="primary" [disabled]="nothingIsEdited()" (click)="editCollaborator()">Edit User</button>
+  <button mat-stroked-button color="warn" (click)="askremove = true">Remove</button>
+  <button mat-flat-button color="primary" [disabled]="nothingIsEdited()" (click)="editCollaborator()">Save</button>
 </mat-dialog-actions>
 
 
