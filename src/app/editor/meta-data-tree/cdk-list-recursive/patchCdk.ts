@@ -75,7 +75,7 @@ function canMoveOut(target: any, item: any, treeService: TreeService) {
       let parentNode = treeService.findNodeById(item._initialContainer.data.id)!
       if (parentNode&&parentNode.subsectionValidations) {
         let moovingNode = item.data.data.node
-        let canMove = checkMinWhenMoovingASectionOut(moovingNode, parentNode);
+        let canMove = checkMinWhenMoovingASectionOut(moovingNode, parentNode,treeService.pivotIdMap);
         if (!canMove) {
           if (item?.data?.data?.canDropBool) {
             item.data.data.canDropBool[0] = false;
@@ -102,7 +102,7 @@ function canMoveIn(target: any, item: any, treeService: TreeService) {
     let moovingInNode = treeService.findNodeById(target.data.id)!
     if (moovingInNode&&moovingInNode.subsectionValidations) {
       let moovingNode = item.data.data.node
-      let canMove = checkMaxWhenMoovingASectionIn(moovingNode, moovingInNode);
+      let canMove = checkMaxWhenMoovingASectionIn(moovingNode, moovingInNode,treeService.pivotIdMap);
       if (!canMove) {
         if (item?.data?.data?.canDropBool) {
           item.data.data.canDropBool[0] = false;

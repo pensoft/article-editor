@@ -19,6 +19,9 @@ import { Transaction as YTransaction } from 'yjs';
 import { layoutMenuAndSchemaSettings, mapSchemaDef, parseSecFormIOJSONMenuAndSchemaDefs, parseSecHTMLMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
 import { TaxonService } from '../taxons/taxon.service';
 
+export interface sectinsBEidPivotIdMap {[section_id_from_backend:number]:number}
+export interface mainSectionValidations{[pivot_id:string]:{min:number,max:number}}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -533,7 +536,27 @@ export class YdocService {
       data.layout.template.sections = data.layout.template.sections.filter(x => x.name != 'Citable Elements Schemas');
       this.saveCitableElementsSchemas(artilceCitableElementsSchemas);
     }
-    console.log(data);
+    let sectinsBEidPivotIdMap:sectinsBEidPivotIdMap = {}
+    let mainSectionValidations:mainSectionValidations = {}
+    let loopSection = (sections:any[],fnc:(sec:any)=>void) => {
+      sections.forEach((sec)=>{
+        if(sec.sections&&sec.sections.length>0){
+          loopSection(sec.sections,fnc)
+        }
+        fnc(sec)
+      })
+    }
+    loopSection(data.layout.template.sections,(sec)=>{
+      if(sec.pivot_id){
+        sectinsBEidPivotIdMap[sec.id] = sec.pivot_id;
+        if(sec.settings && sec.settings.main_section){
+          if(!sec.settings.max_instances){sec.settings.max_instances = 9999};
+          mainSectionValidations[sec.pivot_id] = {min:sec.settings.min_instances,max:sec.settings.max_instances}
+        }
+      }
+    })
+    data.sectinsBEidPivotIdMap = sectinsBEidPivotIdMap
+    data.mainSectionValidations = mainSectionValidations
     this.articleData = data;
   }
 

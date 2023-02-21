@@ -7,6 +7,7 @@ import {taxonTreatmentSection} from "@core/services/custom_sections/taxon_treatm
 import {taxonSection} from "@core/services/custom_sections/taxon";
 import {material} from "@core/services/custom_sections/material";
 import { parseSecFormIOJSONMenuAndSchemaDefs, parseSecHTMLMenuAndSchemaDefs } from "./fieldsMenusAndScemasFns";
+import { mainSectionValidations, sectinsBEidPivotIdMap } from "../services/ydoc.service";
 
 export function editorFactory(data?: editorMeta): editorData {
   return {editorId: uuidv4(), menuType: 'fullMenu', editorMeta: data}
@@ -132,7 +133,6 @@ export const renderSectionFunc:
   let newArticleSection: articleSection
 
   let sectionLabel = (sectionFromBackend.settings && sectionFromBackend.settings.label && sectionFromBackend.settings.label != "") ? sectionFromBackend.settings.label : sectionFromBackend.label
-  console.log('sectionFromBackend',sectionFromBackend);
   if (sectionFromBackend.type == 0) {
     newArticleSection = {
       title: {
@@ -295,14 +295,14 @@ export const renderSectionFunc:
   return newArticleSection!
 }
 
-export const checkIfSectionsAreUnderOrAtMin = (childToCheck: articleSection, parentNode: articleSection, container?: articleSection[]) => {
+export const checkIfSectionsAreUnderOrAtMin = (childToCheck: articleSection, parentNode: articleSection,pivotIdMap:sectinsBEidPivotIdMap, container?: articleSection[]) => {
   let v = parentNode.subsectionValidations
   if (v && Object.keys(v).length > 0) {
-    let nodeID = childToCheck.pivotId;
+    let nodeID = pivotIdMap[childToCheck.sectionIdFromBackend];
     if (isValidNumber(nodeID)&&v[nodeID]) {
       let nOfNodesOfSameType = 0;
-      (container ? container : parentNode.children).forEach((child: articleSection) => {
-        if (child.pivotId == nodeID) {
+      ((container&&container.length>0) ? container : parentNode.children).forEach((child: articleSection) => {
+        if (pivotIdMap[child.sectionIdFromBackend]&&pivotIdMap[child.sectionIdFromBackend] == nodeID) {
           nOfNodesOfSameType++;
         }
       })
@@ -314,27 +314,28 @@ export const checkIfSectionsAreUnderOrAtMin = (childToCheck: articleSection, par
   return true
 }
 
-export let getSubSecCountWithValidation = (complexSection: articleSection, validation: { secIdBackEnd: number }, complexSectionChildren?: articleSection[]) => {
+export let getSubSecCountWithValidation = (complexSection: articleSection, validation: { secIdBackEnd: number }, complexSectionChildren: articleSection[],pivotIdMap:sectinsBEidPivotIdMap) => {
   let count = 0;
   (complexSectionChildren ? complexSectionChildren : complexSection.children).forEach((child: articleSection) => {
     if (
-      child.pivotId == validation.secIdBackEnd
+      pivotIdMap[child.sectionIdFromBackend]&&
+      pivotIdMap[child.sectionIdFromBackend] == validation.secIdBackEnd
     ) {
       count++
     }
   })
   return count;
 }
-export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFromBackend: any[], complexSection: articleSection, sectionChildren?: articleSection[]) => {
+export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFromBackend: any[], complexSection: articleSection, sectionChildren: articleSection[],pivotIdMap:sectinsBEidPivotIdMap) => {
   return sectionsFromBackend.filter((section, index) => {
-    let secIdFromBackend = section.pivot_id;
+    let secIdFromBackend = pivotIdMap[section.id]
     if (
       complexSection.subsectionValidations &&
       complexSection.subsectionValidations[secIdFromBackend]
     ) {
       let min = complexSection.subsectionValidations[secIdFromBackend].min;
       let max = complexSection.subsectionValidations[secIdFromBackend].max;
-      let count = getSubSecCountWithValidation(complexSection, {secIdBackEnd: secIdFromBackend}, sectionChildren)
+      let count = getSubSecCountWithValidation(complexSection, {secIdBackEnd: secIdFromBackend}, sectionChildren,pivotIdMap)
       if (count >= max) {
         return false
       }
@@ -344,14 +345,14 @@ export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFrom
   })
 }
 
-export const checkIfSectionsAreAboveOrAtMax = (childToCheck: articleSection, parentNode: articleSection, container?: articleSection[]) => {
+export const checkIfSectionsAreAboveOrAtMax = (childToCheck: articleSection, parentNode: articleSection,pivotIdMap:sectinsBEidPivotIdMap, container?: articleSection[]) => {
   let v = parentNode.subsectionValidations
   if (v && Object.keys(v).length > 0) {
-    let secIDFromBackend = childToCheck.pivotId;
+    let secIDFromBackend = pivotIdMap[childToCheck.sectionIdFromBackend];
     if (isValidNumber(secIDFromBackend)&&v[secIDFromBackend]) {
       let nOfNodesOfSameType = 0;
       (container ? container : parentNode.children).forEach((child: articleSection) => {
-        if (child.pivotId == secIDFromBackend) {
+        if (pivotIdMap[child.sectionIdFromBackend]&&pivotIdMap[child.sectionIdFromBackend] == secIDFromBackend) {
           nOfNodesOfSameType++;
         }
       })
@@ -363,15 +364,14 @@ export const checkIfSectionsAreAboveOrAtMax = (childToCheck: articleSection, par
   return true
 }
 
-export const checkIfSectionsAreAboveOrAtMaxAtParentList = (listSections:articleSection[],sectionToCheck:articleSection,parentListRules?:{sectionName:string,min:number,max:number}[]) => {
-  if(parentListRules && parentListRules.length > 0){
-    let ruleForCurrSec = parentListRules.find((r)=>{
-      return r.sectionName == sectionToCheck.title.name;
-    })
+export const checkIfSectionsAreAboveOrAtMaxAtParentList = (listSections:articleSection[],sectionToCheck:articleSection,parentListRules:mainSectionValidations,pivotIdMap:sectinsBEidPivotIdMap) => {
+  if(parentListRules&&pivotIdMap[sectionToCheck.sectionIdFromBackend]){
+    let secPivotId = pivotIdMap[sectionToCheck.sectionIdFromBackend]
+    let ruleForCurrSec = parentListRules[secPivotId]
     if(ruleForCurrSec){
       let count = 0;
       listSections.forEach((sec)=>{
-        if(sec.title.name == ruleForCurrSec.sectionName){
+        if(pivotIdMap[sec.sectionIdFromBackend]&&pivotIdMap[sec.sectionIdFromBackend] == secPivotId){
           count++;
         }
       })
@@ -383,15 +383,14 @@ export const checkIfSectionsAreAboveOrAtMaxAtParentList = (listSections:articleS
   return true;
 }
 
-export const checkIfSectionsAreAboveOrAtMaxAtParentListWithName = (listSections:articleSection[],sectionToCheckName:string,parentListRules?:{sectionName:string,min:number,max:number}[]) => {
-  if(parentListRules && parentListRules.length > 0){
-    let ruleForCurrSec = parentListRules.find((r)=>{
-      return r.sectionName == sectionToCheckName;
-    })
+export const checkIfSectionsAreAboveOrAtMaxAtParentListWithName = (listSections:articleSection[],sectionFromBackend:any,parentListRules:mainSectionValidations,pivotIdMap:sectinsBEidPivotIdMap) => {
+  if(parentListRules && pivotIdMap[sectionFromBackend.id]){
+    let secPivotId = pivotIdMap[sectionFromBackend.id]
+    let ruleForCurrSec = parentListRules[secPivotId]
     if(ruleForCurrSec){
       let count = 0;
       listSections.forEach((sec)=>{
-        if(sec.title.name == ruleForCurrSec.sectionName){
+        if(pivotIdMap[sec.sectionIdFromBackend]&&pivotIdMap[sec.sectionIdFromBackend] == secPivotId){
           count++;
         }
       })
@@ -403,15 +402,14 @@ export const checkIfSectionsAreAboveOrAtMaxAtParentListWithName = (listSections:
   return true;
 }
 
-export const checkIfSectionsAreUnderOrAtMinAtParentList = (listSections:articleSection[],sectionToCheck:articleSection,parentListRules?:{sectionName:string,min:number,max:number}[]) => {
-  if(parentListRules && parentListRules.length > 0){
-    let ruleForCurrSec = parentListRules.find((r)=>{
-      return r.sectionName == sectionToCheck.title.name;
-    })
+export const checkIfSectionsAreUnderOrAtMinAtParentList = (listSections:articleSection[],sectionToCheck:articleSection,parentListRules:mainSectionValidations,pivotIdMap:sectinsBEidPivotIdMap) => {
+  if(parentListRules && pivotIdMap[sectionToCheck.sectionIdFromBackend]){
+    let secPivotId = pivotIdMap[sectionToCheck.sectionIdFromBackend]
+    let ruleForCurrSec = parentListRules[secPivotId]
     if(ruleForCurrSec){
       let count = 0;
       listSections.forEach((sec)=>{
-        if(sec.title.name == ruleForCurrSec.sectionName){
+        if(pivotIdMap[sec.sectionIdFromBackend]&&pivotIdMap[sec.sectionIdFromBackend] == secPivotId){
           count++;
         }
       })
@@ -423,12 +421,12 @@ export const checkIfSectionsAreUnderOrAtMinAtParentList = (listSections:articleS
   return true;
 }
 
-export const checkMinWhenMoovingASectionOut = (moovingNode: articleSection, outOfNode: articleSection) => {
-  return checkIfSectionsAreUnderOrAtMin(moovingNode, outOfNode)
+export const checkMinWhenMoovingASectionOut = (moovingNode: articleSection, outOfNode: articleSection,pivotIdMap:sectinsBEidPivotIdMap) => {
+  return checkIfSectionsAreUnderOrAtMin(moovingNode, outOfNode,pivotIdMap)
 }
 
-export const checkMaxWhenMoovingASectionIn = (moovingNode: articleSection, inNode: articleSection) => {
-  return checkIfSectionsAreAboveOrAtMax(moovingNode, inNode);
+export const checkMaxWhenMoovingASectionIn = (moovingNode: articleSection, inNode: articleSection,pivotIdMap:sectinsBEidPivotIdMap) => {
+  return checkIfSectionsAreAboveOrAtMax(moovingNode, inNode,pivotIdMap);
 }
 
 export const checkCompatibilitySection = (compatibility: any, section: articleSection) => {
