@@ -787,7 +787,7 @@ export class YdocService {
   setArticleOwnerInfo() {
     this.shouldSetTheOwnerForTheNewArticle = false
     if (this.roomName == this.newArticleId) {
-      this.collaborators.set('collaborators', { collaborators: [{ ...this.ownerInfo.data, access: 'Owner',role:"Author"  }],affiliations:[] });
+      this.collaborators.set('collaborators', { collaborators: [{ ...this.ownerInfo.data, access: 'Owner',role:"Author",affiliations:[]  }],affiliations:[] });
       this.collaborators.set('authorsList', [{authorId:this.ownerInfo.data.id,authorEmail:this.ownerInfo.data.email}]);
     }
     this.ownerInfo = undefined

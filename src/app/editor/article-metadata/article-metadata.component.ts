@@ -151,14 +151,6 @@ export class ArticleMetadataComponent implements OnInit {
     this.ydocService.figuresMap?.set('articleCitatsObj', articleCitatsObj); */
   }
 
-  logData() {
-    //this.ydocService.checkLastTimeUpdated();
-    console.log(this.ydocService.articleData);
-  }
-
-  /* updateFigures(){
-  } */
-
   preventAddToHistory(){
     this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin? this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = null:this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = this.serviceShare.ProsemirrorEditorsService.ySyncKey
   }
@@ -170,7 +162,8 @@ export class ArticleMetadataComponent implements OnInit {
 
   addNewSectionToArticle() {
     let articleSections = this.ydocService.articleData.layout.template.sections.filter((data: any) => {
-      return true
+      let secIsNotAtMax = this.serviceShare.TreeService.checkIfNodeIsAtMaxInParentListWithName(data.name)
+      return secIsNotAtMax
       /* return (
         this.treeService.articleSectionsStructure?.findIndex((element)=>{return (data.id == element.sectionTypeID &&(data.settings&&data.settings.main_section==true) )}) == -1
       ) */
@@ -179,7 +172,7 @@ export class ArticleMetadataComponent implements OnInit {
     const dialogRef = this.dialog.open(ChooseSectionComponent, {
       width: '563px',
       panelClass: 'choose-namuscript-dialog',
-      data: { templates: this.sectionTemplates }
+      data: { templates: this.sectionTemplates,sectionlevel:0 }
     });
     dialogRef.afterClosed().subscribe(result => {
       if(result){

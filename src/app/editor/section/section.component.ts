@@ -56,6 +56,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
   editorData?: editorData;
   FormStructure: any
   renderSection = false;
+  sectionTreeTitleValue = ''
 
   childrenTreeCopy?: articleSection[]
   complexSection = false;
@@ -128,6 +129,15 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
       this.isValid = change.isValid
       this.isModified = change.isModified
       this.formIoSubmission = change.data
+      if(/{{\s*\S*\s*}}/gm.test(this.section.title.template)){
+        this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(this.section.title.template, change.data, this.sectionForm).then((newTitle: string) => {
+          let container = document.createElement('div')
+          container.innerHTML = newTitle;
+          this.sectionTreeTitleValue = container.textContent!;
+        })
+      }else if(this.formIoSubmission.sectionTreeTitle){
+        this.sectionTreeTitleValue = this.formIoSubmission.sectionTreeTitle;
+      }
       if(change.changed&&change.changed.instance){
         this.formIoRoot = change.changed.instance.root
       }
@@ -378,7 +388,6 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
 
 
   }
-
   ngAfterViewInit(): void {
     //const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
 
@@ -424,7 +433,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
 
     }
 
-
+    this.sectionTreeTitleValue = this.section.title.label;
     if ((this.sectionContent.components as Array<any>).find((val) => {
       return (val.key == 'submit' && val.type == 'button')
     })) {
