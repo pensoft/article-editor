@@ -151,9 +151,6 @@ export class ArticleMetadataComponent implements OnInit {
     this.ydocService.figuresMap?.set('articleCitatsObj', articleCitatsObj); */
   }
 
-  /* updateFigures(){
-  } */
-
   preventAddToHistory(){
     this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin? this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = null:this.serviceShare.ProsemirrorEditorsService.ySyncPluginKeyObj.origin = this.serviceShare.ProsemirrorEditorsService.ySyncKey
   }

@@ -15,12 +15,13 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked,OnDestroy
 
   showError = false;
   sectionTemplates: any[] = [];
-  searchResults:any[] = [];
+  searchResults: any[] = [];
   value = undefined
   //@ViewChild('getSectionsSpinner') getSectionsSpinner?: any;
 
   private searchSubscription?: Subscription;
   private readonly searchSubject = new Subject<string | undefined>();
+
 
   constructor(
     public dialog: MatDialog,
@@ -52,6 +53,7 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked,OnDestroy
     )
     .subscribe((val) => (this.search(val)));
   }
+
 
   chooseSection(val: any) {
     if (!val) {

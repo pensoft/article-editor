@@ -1,18 +1,13 @@
 <h2 mat-dialog-title>Add section to Article</h2>
-<!-- <div #getSectionsSpinner class="get-sections-spinner-container">
-  <mat-spinner class="get-sections-spinner"></mat-spinner>
-</div> -->
 <div class="search-field-wrapper">
   <form (keydown)="passSearchVal(inputText)" fxFlex="100%" fxLayout="column">
     <label>Select a section</label>
     <mat-form-field floatLabel="never" appearance="standard">
       <input matInput class="section-search" type="text" #inputText placeholder="Search for section">
-      <!-- <button mat-flat-button color="primary" type="submit" matSuffix (click)="search(inputText.value)">
-        Search
-      </button> -->
     </mat-form-field>
   </form>
 </div>
+
 
 <mat-dialog-content class="fixed-dialog-content-height">
 
@@ -23,11 +18,11 @@
   </div>
 
 
-    <mat-selection-list #topic [multiple]="false" [ngClass]="{'no-results': searchResults.length == 0}">
-      <mat-list-option *ngFor="let section of searchResults" [value]="section.id">
-        {{section.name}}
-      </mat-list-option>
-    </mat-selection-list>
+  <mat-selection-list #topic [multiple]="false" [ngClass]="{'no-results': searchResults.length == 0}">
+    <mat-list-option *ngFor="let section of searchResults" [value]="section.id">
+      {{section.name}}
+    </mat-list-option>
+  </mat-selection-list>
 
 </mat-dialog-content>
 
