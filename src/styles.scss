@@ -1177,7 +1177,7 @@ placeholder:after {
 
 html,
 body {
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
   margin: 0;
   padding: 0;
@@ -1195,13 +1195,12 @@ app-root {
   }
 
   app-main {
-    flex: 0 1 auto;
+    flex: 1 1 auto;
+    overflow: hidden;
 
-    app-dashboard {
-      height: 100%;
-      overflow: hidden;
-    }
-
+    app-login,
+    app-signup,
+    app-dashboard,
     app-editor-container {
       height: 100%;
       overflow: hidden;
