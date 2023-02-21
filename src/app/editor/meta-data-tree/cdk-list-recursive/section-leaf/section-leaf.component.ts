@@ -1,5 +1,6 @@
 import {
   AfterViewInit,
+  ChangeDetectorRef,
   Component,
   ElementRef,
   EventEmitter,
@@ -49,7 +50,7 @@ import { filterFieldsValues } from '@app/editor/utils/fieldsMenusAndScemasFns';
 })
 export class SectionLeafComponent implements OnInit, AfterViewInit {
 
-  @Input() parentListData!: { expandParentFunc: any, listDiv: HTMLDivElement };
+  @Input() parentListData!: { expandParentFunc: any, listDiv: HTMLDivElement,listinstance:SectionLeafComponent };
   @Input() parentId?: string; // the id of the parent of this node
   focusedId?: string;
   mouseOn?: string;
@@ -78,6 +79,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
 
   @ViewChild('cdkDragSection', {read: ElementRef}) dragSection?: ElementRef;
+  @ViewChild('childrenDiv', {read: ElementRef}) childrenDiv?: ElementRef;
 
   constructor(
     private formBuilderService: FormBuilderService,
@@ -88,6 +90,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     public detectFocusService: DetectFocusService,
     public prosemirrorEditorsService: ProsemirrorEditorsService,
     public PmDialogSessionService: PmDialogSessionService,
+    private ref : ChangeDetectorRef,
     public dialog: MatDialog) {
     this.previewMode = prosemirrorEditorsService.previewArticleMode
     detectFocusService.getSubject().subscribe((focusedEditorId: any) => {
@@ -315,8 +318,18 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   changeDisplay(div: HTMLDivElement) {
     if (div.style.display == 'none') {
       div.style.display = 'block';
+      this.expandIcon='expand_more'
     } else {
       div.style.display = 'none';
+      this.expandIcon='chevron_right'
+    }
+    this.ref.detectChanges();
+  }
+
+  expandThisAndParentView = ()=>{
+    this.expandParentFunc()
+    if(this.childrenDiv && this.childrenDiv.nativeElement && this.childrenDiv.nativeElement.style.display == 'none'){
+      this.changeDisplay(this.childrenDiv.nativeElement)
     }
   }
 
@@ -325,6 +338,8 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       if (this.parentListData) {
         if (this.parentListData.listDiv.style.display == 'none') {
           this.parentListData.listDiv.style.display = 'block';
+          this.parentListData.listinstance.expandIcon = 'expand_more'
+          this.ref.detectChanges();
         }
         this.parentListData.expandParentFunc();
       }
@@ -390,6 +405,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
               this.serviceShare.ArticleSectionsService!.getSectionById(result).subscribe((res: any) => {
                 res.data.parent = node;
                 this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, res.data, 0)
+                this.expandThisAndParentView()
               })
             }
           });
