@@ -89,7 +89,7 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked,OnDestroy
           let elementLevel = countSectionFromBackendLevel(el)
           return (elementLevel + sectionlevel < 3);
         });
-        sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates, this.data.node, this.data.node.children);
+        sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates, this.data.node,this.data.node.children, this.serviceShare.TreeService.pivotIdMap);
         this.searchResults = sectionTemplates;
       })
     }

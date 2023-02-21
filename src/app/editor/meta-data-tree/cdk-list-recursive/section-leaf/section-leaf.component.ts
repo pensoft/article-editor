@@ -389,7 +389,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
           let elementLevel = countSectionFromBackendLevel(el)
           return (elementLevel + sectionlevel < 3);
         });
-        sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates, node, node.children);
+        sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates, node, node.children,this.treeService.pivotIdMap);
         this.prosemirrorEditorsService.stopSpinner()
         if(sectionTemplates && sectionTemplates.length === 1) {
           sectionTemplates[0].parent = node;
