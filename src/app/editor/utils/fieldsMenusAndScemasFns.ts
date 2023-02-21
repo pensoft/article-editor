@@ -259,7 +259,7 @@ let sectionMenuAndScemaMapping = {
       ['insertFigure', 'insertTable', 'insertPageBreak', 'headings'],
       ['citateReference', 'tableMenu']
     ],
-    schema: {                                 // schema 2 by elements (from html nodes)
+    schema: {
       nodes: [
         'video',
         'citable-figures',
@@ -278,6 +278,8 @@ let sectionMenuAndScemaMapping = {
     }
   },
 }
+
+let asd = {'nodes':['video','citable-figures','headings','page_break','tables','reference-citation','citable-tables'],'marks': ['strong','em','underline','subscript','superscript']}
 
 let checkNodeMarkCon = (schemaDev, nodeConn) => {
   nodeConn.nodes ? nodeConn.nodes.forEach((node) => {
