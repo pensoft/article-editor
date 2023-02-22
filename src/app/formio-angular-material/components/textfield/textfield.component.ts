@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterContentInit } from '@angular/core';
+import { Component, OnInit, AfterContentInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core';
 //@ts-ignore
 import TextFieldComponent from 'formiojs/components/textfield/TextField.js';
 import { MaterialComponent } from '../MaterialComponent';
@@ -40,12 +40,21 @@ export const TEXTFIELD_TEMPLATE = `
   styleUrls: ['./textfield.scss'],
   templateUrl: './textfield.component.html',
 })
-export class MaterialTextfieldComponent extends MaterialComponent implements AfterContentInit {
+export class MaterialTextfieldComponent extends MaterialComponent implements AfterContentInit ,AfterViewInit{
   public inputType = 'text';
+  @ViewChild('inputEl', { read: ElementRef }) inputEl?: ElementRef;
 
   ngAfterContentInit() {
     if (this.instance && this.control && this.instance.component.disabled) {
       this.control.disable();
+    }
+  }
+
+  ngAfterViewInit(): void {
+    if(!this.instance.root.firstTextFieldIsFocused&&this.instance.component.autofocus){
+      this.instance.root.firstTextFieldIsFocused = true;
+      (this.inputEl?.nativeElement as HTMLInputElement).focus();
+      this.ref.detectChanges()
     }
   }
 
