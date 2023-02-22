@@ -414,6 +414,21 @@ mat-radio-button {
       padding-left: 13px;
     }
   }
+
+  &.mat-radio-disabled {
+
+    .mat-radio-container {
+      .mat-radio-outer-circle {
+        opacity: 0.3;
+      }
+    }
+    .mat-radio-label {
+      .mat-radio-label-content {
+        color: unset;
+        opacity: 0.3;
+      }
+    }
+  }
 }
 
 /* Material Radio Radio Group Overrides */
