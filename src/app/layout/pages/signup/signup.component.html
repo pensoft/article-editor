@@ -1,78 +1,82 @@
 <div class="main">
 
-  <div class="logo">
-    <img src="./assets/img/logo1.svg" height="42px" width="197px" alt="arpha">
+  <div class="header">
+    <div class="logo">
+      <img src="./assets/img/logo1.svg" height="42px" width="197px" alt="arpha">
+    </div>
   </div>
 
-  <div class="register">
+  <div class="content">
+    <div class="register">
 
-    <div class="title-container">Register</div>
+      <div class="title-container">Register</div>
 
-    <form class="form-container" [formGroup]="loginForm" (ngSubmit)="submit()">
-      <div class="form-a">
-        <label class="arpha-label character-style-11">{{'Email*'}}</label>
-        <div class="arpha-input-container">
-          <input
-            class="arpha-input"
-            type="email"
-            formControlName="email"
-            label="Email*"
-            placeholder="Email address"
-            id="email"
+      <form class="form-container" [formGroup]="loginForm" (ngSubmit)="submit()">
+        <div class="form-a">
+          <label class="arpha-label character-style-11">{{'Email*'}}</label>
+          <div class="arpha-input-container">
+            <input
+              class="arpha-input"
+              type="email"
+              formControlName="email"
+              label="Email*"
+              placeholder="Email address"
+              id="email"
 
-          >
+            >
 
+          </div>
         </div>
-      </div>
-      <div class="form-name">
-        <label class="arpha-label character-style-11">{{'Name*'}}</label>
-        <div class="arpha-input-container">
-          <input
-            class="arpha-input"
-            type="text"
-            formControlName="name"
-            label="name*"
-            placeholder="Name"
-            id="name"
-          >
+        <div class="form-name">
+          <label class="arpha-label character-style-11">{{'Name*'}}</label>
+          <div class="arpha-input-container">
+            <input
+              class="arpha-input"
+              type="text"
+              formControlName="name"
+              label="name*"
+              placeholder="Name"
+              id="name"
+            >
+          </div>
         </div>
-      </div>
-      <div class="form-b">
-        <label class="arpha-label character-style-11">{{'Password*'}}</label>
-        <div class="arpha-input-container">
-          <input
-            class="arpha-input"
-            formControlName="password"
-            type="password"
-            label="Password*"
-            placeholder="Password"
-            id="password"
-          >
-          <mat-icon color="primary" aria-hidden="false" class="password-icon" svgIcon="dashboard"></mat-icon>
+        <div class="form-b">
+          <label class="arpha-label character-style-11">{{'Password*'}}</label>
+          <div class="arpha-input-container">
+            <input
+              class="arpha-input"
+              formControlName="password"
+              type="{{ passwordIsVisible ? 'password' : 'text' }}"
+              label="Password*"
+              placeholder="Password"
+              id="password"
+            >
+            <mat-icon class="password-icon" (click)="passwordIsVisible = !passwordIsVisible">remove_red_eye</mat-icon>
+          </div>
+          <!--        <input
+                    formControlName="password"
+                    type="password"
+                    label="Password*"
+                    placeholder="Password"
+                    id="password"
+
+                  >-->
         </div>
-        <!--        <input
-                  formControlName="password"
-                  type="password"
-                  label="Password*"
-                  placeholder="Password"
-                  id="password"
+        <div class="error-container" #errorContainer>{{errorText}}</div>
 
-                >-->
+        <arpha-button label="Register" type="submit" class="primary large login-button"></arpha-button>
+        <div class="text">or</div>
+        <arpha-button routerLink="/login" label="Login" class="secondary large register-button"></arpha-button>
+        <div class="crossed-title">
+          <span>or Login with</span>
+        </div>
+      </form>
+
+      <div class="link-container">
+        <arpha-button label="Pensoft" class="pensoft-login-btn secondary large icon-text" icon="dashboard" (click)="signIn()">
+        </arpha-button>
       </div>
-      <div class="error-container" #errorContainer>{{errorText}}</div>
 
-      <arpha-button label="Register" type="submit" class="primary large login-button"></arpha-button>
-      <div class="text">or</div>
-      <arpha-button routerLink="/login" label="Login" class="secondary large register-button"></arpha-button>
-      <div class="crossed-title">
-        <span>or Login with</span>
-      </div>
-    </form>
-
-    <div class="link-container">
-      <arpha-button label="Pensoft" class="pensoft-login-btn secondary large icon-text" icon="dashboard" (click)="signIn()">
-      </arpha-button>
     </div>
-
   </div>
 </div>

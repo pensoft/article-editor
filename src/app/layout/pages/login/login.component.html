@@ -1,10 +1,13 @@
 <div class="main">
 
-  <div class="logo">
-    <img src="./assets/img/logo1.svg" height="42px" width="197px" alt="arpha">
+  <div class="header">
+    <div class="logo">
+      <img src="./assets/img/logo1.svg" height="42px" width="197px" alt="arpha">
+    </div>
   </div>
 
-  <div class="register">
+  <div class="content">
+    <div class="register">
 
     <div class="title-container">Login</div>
 
@@ -21,16 +24,7 @@
             id="email"
 
           >
-
         </div>
-        <!--<input
-          type="email"
-          formControlName="email"
-          label="Email*"
-          placeholder="Email address"
-          id="email"
-
-        >-->
       </div>
       <div class="form-b">
         <label class="arpha-label character-style-11">{{'Password*'}}</label>
@@ -38,22 +32,14 @@
           <input
             class="arpha-input"
             formControlName="password"
-            type="password"
+            type="{{ passwordIsVisible ? 'password' : 'text' }}"
             label="Password*"
             placeholder="Password"
             id="password"
 
           >
-          <mat-icon color="primary" aria-hidden="false" class="password-icon" svgIcon="dashboard"></mat-icon>
+          <mat-icon class="password-icon" (click)="passwordIsVisible = !passwordIsVisible">remove_red_eye</mat-icon>
         </div>
-        <!--        <input
-                  formControlName="password"
-                  type="password"
-                  label="Password*"
-                  placeholder="Password"
-                  id="password"
-
-                >-->
       </div>
       <div class="password-link"><a>Forgot your password?</a></div>
       <div class="error-container" #errorContainer>{{errorText}}</div>
@@ -75,5 +61,6 @@
       <arpha-button type="button" label="ORCID" class="secondary large icon-text" (mouseup)="orcidSignIn()"></arpha-button>
     </div>
 
+  </div>
   </div>
 </div>
