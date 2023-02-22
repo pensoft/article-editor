@@ -1,212 +1,252 @@
 .main {
-  background-image: url("../../../../assets/img/Photo-3@2x.png");
+  display: flex;
+  flex-flow: column nowrap;
+  height: 100%;
+  background-image: url('../../../../assets/img/Photo-3@2x.png');
   background-position: center;
   background-size: cover;
-  height: 100%;
 
-  .logo {
-    margin-left: 42px;
-    padding-top: 28px;
+  .header {
+    display: block;
+    flex: 0 1 max-content;
+
+    .logo {
+      margin-left: 42px;
+      padding-top: 28px;
+    }
   }
-}
 
+  .content {
+    display: flex;
+    flex-flow: column nowrap;
+    justify-content: flex-start;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 32px;
+    overflow: hidden;
+    overflow-y: auto;
 
+    .register {
+      width: fit-content;
+      max-width: 90vw;
+      border-radius: 15px;
+      background-color: var(--color-ffffff);
 
-.error-container{
-  margin-top: 10px;
-  color: #ff0000ab;
-  max-width: 456px;
-  font-weight: bold;
-  transition: 0.2s;
-  opacity: 0;
-}
+      .title-container {
+        margin-top: 40px;
+        margin-left: 41px;
+        font-weight: bold;
+        font-size: 34px;
+        line-height: 50px;
+        color: var(--color-192956);
+        height: 46px;
+      }
 
-.pensoft-login-btn {
-  margin-bottom: 32px !important;
-}
+      .form-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        width: 100%;
+        padding: 0 43px 0 41px;
 
-.register {
-  height: fit-content;
-  border-radius: 15px;
-  transition: 0.3s;
-  margin-right: 125px;
-  float: right;
-  background-color: var(--color-ffffff);
-}
+        .form-a {
+          width: 100%;
+          margin-top: 31px;
+        }
 
-.title-container {
-  margin-top: 40px;
-  margin-left: 41px;
-  font-weight: bold;
-  font-size: 34px;
-  line-height: 50px;
-  color: var(--color-192956);
-  height: 46px;
-}
+        .form-name,
+        .form-b {
+          width: 100%;
+          margin-top: 20px;
+        }
 
-.form-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  margin-left: 41px;
-  margin-right: 43px;
-}
+        .password-link {
+          margin-top: 12px;
+          text-align: right;
+          font-size: 14px;
+          font-family: "Open Sans", sans-serif;
+          font-weight: normal;
+          color: var(--color-1bb1b2);
+          align-self: flex-end;
+        }
 
-.form-a {
-  height: 63px;
-  margin-top: 31px;
-}
+        .error-container {
+          margin-top: 10px;
+          color: #ff0000ab;
+          font-weight: bold;
+          max-width: 456px;
+          transition: 0.2s;
+          opacity: 0;
+        }
 
-.form-b {
-  height: 63px;
-  margin-top: 20px;
-}
+        .login-button {
+          display: inline-block;
+          margin-top: 26px;
+          pointer-events: all;
+          width: 100%;
 
-.password-link {
-  text-align: right;
-  font-size: 14px;
-  font-family: "Open Sans", sans-serif;
-  font-weight: bold;
-  color: var(--color-1bb1b2);
-  align-self: flex-end;
-}
+          ::ng-deep {
+            button {
+              width: 100%;
+            }
+          }
+        }
 
-.login-button {
-  display: inline-block;
-  margin-top: 26px;
-}
+        .text {
+          text-align: center;
+          font-size: 14px;
+          font-family: "Open Sans", sans-serif;
+          font-weight: bold;
+          line-height: 19px;
+          width: 15px;
+          height: 19px;
+          margin-left: auto;
+          margin-right: auto;
+          margin-top: 13px;
+        }
 
-.register-button {
-  display: inline-block;
-  margin-top: 14px;
-}
+        .register-button {
+          display: inline-block;
+          margin-top: 14px;
+          width: 100%;
 
-.link-container {
-  margin-top: 20px;
-  display: flex;
-  justify-content: center;
-  arpha-button {
-    width: 20%;
-    ::ng-deep {
-      button {
-        color: var(--color-192956) !important;
-        font-weight: normal !important;
-        width: 100% !important;
+          ::ng-deep {
+            button {
+              width: 100%;
+            }
+          }
+        }
+
+        .crossed-title {
+          display: block;
+          width: 100%;
+          position: relative;
+          margin-top: 46px;
+          text-align: center;
+          font-size: 14px;
+          color: #192956;
+          line-height: 19px;
+          font-weight: bold;
+
+          &:before {
+            position: absolute;
+            content: "";
+            display: inline-block;
+            top: 50%;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-top: 1px solid var(--color-e3e3e3);
+          }
+
+          span {
+            display: inline-block;
+            position: relative;
+            padding: 0 6px;
+            background-color: var(--color-ffffff);
+          }
+        }
+
+        .arpha-label {
+          color: var(--color-192956);
+        }
+
+        .arpha-input-container {
+          display: block;
+          position: relative;
+          width: 460px;
+          max-width: 100%;
+          height: 35px;
+          color: var(--color-000000);
+          border: 1px solid;
+          border-color: var(--color-e3e3e3);
+          border-radius: 6px;
+          margin-top: 4px;
+
+          &:focus-within {
+            outline: none !important;
+            border: 1px solid;
+            border-color: var(--color-00b1b2);
+          }
+        }
+
+        input.arpha-input {
+          width: 100%;
+          height: 100%;
+          border: none;
+          border-radius: 6px;
+          padding: 9px 12px 7px 12px;
+
+          &::placeholder,
+          &:-ms-input-placeholder,
+          &::-ms-input-placeholder {
+            color: var(--color-cacdd3);
+            opacity: 1;
+          }
+
+          &:focus {
+            outline: none !important;
+          }
+
+          &:disabled {
+            background-color: var(--color-ffffff);
+          }
+        }
+
+        .invalid {
+          border-color: var(--color-e56b87) !important;
+        }
+
+        .arpha-error-message {
+          margin-top: 6px;
+          color: var(--color-e56b87);
+        }
+
+        .password-icon {
+          position: absolute;
+          right: 6px;
+          top: 5px;
+          z-index: 2;
+          height: 18px;
+          color: var(--color-8890a8);
+        }
+      }
+
+      .link-container {
+        margin-top: 20px;
+        display: flex;
+        justify-content: center;
+        padding: 0 0 60px 0;
+
+        arpha-button {
+          padding: 0 6px;
+
+          ::ng-deep {
+            button {
+              color: var(--color-192956) !important;
+              font-weight: normal !important;
+              width: 100% !important;
+
+              .mat-button-wrapper {
+                display: inline-flex;
+                justify-content: center;
+                align-items: center;
+              }
+            }
+          }
+        }
       }
     }
-    margin: 0 6px;
   }
 }
 
-.text {
-  text-align: center;
-  font-size: 14px;
-  font-family: "Open Sans", sans-serif;
-  font-weight: bold;
-  line-height: 19px;
-  width: 15px;
-  height: 19px;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 13px;
-}
-
-.crossed-title {
-  margin-top: 46px;
-  text-align: center;
-  font-size: 14px;
-  color: #192956;
-  line-height: 19px;
-  font-weight: bold;
-  &:before,
-  &:after {
-    content: "";
-    display: inline-block;
-    color: var(--color-f5f5f5);
-    width: 38%;
-    margin: 0 12px 0 -54%;
-    vertical-align: middle;
-    border-bottom: 1px solid;
-  }
-  &:after {
-    margin: 0 -54% 0 12px;
-  }
-  span {
-    display: inline-block;
-    vertical-align: middle;
+@media all and (min-width: 1200px) {
+  .main {
+    .content {
+      padding: 8px 125px 32px 60px;
+      align-items: flex-end;
+    }
   }
 }
-
-.arpha-input-container {
-  display: block;
-  width: 460px;
-  height: 35px;
-  color: var(--color-000000);
-  border: 1px solid;
-  border-color: var(--color-e3e3e3);
-  border-radius: 6px;
-  margin-top: 4px;
-
-  &:focus-within {
-    outline: none !important;
-    border: 1px solid;
-    border-color: var(--color-00b1b2);
-  }
-}
-
-input.arpha-input {
-  width: 100%;
-  height: 100%;
-  border: none;
-  border-radius: 6px;
-  padding: 9px 12px 7px 12px;
-
-  &::placeholder,
-  &:-ms-input-placeholder,
-  &::-ms-input-placeholder {
-    color: var(--color-cacdd3);
-    opacity: 1;
-  }
-
-  &:focus {
-    outline: none !important;
-  }
-
-  &:disabled {
-    background-color: var(--color-ffffff);
-  }
-}
-
-.arpha-label {
-  color: var(--color-192956);
-}
-
-.invalid {
-  border-color: var(--color-e56b87) !important;
-}
-
-.arpha-error-message {
-  margin-top: 6px;
-  color: var(--color-e56b87);
-}
-
-.password-icon {
-  margin-left: -30px;
-  margin-top: 8px;
-  position: absolute;
-  z-index: 2;
-  height: 18px;
-}
-
-::ng-deep {
-  .password-icon path {
-    fill: var(--color-8890a8);
-  }
-}
-
-input::-ms-reveal,
-input::-ms-clear {
-  display: none;
-}
-

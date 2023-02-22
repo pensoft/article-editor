@@ -521,19 +521,17 @@ mat-radio-group {
 }
 
 ::-webkit-scrollbar-track {
-  border-radius: 6px;
+  background-color: transparent;
+  color: transparent;
 }
 
-::-webkit-scrollbar-thumb {
+::-webkit-scrollbar-thumb,
+::-webkit-scrollbar-thumb:hover {
   background: var(--color-e3e3e3);
   border-radius: 6px;
   width: 6px;
-  border: 3px solid #ffffff;
+  border: 3px solid transparent;
   background-clip: padding-box;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--color-e3e3e3);
 }
 
 .mat-selection-list {
@@ -571,11 +569,6 @@ mat-radio-group {
   &::-webkit-scrollbar-thumb {
     background-color: transparent !important;
     border-radius: 0;
-  }
-
-  ::-webkit-scrollbar-track {
-    background-color: transparent !important;
-    color: transparent;
   }
 }
 

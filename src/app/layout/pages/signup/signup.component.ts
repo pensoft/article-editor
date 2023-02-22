@@ -31,6 +31,7 @@ export class SignupComponent implements OnInit, OnDestroy {
   errorText = ''
   returnUrl!: string;
   private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
+  passwordIsVisible = false;
 
   constructor(
     private fb: FormBuilder,
