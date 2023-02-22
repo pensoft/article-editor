@@ -130,13 +130,15 @@
   width: 40px !important;
 }
 
-.width-input {
+.mat-form-field-search {
   width: 476px;
+  max-width: calc(70% - 16px);
   margin: 0 32px 0 0;
 }
 
 .width-select {
-  width: 68px;
+  width: 110px;
+  max-width: calc(30% - 16px);
   letter-spacing: 0;
 }
 
