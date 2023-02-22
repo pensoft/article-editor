@@ -46,12 +46,12 @@
             <input
               class="arpha-input"
               formControlName="password"
-              type="password"
+              type="{{ passwordIsVisible ? 'password' : 'text' }}"
               label="Password*"
               placeholder="Password"
               id="password"
             >
-            <mat-icon color="primary" aria-hidden="false" class="password-icon" svgIcon="dashboard"></mat-icon>
+            <mat-icon class="password-icon" (click)="passwordIsVisible = !passwordIsVisible">remove_red_eye</mat-icon>
           </div>
           <!--        <input
                     formControlName="password"

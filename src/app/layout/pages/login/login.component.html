@@ -38,17 +38,8 @@
             id="password"
 
           >
-          <mat-icon color="primary" aria-hidden="false" class="password-icon" svgIcon="dashboard"
-          (click)="passwordIsVisible = !passwordIsVisible"></mat-icon>
+          <mat-icon class="password-icon" (click)="passwordIsVisible = !passwordIsVisible">remove_red_eye</mat-icon>
         </div>
-        <!--        <input
-                  formControlName="password"
-                  type="password"
-                  label="Password*"
-                  placeholder="Password"
-                  id="password"
-
-                >-->
       </div>
       <div class="password-link"><a>Forgot your password?</a></div>
       <div class="error-container" #errorContainer>{{errorText}}</div>
