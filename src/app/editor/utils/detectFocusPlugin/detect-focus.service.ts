@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-import { Plugin, PluginKey } from 'prosemirror-state';
+import { Plugin, PluginKey, TextSelection } from 'prosemirror-state';
+import { Decoration, DecorationSet } from 'prosemirror-view';
 import { Subject } from 'rxjs';
 import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../../services/ydoc.service';
@@ -60,32 +61,55 @@ export class DetectFocusService {
           return prev
         },
       },
+      props:{
+        decorations:(state)=>{
+          if(this.shouldCreateSelDecoration){
+            let {sectionName} = detectFocusPluginKey.getState(state)
+            if(sectionName == this.sectionName){ // this is the same as last selected editor
+              let {from,to} = state.selection;
+              let dec = Decoration.inline(from,to,{decoration:'selection-decoration-placeholder'});
+              return DecorationSet.create(state.doc,[dec]);
+            }
+          }
+          return DecorationSet.empty
+        }
+      },
 
-      view: function () {
+      view:  () => {
         return {
           update: (view, prevState) => {
             let {sectionName,hasFocus} = detectFocusPluginKey.getState(view.state)
             let focusRN = view.hasFocus()
-
-
+            if(view.hasFocus()){
+              this.removeSelectionDecorationOnLastSelecctedEditor()
+            }
             if(focusRN&&getLastFocus()!==sectionName){
-
               setTimeout(() => {
                 focusedE.next(sectionName);
               }, 10);
               setLastEditorFocus(sectionName)
             }
-            /* if(focusRN !== hasFocus){
-              hasFocus = focusRN
-              let tr = view.state.tr.setMeta(detectFocusPluginKey,{focusRN});
-            } */
           },
-          destroy: () => { }
+          destroy: () => { },
+
         }
-      }
+      },
     });
   }
 
+  shouldCreateSelDecoration = false;
+
+  setSelectionDecorationOnLastSelecctedEditor(){
+    if(!this.sectionName)return;
+    this.shouldCreateSelDecoration = true;
+    setTimeout(()=>{
+      this.serviceShare.ProsemirrorEditorsService.dispatchEmptyTransaction()
+    },10)
+  }
+
+  removeSelectionDecorationOnLastSelecctedEditor(){
+    this.shouldCreateSelDecoration = false;
+  }
 
   getPlugin(){
     return this.detectFocusPlugin

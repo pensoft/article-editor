@@ -109,6 +109,7 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
     try {
       this.supplementaryFileID = this.data.supplementaryFileID || uuidv4();
       this.sectionContent.props = {isCitableElement:true}
+      this.serviceShare.FormBuilderService.setAutoFocusInSchema(this.sectionContent);
 
       let supplementaryFileHTML = this.renderCodemMirrorEditors(this.supplementaryFileID!)
       if (this.data.supplementaryFile) {

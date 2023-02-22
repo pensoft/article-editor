@@ -18,8 +18,8 @@
             type="{{ inputType }}"
             [formControl]="control"
             [placeholder]="instance.component.placeholder"
-            (input)="onChange()" #input
-      >
+            (input)="onChange()" #input #inputEl
+      />
       <span *ngIf="instance.component.suffix" matSuffix>{{ instance.component.suffix }}</span>
 
       <mat-hint *ngIf="instance.component.showWordCount || instance.component.showCharCount">
