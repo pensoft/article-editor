@@ -1,6 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 import { formioAuthorsDataGrid, formIOTextFieldTemplate, reference } from '../data/data';
 import { CiToTypes } from '../lib-service/editors-refs-manager.service';
 import { SaveComponent } from './save/save.component';
@@ -26,6 +27,7 @@ export class ReferenceEditComponent implements AfterViewInit {
     public dialogRef: MatDialogRef<ReferenceEditComponent>,
     public dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private sharedService:ServiceShare,
     private cahngeDetectorRef: ChangeDetectorRef
   ) {
   }
@@ -36,7 +38,7 @@ export class ReferenceEditComponent implements AfterViewInit {
 
     let newFormIOJSON = JSON.parse(JSON.stringify(type.formIOScheme));
     let oldFormIOData = this.dataSave?this.dataSave:this.data.oldData?this.data.oldData.refData.formioData:undefined;
-    //let oldFormIOData = this.dataSave?this.dataSave:this.data.oldData?this.data.oldData.formioSubmission:undefined;
+    this.sharedService.FormBuilderService.setAutoFocusInSchema(newFormIOJSON);
     newFormIOJSON.components.forEach((component:any)=>{
       let val = oldFormIOData?oldFormIOData[component.key]:undefined;
       if(val){

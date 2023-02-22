@@ -7,6 +7,7 @@ export const endNoteJSON = {
       "validate": {
         "required": true
       },
+      "autofocus":true,
       "key": "endNote",
       "type": "textarea",
       "input": true

@@ -48,6 +48,7 @@ export class AddEndNoteComponent implements AfterViewInit,AfterViewChecked {
   renderForm = false;
   hidehtml = true;
   sectionContent = JSON.parse(JSON.stringify(endNoteJSON));
+
   codemirrorHTMLEditor?: EditorView
   @ViewChild('codemirrorHtmlTemplate', { read: ElementRef }) codemirrorHtmlTemplate?: ElementRef;
   @ViewChild('container', { read: ViewContainerRef }) container?: ViewContainerRef;
@@ -72,6 +73,7 @@ export class AddEndNoteComponent implements AfterViewInit,AfterViewChecked {
 
   ngAfterViewChecked(): void {
     this.changeDetectorRef.detectChanges();
+
   }
 
   isValid:boolean = true;
@@ -104,6 +106,7 @@ export class AddEndNoteComponent implements AfterViewInit,AfterViewChecked {
     this.endNoteID = this.data.endNoteID || uuidv4();
     this.sectionContent.props = {isCitableElement:true}
     let endNoteHTML = this.renderCodemMirrorEditors(this.endNoteID!)
+    this.serviceShare.FormBuilderService.setAutoFocusInSchema(this.sectionContent);
 
       if (this.data.endNote) {
         this.sectionContent.components[0].defaultValue = this.data.endNote.end_note;

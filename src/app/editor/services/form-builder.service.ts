@@ -12,8 +12,9 @@ export class FormBuilderService {
   constructor(private serviceShare: ServiceShare) {
     this.serviceShare.shareSelf('FormBuilderService',this)
   }
-
+  setfocusToFirst
   populateDefaultValues(savedForm: any, schema: any, sectionID: string, formGroup?: FormGroup) {
+    this.setfocusToFirst = false;
     let copySchema = JSON.parse(JSON.stringify(schema))
     let props = {sectionID}
     let attachSectionId = (componentArray: any[]) => {
@@ -33,12 +34,21 @@ export class FormBuilderService {
     for (let index = 0; index < copySchema.components.length; index++) {
       let component: any = copySchema.components[index];
       this.updateDefaultValue(component,savedForm,props,formGroup)
+      this.setAutoFocusToFirstEl(component);
     }
     if (copySchema.components && copySchema.components.length > 0) {
       attachSectionId(schema.components)
     }
     copySchema.props = props
     return copySchema;
+  }
+
+  setAutoFocusInSchema(schema:any){
+    this.setfocusToFirst = false;
+    for (let index = 0; index < schema.components.length; index++) {
+      let component: any = schema.components[index];
+      this.setAutoFocusToFirstEl(component);
+    }
   }
 
   updateValue(component: any, submission: any,propsObj:any, formGroup?: FormGroup) {
@@ -54,6 +64,7 @@ export class FormBuilderService {
       }else{
         component.defaultValue = submission[key];
       }
+
       if (formGroup) {
         let form = formGroup!.controls[key]
         //@ts-ignore
@@ -125,6 +136,58 @@ export class FormBuilderService {
       }) */
     } else {
       this.updateValue(component, submission,props, formGroup)
+    }
+
+  }
+
+  setAutoFocus(component: any){
+    if((component.type == 'textfield'||component.type == "textarea")&&!this.setfocusToFirst){
+      this.setfocusToFirst = true;
+      component.autofocus = true;
+    }
+  }
+
+  setAutoFocusToFirstEl(component: any) {
+    let type = component.type
+    let key = component.key
+    if(this.setfocusToFirst)return;
+    if (type == 'datagrid') {
+      component.components.forEach(comp=>{
+        this.setAutoFocus(comp)
+      })
+    } else if (component.type == 'columns') {
+      for(let i = 0 ; i < component.columns.length;i++){
+        let col = component.columns[i]
+        for(let j = 0 ; j < col.components.length;j++){
+          let comp = col.components[j]
+          this.setAutoFocus(comp)
+        }
+      }
+      this.setAutoFocus(component)
+    } else if (type == "select") {
+      this.setAutoFocus(component)
+    } else if (type == "container") {
+      this.setAutoFocus(component)
+    } else if(type == "radio"){
+      this.setAutoFocus(component)
+    }else if (type == 'panel') {
+      component.components.forEach((subcomp: any) => {
+        this.setAutoFocusToFirstEl(subcomp)
+      })
+    } else if (type == 'table') {
+      for(let i = 0 ; i < component.rows.length;i++){
+        let row = component.rows[i];
+        for(let j = 0 ; j < row.length;j++){
+          let cell = row[j]
+          for(let k = 0 ; k < cell.components.length;k++){
+            let cellSubComp = cell.components[k]
+            this.setAutoFocusToFirstEl(cellSubComp)
+
+          }
+        }
+      }
+    } else {
+      this.setAutoFocus(component)
     }
 
   }
