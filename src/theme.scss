@@ -1116,6 +1116,11 @@ mat-radio-group {
 }
 
 .refs-add-new-in-article-dialog, .edit-reference-panel {
+
+  mat-dialog-content {
+    height: 65vh;
+  }
+
   .mat-card {
     padding: 0;
     box-shadow: none;
