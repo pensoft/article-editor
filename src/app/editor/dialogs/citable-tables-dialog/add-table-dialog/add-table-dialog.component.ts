@@ -94,6 +94,7 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
       this.tableID = this.data.tableID || uuidv4();
       let tableHTML = this.renderCodemMirrorEditors(this.tableID!)
       this.sectionContent.props = {isCitableElement:true}
+      this.serviceShare.FormBuilderService.setAutoFocusInSchema(this.sectionContent);
 
       if (!this.data.table) {
         /* let rows, cols;

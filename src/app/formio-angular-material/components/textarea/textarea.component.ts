@@ -6,7 +6,7 @@ import isNil from 'lodash/isNil';
 import { FormControl, Validators } from '@angular/forms';
 import { DOMSerializer, DOMParser, Schema, Fragment } from 'prosemirror-model';
 import { schema } from 'src/app/editor/utils/Schema';
-import { EditorState } from 'prosemirror-state';
+import { EditorState, TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { editorContainer, ProsemirrorEditorsService } from 'src/app/editor/services/prosemirror-editors.service';
 import { YdocService } from 'src/app/editor/services/ydoc.service';
@@ -235,7 +235,14 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       this.onChange1(true,this.value)
 
       this.renderEditor = true;
-
+      if(!this.instance.root.firstTextFieldIsFocused&&this.instance.component.autofocus){
+        this.instance.root.firstTextFieldIsFocused = true;
+        let state = this.editorContainer.editorView.state
+        let docSize = state.doc.content.size
+        this.editorContainer.editorView.focus();
+        this.editorContainer.editorView.dispatch(state.tr.setSelection(TextSelection.create(state.doc,docSize)))
+        this.ref.detectChanges()
+      }
     } catch (e) {
       console.error(e);
     }
@@ -292,6 +299,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
         console.error(e);
       }
     } */
+
   }
 
   validateOnInit() {

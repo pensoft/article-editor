@@ -320,6 +320,10 @@ form-field[invalid="true"] {
   display: block;
 }
 
+[decoration="selection-decoration-placeholder"] {
+  background-color: #C0C0C0 !important;
+}
+
 .ProseMirror__placeholder {
   & + p {
     min-width: 100px;

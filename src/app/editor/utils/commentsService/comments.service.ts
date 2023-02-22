@@ -391,6 +391,7 @@ export class CommentsService {
       } */
       commentBtn.addEventListener('click', () => {
         this.addCommentSubject.next({ type: 'commentData', sectionName, showBox: true })
+        this.serviceShare.DetectFocusService.setSelectionDecorationOnLastSelecctedEditor()
         setTimeout(() => {
           this.getCommentsInAllEditors()
         }, 30)
