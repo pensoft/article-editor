@@ -226,6 +226,7 @@ export class TaxonService implements OnDestroy {
   }
 
   tagText(allOccurrence: boolean) {
+    this.serviceShare.DetectFocusService.setSelectionDecorationOnLastSelecctedEditor()
     if (allOccurrence) {
       this.tagAllOccurrenceOfTextInCurrSelection()
     } else {

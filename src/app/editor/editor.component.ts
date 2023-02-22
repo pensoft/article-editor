@@ -379,6 +379,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
   }
 
   turnOnOffTrachChanges(bool?: boolean) {
+    this.serviceShare.DetectFocusService.setSelectionDecorationOnLastSelecctedEditor()
     if (bool) {
       this.shouldTrackChanges = bool;
       this.trackChangesData!.trackTransactions = bool;
@@ -389,9 +390,6 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
         !this.trackChangesData!.trackTransactions;
       this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
     }
-
-    let buttonElement = this.trackChangesOnOffBtn
-      ?.nativeElement as HTMLButtonElement;
   }
 
   toggleSidebar(section: string) {
