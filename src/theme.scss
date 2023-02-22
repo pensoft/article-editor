@@ -651,6 +651,7 @@ mat-radio-group {
               line-clamp: 2;
               -webkit-box-orient: vertical;
               color: var(--color-818181);
+              word-break: break-word;
 
               .deletion {
                 display: none;
