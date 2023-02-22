@@ -12,3 +12,25 @@ label {
   color: $light-grey;
 }
 
+.section-search{
+  height: 40px;
+}
+
+.get-sections-spinner-container{
+  height: 100%;
+  width: 100%;
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 100;
+  pointer-events: none;
+  background-color: #8080805c;
+  .get-sections-spinner{
+    width: 100px;
+    height: 100px;
+    position: absolute;
+    top: calc(50% - 50px);
+    z-index: 5;
+    right: calc(50% - 50px);
+  }
+}

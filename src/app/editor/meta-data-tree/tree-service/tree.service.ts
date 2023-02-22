@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject, Subscriber, Subscription } from 'rxjs';
-import { YdocService } from '../../services/ydoc.service';
+import { mainSectionValidations, sectinsBEidPivotIdMap, YdocService } from '../../services/ydoc.service';
 import { treeNode } from '../../utils/interfaces/treeNode';
 //@ts-ignore
 import * as Y from 'yjs'
@@ -9,6 +9,7 @@ import { FormGroup } from '@angular/forms';
 import {
   checkIfSectionsAreAboveOrAtMax,
   checkIfSectionsAreAboveOrAtMaxAtParentList,
+  checkIfSectionsAreAboveOrAtMaxAtParentListWithName,
   checkIfSectionsAreUnderOrAtMin,
   checkIfSectionsAreUnderOrAtMinAtParentList,
   editorFactory,
@@ -82,14 +83,24 @@ export class TreeService implements OnDestroy {
         if (node.title.name == '[MM] Materials' || node.title.name == 'Material') {
           let customPropsObj = this.ydocService.customSectionProps?.get('customPropsObj');
           let data = customPropsObj[node.sectionID];
-          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, data, formGroup).then((newTitle: string) => {
-            let container = document.createElement('div')
+          let valuesCopy = {};
+          let container = document.createElement('div')
+          Object.keys(data).forEach((key)=>{
+            container.innerHTML = data[key]
+            valuesCopy[key] = container.textContent
+          })
+          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, valuesCopy, formGroup).then((newTitle: string) => {
             container.innerHTML = newTitle;
             node.title.label = container.textContent!;
           })
         } else {
-          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, formGroup.value, formGroup).then((newTitle: string) => {
-            let container = document.createElement('div')
+          let container = document.createElement('div')
+          let valuesCopy = {};
+          Object.keys(formGroup.value).forEach((key)=>{
+            container.innerHTML = formGroup.value[key]
+            valuesCopy[key] = container.textContent
+          })
+          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, valuesCopy, formGroup).then((newTitle: string) => {
             container.innerHTML = newTitle;
             node.title.label = container.textContent!;
           })
@@ -127,6 +138,7 @@ export class TreeService implements OnDestroy {
     this.sectionFormGroups = {}
     this.sectionProsemirrorNodes = {}
     this.parentListRules = undefined
+    this.pivotIdMap = undefined
   }
 
   registerConnection(id: string) {
@@ -193,10 +205,11 @@ export class TreeService implements OnDestroy {
     });
   }
 
-  parentListRules:{sectionName:string,min:number,max:number}[]
+  parentListRules:mainSectionValidations = {}
+  pivotIdMap :sectinsBEidPivotIdMap = {}
   setParentListSectionMinMaxRules(){
-    let rules = this.ydocService.articleData.layout.rules
-    if(rules){
+    let rules = this.ydocService.articleData.mainSectionValidations
+    /* if(rules){
       let parentListSectionRules = []
       rules.forEach(x=>{
         if(x.key == "min_max_section_instances"){
@@ -209,7 +222,9 @@ export class TreeService implements OnDestroy {
         }
       })
       this.parentListRules = parentListSectionRules
-    }
+    } */
+    this.parentListRules = this.ydocService.articleData.mainSectionValidations
+    this.pivotIdMap = this.ydocService.articleData.sectinsBEidPivotIdMap
   }
 
   ngOnDestroy(): void {
@@ -590,28 +605,32 @@ export class TreeService implements OnDestroy {
     let r = true
     let parentNode = this.findParentNodeWithChildID(node.sectionID)!;
     if (parentNode && parentNode !== 'parentNode') {
-      r = checkIfSectionsAreUnderOrAtMin(node, parentNode)
+      r = checkIfSectionsAreUnderOrAtMin(node, parentNode,this.pivotIdMap)
     }else if(parentNode == 'parentNode'){
-      r = checkIfSectionsAreUnderOrAtMinAtParentList(this.articleSectionsStructure,node,this.parentListRules)
+      r = checkIfSectionsAreUnderOrAtMinAtParentList(this.articleSectionsStructure,node,this.parentListRules,this.pivotIdMap)
     }
     return r
   }
 
+  checkIfNodeIsAtMaxInParentListWithBESection(data:any){
+    return checkIfSectionsAreAboveOrAtMaxAtParentListWithName(this.articleSectionsStructure,data,this.parentListRules,this.pivotIdMap)
+  }
+
   checkIfCanMoveNodeOutOfParentList(node:articleSection){
-    return checkIfSectionsAreUnderOrAtMinAtParentList(this.articleSectionsStructure,node,this.parentListRules)
+    return checkIfSectionsAreUnderOrAtMinAtParentList(this.articleSectionsStructure,node,this.parentListRules,this.pivotIdMap)
   }
 
   checkIfCanMoveNodeInParentList(node:articleSection){
-    return checkIfSectionsAreAboveOrAtMaxAtParentList(this.articleSectionsStructure,node,this.parentListRules)
+    return checkIfSectionsAreAboveOrAtMaxAtParentList(this.articleSectionsStructure,node,this.parentListRules,this.pivotIdMap)
   }
 
   showAddBtn(node: articleSection) {
     let r = true
     let parentNode = this.findParentNodeWithChildID(node.sectionID)!;
     if (parentNode && parentNode !== 'parentNode') {
-      r = checkIfSectionsAreAboveOrAtMax(node, parentNode)
+      r = checkIfSectionsAreAboveOrAtMax(node, parentNode,this.pivotIdMap)
     }else if(parentNode == 'parentNode'){
-      r = checkIfSectionsAreAboveOrAtMaxAtParentList(this.articleSectionsStructure,node,this.parentListRules)
+      r = checkIfSectionsAreAboveOrAtMaxAtParentList(this.articleSectionsStructure,node,this.parentListRules,this.pivotIdMap)
     }
     return r
   }

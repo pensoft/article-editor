@@ -19,6 +19,7 @@ import { ySyncPluginKey } from '../../../y-prosemirror-src/plugins/keys.js';
 import { checkCompatibilitySection } from '@app/editor/utils/articleBasicStructure';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { P } from '@angular/cdk/keycodes';
+import { SectionLeafComponent } from './section-leaf/section-leaf.component';
 
 @Component({
   selector: 'app-cdk-list-recursive',
@@ -33,7 +34,7 @@ export class CdkListRecursiveComponent implements OnInit, OnDestroy, AfterViewIn
   @Input() nestedList!: boolean;
   @Input() firstNested!: boolean;
 
-  @Input() listData!: { expandParentFunc: any, listDiv: HTMLDivElement };
+  @Input() listData!: { expandParentFunc: any, listDiv: HTMLDivElement ,listinstance:SectionLeafComponent };
   @Input() listParentId?: string; // the id of the parent of this node
   focusedId?: string;
   mouseOn?: string;

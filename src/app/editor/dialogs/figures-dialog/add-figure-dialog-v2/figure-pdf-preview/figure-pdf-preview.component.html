@@ -3,13 +3,15 @@
   <div class="pdf-view-container" [ngStyle]="{'display':showPdfView?'block':'none'}">
     <div class="grid-component" [attr.figure_columns]="nOfColumns">
       <ng-container *ngFor="let row of figureRows; let r=index">
-        <div class="cell-component" *ngFor="let i of rowTemplate;">
-          <code>{{getCharValue(r * nOfColumns + i)}}</code>
-          <img *ngIf="row[i].container.componentType == 'image'" src="{{row[i].container.url}}" alt="" title="default image" />
-          <div class="video-thumb" *ngIf="row[i].container.componentType == 'video'">
-            <mat-icon>ondemand_video</mat-icon>
+        <ng-container *ngFor="let i of rowTemplate;">
+          <div *ngIf="row[i].container" class="cell-component">
+            <code *ngIf="!singleMedia">{{getCharValue(r * nOfColumns + i)}}</code>
+            <img *ngIf="row[i].container.componentType == 'image'" src="{{row[i].container.url}}" alt="" title="default image" />
+            <div *ngIf="row[i].container.componentType == 'video'" class="video-thumb" >
+              <mat-icon>ondemand_video</mat-icon>
+            </div>
           </div>
-        </div>
+        </ng-container>
       </ng-container>
     </div>
   </div>

@@ -176,7 +176,11 @@ export class SendInvitationComponent implements OnInit, AfterViewInit, OnDestroy
   // }
   submitInviteUsersForm() {
     this.inviteUsersForm.controls.usersChipList.setValue(this.users)
-    this.dialogRef.close(this.inviteUsersForm.value);
+    let usersDataCopy = JSON.parse(JSON.stringify(this.inviteUsersForm.value));
+    usersDataCopy.affiliations = usersDataCopy.affiliations.filter(x=>{
+      return !((!x.affiliation||x.affiliation.length == 0)&&(!x.country||x.country.length == 0)&&(!x.city||x.city.length == 0));
+    })
+    this.dialogRef.close(usersDataCopy);
   }
   dialogIsOpenedFromComment = false
   collaboratorstSubs: Subscription

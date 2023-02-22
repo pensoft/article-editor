@@ -155,7 +155,7 @@ export class ComplexEditTreeComponent implements OnInit {
         return (elementLevel + sectionlevel < 3);
       });
 
-      sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates,this.section,this.sectionChildren)
+      sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates,this.section,this.sectionChildren,this.treeService.pivotIdMap)
       const dialogRef = this.dialog.open(ChooseSectionComponent, {
         width: '563px',
         panelClass: 'choose-namuscript-dialog',
@@ -177,11 +177,11 @@ export class ComplexEditTreeComponent implements OnInit {
   }
 
   showAddBtn(node: articleSection) {
-    return checkIfSectionsAreAboveOrAtMax(node, this.section, this.sectionChildren);
+    return checkIfSectionsAreAboveOrAtMax(node, this.section,this.treeService.pivotIdMap, this.sectionChildren);
   }
 
   showDeleteBtn(node: articleSection) {
-    return checkIfSectionsAreUnderOrAtMin(node, this.section, this.sectionChildren);
+    return checkIfSectionsAreUnderOrAtMin(node, this.section,this.treeService.pivotIdMap, this.sectionChildren);
   }
 
   deleteNodeHandle(node: articleSection, index: number) {

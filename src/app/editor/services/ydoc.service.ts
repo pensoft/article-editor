@@ -19,6 +19,9 @@ import { Transaction as YTransaction } from 'yjs';
 import { layoutMenuAndSchemaSettings, mapSchemaDef, parseSecFormIOJSONMenuAndSchemaDefs, parseSecHTMLMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
 import { TaxonService } from '../taxons/taxon.service';
 
+export interface sectinsBEidPivotIdMap {[section_id_from_backend:number]:number}
+export interface mainSectionValidations{[pivot_id:string]:{min:number,max:number}}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -533,13 +536,36 @@ export class YdocService {
       data.layout.template.sections = data.layout.template.sections.filter(x => x.name != 'Citable Elements Schemas');
       this.saveCitableElementsSchemas(artilceCitableElementsSchemas);
     }
+    let sectinsBEidPivotIdMap:sectinsBEidPivotIdMap = {}
+    let mainSectionValidations:mainSectionValidations = {}
+    let loopSection = (sections:any[],fnc:(sec:any)=>void) => {
+      sections.forEach((sec)=>{
+        if(sec.sections&&sec.sections.length>0){
+          loopSection(sec.sections,fnc)
+        }
+        fnc(sec)
+      })
+    }
+    loopSection(data.layout.template.sections,(sec)=>{
+      if(sec.pivot_id){
+        sectinsBEidPivotIdMap[sec.id] = sec.pivot_id;
+        if(sec.settings && sec.settings.main_section){
+          if(!sec.settings.max_instances){sec.settings.max_instances = 9999};
+          mainSectionValidations[sec.pivot_id] = {min:sec.settings.min_instances,max:sec.settings.max_instances}
+        }
+      }
+    })
+    data.sectinsBEidPivotIdMap = sectinsBEidPivotIdMap
+    data.mainSectionValidations = mainSectionValidations
     this.articleData = data;
   }
 
-  setArticleData(articleData: any) {
+  setArticleData(articleData: any,newarticle?:boolean) {
     this.saveArticleData(articleData)
     //this.articleData.layout.citation_style.style_updated = Date.now()
-    this.creatingANewArticle = true;
+    if(newarticle){
+      this.creatingANewArticle = true;
+    }
     this.checkLastTimeUpdated();
   }
 
@@ -646,10 +672,20 @@ export class YdocService {
         console.log("---", WSErrorEvent, (new Date()).getTime());
       });
       this.provider.on('synced', (isSynced: boolean) => {
+        let oldSize = this.ydoc.share.size;
+        let sameSizeCount = 0;
         let checkSyncStatus = setInterval(() => {
-          if (this.ydoc.store.clients.size !== 0 || this.ydoc.getXmlFragment().length > 0 || this.creatingANewArticle) {
+          let newSize = this.ydoc.share.size
+          if(oldSize == newSize){
+            sameSizeCount++;
+          }else{
+            sameSizeCount = 0;
+          }
+          oldSize = newSize
+          if ((sameSizeCount>2&&oldSize>0) || this.creatingANewArticle) {
             setTimeout(() => {
               this.buildEditor();
+              this.creatingANewArticle = false;
             }, 1000)
             clearInterval(checkSyncStatus)
           }
@@ -774,7 +810,7 @@ export class YdocService {
   setArticleOwnerInfo() {
     this.shouldSetTheOwnerForTheNewArticle = false
     if (this.roomName == this.newArticleId) {
-      this.collaborators.set('collaborators', { collaborators: [{ ...this.ownerInfo.data, access: 'Owner',role:"Author"  }],affiliations:[] });
+      this.collaborators.set('collaborators', { collaborators: [{ ...this.ownerInfo.data, access: 'Owner',role:"Author",affiliations:[]  }],affiliations:[] });
       this.collaborators.set('authorsList', [{authorId:this.ownerInfo.data.id,authorEmail:this.ownerInfo.data.email}]);
     }
     this.ownerInfo = undefined

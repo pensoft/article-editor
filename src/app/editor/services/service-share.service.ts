@@ -140,7 +140,7 @@ export class ServiceShare {
 
           this.ArticlesService!.createArticle('Untitled',+result).subscribe((createArticleRes:any)=>{
             this.resetServicesData();
-            this.YdocService!.setArticleData(createArticleRes.data)
+            this.YdocService!.setArticleData(createArticleRes.data,true)
             this.router.navigate([createArticleRes.data.uuid])
             this.YdocService.newArticleIsCreated(userData,createArticleRes.data.uuid)
             selectedLayout.sections = selectedLayout.sections.filter(x=>x.name!='Citable Elements Schemas');

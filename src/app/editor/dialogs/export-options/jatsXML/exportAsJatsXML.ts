@@ -860,8 +860,15 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
       let actualRef = options.refObj[x];
       let rid = refIdsG[x];
       let refTxt = actualRef.citation.data.text;
-      let CiTO = actualRef.refCiTO.link
-      let xmlref = xmlPar.ele('xref', {"ref-type": "bibr", "rid": rid,"custom-type":CiTO})
+      let xrefAttr = {
+        "ref-type": "bibr", "rid": rid
+      }
+      let CiTO = actualRef.refCiTO
+      if(CiTO){
+        let CiTOlink = CiTO.link
+        xrefAttr['custom-type'] = CiTOlink
+      }
+      let xmlref = xmlPar.ele('xref', xrefAttr)
       xmlref.txt(refTxt);
     })
     shouldContinueRendering  = false;
@@ -946,7 +953,13 @@ let processPmMarkAsXML = (node: any, xmlPar: XMLBuilder, before: string) => {
   )){
     return
   }
-  node.marks.forEach((mark, i: number) => {
+  let marksCopy = [...node.marks];
+  let idOfTaxonMark = marksCopy.findIndex(x=>x.type == 'taxon');
+  if(idOfTaxonMark>-1){
+    let taxon = marksCopy.splice(idOfTaxonMark,1)[0];
+    marksCopy.push(taxon)
+  }
+  marksCopy.forEach((mark, i: number) => {
     if (mark.type == 'citation') {
       let citatedFigs = mark.attrs.citated_elements.map((fig: string) => fig.split('|')[0]);
       citatedFigs.forEach((fig, i) => {
@@ -995,6 +1008,8 @@ let processPmMarkAsXML = (node: any, xmlPar: XMLBuilder, before: string) => {
           });
         }
       })
+    } else if (mark.type == 'taxon'){
+      xmlParent = xmlParent.ele('tp:taxon-name');
     } else if (mark.type == 'em') {
       xmlParent = xmlParent.ele('italic');
     } else if (mark.type == "strong") {

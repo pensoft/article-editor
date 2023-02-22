@@ -320,6 +320,10 @@ form-field[invalid="true"] {
   display: block;
 }
 
+[decoration="selection-decoration-placeholder"] {
+  background-color: #C0C0C0 !important;
+}
+
 .ProseMirror__placeholder {
   & + p {
     min-width: 100px;
@@ -1177,14 +1181,10 @@ placeholder:after {
 
 html,
 body {
-  height: 100vh;
+  height: 100%;
   overflow: hidden;
   margin: 0;
   padding: 0;
-}
-
-body {
-  margin: 0;
   font-family: 'Open Sans', sans-serif;
 }
 
@@ -1195,13 +1195,16 @@ app-root {
   overflow: hidden;
 
   arpha-navigation {
-    flex: 0 0 60px;
+    flex: 0 1 max-content;
   }
 
   app-main {
-    flex: 0 1 auto;
+    flex: 1 1 auto;
     overflow: hidden;
 
+    app-login,
+    app-signup,
+    app-dashboard,
     app-editor-container {
       height: 100%;
       overflow: hidden;
@@ -1446,14 +1449,4 @@ router-outlet {
   width: 15px;
   height: 15px;
   margin-right: 5px;
-}
-
-html,
-body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  font-family: 'Open Sans', sans-serif;
 }

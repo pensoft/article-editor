@@ -12,8 +12,18 @@
 .refs-in-article {
   height: 100%;
 }
+::ng-deep .ref-container{
+  .ref-checkbox{
+    display: inline-block;
+    width: 70% !important;
+  }
+  .ref-cito-select{
+    display: inline-block !important;
+    width: 30% !important;
+  }
+}
 
-::ng-deep .ref-container {
+/* ::ng-deep .ref-container {
   padding: 10px;
   border-top: 1px solid;
   margin-right: 20px;
@@ -44,7 +54,7 @@
       margin-left: 10px;
     }
   }
-}
+} */
 
 .ref-container:last-of-type {
   border-bottom: 1px solid;

@@ -8,6 +8,7 @@ export const supplementaryFileJSON = {
           },
           "key": "supplementaryFileTitle",
           "type": "textfield",
+          "autofocus":true,
           "input": true
       },
       {

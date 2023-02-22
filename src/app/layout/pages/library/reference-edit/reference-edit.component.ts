@@ -1,6 +1,7 @@
 import { AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 import { formioAuthorsDataGrid, formIOTextFieldTemplate, reference } from '../data/data';
 import { CiToTypes } from '../lib-service/editors-refs-manager.service';
 import { SaveComponent } from './save/save.component';
@@ -19,13 +20,14 @@ export class ReferenceEditComponent implements AfterViewInit {
   dataSave:any
   referenceStyles:any
   CiToTypes = CiToTypes
-  citoFormControl = new FormControl(null, [Validators.required]);
+  citoFormControl = new FormControl(null);
 
 
   constructor(
     public dialogRef: MatDialogRef<ReferenceEditComponent>,
     public dialog: MatDialog,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private sharedService:ServiceShare,
     private cahngeDetectorRef: ChangeDetectorRef
   ) {
   }
@@ -36,7 +38,7 @@ export class ReferenceEditComponent implements AfterViewInit {
 
     let newFormIOJSON = JSON.parse(JSON.stringify(type.formIOScheme));
     let oldFormIOData = this.dataSave?this.dataSave:this.data.oldData?this.data.oldData.refData.formioData:undefined;
-    //let oldFormIOData = this.dataSave?this.dataSave:this.data.oldData?this.data.oldData.formioSubmission:undefined;
+    this.sharedService.FormBuilderService.setAutoFocusInSchema(newFormIOJSON);
     newFormIOJSON.components.forEach((component:any)=>{
       let val = oldFormIOData?oldFormIOData[component.key]:undefined;
       if(val){
@@ -65,13 +67,15 @@ export class ReferenceEditComponent implements AfterViewInit {
       this.stylesFormControl.setValue(this.referenceStyles[0])
     } else {
       let oldBuildData = this.data.oldData;
-      if(this.CiToTypes.find((cito) => {
+      if(oldBuildData.refCiTO&&this.CiToTypes.find((cito) => {
         return (cito.label == oldBuildData.refCiTO.label)
       })){
         let indexCito = this.CiToTypes.findIndex((cito) => {
           return (cito.label == oldBuildData.refCiTO.label)
         });
         this.citoFormControl.setValue(this.CiToTypes[indexCito])
+      }else{
+        this.citoFormControl.setValue(null)
       }
       if (this.referenceTypesFromBackend.find((ref) => {
         return (ref.name == oldBuildData.refType.name||ref.type == oldBuildData.refType.type)
@@ -126,7 +130,6 @@ export class ReferenceEditComponent implements AfterViewInit {
         this.formIoRoot = change.changed.instance.root
       }
     }
-    console.log(this.isValid)
   }
 
   ready(event: any) {

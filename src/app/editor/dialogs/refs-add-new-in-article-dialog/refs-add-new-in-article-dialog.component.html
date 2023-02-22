@@ -67,7 +67,7 @@
         </mat-form-field>
         <mat-label class="upper-label">Citation Typing Ontology</mat-label>
         <mat-form-field appearance="fill" #referenceType class="select-ref-form-field">
-          <mat-select [formControl]="citoFormControl" class="select-reference">
+          <mat-select [formControl]="citoFormControl" class="select-reference" placeholder="Citation Typing Ontology">
             <mat-option *ngFor="let type of CiToTypes " [value]="type">
               {{type.label}}
             </mat-option>
@@ -85,5 +85,5 @@
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button (click)="closeDialog()">Cancel</button>
-  <button mat-flat-button color="primary" [disabled]="tabIndex!=1||!dataSave||!isValid" (click)="onSubmit()">Save</button>
+  <button mat-flat-button color="primary" [disabled]="tabIndex!=1||!dataSave||!isValid||!isModified" (click)="onSubmit()">Save</button>
 </mat-dialog-actions>
