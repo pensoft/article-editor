@@ -182,7 +182,6 @@ app-prosemirror-editor {
 
 $treeSpace: 341px;
 .main-container {
-  background: var(--color-f9fafc);
   height: 100%;
   display: flex;
 
@@ -218,7 +217,7 @@ $treeSpace: 341px;
 }
 
 ::ng-deep .changes_state_btn_mobile {
-  width: 28x !important;
+  width: 28px !important;
   height: 41px !important;
   line-height: 28px !important;
   padding-right: 16px !important;

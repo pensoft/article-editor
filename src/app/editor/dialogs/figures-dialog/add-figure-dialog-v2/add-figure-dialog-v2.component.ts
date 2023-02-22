@@ -23,7 +23,7 @@ let figuresHtmlTemplate = `
     <ng-container *ngFor="let figure of data.figureComponents;let i = index">
       <ng-container *ngIf="figure">
         <figure-component [attr.actual_number]="figure.container.componentNumber" [attr.component_number]="i" contenteditablenode="false" [attr.viewed_by_citat]="data.viewed_by_citat||''">
-          <code>{{getCharValue(i)}}</code>
+          <code *ngIf="data.figureComponents.length>1">{{getCharValue(i)}}</code>
           <img *ngIf="figure.container.componentType == 'image'" src="{{figure.container.url}}" alt="" title="default image" contenteditable="false" draggable="true" />
           <iframe *ngIf="figure.container.componentType == 'video'" src="{{figure.container.url}}" controls="" contenteditable="false" draggable="true"></iframe>
         </figure-component>
