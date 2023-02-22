@@ -169,7 +169,8 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TaxonsSectionComponent } from './editor/taxons/taxons-section/taxons-section.component';
 import { TaxonComponent } from './editor/taxons/taxon/taxon.component';
-
+import { DropzoneModule } from 'ngx-dropzone-wrapper';
+import { DropzoneComponent } from './editor/dropzone/dropzone.component';
 //@ts-ignore
 EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE, 'event-dispatcher']
 
@@ -316,10 +317,12 @@ const gravatarConfig: GravatarConfig = {
     FigurePdfPreviewComponent,
     TaxonsSectionComponent,
     TaxonComponent,
+    DropzoneComponent,
   ],
   imports: [
     HttpClientJsonpModule,
     PipesModule,
+    DropzoneModule,
     NgxJsonViewerModule,
     BrowserModule,
     MaterialModule,
