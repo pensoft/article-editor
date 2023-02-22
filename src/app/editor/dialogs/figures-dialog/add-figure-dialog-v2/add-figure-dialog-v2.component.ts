@@ -37,7 +37,7 @@ let figuresHtmlTemplate = `
       <ng-container  formArrayName="figureComponents" >
         <ng-container *ngFor="let control of formGroup.controls.figureComponents.controls;let i = index" formGroupName="{{i}}">
           <figure-component-description [attr.actual_number]="data.figureComponents[i].container.componentNumber" [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.component_number]="i" style="display:flex;">
-            <form-field contenteditablenode="false">
+            <form-field contenteditablenode="false" *ngIf="data.figureComponents.length>1">
                 <p align="set-align-left"  class="set-align-left">{{getCharValue(i)}}:&nbsp;</p>
             </form-field>
             <form-field formControlName="figureComponentDescription">
