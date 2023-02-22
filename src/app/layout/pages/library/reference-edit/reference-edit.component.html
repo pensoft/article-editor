@@ -12,13 +12,13 @@
       </mat-select>
     </mat-form-field>
   </div>
-  <mat-form-field appearance="fill" #referenceType class="edit-ref-cito">
+  <!-- <mat-form-field appearance="fill" #referenceType class="edit-ref-cito">
     <mat-select [formControl]="citoFormControl" class="select-reference" placeholder="Citation Typing Ontology">
       <mat-option *ngFor="let type of CiToTypes " [value]="type">
         {{type.label}}
       </mat-option>
     </mat-select>
-  </mat-form-field>
+  </mat-form-field> -->
   <div class="formio-container">
     <div [formGroup]="referenceForms" *ngIf="formIOSchema" class="formio-inner-container">
       <mat-formio #formio [form]="formIOSchema" (ready)="ready($event)" (change)="onChange($event)"
