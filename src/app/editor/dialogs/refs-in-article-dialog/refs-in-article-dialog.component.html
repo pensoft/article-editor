@@ -1,11 +1,6 @@
 <h2 mat-dialog-title class="title-margin-bottom">References</h2>
 
 <mat-dialog-content>
-  <div *ngIf="loadingData" class="spinner-container" (click)="preventClick($event)">
-    <div class="spinner-container-inner">
-      <mat-spinner *ngIf="loadingData"></mat-spinner>
-    </div>
-  </div>
 
   <div class="references-list">
     <div class="reference-box" *ngFor="let ref of ydocAndChangedRefsSubject | async ; let i = index">
