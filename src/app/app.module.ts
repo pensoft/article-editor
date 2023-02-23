@@ -169,6 +169,7 @@ import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TaxonsSectionComponent } from './editor/taxons/taxons-section/taxons-section.component';
 import { TaxonComponent } from './editor/taxons/taxon/taxon.component';
+import { EmbedVideo } from 'ngx-embed-video';
 
 //@ts-ignore
 EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE, 'event-dispatcher']
@@ -365,6 +366,7 @@ const gravatarConfig: GravatarConfig = {
         deps: [HttpClient]
       }
     }),
+    EmbedVideo.forRoot(),
   ],
 
   providers: [

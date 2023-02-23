@@ -44,7 +44,7 @@
       <div class="figure-component-edit-preview">
         <div *ngIf="typeFromControl.valid&&urlFormControl.valid">
           <img *ngIf="typeFromControl.value == 'image'" src="{{urlFormControl.value}}" alt="">
-          <iframe *ngIf="typeFromControl.value == 'video'" [src]="urlFormControl.value | safe">
+          <iframe *ngIf="typeFromControl.value == 'video'" [src]="this.videoUrl | safe">
           </iframe>
         </div>
       </div>
