@@ -79,6 +79,9 @@ export class ChangesSectionComponent implements OnInit, AfterViewInit {
       let domElement = chContainers.find((element) => {
         return element.getAttribute('changeid') == id
       })
+      if(!domElement){
+        debugger
+      }
       let h = domElement.getBoundingClientRect().height
       if (lastElementPosition < com.domTop) {
         let pos = com.domTop
