@@ -341,9 +341,11 @@ $treeSpace: 341px;
   background: var(--color-f9fafc);
   box-shadow: -2px 0px 1px #1bb1b22b;
   display: inline-flex;
+
+  .mat-drawer-inner-container {
+    overflow: hidden;
+  }
 }
-
-
 
 .floating-button {
   display: none;
@@ -390,59 +392,6 @@ $treeSpace: 341px;
       height: 20px;
       width: 20px;
     }
-  }
-}
-
-@media screen and (max-width: 600px) {
-  .sidebar-container,
-  .data-tree {
-    width: 100% !important;
-    /* position: absolute;
-    z-index: 2;
-    height: calc(100% - 36px) !important;
-    margin-top: 20px !important;
-    background: #F9FAFC !important;
-    border-right: solid 2px;
-    border-top: solid 2px;
-    border-bottom-right-radius: 19px;
-    border-bottom: solid 2px;
-    border-top-right-radius: 19px;
-    display: inline-flex;
-    overflow-y: auto !important;
-    padding-top: 10px;
-    box-shadow: 0px 2px 8px -2px grey;
-    border-color: #00B1B2;
-    transition: visibility 0s, opacity 0.5s linear; */
-  }
-  .side-navbar-actions,
-  .controls-toolbar {
-    display: none !important;
-  }
-  .prosemirror_menu_container {
-    display: none;
-    margin-top: 0px !important;
-    width: calc(100% - 50px);
-    vertical-align: middle;
-    app-editor-menu {
-      width: 100%;
-    }
-  }
-  .actions-container {
-    display: none;
-  }
-  .metadataTreeDrawer {
-    background-color: white !important;
-    width: 100%;
-  }
-  .editor-container {
-    border-top-left-radius: 0 !important;
-    border-top-right-radius: 0 !important;
-    margin-top: 0 !important;
-    height: 100% !important;
-    width: 100% !important;
-  }
-  .floating-button {
-    display: block;
   }
 }
 

@@ -1155,11 +1155,11 @@ mat-radio-group {
 
 /* Editor Comment Box Override */
 .comment-container, .add-comment-box, .change-container, .taxon-container {
-  width: 100%;
-  transition: width .3s linear, top .3s linear, padding-left .3s linear, padding-right .3s linear, opacity .2s ease-in-out .3s;
+  display: block;
   position: absolute;
   top: 0;
-  display: block;
+  width: 100%;
+  transition: width .3s linear, top .3s linear, padding-left .3s linear, padding-right .3s linear, opacity .2s ease-in-out .3s;
   background: var(--color-f9fafc);
   border-radius: 0;
 
@@ -1289,6 +1289,7 @@ mat-radio-group {
       border-bottom: 1px solid var(--color-cacdd3);
 
       .selected-text, .selected-comment-text, .edited-text {
+
         .selected-text-title, .selected-comment-text-title, .edited-text-title {
           font-size: 12px;
           font-weight: 700;
@@ -1443,35 +1444,40 @@ mat-radio-group {
       }
     }
 
-    &.comment-box-replies {
-      padding: 16px 16px 0 26px;
-    }
+  }
 
-    &.change-box {
-      border-left: 2px solid transparent;
+  .comment-box-replies {
+    padding: 16px 16px 0 26px;
+  }
 
-      .mat-card-content {
-        .edited-text {
-          .edited-text-content {
-            padding: 3px 6px;
-            margin: 0;
-            border: 0;
-          }
+  .comment-box-form {
+    display: none;
+  }
+
+  .change-box {
+    .mat-card-content {
+      .edited-text {
+        .edited-text-content {
+          padding: 3px 6px;
+          margin: 0;
+          border: 0;
         }
       }
     }
+  }
 
-    &.comment-box-form {
-      display: none;
-    }
+  app-comment, app-taxon, app-change {
+    display: block;
+    border-left: 2px solid transparent;
   }
 
   &.selected-comment {
-    margin: -1px 0 0 0;
-    background: var(--color-ffffff);
-    border-color: var(--color-559efe);
 
     app-comment {
+      margin: -1px 0 0 0;
+      background: var(--color-ffffff);
+      border-color: var(--color-559efe);
+
       > mat-card {
         &:last-child {
           .mat-card-content {
@@ -1481,64 +1487,47 @@ mat-radio-group {
       }
     }
 
-    .comment-box, .comment-box-replies  {
-
-      .mat-card-content {
-        border-color: var(--color-e3e3e3);
-      }
-    }
-
     .comment-box-form {
       display: flex;
-    }
-  }
-
-  &.selected-taxon {
-    margin: -1px 0 0 0;
-    background: var(--color-ffffff);
-    border-color: var(--color-559efe);
-
-    app-comment {
-      > mat-card {
-        &:last-child {
-          .mat-card-content {
-            border-bottom-color: transparent;
-          }
-        }
-      }
-    }
-
-    .taxon-box  {
-      .mat-card-content {
-        border-color: var(--color-e3e3e3);
-      }
-    }
-
-    .comment-box-form {
-      display: flex;
-    }
-  }
-
-  &.selected-change {
-    margin: -1px 0 0 0;
-    background: var(--color-ffffff);
-    border-color: var(--color-559efe);
-
-    .change-box {
-
-      .mat-card-content {
-        border-bottom-color: transparent;
-      }
     }
   }
 
   &.add-comment-box {
     background: var(--color-ffffff);
-    border-color: var(--color-559efe);
+    border-left: 2px solid var(--color-559efe);
+    margin: -1px 0 0 0;
 
     .commentBox {
       .mat-card-content {
         border-bottom-color: transparent;
+      }
+    }
+  }
+
+  &.selected-taxon {
+    app-taxon {
+      margin: -1px 0 0 0;
+      background: var(--color-ffffff);
+      border-color: var(--color-559efe);
+
+      .taxon-box {
+        .mat-card-content {
+          border-color: transparent;
+        }
+      }
+    }
+  }
+
+  &.selected-change {
+    app-change {
+      margin: -1px 0 0 0;
+      background: var(--color-ffffff);
+      border-color: var(--color-559efe);
+
+      .change-box {
+        .mat-card-content {
+          border-color: transparent;
+        }
       }
     }
   }
