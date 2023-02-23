@@ -12,23 +12,32 @@ export class LabelComponent implements OnInit {
   constructor(){
 
   }
+  userSectionTitleAsLable = false;
   contaniner:HTMLDivElement
+  sectionTreeTitle
   getTextContent(html){
     if(!this.contaniner){
       this.contaniner = document.createElement('div')
     }
     this.contaniner.innerHTML = html;
-    this.label = this.contaniner.textContent
+    this.sectionTreeTitle = this.contaniner.textContent
   }
-
   ngOnInit(): void {
-    if(this.instance && this.instance.path == "sectionTreeTitle"){
-      this.getTextContent(this.instance.getValue())
+    if(
+      this.instance.originalComponent &&
+      this.instance.originalComponent.properties &&
+      this.instance.originalComponent.properties.useSectionTitleAsLabel&&
+      this.instance.root._form.props.isSectionPopup
+      ){
+      this.userSectionTitleAsLable = true;
+      this.sectionTreeTitle = this.instance.root._form.props.initialSectionTitle
+      console.log(this.instance.root);
       this.instance.events.addListener('formio.change',(ch,ch2)=>{
-        if(ch2&&ch2.changed&&ch2.changed.instance == this.instance){
-          this.getTextContent(this.instance.getValue())
+        if(ch2&&ch2.changed&&ch2.changed.instance.path == "sectionTreeTitle"){
+          this.getTextContent(ch2.changed.instance.getValue())
         }
       })
     }
+
   }
 }

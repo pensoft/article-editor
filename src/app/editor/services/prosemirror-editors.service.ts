@@ -1196,13 +1196,13 @@ export class ProsemirrorEditorsService {
     }
 
 
-    if (!options.noLabel) {
+/*     if (!options.noLabel) {
       let componentLabel = formIOComponentInstance.component.label;
       let labelTag = document.createElement('div');
       labelTag.setAttribute('class', 'prosemirror-label-tag')
       labelTag.textContent = componentLabel
       EditorContainer.appendChild(labelTag);
-    }
+    } */
     let allowedTags = ''
     if(options.allowedTags && options.allowedTags.length>0 ){
       allowedTags = options.allowedTags
