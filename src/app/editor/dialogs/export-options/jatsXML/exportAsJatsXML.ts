@@ -41,7 +41,6 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
     }
   })
   refIdsG = refIds
-  /* let tableCount = countTablesInArticle(serviceShare) */
 
   let tablesObj = serviceShare.YdocService.tablesMap?.get('ArticleTables')
   let tableIds: { [key: string]: string } = {}
@@ -641,157 +640,156 @@ function parseMaterial(material: articleSection, matList: XMLBuilder, serviceSha
 
 function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serviceShare: ServiceShare, section: articleSection,options:any) {
   let xmlTaxon = container.ele('tp:taxon-treatment');
-  if (section.children && section.children.length > 0) {
-    let taxNomencl = section.children.find((sec) => sec.title.name == '[MM] Nomenclature');
-    let nomencData = serviceShare.ProsemirrorEditorsService.editorContainers[taxNomencl.sectionID].editorView.state.toJSON().doc
-    let nomenclatureEl = xmlTaxon.ele('tp:nomenclature')
-    nomenclatureEl.ele('label').txt('Nomenclature');
-    let name = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == 'name');
-    if (name) {
-      let nameEl = nomenclatureEl.ele('tp:taxon-name')
-      name.content.forEach((ch, i) => {
-        parseNode(ch, nameEl, true, '', i)
-      })
-    }
-    let authority = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "authority");
-    if (authority) {
-      let El = nomenclatureEl.ele('tp:taxon-authority')
-      authority.content.forEach((ch, i) => {
-        parseNode(ch, El, true, '', i)
-      })
-    }
-    let status = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "status");
-    if (status) {
-      let El = nomenclatureEl.ele('tp:taxon-status')
-      status.content.forEach((ch, i) => {
-        parseNode(ch, El, true, '', i)
-      })
-    }
-    let identifier = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "identifier");
-    if (identifier) {
-      let El = nomenclatureEl.ele('tp:taxon-identifier')
-      identifier.content.forEach((ch, i) => {
-        parseNode(ch, El, true, '', i)
-      })
-    }
-    let link = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "link");
-    if (link) {
-      let El = nomenclatureEl.ele('xref')
-      link.content.forEach((ch, i) => {
-        parseNode(ch, El, true, '', i)
-      })
-    }
-    let genus = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == 'genus');
-    if (genus) {
-      let El = nomenclatureEl.ele('tp:type-genus').ele('tp:taxon-name')
-      genus.content.forEach((ch, i) => {
-        parseNode(ch, El, true, '', i)
-      })
-    }
-    /* let species = nomencData.content.find((el)=>el.type == "form_field"&&el.attrs.formControlName == 'species');
-    if(species){
-      let El = nomenclatureEl.ele('tp:type-species').ele('tp:taxon-name')
-      species.content.forEach((ch,i)=>{
-        parseNode(ch,El,true,'',i)
-      })
-    } */
-    let location = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == 'location');
-    if (location) {
-      let El = nomenclatureEl.ele('tp:taxon-type-location')
-      location.content.forEach((ch, i) => {
-        parseNode(ch, El, true, '', i)
-      })
-    }
-
-    let taxExtLinks = section.children.find((sec) => sec.title.name == '[MM] External Links');
-    let taxExtLinksEl = xmlTaxon.ele('tp:treatment-sec', {"sec-type": taxExtLinks.title.name})
-    let viewExtLinks = serviceShare.ProsemirrorEditorsService.editorContainers[taxExtLinks.sectionID] ? serviceShare.ProsemirrorEditorsService.editorContainers[taxExtLinks.sectionID].editorView : undefined;
-    viewExtLinks ? parseNode(viewExtLinks.state.toJSON().doc, taxExtLinksEl, false, '--', 0) : undefined;
-
-
-    let taxMaterials = section.children.find((sec) => sec.title.name == '[MM] Materials');
-    let taxMatSection = xmlTaxon.ele('tp:treatment-sec', {"sec-type": taxMaterials.title.name})
-    let materailsTitle = taxMatSection.ele('title').txt('Materials');
-    let matList = taxMatSection.ele('list');
-    if (taxMaterials.type == 'complex' && taxMaterials.children && taxMaterials.children.length > 0) {
-      taxMaterials.children.forEach((matChild) => {
-        let matListItem = matList.ele('list-item')
-        parseMaterial(matChild, matListItem, serviceShare)
-      })
-    }
-
-    let taxSections = section.children.find((sec) => sec.title.name == '[MM] Treatment sections');
-    if (taxSections.children && taxSections.children.length > 0) {
-      taxSections.children.forEach((treatmentSubSec) => {
-        let chId = treatmentSubSec.sectionID;
-        let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-        let taxonSection = xmlTaxon.ele('tp:treatment-sec', {"sec-type": treatmentSubSec.title.name})
-        view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
-        if (treatmentSubSec.type == 'complex' && treatmentSubSec.children && treatmentSubSec.children.length > 0) {
-          treatmentSubSec.children.forEach((subsec) => {
-            let chId = subsec.sectionID;
-            let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-            let taxonSection = xmlTaxon.ele('tp:treatment-sec', {"sec-type": subsec.title.name})
-            view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
-            if (subsec.type == 'complex' && subsec.children && subsec.children.length > 0) {
-              subsec.children.forEach((subsecchild) => {
-                let chId = subsecchild.sectionID;
-                let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-                parseSection(view, taxonSection, serviceShare, subsecchild,options);
-              })
-            }
-          })
-        }
-      })
-    }
-    /* section.children.forEach((child) => {
-      let chId = child.sectionID
+  if(!section.children)return;
+  if(section.children.length == 0)return;
+  let taxNomencl = section.children.find((sec) => sec.title.name == '[MM] Nomenclature');
+  if(!taxNomencl)return;
+  let editorContainer = serviceShare.ProsemirrorEditorsService.editorContainers[taxNomencl.sectionID]
+  if(!editorContainer)return;
+  let nomencData = editorContainer.editorView.state.toJSON().doc
+  let nomenclatureEl = xmlTaxon.ele('tp:nomenclature')
+  nomenclatureEl.ele('label').txt('Nomenclature');
+  let name = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == 'name');
+  if (name) {
+    let nameEl = nomenclatureEl.ele('tp:taxon-name')
+    name.content.forEach((ch, i) => {
+      parseNode(ch, nameEl, true, '', i)
+    })
+  }
+  let authority = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "authority");
+  if (authority) {
+    let El = nomenclatureEl.ele('tp:taxon-authority')
+    authority.content.forEach((ch, i) => {
+      parseNode(ch, El, true, '', i)
+    })
+  }
+  let status = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "status");
+  if (status) {
+    let El = nomenclatureEl.ele('tp:taxon-status')
+    status.content.forEach((ch, i) => {
+      parseNode(ch, El, true, '', i)
+    })
+  }
+  let identifier = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "identifier");
+  if (identifier) {
+    let El = nomenclatureEl.ele('tp:taxon-identifier')
+    identifier.content.forEach((ch, i) => {
+      parseNode(ch, El, true, '', i)
+    })
+  }
+  let link = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "link");
+  if (link) {
+    let El = nomenclatureEl.ele('xref')
+    link.content.forEach((ch, i) => {
+      parseNode(ch, El, true, '', i)
+    })
+  }
+  let genus = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == 'genus');
+  if (genus) {
+    let El = nomenclatureEl.ele('tp:type-genus').ele('tp:taxon-name')
+    genus.content.forEach((ch, i) => {
+      parseNode(ch, El, true, '', i)
+    })
+  }
+  /* let species = nomencData.content.find((el)=>el.type == "form_field"&&el.attrs.formControlName == 'species');
+  if(species){
+    let El = nomenclatureEl.ele('tp:type-species').ele('tp:taxon-name')
+    species.content.forEach((ch,i)=>{
+      parseNode(ch,El,true,'',i)
+    })
+  } */
+  let location = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == 'location');
+  if (location) {
+    let El = nomenclatureEl.ele('tp:taxon-type-location')
+    location.content.forEach((ch, i) => {
+      parseNode(ch, El, true, '', i)
+    })
+  }
+  let taxExtLinks = section.children.find((sec) => sec.title.name == '[MM] External Links');
+  let taxExtLinksEl = xmlTaxon.ele('tp:treatment-sec', {"sec-type": taxExtLinks.title.name})
+  let viewExtLinks = serviceShare.ProsemirrorEditorsService.editorContainers[taxExtLinks.sectionID] ? serviceShare.ProsemirrorEditorsService.editorContainers[taxExtLinks.sectionID].editorView : undefined;
+  viewExtLinks ? parseNode(viewExtLinks.state.toJSON().doc, taxExtLinksEl, false, '--', 0) : undefined;
+  let taxMaterials = section.children.find((sec) => sec.title.name == '[MM] Materials');
+  let taxMatSection = xmlTaxon.ele('tp:treatment-sec', {"sec-type": taxMaterials.title.name})
+  let materailsTitle = taxMatSection.ele('title').txt('Materials');
+  let matList = taxMatSection.ele('list');
+  if (taxMaterials.type == 'complex' && taxMaterials.children && taxMaterials.children.length > 0) {
+    taxMaterials.children.forEach((matChild) => {
+      let matListItem = matList.ele('list-item')
+      parseMaterial(matChild, matListItem, serviceShare)
+    })
+  }
+  let taxSections = section.children.find((sec) => sec.title.name == '[MM] Treatment sections');
+  if (taxSections.children && taxSections.children.length > 0) {
+    taxSections.children.forEach((treatmentSubSec) => {
+      let chId = treatmentSubSec.sectionID;
       let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-      if (child.title.name == '[MM] Nomenclature') {
-        let taxonNomenclature = xmlTaxon.ele('tp:nomenclature')
-        view ? parseNode(view.state.toJSON().doc, taxonNomenclature, false, '--', 0) : undefined;
-      } else if (child.title.name == '[MM] External Links' || child.title.name == '[MM] Materials') {
-        let taxonSection = xmlTaxon.ele('tp:treatment-sec', { "sec-type": child.title.name })
-        if (child.title.name == '[MM] External Links') {
+      let taxonSection = xmlTaxon.ele('tp:treatment-sec', {"sec-type": treatmentSubSec.title.name})
+      view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
+      if (treatmentSubSec.type == 'complex' && treatmentSubSec.children && treatmentSubSec.children.length > 0) {
+        treatmentSubSec.children.forEach((subsec) => {
+          let chId = subsec.sectionID;
+          let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
+          let taxonSection = xmlTaxon.ele('tp:treatment-sec', {"sec-type": subsec.title.name})
           view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
-        } else {
-          let materailsTitle = taxonSection.ele('title').txt('Materials');
-          let matList = taxonSection.ele('list');
-          if (child.type == 'complex' && child.children && child.children.length > 0) {
-            child.children.forEach((matChild) => {
-              let matListItem = matList.ele('list-item')
-              let chId = matChild.sectionID;
-              parseMaterial(matChild, matListItem, serviceShare)
+          if (subsec.type == 'complex' && subsec.children && subsec.children.length > 0) {
+            subsec.children.forEach((subsecchild) => {
+              let chId = subsecchild.sectionID;
+              let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
+              parseSection(view, taxonSection, serviceShare, subsecchild,options);
             })
           }
-        }
-      } else if (child.title.name == '[MM] Treatment sections') {
-        if (child.children && child.children.length > 0) {
-          child.children.forEach((treatmentSubSec) => {
-            let chId = treatmentSubSec.sectionID;
-            let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-            let taxonSection = xmlTaxon.ele('tp:treatment-sec', { "sec-type": treatmentSubSec.title.name })
-            view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
-            if (treatmentSubSec.type == 'complex' && treatmentSubSec.children && treatmentSubSec.children.length > 0) {
-              treatmentSubSec.children.forEach((subsec) => {
-                let chId = subsec.sectionID;
-                let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-                let taxonSection = xmlTaxon.ele('tp:treatment-sec', { "sec-type": subsec.title.name })
-                view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
-                if (subsec.type == 'complex' && subsec.children && subsec.children.length > 0) {
-                  subsec.children.forEach((subsecchild) => {
-                    let chId = subsecchild.sectionID;
-                    let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-                    parseSection(view, taxonSection, serviceShare, subsecchild);
-                  })
-                }
-              })
-            }
+        })
+      }
+    })
+  }
+  /* section.children.forEach((child) => {
+    let chId = child.sectionID
+    let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
+    if (child.title.name == '[MM] Nomenclature') {
+      let taxonNomenclature = xmlTaxon.ele('tp:nomenclature')
+      view ? parseNode(view.state.toJSON().doc, taxonNomenclature, false, '--', 0) : undefined;
+    } else if (child.title.name == '[MM] External Links' || child.title.name == '[MM] Materials') {
+      let taxonSection = xmlTaxon.ele('tp:treatment-sec', { "sec-type": child.title.name })
+      if (child.title.name == '[MM] External Links') {
+        view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
+      } else {
+        let materailsTitle = taxonSection.ele('title').txt('Materials');
+        let matList = taxonSection.ele('list');
+        if (child.type == 'complex' && child.children && child.children.length > 0) {
+          child.children.forEach((matChild) => {
+            let matListItem = matList.ele('list-item')
+            let chId = matChild.sectionID;
+            parseMaterial(matChild, matListItem, serviceShare)
           })
         }
       }
-    }) */
-  }
+    } else if (child.title.name == '[MM] Treatment sections') {
+      if (child.children && child.children.length > 0) {
+        child.children.forEach((treatmentSubSec) => {
+          let chId = treatmentSubSec.sectionID;
+          let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
+          let taxonSection = xmlTaxon.ele('tp:treatment-sec', { "sec-type": treatmentSubSec.title.name })
+          view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
+          if (treatmentSubSec.type == 'complex' && treatmentSubSec.children && treatmentSubSec.children.length > 0) {
+            treatmentSubSec.children.forEach((subsec) => {
+              let chId = subsec.sectionID;
+              let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
+              let taxonSection = xmlTaxon.ele('tp:treatment-sec', { "sec-type": subsec.title.name })
+              view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
+              if (subsec.type == 'complex' && subsec.children && subsec.children.length > 0) {
+                subsec.children.forEach((subsecchild) => {
+                  let chId = subsecchild.sectionID;
+                  let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
+                  parseSection(view, taxonSection, serviceShare, subsecchild);
+                })
+              }
+            })
+          }
+        })
+      }
+    }
+  }) */
 }
 
 function parseSection(view: EditorView | undefined, container: XMLBuilder, serviceShare: ServiceShare, section: articleSection,options:any) {
@@ -1078,18 +1076,4 @@ function parseNode(node: any, xmlPar: XMLBuilder, shouldSkipBlockElements: boole
   } else {
     processPmNodeAsXML(node, xmlPar, before, index,options)
   }
-}
-
-function countTablesInArticle(serviceShare: ServiceShare) {
-  let tableCount = 0
-  Object.keys(serviceShare.ProsemirrorEditorsService.editorContainers).forEach((sectionId) => {
-    let doc = serviceShare.ProsemirrorEditorsService.editorContainers[sectionId].editorView.state.doc;
-    let size = doc.content.size - 1;
-    doc.nodesBetween(0, size, (node, pos) => {
-      if (node.type.name == 'table') {
-        tableCount++;
-      }
-    })
-  })
-  return tableCount
 }
