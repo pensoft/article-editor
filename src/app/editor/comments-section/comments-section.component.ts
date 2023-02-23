@@ -165,9 +165,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
       let domElement = comContainers.find((element) => {
         return element.getAttribute('commentid') == id
       })
-      if(!domElement){
-        debugger
-      }
       let h = domElement.getBoundingClientRect().height
       if (lastElementPosition < com.domTop) {
         let pos = com.domTop

@@ -192,9 +192,6 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
       let domElement = taxContainers.find((element) => {
         return element.getAttribute('taxonid') == id
       })
-      if(!domElement){
-        debugger
-      }
       let h = domElement.getBoundingClientRect().height
       if (lastElementPosition < tax.domTop) {
         let pos = tax.domTop
