@@ -136,9 +136,7 @@ export class CslService {
             const dialogRef = this.dialog.open(ReferenceEditComponent, {
               data: { referenceTypesFromBackend, oldData, referenceStyles },
               panelClass: 'edit-reference-panel',
-              width: 'auto',
-              height: '90%',
-              maxWidth: '100%'
+              width: '960px',
             });
             this.serviceShare.ProsemirrorEditorsService.stopSpinner()
             dialogRef.afterClosed().subscribe((result: any) => {

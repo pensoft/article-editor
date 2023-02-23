@@ -1,4 +1,4 @@
-<h2 mat-dialog-title>Add Manuscript to Project</h2>
+<h2 mat-dialog-title>Start Manuscript</h2>
 
 <div class="search-field-wrapper">
   <form (keydown)="search(inputText)" fxFlex="100%" fxLayout="column" class="search-form">
@@ -29,8 +29,8 @@
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]>Cancel</button>
-  <button mat-stroked-button color="primary" (click)="closeManuscriptChoose()">Add Empty</button>
+  <button mat-stroked-button color="primary" (click)="closeManuscriptChoose()">Start Empty</button>
   <button mat-flat-button color="primary" (click)="createManuscript(topic.selectedOptions.selected[0]?.value)">
-    Add Manuscript
+    Start Manuscript
   </button>
 </mat-dialog-actions>
