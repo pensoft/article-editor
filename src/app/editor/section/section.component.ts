@@ -442,6 +442,16 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
       })
     }
 
+    if(this.sectionContent.props){
+      this.sectionContent.props.initialSectionTitle = this.section.title.label;
+      this.sectionContent.props.isSectionPopup = true;
+    }else{
+      this.sectionContent.props = {
+        initialSectionTitle:this.section.title.label,
+        isSectionPopup:true
+      }
+    }
+
     this.renderForm = true
   }
 

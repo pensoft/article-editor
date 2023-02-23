@@ -171,13 +171,38 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     this.instance.updateValue(containerElement.innerHTML, { modified: true });
     this.control.setValue(containerElement.innerHTML);
   }
-
+  options:any
+  userSectionTitleAsLable = false;
+  contaniner:HTMLDivElement
+  sectionTreeTitle
+  getTextContent(html){
+    if(!this.contaniner){
+      this.contaniner = document.createElement('div')
+    }
+    this.contaniner.innerHTML = html;
+    this.sectionTreeTitle = this.contaniner.textContent
+  }
   renderComponents() {
     /* this.setVisible(this.instance.visible); */
     if (!this.rerender) {
       return
     }
     try {
+      if(
+        this.instance.originalComponent &&
+        this.instance.originalComponent.properties &&
+        this.instance.originalComponent.properties.useSectionTitleAsLabel&&
+        this.instance.root._form.props.isSectionPopup
+      ){
+        this.userSectionTitleAsLable = true;
+        this.sectionTreeTitle = this.instance.root._form.props.initialSectionTitle
+        this.instance.events.addListener('formio.change',(ch,ch2)=>{
+          if(ch2&&ch2.changed&&ch2.changed.instance.path == "sectionTreeTitle"){
+            this.getTextContent(ch2.changed.instance.getValue())
+          }
+        })
+      }
+      console.log(this.instance);
       this.value = this.control.value;
       //let node = editorData?[schema.nodeFromJSON(editorData)]:[];
       let options: any = {}
@@ -204,6 +229,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       this.DOMPMParser = DOMParser.fromSchema(viewSchema)
       options.sectionID = sectionProps?sectionProps.sectionID:undefined
       options.isCitableElement = (sectionProps&&sectionProps.isCitableElement)?sectionProps.isCitableElement:false
+      this.options = options
       let temp = document.createElement('div');
       temp.innerHTML = this.value!;
       let node = this.value! ? this.DOMPMParser.parseSlice(temp) : undefined;

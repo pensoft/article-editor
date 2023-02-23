@@ -1194,15 +1194,13 @@ export class ProsemirrorEditorsService {
       inlineMathInputRule = makeInlineMathInputRule(REGEX_INLINE_MATH_DOLLARS, editorSchema.nodes.math_inline, (match: any) => { return { math_id: uuidv4() } });
       blockMathInputRule = this.makeBlockMathInputRule(REGEX_BLOCK_MATH_DOLLARS, editorSchema.nodes.math_display, (match: any) => { return { math_id: uuidv4() } });
     }
-
-
-    if (!options.noLabel) {
+    /*if (!options.noLabel) {
       let componentLabel = formIOComponentInstance.component.label;
       let labelTag = document.createElement('div');
       labelTag.setAttribute('class', 'prosemirror-label-tag')
       labelTag.textContent = componentLabel
       EditorContainer.appendChild(labelTag);
-    }
+    } */
     let allowedTags = ''
     if(options.allowedTags && options.allowedTags.length>0 ){
       allowedTags = options.allowedTags
