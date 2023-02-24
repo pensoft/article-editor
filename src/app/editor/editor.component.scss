@@ -138,13 +138,7 @@ text-content-type {
   padding: 2px;
 }
 
-app-article {
-  display: block;
-  width: 100%;
-  height: fit-content;
-  margin: 0;
-  padding: 24px 61px 24px 24px;
-}
+
 
 app-prosemirror-editor {
   width: calc(100% - 52px);
@@ -206,6 +200,50 @@ $treeSpace: 341px;
     box-shadow: 0 4px 4px #1bb1b22b;
     overflow: hidden;
     overflow-y: auto;
+
+    .editor-content {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+      align-items: stretch;
+      height: max-content;
+      width: 100%;
+
+      app-article {
+        display: block;
+        flex: 1 1 auto;
+        height: fit-content;
+        margin: 0;
+        padding: 24px;
+      }
+
+      .editor_buttons {
+        display: none;
+        position: relative;
+        flex: 0 0 56px;
+        padding: 12px 12px 12px 4px;
+
+        .editor_buttons_wrapper {
+          display: none;
+          transition: top 0.1s linear 0s;
+
+          .commentBtnDiv,
+          .trackChangesBtnDiv,
+          .tag-words-btn-div {
+            padding: 5px 0;
+            height: 50px;
+            transition: visibility 0s, opacity 0.2s linear;
+          }
+
+          button {
+            box-shadow: 0 1px 5px 2px rgb(0 177 178 / 20%), 0 2px 2px 0 rgb(0 177 178 / 20%), 0 1px 4px 0 rgb(0 177 178 / 20%);
+            background: var(--color-ffffff);
+          }
+        }
+
+
+      }
+    }
   }
   .editorSpace {
     width: calc(100% - 500px);
@@ -300,39 +338,6 @@ $treeSpace: 341px;
 
 .track_changes_menu {
   background-color: turquoise;
-}
-
-.editor_buttons {
-  width: 22px;
-  height: 100px;
-  margin: 12px 12px 12px 4px;
-  position: absolute;
-  right: 10px;
-  align-self: flex-end;
-  .editor_buttons_wrapper {
-    display: none;
-    transition: top 0.1s linear 0s;
-  }
-  .commentBtnDiv {
-    height: 50px;
-    //height: 40px;
-/*     display: inline-flex; */
-    transition: visibility 0s, opacity 0.2s linear;
-    .commentsBtn {
-      margin-bottom: 20px;
-    }
-  }
-  .trackChangesBtnDiv {
-    height: 50px;
-  }
-  .tag-words-btn-div{
-    height: 50px;
-    transition: visibility 0s, opacity 0.2s linear;
-  }
-  button {
-    box-shadow: 0px 1px 5px 2px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 4px 0px rgb(0 177 178 / 20%);
-    background: var(--color-ffffff);
-  }
 }
 
 .sidebar-container {
