@@ -2,7 +2,8 @@
 export interface figure_component {
     'componentType':string,
     'url':string,
-    'description':string
+    'description':string,
+    "thumbnail":string
 }
 
 export interface figure {
