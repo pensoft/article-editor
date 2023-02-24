@@ -383,15 +383,18 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
   }
 
   turnOnOffTrachChanges(bool?: boolean) {
+    if(this.prosemirrorEditorServie.previewArticleMode.mode){
+      this.turnOnOffPreviewMode()
+    }
     this.serviceShare.DetectFocusService.setSelectionDecorationOnLastSelecctedEditor()
-    if (bool) {
-      this.shouldTrackChanges = bool;
-      this.trackChangesData!.trackTransactions = bool;
-      this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
-    } else {
+    if(bool == undefined){
       this.shouldTrackChanges = !this.shouldTrackChanges;
       this.trackChangesData!.trackTransactions =
         !this.trackChangesData!.trackTransactions;
+      this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
+    }else{
+      this.shouldTrackChanges = bool;
+      this.trackChangesData!.trackTransactions = bool;
       this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
     }
   }
