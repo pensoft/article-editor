@@ -22,6 +22,9 @@
     }
   }
 }
+.selected-article-edit-option{
+  color: var(--color-00b1b2) !important;
+}
 
 .main-editor-container {
   flex-flow: column nowrap;
@@ -276,6 +279,7 @@ $treeSpace: 341px;
   width: 28x !important;
   height: 28px !important;
   line-height: 28px !important;
+  color: var(--color-00b1b2) !important;
   .mat-icon {
     width: 25px !important;
     height: 25px !important;

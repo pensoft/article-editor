@@ -92,7 +92,7 @@
 </mat-toolbar>
 
 <div *ngIf="shouldBuild" class="main-editor-container"
-     [ngStyle]="{'display':active == 'editor'?'flex':'none'}">
+    [ngStyle]="{'display':active == 'editor'?'flex':'none'}">
   <div class="actions-container">
     <!-- <div *ngIf="innerWidth<=600" class="tree_btn_container">
         <button (click)="showTreeContainer()" class="editor_tree_btn_mobile" mat-icon-button>
@@ -109,25 +109,27 @@
 
     <div class="side-navbar-actions">
       <button *ngIf="!(userAccess == 'Commenter'||userAccess == 'Viewer')" #trackChangesOnOffBtn
-              [ngStyle]="{'color':previewMode.mode?'gray':this.shouldTrackChanges?'#19d928':'#f37b4a'}" mat-icon-button
+              mat-icon-button
               class="changes_state_btn" [matMenuTriggerFor]="beforeMenu">
-        <mat-icon>{{previewMode.mode ? 'visibility' : this.shouldTrackChanges ? 'mode_edit' : 'edit_off'}}</mat-icon>
-      </button>
+        <mat-icon *ngIf="previewMode.mode">visibility</mat-icon>
+        <mat-icon *ngIf="!previewMode.mode && !this.shouldTrackChanges">mode_edit</mat-icon>
+        <mat-icon  *ngIf="!previewMode.mode && this.shouldTrackChanges">drive_file_rename_outline</mat-icon>
+        </button>
       <mat-menu #beforeMenu="matMenu" xPosition="before">
 
-        <button (click)="turnOnOffTrachChanges(true)" mat-menu-item>
-          <mat-icon class='changes_on_btn'>mode_edit</mat-icon>
-          <span>Changes on</span>
+        <button (click)="turnOnOffTrachChanges(false)" mat-menu-item>
+          <mat-icon [ngClass]="{'selected-article-edit-option':!previewMode.mode && !this.shouldTrackChanges}">mode_edit</mat-icon>
+          <span>Edit</span>
         </button>
 
-        <button (click)="turnOnOffTrachChanges(false)" mat-menu-item>
-          <mat-icon class='changes_off_btn'>edit_off</mat-icon>
-          <span>Changes off</span>
+        <button (click)="turnOnOffTrachChanges(true)" mat-menu-item>
+          <mat-icon [ngClass]="{'selected-article-edit-option':!previewMode.mode && this.shouldTrackChanges}">drive_file_rename_outline</mat-icon>
+          <span>Suggest</span>
         </button>
 
         <button (click)="turnOnOffPreviewMode()" mat-menu-item>
-          <mat-icon>{{previewMode.mode ? 'visibility_off' : 'visibility'}}</mat-icon>
-          <span>{{previewMode.mode ? 'Preview off' : 'Preview on'}}</span>
+          <mat-icon [ngClass]="{'selected-article-edit-option':previewMode.mode}">visibility</mat-icon>
+          <span>Preview</span>
         </button>
 
       </mat-menu>
@@ -174,15 +176,8 @@
                 <mat-icon svgIcon="comments"></mat-icon>
               </button>
             </div>
-            <div [ngStyle]="{'display':(userAccess == 'Commenter'||userAccess == 'Viewer')?'none':'block'}"
-                class="trackChangesBtnDiv">
-              <button [ngClass]="shouldTrackChanges?'changes_on_editor_side_btn':'changes_off_editor_side_btn'"
-                      (click)="turnOnOffTrachChanges()" class="trackChangesBtn" mat-icon-button>
-                <mat-icon svgIcon="reference"></mat-icon>
-              </button>
-            </div>
             <div class="tag-words-btn-div"
-                 [ngStyle]="{
+                  [ngStyle]="{
                     'display':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'none':'block'
                   }"
             >
@@ -194,7 +189,7 @@
               </button>
             </div>
             <div class="tag-words-btn-div"
-                 [ngStyle]="{
+                  [ngStyle]="{
                     'display':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'none':'block'
                   }"
             >
@@ -240,11 +235,11 @@
 
 <mat-menu #beforeMenu="matMenu" xPosition="before" yPosition='below'>
   <button (click)="turnOnOffTrachChanges(true)" mat-menu-item>
-    <mat-icon class='changes_on_btn'>mode_edit</mat-icon>
-    <span>Changes on</span>
+    <mat-icon [ngClass]="{'selected-article-edit-option':!previewMode.mode && !this.shouldTrackChanges}">mode_edit</mat-icon>
+    <span>Edit</span>
   </button>
   <button (click)="turnOnOffTrachChanges(false)" mat-menu-item>
-    <mat-icon class='changes_off_btn'>edit_off</mat-icon>
-    <span>Changes off</span>
+    <mat-icon [ngClass]="{'selected-article-edit-option':!previewMode.mode && this.shouldTrackChanges}">drive_file_rename_outline</mat-icon>
+    <span>Suggest</span>
   </button>
 </mat-menu>
