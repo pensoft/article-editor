@@ -1205,9 +1205,15 @@ app-root {
     app-login,
     app-signup,
     app-dashboard,
-    app-editor-container {
+    app-editor-container,
+    app-landing {
+      display: block;
       height: 100%;
       overflow: hidden;
+    }
+
+    app-landing {
+      overflow-y: auto;
     }
   }
 }

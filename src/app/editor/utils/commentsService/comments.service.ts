@@ -362,33 +362,36 @@ export class CommentsService {
       let commentBtnDiv = editor.getElementsByClassName('commentBtnDiv').item(0) as HTMLDivElement;
       let commentBtn = editor.getElementsByClassName('commentsBtn').item(0) as HTMLButtonElement;
       let editorBtnsWrapper = editor.getElementsByClassName('editor_buttons_wrapper').item(0) as HTMLDivElement;
+
       if (!view.hasFocus()) {
         return
       }
 
       commentBtn.removeAllListeners!('click');
-      let sectionName = commentPluginKey.getState(view.state).sectionName
+      let sectionName = commentPluginKey.getState(view.state).sectionName;
 
-      let coordinatesAtFrom = view.coordsAtPos(from)
-      let coordinatesAtTo = view.coordsAtPos(to)
-      let averageValueTop = (coordinatesAtFrom.top + coordinatesAtTo.top) / 2
+      let coordinatesAtFrom = view.coordsAtPos(from);
+      let coordinatesAtTo = view.coordsAtPos(to);
+
+      let averageValueTop = (coordinatesAtFrom.top + coordinatesAtTo.top) / 2; // Selected element position
       let editorBtns = editor.getElementsByClassName('editor_buttons').item(0) as HTMLDivElement;
+
+      let editorOffsetTop = editor.getBoundingClientRect().top; // Editor Top offset in DOM
+      let editorBtnsHeight = editorBtnsWrapper.offsetHeight; // Editor buttons dynamic height
+      // TODO: Get line height of the selected element
+      let editorLineHeight = 22; // Line height of selected element (hardcoded to paragraph line height)
+
+
       editorBtnsWrapper.style.display = 'block'
-      editorBtnsWrapper.style.top = (averageValueTop - 42) + 'px';
-      editorBtnsWrapper.style.position = 'fixed'
-      editorBtnsWrapper.style.marginLeft = '-6px'
+
+      editorBtnsWrapper.style.top = (averageValueTop - editorOffsetTop + editor.scrollTop - editorBtnsHeight/2 + editorLineHeight/2) + 'px';
+      editorBtnsWrapper.style.position = 'absolute'
       if (!commentsStatus.allow) {
-        commentBtnDiv.style.visibility = 'hidden'
-        commentBtnDiv.style.opacity = '0'
+        commentBtnDiv.style.display = 'none';
         return
       }
-      commentBtnDiv.style.visibility = 'visible'
-      commentBtnDiv.style.opacity = '1'
+      commentBtnDiv.style.display = 'block';
 
-     /*  if (empty || from == to) {
-        editorBtnsWrapper.style.display = 'none'
-        return
-      } */
       commentBtn.addEventListener('click', () => {
         this.addCommentSubject.next({ type: 'commentData', sectionName, showBox: true })
         this.serviceShare.DetectFocusService.setSelectionDecorationOnLastSelecctedEditor()

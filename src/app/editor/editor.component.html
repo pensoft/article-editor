@@ -92,7 +92,7 @@
 </mat-toolbar>
 
 <div *ngIf="shouldBuild" class="main-editor-container"
-     [ngStyle]="{'display':active == 'editor'?'flex':'none'}">
+    [ngStyle]="{'display':active == 'editor'?'flex':'none'}">
   <div class="actions-container">
     <!-- <div *ngIf="innerWidth<=600" class="tree_btn_container">
         <button (click)="showTreeContainer()" class="editor_tree_btn_mobile" mat-icon-button>
@@ -167,35 +167,39 @@
       </div>
 
       <div class="editor-container">
-        <app-article id="app-article-element"></app-article>
-        <div [ngStyle]="{'display':(userAccess == 'Viewer')?'none':'block'}" class="editor_buttons">
+        <div class="editor-content">
+          <app-article id="app-article-element"></app-article>
+          <div [ngStyle]="{'display':(userAccess == 'Viewer')?'none':'block'}" class="editor_buttons">
           <div class="editor_buttons_wrapper">
             <div class="commentBtnDiv">
               <button class="commentsBtn" mat-icon-button>
                 <mat-icon svgIcon="comments"></mat-icon>
               </button>
             </div>
-            <div [ngStyle]="{
-              'visibility':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'hidden':'visible',
-              'opacity':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'0':'1'
-            }"
-                class="tag-words-btn-div">
-              <button (click)="taxonService.tagText(false)" [ngClass]="'tag_text_as_taxon_side_btn'" [matTooltip]="'Tag this text as Taxon.'"
+            <div class="tag-words-btn-div"
+                  [ngStyle]="{
+                    'display':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'none':'block'
+                  }"
+            >
+              <button (click)="taxonService.tagText(false)"
+                      [ngClass]="'tag_text_as_taxon_side_btn'"
+                      [matTooltip]="'Tag this text as Taxon.'"
                       class="tag-single" mat-icon-button>
                 <mat-icon >bookmark</mat-icon>
               </button>
             </div>
-            <div [ngStyle]="{
-              'visibility':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'hidden':'visible',
-              'opacity':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'0':'1'
-            }"
-                class="tag-words-btn-div">
+            <div class="tag-words-btn-div"
+                  [ngStyle]="{
+                    'display':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'none':'block'
+                  }"
+            >
               <button (click)="taxonService.tagText(true)" [ngClass]="'tag_text_as_taxon_side_btn'" [matTooltip]="'Tag all occurrence of this text as Taxon.'"
                       class="tag-multiple" mat-icon-button>
                 <mat-icon >bookmarks</mat-icon>
               </button>
             </div>
           </div>
+        </div>
         </div>
       </div>
     </div>
@@ -231,11 +235,11 @@
 
 <mat-menu #beforeMenu="matMenu" xPosition="before" yPosition='below'>
   <button (click)="turnOnOffTrachChanges(true)" mat-menu-item>
-    <mat-icon class='changes_on_btn'>mode_edit</mat-icon>
-    <span>Changes on</span>
+    <mat-icon [ngClass]="{'selected-article-edit-option':!previewMode.mode && !this.shouldTrackChanges}">mode_edit</mat-icon>
+    <span>Edit</span>
   </button>
   <button (click)="turnOnOffTrachChanges(false)" mat-menu-item>
-    <mat-icon class='changes_off_btn'>edit_off</mat-icon>
-    <span>Changes off</span>
+    <mat-icon [ngClass]="{'selected-article-edit-option':!previewMode.mode && this.shouldTrackChanges}">drive_file_rename_outline</mat-icon>
+    <span>Suggest</span>
   </button>
 </mat-menu>
