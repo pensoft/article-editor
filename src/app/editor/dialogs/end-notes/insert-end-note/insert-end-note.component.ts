@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
 import { ThemePalette } from '@angular/material/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { CommentsService } from '@app/editor/utils/commentsService/comments.service';
@@ -8,6 +8,8 @@ import { citableTable } from '@app/editor/utils/interfaces/citableTables';
 import { Plugin, PluginKey } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { CitableElementsService } from '@app/editor/services/citable-elements.service';
+import { AddEndNoteComponent } from '../add-end-note/add-end-note.component';
+import { endNote } from '@app/editor/utils/interfaces/endNotes';
 
 @Component({
   selector: 'app-insert-end-note',
@@ -18,7 +20,7 @@ export class InsertEndNoteComponent implements AfterViewInit {
 
   error: boolean = false
   endNotesNumbers?: string[]
-  endNotes: { [key: string]: citableTable }
+  endNotes: { [key: string]: endNote }
   selectedEndNotes: boolean[] = []
   citats: any
 
@@ -26,6 +28,7 @@ export class InsertEndNoteComponent implements AfterViewInit {
     private ydocService: YdocService,
     private dialogRef: MatDialogRef<InsertEndNoteComponent>,
     private commentsPlugin: CommentsService,
+    public dialog: MatDialog,
     private citableElementsService:CitableElementsService,
     private prosemirrorEditorsService: ProsemirrorEditorsService,
     @Inject(MAT_DIALOG_DATA) public data: { view: EditorView, citatData: any,sectionID:string }
@@ -40,6 +43,22 @@ export class InsertEndNoteComponent implements AfterViewInit {
 
   getCharValue(i: number) {
     return String.fromCharCode(97 + i)
+  }
+
+  addEndNote() {
+    this.dialog.open(AddEndNoteComponent, {
+      //width: '100%',
+      // height: '90%',
+      data: { endNote: undefined, updateOnSave: false, index: this.endNotesNumbers?.length },
+      disableClose: false
+    }).afterClosed().subscribe((result: { endNote: endNote, endNoteNode: Node }) => {
+      if (result && result.endNote && result.endNoteNode) {
+        this.endNotesNumbers?.push(result.endNote.end_note_ID)
+        this.endNotes![result.endNote.end_note_ID] = result.endNote
+        this.selectedEndNotes[this.endNotesNumbers?.length-1] = true
+        this.citableElementsService.writeElementDataGlobal(this.endNotes!, this.endNotesNumbers!,'end_note_citation');
+      }
+    })
   }
 
   setSelection(checked: boolean, endNoteID: string, endNoteIndex: number) {
