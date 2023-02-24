@@ -1,6 +1,7 @@
 import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { CiToTypes } from '@app/layout/pages/library/lib-service/editors-refs-manager.service';
 import { Subject } from 'rxjs';
@@ -34,12 +35,13 @@ export class RefsInArticleCiteDialogComponent implements OnInit, OnDestroy {
   searchControl = new FormControl('')
 
   constructor(
-    ydocService:YdocService,
+    private ydocService:YdocService,
     public dialogRef: MatDialogRef<RefsInArticleCiteDialogComponent>,
     public dialog: MatDialog,
+    private serviceShare:ServiceShare,
     @Inject(MAT_DIALOG_DATA) public data: {citedRefsAtPos?:string[]},
     ) {
-    this.refMap = ydocService.referenceCitationsMap;
+    this.refMap = this.ydocService.referenceCitationsMap;
     this.refMap.observe(this.observeRefMapChanges)
     this.getRefsInYdoc()
   }
@@ -65,8 +67,11 @@ export class RefsInArticleCiteDialogComponent implements OnInit, OnDestroy {
   }
 
   saveNewRefsInYdoc(){
-    let refsWithNoFormControls = clearRefFromFormControl(this.refsInYdoc)
+    let refsWithNoFormControls = clearRefFromFormControl(this.refsInYdoc);
     this.refMap.set('refsAddedToArticle', refsWithNoFormControls);
+    setTimeout(()=>{
+      this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
+    },20)
   }
 
   observeRefMapChanges = (Yevent, tr) => {

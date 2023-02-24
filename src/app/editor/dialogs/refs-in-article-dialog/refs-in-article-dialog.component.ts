@@ -135,7 +135,9 @@ export class RefsInArticleDialogComponent implements OnDestroy {
     let newRefs = this.getRefsForCurrEditSession();
     let refsWithNoFormControls = clearRefFromFormControl(newRefs)
     this.refMap.set('refsAddedToArticle', refsWithNoFormControls);
-    this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
+    setTimeout(()=>{
+      this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
+    },20)
     this.dialogRef.close()
   }
 

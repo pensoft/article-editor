@@ -71,15 +71,16 @@ export class EditorsRefsManagerService {
     } else {
       view.dispatch(state.tr.replaceWith(citedRefsAtPos.citationPos, citedRefsAtPos.citationPos + citedRefsAtPos.citationAtPos.nodeSize, schema.nodes.reference_citation.create(nodeAttrs, citationTxt)))
     }
-    this.checkIfAnyRefsShouldBeAddedToEndEditor(citedRefs);
-    this.checkIfAnyRefsShouldBeRemovedFromEndEditor();
+    this.checkIfAnyRefsShouldBeAddedToEndEditor();
+    //this.checkIfAnyRefsShouldBeRemovedFromEndEditor();
     this.checkIfShouldUpdateRefs();
 
     this.serviceShare.YjsHistoryService.endBigOperationCapture()
   }
 
   updateRefsInEndEditorAndTheirCitations() {
-    this.checkIfAnyRefsShouldBeRemovedFromEndEditor();
+    this.checkIfAnyRefsShouldBeAddedToEndEditor();
+    //this.checkIfAnyRefsShouldBeRemovedFromEndEditor();
     this.checkIfShouldUpdateRefs();
   }
 
@@ -136,7 +137,7 @@ export class EditorsRefsManagerService {
     this.updateCitationsDisplayTextAndBibliography(refsInEndEditor)
 
     deleatedRefsIds.forEach((refId) => {
-      this.removeBibliographyOfDeletedRef(refId)
+      this.removeBibliographyOfDeletedRef(refId);
     })
   }
 
@@ -225,9 +226,8 @@ export class EditorsRefsManagerService {
       setTimeout(() => {
         this.updateReferenceCitats(updatedReferences, refs);
       }, 10)
-    } else {
-      this.checkIfShouldMarkRefsCitationsAsDeleted(refs)
     }
+    this.checkIfShouldMarkRefsCitationsAsDeleted(refs)
     return refs
   }
 
@@ -414,7 +414,7 @@ export class EditorsRefsManagerService {
       })
     })
 
-      // there are reference in the end editor that are cited so we should remove them
+      // there are references in the end editor that are not cited so we should remove them
       let refsIdsToRemoveFormEndEditor: string[] = refsIdsInEndEditor.filter(x => !allcitedReferencesIdsInAllEditors.includes(x));
       refsIdsToRemoveFormEndEditor.forEach((id) => {
         this.removeRefFromEndEditorById(id);
@@ -465,16 +465,15 @@ export class EditorsRefsManagerService {
 
     let refsWithNoFormControls = clearRefFromFormControl(newRefs)
     this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsWithNoFormControls)
-
   }
 
-  checkIfAnyRefsShouldBeAddedToEndEditor(citedRefs: string[]) {
+  checkIfAnyRefsShouldBeAddedToEndEditor() {
     let allCitedRefs = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor');
-
     let refsInYdoc = this.serviceShare.YdocService.referenceCitationsMap.get('refsAddedToArticle');
-    let idsOfCitedRefsRN = Object.keys(allCitedRefs)
-    let newRefs = citedRefs.filter(x => !idsOfCitedRefsRN.includes(x));
 
+    let refsInEndEditorKeys = Object.keys(allCitedRefs);
+    let refsInArticleKeys = Object.keys(refsInYdoc);
+    let newRefs = refsInArticleKeys.filter(x => !refsInEndEditorKeys.includes(x));
     newRefs.forEach((refId) => {
       let ref = refsInYdoc[refId];
       allCitedRefs[refId] = ref
