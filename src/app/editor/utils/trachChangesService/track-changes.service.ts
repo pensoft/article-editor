@@ -516,7 +516,7 @@ export class TrackChangesService {
                 foundMark = true;
               }
             }
-            if(nodeBeforeSelection){
+            if(nodeBeforeSelection && !foundMark){
               let pos = sel.from
               let commentMark = changeMarksOnNode(nodeBeforeSelection)
               if (commentMark  && selInChange(newState.selection,nodeBeforeSelection,pos)) {

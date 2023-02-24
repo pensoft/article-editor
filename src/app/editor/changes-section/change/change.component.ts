@@ -34,6 +34,33 @@ export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
     public ydocService:YdocService
     ) {
     this.previewMode = serviceShare.ProsemirrorEditorsService!.previewArticleMode
+    this.changesService.lastSelectedChangeSubject.subscribe((change) => {
+      if(this.ydocService.curUserAccess&&this.ydocService.curUserAccess=='Viewer'){
+        return
+      }
+      if (this.change.changeMarkId == change.changeMarkId) {
+        this.selected.emit(true);
+      } else {
+        this.selected.emit(false);
+      }
+    })
+  }
+
+  selectChange(){
+    let view = this.serviceShare.ProsemirrorEditorsService.editorContainers[this.change.section].editorView;
+    let actualChange: changeData
+    let allChanges = this.serviceShare.TrackChangesService.changesObj
+    Object.keys(allChanges).forEach((changeid) => {
+      let change = allChanges[changeid]
+      if (change && change.changeMarkId == this.change.changeMarkId) {
+        actualChange = change
+      }
+    })
+    if (actualChange) {
+      view.focus()
+      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualChange.pmDocStartPos), view.state.doc.resolve(actualChange.pmDocStartPos))).setMeta('selected-comment',true))
+      this.serviceShare.ProsemirrorEditorsService.dispatchEmptyTransaction()
+    }
   }
 
   ngOnDestroy(): void {
