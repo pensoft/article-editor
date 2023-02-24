@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
 import { ThemePalette } from '@angular/material/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { CommentsService } from '@app/editor/utils/commentsService/comments.service';
@@ -8,6 +8,7 @@ import { citableTable } from '@app/editor/utils/interfaces/citableTables';
 import { Plugin, PluginKey } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { CitableElementsService } from '@app/editor/services/citable-elements.service';
+import { AddTableDialogComponent } from '../add-table-dialog/add-table-dialog.component';
 
 @Component({
   selector: 'app-insert-table',
@@ -26,6 +27,7 @@ export class InsertTableComponent implements AfterViewInit {
     private ydocService: YdocService,
     private dialogRef: MatDialogRef<InsertTableComponent>,
     private commentsPlugin: CommentsService,
+    public dialog: MatDialog,
     private citableElementsService:CitableElementsService,
     private prosemirrorEditorsService: ProsemirrorEditorsService,
     @Inject(MAT_DIALOG_DATA) public data: { view: EditorView, citatData: any,sectionID:string }
@@ -35,6 +37,22 @@ export class InsertTableComponent implements AfterViewInit {
     this.citats = this.ydocService.citableElementsMap?.get('elementsCitations')
     Object.keys(this.tables).forEach((tableID, i) => {
       this.selectedTables[i] = false;
+    })
+  }
+
+  addTable() {
+    //this.serviceShare.PmDialogSessionService!.createSubsession();
+    this.dialog.open(AddTableDialogComponent, {
+      width: '1000px',
+      data: { fig: undefined, updateOnSave: false, index: this.tablesData?.length },
+      disableClose: false
+    }).afterClosed().subscribe((result: { table: citableTable, tableNode: Node }) => {
+      if (result && result.table && result.tableNode) {
+        this.tablesData?.push(result.table.tableID)
+        this.tables![result.table.tableID] = result.table
+        this.selectedTables[this.tablesData?.length-1] = true;
+        this.citableElementsService.writeElementDataGlobal( this.tables!, this.tablesData!,'table_citation');
+      }
     })
   }
 

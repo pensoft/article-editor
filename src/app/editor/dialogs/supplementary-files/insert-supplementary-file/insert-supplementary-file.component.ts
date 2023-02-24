@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
 import { ThemePalette } from '@angular/material/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { CommentsService } from '@app/editor/utils/commentsService/comments.service';
@@ -8,6 +8,8 @@ import { citableTable } from '@app/editor/utils/interfaces/citableTables';
 import { Plugin, PluginKey } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { CitableElementsService } from '@app/editor/services/citable-elements.service';
+import { AddSupplementaryFileComponent } from '../add-supplementary-file/add-supplementary-file.component';
+import { supplementaryFile } from '@app/editor/utils/interfaces/supplementaryFile';
 
 @Component({
   selector: 'app-insert-supplementary-file',
@@ -18,7 +20,7 @@ export class InsertSupplementaryFileComponent implements AfterViewInit {
 
   error: boolean = false
   supplementaryFilesNumbers?: string[]
-  supplementaryFiles: { [key: string]: citableTable }
+  supplementaryFiles: { [key: string]: supplementaryFile }
   selectedSupplementaryFiles: boolean[] = []
   citats: any
 
@@ -27,6 +29,7 @@ export class InsertSupplementaryFileComponent implements AfterViewInit {
     private dialogRef: MatDialogRef<InsertSupplementaryFileComponent>,
     private commentsPlugin: CommentsService,
     private citableElementsService:CitableElementsService,
+    public dialog: MatDialog,
     private prosemirrorEditorsService: ProsemirrorEditorsService,
     @Inject(MAT_DIALOG_DATA) public data: { view: EditorView, citatData: any,sectionID:string }
   ) {
@@ -84,6 +87,24 @@ export class InsertSupplementaryFileComponent implements AfterViewInit {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  addSupplementaryFile() {
+    //this.serviceShare.PmDialogSessionService!.createSubsession();
+    this.dialog.open(AddSupplementaryFileComponent, {
+      //width: '100%',
+      // height: '90%',
+      data: { supplementaryFile: undefined, updateOnSave: false, index: this.supplementaryFilesNumbers?.length },
+      disableClose: false
+    }).afterClosed().subscribe((result: { supplementaryFile: supplementaryFile, supplementaryFileNode: Node }) => {
+      if (result && result.supplementaryFile && result.supplementaryFileNode) {
+        //this.serviceShare.PmDialogSessionService!.endSubsession(true);
+        this.supplementaryFilesNumbers?.push(result.supplementaryFile.supplementary_file_ID)
+        this.supplementaryFiles![result.supplementaryFile.supplementary_file_ID] = result.supplementaryFile
+        this.selectedSupplementaryFiles[this.supplementaryFilesNumbers?.length-1] = true;
+        this.citableElementsService.writeElementDataGlobal(this.supplementaryFiles!, this.supplementaryFilesNumbers!,'supplementary_file_citation');
+      }
+    })
   }
 
   citateSupplementaryFiles() {

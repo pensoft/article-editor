@@ -1,4 +1,4 @@
-<mat-card *ngIf="change" class="change-box" >
+<mat-card *ngIf="change" class="change-box" (click)="selectChange()">
   <mat-card-header>
     <div class="mat-card-avatar-container">
       <ngx-avatar mat-card-avatar size="36" [fgColor]="change.changeAttrs.user == currUserId?'white':change.changeAttrs.userContrastColor" [bgColor]="change.changeAttrs.user == currUserId?'#00B1B2':change.changeAttrs.userColor" [name]="change.changeAttrs.username"></ngx-avatar>

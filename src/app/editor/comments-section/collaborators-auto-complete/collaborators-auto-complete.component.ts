@@ -37,6 +37,16 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
     })
   }
 
+  hide = false;
+
+  hideResults(){
+    this.hide = true;
+  }
+
+  showResults(){
+    this.hide = false
+  }
+
   ngOnDestroy(): void {
     if(this.collabSub){
       this.collabSub.unsubscribe();
@@ -191,6 +201,7 @@ export class CollaboratorsAutoCompleteComponent implements AfterViewInit,OnDestr
     this.inputFormControl.valueChanges.subscribe((data: string) => {
       if (this.emailAddRegex.test(data)) {
         let searchVal = data.match(this.emailAddRegex)[0].replace(this.emailAddRegexMathStart, '');
+        this.hide = false;
         this.lastSearchVal = searchVal;
           this.usersService.getAllUsers({page:1,pageSize:10,'filter[search]':searchVal}).subscribe((res) => {
             this.allusers = res

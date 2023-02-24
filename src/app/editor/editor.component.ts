@@ -152,9 +152,10 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
       prosemirrorEditorServie.OnOffTrackingChangesShowTrackingSubject;
 
     this.serviceShare.TrackChangesService.lastSelectedChangeSubject.subscribe((data)=>{
+
       if(!data.changeMarkId||!data.pmDocStartPos||!data.section) return ;
       let {from,to} = this.prosemirrorEditorServie.editorContainers[data.section].editorView.state.selection
-      if(from!=to) return;
+      if(from!=to && data.section != this.serviceShare.DetectFocusService.sectionName) return;
       if (!this.sidebarDrawer?.opened) {
         this.sidebarDrawer?.toggle();
       }
@@ -169,7 +170,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject.subscribe((data)=>{
       if(!data.pos||!data.sectionId||!data.taxonMarkId) return ;
       let {from,to} = this.prosemirrorEditorServie.editorContainers[data.sectionId].editorView.state.selection
-      if(from!=to) return;
+      if(from!=to && data.sectionId != this.serviceShare.DetectFocusService.sectionName) return;
       if (!this.sidebarDrawer?.opened) {
         this.sidebarDrawer?.toggle();
       }
@@ -184,7 +185,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     this.serviceShare.CommentsService.lastSelectedCommentSubject.subscribe((data)=>{
       if(!data.commentId||!data.commentMarkId||!data.pos||!data.sectionId) return ;
       let {from,to} = this.prosemirrorEditorServie.editorContainers[data.sectionId].editorView.state.selection
-      if(from!=to) return;
+      if(from!=to && data.sectionId != this.serviceShare.DetectFocusService.sectionName) return;
       if (!this.sidebarDrawer?.opened) {
         this.sidebarDrawer?.toggle();
       }
@@ -201,9 +202,6 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
         if (this.innerWidth > 600) {
           if (!this.sidebarDrawer?.opened) {
             this.sidebarDrawer?.toggle();
-          }
-          if (this.sidebar !== 'comments') {
-            this.sidebar = 'comments';
           }
         } else {
           setTimeout(() => {
