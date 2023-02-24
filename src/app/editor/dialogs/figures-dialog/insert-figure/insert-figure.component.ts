@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
 import { ThemePalette } from '@angular/material/core';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { CitableElementsService } from '@app/editor/services/citable-elements.service';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
@@ -8,6 +8,7 @@ import { CommentsService } from '@app/editor/utils/commentsService/comments.serv
 import { figure } from '@app/editor/utils/interfaces/figureComponent';
 import { Plugin, PluginKey } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
+import { AddFigureDialogV2Component } from '../add-figure-dialog-v2/add-figure-dialog-v2.component';
 
 export interface Task {
   name: string;
@@ -35,6 +36,7 @@ export class InsertFigureComponent implements AfterViewInit {
     private dialogRef: MatDialogRef<InsertFigureComponent>,
     private citableElementsService:CitableElementsService,
     private commentsPlugin: CommentsService,
+    public dialog: MatDialog,
     private prosemirrorEditorsService: ProsemirrorEditorsService,
     @Inject(MAT_DIALOG_DATA) public data: { view: EditorView, citatData: any,sectionID:string }
   ) {
@@ -49,6 +51,21 @@ export class InsertFigureComponent implements AfterViewInit {
 
   getCharValue(i: number) {
     return String.fromCharCode(97 + i)
+  }
+
+  addFigure(){
+    this.dialog.open(AddFigureDialogV2Component, {
+      data: { fig: undefined, updateOnSave: false, index: this.figuresData?.length },
+      disableClose: false
+    }).afterClosed().subscribe((result: { figure: figure }) => {
+      if (result && result.figure ) {
+        this.figuresData?.push(result.figure.figureID)
+        this.figures![result.figure.figureID] = result.figure
+        this.selectedFigures[this.figuresData?.length-1] = true
+        this.figuresComponentsChecked[result.figure.figureID] = this.figures[result.figure.figureID].components.map(c => true);
+        this.citableElementsService.writeElementDataGlobal(this.figures!, this.figuresData, 'citation');
+      }
+    })
   }
 
   setSelection(checked: boolean, figureId: string, figIndex: number, figComponentIndex?: number) {

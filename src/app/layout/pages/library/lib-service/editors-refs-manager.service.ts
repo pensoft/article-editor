@@ -414,7 +414,6 @@ export class EditorsRefsManagerService {
       })
     })
 
-      // there are references in the end editor that are not cited so we should remove them
       let refsIdsToRemoveFormEndEditor: string[] = refsIdsInEndEditor.filter(x => !allcitedReferencesIdsInAllEditors.includes(x));
       refsIdsToRemoveFormEndEditor.forEach((id) => {
         this.removeRefFromEndEditorById(id);
