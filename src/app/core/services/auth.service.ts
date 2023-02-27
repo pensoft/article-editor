@@ -32,7 +32,7 @@ export class AuthService implements OnDestroy {
   }
 
   constructor(
-    private _http: HttpClient,
+    public _http: HttpClient,
     private router: Router,
     private sharedService:ServiceShare,
     private jwtHelper: JwtHelperService

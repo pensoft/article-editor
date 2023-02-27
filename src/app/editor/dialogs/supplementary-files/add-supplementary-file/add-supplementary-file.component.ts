@@ -9,7 +9,7 @@ import {
   ViewChild,
   ViewContainerRef
 } from '@angular/core';
-import { FormGroup } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { basicSetup, EditorState, EditorView } from '@codemirror/basic-setup';
 import { html } from '@codemirror/lang-html';
@@ -77,8 +77,8 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
   sectionContent = JSON.parse(JSON.stringify(supplementaryFileJSON));
   codemirrorHTMLEditor?: EditorView
   @ViewChild('codemirrorHtmlTemplate', { read: ElementRef }) codemirrorHtmlTemplate?: ElementRef;
-  @ViewChild('container', { read: ViewContainerRef }) container?: ViewContainerRef;
   supplementaryFilesTemplatesObj: any
+  fileLinkControl = new FormControl('',Validators.required);
 
   section = { mode: 'editMode' }
   sectionForm = new FormGroup({})
@@ -99,6 +99,17 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
 
   ngAfterViewChecked(): void {
     this.changeDetectorRef.detectChanges();
+  }
+
+  fileType:'*' = '*'
+
+  fileIsUploaded(uploaded){
+    if((uploaded.collection == this.fileType||(this.fileType == '*'&&uploaded.collection && uploaded.collection.length>0))&&uploaded.base_url){
+      this.uploadedFileInCDN(uploaded)
+    }
+  }
+  uploadedFileInCDN(fileData:any){
+    this.fileLinkControl.setValue(fileData.base_url);
   }
 
   ngAfterViewInit(): void {
@@ -125,7 +136,7 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
         this.sectionContent.components[1].defaultValue = authorsContainer.textContent;
         this.sectionContent.components[2].defaultValue = dataTypeContainer.textContent;
         this.sectionContent.components[3].defaultValue = this.data.supplementaryFile.brief_description;
-        this.sectionContent.components[4].defaultValue = urlContainer.textContent;
+        this.fileLinkControl.setValue(urlContainer.textContent)
         let submision = {data:citationElementMap.supplementary_file_citation.getElFormIOSubmission(this.data.supplementaryFile,'endEditor')}
         filterFieldsValues(this.sectionContent,submision,this.serviceShare,undefined,false,supplementaryFileHTML,false)
         let filterdTableData ={
@@ -186,7 +197,7 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
       this.codemirrorHTMLEditor?.dispatch(tr!);
 
       let prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
-
+      submision.data.supplementaryFileURL = this.fileLinkControl.value
       submision.data.supplementary_file_ID = this.supplementaryFileID!
 
       this.supplementaryFilesTemplatesObj[this.supplementaryFileID] = { html: prosemirrorNewNodeContent }

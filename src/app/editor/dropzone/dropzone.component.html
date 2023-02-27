@@ -1,8 +1,9 @@
 <dropzone
   [config]="config"
-  [message]="'Click or drag images here to upload'"
+  [message]="'Drag and Drop or click to select file and upload.'"
   (sending)="onSending($event)"
   (addedFile)="onAddFile($event)"
   (error)="onUploadError($event)"
   (success)="onUploadSuccess($event)">
 </dropzone>
+<div *ngIf="errorMsg" class="upload-error">{{errorMsg}}</div>

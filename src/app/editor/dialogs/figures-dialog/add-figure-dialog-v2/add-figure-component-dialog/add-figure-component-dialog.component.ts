@@ -33,7 +33,7 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
       "componentType": string,
       "url": string
     }, }
-  ) { 
+  ) {
     this.urlSubscription = this.urlFormControl.valueChanges.subscribe(url => {
       const videoHtml = this.embedService.embed(url);
       if (!videoHtml) {
@@ -114,5 +114,16 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
       "thumbnail": this.getVideoThumbnail(this.urlFormControl.value)
     }
     this.dialogRef.close({component:newComponent})
+  }
+
+  fileIsUploaded(uploaded){
+    console.log(uploaded);
+    if(uploaded.collection == "images"&&uploaded.base_url){
+      this.uploadedFileInCDN(uploaded)
+    }
+  }
+  uploadedFileInCDN(fileData:any){
+    this.urlFormControl.setValue(fileData.base_url);
+    this.typeFromControl.setValue('image');
   }
 }
