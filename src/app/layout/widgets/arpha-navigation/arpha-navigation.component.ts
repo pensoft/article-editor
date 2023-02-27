@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, Inject, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { EnforcerService } from '@app/casbin/services/enforcer.service';
@@ -26,7 +26,8 @@ export class ArphaNavigationComponent implements AfterViewInit {
     private serviceShare: ServiceShare,
     public sharedDialog: MatDialog,
     public enforcer: EnforcerService,
-    private translate: TranslateService
+    private translate: TranslateService,
+    @Inject('AUTH_SERVICE') private authServiceUrl: string,
   ) {
 
   }
@@ -81,5 +82,12 @@ export class ArphaNavigationComponent implements AfterViewInit {
     } else {
       this.icon = 'expand_more';
     }
+  }
+
+  logout() {
+    const returnUrl = `${document.location.origin}/logout`;
+    window.location.href = `${this.authServiceUrl}/logout?return_uri=${encodeURIComponent(returnUrl)}`;
+    //this.auth.invalidateToken();
+    //document.location.reload();
   }
 }
