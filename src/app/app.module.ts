@@ -171,6 +171,8 @@ import { TaxonsSectionComponent } from './editor/taxons/taxons-section/taxons-se
 import { TaxonComponent } from './editor/taxons/taxon/taxon.component';
 import { DropzoneModule } from 'ngx-dropzone-wrapper';
 import { DropzoneComponent } from './editor/dropzone/dropzone.component';
+import { EmbedVideo } from 'ngx-embed-video';
+
 //@ts-ignore
 EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE, 'event-dispatcher']
 
@@ -368,6 +370,7 @@ const gravatarConfig: GravatarConfig = {
         deps: [HttpClient]
       }
     }),
+    EmbedVideo.forRoot(),
   ],
 
   providers: [
