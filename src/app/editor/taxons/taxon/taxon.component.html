@@ -1,7 +1,11 @@
-<div class="taxon-box"  (click)="selectTaxon()">
+<mat-card class="taxon-box"  (click)="selectTaxon()">
+
   <mat-card-header>
-    Taxon: {{taxon.taxonTxt}}
+    <mat-card-title>
+      Taxon: <strong>{{taxon.taxonTxt}}</strong>
+    </mat-card-title>
   </mat-card-header>
+
   <mat-card-content>
     <div class="comment-btns-container">
       <div class="comment-btns" fxLayout="row nowrap" fxLayoutGap="30px" fxLayoutAlign="center center">
@@ -17,4 +21,4 @@
       </div>
     </div>
   </mat-card-content>
-</div>
+</mat-card>

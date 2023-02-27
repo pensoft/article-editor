@@ -16,8 +16,11 @@
 
       <div fxLayout="row wrap" fxLayoutGap="16px">
         <mat-card class="figure-card" *ngFor="let component of figures[figureId].components;let j = index" fxLayout="column nowrap">
-          <mat-checkbox class="component-checkbox" [checked]="figuresComponentsChecked[figureId][j]"
-                        [color]='"primary"' (change)="setSelection($event.checked,figureId,i,j)">
+          <mat-checkbox class="component-checkbox"
+                        *ngIf="figures[figureId].components.length > 1"
+                        [checked]="figuresComponentsChecked[figureId][j]"
+                        [color]='"primary"'
+                        (change)="setSelection($event.checked,figureId,i,j)">
             Fig. {{i + 1}}{{getCharValue(j)}}
           </mat-checkbox>
           <img *ngIf="component.componentType == 'image'"
@@ -41,5 +44,6 @@
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]="true">Cancel</button>
+  <button mat-stroked-button color="primary" (click)="addFigure()">Add Figure</button>
   <button mat-flat-button color="primary" (click)="citateFigures()">Cite Figures</button>
 </mat-dialog-actions>

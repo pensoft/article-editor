@@ -41,7 +41,6 @@ export class RefsInArticleDialogComponent implements OnDestroy {
   refsInYdoc: any;
   changedOrAddedRefs: any = {};
   deletedRefsIds: string[] = [];
-  loadingData = false;
 
   getCiTOCopy(cito:any){
     return {...cito}
@@ -136,7 +135,9 @@ export class RefsInArticleDialogComponent implements OnDestroy {
     let newRefs = this.getRefsForCurrEditSession();
     let refsWithNoFormControls = clearRefFromFormControl(newRefs)
     this.refMap.set('refsAddedToArticle', refsWithNoFormControls);
-    this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
+    setTimeout(()=>{
+      this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
+    },20)
     this.dialogRef.close()
   }
 
@@ -163,10 +164,8 @@ export class RefsInArticleDialogComponent implements OnDestroy {
   }
 
   editRef(ref) {
-    this.loadingData = true;
     this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
       this.refsAPI.getStyles().subscribe((refStyles: any) => {
-        this.loadingData = false;
         let referenceStyles = refStyles.data
         let referenceTypesFromBackend = refTypes.data;
         let oldData = { refData: { formioData: ref.formIOData }, refType: ref.refType, refStyle: ref.refStyle,refCiTO:this.refsCiTOsControls[ref.ref.id]?this.refsCiTOsControls[ref.ref.id].value:ref.refCiTO }

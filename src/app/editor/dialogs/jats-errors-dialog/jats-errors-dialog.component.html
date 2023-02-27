@@ -1,8 +1,12 @@
-<div class="errors-contaiener">
-  <div class="jats-error" *ngFor="let error of data.errors">
-    {{error | json}}
+<mat-dialog-content>
+  <div class="errors-contaiener">
+    <div class="jats-error" *ngFor="let error of data.errors">
+      {{error | json}}
+    </div>
   </div>
-</div>
-<div class="dialog-btns">
-  <button mat-raised-button [mat-dialog-close] cdkFocusInitial>Ok</button>
-</div>
+</mat-dialog-content>
+
+
+<mat-dialog-actions align="end">
+  <button mat-flat-button color="primary" [mat-dialog-close] cdkFocusInitial>Ok</button>
+</mat-dialog-actions>

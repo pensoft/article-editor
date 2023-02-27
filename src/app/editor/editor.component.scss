@@ -22,6 +22,9 @@
     }
   }
 }
+.selected-article-edit-option{
+  color: var(--color-00b1b2) !important;
+}
 
 .main-editor-container {
   flex-flow: column nowrap;
@@ -138,13 +141,7 @@ text-content-type {
   padding: 2px;
 }
 
-app-article {
-  display: block;
-  width: 100%;
-  height: fit-content;
-  margin: 0;
-  padding: 24px 61px 24px 24px;
-}
+
 
 app-prosemirror-editor {
   width: calc(100% - 52px);
@@ -182,7 +179,6 @@ app-prosemirror-editor {
 
 $treeSpace: 341px;
 .main-container {
-  background: var(--color-f9fafc);
   height: 100%;
   display: flex;
 
@@ -207,6 +203,50 @@ $treeSpace: 341px;
     box-shadow: 0 4px 4px #1bb1b22b;
     overflow: hidden;
     overflow-y: auto;
+
+    .editor-content {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: space-between;
+      align-items: stretch;
+      height: max-content;
+      width: 100%;
+
+      app-article {
+        display: block;
+        flex: 1 1 auto;
+        height: fit-content;
+        margin: 0;
+        padding: 24px;
+      }
+
+      .editor_buttons {
+        display: none;
+        position: relative;
+        flex: 0 0 56px;
+        padding: 12px 12px 12px 4px;
+
+        .editor_buttons_wrapper {
+          display: none;
+          transition: top 0.1s linear 0s;
+
+          .commentBtnDiv,
+          .trackChangesBtnDiv,
+          .tag-words-btn-div {
+            padding: 5px 0;
+            height: 50px;
+            transition: visibility 0s, opacity 0.2s linear;
+          }
+
+          button {
+            box-shadow: 0 1px 5px 2px rgb(0 177 178 / 20%), 0 2px 2px 0 rgb(0 177 178 / 20%), 0 1px 4px 0 rgb(0 177 178 / 20%);
+            background: var(--color-ffffff);
+          }
+        }
+
+
+      }
+    }
   }
   .editorSpace {
     width: calc(100% - 500px);
@@ -218,7 +258,7 @@ $treeSpace: 341px;
 }
 
 ::ng-deep .changes_state_btn_mobile {
-  width: 28x !important;
+  width: 28px !important;
   height: 41px !important;
   line-height: 28px !important;
   padding-right: 16px !important;
@@ -239,6 +279,7 @@ $treeSpace: 341px;
   width: 28x !important;
   height: 28px !important;
   line-height: 28px !important;
+  color: var(--color-00b1b2) !important;
   .mat-icon {
     width: 25px !important;
     height: 25px !important;
@@ -303,48 +344,17 @@ $treeSpace: 341px;
   background-color: turquoise;
 }
 
-.editor_buttons {
-  width: 22px;
-  height: 100px;
-  margin: 12px 12px 12px 4px;
-  position: absolute;
-  right: 10px;
-  align-self: flex-end;
-  .editor_buttons_wrapper {
-    display: none;
-    transition: top 0.1s linear 0s;
-  }
-  .commentBtnDiv {
-    height: 50px;
-    //height: 40px;
-/*     display: inline-flex; */
-    transition: visibility 0s, opacity 0.2s linear;
-    .commentsBtn {
-      margin-bottom: 20px;
-    }
-  }
-  .trackChangesBtnDiv {
-    height: 50px;
-  }
-  .tag-words-btn-div{
-    height: 50px;
-    transition: visibility 0s, opacity 0.2s linear;
-  }
-  button {
-    box-shadow: 0px 1px 5px 2px rgb(0 177 178 / 20%), 0px 2px 2px 0px rgb(0 177 178 / 20%), 0px 1px 4px 0px rgb(0 177 178 / 20%);
-    background: var(--color-ffffff);
-  }
-}
-
 .sidebar-container {
   width: 341px;
   height: 100%;
   background: var(--color-f9fafc);
   box-shadow: -2px 0px 1px #1bb1b22b;
   display: inline-flex;
+
+  .mat-drawer-inner-container {
+    overflow: hidden;
+  }
 }
-
-
 
 .floating-button {
   display: none;
@@ -391,59 +401,6 @@ $treeSpace: 341px;
       height: 20px;
       width: 20px;
     }
-  }
-}
-
-@media screen and (max-width: 600px) {
-  .sidebar-container,
-  .data-tree {
-    width: 100% !important;
-    /* position: absolute;
-    z-index: 2;
-    height: calc(100% - 36px) !important;
-    margin-top: 20px !important;
-    background: #F9FAFC !important;
-    border-right: solid 2px;
-    border-top: solid 2px;
-    border-bottom-right-radius: 19px;
-    border-bottom: solid 2px;
-    border-top-right-radius: 19px;
-    display: inline-flex;
-    overflow-y: auto !important;
-    padding-top: 10px;
-    box-shadow: 0px 2px 8px -2px grey;
-    border-color: #00B1B2;
-    transition: visibility 0s, opacity 0.5s linear; */
-  }
-  .side-navbar-actions,
-  .controls-toolbar {
-    display: none !important;
-  }
-  .prosemirror_menu_container {
-    display: none;
-    margin-top: 0px !important;
-    width: calc(100% - 50px);
-    vertical-align: middle;
-    app-editor-menu {
-      width: 100%;
-    }
-  }
-  .actions-container {
-    display: none;
-  }
-  .metadataTreeDrawer {
-    background-color: white !important;
-    width: 100%;
-  }
-  .editor-container {
-    border-top-left-radius: 0 !important;
-    border-top-right-radius: 0 !important;
-    margin-top: 0 !important;
-    height: 100% !important;
-    width: 100% !important;
-  }
-  .floating-button {
-    display: block;
   }
 }
 

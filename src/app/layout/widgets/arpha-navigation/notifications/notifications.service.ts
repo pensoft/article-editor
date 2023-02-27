@@ -9,7 +9,13 @@ import { map } from 'rxjs/operators';
 const EVENTSURL = environment.apiUrl + '/event-dispatcher'
 
 export interface notificationEvent {
-  date: number, event: string, status: string, eventId: string, new: boolean, link?: string ,metaData?:any
+  date: number,
+  event: string,
+  status: string,
+  eventId: string,
+  new: boolean,
+  link?: string,
+  metaData?:any,
 }
 
 @Injectable({
@@ -111,6 +117,9 @@ export class NotificationsService {
       if (eventData.task.status == 'DONE') {
         let url = eventData.task.data.data.url;
         task.link = url;
+      }else if(eventData.task.status == 'FAILED'){
+        task.metaData = [eventData.task.data.error]
+        task.link = 'open pdf render errors'
       }
       if (this.allNotifications.findIndex((n) => n.eventId == task.eventId)!=-1) {
         this.updateEventData(task)
@@ -121,7 +130,7 @@ export class NotificationsService {
   }
   viewNotification(event: notificationEvent) {
     if (event.link) {
-      if(event.link == 'open jats render errors'){
+      if(event.link == 'open jats render errors'||event.link == 'open pdf render errors'){
         this.ServiceShare.openJatsErrorsDialog(event.metaData);
       }else{
         window.open(event.link)

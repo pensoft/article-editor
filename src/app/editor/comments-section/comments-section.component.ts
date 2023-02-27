@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { uuidv4 } from 'lib0/random';
 import { toggleMark } from 'prosemirror-commands';
@@ -35,6 +35,8 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
   editorView?: EditorView
   userInfo: any
 
+  @ViewChild('input', { read: ElementRef })
+  commentInput?: ElementRef;
   searchForm = new FormControl('');
 
   rendered = 0;
@@ -73,10 +75,11 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
         }
       })
       this.addCommentSubject.subscribe((data) => {
-        if (!this.editorView || !this.editorView.state) {
+          if (!this.editorView || !this.editorView.state) {
           return;
         } else if (data.type == 'commentData') {
           this.addCommentEditorId = data.sectionName
+
           //this.showAddCommentBox = this.lastFocusedEditor! == this.addCommentEditorId! && this.commentAllowdIn[this.addCommentEditorId]
           if (this.showAddCommentBox !== data.showBox) {
           }
@@ -84,6 +87,9 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
             this.moveAddCommentBox(this.editorView)
           }, 0)
           this.showAddCommentBox = data.showBox
+          if(!this.showAddCommentBox&&this.commentInput && this.commentInput.nativeElement){
+            this.commentInput.nativeElement.value = ''
+          }
         } else if (data.type == 'commentAllownes'&&this.addCommentEditorId == data.sectionId) {
           if (this.showAddCommentBox && data.allow == false) {
             this.cancelBtnHandle()
@@ -91,6 +97,8 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
           this.commentAllowdIn[data.sectionId] = data.allow && isCommentAllowed(this.editorView.state)
           this.selectedTextInEditors[data.sectionId] = data.text
           this.errorMessages[data.sectionId] = data.errorMessage
+        }else if(this.lastFocusedEditor != this.addCommentEditorId){
+          this.cancelBtnHandle()
         }
       })
       this.subjSub = this.doneRenderingCommentsSubject.subscribe((data) => {
@@ -140,6 +148,9 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
   moveAddCommentBox(view: EditorView) {
     if (!this.showAddCommentBox) {
       this.doneRendering('hide_comment_box')
+      if(this.commentInput && this.commentInput.nativeElement){
+        this.commentInput.nativeElement.value = ''
+      }
     } else {
       this.newCommentMarkId = uuidv4();
       this.doneRendering('show_comment_box')
@@ -576,7 +587,10 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
   }
 
   cancelBtnHandle() {
-    let sectionName = this.addCommentEditorId
+    let sectionName = this.addCommentEditorId;
+    if(this.commentInput && this.commentInput.nativeElement){
+      this.commentInput.nativeElement.value = ''
+    }
     this.addCommentSubject!.next({ type: 'commentData', sectionName, showBox: false })
   }
   preventRerenderUntilCommentAdd = { bool: false, id: '' }
@@ -681,9 +695,14 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
       }) */
     });
     container.scrollTop = articleElement.scrollTop
-
+    let canScrollIn = ['auto-complete-container','text-autocomplete','user-option']
     container.addEventListener('wheel', (event) => {
-      event.preventDefault()
+      let eventPath = event.composedPath()
+      if(!eventPath.some((el)=>{
+        return (el instanceof HTMLElement && canScrollIn.some(x=>el.classList.contains(x)))
+      })){
+        event.preventDefault()
+      }
     })
   }
 

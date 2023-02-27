@@ -174,7 +174,7 @@
     "symbol-observable" "4.0.0"
     "uuid" "8.3.2"
 
-"@angular/common@^11.1.0", "@angular/common@^12.0.0", "@angular/common@^12.0.0 || ^13.0.0-0", "@angular/common@^9.0.0 || ^10.0.0 || ^11.0.0 || ^12.0.0", "@angular/common@>=10.0.0", "@angular/common@>=11.0.0", "@angular/common@>=12.0.0", "@angular/common@>=6.0.0", "@angular/common@>=9.0.0", "@angular/common@~12.2.16", "@angular/common@12.2.16":
+"@angular/common@^11.1.0", "@angular/common@^12.0.0", "@angular/common@^12.0.0 || ^13.0.0-0", "@angular/common@^9.0.0 || ^10.0.0 || ^11.0.0 || ^12.0.0", "@angular/common@>=10.0.0", "@angular/common@>=11.0.0", "@angular/common@>=12.0.0", "@angular/common@>=6.0.0", "@angular/common@~12.2.16", "@angular/common@12.2.16":
   "integrity" "sha512-FEqTXTEsnbDInqV1yFlm97Tz1OFqZS5t0TUkm8gzXRgpIce/F/jLwAg0u1VQkgOsno6cNm0xTWPoZgu85NI4ug=="
   "resolved" "https://registry.npmjs.org/@angular/common/-/common-12.2.16.tgz"
   "version" "12.2.16"
@@ -208,7 +208,7 @@
   dependencies:
     "tslib" "^2.2.0"
 
-"@angular/core@^11.1.0", "@angular/core@^12.0.0", "@angular/core@^12.0.0 || ^13.0.0-0", "@angular/core@^9.0.0 || ^10.0.0 || ^11.0.0 || ^12.0.0", "@angular/core@>=10.0.0", "@angular/core@>=11.0.0", "@angular/core@>=12.0.0", "@angular/core@>=13", "@angular/core@>=2.3.0", "@angular/core@>=6.0.0", "@angular/core@>=9.0.0", "@angular/core@~12.2.16", "@angular/core@12.2.16":
+"@angular/core@^11.1.0", "@angular/core@^12.0.0", "@angular/core@^12.0.0 || ^13.0.0-0", "@angular/core@^9.0.0 || ^10.0.0 || ^11.0.0 || ^12.0.0", "@angular/core@>=10.0.0", "@angular/core@>=11.0.0", "@angular/core@>=12.0.0", "@angular/core@>=13", "@angular/core@>=2.3.0", "@angular/core@>=6.0.0", "@angular/core@~12.2.16", "@angular/core@12.2.16":
   "integrity" "sha512-jsmvaRdAfng99z2a9mAmkfcsCE1wm+tBYVDxnc5JquSXznwtncjzcoc2X0J0dzrkCDvzFfpTsZ9vehylytBc+A=="
   "resolved" "https://registry.npmjs.org/@angular/core/-/core-12.2.16.tgz"
   "version" "12.2.16"
@@ -2549,9 +2549,9 @@
   "version" "7.4.1"
 
 "acorn@^8", "acorn@^8.4.1":
-  "integrity" "sha512-Xx54uLJQZ19lKygFXOWsscKUbsBZW0CPykPhVQdhIeIwrbPmJzqeASDInc8nKBnp/JT6igTs82qPXz069H8I/A=="
-  "resolved" "https://registry.npmjs.org/acorn/-/acorn-8.7.1.tgz"
-  "version" "8.7.1"
+  "integrity" "sha512-xjIYgE8HBrkpd/sJqOGNspf8uHG+NOHGOw6a/Urj8taM2EXfdNAH2oFcPeIFfsv3+kz/mJrS5VuMqbNLjCa2vw=="
+  "resolved" "https://registry.npmjs.org/acorn/-/acorn-8.8.2.tgz"
+  "version" "8.8.2"
 
 "adjust-sourcemap-loader@^4.0.0":
   "integrity" "sha512-OXwN5b9pCUXNQHJpwwD2qP40byEmSgzj8B4ydSN0uMNYWiFmJ6x6KwUllMmfk8Rwu/HJDFR7U8ubsWBoN0Xp0A=="
@@ -4691,11 +4691,6 @@
   dependencies:
     "contra" "1.9.4"
     "crossvent" "1.5.5"
-
-"dropzone@^5.7.0":
-  "integrity" "sha512-Azk8kD/2/nJIuVPK+zQ9sjKMRIpRvNyqn9XwbBHNq+iNuSccbJS6hwm1Woy0pMST0erSo0u4j+KJaodndDk4vA=="
-  "resolved" "https://registry.npmjs.org/dropzone/-/dropzone-5.9.3.tgz"
-  "version" "5.9.3"
 
 "duplexer2@~0.1.4":
   "integrity" "sha1-ixLauHjA1p4+eJEFFmKjL8a93ME="
@@ -7961,14 +7956,6 @@
   "resolved" "https://registry.npmjs.org/ngx-cookie-service/-/ngx-cookie-service-12.0.3.tgz"
   "version" "12.0.3"
   dependencies:
-    "tslib" "^2.0.0"
-
-"ngx-dropzone-wrapper@^10.0.1":
-  "integrity" "sha512-O9jaj8GWIIRWhYS8ibzR1yN1voQ4UUGKhl0zH0X/DY9MTsWCGmFvuSfnuv8MuXKcEmukjyeMUQ1p9BerUshIug=="
-  "resolved" "https://registry.npmjs.org/ngx-dropzone-wrapper/-/ngx-dropzone-wrapper-10.0.1.tgz"
-  "version" "10.0.1"
-  dependencies:
-    "dropzone" "^5.7.0"
     "tslib" "^2.0.0"
 
 "ngx-dropzone@^3.0.0":

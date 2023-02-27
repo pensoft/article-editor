@@ -25,7 +25,7 @@ import { I } from '@angular/cdk/keycodes';
 })
 export class DashboardComponent implements AfterViewInit, AfterViewChecked {
 
-  displayedColumns: string[] = ['id', 'title', 'date', 'lastupdated', 'layout-type', 'template-type', 'autor', 'buttons'];
+  displayedColumns: string[] = ['id', 'title', 'date', 'lastupdated', 'layout-type', 'autor', 'buttons']; // template-type - column removed
   data: any[] = [];
   realData: any[] = [];
 

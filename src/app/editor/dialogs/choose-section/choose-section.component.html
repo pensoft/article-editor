@@ -1,4 +1,6 @@
-<h2 mat-dialog-title>Add section to Article</h2>
+<h2 mat-dialog-title *ngIf="data&&data.node">Add section to {{data.node.title.label}}</h2>
+<h2 mat-dialog-title *ngIf="!data||!data.node">Add section to Article</h2>
+
 <div class="search-field-wrapper">
   <form (keydown)="passSearchVal(inputText)" fxFlex="100%" fxLayout="column">
     <label>Select a section</label>
@@ -8,7 +10,6 @@
   </form>
 </div>
 
-
 <mat-dialog-content class="fixed-dialog-content-height">
 
   <div *ngIf="showError" class="error">No Section selected.</div>
@@ -16,7 +17,6 @@
   <div *ngIf="searchResults.length == 0">
     There are no allowed sections
   </div>
-
 
   <mat-selection-list #topic [multiple]="false" [ngClass]="{'no-results': searchResults.length == 0}">
     <mat-list-option *ngFor="let section of searchResults" [value]="section.id">
