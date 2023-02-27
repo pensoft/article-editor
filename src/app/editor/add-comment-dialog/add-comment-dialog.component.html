@@ -33,14 +33,6 @@
       for supported functions, operators and etc.</mat-hint>
   </mat-form-field>
 
-  <!--
-  <small class="mat-form-field-hint-custom" *ngIf="type == 'mathinline'">
-    See
-    <a href="https://katex.org/docs/supported.html"  target="_blank">https://katex.org/docs/supported.html</a>
-    for supported functions, operators and etc.
-  </small>
-  -->
-
   <mat-radio-group *ngIf="type == 'mathinline'"
                    [formControl]="mathType"
                    [(ngModel)]="selectedMathExample">
