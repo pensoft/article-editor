@@ -1926,13 +1926,14 @@ block-figure {
 
 /* Formio Textarea Override */
 mat-formio-textarea {
-  .prosemirror-textarea-wrapper {
-    .editor-container {
-      border: 1px solid var(--color-e3e3e3);
-      transition: all ease-in-out 300ms;
-      border-radius: 6px;
-      padding: 6px 12px;
-    }
+  .editor-container {
+    border: 1px solid var(--color-e3e3e3);
+    transition: all ease-in-out 300ms;
+    border-radius: 6px;
+    padding: 6px 12px;
+    min-height: 69px;
+    max-height: 169px;
+    overflow-y: scroll;
   }
 
   .prosemirror-label-tag {
