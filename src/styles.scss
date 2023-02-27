@@ -1206,13 +1206,16 @@ app-root {
     app-signup,
     app-dashboard,
     app-editor-container,
-    app-landing {
+    app-landing,
+    app-allnotifications {
       display: block;
       height: 100%;
       overflow: hidden;
     }
 
-    app-landing {
+    app-landing,
+    app-dashboard,
+    app-allnotifications {
       overflow-y: auto;
     }
   }
