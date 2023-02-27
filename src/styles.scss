@@ -1351,7 +1351,7 @@ router-outlet {
 
 .mat-dialog-container {
   border-radius: 20px !important;
-  box-shadow: 0px 6px 10px $box-shadow !important;
+  box-shadow: 0 6px 10px $box-shadow !important;
 }
 
 //////////////////////
@@ -1364,8 +1364,8 @@ router-outlet {
 }
 
 .mat-card-shadow {
-  box-shadow: 0px 3px 6px $mat-card-box-shadow !important;
-  border-radius: 15px !important;
+  box-shadow: 0 3px 6px $mat-card-box-shadow !important;
+  border-radius: 6px !important;
 }
 
 .button-stroked-primary {
