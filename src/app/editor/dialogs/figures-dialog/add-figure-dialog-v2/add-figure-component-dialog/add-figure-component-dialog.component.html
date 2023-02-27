@@ -9,7 +9,7 @@
     <div class="row-container" fxLayout="row nowrap" fxLayoutGap="16px">
       <div fxLayout="column nowrap" fxFlex="1 1 0">
         <mat-label class="upper-label">URL</mat-label>
-        <mat-form-field class="url-edit-field">
+        <mat-form-field class="file-url-control">
           <input type="url" matInput [formControl]="urlFormControl" placeholder="http://example.url">
           <!-- <mat-error *ngIf="urlFormControl.hasError('pattern') && !urlFormControl.hasError('required')">
             Please enter a valid url.
@@ -33,7 +33,9 @@
         </mat-form-field>
       </div>
     </div>
+    <app-dropzone (uploaded)="fileIsUploaded($event)" [fileType]="'images'">
 
+    </app-dropzone>
     <div class="row-container">
 
       <div class="description-edit-container">
@@ -44,7 +46,7 @@
       <div class="figure-component-edit-preview">
         <div *ngIf="typeFromControl.valid&&urlFormControl.valid">
           <img *ngIf="typeFromControl.value == 'image'" src="{{urlFormControl.value}}" alt="">
-          <iframe *ngIf="typeFromControl.value == 'video'" [src]="urlFormControl.value | safe">
+          <iframe *ngIf="typeFromControl.value == 'video'" [src]="this.videoUrl | safe">
           </iframe>
         </div>
       </div>

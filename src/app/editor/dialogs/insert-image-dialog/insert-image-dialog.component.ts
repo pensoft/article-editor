@@ -9,7 +9,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 })
 export class InsertImageDialogComponent implements OnInit {
 
-  imgLinkControl = new FormControl('',Validators.pattern('(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)'));
+  imgLinkControl = new FormControl('',Validators.required);
 
   constructor(
     private dialogRef: MatDialogRef<InsertImageDialogComponent>,
@@ -33,5 +33,13 @@ export class InsertImageDialogComponent implements OnInit {
 
   doAction(data: any) {
     this.dialogRef.close({ data,imgURL:this.imgLinkControl.value });
+  }
+  fileIsUploaded(uploaded){
+    if(uploaded.collection == "images"&&uploaded.base_url){
+      this.uploadedFileInCDN(uploaded)
+    }
+  }
+  uploadedFileInCDN(fileData:any){
+    this.imgLinkControl.setValue(fileData.base_url);
   }
 }
