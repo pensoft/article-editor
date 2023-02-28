@@ -21,15 +21,23 @@ export const getRefsEditPlugin = function (serviceShare: ServiceShare) {
     }
   }
 
-  let removeEdit = () => {
-    let editorContainer = Array.from(document.getElementsByClassName('editor-container'))[0]
-    editorContainer.addEventListener('scroll', () => {
-      if (Array.from(document.body.childNodes).includes(button)) {
+  let removeEdit = (view,event) => {
+    let targetElement = getTargetElement(event);
+    if(!(targetElement&&refElsTags.includes(targetElement.localName))){
+      if(Array.from(document.body.childNodes).includes(button)){
         button.removeEventListener('click', editReference)
         document.body.removeChild(button)
       }
-    })
+    }
   }
+
+  let editorContainer = Array.from(document.getElementsByClassName('editor-container'))[0]
+  editorContainer.addEventListener('scroll', () => {
+    if (Array.from(document.body.childNodes).includes(button)) {
+      button.removeEventListener('click', editReference)
+      document.body.removeChild(button)
+    }
+  })
 
   let getTargetElement = (event) => {
     let targetElement
@@ -87,7 +95,7 @@ export const getRefsEditPlugin = function (serviceShare: ServiceShare) {
 
             document.body.appendChild(button)
           } else {
-            removeEdit()
+            removeEdit(view,event)
           }
         }
       }
