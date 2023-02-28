@@ -563,13 +563,11 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
       id:supplFileXmlId,
       orientation:"portrait",
       position:"float",
-      "xlink:type":"simple",
-      "xlink:href":supplFileData.url,
       'mimetype':supplFileData.data_type
     });
-
     let labelEl = supplFileXML.ele('label').txt('Supplementary material '+(supplFileData.supplementary_file_number+1));
     let caption = supplFileXML.ele('caption')
+    supplFileXML.ele('ext-link', {"xlink:href": supplFileData.url, "ext-link-type": 'uri', "xlink:type": "simple"});
     let dom = document.createElement('div');
     dom.innerHTML = supplFileData.brief_description;
     let supplFileDescNodes = domPMParser.parse(dom).toJSON();
