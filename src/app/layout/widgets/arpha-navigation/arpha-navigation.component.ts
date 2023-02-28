@@ -8,6 +8,7 @@ import { TreeService } from 'src/app/editor/meta-data-tree/tree-service/tree.ser
 import { CantOpenArticleDialogComponent } from './cant-open-article-dialog/cant-open-article-dialog.component';
 import { UsersRoleIsChangedComponent } from './users-role-is-changed/users-role-is-changed.component';
 import { TranslateService } from '@ngx-translate/core';
+import { environment } from '@env';
 
 @Component({
   selector: 'arpha-navigation',
@@ -85,7 +86,7 @@ export class ArphaNavigationComponent implements AfterViewInit {
   }
 
   logout() {
-    const returnUrl = `${document.location.origin}/logout`;
+    const returnUrl = `${window.location.origin}${environment.production ? '/demo' : ''}/logout`;
     window.location.href = `${this.authServiceUrl}/logout?return_uri=${encodeURIComponent(returnUrl)}`;
     //this.auth.invalidateToken();
     //document.location.reload();
