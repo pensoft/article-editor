@@ -6,7 +6,7 @@
     <div class="title">Or add image with a link:</div>
     <mat-form-field appearance="fill" class="file-url-control">
       <mat-label>Enter your img URL here.</mat-label>
-      <input matInput placeholder="pat@example.com" [formControl]="imgLinkControl" required>
+      <input matInput placeholder="pat@example.com" [formControl]="imgLinkControl" required #imgurlInput>
       <mat-error *ngIf="imgLinkControl.invalid">{{getErrorMessage()}}</mat-error>
     </mat-form-field>
   </div>

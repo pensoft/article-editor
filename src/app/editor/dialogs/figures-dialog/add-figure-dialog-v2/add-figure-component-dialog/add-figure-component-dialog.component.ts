@@ -5,6 +5,7 @@ import { editorContainer } from '@app/editor/services/prosemirror-editors.servic
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { PMDomParser, schema } from '@app/editor/utils/Schema';
 import { EmbedVideoService } from 'ngx-embed-video';
+import { TextSelection } from 'prosemirror-state';
 import { Subscription } from 'rxjs';
 
 @Component({
@@ -21,6 +22,8 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
   urlSubscription: Subscription
 
   @ViewChild('componentDescription', { read: ElementRef }) componentDescription?: ElementRef;
+  @ViewChild('urlInputElement', { read: ElementRef }) urlInputElement?: ElementRef;
+
   componentDescriptionPmContainer:editorContainer
 
   constructor(
@@ -28,6 +31,7 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
     private changeDetectorRef: ChangeDetectorRef,
     private dialogRef: MatDialogRef<AddFigureComponentDialogComponent>,
     private embedService: EmbedVideoService,
+    private ref:ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public data: { component?:{
       "description": string,
       "componentType": string,
@@ -46,8 +50,11 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
     })
   }
 
+
   ngAfterViewChecked(): void {
     this.changeDetectorRef.detectChanges()
+    this.urlInputElement.nativeElement.focus()
+    this.ref.detectChanges();
   }
 
   ngOnInit(): void {
@@ -70,6 +77,12 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
   ngAfterViewInit(){
     let header = this.componentDescription?.nativeElement
     this.componentDescriptionPmContainer = this.serviceShare.ProsemirrorEditorsService.renderSeparatedEditorWithNoSync(header, 'pm-pdf-menu-container', schema.nodes.paragraph.create({},schema.text('Type component description here.')))
+    /* setTimeout(()=>{
+      let view = this.componentDescriptionPmContainer.editorView;
+      let size = view.state.doc.content.size;
+      view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,size)));
+      view.focus()
+    },40) */
     this.setComponentDataIfAny()
   }
 

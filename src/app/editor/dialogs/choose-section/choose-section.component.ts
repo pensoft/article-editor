@@ -1,4 +1,4 @@
-import {AfterViewChecked, ChangeDetectorRef, Component, Inject, OnDestroy, OnInit} from '@angular/core';
+import {AfterViewChecked, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
 import {countSectionFromBackendLevel, filterChooseSectionsFromBackend, filterSectionsFromBackendWithComplexMinMaxValidations} from '@app/editor/utils/articleBasicStructure';
 import { articleSection } from '@app/editor/utils/interfaces/articleSection';
@@ -17,6 +17,8 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked,OnDestroy
   sectionTemplates: any[] = [];
   searchResults: any[] = [];
   value = undefined
+  @ViewChild('inputText', { read: ElementRef }) inputText?: ElementRef;
+
   //@ViewChild('getSectionsSpinner') getSectionsSpinner?: any;
 
   private searchSubscription?: Subscription;
@@ -52,6 +54,8 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked,OnDestroy
       distinctUntilChanged(),
     )
     .subscribe((val) => (this.search(val)));
+    this.inputText.nativeElement.focus()
+    this.ref.detectChanges();
   }
 
 

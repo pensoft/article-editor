@@ -1,5 +1,5 @@
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop';
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormControl, FormGroup } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { IUserDetail } from '@app/core/interfaces/auth.interface';
@@ -51,12 +51,14 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
   // public allUsers!: any[];
   public searchText: any;
 
+  @ViewChild('searchUsersInput', { read: ElementRef }) searchUsersInput?: ElementRef;
   constructor(
     private allUsersService: AllUsersService,
     private dialogRef: MatDialogRef<AddContributorsDialogComponent>,
     public formBuilder: FormBuilder,
     public dialog: MatDialog,
-    public sharedService: ServiceShare
+    public sharedService: ServiceShare,
+    private ref:ChangeDetectorRef
   ) {
     this.ownerSettingsForm = formBuilder.group({
       accessAdding: false,
@@ -234,7 +236,8 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
       this.setCollaboratorsData(data)
     });
     this.setCollaboratorsData(this.sharedService.YdocService.collaborators.get('collaborators'))
-
+    this.searchUsersInput.nativeElement.focus()
+    this.ref.detectChanges()
   }
   closeDialog() {
     this.dialogRef.close();
