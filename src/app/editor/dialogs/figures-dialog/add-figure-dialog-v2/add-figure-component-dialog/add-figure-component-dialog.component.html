@@ -10,7 +10,7 @@
       <div fxLayout="column nowrap" fxFlex="1 1 0">
         <mat-label class="upper-label">URL</mat-label>
         <mat-form-field class="file-url-control">
-          <input type="url" matInput [formControl]="urlFormControl" placeholder="http://example.url">
+          <input type="url" matInput [formControl]="urlFormControl"  #urlInputElement placeholder="http://example.url">
           <!-- <mat-error *ngIf="urlFormControl.hasError('pattern') && !urlFormControl.hasError('required')">
             Please enter a valid url.
           </mat-error> -->

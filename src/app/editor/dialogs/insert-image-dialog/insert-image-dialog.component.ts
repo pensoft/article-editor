@@ -1,4 +1,4 @@
-import { Component, Inject, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 
@@ -7,12 +7,14 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
   templateUrl: './insert-image-dialog.component.html',
   styleUrls: ['./insert-image-dialog.component.scss']
 })
-export class InsertImageDialogComponent implements OnInit {
+export class InsertImageDialogComponent implements OnInit,AfterViewInit {
 
   imgLinkControl = new FormControl('',Validators.required);
 
+  @ViewChild('imgurlInput', { read: ElementRef }) imgurlInput?: ElementRef;
   constructor(
     private dialogRef: MatDialogRef<InsertImageDialogComponent>,
+    private ref:ChangeDetectorRef,
     @Inject(MAT_DIALOG_DATA) public data: any) {
   }
 
@@ -41,5 +43,9 @@ export class InsertImageDialogComponent implements OnInit {
   }
   uploadedFileInCDN(fileData:any){
     this.imgLinkControl.setValue(fileData.base_url);
+  }
+  ngAfterViewInit(): void {
+    this.imgurlInput.nativeElement.focus()
+    this.ref.detectChanges();
   }
 }
