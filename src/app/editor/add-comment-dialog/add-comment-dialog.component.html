@@ -13,13 +13,13 @@
   <mat-label class="upper-label" *ngIf="type == 'video'">Video embed link</mat-label>
   <mat-label class="upper-label" *ngIf="type == 'comment'">Comment</mat-label>
   <mat-label class="upper-label" *ngIf="type == 'anchorTag'">Anchor id</mat-label>
-  <mat-form-field [style.width]='"100%"' appearance="fill">
-    <textarea *ngIf="type == 'mathinline'" matInput  [(ngModel)]="data.url" [formControl]="text" required style="color: black !important;"></textarea>
-    <input *ngIf="type == 'video'" matInput [(ngModel)]="data.url"
+  <mat-form-field [style.width]='"100%"' appearance="fill" >
+    <textarea *ngIf="type == 'mathinline'" matInput  [(ngModel)]="data.url" [formControl]="text" required style="color: black !important;" #dialogInput></textarea>
+    <input *ngIf="type == 'video'" matInput [(ngModel)]="data.url" #dialogInput
            [formControl]="text" required style="color: black !important;" placeholder="Enter video url">
-    <input *ngIf="type == 'comment'" matInput [(ngModel)]="data.url"
+    <input *ngIf="type == 'comment'" matInput [(ngModel)]="data.url" #dialogInput
            [formControl]="text" required style="color: black !important;" placeholder="Enter comment">
-    <input *ngIf="type == 'anchorTag'" matInput [(ngModel)]="data.url"
+    <input *ngIf="type == 'anchorTag'" matInput [(ngModel)]="data.url" #dialogInput
            [formControl]="text" required style="color: black !important;" placeholder="Enter anchor id">
     <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
   </mat-form-field>
