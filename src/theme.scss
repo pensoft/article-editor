@@ -283,6 +283,8 @@ $altTheme: (primary: $theme-primary,
 }
 
 .mat-dialog-container {
+  border-radius: 6px !important;
+  box-shadow: 0 6px 10px $box-shadow !important;
   padding: 24px 0 !important;
 
   h2 {
@@ -605,7 +607,7 @@ mat-radio-group {
     flex-flow: row nowrap;
     justify-content: space-between;
     padding: 8px 12px 8px 28px;
-    margin: 0 28px 24px 12px;
+    margin: 0 28px 12px 12px;
     gap: 12px;
     border-radius: 8px;
 
@@ -750,7 +752,6 @@ mat-radio-group {
 @media all and (min-width: 1024px) {
   .table-box, .supplementary-file-box, .figure-box, .end-note-box, .reference-box {
     > div {
-      gap: 20px;
 
       > div {
         &:first-child {
