@@ -8,36 +8,19 @@ export const refEditPluginKey = new PluginKey('ref-edit-plugin')
 
 export const getRefsEditPlugin = function (serviceShare: ServiceShare) {
   let refElsTags = ['reference-citation-end', 'button']
+  let buttonClass='update-data-reference-button'
+  let importantClasses = ['reference-block-container',buttonClass]
   let buttonNode;
   let currUserId;
   serviceShare.AuthService.getUserInfo().subscribe((userInfo) => {
     currUserId = userInfo.data.id
   })
   let button = document.createElement('button');
-
   const editReference = () => {
     if (buttonNode) {
       serviceShare.CslService!.editReferenceThroughPMEditor(buttonNode, '');
     }
   }
-
-  let removeEdit = (view,event) => {
-    let targetElement = getTargetElement(event);
-    if(!(targetElement&&refElsTags.includes(targetElement.localName))){
-      if(Array.from(document.body.childNodes).includes(button)){
-        button.removeEventListener('click', editReference)
-        document.body.removeChild(button)
-      }
-    }
-  }
-
-  let editorContainer = Array.from(document.getElementsByClassName('editor-container'))[0]
-  editorContainer.addEventListener('scroll', () => {
-    if (Array.from(document.body.childNodes).includes(button)) {
-      button.removeEventListener('click', editReference)
-      document.body.removeChild(button)
-    }
-  })
 
   let getTargetElement = (event) => {
     let targetElement
@@ -51,14 +34,37 @@ export const getRefsEditPlugin = function (serviceShare: ServiceShare) {
     return targetElement
   }
 
+  let removeEdit = (event) => {
+    let target = getTargetElement(event)
+    if(Array.from(document.body.childNodes).includes(button)){
+      button.removeEventListener('click', editReference)
+      document.body.removeChild(button)
+    }
+  }
+
+  let editorContainer = Array.from(document.getElementsByClassName('editor-container'))[0]
+  editorContainer.addEventListener('scroll', (event) => {
+    removeEdit(event)
+  })
+  editorContainer.addEventListener('mouseleave', (event:MouseEvent) => {
+    let target = event.relatedTarget as HTMLElement
+          if(target.classList.contains('mat-drawer-content')||target.classList.contains('reference-block-container')||target.id == "app-article-element"/* ||target.className == "update-data-reference-button" */){
+            removeEdit(event)
+          }
+  })
+
+
+
   return new Plugin({
     key: refEditPluginKey,
     props: {
       handleDOMEvents: {
-        mouseleave: removeEdit,
-        mousemove: removeEdit,
-        wheel: removeEdit,
-        focusout: removeEdit,
+        mouseleave:(view,event)=>{
+          let target = event.relatedTarget as HTMLElement
+          if(target.classList.contains('reference-block-container')||target.id == "app-article-element"/* ||target.className == "update-data-reference-button" */){
+            removeEdit(event)
+          }
+        },
         mouseover: (view, event) => {
           let targetElement = getTargetElement(event);
           if (targetElement && refElsTags.includes(targetElement.localName)) {
@@ -74,9 +80,8 @@ export const getRefsEditPlugin = function (serviceShare: ServiceShare) {
 
               }
             })
-
             let position = view.coordsAtPos(endPositionRef - 1)
-            button.className = 'update-data-reference-button';
+            button.className = buttonClass;
             button.style.cursor = 'pointer'
             button.title = 'Click this button to edit this reference.'
             let img1 = createCustomIcon('edit2.svg', 12, 12, 1)
@@ -88,14 +93,18 @@ export const getRefsEditPlugin = function (serviceShare: ServiceShare) {
             button.setAttribute('style', `
             position: absolute;
             z-index: 2;
-            top: ${position.top}px;
-            left: ${position.left + 10}px;
+            top: ${position.top-3}px;
+            left: ${position.left - 9}px;
             display: block;
+            width:40px;
+            height:27px;
             `)
 
             document.body.appendChild(button)
+          } else if(targetElement && importantClasses.includes(targetElement.className)){
+
           } else {
-            removeEdit(view,event)
+            removeEdit(event)
           }
         }
       }
