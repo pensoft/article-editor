@@ -360,7 +360,7 @@ $altTheme: (primary: $theme-primary,
 
 }
 
-.mat-stroked-button.mat-warn {
+.mat-stroked-button.mat-warn:not(.mat-button-disabled) {
   border-color: var(--warn-color);
 }
 
@@ -1734,42 +1734,53 @@ app-comments-section {
     }
   }
 }
+.citable-items-edit-buttons {
+  display: flex;
+  flex-flow: column nowrap;
+  gap: 8px;
+  position:absolute;
+  left: calc(100% + 10px);
+  pointer-events: all;
 
-.edit-citable-item-button, .delete-citable-item-button, .move-citable-item-up-button, .move-citable-item-down-button {
-  width: 34px;
-  height: 34px;
-  padding: 4px;
-  border-radius: 50%;
-  border: 0;
-  // border: 2px solid;
-  background: var(--color-ffffff);
+  .edit-citable-item-button,
+  .delete-citable-item-button,
+  .move-citable-item-up-button,
+  .move-citable-item-down-button {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: center;
+    align-items: center;
+    width: 34px;
+    height: 34px;
+    padding: 4px;
+    border-radius: 50%;
+    border: 0;
+    // border: 2px solid;
+    background: var(--color-ffffff);
+    pointer-events: all;
+    cursor: pointer;
+    z-index: 5;
 
-  &.edit-citable-item-button {
-    // border-color: var(--color-00b1b2);
-    box-shadow: 0 1px 2px 1px var(--color-00b1b2), 0 0 0 0 var(--color-00b1b2), 0 1px 3px 0 var(--color-00b1b2);
-
-    img {
-      width: 16px;
+    &.edit-citable-item-button {
+      // border-color: var(--color-00b1b2);
+      box-shadow: 0 1px 2px 1px var(--color-00b1b2), 0 0 0 0 var(--color-00b1b2), 0 1px 3px 0 var(--color-00b1b2);
     }
-  }
 
-  &.delete-citable-item-button {
-    // border-color: var(--color-e56b87);
-    box-shadow: 0 1px 2px 1px var(--color-e56b87), 0 0 0 0 var(--color-e56b87), 0 1px 3px 0 var(--color-e56b87);
-    margin: 8px 0 0;
-
-    img {
-      width: 18px;
+    &.delete-citable-item-button {
+      // border-color: var(--color-e56b87);
+      box-shadow: 0 1px 2px 1px var(--color-e56b87), 0 0 0 0 var(--color-e56b87), 0 1px 3px 0 var(--color-e56b87);
     }
-  }
 
-  &.move-citable-item-up-button, &.move-citable-item-down-button {
-    // border-color: var(--color-192956);
-    box-shadow: 0 1px 2px 1px var(--color-818181), 0 0 0 0 var(--color-818181), 0 1px 3px 0 var(--color-818181);
-    margin: 8px 0 0;
+    &.move-citable-item-up-button,
+    &.move-citable-item-down-button {
+      // border-color: var(--color-192956);
+      box-shadow: 0 1px 2px 1px var(--color-818181), 0 0 0 0 var(--color-818181), 0 1px 3px 0 var(--color-818181);
+    }
 
     img {
-      width: 15px;
+      display: block;
+      pointer-events: all;
+      cursor: pointer;
     }
   }
 }
@@ -2025,13 +2036,14 @@ block-figure {
 
 /* Formio Textarea Override */
 mat-formio-textarea {
-  .prosemirror-textarea-wrapper {
-    .editor-container {
-      border: 1px solid var(--color-e3e3e3);
-      transition: all ease-in-out 300ms;
-      border-radius: 6px;
-      padding: 6px 12px;
-    }
+  .ProseMirror {
+    border: 1px solid var(--color-e3e3e3);
+    border-radius: 6px;
+    padding: 6px 12px;
+    min-height: 60px;
+    max-height: 136px;
+    overflow-y: scroll;
+    transition: all ease-in-out 300ms;
   }
 
   .prosemirror-label-tag {
@@ -2044,20 +2056,20 @@ mat-formio-textarea {
   }
 
   .prosemirror-textarea-wrapper-error {
-    .editor-container {
+    .ProseMirror {
       border: 1px solid var(--color-e56b87);
-      transition: all ease-in-out 300ms;
       border-radius: 6px;
       padding: 6px 12px;
+      transition: all ease-in-out 300ms;
     }
   }
 
   .prosemirror-textarea-wrapper-focused {
-    .editor-container {
+    .ProseMirror {
       border: 1px solid var(--color-00b1b2);
-      transition: all ease-in-out 300ms;
       border-radius: 6px;
       padding: 6px 12px;
+      transition: all ease-in-out 300ms;
     }
   }
 
