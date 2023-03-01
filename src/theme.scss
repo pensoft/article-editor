@@ -1154,6 +1154,114 @@ mat-radio-group {
   }
 }
 
+/* Right sidebar Search styling */
+app-changes-section,
+app-taxons-section,
+app-comments-section {
+
+  .search-changes,
+  .search-taxons,
+  .search-comments {
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: space-between;
+    align-items: flex-start;
+    position: relative;
+    margin: 0 16px;
+    padding: 0;
+    border-bottom: 1px solid #d6d6d6;
+    z-index: 1;
+
+
+    .search-box-changes,
+    .search-box-taxons,
+    .search-box-comments {
+      display: inline-block;
+      width: 178px;
+      font-size: 14px;
+      height: 42px;
+
+
+      .mat-form-field-wrapper {
+        padding-bottom: 0;
+      }
+
+      .mat-form-field-underline {
+        position: unset;
+      }
+
+      .mat-form-field-flex {
+        padding: 0;
+        background: var(--color-ffffff);
+        align-items: center;
+
+        .mat-form-field-prefix {
+          height: 42px;
+          margin: 0 4px 0 0;
+
+          .search-icon {
+            height: 42px;
+            line-height: 42px;
+            font-size: 22px;
+            color: var(--color-cacdd3);
+          }
+        }
+
+        .mat-form-field-infix {
+          height: 42px;
+          padding: 0;
+          border: 0;
+
+          .mat-form-field-label-wrapper {
+            display: none;
+          }
+
+          input {
+            padding: 8px 0;
+            margin: 0;
+            line-height: 26px;
+            font-size: 14px;
+          }
+        }
+      }
+
+      .label {
+        color: var(--color-818181);
+      }
+
+      .mat-form-field-label {
+        top: 0 !important;
+        display: initial !important;
+        padding-top: 0 !important;
+        padding-left: 0 !important;
+        margin-top: 5px !important
+      }
+
+      .mat-form-field-underline {
+        display: none !important;
+      }
+    }
+
+    .results-from-search {
+      width: 130px;
+      display: inline-block;
+      text-align: right;
+
+      .number-results {
+        display: inline-block;
+        margin: 3px;
+      }
+
+      button {
+        height: 42px;
+        width: 23px;
+      }
+    }
+  }
+
+
+}
+
 /* Editor Comment Box Override */
 .comment-container, .add-comment-box, .change-container, .taxon-container {
   display: block;
@@ -1161,7 +1269,7 @@ mat-radio-group {
   top: 0;
   width: 100%;
   transition: width .3s linear, top .3s linear, padding-left .3s linear, padding-right .3s linear, opacity .2s ease-in-out .3s;
-  background: var(--color-f9fafc);
+  background: var(--color-ffffff);
   border-radius: 0;
 
   .comment-box, .taxon-box, .comment-box-replies, .comment-box-form, .commentBox, .change-box {
@@ -1453,6 +1561,10 @@ mat-radio-group {
 
   .comment-box-form {
     display: none;
+
+    .mat-card-content {
+      border-bottom-color: transparent;
+    }
   }
 
   .change-box {
@@ -1475,17 +1587,8 @@ mat-radio-group {
   &.selected-comment {
 
     app-comment {
-      margin: -1px 0 0 0;
-      background: var(--color-ffffff);
+      background: var(--color-f5f5f5);
       border-color: var(--color-559efe);
-
-      > mat-card {
-        &:last-child {
-          .mat-card-content {
-            border-bottom-color: transparent;
-          }
-        }
-      }
     }
 
     .comment-box-form {
@@ -1493,10 +1596,17 @@ mat-radio-group {
     }
   }
 
+  &.comment-container:hover {
+
+    app-comment {
+      background: var(--color-f5f5f5);
+      border-color: var(--color-559efe);
+    }
+  }
+
   &.add-comment-box {
-    background: var(--color-ffffff);
+    background: var(--color-f5f5f5);
     border-left: 2px solid var(--color-559efe);
-    margin: -1px 0 0 0;
 
     .commentBox {
       .mat-card-content {
@@ -1505,31 +1615,19 @@ mat-radio-group {
     }
   }
 
+  &.taxon-container:hover,
   &.selected-taxon {
     app-taxon {
-      margin: -1px 0 0 0;
-      background: var(--color-ffffff);
+      background: var(--color-f5f5f5);
       border-color: var(--color-559efe);
-
-      .taxon-box {
-        .mat-card-content {
-          border-color: transparent;
-        }
-      }
     }
   }
 
+  &.change-container:hover,
   &.selected-change {
     app-change {
-      margin: -1px 0 0 0;
-      background: var(--color-ffffff);
+      background: var(--color-f5f5f5);
       border-color: var(--color-559efe);
-
-      .change-box {
-        .mat-card-content {
-          border-color: transparent;
-        }
-      }
     }
   }
 }
