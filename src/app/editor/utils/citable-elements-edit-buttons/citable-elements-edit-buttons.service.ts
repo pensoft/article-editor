@@ -281,11 +281,8 @@ export class CitableElementsEditButtonsService {
           let editorViewRectangle = view.dom.getBoundingClientRect();
           let top = coordsInCursorPos.top-editorViewRectangle.top;
 
-          console.log('------------------- ');
-          console.log('view.coordsAtPos(from): ', view.coordsAtPos(from));
-          console.log('view.coordsAtPos(to): ', view.coordsAtPos(to));
-          console.log('editorViewRectangle.top: ', editorViewRectangle.top);
-          console.log('editorViewRectangle.bottom: ', editorViewRectangle.bottom);
+          // console.log('------------------- ');
+          // console.log('view.coordsAtPos(from): ', view.coordsAtPos(from));
 
           html.setAttribute('style', `top:${top}px;`);
           html.setAttribute('tabindex',"-1");
