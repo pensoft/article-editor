@@ -53,7 +53,6 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
 
   ngAfterViewChecked(): void {
     this.changeDetectorRef.detectChanges()
-    this.urlInputElement.nativeElement.focus()
     this.ref.detectChanges();
   }
 
@@ -84,6 +83,7 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
       view.focus()
     },40) */
     this.setComponentDataIfAny()
+    this.urlInputElement.nativeElement.focus()
   }
 
   closeDialog(){
