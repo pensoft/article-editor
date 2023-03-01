@@ -268,6 +268,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
         this.editorContainer.editorView.focus();
         this.editorContainer.editorView.dispatch(state.tr.setSelection(TextSelection.create(state.doc,docSize)))
         this.ref.detectChanges()
+        this.isProseMirrorFocused = true;
       }
     } catch (e) {
       console.error(e);

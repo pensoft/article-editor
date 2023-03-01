@@ -1926,13 +1926,13 @@ block-figure {
 
 /* Formio Textarea Override */
 mat-formio-textarea {
-  .editor-container {
+  .ProseMirror {
     border: 1px solid var(--color-e3e3e3);
     transition: all ease-in-out 300ms;
     border-radius: 6px;
     padding: 6px 12px;
-    min-height: 69px;
-    max-height: 169px;
+    min-height: 60px;
+    max-height: 136px;
     overflow-y: scroll;
   }
 
@@ -1946,7 +1946,7 @@ mat-formio-textarea {
   }
 
   .prosemirror-textarea-wrapper-error {
-    .editor-container {
+    .ProseMirror {
       border: 1px solid var(--color-e56b87);
       transition: all ease-in-out 300ms;
       border-radius: 6px;
@@ -1955,7 +1955,7 @@ mat-formio-textarea {
   }
 
   .prosemirror-textarea-wrapper-focused {
-    .editor-container {
+    .ProseMirror {
       border: 1px solid var(--color-00b1b2);
       transition: all ease-in-out 300ms;
       border-radius: 6px;
