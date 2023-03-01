@@ -1,8 +1,7 @@
 //@ts-ignore
-import { Dropdown as Dropdown2 } from '../utils/prosemirror-menu-master/src/index.js';
+import { Dropdown ,DropdownSubmenu } from '../utils/prosemirror-menu-master/src/index.js';
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Dropdown, DropdownSubmenu } from 'prosemirror-menu';
 import { CommentsService } from '../utils/commentsService/comments.service';
 
 //@ts-ignore
@@ -100,10 +99,12 @@ export class MenuService {
     ],
     'SimpleMenuPMundoRedo': [
       ['toggleStrong', 'toggleEm', 'toggleUnderline'],
+      ['wrapBulletList', 'wrapOrderedList','increaseIndent','decreaseIndent'],
       ['toggleSubscriptItem', 'toggleSuperscriptItem'],
-      ['undoItemPM', 'redoItemPM', 'insertVideoItem'],
+      ['undoItemPM', 'redoItemPM', 'insertVideoItem','insertSpecialSymbol'],
+      ['insertSupplementaryFile','insertFigure','insertTable','insertEndNote'],
       [ 'insertPageBreak', 'headings'],
-      ['citateReference','insertTable']
+      ['citateReference','tableMenu']
     ],
     'onlyPmMenu': [
       ['textMenu'],
@@ -150,13 +151,13 @@ export class MenuService {
     let getMenuItem = (itemName: string) => {
       let item: any;
       if (itemName == 'alignMenu') {
-        item = new Dropdown2(menuItems[itemName], { class: "horizontal-dropdown", dropdownType: 'alignmenu', icon: createCustomIcon('align2.svg', 18) })
+        item = new Dropdown(menuItems[itemName], { class: "horizontal-dropdown", dropdownType: 'alignmenu', icon: createCustomIcon('align2.svg', 18) })
       } else if (itemName == 'citateReference'){
         item = menuItems[itemName](this.serviceShare)
       }else if (itemName == 'tableMenu') {
         item = new Dropdown(menuItems[itemName], { class: "table-icon vertival-dropdown" })
       } else if (itemName == 'textMenu') {
-        let dropdown = new Dropdown2(menuItems[itemName], { class: " horizontal-dropdown", icon: createCustomIcon('text.svg', 16) })
+        let dropdown = new Dropdown(menuItems[itemName], { class: " horizontal-dropdown", icon: createCustomIcon('text.svg', 16) })
         item = dropdown
       } else if (itemName == 'insertVideoItem') {
         item = menuItems[itemName](this.serviceShare)

@@ -58,7 +58,8 @@
     padding: 8px 4px;
     display: inline;
     top: 43px;
-    transform: translateX(-59%);
+    left: 50%;
+    transform: translateX(-50%);
   }
   @media screen and (max-width: 600px) {
     .ProseMirror-menu-dropdown-menu {
@@ -195,7 +196,7 @@
     width: 100%;
     color: #666;
     background: white;
-    overflow: hidden;
+    overflow: visible;
     text-align: center;
     position: relative;
   }

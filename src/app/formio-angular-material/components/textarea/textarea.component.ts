@@ -202,7 +202,6 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
           }
         })
       }
-      console.log(this.instance);
       this.value = this.control.value;
       //let node = editorData?[schema.nodeFromJSON(editorData)]:[];
       let options: any = {}
