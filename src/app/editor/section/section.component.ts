@@ -235,6 +235,10 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
       } else {
         interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!,submision.data, this.sectionForm);
       }
+      console.log(this.section,submision.data);
+      if(submision.data.sectionTreeTitle && submision.data.sectionTreeTitle.length>0){
+        this.treeService.saveNewTitleChange(this.section,submision.data.sectionTreeTitle)
+      }
       submision.compiledHtml = interpolated
       this.prosemirrorEditorsService
       this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)

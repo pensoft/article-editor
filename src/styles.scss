@@ -395,10 +395,8 @@ reference-citation[nonexistingelement="true"] {
 
 .update-data-reference-button {
   cursor: pointer;
-  transform: scale(1.2);
-  border: 1px dashed #00b1b2;
-  border-radius: 5px;
-  background: #20da0b30;
+  border: none;
+  background: none;
   margin-right: 5px;
   margin-left: 5px;
   img {
@@ -1289,10 +1287,6 @@ router-outlet {
   opacity: 1;
 }
 
-.editor-dialog-container .mat-dialog-container {
-  border-radius: 20px;
-}
-
 .ProseMirror-example-setup-style {
   $base-spacing-unit: 24px;
   $half-spacing-unit: 12px;
@@ -1346,13 +1340,6 @@ router-outlet {
 }
 
 //////////////////////
-
-/*redefining  material component */
-
-.mat-dialog-container {
-  border-radius: 20px !important;
-  box-shadow: 0 6px 10px $box-shadow !important;
-}
 
 //////////////////////
 .fix {

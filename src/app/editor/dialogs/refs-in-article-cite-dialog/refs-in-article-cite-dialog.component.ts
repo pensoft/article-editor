@@ -1,4 +1,4 @@
-import { Component, Inject, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { ServiceShare } from '@app/editor/services/service-share.service';
@@ -23,12 +23,13 @@ interface articleRef{
   styleUrls: ['./refs-in-article-cite-dialog.component.scss']
 })
 
-export class RefsInArticleCiteDialogComponent implements OnInit, OnDestroy {
+export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, OnDestroy {
   refsInYdoc
   refMap: YMap<any>;
   addRefsThisSession:string[] = []
   checkedRefs:string[] = []
   CiToTypes = CiToTypes
+  @ViewChild('searchrefs', { read: ElementRef }) searchrefs?: ElementRef;
 
   ydocRefsSubject = new Subject<any>();
 
@@ -38,6 +39,7 @@ export class RefsInArticleCiteDialogComponent implements OnInit, OnDestroy {
     private ydocService:YdocService,
     public dialogRef: MatDialogRef<RefsInArticleCiteDialogComponent>,
     public dialog: MatDialog,
+    private ref:ChangeDetectorRef,
     private serviceShare:ServiceShare,
     @Inject(MAT_DIALOG_DATA) public data: {citedRefsAtPos?:string[]},
     ) {
@@ -64,6 +66,11 @@ export class RefsInArticleCiteDialogComponent implements OnInit, OnDestroy {
         this.saveNewRefsInYdoc()
       }
     })
+  }
+
+  ngAfterViewInit(): void {
+    this.searchrefs.nativeElement.focus()
+    this.ref.detectChanges()
   }
 
   saveNewRefsInYdoc(){

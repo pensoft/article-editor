@@ -13,6 +13,7 @@ import { figureBasicData, figureJson } from '@app/editor/utils/section-templates
 import { basicSetup, EditorState, EditorView } from '@codemirror/basic-setup';
 import { html } from '@codemirror/lang-html';
 import { uuidv4 } from 'lib0/random';
+import { TextSelection } from 'prosemirror-state';
 import { pageDimensionsInPT } from '../../edit-before-export/edit-before-export.component';
 import { AddFigureComponentDialogComponent } from './add-figure-component-dialog/add-figure-component-dialog.component';
 import { FigurePdfPreviewComponent } from './figure-pdf-preview/figure-pdf-preview.component';
@@ -25,7 +26,7 @@ let figuresHtmlTemplate = `
         <figure-component [attr.actual_number]="figure.container.componentNumber" [attr.component_number]="i" contenteditablenode="false" [attr.viewed_by_citat]="data.viewed_by_citat||''">
           <code *ngIf="data.figureComponents.length>1">{{getCharValue(i)}}</code>
           <img *ngIf="figure.container.componentType == 'image'" src="{{figure.container.url}}" alt="" title="default image" contenteditable="false" draggable="true" />
-          <iframe *ngIf="figure.container.componentType == 'video'" src="{{figure.container.url}}" controls="" contenteditable="false" draggable="true"></iframe>
+          <iframe *ngIf="figure.container.componentType == 'video'" [src]="figure.container.url | safe" controls="" contenteditable="false" draggable="true"></iframe>
         </figure-component>
       </ng-container>
     </ng-container>
@@ -94,6 +95,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
     private dialogRef: MatDialogRef<AddFigureDialogV2Component>,
     private ydocService: YdocService,
     public dialog: MatDialog,
+    private ref: ChangeDetectorRef,
     private viewportRuler: ViewportRuler,
     private formioEventsService: FormioEventsService,
     @Inject(MAT_DIALOG_DATA) public data: { fig: figure | undefined, updateOnSave: boolean, index: number, figID: string | undefined }
@@ -143,6 +145,14 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
   renderProsemirrorEditor() {
     let header = this.figureDescription?.nativeElement
     this.figureDescriptionPmContainer = this.prosemirrorEditorsService.renderSeparatedEditorWithNoSync(header, 'popup-menu-container', schema.nodes.paragraph.create({}, schema.text('Type component description here.')))
+    setTimeout(()=>{
+      let view = this.figureDescriptionPmContainer.editorView;
+      let size = view.state.doc.content.size;
+      console.log('set sel');
+      view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,size)));
+      view.focus()
+      this.ref.detectChanges();
+    },40)
   }
 
   renderCodemMirrorEditor(figID: string) {

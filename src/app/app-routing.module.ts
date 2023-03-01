@@ -31,6 +31,7 @@ import { CasbinResolver } from './casbin/resolver/casbin.resolver';
 import { DashboardResolver } from './casbin/resolver/dashboard.resolver';
 import { AllnotificationsComponent } from './layout/widgets/arpha-navigation/allnotifications/allnotifications.component';
 import { EditorContainerComponent } from './editor/editor-container/editor-container.component';
+import { LogoutComponent } from '@app/layout/pages/logout/logout.component';
 
 const routes: Routes = [
   { path: 'profile-info', component: ProfileInfoComponent },
@@ -42,6 +43,7 @@ const routes: Routes = [
     children: [
       { path: '', canActivate: [LoginGuard], component: LandingComponent },
       { path: 'login', canActivate: [LoginGuard], component: LoginComponent },
+      { path: 'logout', canActivate: [AuthGuard], component: LogoutComponent },
       {
         path: 'callback',
         component: OauthCallbackComponent,
