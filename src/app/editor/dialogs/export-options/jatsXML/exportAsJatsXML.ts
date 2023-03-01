@@ -81,8 +81,8 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   let lang = {'xml:lang': "en"}
   let article = create({version: '1.0', encoding: "UTF-8", standalone: false}).dtd({
     name: "article",
-    pubID: "-//TaxPub//DTD Taxonomic Treatment Publishing DTD v3.0 20180101//EN",
-    sysID: "./nlm/tax-treatment-NS0.dtd"
+    pubID: "-//TaxPub//DTD Taxonomic Treatment Publishing DTD v1.0 20230203//EN",
+    sysID: "./nlm/tax-treatment-NS0-v1.dtd"
   })
     .ele('article', {
       'xmlns:mml': "http://www.w3.org/1998/Math/MathML",

@@ -63,7 +63,7 @@ class MenuBarView {
             this.maxHeight = 0
             this.widthForMaxHeight = 0
             this.floating = false
-            let { dom, update } = renderGrouped(this.editorView, this.options.content[this.options.menuKey])
+            let { dom, update } = renderGrouped(this.editorView, this.options.content[this.options.menuKey],this.options)
             this.contentUpdate = update
             this.menu.appendChild(dom)
             this.update()
