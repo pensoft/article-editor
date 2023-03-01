@@ -1,4 +1,4 @@
-import { Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormControl, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
@@ -13,12 +13,12 @@ interface DialogData {
   templateUrl: './add-comment-dialog.component.html',
   styleUrls: ['./add-comment-dialog.component.scss']
 })
-export class AddCommentDialogComponent {
+export class AddCommentDialogComponent implements AfterViewInit {
 
   text = new FormControl('', [Validators.required]);
   mathType = new FormControl('', [Validators.required]);
-
   type: string
+  @ViewChild('dialogInput', { read: ElementRef }) dialogInput?: ElementRef;
 
   mathPreviews = [];
 
@@ -27,6 +27,7 @@ export class AddCommentDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<AddCommentDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    private ref:ChangeDetectorRef,
     private sanitizer: DomSanitizer) {
     this.type = data.type
 
@@ -60,6 +61,11 @@ export class AddCommentDialogComponent {
         } catch { }
       }
     })
+  }
+
+  ngAfterViewInit(): void {
+    this.dialogInput.nativeElement.focus()
+    this.ref.detectChanges();
   }
 
   sanitize(html: string): SafeHtml {

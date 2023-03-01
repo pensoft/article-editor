@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatTabChangeEvent } from '@angular/material/tabs';
@@ -22,7 +22,7 @@ import { ReferenceEditComponent } from '@app/layout/pages/library/reference-edit
   templateUrl: './refs-add-new-in-article-dialog.component.html',
   styleUrls: ['./refs-add-new-in-article-dialog.component.scss']
 })
-export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
+export class RefsAddNewInArticleDialogComponent implements OnInit,AfterViewInit, OnDestroy {
 
   searchReferencesControl = new FormControl('');
   loading = false;
@@ -31,6 +31,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
   lastSelect: 'external' | 'localRef' | 'none' = 'none';
   filteredOptions: Observable<any[]>;
   lastFilter = null;
+  @ViewChild('refinditsearch', { read: ElementRef }) refinditsearch?: ElementRef;
 
   referenceFormControl = new FormControl(null, [Validators.required]);
   citoFormControl = new FormControl(null, [Validators.required]);
@@ -49,7 +50,12 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
     private serviceShare: ServiceShare,
     private changeDetectorRef: ChangeDetectorRef,
     private http: HttpClient,
+    private ref:ChangeDetectorRef
   ) { }
+
+  ngAfterViewInit(): void {
+
+  }
 
   ngOnInit(): void {
     this.loadingRefDataFromBackend = true;
@@ -67,6 +73,10 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
           this.citoFormControl.setValue(this.citoFormControl.value);
         }
         this.loadingRefDataFromBackend = false;
+        setTimeout(()=>{
+          this.refinditsearch.nativeElement.focus()
+          this.ref.detectChanges()
+        },40)
       })
     })
     this.searchReferencesControl.valueChanges.pipe(
@@ -85,6 +95,8 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
     this.changeDetectorRef.detectChanges()
 
     let newFormIOJSON = JSON.parse(JSON.stringify(type.formIOScheme));
+    this.serviceShare.FormBuilderService.setAutoFocusInSchema(newFormIOJSON);
+
     let oldFormIOData = this.dataSave
     newFormIOJSON.components.forEach((component: any) => {
       let val = oldFormIOData ? oldFormIOData[component.key] : undefined;
@@ -105,6 +117,9 @@ export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
     this.tabIndex = change.index
     if (change.index == 1) {
       this.generateFormIOJSON(this.referenceFormControl.value)
+    }else{
+      this.refinditsearch.nativeElement.focus()
+      this.ref.detectChanges();
     }
   }
 

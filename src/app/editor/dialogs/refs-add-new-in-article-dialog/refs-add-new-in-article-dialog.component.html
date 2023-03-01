@@ -16,7 +16,8 @@
                   #trigger="matAutocompleteTrigger"
                   matAutocompletePosition="below"
                   [formControl]="searchReferencesControl"
-                  [matAutocomplete]="auto">
+                  [matAutocomplete]="auto"
+                  #refinditsearch>
           <mat-icon matPrefix class="prefix-icon">search</mat-icon>
           <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
             <ng-container>

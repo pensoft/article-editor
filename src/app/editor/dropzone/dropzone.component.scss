@@ -1,0 +1,22 @@
+.upload-error{
+  margin:5px;
+  text-align: center;
+  color: red;
+  background-color: transparent;
+  padding: 5px;
+}
+::ng-deep app-dropzone {
+  .dz-message{
+    background-color: #e9f6f6 !important;
+    /* background: url("../../../assets/img/upload-dropzone.svg");
+    background-repeat: repeat-y;
+    background-attachment: fixed;
+    background-position: center; */
+    height: 80px;
+    border: 2px dashed #00b1b2 !important;
+    border-radius: 10px;
+  }
+  .dz-file-preview{
+  display: none !important;
+  }
+}

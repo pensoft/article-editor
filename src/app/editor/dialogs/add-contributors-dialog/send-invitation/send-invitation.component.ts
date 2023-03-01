@@ -194,6 +194,8 @@ export class SendInvitationComponent implements OnInit, AfterViewInit, OnDestroy
       this.setCollaboratorsData(data)
     });
     this.setCollaboratorsData(this.serviceShare.YdocService.collaborators.get('collaborators'))
+    this.usersInput.nativeElement.focus()
+    this.ref.detectChanges();
   }
 
   ngAfterViewChecked(): void {

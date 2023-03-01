@@ -1,6 +1,7 @@
 import { AfterViewInit, Compiler, Component, CUSTOM_ELEMENTS_SCHEMA, NgModule, NO_ERRORS_SCHEMA, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { BrowserModule } from '@angular/platform-browser';
+import { SafePipe } from '@app/formio-angular-material/components/MaterialComponent';
 import { MaterialModule } from '@app/shared/material.module';
 import { Subject } from 'rxjs';
 import { FormControlNameDirective } from '../directives/form-control-name.directive';
@@ -60,7 +61,8 @@ export class EditorMenuComponent implements OnInit {
             MaterialModule
           ],
           declarations: [component
-           ,FormControlNameDirective
+           ,FormControlNameDirective,
+           SafePipe
           ],
           schemas: [CUSTOM_ELEMENTS_SCHEMA,NO_ERRORS_SCHEMA]
         })(class newModule {
