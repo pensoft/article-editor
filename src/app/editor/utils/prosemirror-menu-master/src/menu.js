@@ -162,9 +162,9 @@ export class Dropdown {
 
   // :: (EditorView) → {dom: dom.Node, update: (EditorState)}
   // Render the dropdown menu and sub-items.
-  render(view) {
+  render(view,options2) {
     let options = this.options
-    let content = renderDropdownItems(this.content, view)
+    let content = renderDropdownItems(this.content, view,options2)
     let label1 = this.options.icon ? crel("div", {
         class: prefix + "-dropdown " + (this.options.class || ""),
         style: this.options.css
@@ -244,14 +244,31 @@ export class Dropdown {
   }
 }
 
-function renderDropdownItems(items, view) {
+function renderDropdownItems(items, view,options) {
   let rendered = [],
     updates = []
   for (let i = 0; i < items.length; i++) {
     if (items[i] == 'menuseparator') {
       rendered.push(crel("span", { class: "ProseMirror-menuseparator" }))
     } else {
-      let { dom, update } = items[i].render(view)
+      let item = items[i]
+      if(options){
+        let undoRedoItems = options.undoRedoMenuItems;
+        if(options.clearPMUndoRedo){
+          if(item === undoRedoItems.pmundo){
+            item = undoRedoItems.yjsundo
+          }else if(item === undoRedoItems.pmredo){
+            item = undoRedoItems.yjsredo
+          }
+        }else if(options.clearYJSUndoRedo){
+          if(item === undoRedoItems.yjsundo){
+            item = undoRedoItems.pmundo
+          }else if(item === undoRedoItems.yjsredo){
+            item = undoRedoItems.pmredo
+          }
+        }
+      }
+      let { dom, update } = item.render(view,options)
       rendered.push(crel("div", { class: prefix + "-dropdown-item" }, dom))
       updates.push(update)
     }
@@ -322,16 +339,35 @@ export class DropdownSubmenu {
 // document fragment, placing separators between them (and ensuring no
 // superfluous separators appear when some of the groups turn out to
 // be empty).
-export function renderGrouped(view, content) {
+export function renderGrouped(view, content,options) {
   let result = document.createDocumentFragment()
   let updates = [],
-    separators = []
+    separators = [];
+  let undoRedoItems = options.undoRedoMenuItems;
+  if(options.clearPMUndoRedo){
+  }else if(options.clearYJSUndoRedo){
+  }
   for (let i = 0; i < content.length; i++) {
     let items = content[i],
       localUpdates = [],
       localNodes = []
+
     for (let j = 0; j < items.length; j++) {
-      let { dom, update } = items[j].render(view)
+      let item = items[j]
+      if(options.clearPMUndoRedo){
+        if(item === undoRedoItems.pmundo){
+          item = undoRedoItems.yjsundo
+          }else if(item === undoRedoItems.pmredo){
+          item = undoRedoItems.yjsredo
+        }
+      }else if(options.clearYJSUndoRedo){
+        if(item === undoRedoItems.yjsundo){
+          item = undoRedoItems.pmundo
+          }else if(item === undoRedoItems.yjsredo){
+          item = undoRedoItems.pmredo
+        }
+      }
+      let { dom, update } = item.render(view,options)
       let span = crel("span", { class: prefix + "item" }, dom)
       result.appendChild(span)
       localNodes.push(span)
