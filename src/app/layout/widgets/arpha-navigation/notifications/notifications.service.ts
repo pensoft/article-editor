@@ -94,7 +94,7 @@ export class NotificationsService {
           date, event, status, eventId, new: isNew
         }
         if (task.type == 'pdf.export' && task.status == 'DONE') {
-          notification.link = task.data.data.url
+          notification.link = task.data.data ? task.data.data.url : task.data.url;
         }
         notificationsFromBackend.push(notification)
       })
