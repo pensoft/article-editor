@@ -360,7 +360,7 @@ $altTheme: (primary: $theme-primary,
 
 }
 
-.mat-stroked-button.mat-warn {
+.mat-stroked-button.mat-warn:not(.mat-button-disabled) {
   border-color: var(--warn-color);
 }
 
