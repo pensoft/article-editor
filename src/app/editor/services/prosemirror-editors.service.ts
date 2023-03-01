@@ -68,6 +68,7 @@ import { changeNodesOnDragDrop, handleDeleteOfRefsFigsCitationsAndComments } fro
 import { getFilterNodesBySchemaDefPlugin } from '../utils/Schema/filterNodesIfSchemaDefPlugin';
 import { CitableElementsEditButtonsService } from '../utils/citable-elements-edit-buttons/citable-elements-edit-buttons.service';
 import { getToolTipPlugin } from '../utils/toolTipPlugin';
+import { getRefsEditPlugin } from '../utils/refsEditPlugin';
 export interface editorContainersObj { [key: string]: editorContainer }
 export interface editorContainer {
   editorID: string,
@@ -1009,6 +1010,7 @@ export class ProsemirrorEditorsService {
         //this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         getToolTipPlugin(this.serviceShare),
+        getRefsEditPlugin(this.serviceShare),
         this.detectFocusService.getPlugin(),
         getFilterNodesBySchemaDefPlugin(this.serviceShare),
         this.serviceShare.CitableElementsContextMenuService.getPlugin(),

@@ -1,4 +1,4 @@
-<h2 mat-dialog-title *ngIf="data&&data.supplementaryFileID">Edit Supplementary File</h2>
+ <h2 mat-dialog-title *ngIf="data&&data.supplementaryFileID">Edit Supplementary File</h2>
 <h2 mat-dialog-title *ngIf="!data||!data.supplementaryFileID">Add Supplementary File</h2>
 
 <div class="popup-menu-container"></div>
@@ -12,12 +12,13 @@
       </div>
     </ng-container>
   </div>
-
-  <div style="display: none;">
-    <div #container>
-
-    </div>
-  </div>
+  <app-dropzone (uploaded)="fileIsUploaded($event)" [fileType]="fileType">
+  </app-dropzone>
+  <div class="title">Or add file with a link:</div>
+  <mat-label class="upper-label">Enter your file URL here.</mat-label>
+  <mat-form-field appearance="fill" class="file-url-control">
+    <input matInput [formControl]="fileLinkControl" required>
+  </mat-form-field>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
