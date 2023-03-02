@@ -64,7 +64,7 @@ export class EditContributorComponent implements AfterViewInit, AfterViewChecked
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) { }
 
-  nothingIsEdited(){
+  nothingIsEdited(): boolean {
     let oldData = {
       access:this.data.contrData.access,
       role:this.data.contrData.role,
@@ -75,7 +75,12 @@ export class EditContributorComponent implements AfterViewInit, AfterViewChecked
       role:this.roleSelect.value,
       affiliations:this.affiliations.value,
     }
-    return JSON.stringify(oldData) == JSON.stringify(newData)
+
+    return JSON.stringify(oldData) == JSON.stringify(newData);
+  }
+
+  formSubmitDisabled(): boolean {
+    return this.nothingIsEdited() || !this.editUserForm.valid;
   }
 
   ngAfterViewInit(): void {

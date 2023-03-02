@@ -329,15 +329,15 @@ $treeSpace: 341px;
 }
 
 .changes_on_editor_side_btn {
-  box-shadow: 0px 1px 2px 1px #19d928, 0px 0px 0px 0px #19d928, 0px 1px 3px 0px #19d928 !important;
+  box-shadow: 0 1px 2px 1px #19d928, 0 0 0 0 #19d928, 0 1px 3px 0 #19d928 !important;
 }
 
 .changes_off_editor_side_btn {
-  box-shadow: 0px 1px 2px 1px #f37b4a, 0px 0px 0px 0px #f37b4a, 0px 1px 3px 0px #f37b4a !important;
+  box-shadow: 0 1px 2px 1px #f37b4a, 0 0 0 0 #f37b4a, 0 1px 3px 0 #f37b4a !important;
 }
 
 .tag_text_as_taxon_side_btn {
-  box-shadow: 0px 1px 2px 1px #7989ff, 0px 0px 0px 0px #7989ff, 0px 1px 3px 0px #7989ff !important;
+  box-shadow: 0 1px 2px 1px #7989ff, 0 0 0 0 #7989ff, 0 1px 3px 0 #7989ff !important;
 }
 
 .track_changes_menu {
@@ -345,11 +345,12 @@ $treeSpace: 341px;
 }
 
 .sidebar-container {
+  display: inline-flex;
   width: 341px;
   height: 100%;
-  background: var(--color-f9fafc);
-  box-shadow: -2px 0px 1px #1bb1b22b;
-  display: inline-flex;
+  background: var(--color-ffffff);
+  box-shadow: -2px 0 1px #1bb1b22b;
+  border-top: 1px solid var(--color-f1f2f2);
 
   .mat-drawer-inner-container {
     overflow: hidden;
@@ -367,7 +368,7 @@ $treeSpace: 341px;
   color: var(--color-000000);
   border-radius: 50px;
   text-align: center;
-  box-shadow: 0px 3px 6px #00000029;
+  box-shadow: 0 3px 6px #00000029;
   z-index: 10000;
    ::ng-deep {
     .mat-button-wrapper {
@@ -388,7 +389,7 @@ $treeSpace: 341px;
     margin-bottom: -27px;
     border-top-left-radius: 20px !important;
     border-top-right-radius: 20px !important;
-    box-shadow: 0px 3px 6px #00000029 !important;
+    box-shadow: 0 3px 6px #00000029 !important;
     button {
       text-align: center;
       &:last-child {

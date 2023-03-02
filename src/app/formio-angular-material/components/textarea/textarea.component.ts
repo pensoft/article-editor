@@ -66,7 +66,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     return
   }
   validity:any[] = [];
-  isProseMirrorFocused: boolean = false;
+  prosemirrorFocused = false;
   onChange1 = (keepInputRaw: boolean, value1?: string) => {
     Validator
     let hasChanges = value1?.match(/<span class="(deletion|insertion|format-change)"/gm);
@@ -267,25 +267,23 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
         this.editorContainer.editorView.focus();
         this.editorContainer.editorView.dispatch(state.tr.setSelection(TextSelection.create(state.doc,docSize)))
         this.ref.detectChanges()
+        this.prosemirrorFocused = true;
       }
+
+      this.editorContainer.editorView.dom.addEventListener('focus', () => {
+        this.prosemirrorFocused = true;
+      });
+      
+      this.editorContainer.editorView.dom.addEventListener('blur', () => {
+        this.prosemirrorFocused  = false;
+      });
+
     } catch (e) {
       console.error(e);
     }
   }
 
-  @HostListener('document:click', ['$event'])
-  clickout(event) {
-    if (this.ProsemirrorEditor && !this.ProsemirrorEditor.nativeElement.contains(event.target)) {
-      this.isProseMirrorFocused = false;
-    }
-  }
-
   ngAfterViewInit() {
-    if (this.ProsemirrorEditor) {
-      this.ProsemirrorEditor.nativeElement.addEventListener('click', () => {
-        this.isProseMirrorFocused = true;
-      });
-    }
     // Attach the element so the wysiwyg will work.
     let awaitValue = () => {
       setTimeout(() => {
