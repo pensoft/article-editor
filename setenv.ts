@@ -2,6 +2,7 @@
 const { writeFile, mkdirSync, existsSync } = require('fs');
 const { argv } = require('yargs');
 const { version } = require('./package.json');
+const path = require('path')
 // read environment variables from .env file
 require('dotenv').config();
 const packageFile = './package.json';
@@ -10,15 +11,22 @@ const packageContent = require(packageFile);
 const environment = argv.environment;
 const isProduction = environment === 'prod';
 const envPath = './src/environments'
-const targetPath = isProduction ? `${envPath}/environment.prod.ts` : `${envPath}/environment.ts`
+const devEnviromentFile = 'environment.ts'
+const prodEnviromentFile = 'environment.prod.ts'
+const targetFile = isProduction ? prodEnviromentFile : devEnviromentFile
 
-if (!existsSync(envPath)) {
-  try {
-    mkdirSync(envPath, { recursive: true })
-  } catch (err) {
-    console.error(err)
+mkdirSync(envPath, { recursive: true })
+writeFile(path.join(envPath, devEnviromentFile), '', (err: any) => {
+  if (err) {
+    console.error(err);
   }
-}
+});
+writeFile(path.join(envPath, prodEnviromentFile), '', (err: any) => {
+  if (err) {
+    console.error(err);
+  }
+});
+
 
 
 const websocket = {
@@ -55,7 +63,7 @@ export const environment = {
 };
 `;
 // write the content to the respective file
-writeFile(targetPath, environmentFileContent, (err: any) => {
+writeFile(path.join(envPath, targetFile), environmentFileContent, (err: any) => {
   if (err) {
     console.error(err);
   }
