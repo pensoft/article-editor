@@ -1540,12 +1540,17 @@ mat-radio-group {
       > form-field {
         > p {
           > a {
+            color: var(--color-00b1b2);        
+          }
+
+            a {
             position: relative;
             display: inline-block;
-            color: var(--color-00b1b2);
             text-decoration: underline;
+          }
+   
 
-            .link_popup_div {
+          .link_popup_div {
               position: absolute;
               display: block;
               bottom: calc(100% + 9px);
@@ -1609,7 +1614,6 @@ mat-radio-group {
                 }
               }
             }
-          }
         }
       }
     }
