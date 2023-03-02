@@ -2,6 +2,7 @@
 
 # env file
 .env
+/src/environments
 # compiled output
 /dist
 /tmp
