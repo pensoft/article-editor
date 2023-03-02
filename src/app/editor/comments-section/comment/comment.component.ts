@@ -19,6 +19,7 @@ import { fakeUser } from '@app/core/services/comments/comments-interceptor.servi
 import { ContributorsApiService } from '@app/core/services/comments/contributors-api.service';
 import { EditCommentDialogComponent } from '../edit-comment-dialog/edit-comment-dialog.component';
 import { Router } from '@angular/router';
+import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
 
 export function getDate(date: number) {
   let timeOffset = (new Date()).getTimezoneOffset() * 60 * 1000;
@@ -68,7 +69,8 @@ export class CommentComponent implements OnInit, AfterViewInit {
     private prosemirrorEditorService: ProsemirrorEditorsService,
     private contributorsApiService:ContributorsApiService,
     private sharedService: ServiceShare,
-    private router:Router
+    private router:Router,
+    public dialog:MatDialog,
   ) {
 
     this.router.routeReuseStrategy.shouldReuseRoute = () => false;
@@ -187,7 +189,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
     }
   }
 
-  deleteComment() {
+  onDelete() {
     let from = this.comment?.pmDocStartPos;
     let to = this.comment?.pmDocEndPos;
     let viewRef = this.sharedService.ProsemirrorEditorsService.editorContainers[this.comment.section].editorView
@@ -198,11 +200,36 @@ export class CommentComponent implements OnInit, AfterViewInit {
     this.commentsMap?.delete(this.comment?.commentAttrs.id)
   }
 
-  deleteReply(id: string) {
-    let commentData: commentYdocSave = this.commentsMap?.get(this.comment?.commentAttrs.id);
-    commentData.commentReplies.splice(commentData.commentReplies.findIndex((el) => { return el.id == id }), 1);
-    this.commentsMap?.set(this.comment?.commentAttrs.id, commentData);
-    this.userComment = commentData;
+  deleteComment(showConfirmDialog, comment) {
+    if (showConfirmDialog) {
+      let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
+        data: { objName: comment, type: 'comment' },
+        panelClass: 'ask-before-delete-dialog',
+      })
+      dialogRef.afterClosed().subscribe((data: any) => {
+        if (data) {
+          this.onDelete()
+        }
+      })
+      return;
+    }
+    this.onDelete()
+  }
+
+  deleteReply(id: string, reply: string) {
+    let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
+      data: { objName: reply, type: 'reply' },
+      panelClass: 'ask-before-delete-dialog',
+    })
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        let commentData: commentYdocSave = this.commentsMap?.get(this.comment?.commentAttrs.id);
+        commentData.commentReplies.splice(commentData.commentReplies.findIndex((el) => { return el.id == id }), 1);
+        this.commentsMap?.set(this.comment?.commentAttrs.id, commentData);
+        this.userComment = commentData;
+      }
+    })
+
   }
 
   showReplyFocusHandle(replyDiv: HTMLDivElement) {

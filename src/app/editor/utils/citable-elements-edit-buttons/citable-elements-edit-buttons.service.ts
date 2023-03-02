@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
 import { AddTableDialogComponent } from '@app/editor/dialogs/citable-tables-dialog/add-table-dialog/add-table-dialog.component';
 import { AddEndNoteComponent } from '@app/editor/dialogs/end-notes/add-end-note/add-end-note.component';
 import { AddFigureDialogV2Component } from '@app/editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-dialog-v2.component';
@@ -39,6 +40,7 @@ export class CitableElementsEditButtonsService {
       },
       resultElProp:'figure',
       elementCitationName:'citation',
+      name: "Figure",
     },
     'block_table':{
       idProp:'table_id',
@@ -52,6 +54,7 @@ export class CitableElementsEditButtonsService {
       },
       resultElProp:'table',
       elementCitationName:'table_citation',
+      name: "Table",
     },
     'block_supplementary_file':{
       idProp:'supplementary_file_id',
@@ -65,6 +68,7 @@ export class CitableElementsEditButtonsService {
       },
       resultElProp:'supplementaryFile',
       elementCitationName:'supplementary_file_citation',
+      name: "Suppl. material"
     },
     'block_end_note':{
       idProp:'end_note_id',
@@ -78,6 +82,7 @@ export class CitableElementsEditButtonsService {
       },
       resultElProp:'endNote',
       elementCitationName:'end_note_citation',
+      name: "Note"
     },
   }
 
@@ -277,14 +282,26 @@ export class CitableElementsEditButtonsService {
                 }
               })
             },
-            deleteElementFnc:()=>{
-              let elementObjCopy = JSON.parse(JSON.stringify(elementsObj));
-              let elementNumsCopy = JSON.parse(JSON.stringify(elementsNumbersArr));
-              if(elementObjCopy[elementId]){
-                delete elementObjCopy[elementId]
-              }
-              elementNumsCopy.splice(elementNumber,1);
-              this.serviceShare.CitableElementsService.writeElementDataGlobal(elementObjCopy, elementNumsCopy,elementMap.elementCitationName);
+            deleteElementFnc: () => {
+              const objName = elementMap.name === this.elementsMaps.block_end_note.name
+                ? `*${elementNumber + 1}`
+                : `${elementMap.name} №${elementNumber + 1}`
+
+              let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
+                data: { objName, type: elementMap.resultElProp,dontshowType:true },
+                panelClass: 'ask-before-delete-dialog',
+              })
+              dialogRef.afterClosed().subscribe((data: any) => {
+                if (data) {
+                  let elementObjCopy = JSON.parse(JSON.stringify(elementsObj));
+                  let elementNumsCopy = JSON.parse(JSON.stringify(elementsNumbersArr));
+                  if (elementObjCopy[elementId]) {
+                    delete elementObjCopy[elementId]
+                  }
+                  elementNumsCopy.splice(elementNumber, 1);
+                  this.serviceShare.CitableElementsService.writeElementDataGlobal(elementObjCopy, elementNumsCopy, elementMap.elementCitationName);
+                }
+              })
             },
           })
 
