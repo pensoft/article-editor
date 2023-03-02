@@ -39,6 +39,8 @@ export class InsertImageDialogComponent implements OnInit,AfterViewInit {
   fileIsUploaded(uploaded){
     if(uploaded.collection == "images"&&uploaded.base_url){
       this.uploadedFileInCDN(uploaded)
+    }else{
+      console.error('File is not an image.');
     }
   }
   uploadedFileInCDN(fileData:any){

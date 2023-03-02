@@ -74,7 +74,7 @@ export class DropzoneComponent implements OnInit {
   errorMsg = undefined
 
   onFileUpload(fileInfo:{base_url:string,collection:string,thumb:string,uuid:string}) {
-    if((fileInfo.collection == this.fileType||(this.fileType == '*'&&fileInfo.collection && fileInfo.collection.length>0))&&fileInfo.base_url){
+    if(fileInfo.collection&&fileInfo.base_url){
       this.uploaded.emit(fileInfo)
     }else{
       this.setError(`File is not of the correct type.`);
