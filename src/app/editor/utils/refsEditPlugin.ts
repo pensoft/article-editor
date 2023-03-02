@@ -48,11 +48,11 @@ export const getRefsEditPlugin = function (serviceShare: ServiceShare) {
   })
   editorContainer.addEventListener('mouseleave', (event:MouseEvent) => {
     let target = event.relatedTarget as HTMLElement
-    if(target?.classList) {
-      if (target.classList.contains('mat-drawer-content') || target.classList.contains('reference-block-container') || target.id == "app-article-element"/* ||target.className == "update-data-reference-button" */) {
+      if(
+        target&&
+        (target.classList && target.classList.contains('mat-drawer-content')||target.classList.contains('reference-block-container'))||(target&&target.id == "app-article-element")/* ||target.className == "update-data-reference-button" */){
         removeEdit(event)
       }
-    }
   })
 
 

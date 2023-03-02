@@ -104,7 +104,7 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
   fileType:'*' = '*'
 
   fileIsUploaded(uploaded){
-    if((uploaded.collection == this.fileType||(this.fileType == '*'&&uploaded.collection && uploaded.collection.length>0))&&uploaded.base_url){
+    if(uploaded.collection&&uploaded.base_url){
       this.uploadedFileInCDN(uploaded)
     }
   }
