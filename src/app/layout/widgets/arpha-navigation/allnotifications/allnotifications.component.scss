@@ -7,11 +7,11 @@
   margin: 0 auto;
 
   .all-notifications-content {
+    display: block;
     width: 100%;
-    border-radius: 11px;
     padding: 20px 26px;
     box-shadow: 0 3px 6px #1bb1b269 !important;
-    display: block;
+    border-radius: 6px;
     background: white;
     overflow-y: auto;
 

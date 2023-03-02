@@ -1,5 +1,5 @@
 .contributor-row {
-  border-radius: 4px;
+  border-radius: 6px;
   border: 2px solid rgba(0, 177, 178, 0.2);
   padding: 4px 22px 4px 18px;
 
@@ -58,7 +58,7 @@
   button {
     border: 0;
     background: #EDF8F9;
-    border-radius: 12px;
+    border-radius: 6px;
     padding: 6px 16px;
     min-height: 40px;
     cursor: pointer;
@@ -69,8 +69,6 @@
   max-width: 100%;
   min-height: 60px;
   display: block;
-  background: white;
-  border-radius: 4px;
   overflow: hidden;
 }
 
@@ -81,7 +79,6 @@
 .contributors-list{
   margin-top: 16px;
   border-top: 1px solid #d6d6d6;
-  border-radius: 0;
   padding-top: 16px;
 }
 
@@ -118,7 +115,7 @@
     max-height: 186px;
     overflow-x: hidden;
     overflow-y: auto;
-    border-radius: 10px;
+    border-radius: 6px;
     box-shadow: 0 1px 7px #a2a2a291;
     width: 100%;
     background: #FFFFFF;

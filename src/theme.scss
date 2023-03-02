@@ -841,6 +841,10 @@ mat-radio-group {
   }
 }
 
+.mat-menu-panel {
+  border-radius: 6px !important;
+}
+
 .mat-menu-panel.figure-components-list {
   width: 280px;
   max-height: 400px;

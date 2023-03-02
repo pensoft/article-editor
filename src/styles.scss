@@ -19,7 +19,7 @@ app-main {
   width: 300px;
   white-space: pre;
   background-color: #abababe3;
-  border-radius: 8px;
+  border-radius: 6px;
   padding: 10px;
   border: 1px solid #0404044f;
   z-index: 1001;
@@ -62,7 +62,7 @@ block-table {
   display: block;
   margin-top: 10px;
   padding: 5px;
-  border-radius: 5px;
+  border-radius: 6px;
   background-color: #fafaf8;
   margin-right: 4px;
   margin-left: 4px;
@@ -162,7 +162,7 @@ td {
         padding-top: 40px;
         padding-bottom: 40px;
         border: 2px solid #e2e2dc;
-        border-radius: 7px;
+        border-radius: 6px;
         width: 100%;
         display: block;
         img {
@@ -216,7 +216,7 @@ block-figure {
       padding-top: 40px;
       padding-bottom: 40px;
       border: 2px solid #e2e2dc;
-      border-radius: 7px;
+      border-radius: 6px;
       img {
         height: 200px;
       }
@@ -296,7 +296,7 @@ supplementary-file-brief-description,end-note{
   display: inline-flex;
   background-color: #e5bcf5;
   transform: translate(-50%, 18px);
-  border-radius: 4px;
+  border-radius: 6px;
   z-index: 5;
 }
 

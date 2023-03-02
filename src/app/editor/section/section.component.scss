@@ -92,7 +92,7 @@
 
 .errors-container {
   background-color: #f8d7da;
-  border-radius: 4px;
+  border-radius: 6px;
   white-space: pre-wrap;
   white-space: -moz-pre-wrap;
   white-space: -pre-wrap;
@@ -230,7 +230,7 @@
   padding: 5px 10px 5px 15px;
   border: 1px solid silver;
   position: fixed;
-  border-radius: 3px;
+  border-radius: 6px;
   z-index: 11;
   box-shadow: -0.5px 2px 5px rgba(0, 0, 0, 0.2);
 }
@@ -271,7 +271,7 @@
 ::ng-deep .ProseMirror-invalid {
   background: #ffc;
   border: 1px solid #cc7;
-  border-radius: 4px;
+  border-radius: 6px;
   padding: 5px 10px;
   position: absolute;
   min-width: 10em;
@@ -287,7 +287,7 @@
   background: white;
   color: black;
   background-clip: padding-box;
-  border-radius: 4px;
+  border-radius: 6px;
   border: 2px solid rgba(0, 0, 0, 0.2);
   padding: 5px 0;
   margin-bottom: 23px;
