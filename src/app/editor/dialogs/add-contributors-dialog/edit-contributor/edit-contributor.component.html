@@ -39,7 +39,7 @@
                 <div fxLayout="column nowrap" fxFlex="28">
                   <mat-label class="upper-label">Country</mat-label>
                   <mat-form-field floatLabel='never' class="form-affiliations" appearance="fill">
-                    <input matInput type="text" [formControlName]="'country'" [formControl] [matAutocomplete]="auto1" placeholder="Country">
+                    <input matInput type="text" formControlName="country" [formControl] [matAutocomplete]="auto1" placeholder="Country">
                     <mat-autocomplete #auto1="matAutocomplete">
                       <mat-option *ngFor="let option of filter($any(affiliation).controls.country.value)" [value]="option">
                         {{option}}
@@ -59,7 +59,7 @@
       <mat-card-content>
         <p>Are you sure you want to remove this person from the article?</p>
         <div class="btns-container" fxLayout="row wrap" fxLayoutGap="16px" align="end" fxLayoutAlign="flex-end center">
-          <button mat-stroked-button color="primary" (click)="askremove=false">No</button>
+          <button mat-stroked-button color="primary" (click)="askremove = false">No</button>
           <button mat-stroked-button color="warn" (click)="removeCollaborator()">Yes</button>
         </div>
       </mat-card-content>
@@ -70,7 +70,7 @@
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]>Cancel</button>
   <button mat-stroked-button color="warn" (click)="askremove = true">Remove</button>
-  <button mat-flat-button color="primary" [disabled]="nothingIsEdited()" (click)="editCollaborator()">Save</button>
+  <button mat-flat-button color="primary" [disabled]="formSubmitDisabled()" (click)="editCollaborator()">Save</button>
 </mat-dialog-actions>
 
 
