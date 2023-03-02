@@ -1,5 +1,5 @@
 
-const { writeFile, mkdirSync } = require('fs');
+const { writeFile, mkdirSync, existsSync } = require('fs');
 const { argv } = require('yargs');
 const { version } = require('./package.json');
 // read environment variables from .env file
@@ -10,9 +10,16 @@ const packageContent = require(packageFile);
 const environment = argv.environment;
 const isProduction = environment === 'prod';
 const envPath = './src/environments'
-const targetPath = !isProduction ? `${envPath}/environment.prod.ts` : `${envPath}/environment.ts`
+const targetPath = isProduction ? `${envPath}/environment.prod.ts` : `${envPath}/environment.ts`
 
-mkdirSync(envPath, { recursive: true })
+if (!existsSync(envPath)) {
+  try {
+    mkdirSync(envPath, { recursive: true })
+  } catch (err) {
+    console.error(err)
+  }
+}
+
 
 const websocket = {
   host: new URL(process.env.WEBSOCKET_HOST || process.env.ARTICLE_STORAGE_WEBSOCKET_HOST).hostname,
