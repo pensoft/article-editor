@@ -60,7 +60,7 @@ export class FiguresDialogComponent implements AfterViewInit {
 
   deleteFigure(fig: figure, figIndex: number) {
     let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
-      data: {type: 'figure', hideDescription: true },
+      data: {type: 'figure', dontshowType:true,objName:'Figure №'+(figIndex+1) },
       panelClass: 'ask-before-delete-dialog',
     })
     dialogRef.afterClosed().subscribe((data: any) => {

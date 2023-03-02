@@ -61,7 +61,7 @@ export class SupplementaryFilesDialogComponent {
 
   deleteSupplementaryFile(supplementaryFile: supplementaryFile, supplementaryFileIndex: number) {
     let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
-      data: { type: 'supplementaryFile', hideDescription: true },
+      data: { type: 'supplementaryFile', dontshowType:true,objName:'Suppl. material №'+(supplementaryFileIndex+1)  },
       panelClass: 'ask-before-delete-dialog',
     })
     dialogRef.afterClosed().subscribe((data: any) => {

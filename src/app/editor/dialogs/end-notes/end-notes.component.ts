@@ -57,7 +57,7 @@ export class EndNotesDialogComponent {
 
   deleteEndNote(endNote: endNote, endNoteIndex: number) {
     let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
-      data: { type: 'endNote', hideDescription: true },
+      data: { type: 'endNote', dontshowType:true,objName:'*'+(endNoteIndex+1)  },
       panelClass: 'ask-before-delete-dialog',
     })
     dialogRef.afterClosed().subscribe((data: any) => {

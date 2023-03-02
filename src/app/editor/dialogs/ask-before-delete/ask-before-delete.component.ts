@@ -86,7 +86,7 @@ export class AskBeforeDeleteComponent implements OnInit {
   constructor(
     public dialog: MatDialog,
     private dialogRef: MatDialogRef<AskBeforeDeleteComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: {objName:string,type:string, hideDescription: boolean, width: string},
+    @Inject(MAT_DIALOG_DATA) public data: {objName:string,type:string,  width: string,dontshowType?:boolean},
     ) { }
 
   ngOnInit(): void {

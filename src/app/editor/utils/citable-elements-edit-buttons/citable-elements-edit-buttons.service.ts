@@ -286,9 +286,9 @@ export class CitableElementsEditButtonsService {
               const objName = elementMap.name === this.elementsMaps.block_end_note.name
                 ? `*${elementNumber + 1}`
                 : `${elementMap.name} №${elementNumber + 1}`
-                
+
               let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
-                data: { objName, type: elementMap.resultElProp },
+                data: { objName, type: elementMap.resultElProp,dontshowType:true },
                 panelClass: 'ask-before-delete-dialog',
               })
               dialogRef.afterClosed().subscribe((data: any) => {

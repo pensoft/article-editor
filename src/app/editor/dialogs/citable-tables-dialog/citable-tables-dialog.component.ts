@@ -60,7 +60,7 @@ export class CitableTablesDialogComponent {
 
   deleteTable(table: citableTable, tableIndex: number) {
     let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
-      data: { type: 'table', hideDescription: true },
+      data: { type: 'table', dontshowType:true,objName:'Table №'+(tableIndex+1) },
       panelClass: 'ask-before-delete-dialog',
     })
     dialogRef.afterClosed().subscribe((data: any) => {

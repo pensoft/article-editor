@@ -211,7 +211,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
   deleteComponent(component: any, i: number) {
     let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
-      data: { type: component.componentType, hideDescription: true },
+      data: { type: component.componentType, dontshowType:true },
       panelClass: 'ask-before-delete-dialog',
     })
     dialogRef.afterClosed().subscribe((data: any) => {
