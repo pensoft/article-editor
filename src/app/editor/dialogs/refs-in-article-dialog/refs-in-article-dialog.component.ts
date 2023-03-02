@@ -149,6 +149,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
     let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
       data: {objName: ref.ref.title,type:'reference'},
       panelClass: 'ask-before-delete-dialog',
+      width:'300px !important'
     })
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
