@@ -7,6 +7,7 @@ import { Node } from 'prosemirror-model';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { supplementaryFile } from '@app/editor/utils/interfaces/supplementaryFile';
 import { AddSupplementaryFileComponent } from './add-supplementary-file/add-supplementary-file.component';
+import { AskBeforeDeleteComponent } from '../ask-before-delete/ask-before-delete.component';
 
 @Component({
   selector: 'app-supplementary-files-dialog',
@@ -59,11 +60,19 @@ export class SupplementaryFilesDialogComponent {
   }
 
   deleteSupplementaryFile(supplementaryFile: supplementaryFile, supplementaryFileIndex: number) {
-    this.supplementaryFilesNumbers?.splice(supplementaryFileIndex, 1);
-    delete this.supplementaryFiles![supplementaryFile.supplementary_file_ID]
-    if (this.editedSupplementaryFiles[supplementaryFile.supplementary_file_ID]) {
-      delete this.editedSupplementaryFiles[supplementaryFile.supplementary_file_ID];
-    }
+    let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
+      data: { type: 'supplementaryFile', hideDescription: true },
+      panelClass: 'ask-before-delete-dialog',
+    })
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        this.supplementaryFilesNumbers?.splice(supplementaryFileIndex, 1);
+        delete this.supplementaryFiles![supplementaryFile.supplementary_file_ID]
+        if (this.editedSupplementaryFiles[supplementaryFile.supplementary_file_ID]) {
+          delete this.editedSupplementaryFiles[supplementaryFile.supplementary_file_ID];
+        }
+      }
+    })
   }
 
   addSupplementaryFile() {

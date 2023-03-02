@@ -7,6 +7,7 @@ import { figure } from '../../utils/interfaces/figureComponent';
 import { Node } from 'prosemirror-model';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { AddFigureDialogV2Component } from './add-figure-dialog-v2/add-figure-dialog-v2.component';
+import { AskBeforeDeleteComponent } from '../ask-before-delete/ask-before-delete.component';
 @Component({
   selector: 'app-figures-dialog',
   templateUrl: './figures-dialog.component.html',
@@ -58,11 +59,19 @@ export class FiguresDialogComponent implements AfterViewInit {
   }
 
   deleteFigure(fig: figure, figIndex: number) {
-    this.figuresNumbers?.splice(figIndex, 1);
-    delete this.figures![fig.figureID]
-    if (this.editedFigures[fig.figureID]) {
-      delete this.editedFigures[fig.figureID]
-    }
+    let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
+      data: {type: 'figure', hideDescription: true },
+      panelClass: 'ask-before-delete-dialog',
+    })
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        this.figuresNumbers?.splice(figIndex, 1);
+        delete this.figures![fig.figureID]
+        if (this.editedFigures[fig.figureID]) {
+          delete this.editedFigures[fig.figureID]
+        }
+      }
+    })
   }
 
   addFigure(){

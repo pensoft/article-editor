@@ -1,4 +1,6 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
+import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { TextSelection } from 'prosemirror-state';
@@ -21,7 +23,8 @@ export class TaxonComponent implements OnInit,AfterViewInit {
   previewMode
   constructor(
     private sharedService:ServiceShare,
-    public ydocService:YdocService
+    public ydocService:YdocService,
+    public dialog:MatDialog,
   ) {
     this.previewMode = sharedService.ProsemirrorEditorsService!.previewArticleMode
     this.sharedService.TaxonService.lastSelectedTaxonMarkSubject.subscribe((taxon) => {
@@ -39,12 +42,28 @@ export class TaxonComponent implements OnInit,AfterViewInit {
   ngOnInit(): void {
   }
 
-  removeThisTaxon(){
-    this.sharedService.TaxonService.removeSingleTaxon(this.taxon)
+  removeThisTaxon(taxonTxt) {
+    let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
+      data: { objName: taxonTxt, type: 'currentTaxon' },
+      panelClass: 'ask-before-delete-dialog',
+    })
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        this.sharedService.TaxonService.removeSingleTaxon(this.taxon)
+      }
+    })
   }
 
-  removeAllOccurrencesOfTaxon(){
-    this.sharedService.TaxonService.removeAllTaxon(this.taxon)
+  removeAllOccurrencesOfTaxon(taxonTxt) {
+    let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
+      data: { objName: taxonTxt, type: 'allOccurrencesTaxon' },
+      panelClass: 'ask-before-delete-dialog',
+    })
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        this.sharedService.TaxonService.removeAllTaxon(this.taxon)
+      }
+    })
   }
 
   selectTaxon() {

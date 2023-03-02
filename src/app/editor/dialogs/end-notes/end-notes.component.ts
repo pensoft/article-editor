@@ -7,6 +7,7 @@ import { Node } from 'prosemirror-model';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { AddEndNoteComponent } from './add-end-note/add-end-note.component';
 import { endNote } from '@app/editor/utils/interfaces/endNotes';
+import { AskBeforeDeleteComponent } from '../ask-before-delete/ask-before-delete.component';
 @Component({
   selector: 'end-notes-dialog',
   templateUrl: './end-notes.component.html',
@@ -55,11 +56,19 @@ export class EndNotesDialogComponent {
   }
 
   deleteEndNote(endNote: endNote, endNoteIndex: number) {
-    this.endNotesNumbers?.splice(endNoteIndex, 1);
-    delete this.endNotes![endNote.end_note_ID]
-    if (this.editedEndNotes[endNote.end_note_ID]) {
-      delete this.editedEndNotes[endNote.end_note_ID];
-    }
+    let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
+      data: { type: 'endNote', hideDescription: true },
+      panelClass: 'ask-before-delete-dialog',
+    })
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        this.endNotesNumbers?.splice(endNoteIndex, 1);
+        delete this.endNotes![endNote.end_note_ID]
+        if (this.editedEndNotes[endNote.end_note_ID]) {
+          delete this.editedEndNotes[endNote.end_note_ID];
+        }
+      }
+    })
   }
 
   addEndNote() {

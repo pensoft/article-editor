@@ -14,6 +14,7 @@ import { basicSetup, EditorState, EditorView } from '@codemirror/basic-setup';
 import { html } from '@codemirror/lang-html';
 import { uuidv4 } from 'lib0/random';
 import { TextSelection } from 'prosemirror-state';
+import { AskBeforeDeleteComponent } from '../../ask-before-delete/ask-before-delete.component';
 import { pageDimensionsInPT } from '../../edit-before-export/edit-before-export.component';
 import { AddFigureComponentDialogComponent } from './add-figure-component-dialog/add-figure-component-dialog.component';
 import { FigurePdfPreviewComponent } from './figure-pdf-preview/figure-pdf-preview.component';
@@ -209,8 +210,16 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
   }
 
   deleteComponent(component: any, i: number) {
-    this.figNewComponents.splice(i, 1);
-    this.updatePreview(false)
+    let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
+      data: { type: component.componentType, hideDescription: true },
+      panelClass: 'ask-before-delete-dialog',
+    })
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        this.figNewComponents.splice(i, 1);
+        this.updatePreview(false)
+      }
+    })
   }
 
   addComponent() {
