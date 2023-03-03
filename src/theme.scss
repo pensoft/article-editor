@@ -1640,7 +1640,7 @@ mat-radio-group {
   }
 }
 
-.edit-citable-item-button, .delete-citable-item-button, .move-citable-item-up-button, .move-citable-item-down-button {
+.edit-citable-item-button, .delete-citable-item-button, .move-citable-item-up-button, .move-citable-item-down-button, .edit-link-button, .unlink-button {
   width: 34px;
   height: 34px;
   padding: 4px;
@@ -1675,6 +1675,23 @@ mat-radio-group {
 
     img {
       width: 15px;
+    }
+  }
+
+  &.unlink-button {
+    box-shadow: 0 1px 2px 1px var(--color-e56b87), 0 0 0 0 var(--color-e56b87), 0 1px 3px 0 var(--color-e56b87);
+    margin: 8px 0 0;
+
+    img {
+      width: 18px;
+    }
+  }
+
+  &.edit-link-button {
+    box-shadow: 0 1px 2px 1px var(--color-00b1b2), 0 0 0 0 var(--color-00b1b2), 0 1px 3px 0 var(--color-00b1b2);
+
+    img {
+      width: 16px;
     }
   }
 }
