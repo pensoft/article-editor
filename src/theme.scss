@@ -1604,6 +1604,7 @@ mat-radio-group {
                 color: var(--color-00b1b2);
                 text-overflow: ellipsis;
                 overflow: hidden;
+                user-select: none;
               }
 
               &:hover {

@@ -1,12 +1,9 @@
 import { Injectable } from '@angular/core';
 
 import { MatDialog } from '@angular/material/dialog';
-import { AddTableDialogComponent } from '@app/editor/dialogs/citable-tables-dialog/add-table-dialog/add-table-dialog.component';
-import { AddEndNoteComponent } from '@app/editor/dialogs/end-notes/add-end-note/add-end-note.component';
-import { AddFigureDialogV2Component } from '@app/editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-dialog-v2.component';
-import { AddSupplementaryFileComponent } from '@app/editor/dialogs/supplementary-files/add-supplementary-file/add-supplementary-file.component';
+import { AddLinkDialogComponent } from '@app/editor/add-link-dialog/add-link-dialog.component';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-import { Node } from 'prosemirror-model';
+import { MarkType } from 'prosemirror-model';
 import { EditorState, Plugin, PluginKey, Transaction } from 'prosemirror-state';
 import { Decoration, DecorationSet } from 'prosemirror-view';
 import { createCustomIcon } from '../menu/common-methods';
@@ -18,22 +15,22 @@ export class LinkButtonsService {
   linkButtonsPluginKey = new PluginKey('linkButtonsPlugin');
   linkButtonsPlugin: Plugin;
 
-  blockNodesNames = [];
-
-  buttonsContainer: HTMLDivElement;
   editButton: HTMLButtonElement;
   unlinkButton: HTMLButtonElement;
 
+  linkActions = {
+    editLink: () => {},
+    unlink: () => {},
+  };
+
   linkButtonsClasses = ['edit-link-button', 'unlink-button'];
 
-  constructor(private serviceShare: ServiceShare) {
-    console.log('constructor');
-
+  constructor(private serviceShare: ServiceShare, private dialog: MatDialog) {
     this.createButtons();
     this.linkButtonsPlugin = new Plugin({
       key: this.linkButtonsPluginKey,
       state: {
-        init: (config: any, editorState: EditorState) => {
+        init: (config: any, _: EditorState) => {
           return { sectionName: config.sectionName };
         },
         apply: (transaction: Transaction, value, _, newState) => {
@@ -48,59 +45,112 @@ export class LinkButtonsService {
               event.relatedTarget instanceof HTMLButtonElement &&
               this.linkButtonsClasses.includes(event.relatedTarget.className)
             ) {
-              console.log('tuk');
-
               event.relatedTarget.click();
             }
           },
         },
         decorations: (state: EditorState) => {
           const pluginState = this.linkButtonsPluginKey.getState(state);
-          const focusedEditor = serviceShare.DetectFocusService.sectionName;
+          const focusedEditor = this.serviceShare.DetectFocusService.sectionName;
           const currentEditor = pluginState.sectionName;
-          const { from, to, $from } = state.selection;
+          const { from, to } = state.selection;
 
           if (from != to || currentEditor != focusedEditor) {
             return DecorationSet.empty;
           }
 
-          const nodeWithLinkMark = $from
-            .marks()
-            .find((mark) => mark.type.name == 'link');
+          const anchor = state.selection.$anchor;
+          const linkMarkInfo = this.markPosition(
+            state,
+            anchor.pos,
+            state.schema.marks.link
+          );
 
-          if (!nodeWithLinkMark) {
+          if (!linkMarkInfo) {
             return DecorationSet.empty;
           }
 
-          this.buttonsContainer = document.createElement('div');
-          this.buttonsContainer.className = 'link-edit-buttons';
-          this.buttonsContainer.append(this.editButton, this.unlinkButton);
+          const buttonsContainer = document.createElement('div');
+          buttonsContainer.style.pointerEvents = 'all';
+          buttonsContainer.className = 'link-edit-buttons';
+          buttonsContainer.append(this.editButton, this.unlinkButton);
 
           const view =
             serviceShare.ProsemirrorEditorsService.editorContainers[
               currentEditor
             ].editorView;
+
           const coordsInCursorPos = view.coordsAtPos(from);
           const editorViewRectangle = view.dom.getBoundingClientRect();
+
           const top = coordsInCursorPos.top - editorViewRectangle.top;
           const left = editorViewRectangle.width;
-          this.buttonsContainer.setAttribute(
+
+          buttonsContainer.setAttribute(
             'style',
             `position:absolute;
              pointer-events:all;
              top:${top}px;
              left:${left}px;`
           );
-          this.buttonsContainer.setAttribute('tabindex', '-1');
+          buttonsContainer.setAttribute('tabindex', '-1');
+
+          this.linkActions.editLink = () => {
+            const { href, title } = linkMarkInfo.mark.attrs;
+
+            this.dialog
+              .open(AddLinkDialogComponent, {
+                width: '582px',
+                data: { url: href, text: title },
+              })
+              .afterClosed()
+              .subscribe((result) => {
+                if (result) {
+                  const { from, to, mark: oldMark } = linkMarkInfo;
+
+                  state.tr.removeMark(from, to, oldMark);
+
+                  const newMark = state.schema.marks.link.create({
+                    href: result.url,
+                    title: result.text,
+                  });
+
+                  view.dispatch(state.tr.addMark(from, to, newMark));
+                }
+              });
+          };
+
+          this.linkActions.unlink = () => {
+            const { from, to, mark } = linkMarkInfo;
+
+            const tr = state.tr.removeMark(from, to, mark);
+            view.dispatch(tr);
+          };
 
           return DecorationSet.create(state.doc, [
             Decoration.widget(0, () => {
-              return this.buttonsContainer;
+              return buttonsContainer;
             }),
           ]);
         },
       },
     });
+  }
+
+  markPosition(state: EditorState, pos: number, markType: MarkType) {
+    const $pos = state.doc.resolve(pos);
+
+    const { parent, parentOffset } = $pos;
+    const { node, offset } = parent.childAfter(parentOffset);
+    if (!node) return;
+
+    const mark = node.marks.find((mark) => mark.type === markType);
+    if (!mark) return;
+
+    let from = $pos.start() + offset;
+    let to = from + node.nodeSize;
+
+    return { from, to, mark };
   }
 
   createButtons() {
@@ -109,22 +159,39 @@ export class LinkButtonsService {
     this.editButton.setAttribute('tabindex', '-1');
     this.editButton.style.cursor = 'pointer';
     this.editButton.title = 'Edit link.';
-    const editImg = createCustomIcon('edit-green.svg', 12, 12, 0, 1.5, 1.3);
-    editImg.dom.className = 'edit-citable-item-img';
-    editImg.dom.style.pointerEvents = 'all';
-    editImg.dom.style.cursor = 'pointer';
-    this.editButton.append(editImg.dom);
-    this.editButton.append(editImg.dom);
+    const { dom: editImg } = createCustomIcon(
+      'edit-green.svg',
+      12,
+      12,
+      0,
+      1.5,
+      1.3
+    );
+    editImg.style.pointerEvents = 'all';
+    editImg.style.cursor = 'pointer';
+    this.editButton.append(editImg);
+    this.editButton.addEventListener('click', () => {
+      this.linkActions.editLink();
+    });
 
     this.unlinkButton = document.createElement('button');
     this.unlinkButton.className = 'unlink-button';
     this.unlinkButton.setAttribute('tabindex', '-1');
     this.unlinkButton.style.cursor = 'pointer';
     this.unlinkButton.title = 'Unlink.';
-    const unlinkImg = createCustomIcon('anchortag.svg', 12, 12, 0, 1.5, 1.3);
-    unlinkImg.dom.className = 'edit-citable-item-img';
-    unlinkImg.dom.style.pointerEvents = 'all';
-    unlinkImg.dom.style.cursor = 'pointer';
-    this.unlinkButton.append(unlinkImg.dom);
+    const { dom: unlinkImg } = createCustomIcon(
+      'anchortag.svg',
+      12,
+      12,
+      0,
+      1.5,
+      1.3
+    );
+    unlinkImg.style.pointerEvents = 'all';
+    unlinkImg.style.cursor = 'pointer';
+    this.unlinkButton.append(unlinkImg);
+    this.unlinkButton.addEventListener('click', () => {
+      this.linkActions.unlink();
+    });
   }
 }
