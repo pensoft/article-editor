@@ -173,6 +173,7 @@ import { DropzoneModule } from 'ngx-dropzone-wrapper';
 import { DropzoneComponent } from './editor/dropzone/dropzone.component';
 import { EmbedVideo } from 'ngx-embed-video';
 import { LogoutComponent } from './layout/pages/logout/logout.component';
+import { InsertVideoComponent } from './editor/dialogs/insert-video/insert-video.component';
 
 //@ts-ignore
 EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE, 'event-dispatcher']
@@ -322,6 +323,7 @@ const gravatarConfig: GravatarConfig = {
     TaxonComponent,
     DropzoneComponent,
     LogoutComponent,
+    InsertVideoComponent,
   ],
   imports: [
     HttpClientJsonpModule,

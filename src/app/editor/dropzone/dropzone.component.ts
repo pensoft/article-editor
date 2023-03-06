@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
 import { AuthService } from '@app/core/services/auth.service';
 import { CONSTANTS } from '@app/core/services/constants';
 import { environment } from '@env';
@@ -10,10 +10,11 @@ import { ServiceShare } from '../services/service-share.service';
   templateUrl: './dropzone.component.html',
   styleUrls: ['./dropzone.component.scss']
 })
-export class DropzoneComponent implements OnInit {
+export class DropzoneComponent implements AfterViewInit {
   @Output() uploaded = new EventEmitter<any>();
-  @Input() fileType: 'images'|'default'|'*';
-
+  @Input() fileType: "image/*"|"video/*"|null = null;
+  @Input() disabled:boolean = false;
+  shouldRender = false;
   private token = this._authservice.getToken();
   public config: DropzoneConfigInterface = {
     chunking: true,
@@ -25,11 +26,13 @@ export class DropzoneComponent implements OnInit {
     retryChunksLimit: 3,
     parallelUploads: 3,
     paramName: "file",
+    maxFiles:2,
     addRemoveLinks: !0,
     createImageThumbnails: false,
     thumbnailWidth: 120,
     thumbnailHeight: 120,
     url: environment.apiUrl+'/cdn/v1/upload',
+    capture:'',
     timeout: 0,
     headers: {
       [CONSTANTS.AUTH_HEADER]: `Bearer ${this.token}`
@@ -37,10 +40,15 @@ export class DropzoneComponent implements OnInit {
   };
   constructor(
     private serviceShare:ServiceShare,
-    private _authservice: AuthService
+    private _authservice: AuthService,
+    private ref:ChangeDetectorRef
   ) { }
 
-  ngOnInit(): void {
+
+  ngAfterViewInit(): void {
+    this.config.acceptedFiles = this.fileType?this.fileType:null
+    this.shouldRender = true;
+    this.ref.detectChanges()
   }
 
   public onUploadInit(args: any): void {
@@ -63,9 +71,9 @@ export class DropzoneComponent implements OnInit {
     let room = this.serviceShare.YdocService.roomName;
     let userData = this._authservice.userInfo
     formData.append('article_id', room);
-    formData.append('user_id', '11111');
-    formData.append('user_email', 'test@test.com');
-    formData.append('user_name', 'koko');
+    formData.append('user_id', userData.data.id);
+    formData.append('user_email', userData.data.email);
+    formData.append('user_name', userData.data.name);
   }
 
   onAddFile($event: any) {
