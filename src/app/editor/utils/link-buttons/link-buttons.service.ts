@@ -51,7 +51,8 @@ export class LinkButtonsService {
         },
         decorations: (state: EditorState) => {
           const pluginState = this.linkButtonsPluginKey.getState(state);
-          const focusedEditor = this.serviceShare.DetectFocusService.sectionName;
+          const focusedEditor =
+            this.serviceShare.DetectFocusService.sectionName;
           const currentEditor = pluginState.sectionName;
           const { from, to } = state.selection;
 
@@ -101,6 +102,7 @@ export class LinkButtonsService {
             this.dialog
               .open(AddLinkDialogComponent, {
                 width: '582px',
+                panelClass: 'insert-figure-in-editor',
                 data: { url: href, text: title },
               })
               .afterClosed()
@@ -139,6 +141,13 @@ export class LinkButtonsService {
 
   markPosition(state: EditorState, pos: number, markType: MarkType) {
     const $pos = state.doc.resolve(pos);
+    //@ts-ignore
+    const path = $pos.path;
+    const isSupplementary = path.find(
+      (node) => node?.type && node.type.name === 'block_supplementary_file'
+    );
+
+    if (isSupplementary) return;
 
     const { parent, parentOffset } = $pos;
     const { node, offset } = parent.childAfter(parentOffset);
