@@ -4,13 +4,13 @@
   <p>Enter link and text,representing the link</p>
   <mat-label class="upper-label">Link</mat-label>
   <mat-form-field [style.width]='"100%"' appearance="fill">
-    <input matInput [(ngModel)]="data.url" [formControl]="text" required placeholder="Enter link url" #linkurlinput>
-    <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
+    <input matInput [(ngModel)]="data.url" [formControl]="this.url" required placeholder="Enter link url" #linkurlinput>
+    <mat-error *ngIf="this.url.invalid">{{getErrorMessage()}}</mat-error>
   </mat-form-field>
   <mat-label class="upper-label">Text</mat-label>
   <mat-form-field [style.width]='"100%"' appearance="fill">
-    <input matInput [(ngModel)]="data.text" [formControl]="text" required placeholder="Enter link text">
-    <mat-error *ngIf="text.invalid">{{getErrorMessage()}}</mat-error>
+    <input matInput [(ngModel)]="data.text" [formControl]="this.text" required placeholder="Enter link text">
+    <mat-error *ngIf="this.text.invalid">{{getErrorMessage()}}</mat-error>
   </mat-form-field>
 </mat-dialog-content>
 
