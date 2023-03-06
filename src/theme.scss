@@ -606,7 +606,7 @@ mat-radio-group {
     padding: 8px 12px 8px 28px;
     margin: 0 28px 12px 12px;
     gap: 12px;
-    border-radius: 8px;
+    border-radius: 6px;
 
 
     > mat-form-field {
@@ -841,6 +841,10 @@ mat-radio-group {
   }
 }
 
+.mat-menu-panel {
+  border-radius: 6px !important;
+}
+
 .mat-menu-panel.figure-components-list {
   width: 280px;
   max-height: 400px;
@@ -862,7 +866,7 @@ mat-radio-group {
             width: 90px;
             height: 90px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 6px;
           }
 
           .video-thumb {
@@ -871,7 +875,7 @@ mat-radio-group {
             align-items: center;
             height: 90px;
             width: 90px;
-            border-radius: 18px;
+            border-radius: 6px;
             background-color: var(--color-676767);
             color: var(--color-ffffff);
 
@@ -2038,7 +2042,7 @@ mat-formio-textarea {
     border-radius: 6px;
     padding: 6px 12px;
     min-height: 80px;
-    max-height: 80px;
+    max-height: 234px;
     overflow-y: scroll;
     transition: all ease-in-out 300ms;
   }
