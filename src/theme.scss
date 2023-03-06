@@ -606,7 +606,7 @@ mat-radio-group {
     padding: 8px 12px 8px 28px;
     margin: 0 28px 12px 12px;
     gap: 12px;
-    border-radius: 8px;
+    border-radius: 6px;
 
 
     > mat-form-field {
@@ -2042,7 +2042,7 @@ mat-formio-textarea {
     border-radius: 6px;
     padding: 6px 12px;
     min-height: 80px;
-    max-height: 80px;
+    max-height: 234px;
     overflow-y: scroll;
     transition: all ease-in-out 300ms;
   }
