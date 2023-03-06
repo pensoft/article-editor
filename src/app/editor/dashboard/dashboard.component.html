@@ -98,11 +98,11 @@
           <td mat-cell *matCellDef="let row">
             <div class="more-avatar">
 
-              <ngx-avatar class="avatar" size="36" [gravatarId]="row.user.email" [name]="row.user.name"></ngx-avatar>
+              <ngx-avatar class="avatar" size="36" [gravatarId]="row.user.email" [name]="row.user.name" [matTooltip]="row.user.name"></ngx-avatar>
 
               <ng-container *ngFor="let collaborator of row.collaborators index as i">
                 <ngx-avatar class="avatar" *ngIf="i<2" size="36" [gravatarId]="collaborator.user_email"
-                            [name]="collaborator.user_name??collaborator.type"></ngx-avatar>
+                            [name]="collaborator.user_name??collaborator.type" [matTooltip]="collaborator.user_name"></ngx-avatar>
               </ng-container>
 
               <ng-container *ngIf="row.collaborators.length > 2">

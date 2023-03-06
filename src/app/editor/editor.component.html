@@ -34,7 +34,8 @@
             <ngx-avatar class="avatar" *ngIf="user&&user.userInfo&&user.userInfo.data&&i<2" size="36"
                         [gravatarId]="user.userInfo.data.email" [name]="user.userInfo.data.name"
                         [fgColor]="(user.userInfo.color&&user.userInfo.color.userContrastColor)?user.userInfo.color.userContrastColor:null"
-                        [bgColor]="(user.userInfo.color&&user.userInfo.color.userColor)?user.userInfo.color.userColor:null"></ngx-avatar>
+                        [bgColor]="(user.userInfo.color&&user.userInfo.color.userColor)?user.userInfo.color.userColor:null"
+                        [matTooltip]="user.userInfo.data.name"></ngx-avatar>
             <!--            <app-avatar user="user"></app-avatar>-->
           </ng-container>
 
