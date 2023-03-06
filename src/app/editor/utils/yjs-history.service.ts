@@ -346,8 +346,9 @@ export class YjsHistoryService {
   }
 
   undo = (state: EditorState) => {
-    this.stopCapturingUndoItem()
     let undoitem = this.undoStack.shift();
+    if(!undoitem) return;
+    this.stopCapturingUndoItem()
     let redoItem: undoServiceItem = { editors: [], finished: true,startSel:undoitem.startSel,endSel:undoitem.endSel ,selections:[]}
     redoItem.lastSelection = undoitem.lastSelection;
 
@@ -417,6 +418,7 @@ export class YjsHistoryService {
 
   redo = (state: EditorState) => {
     let redoItem = this.redoStack.shift();
+    if(!redoItem) return;
     let undoItem: undoServiceItem = { editors: [], finished: true,startSel:redoItem.startSel,endSel:redoItem.endSel ,selections:[]}
     undoItem.lastSelection = redoItem.lastSelection;
     if (redoItem.undoItemMeta) {
@@ -455,24 +457,29 @@ export class YjsHistoryService {
     return this.redoStack.length > 0
   }
 
+  undoItem = new MenuItem({
+    icon: undoIcon,
+    label: "undo",
+    enable: (state: EditorState) => { return this.canUndo() },
+    //@ts-ignore
+    run: this.undo
+  })
+
+  redoItem = new MenuItem({
+    icon: redoIcon,
+    label: "redo",
+    enable: (state: EditorState) => { return this.canRedo() },
+    //@ts-ignore
+    run: this.redo
+  })
+
   undoYjs() {
-    return new MenuItem({
-      icon: undoIcon,
-      label: "undo",
-      enable: (state: EditorState) => { return this.canUndo() },
-      //@ts-ignore
-      run: this.undo
-    })
+    return this.undoItem
   }
 
   redoYjs() {
-    return new MenuItem({
-      icon: redoIcon,
-      label: "redo",
-      enable: (state: EditorState) => { return this.canRedo() },
-      //@ts-ignore
-      run: this.redo
-    })
+    return this.redoItem
+
   }
 
   startCapturingNewUndoItem() {

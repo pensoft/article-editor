@@ -19,7 +19,7 @@ import { canInsert, createCustomIcon } from './common-methods';
 import { insertFigure,insertSupplementaryFile, insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem, citateReference, insertTable, insertEndNote } from './menu-dialogs';
 import { MarkType, Node, NodeType, DOMParser, DOMSerializer, Mark, Fragment } from 'prosemirror-model';
 //@ts-ignore
-import { undo as undoLocalHistory, redo as redoLocalHistory } from '../prosemirror-history/history.js'
+import { undo as undoLocalHistory, redo as redoLocalHistory } from 'prosemirror-history'
 //@ts-ignore
 import * as Y from 'yjs'
 import { D } from '@angular/cdk/keycodes';

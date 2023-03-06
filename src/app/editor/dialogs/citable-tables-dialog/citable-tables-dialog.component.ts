@@ -7,6 +7,7 @@ import { AddTableDialogComponent } from './add-table-dialog/add-table-dialog.com
 import { Node } from 'prosemirror-model';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { citableTable } from '@app/editor/utils/interfaces/citableTables';
+import { AskBeforeDeleteComponent } from '../ask-before-delete/ask-before-delete.component';
 
 @Component({
   selector: 'app-citable-tables-dialog',
@@ -58,11 +59,21 @@ export class CitableTablesDialogComponent {
   }
 
   deleteTable(table: citableTable, tableIndex: number) {
-    this.tablesNumbers?.splice(tableIndex, 1);
-    delete this.tables![table.tableID]
-    if (this.editedTables[table.tableID]) {
-      delete this.editedTables[table.tableID]
-    }
+    let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
+      data: { type: 'table', dontshowType:true,objName:'Table №'+(tableIndex+1) },
+      panelClass: 'ask-before-delete-dialog',
+    })
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        this.tablesNumbers?.splice(tableIndex, 1);
+        delete this.tables![table.tableID]
+        if (this.editedTables[table.tableID]) {
+          delete this.editedTables[table.tableID]
+        }
+      }
+    })
+
+
     /* if(!Object.keys(this.newFigureNodes).includes(fig.figureID)){
       this.deletedFigures.push(fig.figureID)
     }else{

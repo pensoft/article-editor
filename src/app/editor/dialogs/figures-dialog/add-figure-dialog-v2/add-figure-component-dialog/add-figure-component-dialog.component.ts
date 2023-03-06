@@ -35,7 +35,10 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
     @Inject(MAT_DIALOG_DATA) public data: { component?:{
       "description": string,
       "componentType": string,
-      "url": string
+      "url": string,
+      originalUrl:string,
+      uploadedFileUrl:string,
+      "thumbnail": string,
     }, }
   ) {
     this.urlSubscription = this.urlFormControl.valueChanges.subscribe(url => {
@@ -47,13 +50,15 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
       const regex = /src="(.*?)"/;
       const match = regex.exec(videoHtml);
       this.videoUrl = match ? match[1] : '';
+      this.uploadedFileUrl = undefined
+      this.uploadedFileThumb = undefined
+
     })
   }
 
 
   ngAfterViewChecked(): void {
     this.changeDetectorRef.detectChanges()
-    this.urlInputElement.nativeElement.focus()
     this.ref.detectChanges();
   }
 
@@ -64,7 +69,10 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
     if(this.data&&this.data.component){
       this.urlFormControl.setValue(this.data.component.url)
       this.typeFromControl.setValue(this.data.component.componentType)
-
+      setTimeout(()=>{
+        this.uploadedFileUrl = this.data.component.uploadedFileUrl
+        this.uploadedFileThumb = this.data.component.thumbnail
+      })
       let descContainer = document.createElement('div');
       descContainer.innerHTML = this.data.component.description;
       let prosemirrorNode = PMDomParser.parse(descContainer);
@@ -84,6 +92,7 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
       view.focus()
     },40) */
     this.setComponentDataIfAny()
+    this.urlInputElement.nativeElement.focus()
   }
 
   closeDialog(){
@@ -124,19 +133,34 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
       "description": this.componentDescriptionPmContainer.editorView.dom.innerHTML,
       "componentType": this.typeFromControl.value,
       "url": this.urlFormControl.value,
-      "thumbnail": this.getVideoThumbnail(this.urlFormControl.value)
+      originalUrl:this.urlFormControl.value,
+      uploadedFileUrl:this.uploadedFileUrl,
+      "thumbnail": (this.uploadedFileUrl == this.urlFormControl.value)?this.uploadedFileThumb:this.getVideoThumbnail(this.urlFormControl.value),
     }
     this.dialogRef.close({component:newComponent})
   }
 
   fileIsUploaded(uploaded){
-    console.log(uploaded);
-    if(uploaded.collection == "images"&&uploaded.base_url){
+    if(uploaded.collection&&uploaded.base_url){
       this.uploadedFileInCDN(uploaded)
     }
   }
+  uploadedFileUrl
+  uploadedFileThumb
   uploadedFileInCDN(fileData:any){
-    this.urlFormControl.setValue(fileData.base_url);
-    this.typeFromControl.setValue('image');
+    if(fileData.collection == 'images'){
+      this.urlFormControl.setValue(fileData.base_url);
+      this.typeFromControl.setValue('image');
+    }else if(fileData.collection == 'video'){
+      this.urlFormControl.setValue(fileData.base_url);
+      this.typeFromControl.setValue('video');
+    }else{
+      this.urlFormControl.setValue(fileData.thumb);
+      this.typeFromControl.setValue('image');
+    }
+    setTimeout(()=>{
+      this.uploadedFileUrl = fileData.base_url
+      this.uploadedFileThumb = fileData.thumb
+    },30)
   }
 }
