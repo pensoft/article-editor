@@ -6,10 +6,8 @@
         <ng-container *ngFor="let i of rowTemplate;">
           <div *ngIf="row[i].container" class="cell-component">
             <code *ngIf="!singleMedia">{{getCharValue(r * nOfColumns + i)}}</code>
-            <img *ngIf="row[i].container.componentType == 'image'" src="{{row[i].container.url}}" alt="" title="default image" />
-            <div *ngIf="row[i].container.componentType == 'video'" class="video-thumb" >
-              <mat-icon>ondemand_video</mat-icon>
-            </div>
+            <!-- row[i].container.pdfImgResized?row[i].container.pdfImgResized:row[i].container.pdfImgOrigin -->
+            <img  src="{{row[i].container.pdfImgResized?row[i].container.pdfImgResized:row[i].container.pdfImgOrigin}}" alt="" title="default image" />
           </div>
         </ng-container>
       </ng-container>

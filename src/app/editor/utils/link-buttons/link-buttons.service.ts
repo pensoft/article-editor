@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core';
-
 import { MatDialog } from '@angular/material/dialog';
 import { AddLinkDialogComponent } from '@app/editor/add-link-dialog/add-link-dialog.component';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { MarkType } from 'prosemirror-model';
 import { EditorState, Plugin, PluginKey, Transaction } from 'prosemirror-state';
 import { Decoration, DecorationSet } from 'prosemirror-view';
+
 import { createCustomIcon } from '../menu/common-methods';
 
 @Injectable({
@@ -87,11 +87,10 @@ export class LinkButtonsService {
           const top = coordsInCursorPos.top - editorViewRectangle.top;
           const left = editorViewRectangle.width;
 
+          buttonsContainer.classList.add('edit-link-buttons');
           buttonsContainer.setAttribute(
             'style',
-            `position:absolute;
-             pointer-events:all;
-             top:${top}px;
+            `top:${top}px;
              left:${left}px;`
           );
           buttonsContainer.setAttribute('tabindex', '-1');
@@ -103,20 +102,19 @@ export class LinkButtonsService {
               .open(AddLinkDialogComponent, {
                 width: '582px',
                 panelClass: 'insert-figure-in-editor',
-                data: { url: href, text: title },
+                data: { url: href, text: title }
               })
               .afterClosed()
               .subscribe((result) => {
                 if (result) {
                   const { from, to, mark: oldMark } = linkMarkInfo;
 
-                  state.tr.removeMark(from, to, oldMark);
-
                   const newMark = state.schema.marks.link.create({
                     href: result.url,
                     title: result.text,
                   });
 
+                  state.tr.removeMark(from, to, oldMark);
                   view.dispatch(state.tr.addMark(from, to, newMark));
                 }
               });
@@ -176,8 +174,6 @@ export class LinkButtonsService {
       1.5,
       1.3
     );
-    editImg.style.pointerEvents = 'all';
-    editImg.style.cursor = 'pointer';
     this.editButton.append(editImg);
     this.editButton.addEventListener('click', () => {
       this.linkActions.editLink();
@@ -196,8 +192,6 @@ export class LinkButtonsService {
       1.5,
       1.3
     );
-    unlinkImg.style.pointerEvents = 'all';
-    unlinkImg.style.cursor = 'pointer';
     this.unlinkButton.append(unlinkImg);
     this.unlinkButton.addEventListener('click', () => {
       this.linkActions.unlink();

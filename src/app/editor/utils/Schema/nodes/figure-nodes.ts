@@ -13,17 +13,19 @@ export const image = {
     src: { default: 'https://www.kenyons.com/wp-content/uploads/2017/04/default-image-620x600.jpg' },
     alt: { default: '' },
     title: { default: 'default image' },
-
+    width: {default:undefined},
     ...getGenericAttributes({styling:{default:'max-width: 100%;'}}),
   },
   group: "inline",
   draggable: true,
   parseDOM: [{
     tag: "img[src]", getAttrs: function getAttrs(dom: any) {
+      let width = dom.getAttribute('width')
       return {
         src: dom.getAttribute("src"),
         title: dom.getAttribute("title"),
         alt: dom.getAttribute("alt"),
+        width: (width&&width.length>0)?width:undefined,
         ...parseGenericAttributes(dom),
       }
     }
@@ -32,13 +34,20 @@ export const image = {
     var ref = node.attrs;
     var src = ref.src;
     var alt = ref.alt;
-    var title = ref.title; return ["img", { src: src, alt: alt, title: title, ...genericAttributtesToDom(node) }]
+    var title = ref.title;
+    let domAttrs= { src: src, alt: alt, title: title, ...genericAttributtesToDom(node) }
+    if(node.attrs.width && node.attrs.width.length>0){
+      domAttrs.width = node.attrs.width
+    }
+    return ["img",domAttrs]
   }
 }
 export const video = {
   inline: true,
   attrs: {
     src: { default: 'https://www.youtube.com/embed/l_MtK_kPtNU' },
+    pdfImgOrigin:{default:''},
+    thumbnail:{default:''},
     ...getGenericAttributes()
   },
   group: "inline",
@@ -46,7 +55,10 @@ export const video = {
   parseDOM: [{
     tag: "iframe", getAttrs(dom: any) {
       return {
-        src: dom.getAttribute('src'), ...parseGenericAttributes(dom),
+        src: dom.getAttribute('src'),
+        pdfImgOrigin: dom.getAttribute('pdfImgOrigin'),
+        thumbnail: dom.getAttribute('thumbnail'),
+        ...parseGenericAttributes(dom),
       }
     }
   }],
@@ -54,7 +66,9 @@ export const video = {
     let { src } = node.attrs;
     return ["iframe", {
       ...genericAttributtesToDom(node),
-      controls: '', src
+      controls: '', src,
+      'pdfImgOrigin': node.attrs.pdfImgOrigin,
+      'thumbnail': node.attrs.thumbnail,
     }]
   }
 }

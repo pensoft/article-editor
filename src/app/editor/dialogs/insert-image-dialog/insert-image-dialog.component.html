@@ -1,7 +1,7 @@
 <h2 mat-dialog-title >Insert image.</h2>
 <mat-dialog-content>
   <div >
-    <app-dropzone (uploaded)="fileIsUploaded($event)" [fileType]="'images'">
+    <app-dropzone (uploaded)="fileIsUploaded($event)" [fileType]="'image/*'">
     </app-dropzone>
     <div class="title">Or add image with a link:</div>
     <mat-form-field appearance="fill" class="file-url-control">
@@ -12,7 +12,7 @@
   </div>
 
   <div class="img-container">
-    <img *ngIf="imgLinkControl.value" src="{{imgLinkControl.value}}" alt="">
+    <img *ngIf="imgLinkControl.value" id='insert-img-in-editor-container' src="{{imgLinkControl.value}}" alt="">
   </div>
 </mat-dialog-content>
 <mat-dialog-actions align="end" fxLayoutGap="8px">
