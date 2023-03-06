@@ -15,7 +15,7 @@
         <button mat-flat-button color="primary" class="main-resolve-btn"
                 #mainResolveBtn
                 *ngIf="!mobileVersion && userComment!.initialComment.userData.email == user.email"
-                (click)="deleteComment()">
+                (click)="deleteComment(false, '')">
           Resolve
         </button>
       </ng-container>
@@ -28,7 +28,7 @@
 
       <mat-menu #menu="matMenu">
         <button (click)="editComment(userComment!.initialComment.id, userComment!.initialComment.comment)" mat-menu-item>Edit</button>
-        <button (click)="deleteComment()" mat-menu-item>Delete</button>
+        <button (click)="deleteComment(true, userComment.initialComment.comment)" mat-menu-item>Delete</button>
       </mat-menu>
     </div>
 
@@ -73,7 +73,7 @@
 
       <mat-menu #menu="matMenu">
         <button (click)="editReply(comment.id, comment.comment)" mat-menu-item>Edit</button>
-        <button (click)="deleteReply(comment.id)" mat-menu-item>Delete</button>
+        <button (click)="deleteReply(comment.id, comment.comment)" mat-menu-item>Delete</button>
       </mat-menu>
     </div>
 

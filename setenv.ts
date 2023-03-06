@@ -1,7 +1,8 @@
 
-const { writeFile } = require('fs');
+const { writeFile, mkdirSync, existsSync } = require('fs');
 const { argv } = require('yargs');
 const { version } = require('./package.json');
+const path = require('path')
 // read environment variables from .env file
 require('dotenv').config();
 const packageFile = './package.json';
@@ -9,9 +10,25 @@ const packageContent = require(packageFile);
 // read the command line arguments passed with yargs
 const environment = argv.environment;
 const isProduction = environment === 'prod';
-const targetPath = isProduction
-  ? `./src/environments/environment.prod.ts`
-  : `./src/environments/environment.ts`;
+const envPath = './src/environments'
+const devEnviromentFile = 'environment.ts'
+const prodEnviromentFile = 'environment.prod.ts'
+const targetFile = isProduction ? prodEnviromentFile : devEnviromentFile
+
+mkdirSync(envPath, { recursive: true })
+writeFile(path.join(envPath, devEnviromentFile), '', (err: any) => {
+  if (err) {
+    console.error(err);
+  }
+});
+writeFile(path.join(envPath, prodEnviromentFile), '', (err: any) => {
+  if (err) {
+    console.error(err);
+  }
+});
+
+
+
 const websocket = {
   host: new URL(process.env.WEBSOCKET_HOST || process.env.ARTICLE_STORAGE_WEBSOCKET_HOST).hostname,
   port: process.env.WEBSOCKET_PORT || process.env.ARTICLE_STORAGE_WEBSOCKET_PORT,
@@ -34,19 +51,19 @@ export const environment = {
    BUILD_NUMBER: '${packageContent.build}',
    VERSION: '${version}',
    WEBSOCKET_HOST: '${websocket.host}',
-   EXTERNAL_REFS_API: '${isProduction?process.env.EXTERNAL_REFS_API:"/find"}',
+   EXTERNAL_REFS_API: '${isProduction ? process.env.EXTERNAL_REFS_API : "/find"}',
    WEBSOCKET_PORT: '${websocket.port}',
    authServer: '${process.env.AUTH_SERVICE}',
    authUrl: '${process.env.AUTH_SERVICE}/api',
    apiUrl: '${process.env.API_GATEWAY_SERVICE}/api',
    passport_client_id: '${process.env.PKCE_CLIENT_ID}',
-   validate_jats:'${isProduction?process.env.JATS_VALIDATION_SERVICE:"/validate/xml"}',
-   print_pdf:'${isProduction?process.env.API_GATEWAY_SERVICE+'/articles/items/':'/proxy-pdf-print'}',
+   validate_jats:'${isProduction ? process.env.JATS_VALIDATION_SERVICE : "/validate/xml"}',
+   print_pdf:'${isProduction ? process.env.API_GATEWAY_SERVICE + '/articles/items/' : '/proxy-pdf-print'}',
    EVENT_DISPATCHER_SERVICE:'${process.env.EVENT_DISPATCHER_SERVICE}'
 };
 `;
 // write the content to the respective file
-writeFile(targetPath, environmentFileContent, (err: any) => {
+writeFile(path.join(envPath, targetFile), environmentFileContent, (err: any) => {
   if (err) {
     console.error(err);
   }

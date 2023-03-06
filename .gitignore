@@ -2,8 +2,7 @@
 
 # env file
 .env
-/src/environments/environment.prod.ts
-/src/environments/environment.ts
+/src/environments
 # compiled output
 /dist
 /tmp

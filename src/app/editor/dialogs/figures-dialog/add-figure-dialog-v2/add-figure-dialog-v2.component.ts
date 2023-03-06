@@ -14,6 +14,7 @@ import { basicSetup, EditorState, EditorView } from '@codemirror/basic-setup';
 import { html } from '@codemirror/lang-html';
 import { uuidv4 } from 'lib0/random';
 import { TextSelection } from 'prosemirror-state';
+import { AskBeforeDeleteComponent } from '../../ask-before-delete/ask-before-delete.component';
 import { pageDimensionsInPT } from '../../edit-before-export/edit-before-export.component';
 import { AddFigureComponentDialogComponent } from './add-figure-component-dialog/add-figure-component-dialog.component';
 import { FigurePdfPreviewComponent } from './figure-pdf-preview/figure-pdf-preview.component';
@@ -26,7 +27,7 @@ let figuresHtmlTemplate = `
         <figure-component [attr.actual_number]="figure.container.componentNumber" [attr.component_number]="i" contenteditablenode="false" [attr.viewed_by_citat]="data.viewed_by_citat||''">
           <code *ngIf="data.figureComponents.length>1">{{getCharValue(i)}}</code>
           <img *ngIf="figure.container.componentType == 'image'" src="{{figure.container.url}}" alt="" title="default image" contenteditable="false" draggable="true" />
-          <iframe *ngIf="figure.container.componentType == 'video'" [src]="figure.container.url | safe" controls="" contenteditable="false" draggable="true"></iframe>
+          <iframe *ngIf="figure.container.componentType == 'video'" [src]="figure.container.fileURL | safe" controls="" contenteditable="false" draggable="true"></iframe>
         </figure-component>
       </ng-container>
     </ng-container>
@@ -148,7 +149,6 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
     setTimeout(()=>{
       let view = this.figureDescriptionPmContainer.editorView;
       let size = view.state.doc.content.size;
-      console.log('set sel');
       view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,size)));
       view.focus()
       this.ref.detectChanges();
@@ -190,13 +190,18 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
       figurePlace:this.data.fig?this.data.fig.figurePlace:'endEditor',
       viewed_by_citat:this.data.fig?this.data.fig.viewed_by_citat:'endEditor'
     }
+    figureForSubmit.components.forEach((component)=>{
+      if(this.urlMapping[component.originalUrl]){
+        component.url = this.urlMapping[component.originalUrl];
+      }
+    })
     this.dialogRef.close({figure:figureForSubmit})
   }
 
 
   editComponent(component: any, i: number) {
     this.dialog.open(AddFigureComponentDialogComponent, {
-      width: '620px',
+      width: '640px',
       data: { component },
       disableClose: false
     }).afterClosed().subscribe((result: { component: any }) => {
@@ -209,13 +214,21 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
   }
 
   deleteComponent(component: any, i: number) {
-    this.figNewComponents.splice(i, 1);
-    this.updatePreview(false)
+    let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
+      data: { type: component.componentType, dontshowType:true },
+      panelClass: 'ask-before-delete-dialog',
+    })
+    dialogRef.afterClosed().subscribe((data: any) => {
+      if (data) {
+        this.figNewComponents.splice(i, 1);
+        this.updatePreview(false)
+      }
+    })
   }
 
   addComponent() {
     this.dialog.open(AddFigureComponentDialogComponent, {
-      width: '620px',
+      width: '640px',
       disableClose: false
     }).afterClosed().subscribe((result: { component: any }) => {
       if (result) {
@@ -247,6 +260,10 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
     ))
   }
 
+  urlMapping:any = {
+
+  }
+
   updatePreview(checkDiff:boolean){
     let hasEmptyFields = false;
     let differrance = false;
@@ -266,7 +283,6 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
       }else{
         differrance = true
       }
-
     })
     let key = 'A4'
     let a4Pixels = [pageDimensionsInPT[key][0], pageDimensionsInPT[key][1]-(pageDimensionsInPT[key][1]*this.bottomOffset)];
@@ -340,6 +356,10 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
             figComp.container.h = maxImgHeight
             figComp.container.w = maxImgWidth
           }
+          if(figComp.container.h && figComp.container.w && figComp.container.originalUrl.includes('https://ps-cdn.dev.scalewest.com')){
+            figComp.container.url = figComp.container.originalUrl + `/resize/${figComp.container.w}x${figComp.container.h}/`;
+            this.urlMapping[figComp.container.originalUrl] = figComp.container.url;
+          }
         }
         for(let i = 0;i<this.figureRows.length;i++){
           for(let j = 0;j<this.figureRows[i].length;j++){
@@ -348,7 +368,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
             newImg.addEventListener('load',()=>{
               calcImgPersentageFromFullA4(newImg,maxImgHeight,maxImgWidth,a4Pixels,image);
             })
-            newImg.src = image.container.url;
+            newImg.src = image.container.originalUrl;
           }
         }
         this.figureCanvasData = {
@@ -366,7 +386,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
   openFigurePdfPreview(){
     this.dialog.open(FigurePdfPreviewComponent, {
-      width: '620px',
+      width: '640px',
       disableClose: false,
       data:{
         figureRows:this.figureRows,

@@ -11,11 +11,11 @@
       <div class="comment-btns" fxLayout="row nowrap" fxLayoutGap="30px" fxLayoutAlign="center center">
         <button mat-flat-button color="primary"
                 *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'&&ydocService.curUserAccess!='Commenter'"
-                (click)="!previewMode.mode?removeThisTaxon():undefined">
+                (click)="!previewMode.mode?removeThisTaxon(taxon.taxonTxt):undefined">
           Remove
         </button>
         <button mat-stroked-button *ngIf="ydocService.curUserAccess&&ydocService.curUserAccess!='Viewer'&&ydocService.curUserAccess!='Commenter'"
-                (click)="!previewMode.mode?removeAllOccurrencesOfTaxon():undefined">
+                (click)="!previewMode.mode?removeAllOccurrencesOfTaxon(taxon.taxonTxt):undefined">
           Remove All
         </button>
       </div>

@@ -1,17 +1,15 @@
 .all-changes-container {
   position: relative;
-  background-color: var(--color-f9fafc);
+  background-color: var(--color-ffffff);
 }
+
+/*
 
 .search-changes {
   position: relative;
   border-bottom: 1px solid #d6d6d6;
   box-shadow: 0 2px 2px #1bb1b22b;
   z-index: 1;
-}
-
-.changes-wrapper {
-  background-color: #f2f2f2;
 }
 
 .results-from-search {
@@ -46,7 +44,7 @@
       position: unset;
     }
     .mat-form-field-flex {
-      background: var(--color-f9fafc);
+      background: var(--color-ffffff);
     }
     .label {
       margin-left: 7px;
@@ -67,6 +65,7 @@
     }
   }
 }
+ */
 
 .changes-footer {
   width: 100%;
@@ -93,13 +92,7 @@
 }
 
 .changes-wrapper {
-  //height: calc(100% - 62px);
   height: calc(100% - 44px);
-  //height: 100%;
-  overflow-x: hidden;
-  overflow-y: hidden;
+  overflow: hidden;
   width: 100%;
-  @media screen and (max-width: 600px) {
-    height: calc(100% - 89px);
-  }
 }

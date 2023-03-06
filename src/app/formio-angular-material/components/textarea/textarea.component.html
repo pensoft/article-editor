@@ -1,13 +1,13 @@
 <div [ngClass]="{
-  'prosemirror-textarea-wrapper-error': validity.length > 0 && !isProseMirrorFocused,
-  'prosemirror-textarea-wrapper': validity.length <= 0 && !isProseMirrorFocused,
-  'prosemirror-textarea-wrapper-focused': isProseMirrorFocused
+  'prosemirror-textarea-wrapper-error': validity.length > 0 && !prosemirrorFocused,
+  'prosemirror-textarea-wrapper': validity.length <= 0 && !prosemirrorFocused,
+  'prosemirror-textarea-wrapper-focused': prosemirrorFocused
 }">
   <div class="prosemirror-label-tag" *ngIf="options && instance && !options.noLabel">{{userSectionTitleAsLable?sectionTreeTitle:instance.component.label}}</div>
   <div #ProsemirrorEditor></div>
 
   <mat-error class="pm-errors">
-    <div *ngIf="validity.length > 0 && !isProseMirrorFocused">
+    <div *ngIf="validity.length > 0 && !prosemirrorFocused">
       {{ validity[0].message }}
     </div>
   </mat-error>

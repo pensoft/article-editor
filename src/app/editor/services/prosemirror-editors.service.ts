@@ -52,8 +52,6 @@ import {
 //@ts-ignore
 import { TreeService } from '../meta-data-tree/tree-service/tree.service';
 //@ts-ignore
-import { history } from '../utils/prosemirror-history/history.js';
-//@ts-ignore
 import { menuBar } from '../utils/prosemirror-menu-master/src/menubar.js'
 import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
 import { AddMarkStep, Mapping, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform';
@@ -68,6 +66,7 @@ import { changeNodesOnDragDrop, handleDeleteOfRefsFigsCitationsAndComments } fro
 import { getFilterNodesBySchemaDefPlugin } from '../utils/Schema/filterNodesIfSchemaDefPlugin';
 import { CitableElementsEditButtonsService } from '../utils/citable-elements-edit-buttons/citable-elements-edit-buttons.service';
 import { getToolTipPlugin } from '../utils/toolTipPlugin';
+import {getItems} from '../utils/menu/menuItems'
 import { getRefsEditPlugin } from '../utils/refsEditPlugin';
 import { LinkButtonsService } from '../utils/link-buttons/link-buttons.service';
 export interface editorContainersObj { [key: string]: editorContainer }
@@ -525,14 +524,12 @@ export class ProsemirrorEditorsService {
     if(editorSchema.nodes.math_inline){
       keymapObj['Mod-Space'] = insertMathCmd(editorSchema.nodes.math_inline)
     }
-
     let stateConfObj = {
       schema: editorSchema,
       plugins: [
         ...yjsPlugins,
         mathPlugin,
         keymap(keymapObj),
-        //history({renderFiguresFunc:this.rerenderFigures}),
         this.placeholderPluginService.getPlugin(),
         getToolTipPlugin(this.serviceShare),
         getFilterNodesBySchemaDefPlugin(this.serviceShare),
@@ -555,6 +552,8 @@ export class ProsemirrorEditorsService {
         inputRules(inputRulesObj),
         ...menuBar({
           floating: true,
+          clearPMUndoRedo:true,
+          undoRedoMenuItems:this.undoRedoMenuItems,
           content: menuTypes, containerClass: menuContainerClass,serviceShare:this.serviceShare,sectionID: editorID
         }),
         this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures })
@@ -832,11 +831,12 @@ export class ProsemirrorEditorsService {
           'Tab': goToNextCell(1),
           'Shift-Tab': goToNextCell(-1)
         }),
-        history(),
         getToolTipPlugin(this.serviceShare),
         this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures }),
         ...menuBar({
           floating: true,
+          clearPMUndoRedo:true,
+          undoRedoMenuItems:this.undoRedoMenuItems,
           content: this.menuTypes, containerClass: menuContainerClass,serviceShare:this.serviceShare,sectionID: editorID
         })
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */history: false, containerClass: menuContainerClass }))
@@ -991,7 +991,6 @@ export class ProsemirrorEditorsService {
     setTimeout(() => {
       this.initDocumentReplace[editorID] = false;
     }, 600);
-
     this.editorsEditableObj[editorID] = true
     let edState = EditorState.create({
       schema: schema,
@@ -1009,7 +1008,6 @@ export class ProsemirrorEditorsService {
         }),
         columnResizing({}),
         tableEditing(),
-        history(),
         //this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         getToolTipPlugin(this.serviceShare),
@@ -1029,6 +1027,8 @@ export class ProsemirrorEditorsService {
         this.yjsHistory.getYjsHistoryPlugin({ editorID, figuresMap: this.ydocService.figuresMap, renderFigures: this.rerenderFigures }),
         ...menuBar({
           floating: true,
+          clearPMUndoRedo:true,
+          undoRedoMenuItems:this.undoRedoMenuItems,
           content: menuTypes, containerClass: menuContainerClass,serviceShare:this.serviceShare,sectionID: editorID
         })
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */history: false, containerClass: menuContainerClass }))
@@ -1163,9 +1163,7 @@ export class ProsemirrorEditorsService {
   }
 
   renderEditorWithNoSync(EditorContainer: HTMLDivElement, formIOComponentInstance: any, control: FormioControl, options: any, nodesArray?: Slice): editorContainer {
-    let section = options.containerSection
     let sectionID = options.sectionID
-
     let menuTypes = this.menuTypes
     let editorSchema = schema
     let importantMenusDefsForSectionPrim,importantScehmasDefsForSectionPrim
@@ -1277,7 +1275,7 @@ export class ProsemirrorEditorsService {
     let keymapObj = {
       'Mod-z': undo,
       'Mod-y': redo,
-      'Mod-Shift-z': undo,
+      'Mod-Shift-z': redo,
       'Backspace': chainCommands(deleteSelection, mathBackspaceCmd, joinBackward, selectNodeBackward),
 
     }
@@ -1293,7 +1291,7 @@ export class ProsemirrorEditorsService {
     if(editorSchema.nodes.math_inline){
       keymapObj['Mod-Space'] = insertMathCmd(editorSchema.nodes.math_inline)
     }
-
+    let menus = menu ? menu : menuTypes;
     let stateConfObj = {
       doc,
       schema: editorSchema,
@@ -1307,7 +1305,9 @@ export class ProsemirrorEditorsService {
         inputRules(inputRulesObj),
         ...menuBar({
           floating: true,
-          content: menu ? menu : menuTypes, containerClass: menuContainerClass
+          clearYJSUndoRedo:true,
+          undoRedoMenuItems:this.undoRedoMenuItems,
+          content: menus, containerClass: menuContainerClass
         })
       ].concat(exampleSetup({ schema:editorSchema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
       ,
@@ -1397,7 +1397,7 @@ export class ProsemirrorEditorsService {
       handlePaste: handlePaste(this.serviceShare),
       handleTripleClickOn,
       handleDoubleClick:
-        handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
+      handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
       handleKeyDown: handleKeyDown(this.serviceShare),
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
 
@@ -1456,8 +1456,8 @@ export class ProsemirrorEditorsService {
 
     this.editorsEditableObj[editorID] = true
 
-    let menu: any = undefined
-    menu = { main: this.menuTypes['onlyPmMenu'] }
+    let menu: any = { main: this.menuTypes['onlyPmMenu'] }
+
     if (startingText) {
       if(startingText instanceof Node){
         doc = schema.nodes.doc.create({}, startingText)
@@ -1487,7 +1487,9 @@ export class ProsemirrorEditorsService {
         inputRules({ rules: [this.inlineMathInputRuleGlobal, this.blockMathInputRuleGlobal] }),
         ...menuBar({
           floating: true,
-          content: menu ? menu : this.menuTypes, containerClass: menuContainerClass
+          clearYJSUndoRedo:true,
+          undoRedoMenuItems:this.undoRedoMenuItems,
+          content: menu , containerClass: menuContainerClass
         })
       ].concat(exampleSetup({ schema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
       ,
@@ -1569,8 +1571,14 @@ export class ProsemirrorEditorsService {
       this.stopSpinner()
     }, 20)
   }
-
+  undoRedoMenuItems
   buildMenus() {
+    this.undoRedoMenuItems = {
+      yjsundo:this.yjsHistory.undoYjs(),
+      yjsredo:this.yjsHistory.redoYjs(),
+      pmundo:getItems().undoItemPM,
+      pmredo:getItems().redoItemPM,
+    }
     this.menuTypes = this.menuService.buildMenuTypes()
   }
 

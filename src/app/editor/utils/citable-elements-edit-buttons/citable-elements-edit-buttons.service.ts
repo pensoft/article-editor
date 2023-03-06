@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
+import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
 import { AddTableDialogComponent } from '@app/editor/dialogs/citable-tables-dialog/add-table-dialog/add-table-dialog.component';
 import { AddEndNoteComponent } from '@app/editor/dialogs/end-notes/add-end-note/add-end-note.component';
 import { AddFigureDialogV2Component } from '@app/editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-dialog-v2.component';
@@ -39,6 +40,7 @@ export class CitableElementsEditButtonsService {
       },
       resultElProp:'figure',
       elementCitationName:'citation',
+      name: "Figure",
     },
     'block_table':{
       idProp:'table_id',
@@ -52,6 +54,7 @@ export class CitableElementsEditButtonsService {
       },
       resultElProp:'table',
       elementCitationName:'table_citation',
+      name: "Table",
     },
     'block_supplementary_file':{
       idProp:'supplementary_file_id',
@@ -65,6 +68,7 @@ export class CitableElementsEditButtonsService {
       },
       resultElProp:'supplementaryFile',
       elementCitationName:'supplementary_file_citation',
+      name: "Suppl. material"
     },
     'block_end_note':{
       idProp:'end_note_id',
@@ -78,6 +82,7 @@ export class CitableElementsEditButtonsService {
       },
       resultElProp:'endNote',
       elementCitationName:'end_note_citation',
+      name: "Note"
     },
   }
 
@@ -100,65 +105,53 @@ export class CitableElementsEditButtonsService {
   ]
   generateEditButtons(){
     // move up button
-    let moveUpButton = document.createElement('button')
+    let moveUpButton = document.createElement('button');
     moveUpButton.className = 'move-citable-item-up-button';
-    moveUpButton.setAttribute('tabindex',"-1")
-    moveUpButton.style.cursor = 'pointer'
-    moveUpButton.title = 'Move item up.'
-    let moveUpImg = createCustomIcon('arrow_up.svg', 12, 12, 0, 1.5, 1.3)
-    moveUpImg.dom.className = 'move-citable-item-up-img'
-    moveUpImg.dom.style.cursor = 'pointer'
-    moveUpImg.dom.style.pointerEvents = 'all'
-    moveUpButton.append(moveUpImg.dom)
+    moveUpButton.setAttribute('tabindex',"-1");
+    moveUpButton.title = 'Move item up.';
+    let moveUpImg = createCustomIcon('arrow_up.svg',  20,  22);
+    moveUpImg.dom.className = 'move-citable-item-up-img';
+    moveUpButton.append(moveUpImg.dom);
     moveUpButton.addEventListener('click',()=>{
-      this.elementActions.moveElementUpFnc()
-    })
-    this.moveUpButton = moveUpButton
+      this.elementActions.moveElementUpFnc();
+    });
+    this.moveUpButton = moveUpButton;
     // move up button
-    let moveDownButton = document.createElement('button')
+    let moveDownButton = document.createElement('button');
     moveDownButton.className = 'move-citable-item-down-button';
-    moveDownButton.setAttribute('tabindex',"-1")
-    moveDownButton.style.cursor = 'pointer'
-    moveDownButton.title = 'Move item down.'
-    let moveDownImg = createCustomIcon('arrow_down.svg', 12, 12, 0, 1.5, 1.3)
-    moveDownImg.dom.className = 'move-citable-item-down-img'
-    moveDownImg.dom.style.cursor = 'pointer'
-    moveDownImg.dom.style.pointerEvents = 'all'
-    moveDownButton.append(moveDownImg.dom)
+    moveDownButton.setAttribute('tabindex',"-1");
+    moveDownButton.title = 'Move item down.';
+    let moveDownImg = createCustomIcon('arrow_down.svg',  20,  22);
+    moveDownImg.dom.className = 'move-citable-item-down-img';
+    moveDownButton.append(moveDownImg.dom);
     moveDownButton.addEventListener('click',()=>{
-      this.elementActions.moveElementDownFnc()
-    })
-    this.moveDownButton = moveDownButton
+      this.elementActions.moveElementDownFnc();
+    });
+    this.moveDownButton = moveDownButton;
     // move up button
-    let editButton = document.createElement('button')
+    let editButton = document.createElement('button');
     editButton.className = 'edit-citable-item-button';
-    editButton.setAttribute('tabindex',"-1")
-    editButton.style.cursor = 'pointer'
+    editButton.setAttribute('tabindex',"-1");
     editButton.title = 'Edit item.'
-    let editImg = createCustomIcon('edit-green.svg', 12, 12, 0, 1.5, 1.3)
-    editImg.dom.className = 'edit-citable-item-img'
-    editImg.dom.style.pointerEvents = 'all'
-    editImg.dom.style.cursor = 'pointer'
-    editButton.append(editImg.dom)
+    let editImg = createCustomIcon('edit-green.svg',  20,  22);
+    editImg.dom.className = 'edit-citable-item-img';
+    editButton.append(editImg.dom);
     editButton.addEventListener('click',()=>{
-      this.elementActions.editElementFnc()
-    })
-    this.editButton = editButton
+      this.elementActions.editElementFnc();
+    });
+    this.editButton = editButton;
     // move up button
     let deleteButton = document.createElement('button')
     deleteButton.className = 'delete-citable-item-button';
-    deleteButton.setAttribute('tabindex',"-1")
-    deleteButton.style.cursor = 'pointer'
-    deleteButton.title = 'Delete item.'
-    let deleteImg = createCustomIcon('delete_forever-red.svg', 12, 12, 0, 1.5, 1.3)
-    deleteImg.dom.className = 'delete-citable-item-img'
-    deleteImg.dom.style.cursor = 'pointer'
-    deleteImg.dom.style.pointerEvents = 'all'
-    deleteButton.append(deleteImg.dom)
+    deleteButton.setAttribute('tabindex',"-1");
+    deleteButton.title = 'Delete item.';
+    let deleteImg = createCustomIcon('delete_forever-red.svg',  22,  22);
+    deleteImg.dom.className = 'delete-citable-item-img';
+    deleteButton.append(deleteImg.dom);
     deleteButton.addEventListener('click',()=>{
-      this.elementActions.deleteElementFnc()
-    })
-    this.deleteButton = deleteButton
+      this.elementActions.deleteElementFnc();
+    });
+    this.deleteButton = deleteButton;
   }
 
   getEditButtonsDecorationsHTML(
@@ -277,27 +270,39 @@ export class CitableElementsEditButtonsService {
                 }
               })
             },
-            deleteElementFnc:()=>{
-              let elementObjCopy = JSON.parse(JSON.stringify(elementsObj));
-              let elementNumsCopy = JSON.parse(JSON.stringify(elementsNumbersArr));
-              if(elementObjCopy[elementId]){
-                delete elementObjCopy[elementId]
-              }
-              elementNumsCopy.splice(elementNumber,1);
-              this.serviceShare.CitableElementsService.writeElementDataGlobal(elementObjCopy, elementNumsCopy,elementMap.elementCitationName);
+            deleteElementFnc: () => {
+              const objName = elementMap.name === this.elementsMaps.block_end_note.name
+                ? `*${elementNumber + 1}`
+                : `${elementMap.name} №${elementNumber + 1}`
+
+              let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
+                data: { objName, type: elementMap.resultElProp,dontshowType:true },
+                panelClass: 'ask-before-delete-dialog',
+              })
+              dialogRef.afterClosed().subscribe((data: any) => {
+                if (data) {
+                  let elementObjCopy = JSON.parse(JSON.stringify(elementsObj));
+                  let elementNumsCopy = JSON.parse(JSON.stringify(elementsNumbersArr));
+                  if (elementObjCopy[elementId]) {
+                    delete elementObjCopy[elementId]
+                  }
+                  elementNumsCopy.splice(elementNumber, 1);
+                  this.serviceShare.CitableElementsService.writeElementDataGlobal(elementObjCopy, elementNumsCopy, elementMap.elementCitationName);
+                }
+              })
             },
           })
 
           let view = serviceShare.ProsemirrorEditorsService.editorContainers[currentEditor].editorView
           let coordsInCursorPos = view.coordsAtPos(from);
-          let editorViewRectangle = view.dom.getBoundingClientRect()
-          let top = coordsInCursorPos.top-editorViewRectangle.top
-          let left = editorViewRectangle.width
-          html.setAttribute('style', `position:absolute;
-          pointer-events:all;
-          top:${top}px;left:${left}px`)
-          html.setAttribute('tabindex',"-1")
+          let editorViewRectangle = view.dom.getBoundingClientRect();
+          let top = coordsInCursorPos.top-editorViewRectangle.top;
 
+          // console.log('------------------- ');
+          // console.log('view.coordsAtPos(from): ', view.coordsAtPos(from));
+
+          html.setAttribute('style', `top:${top}px;`);
+          html.setAttribute('tabindex',"-1");
 
           return  DecorationSet.create(state.doc,[Decoration.widget(elPos, (view) => {
             return html
