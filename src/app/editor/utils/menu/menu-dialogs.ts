@@ -356,16 +356,22 @@ export const insertLinkItem = new MenuItem({
       panelClass: 'insert-figure-in-editor',
       data: { url: url, text: text }
     });
-    dialogRef.afterClosed().subscribe(result => {
+
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        let { from, to } = state.selection;
-        let mark = state.schema.marks.link.create({ href: result.url, title: result.text })
-        let newtextNode = state.schema.text(result.text, [mark])
-        let tr = state.tr.replaceRangeWith(from, to, newtextNode);
+        const { from, to } = state.selection;
+        const selectedText = state.doc.textBetween(from, to);
+
+        const mark = state.schema.marks.link.create({
+          href: result.url,
+          title: result.text,
+        });
+        const newtextNode = state.schema.text(selectedText, [mark]);
+
+        const tr = state.tr.replaceRangeWith(from, to, newtextNode);
         dispatch(tr);
-        toggleMark(state.schema.marks.link);
       }
-    })
+    });
   },
   enable(state:EditorState) { return state.schema.marks.link },
   icon: createCustomIcon('connect.svg', 18)

@@ -68,6 +68,7 @@ import { CitableElementsEditButtonsService } from '../utils/citable-elements-edi
 import { getToolTipPlugin } from '../utils/toolTipPlugin';
 import {getItems} from '../utils/menu/menuItems'
 import { getRefsEditPlugin } from '../utils/refsEditPlugin';
+import { LinkButtonsService } from '../utils/link-buttons/link-buttons.service';
 export interface editorContainersObj { [key: string]: editorContainer }
 export interface editorContainer {
   editorID: string,
@@ -165,6 +166,7 @@ export class ProsemirrorEditorsService {
     private trackChangesService: TrackChangesService,
     private yjsHistory: YjsHistoryService,
     private citableElementEditButtonsPluginService:CitableElementsEditButtonsService,
+    private linkButtonsPluginService: LinkButtonsService,
     private serviceShare: ServiceShare) {
 
     // change the mathBlock input rule
@@ -532,6 +534,7 @@ export class ProsemirrorEditorsService {
         getToolTipPlugin(this.serviceShare),
         getFilterNodesBySchemaDefPlugin(this.serviceShare),
         this.citableElementEditButtonsPluginService.citableElementsEditButtonsPlugin,
+        this.linkButtonsPluginService.linkButtonsPlugin,
         transactionControllerPlugin,
         handleRefDelete,
         changeNodes,
@@ -1017,6 +1020,7 @@ export class ProsemirrorEditorsService {
         this.serviceShare.TaxonService.getPlugin(),
         this.commentsService.getPlugin(),
         this.citableElementEditButtonsPluginService.citableElementsEditButtonsPlugin,
+        this.linkButtonsPluginService.linkButtonsPlugin,
         this.trackChangesService.getHideShowPlugin(),
         this.linkPopUpPluginService.linkPopUpPlugin,
         //inputRules({ rules: [inlineMathInputRule, blockMathInputRule] }),
