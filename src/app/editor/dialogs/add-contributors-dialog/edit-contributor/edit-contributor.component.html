@@ -47,7 +47,7 @@
                     </mat-autocomplete>
                   </mat-form-field>
                 </div>
-                <button class="remove-affiliation-btn" mat-stroked-button color="primary" (click)="removeAffiliation(index)" [disabled]="affiliations.controls.length==1">Delete</button>
+                <button class="remove-affiliation-btn" mat-stroked-button color="warn" (click)="removeAffiliation(index)" [disabled]="affiliations.controls.length==1">Delete</button>
               </div>
             </div>
           </ng-container>
@@ -70,7 +70,7 @@
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]>Cancel</button>
   <button mat-stroked-button color="warn" (click)="askremove = true">Remove</button>
-  <button mat-flat-button color="primary" [disabled]="nothingIsEdited()" (click)="editCollaborator()">Save</button>
+  <button mat-flat-button color="primary" [disabled]="formSubmitDisabled()" (click)="editCollaborator()">Save</button>
 </mat-dialog-actions>
 
 

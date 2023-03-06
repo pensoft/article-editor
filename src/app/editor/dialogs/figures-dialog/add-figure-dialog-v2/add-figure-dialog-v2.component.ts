@@ -202,7 +202,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
   editComponent(component: any, i: number) {
     this.dialog.open(AddFigureComponentDialogComponent, {
-      width: '620px',
+      width: '640px',
       data: { component },
       disableClose: false
     }).afterClosed().subscribe((result: { component: any }) => {
@@ -229,7 +229,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
   addComponent() {
     this.dialog.open(AddFigureComponentDialogComponent, {
-      width: '620px',
+      width: '640px',
       disableClose: false
     }).afterClosed().subscribe((result: { component: any }) => {
       if (result) {
@@ -396,7 +396,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
   openFigurePdfPreview(){
     this.dialog.open(FigurePdfPreviewComponent, {
-      width: '620px',
+      width: '640px',
       disableClose: false,
       data:{
         figureRows:this.figureRows,

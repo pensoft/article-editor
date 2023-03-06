@@ -124,12 +124,15 @@ mat-form-field.mat-form-field:not(.title-form-control):not(.search-box-taxons):n
   .ProseMirror {
     font-size: 14px;
     line-height: 22px;
+    min-height: 80px;
+    max-height: 80px;
     background: var(--color-ffffff);
     border: 1px solid var(--color-e3e3e3);
     border-radius: 6px;
     transition: all 0.2s ease-in-out;
     padding: 6px 12px;
     letter-spacing: 0;
+    overflow-y: scroll;
 
     .ProseMirror__placeholder {
       margin-top: 0;

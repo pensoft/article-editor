@@ -1,0 +1,29 @@
+
+mat-dialog-content {
+  min-height: 500px !important;
+  max-height: 500px;
+
+  mat-radio-group {
+    display: block;
+    padding: 0 0 16px 0;
+
+    mat-card {
+      margin: 16px 0 0 0;
+      padding: 0;
+
+      .mat-radio-button {
+        width: 100%;
+
+        ::ng-deep {
+          .mat-radio-label {
+            padding: 16px;
+
+            .mat-radio-label-content {
+              display: inline-block;
+            }
+          }
+        }
+      }
+    }
+  }
+}
