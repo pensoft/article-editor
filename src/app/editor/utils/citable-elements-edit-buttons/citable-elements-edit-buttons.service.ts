@@ -23,7 +23,7 @@ interface buttonsActions {
   providedIn: 'root'
 })
 export class CitableElementsEditButtonsService {
-  citableElementsEditButtonsPluginKey = new PluginKey('commentPlugin')
+  citableElementsEditButtonsPluginKey = new PluginKey('citableElementsEditButtonsPlugin')
   citableElementsEditButtonsPlugin : Plugin
 
   citableElementsBlockNodesNames = ['block_figure','block_table','block_supplementary_file','block_end_note'];

@@ -15,9 +15,9 @@ import { Subscription } from 'rxjs';
 })
 export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,AfterViewChecked {
 
-  typeFromControl = new FormControl('',[Validators.required])
+  typeFromControl = new FormControl('image',[Validators.required])
   urlFormControl = new FormControl('',[/* Validators.pattern(`[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)`), */Validators.required]);
-  types = ['video','image'];
+  types = ['video','image','embedded video'];
   videoUrl: string
   urlSubscription: Subscription
 
@@ -25,10 +25,9 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
   @ViewChild('urlInputElement', { read: ElementRef }) urlInputElement?: ElementRef;
 
   componentDescriptionPmContainer:editorContainer
-
+  lastSource:'dropzone'|'url'
   constructor(
     private serviceShare:ServiceShare,
-    private changeDetectorRef: ChangeDetectorRef,
     private dialogRef: MatDialogRef<AddFigureComponentDialogComponent>,
     private embedService: EmbedVideoService,
     private ref:ChangeDetectorRef,
@@ -36,30 +35,28 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
       "description": string,
       "componentType": string,
       "url": string,
-      originalUrl:string,
-      uploadedFileUrl:string,
-      "thumbnail": string,
+      "pdfImageUrl":string,
+      "originalFileUrl":string,
+      "thumbnail":string,
     }, }
   ) {
     this.urlSubscription = this.urlFormControl.valueChanges.subscribe(url => {
-      const videoHtml = this.embedService.embed(url);
-      if (!videoHtml) {
-        this.videoUrl = url
-        return;
+      if(this.typeFromControl.value == 'embedded video'){
+        const videoHtml = this.embedService.embed(url);
+        if (!videoHtml) {
+          this.videoUrl = url
+          return;
+        }
+        const regex = /src="(.*?)"/;
+        const match = regex.exec(videoHtml);
+        this.videoUrl = match ? match[1] : '';
       }
-      const regex = /src="(.*?)"/;
-      const match = regex.exec(videoHtml);
-      this.videoUrl = match ? match[1] : '';
-      this.uploadedFileUrl = undefined
-      this.uploadedFileThumb = undefined
-
+      this.lastSource = 'url'
     })
   }
 
 
   ngAfterViewChecked(): void {
-    this.changeDetectorRef.detectChanges()
-    this.urlInputElement.nativeElement.focus()
     this.ref.detectChanges();
   }
 
@@ -70,10 +67,6 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
     if(this.data&&this.data.component){
       this.urlFormControl.setValue(this.data.component.url)
       this.typeFromControl.setValue(this.data.component.componentType)
-      setTimeout(()=>{
-        this.uploadedFileUrl = this.data.component.uploadedFileUrl
-        this.uploadedFileThumb = this.data.component.thumbnail
-      })
       let descContainer = document.createElement('div');
       descContainer.innerHTML = this.data.component.description;
       let prosemirrorNode = PMDomParser.parse(descContainer);
@@ -86,13 +79,8 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
   ngAfterViewInit(){
     let header = this.componentDescription?.nativeElement
     this.componentDescriptionPmContainer = this.serviceShare.ProsemirrorEditorsService.renderSeparatedEditorWithNoSync(header, 'pm-pdf-menu-container', schema.nodes.paragraph.create({},schema.text('Type component description here.')))
-    /* setTimeout(()=>{
-      let view = this.componentDescriptionPmContainer.editorView;
-      let size = view.state.doc.content.size;
-      view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,size)));
-      view.focus()
-    },40) */
     this.setComponentDataIfAny()
+    this.urlInputElement.nativeElement.focus()
   }
 
   closeDialog(){
@@ -128,14 +116,38 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
 
   submitDialog() {
     this.urlSubscription.unsubscribe()
-    this.urlFormControl.setValue(this.videoUrl)
-    let newComponent = {
+    if(this.typeFromControl.value == 'embedded video'){
+      this.urlFormControl.setValue(this.videoUrl)
+    }
+    let newComponent:any = {
       "description": this.componentDescriptionPmContainer.editorView.dom.innerHTML,
-      "componentType": this.typeFromControl.value,
       "url": this.urlFormControl.value,
-      originalUrl:this.urlFormControl.value,
-      uploadedFileUrl:this.uploadedFileUrl,
-      "thumbnail": (this.uploadedFileUrl == this.urlFormControl.value)?this.uploadedFileThumb:this.getVideoThumbnail(this.urlFormControl.value),
+    }
+    if(this.data&&this.data.component&&this.urlFormControl.value == this.data.component.url){
+      newComponent = JSON.parse(JSON.stringify(this.data.component));
+      newComponent.description = this.componentDescriptionPmContainer.editorView.dom.innerHTML
+      this.dialogRef.close({component:newComponent})
+    }
+    if(this.typeFromControl.value == 'image'){
+      newComponent["componentType"]= this.typeFromControl.value
+      if(this.lastSource == 'dropzone'){
+        newComponent['thumbnail'] = this.uploadedFileThumb
+      }else{
+        newComponent['thumbnail'] = this.typeFromControl.value
+      }
+      newComponent.pdfImgOrigin = this.urlFormControl.value
+    }else if(this.typeFromControl.value == 'video'){
+      newComponent["componentType"]= this.typeFromControl.value
+      if(this.lastSource == 'dropzone'){
+        newComponent['thumbnail'] = this.uploadedFileThumb
+      }else{
+        newComponent["thumbnail"] = this.getVideoThumbnail(this.urlFormControl.value)
+      }
+      newComponent.pdfImgOrigin = newComponent["thumbnail"]
+    }else if(this.typeFromControl.value == 'embedded video'){
+      newComponent["componentType"] = 'video'
+      newComponent["thumbnail"] = this.getVideoThumbnail(this.urlFormControl.value)
+      newComponent.pdfImgOrigin = newComponent["thumbnail"]
     }
     this.dialogRef.close({component:newComponent})
   }
@@ -145,22 +157,24 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
       this.uploadedFileInCDN(uploaded)
     }
   }
-  uploadedFileUrl
   uploadedFileThumb
   uploadedFileInCDN(fileData:any){
+    let setData = ()=>{
+      this.ref.detectChanges()
+      setTimeout(()=>{
+        this.uploadedFileThumb = fileData.thumb
+        this.lastSource = 'dropzone'
+      },30)
+    }
+    console.log(fileData.collection);
     if(fileData.collection == 'images'){
       this.urlFormControl.setValue(fileData.base_url);
-      this.typeFromControl.setValue('image');
+      this.typeFromControl.setValue('image')
+      setData()
     }else if(fileData.collection == 'video'){
       this.urlFormControl.setValue(fileData.base_url);
-      this.typeFromControl.setValue('video');
-    }else{
-      this.urlFormControl.setValue(fileData.thumb);
-      this.typeFromControl.setValue('image');
+      this.typeFromControl.setValue('video')
+      setData()
     }
-    setTimeout(()=>{
-      this.uploadedFileUrl = fileData.base_url
-      this.uploadedFileThumb = fileData.thumb
-    },30)
   }
 }

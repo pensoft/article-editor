@@ -1,11 +1,8 @@
-<h2 mat-dialog-title *ngIf="data&&data.component">Edit Media</h2>
-<h2 mat-dialog-title *ngIf="!data||!data.component">Add Media</h2>
+<h2 mat-dialog-title >Insert Video</h2>
 
-<div class="pm-pdf-menu-container"></div>
-
-<mat-dialog-content class="dynamic-content-height">
+<mat-dialog-content>
+  <p >Enter video url. Attention url must be embeddable (youtube case: contain /embed) : https://www.youtube.com/embed/GDae7zmUHlc Tutorial on how to get embedded videos form youtube : https://www.youtube.com/watch?v=ZnuwB35GYMY&ab_channel=Techoist</p>
   <div class="figure-component-edit">
-
     <div class="row-container" fxLayout="row nowrap" fxLayoutGap="16px">
       <div fxLayout="column nowrap" fxFlex="1 1 0">
         <mat-label class="upper-label">URL</mat-label>
@@ -33,9 +30,6 @@
         </mat-form-field>
       </div>
     </div>
-    <div *ngIf="typeFromControl.value == 'image'">
-      <app-dropzone (uploaded)="fileIsUploaded($event)" [fileType]="'image/*'"></app-dropzone>
-    </div>
     <div *ngIf="typeFromControl.value == 'video'">
       <app-dropzone (uploaded)="fileIsUploaded($event)" [fileType]="'video/*'"></app-dropzone>
     </div>
@@ -43,15 +37,8 @@
       <app-dropzone [disabled]="true"></app-dropzone>
     </div>
     <div class="row-container">
-
-      <div class="description-edit-container">
-        <span class="upper-label">Media Description</span>
-        <div class="pm-editor pm-editor-override" #componentDescription></div>
-      </div>
-
       <div class="figure-component-edit-preview">
         <div *ngIf="typeFromControl.valid&&urlFormControl.valid">
-          <img *ngIf="typeFromControl.value == 'image'" src="{{urlFormControl.value}}" alt="">
           <iframe *ngIf="typeFromControl.value == 'video'" [src]="urlFormControl.value | safe">
           </iframe>
           <iframe *ngIf="typeFromControl.value == 'embedded video'" [src]="this.videoUrl | safe">
@@ -65,6 +52,6 @@
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
-  <button mat-stroked-button color="primary" (click)="closeDialog()">Cancel</button>
-  <button mat-flat-button color="primary" [disabled]="!typeFromControl.valid||!urlFormControl.valid" (click)="submitDialog()">Save</button>
+  <button mat-stroked-button color="primary" (click)="onNoClick()">Cancel</button>
+  <button mat-flat-button color="primary" [disabled]="!typeFromControl.valid||!urlFormControl.valid" (click)="submitDialog()">Insert Video</button>
 </mat-dialog-actions>

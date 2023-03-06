@@ -101,7 +101,7 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
     this.changeDetectorRef.detectChanges();
   }
 
-  fileType:'*' = '*'
+  fileType = null
 
   fileIsUploaded(uploaded){
     if(uploaded.collection&&uploaded.base_url){
