@@ -1,5 +1,5 @@
-import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, ViewChild } from '@angular/core';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
 @Component({
@@ -9,15 +9,25 @@ import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.serv
 })
 export class AddLinkDialogComponent implements AfterViewInit, OnDestroy{
 
-  text = new FormControl('', [Validators.required]);
+  formGroup: FormGroup;
   @ViewChild('linkurlinput', { read: ElementRef }) linkurlinput?: ElementRef;
 
-  type :string
+  get url() {
+    return this.formGroup.get("url") as FormControl;
+  }
+
+  get text() {
+    return this.formGroup.get("text") as FormControl;
+  }
+
   constructor(public dialogRef: MatDialogRef<AddLinkDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private ref:ChangeDetectorRef,
     private detectFocusService: DetectFocusService) {
-      this.type = data.type
+      this.formGroup = new FormGroup({
+        url: new FormControl(data.url || "", Validators.required),
+        text: new FormControl(data.text || "", Validators.required)
+      })
      }
 
   ngAfterViewInit(): void {
@@ -27,7 +37,7 @@ export class AddLinkDialogComponent implements AfterViewInit, OnDestroy{
   }
 
   getErrorMessage() {
-    if (this.text.hasError('required')) {
+    if (this.formGroup.get("url").hasError('required') || this.formGroup.get("text").hasError('required')) {
       return 'You must enter a value';
     }
 
