@@ -1,7 +1,20 @@
 import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, Inject, OnInit } from '@angular/core';
-import { FormArray, FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormArray, FormControl, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
 import { countryNames } from '../send-invitation/send-invitation.component';
+
+type ErrorMessage = {
+  type: string;
+  message: string;
+}
+
+export function validateCountry(control: AbstractControl): { [key: string]: any } | null {
+  if (countryNames.indexOf(control.value) !== -1) {
+    return null
+  }
+  console.log(control)
+  return { invalidValue: true };
+};
 
 @Component({
   selector: 'app-edit-contributor',
@@ -14,7 +27,7 @@ export class EditContributorComponent implements AfterViewInit, AfterViewChecked
     return new FormGroup({
       affiliation:new FormControl(data?data.affiliation:'',Validators.required),
       city:new FormControl(data?data.city:'',Validators.required),
-      country:new FormControl(data?data.country:'',Validators.required),
+      country:new FormControl(data?data.country:'',[Validators.required, validateCountry]),
     })
   }
 
@@ -57,6 +70,19 @@ export class EditContributorComponent implements AfterViewInit, AfterViewChecked
   ]
 
   askremove = false;
+
+  affiliationErrorMessages: ErrorMessage[] = [
+    { type: 'required', message: 'Affiliation is required.' },
+  ]
+
+  cityErrorMessages: ErrorMessage[] = [
+    { type: 'required', message: 'City is required.' },
+  ]
+
+  countryErrorMessages: ErrorMessage[] = [
+    { type: 'invalidValue', message: 'Country not recognized.' },
+    { type: 'required', message: 'Country is required.' },
+  ]
 
   constructor(
     public dialogRef: MatDialogRef<EditContributorComponent>,

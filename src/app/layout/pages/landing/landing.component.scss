@@ -14,8 +14,18 @@
 
     .logo {
       display: block;
+      position: relative;
       width: 100%;
       padding: 28px 42px;
+
+      .app-version {
+        position: absolute;
+        bottom: 18px;
+        left: 58px;
+        font-size: 9px;
+        color: var(--color-ffffff);
+        z-index: 10;
+      }
     }
 
     .content {
@@ -80,7 +90,7 @@
       .card {
         min-height: 481px;
         max-width: 344px;
-        box-shadow: 0 6px 10px #1BB1B22B;
+        box-shadow: 0 2px 4px #1BB1B224;
         border-radius: 20px;
 
         .card-title {

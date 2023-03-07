@@ -9,13 +9,13 @@
   justify-content: space-between;
 }
 
-.add-article-navigation{
+.add-article-navigation {
   float: right;
     margin-right: 10px;
     margin-left: auto;
 }
 
-.notifications-component{
+.notifications-component {
   position: relative;
   margin-right: 0px;
   margin-left: 15px;
@@ -99,14 +99,24 @@ animation: fade-out 1s;
     border-radius: 50%;
   }
 }
-::ng-deep.mat-menu-panel {
-  border-radius: 15px !important;
-}
 
 .logo {
   display: flex;
+  position: relative;
+
   img {
     width: 95px;
+  }
+
+  .app-version {
+    position: absolute;
+    top: calc(100% - 6px);
+    left: 0;
+    height: 12px;
+    line-height: 12px;
+    font-size: 9px;
+    color: var(--color-cacdd3);
+    z-index: 10;
   }
 }
 .text-dashbord-header {

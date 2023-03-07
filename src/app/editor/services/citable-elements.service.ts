@@ -75,7 +75,7 @@ export let citationElementMap = {
       return serializedSupplementaryFileToFormIOsubmission;
     },
     getEndEditorPrefixNodes:function():Node[]{
-      return [schema.nodes.heading.create({'contenteditableNode':false},schema.nodes.paragraph.create({'contenteditableNode':false},schema.text('Supplementary materials:')))];
+      return [schema.nodes.heading.create({'contenteditableNode':false},schema.nodes.paragraph.create({'contenteditableNode':false},schema.text('Supplementary materials')))];
     },
     buildElementFormGroup: function (submision: any): FormGroup {
       let supplementaryFileFormGroup = new FormGroup({})
@@ -132,6 +132,9 @@ export let citationElementMap = {
       serializedTableToFormIOsubmission.viewed_by_citat = citatID
       return serializedTableToFormIOsubmission;
     },
+    getEndEditorPrefixNodes:function():Node[]{
+      return [schema.nodes.heading.create({'contenteditableNode':false},schema.nodes.paragraph.create({'contenteditableNode':false},schema.text('Tables')))];
+    },
     buildElementFormGroup: function (submision: any): FormGroup {
       let tableFormGroup = new FormGroup({})
       let tabCont = new FormControl(submision.tableContent);
@@ -183,6 +186,9 @@ export let citationElementMap = {
       serializedFigureToFormIOsubmission.viewed_by_citat = citatID
       serializedFigureToFormIOsubmission.nOfColumns = elementData.canvasData.nOfColumns;
       return serializedFigureToFormIOsubmission
+    },
+    getEndEditorPrefixNodes:function():Node[]{
+      return [schema.nodes.heading.create({'contenteditableNode':false},schema.nodes.paragraph.create({'contenteditableNode':false},schema.text('Figures')))];
     },
     buildElementFormGroup: function (submision: any): FormGroup {
       let figureFormGroup = new FormGroup({})
@@ -241,7 +247,7 @@ export let citationElementMap = {
       return serializedEndNoteToFormIOsubmission;
     },
     getEndEditorPrefixNodes:function():Node[]{
-      return [schema.nodes.heading.create({'contenteditableNode':false},schema.nodes.paragraph.create({'contenteditableNode':false},schema.text('Endnotes:')))];
+      return [schema.nodes.heading.create({'contenteditableNode':false},schema.nodes.paragraph.create({'contenteditableNode':false},schema.text('Endnotes')))];
     },
     buildElementFormGroup: function (submision: any): FormGroup {
       let endNoteFormGroup = new FormGroup({})
