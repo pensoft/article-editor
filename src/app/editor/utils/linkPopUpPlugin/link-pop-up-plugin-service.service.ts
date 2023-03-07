@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { EditorState, Plugin, PluginKey } from 'prosemirror-state'
+import { EditorState, Plugin, PluginKey, TextSelection } from 'prosemirror-state'
 import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
 import { DetectFocusService } from '../detectFocusPlugin/detect-focus.service';
@@ -8,6 +8,7 @@ import Papa from 'papaparse';
 import { normalize } from 'path';
 import { ViewportScroller } from '@angular/common';
 import { saveAs } from 'file-saver'
+import { MarkType } from 'prosemirror-model';
 
 @Injectable({
   providedIn: 'root'
@@ -71,45 +72,46 @@ export class LinkPopUpPluginServiceService {
       },
       props: {
         decorations(state: EditorState) {
-          const doc = state.doc;
-          let { from, to, empty } = state.selection;
-          let pluginState = linkPopUpPluginKey.getState(state);
-          let focusRN = detectFocusPluginKey.getState(state);
-          //if(empty)  return
+          const pluginState = linkPopUpPluginKey.getState(state);
+          const focusRN = detectFocusPluginKey.getState(state);
+
           if (!(focusRN.hasFocus || (lastFocusedEditor == focusRN.sectionName))) return DecorationSet.empty
-          let position = from == to ? from : Math.floor((from + to) / 2)
-          let node = doc.nodeAt(position)
-          let mark = node?.marks.find((mark) => mark.type == state.schema.marks.link);
-          if (!mark) return DecorationSet.empty
-          if (mark?.attrs?.download) {
+          if(pluginState.sectionName == "endEditor") return DecorationSet.empty;
 
-          } else {
-            let linkPopUp = document.createElement('div')
+          const { $anchor } = state.selection;
+          const linkMarkInfo = self.markPosition(state,$anchor.pos, state.schema.marks.link)
+
+          if(!linkMarkInfo) return DecorationSet.empty;
+
+          const { from, mark } = linkMarkInfo;
+          
+          if (mark.attrs.download) {
+
+          } else {            
+            const linkPopUp = document.createElement('div')
             linkPopUp.classList.add('link_popup_div');
-            let link = document.createElement('a') as HTMLAnchorElement;
-            link.addEventListener('click', (event) => {
-              if (!mark?.attrs.download) {
-                event.preventDefault();
-                window.open(mark?.attrs.href)
-              }
-            })
-            link.href = mark?.attrs.href;
-            link.textContent = mark?.attrs.href
-            if (mark?.attrs.download) {
+            const link = document.createElement('a') as HTMLAnchorElement;            
+            link.href = mark.attrs.href;
+            link.textContent = mark.attrs.href;
 
+            linkPopUp.addEventListener('click', e => {
+              e.preventDefault();
+              window.open(link.href, "_blank");
+            })
+
+            if (mark?.attrs.download) {
               link.href = 'data:text/plain;charset=utf-8,' + csvServiceService.arrayToCSV(lastFocusedEditor);
-              link.download = mark?.attrs.download;
-              link.textContent = mark?.attrs.download
+              link.download = mark.attrs.download;
+              link.textContent = mark.attrs.download
             }
             linkPopUp.appendChild(link)
 
-
-            return DecorationSet.create(doc, [Decoration.widget(position, linkPopUp)]);
+            return DecorationSet.create(state.doc, [Decoration.widget(from, linkPopUp)]);
           }
 
         },
         handleClick(this: Plugin, view: EditorView, pos: number, event: MouseEvent) {
-          let {from,to} = view.state.selection
+          let {from, to} = view.state.selection;
           let linkNere = false;
           view.state.doc.nodesBetween(from,to,(node)=>{
             if(node.type.name == 'supplementary_file_url'){
@@ -131,7 +133,35 @@ export class LinkPopUpPluginServiceService {
           }
           return false
         },
+        handleDOMEvents: {
+          blur(this: Plugin, view: EditorView, event: MouseEvent) {
+            const { pos } = view.state.selection.$anchor;
+            const { link } = view.state.schema.marks;
+            const markInfo = self.markPosition(view.state, pos, link);
+            
+            if(markInfo && 
+              event.relatedTarget && 
+              event.relatedTarget instanceof HTMLAnchorElement) {
+              event.relatedTarget.click();
+            }
+          }
+        }
       },
     })
+  }
+  
+  markPosition(state: EditorState, pos: number, markType: MarkType) {
+    const $pos = state.doc.resolve(pos);
+    const { parent, parentOffset } = $pos;
+    const { node, offset } = parent.childAfter(parentOffset);
+    if (!node) return;
+    
+    const mark = node.marks.find((mark) => mark.type === markType);
+    if (!mark) return;
+    
+    let from = $pos.start() + offset;
+    let to = from + node.nodeSize;
+    
+    return { from, to, mark };
   }
 }

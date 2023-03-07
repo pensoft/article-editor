@@ -85,13 +85,11 @@ export class LinkButtonsService {
           const editorViewRectangle = view.dom.getBoundingClientRect();
 
           const top = coordsInCursorPos.top - editorViewRectangle.top;
-          const left = editorViewRectangle.width;
 
           buttonsContainer.classList.add('edit-link-buttons');
           buttonsContainer.setAttribute(
             'style',
-            `top:${top}px;
-             left:${left}px;`
+            `top:${top}px;`
           );
           buttonsContainer.setAttribute('tabindex', '-1');
 
