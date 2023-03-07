@@ -1640,12 +1640,17 @@ app-comments-section {
       > form-field {
         > p {
           > a {
+            color: var(--color-00b1b2);        
+          }
+
+            a {
             position: relative;
             display: inline-block;
-            color: var(--color-00b1b2);
             text-decoration: underline;
+          }
+   
 
-            .link_popup_div {
+          .link_popup_div {
               position: absolute;
               display: block;
               bottom: calc(100% + 9px);
@@ -1699,6 +1704,7 @@ app-comments-section {
                 color: var(--color-00b1b2);
                 text-overflow: ellipsis;
                 overflow: hidden;
+                user-select: none;
               }
 
               &:hover {
@@ -1709,7 +1715,6 @@ app-comments-section {
                 }
               }
             }
-          }
         }
       }
     }
@@ -1735,7 +1740,7 @@ app-comments-section {
     }
   }
 }
-.citable-items-edit-buttons {
+.citable-items-edit-buttons, .edit-link-buttons {
   display: flex;
   flex-flow: column nowrap;
   gap: 8px;
@@ -1746,7 +1751,9 @@ app-comments-section {
   .edit-citable-item-button,
   .delete-citable-item-button,
   .move-citable-item-up-button,
-  .move-citable-item-down-button {
+  .move-citable-item-down-button,
+  .edit-link-button,
+  .unlink-button {
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
@@ -1762,9 +1769,21 @@ app-comments-section {
     cursor: pointer;
     z-index: 5;
 
+    &.edit-link-button {
+      box-shadow: 0 1px 2px 1px var(--color-00b1b2), 0 0 0 0 var(--color-00b1b2), 0 1px 3px 0 var(--color-00b1b2);
+    }
+
+    &.unlink-button {
+      box-shadow: 0 1px 2px 1px var(--color-e56b87), 0 0 0 0 var(--color-e56b87), 0 1px 3px 0 var(--color-e56b87);
+    }
+
     &.edit-citable-item-button {
       // border-color: var(--color-00b1b2);
       box-shadow: 0 1px 2px 1px var(--color-00b1b2), 0 0 0 0 var(--color-00b1b2), 0 1px 3px 0 var(--color-00b1b2);
+      
+      img {
+        width: 16px;
+      }
     }
 
     &.delete-citable-item-button {
@@ -1784,6 +1803,13 @@ app-comments-section {
       cursor: pointer;
     }
   }
+
+    &.delete-citable-item-button {
+      // border-color: var(--color-e56b87);
+      box-shadow: 0 1px 2px 1px var(--color-e56b87), 0 0 0 0 var(--color-e56b87), 0 1px 3px 0 var(--color-e56b87);
+    }
+  
+
 }
 
 /* Dashboard Overrides */

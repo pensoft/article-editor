@@ -27,7 +27,7 @@ let figuresHtmlTemplate = `
         <figure-component [attr.actual_number]="figure.container.componentNumber" [attr.component_number]="i" contenteditablenode="false" [attr.viewed_by_citat]="data.viewed_by_citat||''">
           <code *ngIf="data.figureComponents.length>1">{{getCharValue(i)}}</code>
           <img *ngIf="figure.container.componentType == 'image'" src="{{figure.container.url}}" alt="" title="default image" contenteditable="false" draggable="true" />
-          <iframe *ngIf="figure.container.componentType == 'video'" [src]="figure.container.fileURL | safe" controls="" contenteditable="false" draggable="true"></iframe>
+          <iframe *ngIf="figure.container.componentType == 'video'" [src]="figure.container.url | safe" controls="" contenteditable="false" draggable="true"></iframe>
         </figure-component>
       </ng-container>
     </ng-container>
@@ -190,9 +190,10 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
       figurePlace:this.data.fig?this.data.fig.figurePlace:'endEditor',
       viewed_by_citat:this.data.fig?this.data.fig.viewed_by_citat:'endEditor'
     }
+    console.log(this.figNewComponents);
     figureForSubmit.components.forEach((component)=>{
-      if(this.urlMapping[component.originalUrl]){
-        component.url = this.urlMapping[component.originalUrl];
+      if(this.urlMapping[component.pdfImgOrigin]){
+        component.pdfImgResized = this.urlMapping[component.pdfImgOrigin];
       }
     })
     this.dialogRef.close({figure:figureForSubmit})
@@ -265,6 +266,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
   }
 
   updatePreview(checkDiff:boolean){
+    console.log('update preview');
     let hasEmptyFields = false;
     let differrance = false;
     this.getMappedComponentsForPreviw().forEach((comp: any, i: number) => {
@@ -289,6 +291,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
     if(differrance||!checkDiff){
       if(!hasEmptyFields){
         this.figureComponentsInPrevew = this.getMappedComponentsForPreviw()
+        console.log(this.figureComponentsInPrevew);
         this.rowOrder = [];
         this.figureComponentsInPrevew.forEach((figure:any,index:number)=>{
 
@@ -329,6 +332,8 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
         this.maxImgWidthPers = maxImgWidth*100/a4Pixels[0];
 
         let calcImgPersentageFromFullA4 = (img:HTMLImageElement,maxImgHeight:number,maxImgWidth:number,a4PixelRec:number[],figComp:any) => {
+          console.log(figComp,img);
+          console.log(img.naturalHeight,img.naturalWidth);
           if(img.naturalHeight<maxImgHeight&&img.naturalWidth<maxImgWidth){
             let heightPersent = img.naturalHeight/a4PixelRec[1];
             let widthPersent = img.naturalWidth/a4PixelRec[0];
@@ -356,19 +361,24 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
             figComp.container.h = maxImgHeight
             figComp.container.w = maxImgWidth
           }
-          if(figComp.container.h && figComp.container.w && figComp.container.originalUrl.includes('https://ps-cdn.dev.scalewest.com')){
-            figComp.container.url = figComp.container.originalUrl + `/resize/${figComp.container.w}x${figComp.container.h}/`;
-            this.urlMapping[figComp.container.originalUrl] = figComp.container.url;
+          if(figComp.container.h && figComp.container.w && figComp.container.pdfImgOrigin.includes('https://ps-cdn.dev.scalewest.com')){
+            figComp.container.pdfImgResized = figComp.container.pdfImgOrigin + `/resize/${figComp.container.w}x${figComp.container.h}/`;
+            this.urlMapping[figComp.container.pdfImgOrigin] = figComp.container.pdfImgResized;
+          }else{
+            figComp.container.pdfImgResized = figComp.container.pdfImgOrigin
+            this.urlMapping[figComp.container.pdfImgOrigin] = figComp.container.pdfImgResized;
           }
         }
+        console.log(this.figureRows);
         for(let i = 0;i<this.figureRows.length;i++){
           for(let j = 0;j<this.figureRows[i].length;j++){
             let image = this.figureRows[i][j];
             let newImg = new Image();
+            console.log(image);
             newImg.addEventListener('load',()=>{
               calcImgPersentageFromFullA4(newImg,maxImgHeight,maxImgWidth,a4Pixels,image);
             })
-            newImg.src = image.container.originalUrl;
+            newImg.src = image.container.pdfImgOrigin;
           }
         }
         this.figureCanvasData = {

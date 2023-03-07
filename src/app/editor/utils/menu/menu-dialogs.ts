@@ -22,6 +22,7 @@ import { StateEffectType } from "@codemirror/state";
 import { InsertSupplementaryFileComponent } from "@app/editor/dialogs/supplementary-files/insert-supplementary-file/insert-supplementary-file.component";
 import { InsertEndNoteComponent } from "@app/editor/dialogs/end-notes/insert-end-note/insert-end-note.component";
 import { RefsInArticleCiteDialogComponent } from "@app/editor/dialogs/refs-in-article-cite-dialog/refs-in-article-cite-dialog.component";
+import { InsertVideoComponent } from "@app/editor/dialogs/insert-video/insert-video.component";
 
 let sharedDialog: MatDialog;
 
@@ -124,7 +125,8 @@ export const insertImageItem = new MenuItem({
           return;
         }
         if (image.imgURL) {
-          view?.dispatch(view.state.tr.replaceSelectionWith(state.schema.nodes.image.create({ src: image.imgURL })));
+          console.log('image',image);
+          view?.dispatch(view.state.tr.replaceSelectionWith(state.schema.nodes.image.create({ src: image.imgURL,width: image.width})));
         }
 
         // view?.dispatch(view.state.tr.replaceSelectionWith(state.schema.nodes.image.createAndFill(attrs)!))
@@ -300,23 +302,24 @@ export let insertVideoItem = (serviceShare:ServiceShare)=>{
       if (dispatch) {
         let url
         let nodetype = state.schema.nodes.video;
-        const dialogRef = sharedDialog.open(AddCommentDialogComponent, {
+        const dialogRef = sharedDialog.open(InsertVideoComponent, {
           width: '500px',
           panelClass: 'insert-figure-in-editor',
           data: { url: url, type: 'video' }
         });
         dialogRef.afterClosed().subscribe(result => {
-          if (!result) {
-            return;
-          }
+          if (!result) return;
+
 
           //  get dataurl with fetch and file riderFiguresDataURLSFiguresDataURLSFiguresDataURLS
           //  let dataURLObj = this.serviceShare.YdocService!.figuresMap!.get('ArticleFiguresDataURLS');
           //  dataURLObj[url] = dataurl;
           //  this.serviceShare.YdocService!.figuresMap!.set('ArticleFiguresDataURLS', dataURLObj);
-
-          url = result;
-          let node = nodetype.create({ 'src': url })
+          let node = nodetype.create({
+            'src': result.videoAttrs.url,
+            pdfImgOrigin:result.videoAttrs.pdfImgOrigin,
+            thumbnail:result.videoAttrs.thumbnail,
+          })
           view?.dispatch(view.state.tr.replaceSelectionWith(node))
           view?.focus()
         });
@@ -353,16 +356,22 @@ export const insertLinkItem = new MenuItem({
       panelClass: 'insert-figure-in-editor',
       data: { url: url, text: text }
     });
-    dialogRef.afterClosed().subscribe(result => {
+
+    dialogRef.afterClosed().subscribe((result) => {
       if (result) {
-        let { from, to } = state.selection;
-        let mark = state.schema.marks.link.create({ href: result.url, title: result.text })
-        let newtextNode = state.schema.text(result.text, [mark])
-        let tr = state.tr.replaceRangeWith(from, to, newtextNode);
+        const { from, to } = state.selection;
+        const selectedText = state.doc.textBetween(from, to);
+
+        const mark = state.schema.marks.link.create({
+          href: result.url,
+          title: result.text,
+        });
+        const newtextNode = state.schema.text(selectedText, [mark]);
+
+        const tr = state.tr.replaceRangeWith(from, to, newtextNode);
         dispatch(tr);
-        toggleMark(state.schema.marks.link);
       }
-    })
+    });
   },
   enable(state:EditorState) { return state.schema.marks.link },
   icon: createCustomIcon('connect.svg', 18)
