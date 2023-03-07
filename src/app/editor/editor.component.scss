@@ -196,11 +196,11 @@ $treeSpace: 341px;
     display: block;
     position: relative;
     width: 100%;
-    height: calc(100% - 24px);
-    margin: 20px 0 0 0;
+    height: 100%;
+    margin: 0;
     background: var(--color-ffffff);
-    border-radius: 6px 0 0 6px;
-    box-shadow: 0 4px 4px #1bb1b22b;
+    border-radius: 0;
+    box-shadow: 0 2px 4px #1bb1b224;
     overflow: hidden;
     overflow-y: auto;
 
@@ -349,7 +349,7 @@ $treeSpace: 341px;
   width: 341px;
   height: 100%;
   background: var(--color-ffffff);
-  box-shadow: -2px 0 1px #1bb1b22b;
+  // box-shadow: -2px 0 1px #1bb1b22b;
   border-top: 1px solid var(--color-f1f2f2);
 
   .mat-drawer-inner-container {
