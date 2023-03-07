@@ -1,6 +1,6 @@
 import {AfterViewChecked, ChangeDetectorRef, Component, ElementRef, Inject, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {MatDialog, MatDialogRef, MAT_DIALOG_DATA} from '@angular/material/dialog';
-import {countSectionFromBackendLevel, filterChooseSectionsFromBackend, filterSectionsFromBackendWithComplexMinMaxValidations} from '@app/editor/utils/articleBasicStructure';
+import {countSectionFromBackendLevel, filterChooseSectionsFromBackend, filterSectionsFromBackendWithComplexMinMaxValidations, sectionChooseData} from '@app/editor/utils/articleBasicStructure';
 import { articleSection } from '@app/editor/utils/interfaces/articleSection';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { debounceTime, distinctUntilChanged, map, switchMap } from 'rxjs/operators';
@@ -30,7 +30,7 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked,OnDestroy
     private dialogRef: MatDialogRef<ChooseSectionComponent>,
     private ref:ChangeDetectorRef,
     private serviceShare:ServiceShare,
-    @Inject(MAT_DIALOG_DATA) public data: { templates: any[], sectionlevel: number,node?:articleSection  },
+    @Inject(MAT_DIALOG_DATA) public data: { templates: sectionChooseData[], sectionlevel: number,node?:articleSection  },
   ) {
 
   }
@@ -81,10 +81,11 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked,OnDestroy
   }
 
   public search(value: any) {
-    if(this.data.sectionlevel == 0){
-      this.value = value;
+    this.value = value;
       this.searchResults = this.sectionTemplates.filter(el=>el.name.toLocaleLowerCase().includes(value.toLocaleLowerCase()));
       this.ref.detectChanges()
+    /* if(this.data.sectionlevel == 0){
+
     }else{
       this.serviceShare.ArticleSectionsService!.getAllSections({page: 1, pageSize: 10,'filter[name]':value}).subscribe((response: any) => {
         let sectionTemplates1 = filterChooseSectionsFromBackend(this.data.node.compatibility, response.data)
@@ -93,10 +94,10 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked,OnDestroy
           let elementLevel = countSectionFromBackendLevel(el)
           return (elementLevel + sectionlevel < 3);
         });
-        sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates, this.data.node,this.data.node.children, this.serviceShare.TreeService.pivotIdMap);
+        sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates, this.data.node,this.data.node.children);
         this.searchResults = sectionTemplates;
       })
-    }
+    } */
   }
 
   public ngOnDestroy(): void {
