@@ -368,13 +368,15 @@ $treeSpace: 341px;
   color: var(--color-000000);
   border-radius: 50%;
   text-align: center;
-  box-shadow: 0 3px 6px #00000029;
+  box-shadow: 0 2px 4px #00000029;
   z-index: 10000;
+
    ::ng-deep {
     .mat-button-wrapper {
       padding: 0 !important;
     }
   }
+
   mat-icon {
     font-size: 35px;
     width: 35px;
@@ -383,19 +385,22 @@ $treeSpace: 341px;
 }
 
 ::ng-deep {
+
   .floating-menu {
     min-width: 58px !important;
     width: 58px;
     margin-bottom: -27px;
     border-top-left-radius: 20px !important;
     border-top-right-radius: 20px !important;
-    box-shadow: 0 3px 6px #00000029 !important;
+    box-shadow: 0 2px 4px #00000029 !important;
+
     button {
       text-align: center;
       &:last-child {
         margin-bottom: 27px;
       }
     }
+
     .mat-icon {
       margin-right: 0 !important;
       font-size: 20px;
@@ -406,6 +411,7 @@ $treeSpace: 341px;
 }
 
 ::ng-deep {
+
   .sidebar-bottom-sheet {
     height: 400px;
   }
