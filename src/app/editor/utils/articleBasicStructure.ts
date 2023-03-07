@@ -7,7 +7,18 @@ import {taxonTreatmentSection} from "@core/services/custom_sections/taxon_treatm
 import {taxonSection} from "@core/services/custom_sections/taxon";
 import {material} from "@core/services/custom_sections/material";
 import { parseSecFormIOJSONMenuAndSchemaDefs, parseSecHTMLMenuAndSchemaDefs } from "./fieldsMenusAndScemasFns";
-import { mainSectionValidations, sectinsBEidPivotIdMap } from "../services/ydoc.service";
+import { mainSectionValidations } from "../services/ydoc.service";
+import { ServiceShare } from "../services/service-share.service";
+
+export interface sectionChooseData {
+  id: number
+  name: string
+  version: number
+  version_date: string
+  pivot_id?: number
+  source:'template'|'backend',
+  template?:any
+}
 
 export function editorFactory(data?: editorMeta): editorData {
   return {editorId: uuidv4(), menuType: 'fullMenu', editorMeta: data}
@@ -17,57 +28,14 @@ export function isValidNumber (num) {
   return typeof num === 'number' && !isNaN(num);
   }
 
-export const articleBasicStructure: articleSection[] = [
-  {
-    title: {label: 'Taxonomic coverage', name: 'Taxonomic coverage', template: 'Taxonomic coverage', editable: true},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
-    sectionID: uuidv4(),
-    active: false,
-    edit: {active: true, main: true},
-    add: {active: true, main: false},
-    delete: {active: true, main: false},
-    mode: 'documentMode',
-    formIOSchema: formIOTemplates['taxonomicCoverage'],
-    defaultFormIOValues: formIODefaultValues['taxonomicCoverage'],
-    prosemirrorHTMLNodesTempl: htmlNodeTemplates['taxonomicCoverage'],
-    children: [],
-    type: 'simple',
-    sectionIdFromBackend: 0,
-      menusAndSchemasDefs:{menus:{},schemas:{}},
-      sectionTypeVersion: 1,
-    sectionTypeID: 1,
-    pivotId:-1,
-    sectionMeta: {main: false},
-    customSchema:{isCustom:false}
-  },
-  {
-    title: {label: 'Collection Data', name: 'Collection Data', template: 'Collection Data', editable: true},  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
-    sectionID: uuidv4(),
-    active: false,
-    edit: {active: true, main: true},
-    add: {active: true, main: false},
-    delete: {active: true, main: false},
-    mode: 'documentMode',
-    pivotId:-2,
-    sectionIdFromBackend: 0,
-    formIOSchema: formIOTemplates['collectionData'],
-    defaultFormIOValues: formIODefaultValues['collectionData'],
-    prosemirrorHTMLNodesTempl: htmlNodeTemplates['collectionData'],
-    children: [],
-    menusAndSchemasDefs:{menus:{},schemas:{}},
-    type: 'simple',
-    sectionTypeID: 2,
-    sectionTypeVersion: 1,
-    sectionMeta: {main: false},
-    customSchema:{isCustom:false}
-  }];
 
 export const customSectionEnums = {
   Taxon: taxonSection
 }
 
 export const renderSectionFunc:
-  /*  */(sectionFromBackend: any, parentContainer: articleSection[], ydoc: Y.Doc, index?: number | string) => articleSection
-  = /**/(sectionFromBackend: any, parentContainer: articleSection[], ydoc: Y.Doc, index?: number | string) => {
+  /*  */(sectionFromBackend: any, parentContainer: articleSection[], ydoc: Y.Doc,serviceShare:ServiceShare, index?: number | string) => articleSection
+  = /**/(sectionFromBackend: any, parentContainer: articleSection[], ydoc: Y.Doc,serviceShare:ServiceShare, index?: number | string) => {
     let sectionTemplateRaw = sectionFromBackend.template || taxonTreatmentSection.template;
     let {sectionMenusAndSchemaHTMLDefs,sectionTemplate} = parseSecHTMLMenuAndSchemaDefs(sectionTemplateRaw,{menusL:"customSectionHTMLMenuType",tagsL:"customSectionHTMLAllowedTags"});
     let sectionJSON;
@@ -100,7 +68,7 @@ export const renderSectionFunc:
     sectionFromBackend.sections.forEach((childSection: any, indexOfChild: number) => {
       childSection.settings = sectionFromBackend.complex_section_settings[indexOfChild]
       if(childSection.name != 'Citable Elements Schemas'){
-        renderSectionFunc(childSection, children, ydoc)
+        renderSectionFunc(childSection, children, ydoc,serviceShare)
       }
     })
   }
@@ -126,7 +94,7 @@ export const renderSectionFunc:
       })
       deepIterator(childSection, JSON.parse(JSON.stringify(sectionFromBackend.schema.override)));
       // childSection.settings = sectionFromBackend.complex_section_settings[indexOfChild]
-      renderSectionFunc(childSection, children, ydoc)
+      renderSectionFunc(childSection, children, ydoc,serviceShare)
     })
   }
   let newId = uuidv4()
@@ -145,6 +113,8 @@ export const renderSectionFunc:
       active: sectionFromBackend.active ? sectionFromBackend.active : false,
       edit: sectionFromBackend.edit || {active: true, main: true},
       add: sectionFromBackend.add || {active: true, main: false},
+      allow_compatibility:sectionFromBackend.allow_compatibility,
+      compatibility_extended:sectionFromBackend.compatibility_extended,
       delete: sectionFromBackend.delete || {active: true, main: false},
       addSubSection: sectionFromBackend.addSubSection ||  {active: false, main: false},
       mode: 'documentMode',
@@ -155,6 +125,7 @@ export const renderSectionFunc:
       defaultFormIOValues: sectionFromBackend.defaultFormIOValues ? sectionFromBackend.defaultFormIOValues : undefined,
       prosemirrorHTMLNodesTempl: sectionTemplate,
       children: children,
+      originalSectionTemplate:JSON.parse(JSON.stringify(sectionFromBackend)),
       sectionIdFromBackend: sectionFromBackend.id,
       type: 'simple',
       custom:sectionFromBackend.customSection?true:undefined,
@@ -182,6 +153,8 @@ export const renderSectionFunc:
       mode: 'documentMode',
       formIOSchema: formIOJSON,
       pivotId:sectionFromBackend.pivot_id,
+      allow_compatibility:sectionFromBackend.allow_compatibility,
+      compatibility_extended:sectionFromBackend.compatibility_extended,
       menusAndSchemasDefs:sectionMenusAndSchemaDefs,
       initialRender: sectionFromBackend.initialRender ? sectionFromBackend.initialRender : undefined,
       active: sectionFromBackend.active ? sectionFromBackend.active : false,
@@ -194,8 +167,9 @@ export const renderSectionFunc:
       sectionTypeID: sectionFromBackend.id,
       sectionTypeVersion: sectionFromBackend.version,
       sectionMeta: {main: false},
+      originalSectionTemplate:JSON.parse(JSON.stringify(sectionFromBackend)),
       customSchema:{isCustom:false},
-      compatibility: sectionFromBackend.compatibility ? sectionFromBackend.compatibility : undefined
+      compatibility: sectionFromBackend.compatibility ? sectionFromBackend.compatibility : undefined,
     }
     if (sectionFromBackend.complex_section_settings) {
       let minmaxValds: any = {};
@@ -240,6 +214,8 @@ export const renderSectionFunc:
       mode: 'documentMode',
       formIOSchema: formIOJSON,
       pivotId:sectionFromBackend.pivot_id,
+      allow_compatibility:sectionFromBackend.allow_compatibility,
+      compatibility_extended:sectionFromBackend.compatibility_extended,
       initialRender: sectionFromBackend.initialRender ? sectionFromBackend.initialRender : (taxonTreatmentSection['initialRender'] ? taxonTreatmentSection['initialRender'] : (undefined)),
       active: sectionFromBackend.active ? sectionFromBackend.active : false,
       defaultFormIOValues: sectionFromBackend.defaultFormIOValues ? sectionFromBackend.defaultFormIOValues : undefined,
@@ -253,6 +229,7 @@ export const renderSectionFunc:
       sectionTypeVersion: sectionFromBackend.version,
       sectionMeta: {main: false},
       customSchema:{isCustom:false},
+      originalSectionTemplate:JSON.parse(JSON.stringify(sectionFromBackend)),
       compatibility: taxonTreatmentSection.compatibility ? taxonTreatmentSection.compatibility : undefined
     }
 
@@ -272,6 +249,7 @@ export const renderSectionFunc:
       newArticleSection.subsectionValidations = minmaxValds;
     }
   }
+
   newArticleSection.sectionMenusAndSchemasDefsfromJSONByfieldsTags = sectionMenusAndSchemasDefsfromJSONByfieldsTags
   //@ts-ignore
   newArticleSection.initialRender = ydoc.guid
@@ -295,14 +273,31 @@ export const renderSectionFunc:
   return newArticleSection!
 }
 
-export const checkIfSectionsAreUnderOrAtMin = (childToCheck: articleSection, parentNode: articleSection,pivotIdMap:sectinsBEidPivotIdMap, container?: articleSection[]) => {
+export const willBeMoreThan4Levels:(currlevel:number,nodefromBackend:any)=>boolean = (currlevel,nodefromBackend)=>{
+  let levelsSum = currlevel;
+  let countLevels = (node,level)=>{
+    if(level > levelsSum){
+      levelsSum = level
+    }
+    if(node.sections && node.sections.length>0){
+      node.sections.forEach((sec)=>{
+        countLevels(sec,level+1)
+      })
+    }
+  }
+  countLevels(nodefromBackend,currlevel)
+  console.log(currlevel,levelsSum,nodefromBackend);
+  return levelsSum>3
+}
+
+export const checkIfSectionsAreUnderOrAtMin = (childToCheck: articleSection, parentNode: articleSection, container?: articleSection[]) => {
   let v = parentNode.subsectionValidations
   if (v && Object.keys(v).length > 0) {
-    let nodeID = pivotIdMap[childToCheck.sectionIdFromBackend];
+    let nodeID = childToCheck.pivotId
     if (isValidNumber(nodeID)&&v[nodeID]) {
       let nOfNodesOfSameType = 0;
       ((container&&container.length>0) ? container : parentNode.children).forEach((child: articleSection) => {
-        if (pivotIdMap[child.sectionIdFromBackend]&&pivotIdMap[child.sectionIdFromBackend] == nodeID) {
+        if (child.pivotId == nodeID) {
           nOfNodesOfSameType++;
         }
       })
@@ -314,28 +309,27 @@ export const checkIfSectionsAreUnderOrAtMin = (childToCheck: articleSection, par
   return true
 }
 
-export let getSubSecCountWithValidation = (complexSection: articleSection, validation: { secIdBackEnd: number }, complexSectionChildren: articleSection[],pivotIdMap:sectinsBEidPivotIdMap) => {
+export let getSubSecCountWithValidation = (complexSection: articleSection, validation: { pivotid: number }, complexSectionChildren: articleSection[]) => {
   let count = 0;
   (complexSectionChildren ? complexSectionChildren : complexSection.children).forEach((child: articleSection) => {
     if (
-      pivotIdMap[child.sectionIdFromBackend]&&
-      pivotIdMap[child.sectionIdFromBackend] == validation.secIdBackEnd
+      child.pivotId == validation.pivotid
     ) {
       count++
     }
   })
   return count;
 }
-export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFromBackend: any[], complexSection: articleSection, sectionChildren: articleSection[],pivotIdMap:sectinsBEidPivotIdMap) => {
+export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFromBackend: any[], complexSection: articleSection, sectionChildren: articleSection[]) => {
   return sectionsFromBackend.filter((section, index) => {
-    let secIdFromBackend = pivotIdMap[section.id]
+    let pivotid = section.pivot_id
     if (
       complexSection.subsectionValidations &&
-      complexSection.subsectionValidations[secIdFromBackend]
+      complexSection.subsectionValidations[pivotid]
     ) {
-      let min = complexSection.subsectionValidations[secIdFromBackend].min;
-      let max = complexSection.subsectionValidations[secIdFromBackend].max;
-      let count = getSubSecCountWithValidation(complexSection, {secIdBackEnd: secIdFromBackend}, sectionChildren,pivotIdMap)
+      let min = complexSection.subsectionValidations[pivotid].min;
+      let max = complexSection.subsectionValidations[pivotid].max;
+      let count = getSubSecCountWithValidation(complexSection, {pivotid: pivotid}, sectionChildren)
       if (count >= max) {
         return false
       }
@@ -345,18 +339,18 @@ export let filterSectionsFromBackendWithComplexMinMaxValidations = (sectionsFrom
   })
 }
 
-export const checkIfSectionsAreAboveOrAtMax = (childToCheck: articleSection, parentNode: articleSection,pivotIdMap:sectinsBEidPivotIdMap, container?: articleSection[]) => {
+export const checkIfSectionsAreAboveOrAtMax = (childToCheck: articleSection, parentNode: articleSection, container?: articleSection[]) => {
   let v = parentNode.subsectionValidations
   if (v && Object.keys(v).length > 0) {
-    let secIDFromBackend = pivotIdMap[childToCheck.sectionIdFromBackend];
-    if (isValidNumber(secIDFromBackend)&&v[secIDFromBackend]) {
+    let pivotId = childToCheck.pivotId
+    if (isValidNumber(pivotId)&&v[pivotId]) {
       let nOfNodesOfSameType = 0;
       (container ? container : parentNode.children).forEach((child: articleSection) => {
-        if (pivotIdMap[child.sectionIdFromBackend]&&pivotIdMap[child.sectionIdFromBackend] == secIDFromBackend) {
+        if (child.pivotId == pivotId) {
           nOfNodesOfSameType++;
         }
       })
-      if (v[secIDFromBackend].max <= nOfNodesOfSameType) {
+      if (v[pivotId].max <= nOfNodesOfSameType) {
         return false;
       }
     }
@@ -364,14 +358,14 @@ export const checkIfSectionsAreAboveOrAtMax = (childToCheck: articleSection, par
   return true
 }
 
-export const checkIfSectionsAreAboveOrAtMaxAtParentList = (listSections:articleSection[],sectionToCheck:articleSection,parentListRules:mainSectionValidations,pivotIdMap:sectinsBEidPivotIdMap) => {
-  if(parentListRules&&pivotIdMap[sectionToCheck.sectionIdFromBackend]){
-    let secPivotId = pivotIdMap[sectionToCheck.sectionIdFromBackend]
+export const checkIfSectionsAreAboveOrAtMaxAtParentList = (listSections:articleSection[],sectionToCheck:articleSection,parentListRules:mainSectionValidations) => {
+  if(parentListRules&&sectionToCheck.pivotId&&isValidNumber(sectionToCheck.pivotId)){
+    let secPivotId = sectionToCheck.pivotId
     let ruleForCurrSec = parentListRules[secPivotId]
     if(ruleForCurrSec){
       let count = 0;
       listSections.forEach((sec)=>{
-        if(pivotIdMap[sec.sectionIdFromBackend]&&pivotIdMap[sec.sectionIdFromBackend] == secPivotId){
+        if(sec.pivotId == secPivotId){
           count++;
         }
       })
@@ -383,14 +377,14 @@ export const checkIfSectionsAreAboveOrAtMaxAtParentList = (listSections:articleS
   return true;
 }
 
-export const checkIfSectionsAreAboveOrAtMaxAtParentListWithName = (listSections:articleSection[],sectionFromBackend:any,parentListRules:mainSectionValidations,pivotIdMap:sectinsBEidPivotIdMap) => {
-  if(parentListRules && pivotIdMap[sectionFromBackend.id]){
-    let secPivotId = pivotIdMap[sectionFromBackend.id]
+export const checkIfSectionsAreAboveOrAtMaxAtParentListWithName = (listSections:articleSection[],sectionFromBackend:any,parentListRules:mainSectionValidations) => {
+  if(parentListRules && sectionFromBackend.pivot_id){
+    let secPivotId = sectionFromBackend.pivot_id
     let ruleForCurrSec = parentListRules[secPivotId]
     if(ruleForCurrSec){
       let count = 0;
       listSections.forEach((sec)=>{
-        if(pivotIdMap[sec.sectionIdFromBackend]&&pivotIdMap[sec.sectionIdFromBackend] == secPivotId){
+        if(sec.pivotId == secPivotId){
           count++;
         }
       })
@@ -402,14 +396,68 @@ export const checkIfSectionsAreAboveOrAtMaxAtParentListWithName = (listSections:
   return true;
 }
 
-export const checkIfSectionsAreUnderOrAtMinAtParentList = (listSections:articleSection[],sectionToCheck:articleSection,parentListRules:mainSectionValidations,pivotIdMap:sectinsBEidPivotIdMap) => {
-  if(parentListRules && pivotIdMap[sectionToCheck.sectionIdFromBackend]){
-    let secPivotId = pivotIdMap[sectionToCheck.sectionIdFromBackend]
+export const getFilteredSectionChooseData :(node:articleSection)=>sectionChooseData[]= (node) =>{
+  let fullSectionChooseData = getAllAllowedNodesOnSection(node);
+
+  let pivotIdsAtMax:number[] = []
+
+  Object.keys(node.subsectionValidations).forEach((pivot_id)=>{
+    let validation = node.subsectionValidations[+pivot_id]
+    let count = 0;
+    node.children.forEach((child)=>{
+      if(child.pivotId == +pivot_id){
+        count++;
+      }
+    })
+    if(count >= validation.max){
+      pivotIdsAtMax.push(+pivot_id);
+    }
+
+  })
+  let filtered: sectionChooseData[] = fullSectionChooseData.filter(x=>{return (!x.pivot_id||!pivotIdsAtMax.includes(x.pivot_id))})
+  return filtered
+}
+
+export const getAllAllowedNodesOnSection:(node:articleSection)=>sectionChooseData[] = (node)=>{
+  let sectionsChooseData: sectionChooseData[] = []
+  if(node.allow_compatibility&&node.compatibility_extended&&node.compatibility_extended.length>0){
+    node.compatibility_extended.forEach((secdata)=>{
+      sectionsChooseData.push({
+        id: secdata.id,
+        name: secdata.name,
+        version: secdata.version,
+        version_date: secdata.version_date,
+        source:'backend',
+        pivot_id : undefined,
+        template:undefined
+      })
+    })
+  }
+  let nodeInitialSections = node.originalSectionTemplate.sections
+  if(nodeInitialSections&&nodeInitialSections.length>0){
+    nodeInitialSections.forEach((sec)=>{
+      sectionsChooseData.push({
+        id: sec.id,
+        name: (sec.settings && sec.settings.label && sec.settings.label.length>0)?sec.settings.label:sec.name,
+        version: sec.version,
+        version_date: sec.version_date,
+        source:'template',
+        pivot_id : sec.pivot_id,
+        template:sec
+      })
+    })
+  }
+  return sectionsChooseData
+}
+
+export const checkIfSectionsAreUnderOrAtMinAtParentList = (listSections:articleSection[],sectionToCheck:articleSection,parentListRules:mainSectionValidations) => {
+  if(parentListRules && sectionToCheck.pivotId){
+    let secPivotId = sectionToCheck.pivotId
     let ruleForCurrSec = parentListRules[secPivotId]
     if(ruleForCurrSec){
       let count = 0;
       listSections.forEach((sec)=>{
-        if(pivotIdMap[sec.sectionIdFromBackend]&&pivotIdMap[sec.sectionIdFromBackend] == secPivotId){
+        if(sec.pivotId == secPivotId){
           count++;
         }
       })
@@ -421,12 +469,12 @@ export const checkIfSectionsAreUnderOrAtMinAtParentList = (listSections:articleS
   return true;
 }
 
-export const checkMinWhenMoovingASectionOut = (moovingNode: articleSection, outOfNode: articleSection,pivotIdMap:sectinsBEidPivotIdMap) => {
-  return checkIfSectionsAreUnderOrAtMin(moovingNode, outOfNode,pivotIdMap)
+export const checkMinWhenMoovingASectionOut = (moovingNode: articleSection, outOfNode: articleSection) => {
+  return checkIfSectionsAreUnderOrAtMin(moovingNode, outOfNode)
 }
 
-export const checkMaxWhenMoovingASectionIn = (moovingNode: articleSection, inNode: articleSection,pivotIdMap:sectinsBEidPivotIdMap) => {
-  return checkIfSectionsAreAboveOrAtMax(moovingNode, inNode,pivotIdMap);
+export const checkMaxWhenMoovingASectionIn = (moovingNode: articleSection, inNode: articleSection) => {
+  return checkIfSectionsAreAboveOrAtMax(moovingNode, inNode);
 }
 
 export const checkCompatibilitySection = (compatibility: any, section: articleSection) => {
