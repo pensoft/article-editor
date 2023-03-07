@@ -840,15 +840,6 @@ insert-image-dialog {
   padding: 0px !important;
 }
 
-@media screen and (max-width: 600px) {
-  app-root {
-    height: 100%;
-  }
-  app-main {
-    height: 100%;
-  }
-}
-
 /* [data-track] {
   position: relative;
 }
@@ -1230,11 +1221,6 @@ router-outlet {
     height: 30px;
     margin-left: -19px;
     transform: translate(-3px, -3px) scale(0.6);
-  }
-  &:nth-of-type(2) {
-    @media screen and (max-width: 600px) {
-      left: 180px;
-    }
   }
 }
 
