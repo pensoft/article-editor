@@ -28,23 +28,40 @@
                   <mat-label class="upper-label">Affiliation</mat-label>
                   <mat-form-field floatLabel='never' class="form-affiliations" appearance="fill">
                     <input matInput formControlName="affiliation" placeholder="Affiliation">
+
+                    <mat-error *ngFor="let validation of affiliationErrorMessages">
+                      <div *ngIf="$any(affiliation).controls.country.hasError(validation.type)">
+                        {{validation.message}}
+                      </div>
+                    </mat-error>
                   </mat-form-field>
                 </div>
                 <div fxLayout="column nowrap"  fxFlex="28">
                   <mat-label class="upper-label">City</mat-label>
                   <mat-form-field floatLabel='never' class="form-affiliations" appearance="fill">
                     <input matInput formControlName="city" placeholder="City">
+                    <mat-error *ngFor="let validation of cityErrorMessages">
+                      <div *ngIf="$any(affiliation).controls.country.hasError(validation.type)">
+                        {{validation.message}}
+                      </div>
+                    </mat-error>
                   </mat-form-field>
                 </div>
                 <div fxLayout="column nowrap" fxFlex="28">
                   <mat-label class="upper-label">Country</mat-label>
                   <mat-form-field floatLabel='never' class="form-affiliations" appearance="fill">
-                    <input matInput type="text" [formControlName]="'country'" [formControl] [matAutocomplete]="auto1" placeholder="Country">
+                    <input matInput formControlName="country" placeholder="Country" [matAutocomplete]="auto1">
                     <mat-autocomplete #auto1="matAutocomplete">
                       <mat-option *ngFor="let option of filter($any(affiliation).controls.country.value)" [value]="option">
                         {{option}}
                       </mat-option>
                     </mat-autocomplete>
+
+                    <mat-error *ngFor="let validation of countryErrorMessages">
+                      <div *ngIf="$any(affiliation).controls.country.hasError(validation.type)">
+                        {{validation.message}}
+                      </div>
+                    </mat-error>
                   </mat-form-field>
                 </div>
                 <button class="remove-affiliation-btn" mat-stroked-button color="warn" (click)="removeAffiliation(index)" [disabled]="affiliations.controls.length==1">Delete</button>
