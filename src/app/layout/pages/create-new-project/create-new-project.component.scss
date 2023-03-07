@@ -14,19 +14,21 @@
   border: 1px dashed $primary-green;
   text-align: center;
   border-radius: 15px;
-  width: 128px;
-  height: 109px;
+  width: 140px;
   padding: 20px 0 0 0;
+  font-weight: 600;
 
   img.icon-cloud {
     width: 39px;
     height: 36px;
   }
-  .p-drop-file{
+  .p-drop-file {
     line-height: 20px;
+    font-weight: 600;
   }
-  .light-blue{
+  .light-blue {
     color:$light-blue;
+    font-weight: 600;
   }
 }
 .width-auto{

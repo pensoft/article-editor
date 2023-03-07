@@ -17,7 +17,7 @@ export class JatsErrorsDialogComponent implements AfterViewInit {
   }
 
   ngAfterViewInit(): void {
-    this.data.errors = this.data.errors.map(x=>[x]);
+    this.data.errors = this.data.errors;
     this.ref.detectChanges()
   }
 

@@ -6,6 +6,10 @@
   max-width: 90vw;
   margin: 0 auto;
   padding: 35px 26px 64px 26px;
+
+  .container-shadow {
+    border-radius: 6px;
+  }
 }
 
 .bg-white {
@@ -25,10 +29,9 @@
 }
 
 
-
 ::ng-deep .buttons-menu {
   min-height: 32px;
-  box-shadow: 0 3px 6px #00000029;
+  box-shadow: 0 2px 4px #00000029;
 
   .mat-menu-content {
     padding: 0;
