@@ -14,8 +14,8 @@ import { Subject, Subscription } from 'rxjs';
 export class ChooseSectionComponent implements OnInit,AfterViewChecked,OnDestroy {
 
   showError = false;
-  sectionTemplates: any[] = [];
-  searchResults: any[] = [];
+  sectionTemplates: sectionChooseData[] = [];
+  searchResults: sectionChooseData[] = [];
   value = undefined
   @ViewChild('inputText', { read: ElementRef }) inputText?: ElementRef;
 
@@ -43,9 +43,18 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked,OnDestroy
 
   }
 
+  initialSectionResults: sectionChooseData[] = []
+  compatibilitySectionsResults: sectionChooseData[] = []
+
+  setResultsData(){
+    this.initialSectionResults = this.searchResults.filter(x=>x.source == 'template')
+    this.compatibilitySectionsResults = this.searchResults.filter(x=>x.source == 'backend')
+  }
+
   ngAfterViewInit(): void {
     this.sectionTemplates = this.data.templates
     this.searchResults = this.data.templates
+    this.setResultsData()
     this.ref.detectChanges()
 
     this.searchSubscription = this.searchSubject
@@ -83,7 +92,8 @@ export class ChooseSectionComponent implements OnInit,AfterViewChecked,OnDestroy
   public search(value: any) {
     this.value = value;
       this.searchResults = this.sectionTemplates.filter(el=>el.name.toLocaleLowerCase().includes(value.toLocaleLowerCase()));
-      this.ref.detectChanges()
+    this.setResultsData()
+    this.ref.detectChanges()
     /* if(this.data.sectionlevel == 0){
 
     }else{
