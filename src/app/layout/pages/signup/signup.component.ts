@@ -13,6 +13,7 @@ import {lpClient} from "@core/services/oauth-client";
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
 import { HttpErrorResponse } from '@angular/common/http';
+import {environment} from "@env";
 
 @Component({
   selector: 'app-signup',
@@ -20,6 +21,9 @@ import { HttpErrorResponse } from '@angular/common/http';
   styleUrls: ['./signup.component.scss']
 })
 export class SignupComponent implements OnInit, OnDestroy {
+  version = environment.VERSION;
+  build_number = environment.BUILD_NUMBER;
+
   // KeenThemes mock, change it to:
   defaultAuth: any = {
     email: 'admin@demo.com',
