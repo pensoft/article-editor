@@ -16,6 +16,9 @@ import { environment } from '@env';
   styleUrls: ['./arpha-navigation.component.scss'],
 })
 export class ArphaNavigationComponent implements AfterViewInit {
+  version = environment.VERSION;
+  build_number = environment.BUILD_NUMBER;
+
   public icon = 'expand_more';
   changeText = false;
   mobileVersion: boolean = false;
