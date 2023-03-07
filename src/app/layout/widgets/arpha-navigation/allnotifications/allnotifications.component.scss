@@ -7,11 +7,11 @@
   margin: 0 auto;
 
   .all-notifications-content {
-    width: 100%;
-    border-radius: 11px;
-    padding: 20px 26px;
-    box-shadow: 0 3px 6px #1bb1b269 !important;
     display: block;
+    width: 100%;
+    padding: 20px 26px;
+    box-shadow: 0 2px 4px #1bb1b224 !important;
+    border-radius: 6px;
     background: white;
     overflow-y: auto;
 
@@ -42,6 +42,7 @@
       text-decoration: underline;
     }
     .event{
+      line-height: 1.5;
       cursor: pointer;
     }
   }

@@ -1,12 +1,15 @@
-<mat-dialog-content>
-  <div class="errors-contaiener">
+<h2 mat-dialog-title>Export Errors</h2>
+
+<mat-dialog-content class="dynamic-content-height">
+  <div class="errors-container">
     <div class="jats-error" *ngFor="let error of data.errors">
-      {{error | json}}
+        <div class="message">{{error.message}}</div>
+        <div class="position">{{error.line}}:{{error.column}}</div>
     </div>
   </div>
 </mat-dialog-content>
 
 
-<mat-dialog-actions align="end">
+<mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-flat-button color="primary" [mat-dialog-close] cdkFocusInitial>Ok</button>
 </mat-dialog-actions>

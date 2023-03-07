@@ -7,6 +7,9 @@ import { environment } from '@env';
   styleUrls: ['./landing.component.scss']
 })
 export class LandingComponent implements OnInit {
+  version = environment.VERSION;
+  build_number = environment.BUILD_NUMBER;
+
   constructor() { }
 
   ngOnInit(): void {

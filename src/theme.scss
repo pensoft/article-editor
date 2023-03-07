@@ -284,7 +284,7 @@ $altTheme: (primary: $theme-primary,
 
 .mat-dialog-container {
   border-radius: 6px !important;
-  box-shadow: 0 6px 10px $box-shadow !important;
+  box-shadow: 0 2px 4px $box-shadow !important;
   padding: 24px 0 !important;
 
   h2 {
@@ -339,7 +339,7 @@ $altTheme: (primary: $theme-primary,
     box-sizing: border-box;
     margin: 0;
     padding: 16px 40px 0 40px;
-    box-shadow: 0 -5px 5px #1BB1B22B;
+    border-top: 1px solid var(--color-f1f2f2);
 
     button {
       margin-top: 8px;
@@ -606,7 +606,7 @@ mat-radio-group {
     padding: 8px 12px 8px 28px;
     margin: 0 28px 12px 12px;
     gap: 12px;
-    border-radius: 8px;
+    border-radius: 6px;
 
 
     > mat-form-field {
@@ -841,6 +841,11 @@ mat-radio-group {
   }
 }
 
+.mat-menu-panel {
+  border-radius: 6px !important;
+  box-shadow: 0 2px 4px $box-shadow !important;
+}
+
 .mat-menu-panel.figure-components-list {
   width: 280px;
   max-height: 400px;
@@ -862,7 +867,7 @@ mat-radio-group {
             width: 90px;
             height: 90px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 6px;
           }
 
           .video-thumb {
@@ -871,7 +876,7 @@ mat-radio-group {
             align-items: center;
             height: 90px;
             width: 90px;
-            border-radius: 18px;
+            border-radius: 6px;
             background-color: var(--color-676767);
             color: var(--color-ffffff);
 
@@ -1299,7 +1304,7 @@ app-comments-section {
           width: 16px;
           height: 16px;
           background: var(--color-ffffff);
-          box-shadow: 0 2px 4px #1bb1b229;
+          box-shadow: 0 2px 4px $box-shadow;
           border-radius: 50%;
           text-align: center;
           line-height: 16px;
@@ -1636,7 +1641,7 @@ app-comments-section {
       > form-field {
         > p {
           > a {
-            color: var(--color-00b1b2);        
+            color: var(--color-00b1b2);
           }
 
             a {
@@ -1644,7 +1649,6 @@ app-comments-section {
             display: inline-block;
             text-decoration: underline;
           }
-   
 
           .link_popup_div {
               position: absolute;
@@ -1656,7 +1660,7 @@ app-comments-section {
               white-space: nowrap;
               border-radius: 4px;
               background: var(--color-ffffff);
-              box-shadow: 0 3px 6px #67676766;
+              box-shadow: 0 2px 4px #67676766;
               border-color: var(--color-e3e3e3);
               transform: translateX(-50%);
               transition: all 0.2s ease-in-out;
@@ -1776,7 +1780,7 @@ app-comments-section {
     &.edit-citable-item-button {
       // border-color: var(--color-00b1b2);
       box-shadow: 0 1px 2px 1px var(--color-00b1b2), 0 0 0 0 var(--color-00b1b2), 0 1px 3px 0 var(--color-00b1b2);
-      
+
       img {
         width: 16px;
       }
@@ -1798,13 +1802,12 @@ app-comments-section {
       pointer-events: all;
       cursor: pointer;
     }
-  }
 
     &.delete-citable-item-button {
       // border-color: var(--color-e56b87);
       box-shadow: 0 1px 2px 1px var(--color-e56b87), 0 0 0 0 var(--color-e56b87), 0 1px 3px 0 var(--color-e56b87);
     }
-  
+  }
 
 }
 
@@ -1865,7 +1868,7 @@ app-comments-section {
 
         button {
           background: var(--color-white);
-          box-shadow: 0 3px 6px #00B1B22D;
+          box-shadow: 0 2px 4px #00B1B22D;
 
           span {
             display: flex;
@@ -2064,7 +2067,7 @@ mat-formio-textarea {
     border-radius: 6px;
     padding: 6px 12px;
     min-height: 80px;
-    max-height: 80px;
+    max-height: 234px;
     overflow-y: scroll;
     transition: all ease-in-out 300ms;
   }
@@ -2125,3 +2128,6 @@ mat-formio-textarea {
     }
   }
 }
+
+/* Override version styles */
+

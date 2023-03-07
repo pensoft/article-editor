@@ -20,6 +20,9 @@ import { environment } from '@env';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit, OnDestroy {
+  version = environment.VERSION;
+  build_number = environment.BUILD_NUMBER;
+
   // KeenThemes mock, change it to:
   defaultAuth: any = {
     email: 'admin@demo.com',

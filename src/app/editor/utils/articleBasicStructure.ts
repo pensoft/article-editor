@@ -286,7 +286,6 @@ export const willBeMoreThan4Levels:(currlevel:number,nodefromBackend:any)=>boole
     }
   }
   countLevels(nodefromBackend,currlevel)
-  console.log(currlevel,levelsSum,nodefromBackend);
   return levelsSum>3
 }
 
