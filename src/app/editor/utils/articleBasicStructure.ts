@@ -13,6 +13,7 @@ import { ServiceShare } from "../services/service-share.service";
 export interface sectionChooseData {
   id: number
   name: string
+  secname: string
   version: number
   version_date: string
   pivot_id?: number
@@ -425,6 +426,7 @@ export const getAllAllowedNodesOnSection:(node:articleSection)=>sectionChooseDat
         id: secdata.id,
         name: secdata.name,
         version: secdata.version,
+        secname:secdata.name,
         version_date: secdata.version_date,
         source:'backend',
         pivot_id : undefined,
@@ -440,6 +442,7 @@ export const getAllAllowedNodesOnSection:(node:articleSection)=>sectionChooseDat
         name: (sec.settings && sec.settings.label && sec.settings.label.length>0)?sec.settings.label:sec.name,
         version: sec.version,
         version_date: sec.version_date,
+        secname:sec.name,
         source:'template',
         pivot_id : sec.pivot_id,
         template:sec

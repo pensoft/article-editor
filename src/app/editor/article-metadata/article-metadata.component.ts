@@ -175,6 +175,7 @@ export class ArticleMetadataComponent implements OnInit {
       mainSection.push({
         id: sec.id,
         name: (sec.settings && sec.settings.label && sec.settings.label.length>0)?sec.settings.label:sec.name,
+        secname:sec.name,
         version: sec.version,
         version_date: sec.version_date,
         source:'template',
