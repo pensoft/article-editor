@@ -155,7 +155,7 @@ export class ComplexEditTreeComponent implements OnInit {
         return (elementLevel + sectionlevel < 3);
       });
 
-      sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates,this.section,this.sectionChildren,this.treeService.pivotIdMap)
+      sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates,this.section,this.sectionChildren)
       const dialogRef = this.dialog.open(ChooseSectionComponent, {
         width: '563px',
         panelClass: 'choose-namuscript-dialog',
@@ -164,7 +164,7 @@ export class ComplexEditTreeComponent implements OnInit {
       dialogRef.afterClosed().subscribe(result => {
         this.sectionsService.getSectionById(result).subscribe((res: any) => {
           let sectionTemplate = res.data
-          let newSection = renderSectionFunc(sectionTemplate, this.sectionChildren,this.serviceShare.YdocService!.ydoc)
+          let newSection = renderSectionFunc(sectionTemplate, this.sectionChildren,this.serviceShare.YdocService!.ydoc,this.serviceShare)
           this.addedSections.push(newSection);
         })
       });
@@ -177,11 +177,11 @@ export class ComplexEditTreeComponent implements OnInit {
   }
 
   showAddBtn(node: articleSection) {
-    return checkIfSectionsAreAboveOrAtMax(node, this.section,this.treeService.pivotIdMap, this.sectionChildren);
+    return checkIfSectionsAreAboveOrAtMax(node, this.section, this.sectionChildren);
   }
 
   showDeleteBtn(node: articleSection) {
-    return checkIfSectionsAreUnderOrAtMin(node, this.section,this.treeService.pivotIdMap, this.sectionChildren);
+    return checkIfSectionsAreUnderOrAtMin(node, this.section, this.sectionChildren);
   }
 
   deleteNodeHandle(node: articleSection, index: number) {
@@ -210,7 +210,7 @@ export class ComplexEditTreeComponent implements OnInit {
   addNodeHandle(node: articleSection, index: number) {
     this.sectionsService.getSectionById(node.sectionTypeID).subscribe((res: any) => {
       let sectionTemplate = res.data;
-      let newSection = renderSectionFunc(sectionTemplate, this.sectionChildren,this.serviceShare.YdocService!.ydoc, index);
+      let newSection = renderSectionFunc(sectionTemplate, this.sectionChildren,this.serviceShare.YdocService!.ydoc,this.serviceShare, index);
       this.addedSections.push(newSection);
     })
   }

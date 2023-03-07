@@ -19,8 +19,31 @@
   </div>
 
   <mat-selection-list #topic [multiple]="false" [ngClass]="{'no-results': searchResults.length == 0}">
-    <mat-list-option *ngFor="let section of searchResults" [value]="section.id">
-      {{section.name}}
+    <mat-list-option *ngIf="initialSectionResults.length>0" [disabled]="true">
+      Initial Sections:
+    </mat-list-option>
+    <mat-list-option *ngFor="let section of initialSectionResults" [value]="section">
+      <div class="section-add-container"  matTooltip="{{(section.secname != section.name)?'Sectioon name: '+section.secname:null}}">
+        <span class="section-name-container">
+          {{section.name}}
+        </span>
+        <span class="section-version-container">
+          v.{{section.version}}
+        </span>
+      </div>
+    </mat-list-option>
+    <mat-list-option *ngIf="compatibilitySectionsResults.length>0" [disabled]="true">
+      Compatibility Sections:
+    </mat-list-option>
+    <mat-list-option *ngFor="let section of compatibilitySectionsResults" [value]="section">
+      <div class="section-add-container" matTooltip="{{(section.secname != section.name)?'Sectioon name: '+section.secname:null}}">
+        <span class="section-name-container">
+          {{section.name}}
+        </span>
+        <span class="section-version-container">
+          v.{{section.version}}
+        </span>
+      </div>
     </mat-list-option>
   </mat-selection-list>
 
@@ -30,7 +53,7 @@
   <button mat-stroked-button (click)="closeSectionChoose()">
     Cancel
   </button>
-  <button mat-flat-button color="primary" (click)="chooseSection(topic.selectedOptions.selected[0]?.value)">
+  <button mat-flat-button color="primary" (click)="chooseSection(topic.selectedOptions.selected[0].value)">
     Save
   </button>
 </mat-dialog-actions>

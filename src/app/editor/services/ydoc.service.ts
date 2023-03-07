@@ -12,14 +12,12 @@ import { Subject } from 'rxjs';
 import { ydocData } from '../utils/interfaces/ydocData';
 import { YMap, YMapEvent } from 'yjs/dist/src/internals';
 import { articleSection, editorData, taxonomicCoverageContentData } from '../utils/interfaces/articleSection';
-import { articleBasicStructure } from '../utils/articleBasicStructure';
 import { ServiceShare } from './service-share.service';
 import { ArticlesService } from '@app/core/services/articles.service';
 import { Transaction as YTransaction } from 'yjs';
 import { layoutMenuAndSchemaSettings, mapSchemaDef, parseSecFormIOJSONMenuAndSchemaDefs, parseSecHTMLMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
 import { TaxonService } from '../taxons/taxon.service';
 
-export interface sectinsBEidPivotIdMap {[section_id_from_backend:number]:number}
 export interface mainSectionValidations{[pivot_id:string]:{min:number,max:number}}
 
 @Injectable({
@@ -174,7 +172,7 @@ export class YdocService {
         tableCitatsObj = {}
         articleSectionsStructureFlat = []
 
-        articleSectionsStructure = this.articleStructureFromBackend || articleBasicStructure
+        articleSectionsStructure = this.articleStructureFromBackend || []
 
         let makeFlat = (structure: articleSection[]) => {
           structure.forEach((section) => {
@@ -536,26 +534,16 @@ export class YdocService {
       data.layout.template.sections = data.layout.template.sections.filter(x => x.name != 'Citable Elements Schemas');
       this.saveCitableElementsSchemas(artilceCitableElementsSchemas);
     }
-    let sectinsBEidPivotIdMap:sectinsBEidPivotIdMap = {}
     let mainSectionValidations:mainSectionValidations = {}
-    let loopSection = (sections:any[],fnc:(sec:any)=>void) => {
-      sections.forEach((sec)=>{
-        if(sec.sections&&sec.sections.length>0){
-          loopSection(sec.sections,fnc)
-        }
-        fnc(sec)
-      })
-    }
-    loopSection(data.layout.template.sections,(sec)=>{
+    let fnc = (sec)=>{
       if(sec.pivot_id){
-        sectinsBEidPivotIdMap[sec.id] = sec.pivot_id;
         if(sec.settings && sec.settings.main_section){
           if(!sec.settings.max_instances){sec.settings.max_instances = 9999};
           mainSectionValidations[sec.pivot_id] = {min:sec.settings.min_instances,max:sec.settings.max_instances}
         }
       }
-    })
-    data.sectinsBEidPivotIdMap = sectinsBEidPivotIdMap
+    }
+    data.layout.template.sections.forEach(fnc)
     data.mainSectionValidations = mainSectionValidations
     this.articleData = data;
   }
@@ -565,6 +553,7 @@ export class YdocService {
     //this.articleData.layout.citation_style.style_updated = Date.now()
     if(newarticle){
       this.creatingANewArticle = true;
+
     }
     this.checkLastTimeUpdated();
   }
