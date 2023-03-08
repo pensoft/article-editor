@@ -1,4 +1,4 @@
-import { I } from '@angular/cdk/keycodes';
+import {I} from '@angular/cdk/keycodes';
 import {
   AfterViewChecked,
   AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef,
@@ -8,22 +8,24 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core';
-import { FormControl } from '@angular/forms';
-import { MatBottomSheet } from '@angular/material/bottom-sheet';
-import { MatDialog } from '@angular/material/dialog';
-import { MatDrawer } from '@angular/material/sidenav';
-import { ActivatedRoute, ParamMap } from '@angular/router';
-import { EnforcerService } from '@app/casbin/services/enforcer.service';
-import { ArticleSectionsService } from '@app/core/services/article-sections.service';
-import { ArticlesService } from '@app/core/services/articles.service';
-import { AuthService } from '@app/core/services/auth.service';
-import { EditorsRefsManagerService } from '@app/layout/pages/library/lib-service/editors-refs-manager.service';
-import { ReferencePluginService } from '@app/layout/pages/library/lib-service/reference-plugin.service';
-import { RefsApiService } from '@app/layout/pages/library/lib-service/refs-api.service';
-import { FormioAppConfig } from '@formio/angular';
-import { uuidv4 } from 'lib0/random';
-import { CitableElementsContextMenuService } from './utils/citable-elements-context-menu/citable-elements-context-menu.service';
-import { Subject } from 'rxjs';
+import {FormControl} from '@angular/forms';
+import {MatBottomSheet} from '@angular/material/bottom-sheet';
+import {MatDialog} from '@angular/material/dialog';
+import {MatDrawer} from '@angular/material/sidenav';
+import {ActivatedRoute, ParamMap} from '@angular/router';
+import {EnforcerService} from '@app/casbin/services/enforcer.service';
+import {ArticleSectionsService} from '@app/core/services/article-sections.service';
+import {ArticlesService} from '@app/core/services/articles.service';
+import {AuthService} from '@app/core/services/auth.service';
+import {EditorsRefsManagerService} from '@app/layout/pages/library/lib-service/editors-refs-manager.service';
+import {ReferencePluginService} from '@app/layout/pages/library/lib-service/reference-plugin.service';
+import {RefsApiService} from '@app/layout/pages/library/lib-service/refs-api.service';
+import {FormioAppConfig} from '@formio/angular';
+import {uuidv4} from 'lib0/random';
+import {
+  CitableElementsContextMenuService
+} from './utils/citable-elements-context-menu/citable-elements-context-menu.service';
+import {Subject} from 'rxjs';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -34,27 +36,30 @@ import {
 
 //@ts-ignore
 import * as Y from 'yjs';
-import { EditorSidebarComponent } from '../layout/widgets/editor-sidebar/editor-sidebar.component';
-import { AddContributorsDialogComponent } from './dialogs/add-contributors-dialog/add-contributors-dialog.component';
-import { ExportOptionsComponent } from './dialogs/export-options/export-options.component';
-import { FiguresDialogComponent } from './dialogs/figures-dialog/figures-dialog.component';
-import { TreeService } from './meta-data-tree/tree-service/tree.service';
-import { ProsemirrorEditorsService } from './services/prosemirror-editors.service';
-import { ServiceShare } from './services/service-share.service';
-import { YdocService } from './services/ydoc.service';
-import { CommentsService } from './utils/commentsService/comments.service';
-import { articleSection } from './utils/interfaces/articleSection';
-import { treeNode } from './utils/interfaces/treeNode';
-import { TrackChangesService } from './utils/trachChangesService/track-changes.service';
-import { CitableElementsService } from './services/citable-elements.service';
-import { CitableElementsEditButtonsService } from './utils/citable-elements-edit-buttons/citable-elements-edit-buttons.service';
-import { CollaboratorsService } from './dialogs/add-contributors-dialog/collaborators.service';
-import { TaxonService } from './taxons/taxon.service';
+import {EditorSidebarComponent} from '../layout/widgets/editor-sidebar/editor-sidebar.component';
+import {AddContributorsDialogComponent} from './dialogs/add-contributors-dialog/add-contributors-dialog.component';
+import {ExportOptionsComponent} from './dialogs/export-options/export-options.component';
+import {FiguresDialogComponent} from './dialogs/figures-dialog/figures-dialog.component';
+import {TreeService} from './meta-data-tree/tree-service/tree.service';
+import {ProsemirrorEditorsService} from './services/prosemirror-editors.service';
+import {ServiceShare} from './services/service-share.service';
+import {YdocService} from './services/ydoc.service';
+import {CommentsService} from './utils/commentsService/comments.service';
+import {articleSection} from './utils/interfaces/articleSection';
+import {treeNode} from './utils/interfaces/treeNode';
+import {TrackChangesService} from './utils/trachChangesService/track-changes.service';
+import {CitableElementsService} from './services/citable-elements.service';
+import {
+  CitableElementsEditButtonsService
+} from './utils/citable-elements-edit-buttons/citable-elements-edit-buttons.service';
+import {CollaboratorsService} from './dialogs/add-contributors-dialog/collaborators.service';
+import {TaxonService} from './taxons/taxon.service';
+
 @Component({
   selector: 'app-editor',
   templateUrl: './editor.component.html',
   styleUrls: ['./editor.component.scss'],
-  changeDetection:ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked {
   articleSectionsStructure?: articleSection[];
@@ -68,7 +73,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
 
   titleControl = new FormControl();
 
-  @ViewChild('trackChangesOnOffBtn', { read: ElementRef })
+  @ViewChild('trackChangesOnOffBtn', {read: ElementRef})
   trackChangesOnOffBtn?: ElementRef;
   OnOffTrackingChangesShowTrackingSubject: Subject<{
     trackTransactions: boolean;
@@ -81,7 +86,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
   previewMode
   innerWidth: any;
   trackChangesData?: any;
-  usersInArticle :any[] = []
+  usersInArticle: any[] = []
 
   canCreateTag = false;
 
@@ -95,22 +100,22 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     private prosemirrorEditorServie: ProsemirrorEditorsService,
     private trackChanges: TrackChangesService,
     private treeService: TreeService,
-    private serviceShare:ServiceShare,
+    private serviceShare: ServiceShare,
     public config: FormioAppConfig,
     public enforcer: EnforcerService,
     private authService: AuthService,
-    private editorsRefsManager:EditorsRefsManagerService,
+    private editorsRefsManager: EditorsRefsManagerService,
     private articleSectionsService: ArticleSectionsService,
     private articlesService: ArticlesService,
-    private citableElementEditButonsServie:CitableElementsEditButtonsService,
-    private citableElementsService:CitableElementsService,
-    private CitableElementsContextMenuService:CitableElementsContextMenuService,
-    private refsAPI:RefsApiService,
+    private citableElementEditButonsServie: CitableElementsEditButtonsService,
+    private citableElementsService: CitableElementsService,
+    private CitableElementsContextMenuService: CitableElementsContextMenuService,
+    private refsAPI: RefsApiService,
     private changeDetection: ChangeDetectorRef,
-    private referencePluginService:ReferencePluginService,
-    public taxonService:TaxonService
-    ) {
-    this.serviceShare.TaxonService.canTagSelectionSubject.subscribe((canCreateTag)=>{
+    private referencePluginService: ReferencePluginService,
+    public taxonService: TaxonService
+  ) {
+    this.serviceShare.TaxonService.canTagSelectionSubject.subscribe((canCreateTag) => {
       this.canCreateTag = canCreateTag
     })
     this.prosemirrorEditorServie.spinSpinner();
@@ -134,16 +139,10 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
         }
       });
 
-    treeService.toggleTreeDrawer.subscribe((data) => {
-      if (this.innerWidth <= 600) {
-        this.metaDataTreeDrawer?.toggle();
-      }
-    });
-
-    this.prosemirrorEditorServie.usersInArticleStatusSubject.subscribe((status:Map<any,any>)=>{
-      let userInfo:any[] = []
-      status.forEach((aw, clientId)=>{
-        userInfo.push({userInfo:aw.userInfo,clientId})
+    this.prosemirrorEditorServie.usersInArticleStatusSubject.subscribe((status: Map<any, any>) => {
+      let userInfo: any[] = []
+      status.forEach((aw, clientId) => {
+        userInfo.push({userInfo: aw.userInfo, clientId})
       })
       this.usersInArticle = userInfo
     })
@@ -151,75 +150,58 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     this.OnOffTrackingChangesShowTrackingSubject =
       prosemirrorEditorServie.OnOffTrackingChangesShowTrackingSubject;
 
-    this.serviceShare.TrackChangesService.lastSelectedChangeSubject.subscribe((data)=>{
+    this.serviceShare.TrackChangesService.lastSelectedChangeSubject.subscribe((data) => {
 
-      if(!data.changeMarkId||!data.pmDocStartPos||!data.section) return ;
-      let {from,to} = this.prosemirrorEditorServie.editorContainers[data.section].editorView.state.selection
-      if(from!=to || data.section != this.serviceShare.DetectFocusService.sectionName) return;
+      if (!data.changeMarkId || !data.pmDocStartPos || !data.section) return;
+      let {from, to} = this.prosemirrorEditorServie.editorContainers[data.section].editorView.state.selection
+      if (from != to || data.section != this.serviceShare.DetectFocusService.sectionName) return;
       if (!this.sidebarDrawer?.opened) {
         this.sidebarDrawer?.toggle();
       }
       if (this.sidebar != 'changes') {
         this.sidebar = 'changes';
-        setTimeout(()=>{
+        setTimeout(() => {
           this.serviceShare.TrackChangesService.lastSelectedChangeSubject.next(data)
-        },20)
+        }, 20)
       }
     })
 
-    this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject.subscribe((data)=>{
-      if(!data.pos||!data.sectionId||!data.taxonMarkId) return ;
-      let {from,to} = this.prosemirrorEditorServie.editorContainers[data.sectionId].editorView.state.selection
-      if(from!=to || data.sectionId != this.serviceShare.DetectFocusService.sectionName) return;
+    this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject.subscribe((data) => {
+      if (!data.pos || !data.sectionId || !data.taxonMarkId) return;
+      let {from, to} = this.prosemirrorEditorServie.editorContainers[data.sectionId].editorView.state.selection
+      if (from != to || data.sectionId != this.serviceShare.DetectFocusService.sectionName) return;
       if (!this.sidebarDrawer?.opened) {
         this.sidebarDrawer?.toggle();
       }
       if (this.sidebar != 'taxons') {
         this.sidebar = 'taxons';
-        setTimeout(()=>{
+        setTimeout(() => {
           this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject.next(data)
-        },20)
+        }, 20)
       }
     })
 
-    this.serviceShare.CommentsService.lastSelectedCommentSubject.subscribe((data)=>{
-      if(!data.commentId||!data.commentMarkId||!data.pos||!data.sectionId) return ;
-      let {from,to} = this.prosemirrorEditorServie.editorContainers[data.sectionId].editorView.state.selection
-      if(from!=to || data.sectionId != this.serviceShare.DetectFocusService.sectionName) return;
+    this.serviceShare.CommentsService.lastSelectedCommentSubject.subscribe((data) => {
+      if (!data.commentId || !data.commentMarkId || !data.pos || !data.sectionId) return;
+      let {from, to} = this.prosemirrorEditorServie.editorContainers[data.sectionId].editorView.state.selection
+      if (from != to || data.sectionId != this.serviceShare.DetectFocusService.sectionName) return;
       if (!this.sidebarDrawer?.opened) {
         this.sidebarDrawer?.toggle();
       }
       if (this.sidebar != 'comments') {
         this.sidebar = 'comments';
-        setTimeout(()=>{
+        setTimeout(() => {
           this.serviceShare.CommentsService.lastSelectedCommentSubject.next(data)
-        },20)
+        }, 20)
       }
     })
 
     this.commentService.addCommentSubject.subscribe((data) => {
       if (data.type == 'commentData') {
-        if (this.innerWidth > 600) {
-          if (!this.sidebarDrawer?.opened) {
-            this.sidebarDrawer?.toggle();
-          }
-          this.sidebar = 'comments';
-        } else {
-          setTimeout(() => {
-            this.sidebar = 'comments';
-            this._bottomSheet.open(EditorSidebarComponent, {
-              disableClose: true,
-              hasBackdrop: false,
-              data: { sidebar: this.sidebar },
-              panelClass: 'sidebar-bottom-sheet',
-            });
-            this._bottomSheet._openedBottomSheetRef
-              ?.afterDismissed()
-              .subscribe((data) => {
-                this.sidebar = '';
-              });
-          }, 20);
+        if (!this.sidebarDrawer?.opened) {
+          this.sidebarDrawer?.toggle();
         }
+        this.sidebar = 'comments';
       }
     });
 
@@ -241,11 +223,11 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
         this.shouldTrackChanges = hideshowData.trackTransactions;
         this.trackChangesData = hideshowData;
       });
-     /*  this.refsAPI.getReferences().subscribe((refs:any)=>{
-        // this.shouldRender = true;
-        // this.userReferences = refs.data;
-        this.changeDetection.detectChanges();
-      }) */
+      /*  this.refsAPI.getReferences().subscribe((refs:any)=>{
+         // this.shouldRender = true;
+         // this.userReferences = refs.data;
+         this.changeDetection.detectChanges();
+       }) */
     };
     if (this.ydocService.editorIsBuild) {
       initArtcleStructureMap();
@@ -256,21 +238,13 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
         }
       });
     }
-
-    this.treeService.treeVisibilityChange.subscribe((data) => {
-      if (data.action == 'editNode') {
-        if (this.innerWidth <= 600) {
-          this.metaDataTreeDrawer?.toggle();
-        }
-      }
-    });
   }
 
-  turnOnOffPreviewMode(){
+  turnOnOffPreviewMode() {
     this.prosemirrorEditorServie.previewArticleMode.mode = !this.prosemirrorEditorServie.previewArticleMode.mode
-    if(this.prosemirrorEditorServie.previewArticleMode.mode){
+    if (this.prosemirrorEditorServie.previewArticleMode.mode) {
       this.titleControl.disable()
-    }else(
+    } else (
       this.titleControl.enable()
     )
   }
@@ -283,14 +257,14 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     this.changeDetection.detectChanges();
   }
 
-  clickEditorTab(){
-    if(this.active=='library'){
-      this.active='editor';
+  clickEditorTab() {
+    if (this.active == 'library') {
+      this.active = 'editor';
       //this.serviceShare.CslService?.checkReferencesInAllEditors(this.prosemirrorEditorServie.editorContainers);
       //this.serviceShare.ProsemirrorEditorsService!.dispatchEmptyTransaction();
-    }else{
-      this.active='editor';
-      this.refsAPI.getReferences().subscribe((refs:any)=>{
+    } else {
+      this.active = 'editor';
+      this.refsAPI.getReferences().subscribe((refs: any) => {
         // this.shouldRender = true;
         // this.userReferences = refs.data;
         this.changeDetection.detectChanges();
@@ -298,11 +272,12 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     }
   }
 
-  userAccess:string
+  userAccess: string
+
   ngOnInit(): void {
-    this.ydocService.currUserRoleSubject.subscribe((userData:any)=>{
+    this.ydocService.currUserRoleSubject.subscribe((userData: any) => {
       this.userAccess = userData.access
-      if(this.userAccess == 'Commenter'||this.userAccess == 'Viewer'){
+      if (this.userAccess == 'Commenter' || this.userAccess == 'Viewer') {
         this.prosemirrorEditorServie.previewArticleMode.mode = true
         this.titleControl.disable()
       }
@@ -315,12 +290,12 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
       .subscribe((roomName) => {
         this.authService.getUserInfo().subscribe((userInfo) => {
           this.roomName = roomName;
-          let commentId = window.location.href.split(roomName)[1].replace('#','');
-          if(commentId&&commentId.length>0){
+          let commentId = window.location.href.split(roomName)[1].replace('#', '');
+          if (commentId && commentId.length > 0) {
             this.commentService.shouldScrollComment = true;
             this.commentService.markIdOfScrollComment = commentId;
           }
-          this.ydocService.init(roomName!, userInfo,articleData);
+          this.ydocService.init(roomName!, userInfo, articleData);
 
         });
       });
@@ -345,9 +320,9 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
         //this.provider = data.provider;
         this.articleSectionsStructure = data.articleSectionsStructure;
         this.shouldBuild = true;
-        this.prosemirrorEditorServie.init().subscribe(()=>{
-          if(this.commentService.shouldScrollComment){
-            if(this.commentService.scrollToCommentMarkAndSelect()){
+        this.prosemirrorEditorServie.init().subscribe(() => {
+          if (this.commentService.shouldScrollComment) {
+            if (this.commentService.scrollToCommentMarkAndSelect()) {
               this.toggleSidebar('comments')
             }
           }
@@ -366,34 +341,30 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     });
 
     this.innerWidth = window.innerWidth;
-
-    this.prosemirrorEditorServie.mobileVersionSubject.next(
-      this.innerWidth <= 600
-    ); // set prosemirror editors to not be editable while in movile mod
   }
 
-  commentsNumberChange : Subject<number> = new Subject()
+  commentsNumberChange: Subject<number> = new Subject()
   noComments = true;
 
   ngAfterViewInit(): void {
-    this.commentService.commentsChangeSubject.subscribe((msg)=>{
+    this.commentService.commentsChangeSubject.subscribe((msg) => {
       let commentNum = Object.values(this.commentService.commentsObj).length
       this.commentsNumberChange.next(commentNum);
-      this.noComments = commentNum==0
+      this.noComments = commentNum == 0
     })
   }
 
-  turnOnOffTrachChanges(bool?: boolean) {
-    if(this.prosemirrorEditorServie.previewArticleMode.mode){
+  turnOnOffTrackChanges(bool?: boolean) {
+    if (this.prosemirrorEditorServie.previewArticleMode.mode) {
       this.turnOnOffPreviewMode()
     }
     this.serviceShare.DetectFocusService.setSelectionDecorationOnLastSelecctedEditor()
-    if(bool == undefined){
+    if (bool == undefined) {
       this.shouldTrackChanges = !this.shouldTrackChanges;
       this.trackChangesData!.trackTransactions =
         !this.trackChangesData!.trackTransactions;
       this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
-    }else{
+    } else {
       this.shouldTrackChanges = bool;
       this.trackChangesData!.trackTransactions = bool;
       this.OnOffTrackingChangesShowTrackingSubject.next(this.trackChangesData!);
@@ -402,58 +373,22 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
 
   toggleSidebar(section: string) {
 
-    if (this.innerWidth > 600) {
-      if (!this.sidebarDrawer?.opened || this.sidebar == section) {
-        this.sidebarDrawer?.toggle();
-      }
-      this.sidebar = section;
+    if (!this.sidebarDrawer?.opened || this.sidebar == section) {
+      this.sidebarDrawer?.toggle();
+    }
+    this.sidebar = section;
 
-      // If it's closed - clear the sidebar value
-      if (!this.sidebarDrawer?.opened) {
-        this.sidebar = '';
-      }
-    } else {
-      if(this.sidebar == section){
-        this.sidebar == ''
-      }
-      this.sidebar = section;
-      this._bottomSheet.open(EditorSidebarComponent, {
-        disableClose: true,
-        hasBackdrop: false,
-        data: { sidebar: this.sidebar },
-        panelClass: 'sidebar-bottom-sheet',
-      });
-      this._bottomSheet._openedBottomSheetRef
-        ?.afterDismissed()
-        .subscribe((data) => {
-          this.sidebar = '';
-        });
+    // If it's closed - clear the sidebar value
+    if (!this.sidebarDrawer?.opened) {
+      this.sidebar = '';
     }
-    if(section == 'comments'){
-      this.serviceShare.CommentsService.shouldCalc = true;
-      /* setTimeout(()=>{
-        this.serviceShare.ProsemirrorEditorsService.dispatchEmptyTransaction()
-        setTimeout(()=>{
-          this.serviceShare.ProsemirrorEditorsService.dispatchEmptyTransaction()
-          this.serviceShare.CommentsService.getCommentsInAllEditors()
-        },50)
-      },50) */
-    }else{
-      this.serviceShare.CommentsService.shouldCalc = false;
-    }
+
+    this.serviceShare.CommentsService.shouldCalc = section == 'comments';
   }
 
-  @HostListener('window:resize', ['$event'])
-  onResize(event: any) {
-    this.innerWidth = window.innerWidth;
-    this.prosemirrorEditorServie.mobileVersionSubject.next(
-      this.innerWidth <= 600
-    ); // pass isMobile ot isNotMobile to prosemirror editors
-  }
   openDialog(): void {
     const dialogRef = this.dialog.open(AddContributorsDialogComponent, {
       width: '665px',
-     // height: '531px',
       panelClass: 'contributors-dialog',
       data: {},
       disableClose: false,
@@ -463,19 +398,21 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     });
   }
 
-  print() {}
+  print() {
+  }
 
   export() {
     this.dialog
       .open(ExportOptionsComponent, {
         width: '532px',
-        // height: '531px',
         data: {},
         disableClose: false,
       })
       .afterClosed()
-      .subscribe((result) => {});
+      .subscribe((result) => {
+      });
   }
 
-  submit() {}
+  submit() {
+  }
 }
