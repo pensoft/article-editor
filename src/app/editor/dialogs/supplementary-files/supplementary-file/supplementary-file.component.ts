@@ -19,4 +19,30 @@ export class SupplementaryFileComponent implements AfterViewInit {
   ngAfterViewInit(): void {
   }
 
+  downloadFile(event: MouseEvent) {
+    event.preventDefault();
+    const url = (event.target as HTMLAnchorElement)
+    .href
+    // .replace("https://ps-cdn.dev.scalewest.com/", "/");
+    const filename = url.split('/').pop();
+    
+    fetch(url)
+      .then(response => response.blob())
+      .then(blob => {        
+        const a = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        console.log(url);
+        
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+        }, 0);
+      })
+      .catch(err => console.error(err));
+  }
+
 }

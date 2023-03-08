@@ -108,7 +108,7 @@ export const renderSectionFunc:
         label: sectionLabel,
         name: sectionFromBackend.name,
         template: sectionLabel,
-        editable: !sectionFromBackend.label_read_only && !/{{\s*\S*\s*}}/gm.test(sectionLabel)
+        editable: !sectionFromBackend.label_read_only && !/{{\s*\S*\s*}}|<span(\[innerHTML]="[\S]+"|[^>])+>[^<]*<\/span>/gm.test(sectionLabel)
       },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
       sectionID: newId,
       active: sectionFromBackend.active ? sectionFromBackend.active : false,
@@ -144,7 +144,7 @@ export const renderSectionFunc:
         label: sectionLabel,
         name: sectionFromBackend.name,
         template: sectionLabel,
-        editable: !sectionFromBackend.label_read_only &&  !/{{\s*\S*\s*}}/gm.test(sectionLabel)
+        editable: !sectionFromBackend.label_read_only &&  !/{{\s*\S*\s*}}|<span(\[innerHTML]="[\S]+"|[^>])+>[^<]*<\/span>/gm.test(sectionLabel)
       },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
       sectionID: newId,
       edit: sectionFromBackend.edit || {active: true, main: true},
@@ -204,7 +204,7 @@ export const renderSectionFunc:
         label: sectionLabel,
         name: sectionFromBackend.name,
         template: sectionLabel,
-        editable: !taxonTreatmentSection.label_read_only && !/{{\s*\S*\s*}}/gm.test(sectionLabel)
+        editable: !taxonTreatmentSection.label_read_only && !/{{\s*\S*\s*}}|<span(\[innerHTML]="[\S]+"|[^>])+>[^<]*<\/span>/gm.test(sectionLabel)
       },  //titleContent -   title that will be displayed on the data tree ||  contentData title that will be displayed in the editor
       sectionID: newId,
       edit: {active: true, main: true},

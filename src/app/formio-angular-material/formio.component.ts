@@ -88,6 +88,7 @@ export class FormioComponent extends FormioBaseComponent {
       .then(() => form.readyResolve(form.instance))
       .catch(() => form.readyReject())
     );
+    form.instance.root.formIOComponent = this
     return form.instance;
   }
 }

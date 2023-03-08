@@ -129,14 +129,19 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
       this.isValid = change.isValid
       this.isModified = change.isModified
       this.formIoSubmission = change.data
-      if(/{{\s*\S*\s*}}/gm.test(this.section.title.template)){
-        this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(this.section.title.template, change.data, this.sectionForm).then((newTitle: string) => {
-          let container = document.createElement('div')
-          container.innerHTML = newTitle;
-          this.sectionTreeTitleValue = container.textContent!;
+      let vals = JSON.parse(JSON.stringify(change.data));
+      if((change.changed && change.changed.instance) || this.formIoRoot){
+        let rawVals = (change.changed)?change.changed.instance.root.rawVals:this.formIoRoot.rawVals;
+        Object.keys(rawVals).forEach((key)=>{
+          vals[key] = rawVals[key];
         })
-      }else if(this.formIoSubmission.sectionTreeTitle != null && this.formIoSubmission.sectionTreeTitle != undefined){
-        this.sectionTreeTitleValue = this.formIoSubmission.sectionTreeTitle;
+      }
+      if(/{{\s*\S*\s*}}|<span(\[innerHTML]="[\S]+"|[^>])+>[^<]*<\/span>/gm.test(this.section.title.template)){
+        this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(this.section.title.template, vals, this.sectionForm).then((newTitle: string) => {
+          this.sectionTreeTitleValue = newTitle
+        })
+      }else if(vals.sectionTreeTitle != null && vals.sectionTreeTitle != undefined){
+        this.sectionTreeTitleValue = vals.sectionTreeTitle;
       }
       if(change.changed&&change.changed.instance){
         this.formIoRoot = change.changed.instance.root
@@ -235,7 +240,6 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
       } else {
         interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!,submision.data, this.sectionForm);
       }
-      console.log(this.section,submision.data);
       if(submision.data.sectionTreeTitle && submision.data.sectionTreeTitle.length>0){
         this.treeService.saveNewTitleChange(this.section,submision.data.sectionTreeTitle)
       }
@@ -449,10 +453,12 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
     if(this.sectionContent.props){
       this.sectionContent.props.initialSectionTitle = this.section.title.label;
       this.sectionContent.props.isSectionPopup = true;
+      this.sectionContent.props.sectionLabelTemplate = this.section.title.template;
     }else{
       this.sectionContent.props = {
         initialSectionTitle:this.section.title.label,
-        isSectionPopup:true
+        isSectionPopup:true,
+        sectionLabelTemplate:this.section.title.template
       }
     }
 
