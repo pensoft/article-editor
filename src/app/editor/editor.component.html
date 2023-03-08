@@ -65,27 +65,25 @@
           </ng-container>
         </div>
       </div>
-
-
     </div>
+
     <div class="right-group" [ngStyle]="{'display':active == 'editor'?'flex':'none','align-items':'center'}">
+
       <span class="vertical-delimiter"></span>
+
       <arpha-button (clickEvent)="print()"
                     [disabled]="true"
                     label="Print"
-                    class="small secondary"
-                    style="margin-right: 16px;">
+                    class="small secondary">
       </arpha-button>
       <arpha-button (clickEvent)="export()"
                     label="Export"
-                    class="small primary"
-                    style="margin-right: 16px;">
+                    class="small primary">
       </arpha-button>
       <arpha-button (clickEvent)="submit()"
                     [disabled]="true"
                     label="Submit"
-                    class="small primary"
-                    style="margin-right: 16px;">
+                    class="small primary">
       </arpha-button>
     </div>
 
