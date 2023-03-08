@@ -461,7 +461,6 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
         sectionLabelTemplate:this.section.title.template
       }
     }
-
     this.renderForm = true
   }
 
