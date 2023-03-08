@@ -1,6 +1,8 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ServiceShare } from '@app/editor/services/service-share.service';
+import { AllnotificationsComponent } from '../allnotifications/allnotifications.component';
 import { notificationEvent, NotificationsService } from './notifications.service';
 
 @Component({
@@ -18,7 +20,7 @@ export class NotificationsComponent implements AfterViewInit {
   constructor(
     private serviceShare:ServiceShare,
     private changeDetection:ChangeDetectorRef,
-    private router:Router
+    public dialog: MatDialog,
     ) { }
 
   ngAfterViewInit(): void {
@@ -32,9 +34,8 @@ export class NotificationsComponent implements AfterViewInit {
     this.serviceShare.NotificationsService.getAllNotifications()
   }
 
-  openAllNotificationsPage(){
-    this.router.navigate(['all-notifications']);
-    this.close()
+  openAllNotificationsDialog(){
+    this.dialog.open(AllnotificationsComponent)
   }
 
   count = 0;
