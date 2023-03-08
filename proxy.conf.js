@@ -39,6 +39,14 @@ const PROXY_CONFIG = {
       autoRewrite: true,
       "ws": true,
     },
+    "/image": {
+      "target": "https://ps-cdn.dev.scalewest.com/",
+      "secure": false,
+      "logLevel": "debug",
+      "changeOrigin": true,
+      autoRewrite: true,
+      "ws": true,
+    },
     /* "/login": {
       "target": "https://ps-accounts.dev.scalewest.com/",
       "secure": false,
