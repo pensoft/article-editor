@@ -418,7 +418,6 @@ export class ValidationSectionComponent implements OnDestroy {
                 })
                 donevalidationSubject.next(null)
               } else if (el.rule == "ValidateComplexSections") {
-                let pivotIdMap = this.treeService.pivotIdMap
                 let articleSectionStructure = this.treeService.articleSectionsStructure;
                 let validateComplexSecMinMax = (complexSection: articleSection, sectionsFromBackend: any) => {
                   let errors: string[] = []
@@ -428,11 +427,11 @@ export class ValidationSectionComponent implements OnDestroy {
                     let countOfType = 0;
 
                     children.forEach((child) => {
-                      if (pivotIdMap[child.sectionIdFromBackend]&&pivotIdMap[child.sectionIdFromBackend] == pivotId) {
+                      if (child.pivotId == pivotId) {
                         countOfType++;
                       }
                     })
-                    let sectionFromBackend = sectionsFromBackend.find((el: any) => {return (pivotIdMap[el.id]&&pivotIdMap[el.id] == pivotId)})
+                    let sectionFromBackend = sectionsFromBackend.find((el: any) => {return (el.pivot_id == pivotId)})
                     if(sectionFromBackend){
                       let secName = sectionFromBackend.name
                       if (countOfType < subSecMinMax.min) {

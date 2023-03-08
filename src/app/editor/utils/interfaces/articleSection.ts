@@ -47,6 +47,8 @@ export type sectionContentData = editorData | taxonomicCoverageContentData
 export interface articleSection {
   initialRender?: string,
   sectionID: string,
+  allow_compatibility:boolean
+  compatibility_extended:null|any[]
   active: boolean,
   children: articleSection[],
   add: { active: boolean, main: boolean },
@@ -71,6 +73,7 @@ export interface articleSection {
   custom?:true,
   customSchema:{isCustom:boolean,schema?:{nodes:string[],marks:string[]}};
   sectionMenusAndSchemasDefsfromJSONByfieldsTags?:{[key:string]:{menu:any,schema:any}}
+  originalSectionTemplate:any
 }
 
 export interface flatArticleSection {

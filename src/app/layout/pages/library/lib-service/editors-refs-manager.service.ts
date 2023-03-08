@@ -516,7 +516,7 @@ export class EditorsRefsManagerService {
     let refNode = schema.nodes.reference_citation_end.create(recCitationAttrs, getHtmlInlineNodes(ref.citation.bibliography))
     let refContainerNode = schema.nodes.reference_block_container.create({ contenteditableNode: 'false' }, refNode)
     if (!referenceContainerIsRendered) {
-      let refTitle = schema.nodes.paragraph.create({ contenteditableNode: 'false' }, schema.text('References :'))
+      let refTitle = schema.nodes.paragraph.create({ contenteditableNode: 'false' }, schema.text('References'))
       let h1 = schema.nodes.heading.create({ tagName: 'h1' }, refTitle)
       let allRefsContainer = schema.nodes.reference_container.create({ contenteditableNode: 'false' }, refContainerNode)
       let tr = state.tr.replaceWith(nodeStart, nodeEnd, [h1, allRefsContainer])
