@@ -58,14 +58,51 @@ end-note-citation {
 }
 
 block-table {
-  border: 1px solid #e2e2dd;
+  border: 1px solid #ddd;
   display: block;
   margin-top: 10px;
-  padding: 5px;
   border-radius: 6px;
   background-color: #fafaf8;
   margin-right: 4px;
   margin-left: 4px;
+
+  table-content {
+    table {
+      background-color: #fff;
+      border-left: none !important;
+      border-right: none !important;
+      td:first-child {
+        border-left: none;
+      }
+
+      td:last-child {
+        border-right: none;
+      }
+    }
+  }
+
+  table-content {
+    p {
+      padding: 10px 5px 0px 5px;
+    }
+  }
+
+  table-header-container {
+    p {
+      padding: 0px 5px 0px 5px;
+    }
+  }
+
+  table-footer-container {
+    p {
+      padding: 0px 5px 5px 5px;
+    }
+  }
+
+  h3 p {
+    padding: 0px 5px 0px 5px;
+    font-weight: bold;
+  }
 }
 
 table-content {
@@ -99,8 +136,9 @@ supplementary-file-citation {
 }
 
 app-figures-prosemirror-view.not-empty {
-  border-top: 2px dashed rgb(0 0 0 / 87%);
+  border-top: 2px dashed #e3e3e3;
   display: block;
+  margin-top: 24px;
 }
 
 .show-article-data {
