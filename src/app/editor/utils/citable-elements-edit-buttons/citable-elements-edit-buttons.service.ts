@@ -7,8 +7,8 @@ import { AddFigureDialogV2Component } from '@app/editor/dialogs/figures-dialog/a
 import { AddSupplementaryFileComponent } from '@app/editor/dialogs/supplementary-files/add-supplementary-file/add-supplementary-file.component';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { Node } from 'prosemirror-model';
-import { EditorState, Plugin,PluginKey } from 'prosemirror-state';
-import { Decoration, DecorationSet } from 'prosemirror-view';
+import { EditorState, Plugin,PluginKey, TextSelection } from 'prosemirror-state';
+import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
 import { createCustomIcon } from '../menu/common-methods';
 
 
@@ -219,6 +219,21 @@ export class CitableElementsEditButtonsService {
               event.relatedTarget.click();
             }
           }
+        },
+        handleClickOn (view: EditorView, pos: number, node: Node) {
+          const { state } = view;
+          const { schema } = state;
+
+          if (node.type === schema.nodes.figure_component) {            
+              const $pos = state.doc.resolve(pos);              
+              
+              const selection = TextSelection.create(state.doc, $pos.before());
+              
+              view.dispatch(state.tr.setSelection(selection));
+              return true;
+          }
+
+          return false;
         },
         decorations:(state: EditorState) => {
           let pluginState = this.citableElementsEditButtonsPluginKey.getState(state);
