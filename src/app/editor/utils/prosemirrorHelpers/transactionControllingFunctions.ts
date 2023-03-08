@@ -158,44 +158,10 @@ export const updateControlsAndFigures = (
                 if(node.marks.filter((mark)=>mark.attrs.formControlName != ''&&mark.attrs.formControlName).length>0){
                   controlPath = node.marks.find((mark)=>mark.attrs.formControlName != ''&&mark.attrs.formControlName).attrs.controlPath
                 }
-                if (controlPath == 'sectionTreeTitle') {
-                  if (!transaction.getMeta('titleupdateFromControl')) {
-                    if (transaction.getMeta('editingTitle')) {
-                      sectionTreeTitleUpdateMetas.time = Date.now();
-                    }
-                    const control = fg.get(controlPath) as FormControl;
-                    //@ts-ignore
-                    let updatemeta = fg.titleUpdateMeta as { time: number, updatedFrom: string };
-                    if (!sectionTreeTitleUpdateMetas) {
-                      sectionTreeTitleUpdateMetas = {
-                        time: 0,
-                        updateFrom: 'prosemirror'
-                      }
-                    }
-                    if (node.textContent.trim() !== control.value) {
-                      if (sectionTreeTitleUpdateMetas.time < updatemeta.time) {
-                        setTimeout(() => {
-                          let view = editorContainers[section?.sectionID!].editorView;
-                          let st = view.state
-                          view.dispatch(st.tr.replaceWith(pos + 1, pos + node.nodeSize - 1, schema.text(control.value)).setMeta('titleupdateFromControl', true).setMeta('addToLastHistoryGroup', true))
-                        }, 0);
-                        sectionTreeTitleUpdateMetas.time = updatemeta.time;
-                      } else if (sectionTreeTitleUpdateMetas.time > updatemeta.time) {
-                        control.patchValue(node.textContent.trim()!);
-                        updatemeta.time = sectionTreeTitleUpdateMetas.time;
-                        updatemeta.updatedFrom = 'editor'
-                      }
-                    }
-                  }
-                  /* if(sectionTreeTitleUpdateMetas[+titleNodeNumber].time<updatemeta.time){
-                    sectionTreeTitleUpdateMetas[+titleNodeNumber].time = updatemeta.time
-                  } */
-                } else {
-
                   const control = fg.get(controlPath) as FormControl;
                   if(control){
                     //@ts-ignore
-                    if (control.componentType && control.componentType == "textarea") {
+                    if ((control.componentType && control.componentType == "textarea"||controlPath=='sectionTreeTitle')) {
                       let html = getHtmlFromFragment(node.content)
                       if (node.attrs.menuType) {
                         //@ts-ignore
@@ -221,7 +187,6 @@ export const updateControlsAndFigures = (
                       }
                     }
                   }
-                }
               } catch (error) {
                 console.error(error);
               }

@@ -1,4 +1,4 @@
-<h2 mat-dialog-title *ngIf="data&&data.node">Add section to {{data.node.title.label}}</h2>
+<h2 mat-dialog-title *ngIf="data&&data.node">Add section to <span class="make-block-nodes-inline" [innerHTML]="data.node.title.label | safehtml"></span></h2>
 <h2 mat-dialog-title *ngIf="!data||!data.node">Add section to Article</h2>
 
 <div class="search-field-wrapper">

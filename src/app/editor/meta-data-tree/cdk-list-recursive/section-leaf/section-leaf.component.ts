@@ -120,48 +120,6 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
   oldTextValue?: string
 
-  checkTextInput(element: HTMLDivElement, maxlength: number, event: Event) {
-    if (element.textContent?.trim().length == 0) {
-      element.innerHTML = "<br>"
-      return
-    }
-    if (/<\/?[a-z][\s\S]*>/i.test(element.innerHTML)) {
-      element.innerHTML = `${element.textContent!}`;
-    }
-    if (element.textContent?.trim().length! > maxlength && this.oldTextValue) {
-      element.innerHTML = `${this.oldTextValue}`
-    } else if (element.textContent?.trim().length! == maxlength) {
-      this.oldTextValue = element.textContent!.trim();
-    }
-    //@ts-ignore
-    let updatemeta = this.treeService.sectionFormGroups[this.node.sectionID].titleUpdateMeta as { time: number, updatedFrom: string };
-
-    let now = Date.now()
-    let controlValue = this.nodeFormGroup.get('sectionTreeTitle')?.value;
-
-
-    if (controlValue !== element.textContent?.trim()) {
-      if (now > updatemeta.time) {
-        updatemeta.time = now;
-        this.treeService.labelupdateLocalMeta[this.node.sectionID].time = now;
-        updatemeta.updatedFrom = this.treeService.labelupdateLocalMeta[this.node.sectionID].updatedFrom;
-        this.nodeFormGroup.get('sectionTreeTitle')?.patchValue(element.textContent?.trim());
-        this.prosemirrorEditorsService.dispatchEmptyTransaction()
-      }
-
-    }
-    /* if(updatemeta.time&&updatemeta.time<now){
-      this.nodeFormGroup.get('sectionTreeTitle')?.patchValue(element.textContent)
-      updatemeta.time = now;
-      updatemeta.updatedFrom = this.labelupdateLocalMeta.updatedFrom;
-    }else{
-      this.nodeFormGroup.get('sectionTreeTitle')?.patchValue(element.textContent)
-      updatemeta.time = now;
-      updatemeta.updatedFrom = this.labelupdateLocalMeta.updatedFrom;
-    } */
-
-  }
-
   editNodeHandle(node: articleSection, formGroup: FormGroup) {
     try {
       let defaultValues = formGroup.value;
@@ -280,28 +238,6 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   oldIndex?:string
   scrolledToView?: boolean
 
-  makeEditable(element: HTMLDivElement, event: Event, parentNode: any, node: articleSection) {
-    if (element.textContent?.trim().length == 0) {
-      element.innerHTML = "<br>"
-      return
-    }
-    if (event.type == 'blur') {
-      element.setAttribute('contenteditable', 'false');
-      element.setAttribute('style', '');
-      /* (parentNode as HTMLDivElement).style.zIndex = this.oldIndex;
-      this.oldIndex = undefined */
-      this.treeService.saveNewTitleChange(node, element.textContent!);
-      this.scrolledToView = false;
-    } else if (event.type == 'click') {
-      element.setAttribute('contenteditable', 'true');
-      //let elementZIndex = window.getComputedStyle(element).zIndex;
-      /* if(this.oldIndex!=elementZIndex){
-        this.oldIndex = elementZIndex
-      } */
-      //(parentNode as HTMLDivElement).style.zIndex = '11';
-      element.focus()
-    }
-  }
 
   scrollToProsemirror() {
     if (this.node.type == 'simple') {

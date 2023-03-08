@@ -24,7 +24,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 
 import { initRenderer } from './renderer';
 import { FormioComponent } from './formio.component';
-import { MaterialComponent } from './components/MaterialComponent';
+import { MaterialComponent, SafeHtmlPipe } from './components/MaterialComponent';
 import { MaterialNestedComponent } from './components/MaterialNestedComponent';
 import { MaterialButtonComponent } from './components/button/button.component';
 import { MaterialTextfieldComponent } from './components/textfield/textfield.component';
@@ -104,6 +104,7 @@ export {
 
 @NgModule({
   declarations: [
+    SafeHtmlPipe,
     FormioComponent,
     MaterialButtonComponent,
     MaterialTextfieldComponent,
@@ -173,6 +174,7 @@ export {
   exports: [
     FormioComponent,
     FlexLayoutModule,
+    SafeHtmlPipe,
     MatInputModule,
     FormioFormFieldComponent,
     MatFormFieldModule,

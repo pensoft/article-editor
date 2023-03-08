@@ -121,9 +121,9 @@ class MenuBarView {
                     }
                     if(node.attrs.formControlName&&node.attrs.formControlName.length>0){
                       firstFormControlName = node.attrs.formControlName;
-                      if(node.attrs.formControlName=="sectionTreeTitle"){
+                      /* if(node.attrs.formControlName=="sectionTreeTitle"){
                         userIsInSectionTreeTitleNode = true;
-                      }
+                      } */
                     }
                   }
                 }

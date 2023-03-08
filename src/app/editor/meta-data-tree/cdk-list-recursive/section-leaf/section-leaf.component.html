@@ -16,12 +16,7 @@
                 'drag_btn_leaf_node':!isComplex,
                 'drag_btn_list_node':isComplex}"><mat-icon >drag_indicator</mat-icon></button>
       <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTN" (click)="changeDisplay(childrenDiv)"><mat-icon class="{{expandIcon}}"  #icon>{{expandIcon}}</mat-icon></button>
-      <div *ngIf="node.title.editable" class="text-section-div" (input)="checkTextInput(nodeTitle,35,$event)" (click)="scrollToProsemirror()" (click)="!previewMode.mode?makeEditable(nodeTitle,$event,cdkDragSection,node):undefined" (blur)="makeEditable(nodeTitle,$event,cdkDragSection,node)"
-        #nodeTitle>
-        {{node.title.label | slice:0:180 }}
-      </div>
-      <div *ngIf="!node.title.editable" class="text-section-div" (click)="scrollToProsemirror()">
-        {{node.title.label}}
+      <div class="text-section-div" (click)="scrollToProsemirror()" [innerHTML]="node.title.label | safehtml">
       </div>
     </div>
     <div class="section_btn_container">
@@ -72,12 +67,7 @@
                 'drag_btn_leaf_node_nested':!isComplex,
                 'drag_btn_list_node_nested':isComplex}"><mat-icon >drag_indicator</mat-icon></button>
       <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTNNested" (click)="changeDisplay(childrenDiv)"><mat-icon class="{{expandIcon}}" #icon>{{expandIcon}}</mat-icon></button>
-      <div *ngIf="node.title.editable" class="text-section-div-nested" (input)="checkTextInput(nodeTitle,35,$event)" (click)="scrollToProsemirror()" (click)="!previewMode.mode?makeEditable(nodeTitle,$event,parentOfText,node):undefined" (blur)="makeEditable(nodeTitle,$event,parentOfText,node)"
-        #nodeTitle>
-        {{node.title.label}}
-      </div>
-      <div *ngIf="!node.title.editable" class="text-section-div-nested" (click)="scrollToProsemirror()">
-        {{node.title.label}}
+      <div class="text-section-div-nested" (click)="scrollToProsemirror()" [innerHTML]="node.title.label | safehtml">
       </div>
     </div>
     <div class="section_btn_container">
