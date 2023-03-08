@@ -1,6 +1,6 @@
 <div *ngIf="supplementaryFile" class="supplementary-file">
   <div class="supplementary-file-index">
-    <strong>Supplementary File №{{supplementaryFileIndex!+1}} - <a href="{{supplementaryFile.url}}">Download</a></strong>
+    <strong>Supplementary File №{{supplementaryFileIndex!+1}} - <a href="{{supplementaryFile.url}}" (click)="downloadFile($event)">Download</a></strong>
     <span class="sub-title">{{supplementaryFile.title}} / {{supplementaryFile.authors}}</span>
     <span [innerHTML]="supplementaryFile.brief_description"></span>
   </div>

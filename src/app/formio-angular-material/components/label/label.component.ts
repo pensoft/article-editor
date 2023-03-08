@@ -1,4 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core';
+import { FormGroup } from '@angular/forms';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 
 @Component({
   // tslint:disable-next-line:component-selector
@@ -9,7 +11,7 @@ import { Component, Input, OnInit } from '@angular/core';
 export class LabelComponent implements OnInit {
   @Input() instance:any;
   label
-  constructor(){
+  constructor(private serviceShare:ServiceShare){
 
   }
   userSectionTitleAsLable = false;
@@ -20,7 +22,7 @@ export class LabelComponent implements OnInit {
       this.contaniner = document.createElement('div')
     }
     this.contaniner.innerHTML = html;
-    this.sectionTreeTitle = this.contaniner.textContent
+    this.sectionTreeTitle = html
   }
   ngOnInit(): void {
     if(
@@ -31,10 +33,34 @@ export class LabelComponent implements OnInit {
       ){
       this.userSectionTitleAsLable = true;
       this.sectionTreeTitle = this.instance.root._form.props.initialSectionTitle
-      console.log(this.instance.root);
+      let labelTemplate = this.instance.root._form.props.sectionLabelTemplate
+      let shouldInterpolate = /{{\s*\S*\s*}}|<span(\[innerHTML]="[\S]+"|[^>])+>[^<]*<\/span>/gm.test(labelTemplate);
+      let dummyFormGroup = new FormGroup({})
+
       this.instance.events.addListener('formio.change',(ch,ch2)=>{
-        if(ch2&&ch2.changed&&ch2.changed.instance.path == "sectionTreeTitle"){
-          this.getTextContent(ch2.changed.instance.getValue())
+        this.instance.root.formIOComponent.isLoading = this.instance.root.loading
+        if(shouldInterpolate && ch && ch.data ){
+          let vals = JSON.parse(JSON.stringify(ch.data));
+          if(this.instance.root){
+            let rawVals = this.instance.root.rawVals;
+            Object.keys(rawVals).forEach((key)=>{
+              vals[key] = rawVals[key];
+            })
+          }
+          this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(labelTemplate, vals, dummyFormGroup).then((newTitle: string) => {
+            this.getTextContent(newTitle)
+          })
+        }else if(ch2&&ch2.changed&&ch2.changed.instance.path == "sectionTreeTitle"){
+          let vals = JSON.parse(JSON.stringify(ch.data));
+          if(this.instance.root){
+            let rawVals = this.instance.root.rawVals;
+            Object.keys(rawVals).forEach((key)=>{
+              vals[key] = rawVals[key];
+            })
+          }
+          if(vals.sectionTreeTitle){
+            this.getTextContent(vals.sectionTreeTitle)
+          }
         }
       })
     }

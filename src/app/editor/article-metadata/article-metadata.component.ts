@@ -23,6 +23,7 @@ import { SupplementaryFileComponent } from '../dialogs/supplementary-files/suppl
 import { SupplementaryFilesDialogComponent } from '../dialogs/supplementary-files/supplementary-files.component';
 import { EndNotesDialogComponent } from '../dialogs/end-notes/end-notes.component';
 import { RefsInArticleDialogComponent } from '../dialogs/refs-in-article-dialog/refs-in-article-dialog.component';
+import { sectionChooseData, willBeMoreThan4Levels } from '../utils/articleBasicStructure';
 
 @Component({
   selector: 'app-article-metadata',
@@ -169,22 +170,32 @@ export class ArticleMetadataComponent implements OnInit {
       ) */
     })
     this.sectionTemplates = articleSections;
+    let mainSection:sectionChooseData[]=[]
+    this.sectionTemplates.forEach((sec)=>{
+      mainSection.push({
+        id: sec.id,
+        name: (sec.settings && sec.settings.label && sec.settings.label.length>0)?sec.settings.label:sec.name,
+        secname:sec.name,
+        version: sec.version,
+        version_date: sec.version_date,
+        source:'template',
+        pivot_id : sec.pivot_id,
+        template:sec
+      })
+    })
     const dialogRef = this.dialog.open(ChooseSectionComponent, {
       width: '563px',
       panelClass: 'choose-namuscript-dialog',
-      data: { templates: this.sectionTemplates,sectionlevel:0 }
+      data: { templates: mainSection,sectionlevel:0 }
     });
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().subscribe((result:sectionChooseData) => {
       if(result){
-        this.serviceShare.ProsemirrorEditorsService.spinSpinner()
-        this.sectionsService.getSectionById(result).subscribe((res: any) => {
-          let sectionTemplate = res.data
-          this.treeService.addNodeAtPlaceChange('parentList', sectionTemplate, 'end');
-          this.serviceShare.ProsemirrorEditorsService.stopSpinner()
-        })
+        if(!willBeMoreThan4Levels(0,result.template)){
+          this.treeService.addNodeAtPlaceChange('parentList', result.template, 'end');
+        }else{
+          this.serviceShare.openSnackBar('Adding this subsection will exceed the maximum levels of the tree.','Close',()=>{},4000)
+        }
       }
-      this.serviceShare.ProsemirrorEditorsService.stopSpinner()
-
     });
   }
 

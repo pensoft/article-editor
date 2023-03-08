@@ -1802,13 +1802,12 @@ app-comments-section {
       pointer-events: all;
       cursor: pointer;
     }
-  }
 
     &.delete-citable-item-button {
       // border-color: var(--color-e56b87);
       box-shadow: 0 1px 2px 1px var(--color-e56b87), 0 0 0 0 var(--color-e56b87), 0 1px 3px 0 var(--color-e56b87);
     }
-
+  }
 
 }
 
@@ -2133,5 +2132,21 @@ mat-formio-textarea {
   }
 }
 
-/* Override version styles */
+/* Override Dropzone styles */
+
+app-dropzone {
+  .dz-message{
+    background-color: #e9f6f6 !important;
+    /* background: url("../../../assets/img/upload-dropzone.svg");
+    background-repeat: repeat-y;
+    background-attachment: fixed;
+    background-position: center; */
+    height: 80px;
+    border: 2px dashed #00b1b2 !important;
+    border-radius: 6px;
+  }
+  .dz-file-preview{
+    display: none !important;
+  }
+}
 

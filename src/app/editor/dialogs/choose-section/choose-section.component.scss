@@ -16,6 +16,18 @@ label {
   height: 40px;
 }
 
+.section-add-container{
+  .section-name-container{
+    width: 80%;
+    display: inline-block;
+  }
+  .section-version-container{
+    width: 20%;
+    text-align: right;
+    display: inline-block;
+  }
+}
+
 .get-sections-spinner-container{
   height: 100%;
   width: 100%;

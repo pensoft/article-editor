@@ -33,6 +33,9 @@ import {
   countSectionFromBackendLevel,
   filterChooseSectionsFromBackend,
   filterSectionsFromBackendWithComplexMinMaxValidations,
+  getFilteredSectionChooseData,
+  sectionChooseData,
+  willBeMoreThan4Levels,
 } from '@app/editor/utils/articleBasicStructure';
 import {PmDialogSessionService} from '@app/editor/services/pm-dialog-session.service';
 import {ChooseSectionComponent} from '@app/editor/dialogs/choose-section/choose-section.component';
@@ -116,48 +119,6 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   }
 
   oldTextValue?: string
-
-  checkTextInput(element: HTMLDivElement, maxlength: number, event: Event) {
-    if (element.textContent?.trim().length == 0) {
-      element.innerHTML = "<br>"
-      return
-    }
-    if (/<\/?[a-z][\s\S]*>/i.test(element.innerHTML)) {
-      element.innerHTML = `${element.textContent!}`;
-    }
-    if (element.textContent?.trim().length! > maxlength && this.oldTextValue) {
-      element.innerHTML = `${this.oldTextValue}`
-    } else if (element.textContent?.trim().length! == maxlength) {
-      this.oldTextValue = element.textContent!.trim();
-    }
-    //@ts-ignore
-    let updatemeta = this.treeService.sectionFormGroups[this.node.sectionID].titleUpdateMeta as { time: number, updatedFrom: string };
-
-    let now = Date.now()
-    let controlValue = this.nodeFormGroup.get('sectionTreeTitle')?.value;
-
-
-    if (controlValue !== element.textContent?.trim()) {
-      if (now > updatemeta.time) {
-        updatemeta.time = now;
-        this.treeService.labelupdateLocalMeta[this.node.sectionID].time = now;
-        updatemeta.updatedFrom = this.treeService.labelupdateLocalMeta[this.node.sectionID].updatedFrom;
-        this.nodeFormGroup.get('sectionTreeTitle')?.patchValue(element.textContent?.trim());
-        this.prosemirrorEditorsService.dispatchEmptyTransaction()
-      }
-
-    }
-    /* if(updatemeta.time&&updatemeta.time<now){
-      this.nodeFormGroup.get('sectionTreeTitle')?.patchValue(element.textContent)
-      updatemeta.time = now;
-      updatemeta.updatedFrom = this.labelupdateLocalMeta.updatedFrom;
-    }else{
-      this.nodeFormGroup.get('sectionTreeTitle')?.patchValue(element.textContent)
-      updatemeta.time = now;
-      updatemeta.updatedFrom = this.labelupdateLocalMeta.updatedFrom;
-    } */
-
-  }
 
   editNodeHandle(node: articleSection, formGroup: FormGroup) {
     try {
@@ -259,7 +220,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
 
   addNodeHandle(nodeId: string) {
     this.prosemirrorEditorsService.spinSpinner();
-    this.treeService.addNodeChange(nodeId,this.prosemirrorEditorsService.stopSpinner);
+    this.treeService.addNodeChange(nodeId,this.node.originalSectionTemplate,this.prosemirrorEditorsService.stopSpinner);
   }
 
   deleteNodeHandle(nodeId: string) {
@@ -277,28 +238,6 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   oldIndex?:string
   scrolledToView?: boolean
 
-  makeEditable(element: HTMLDivElement, event: Event, parentNode: any, node: articleSection) {
-    if (element.textContent?.trim().length == 0) {
-      element.innerHTML = "<br>"
-      return
-    }
-    if (event.type == 'blur') {
-      element.setAttribute('contenteditable', 'false');
-      element.setAttribute('style', '');
-      /* (parentNode as HTMLDivElement).style.zIndex = this.oldIndex;
-      this.oldIndex = undefined */
-      this.treeService.saveNewTitleChange(node, element.textContent!);
-      this.scrolledToView = false;
-    } else if (event.type == 'click') {
-      element.setAttribute('contenteditable', 'true');
-      //let elementZIndex = window.getComputedStyle(element).zIndex;
-      /* if(this.oldIndex!=elementZIndex){
-        this.oldIndex = elementZIndex
-      } */
-      //(parentNode as HTMLDivElement).style.zIndex = '11';
-      element.focus()
-    }
-  }
 
   scrollToProsemirror() {
     if (this.node.type == 'simple') {
@@ -379,38 +318,67 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, treatmentSectionsCustom, 'end');
     } else {
       taxonSection.parent = node;
-      this.serviceShare.ArticleSectionsService!.getAllSections({page: 1, pageSize: 10}).pipe(map((res: any) => {
+      let sectionlevel = this.treeService.getNodeLevel(node)
+
+      let fileredSections = getFilteredSectionChooseData(node)
+
+      const dialogRef = this.dialog.open(ChooseSectionComponent, {
+        width: '563px',
+        panelClass: 'choose-namuscript-dialog',
+        data: {templates: fileredSections, sectionlevel:sectionlevel+1,node}
+      });
+      dialogRef.afterClosed().subscribe((result:sectionChooseData) => {
+        if(result){
+          if(result.source == 'template'){
+            if(!willBeMoreThan4Levels(sectionlevel+1,result.template)){
+              this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, result.template, 0)
+              this.expandThisAndParentView()
+            }else{
+              this.serviceShare.openSnackBar('Adding this subsection will exceed the maximum levels of the tree.','Close',()=>{},4000)
+            }
+            this.prosemirrorEditorsService.stopSpinner()
+          }else{
+            this.serviceShare.ArticleSectionsService!.getSectionById(result.id).subscribe((res: any) => {
+              res.data.parent = node;
+              if(!willBeMoreThan4Levels(sectionlevel+1,res.data)){
+                this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, res.data, 0)
+                this.expandThisAndParentView()
+              }else{
+                this.serviceShare.openSnackBar('Adding this subsection will exceed the maximum levels of the tree.','Close',()=>{},4000)
+              }
+              this.prosemirrorEditorsService.stopSpinner()
+            })
+          }
+        }else{
+          this.prosemirrorEditorsService.stopSpinner()
+        }
+
+        /* if(result){
+          this.serviceShare.ArticleSectionsService!.getSectionById(result).subscribe((res: any) => {
+            res.data.parent = node;
+            this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, res.data, 0)
+            this.expandThisAndParentView()
+          })
+        } */
+      });
+      /* this.serviceShare.ArticleSectionsService!.getAllSections({page: 1, pageSize: 10}).pipe(map((res: any) => {
         //res.data.push(taxonSectionData);
         return res
       })).subscribe((response: any) => {
         let sectionTemplates1 = filterChooseSectionsFromBackend(node.compatibility, response.data)
-        let sectionlevel = this.treeService.getNodeLevel(node)
         let sectionTemplates = (sectionTemplates1 as any[]).filter((el: any) => {
           let elementLevel = countSectionFromBackendLevel(el)
           return (elementLevel + sectionlevel < 3);
         });
-        sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates, node, node.children,this.treeService.pivotIdMap);
+        sectionTemplates = filterSectionsFromBackendWithComplexMinMaxValidations(sectionTemplates, node, node.children);
         this.prosemirrorEditorsService.stopSpinner()
         if(sectionTemplates && sectionTemplates.length === 1) {
           sectionTemplates[0].parent = node;
           this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, sectionTemplates[0], 0)
         } else {
-          const dialogRef = this.dialog.open(ChooseSectionComponent, {
-            width: '563px',
-            panelClass: 'choose-namuscript-dialog',
-            data: {templates: sectionTemplates, sectionlevel:sectionlevel+1,node}
-          });
-          dialogRef.afterClosed().subscribe(result => {
-            if(result){
-              this.serviceShare.ArticleSectionsService!.getSectionById(result).subscribe((res: any) => {
-                res.data.parent = node;
-                this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, res.data, 0)
-                this.expandThisAndParentView()
-              })
-            }
-          });
+
         }
-      })
+      }) */
     }
   }
 

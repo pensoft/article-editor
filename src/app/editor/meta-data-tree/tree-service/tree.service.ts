@@ -1,6 +1,6 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { Subject, Subscriber, Subscription } from 'rxjs';
-import { mainSectionValidations, sectinsBEidPivotIdMap, YdocService } from '../../services/ydoc.service';
+import { mainSectionValidations, YdocService } from '../../services/ydoc.service';
 import { treeNode } from '../../utils/interfaces/treeNode';
 //@ts-ignore
 import * as Y from 'yjs'
@@ -13,6 +13,8 @@ import {
   checkIfSectionsAreUnderOrAtMin,
   checkIfSectionsAreUnderOrAtMinAtParentList,
   editorFactory,
+  getAllAllowedNodesOnSection,
+  getFilteredSectionChooseData,
   renderSectionFunc
 } from '@app/editor/utils/articleBasicStructure';
 import { FormBuilderService } from '@app/editor/services/form-builder.service';
@@ -58,7 +60,7 @@ export class TreeService implements OnDestroy {
         this.applyEditChange(metadatachange.nodeId)
         this.applyEditChangeV2(metadatachange.nodeId)
       } else if (metadatachange.action == "addNode") {
-        this.attachChildToNode(metadatachange.parentId, metadatachange.newChild);
+        this.attachChildToNode(metadatachange.parentId,metadatachange.originalSectionTemplate, metadatachange.newChild);
       } else if (metadatachange.action == "deleteNode") {
         let { nodeRef, i } = this.deleteNodeById(metadatachange.childId);
       } else if (metadatachange.action == 'addNodeAtPlace') {
@@ -76,52 +78,34 @@ export class TreeService implements OnDestroy {
   }
 
   setTitleListener(node: articleSection) {
-    if (!node.title.editable) {
-      let formGroup = this.sectionFormGroups[node.sectionID]!;
-      node.title.label = /{{\s*\S*\s*}}/gm.test(node.title.label) ? node.title.name! : node.title.label;
-      formGroup.valueChanges.subscribe((data) => {
+    let formGroup = this.sectionFormGroups[node.sectionID]!;
+    let shouldInterpolate = /{{\s*\S*\s*}}|<span(\[innerHTML]="[\S]+"|[^>])+>[^<]*<\/span>/gm.test(node.title.template)
+    node.title.label = shouldInterpolate ? node.title.name! : node.title.label;
+    formGroup.valueChanges.subscribe((data) => {
+      if(shouldInterpolate){
         if (node.title.name == '[MM] Materials' || node.title.name == 'Material') {
           let customPropsObj = this.ydocService.customSectionProps?.get('customPropsObj');
           let data = customPropsObj[node.sectionID];
           let valuesCopy = {};
-          let container = document.createElement('div')
           Object.keys(data).forEach((key)=>{
-            container.innerHTML = data[key]
-            valuesCopy[key] = container.textContent
+            valuesCopy[key] = data[key]
           })
           this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, valuesCopy, formGroup).then((newTitle: string) => {
-            container.innerHTML = newTitle;
-            node.title.label = container.textContent!;
+            node.title.label = newTitle
           })
         } else {
-          let container = document.createElement('div')
           let valuesCopy = {};
           Object.keys(formGroup.value).forEach((key)=>{
-            container.innerHTML = formGroup.value[key]
-            valuesCopy[key] = container.textContent
+            valuesCopy[key] = formGroup.value[key]
           })
           this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, valuesCopy, formGroup).then((newTitle: string) => {
-            container.innerHTML = newTitle;
-            node.title.label = container.textContent!;
+            node.title.label = newTitle
           })
         }
-      })
-    } else {
-      let formGroup = this.sectionFormGroups[node.sectionID]!;
-      if (!this.labelupdateLocalMeta[node.sectionID]) {
-        this.labelupdateLocalMeta[node.sectionID] = { time: 0, updatedFrom: 'treelist' }
+      }else if(formGroup.value.sectionTreeTitle && node.title.label!=formGroup.value.sectionTreeTitle){
+        node.title.label = formGroup.value.sectionTreeTitle
       }
-      formGroup.get('sectionTreeTitle')?.valueChanges.subscribe((change) => {
-        //@ts-ignore
-        let updatemeta = this.sectionFormGroups[node.sectionID]!.titleUpdateMeta as { time: number, updatedFrom: string };
-        let value = formGroup.get('sectionTreeTitle')?.value.trim()
-        if (value !== node.title.label && updatemeta.time > this.labelupdateLocalMeta[node.sectionID].time) {
-          let nodeRef = this.findNodeById(node.sectionID)
-          nodeRef!.title.label = change
-          this.labelupdateLocalMeta.time = updatemeta.time
-        }
-      })
-    }
+    })
   }
 
   resetTreeData() {
@@ -138,7 +122,6 @@ export class TreeService implements OnDestroy {
     this.sectionFormGroups = {}
     this.sectionProsemirrorNodes = {}
     this.parentListRules = undefined
-    this.pivotIdMap = undefined
   }
 
   registerConnection(id: string) {
@@ -206,7 +189,6 @@ export class TreeService implements OnDestroy {
   }
 
   parentListRules:mainSectionValidations = {}
-  pivotIdMap :sectinsBEidPivotIdMap = {}
   setParentListSectionMinMaxRules(){
     let rules = this.ydocService.articleData.mainSectionValidations
     /* if(rules){
@@ -224,7 +206,6 @@ export class TreeService implements OnDestroy {
       this.parentListRules = parentListSectionRules
     } */
     this.parentListRules = this.ydocService.articleData.mainSectionValidations
-    this.pivotIdMap = this.ydocService.articleData.sectinsBEidPivotIdMap
   }
 
   ngOnDestroy(): void {
@@ -348,10 +329,10 @@ export class TreeService implements OnDestroy {
     this.treeVisibilityChange.next({ action: 'editNode', nodeId });
   }
 
-  async addNodeChange(nodeId: string,callback?:()=>void) {
-    let newChild = await this.attachChildToNode(nodeId, undefined);
+  async addNodeChange(nodeId: string,originalSectionTemplate:any,callback?:()=>void) {
+    let newChild = await this.attachChildToNode(nodeId,originalSectionTemplate, undefined);
     this.ydocService.saveSectionMenusAndSchemasDefs([newChild])
-    this.treeVisibilityChange.next({ action: 'addNode', parentId: nodeId, newChild });
+    this.treeVisibilityChange.next({ action: 'addNode', parentId: nodeId, newChild,originalSectionTemplate });
     callback();
   }
 
@@ -422,7 +403,7 @@ export class TreeService implements OnDestroy {
     }
     let container: any[] = []
 
-    let sec = renderSectionFunc(newSection, container, this.ydocService.ydoc);
+    let sec = renderSectionFunc(newSection, container, this.ydocService.ydoc,this.serviceShare);
 
     this.renderForms(sec)
 
@@ -605,38 +586,39 @@ export class TreeService implements OnDestroy {
     let r = true
     let parentNode = this.findParentNodeWithChildID(node.sectionID)!;
     if (parentNode && parentNode !== 'parentNode') {
-      r = checkIfSectionsAreUnderOrAtMin(node, parentNode,this.pivotIdMap)
+      r = checkIfSectionsAreUnderOrAtMin(node, parentNode)
     }else if(parentNode == 'parentNode'){
-      r = checkIfSectionsAreUnderOrAtMinAtParentList(this.articleSectionsStructure,node,this.parentListRules,this.pivotIdMap)
+      r = checkIfSectionsAreUnderOrAtMinAtParentList(this.articleSectionsStructure,node,this.parentListRules)
     }
     return r
   }
 
   checkIfNodeIsAtMaxInParentListWithBESection(data:any){
-    return checkIfSectionsAreAboveOrAtMaxAtParentListWithName(this.articleSectionsStructure,data,this.parentListRules,this.pivotIdMap)
+    return checkIfSectionsAreAboveOrAtMaxAtParentListWithName(this.articleSectionsStructure,data,this.parentListRules)
   }
 
   checkIfCanMoveNodeOutOfParentList(node:articleSection){
-    return checkIfSectionsAreUnderOrAtMinAtParentList(this.articleSectionsStructure,node,this.parentListRules,this.pivotIdMap)
+    return checkIfSectionsAreUnderOrAtMinAtParentList(this.articleSectionsStructure,node,this.parentListRules)
   }
 
   checkIfCanMoveNodeInParentList(node:articleSection){
-    return checkIfSectionsAreAboveOrAtMaxAtParentList(this.articleSectionsStructure,node,this.parentListRules,this.pivotIdMap)
+    return checkIfSectionsAreAboveOrAtMaxAtParentList(this.articleSectionsStructure,node,this.parentListRules)
   }
 
   showAddBtn(node: articleSection) {
     let r = true
     let parentNode = this.findParentNodeWithChildID(node.sectionID)!;
     if (parentNode && parentNode !== 'parentNode') {
-      r = checkIfSectionsAreAboveOrAtMax(node, parentNode,this.pivotIdMap)
+      r = checkIfSectionsAreAboveOrAtMax(node, parentNode)
     }else if(parentNode == 'parentNode'){
-      r = checkIfSectionsAreAboveOrAtMaxAtParentList(this.articleSectionsStructure,node,this.parentListRules,this.pivotIdMap)
+      r = checkIfSectionsAreAboveOrAtMaxAtParentList(this.articleSectionsStructure,node,this.parentListRules)
     }
     return r
   }
 
   showAddSubsectionBtn(node: articleSection) {
-    return this.getNodeLevel(node)+1 < 4
+    let fileredSections = getFilteredSectionChooseData(node)
+    return (this.getNodeLevel(node)+1 < 4&&fileredSections.length>0)
   }
 
   findParentNodeWithChildID(nodeid: string) {
@@ -654,7 +636,7 @@ export class TreeService implements OnDestroy {
     return parent!
   }
 
-  async attachChildToNode(clickedNode: string, node: any) {
+  async attachChildToNode(clickedNode: string, originalSectionTemplate:any,node: any) {
     let newNodeContainer = this.findContainerWhereNodeIs(clickedNode);
     let nodeRef = this.findNodeById(clickedNode)!;
     if (node) {
@@ -680,19 +662,12 @@ export class TreeService implements OnDestroy {
       return
     }
     let newChild
-    await new Promise((resolve, reject) => {
-      this.articlesSectionsService.getSectionById(nodeRef.sectionTypeID).subscribe((sectionData: any) => {
 
-        let sectionFromBackendOrigin = sectionData.data
-        let container: any[] = []
-        let newSec = renderSectionFunc(sectionFromBackendOrigin, container, this.ydocService.ydoc);
-
-        this.renderForms(newSec);
-        newChild = container[0]
-        newNodeContainer.splice(newNodeContainer.findIndex((s) => s.sectionID == nodeRef.sectionID)! + 1, 0, container[0]);
-        resolve(undefined)
-      })
-    })
+    let container: any[] = []
+    let newSec = renderSectionFunc(originalSectionTemplate, container, this.ydocService.ydoc,this.serviceShare);
+    this.renderForms(newSec);
+    newChild = container[0]
+    newNodeContainer.splice(newNodeContainer.findIndex((s) => s.sectionID == nodeRef.sectionID)! + 1, 0, container[0]);
 
     return Promise.resolve(newChild)
   }

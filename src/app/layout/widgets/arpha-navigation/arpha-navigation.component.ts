@@ -72,10 +72,6 @@ export class ArphaNavigationComponent implements AfterViewInit {
     this.mobileVersion = this.serviceShare.ProsemirrorEditorsService.mobileVersion;
   }
 
-  toggleTreeDrawer() {
-    this.treeService.toggleTreeDrawer.next('toggle');
-  }
-
   isLogIn(): boolean {
     return this.authService.isLoggedIn();
   }
