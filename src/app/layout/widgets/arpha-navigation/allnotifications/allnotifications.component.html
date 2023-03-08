@@ -16,7 +16,10 @@
 
       <ng-container matColumnDef="event">
         <th mat-header-cell *matHeaderCellDef> Event : </th>
-        <td mat-cell *matCellDef="let element" class="event" [ngClass]="{'new':element.new}" (click)="viewNotification(element)"> {{element.event}} </td>
+        <td mat-cell *matCellDef="let element" (click)="viewNotification(element)"> 
+          <p *ngIf="!element.error" class="event" [ngClass]="{'new': element.new}">{{element.event}}</p>
+          <p *ngIf="element.error">{{element.error}}</p>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="date">

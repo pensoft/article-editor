@@ -78,52 +78,34 @@ export class TreeService implements OnDestroy {
   }
 
   setTitleListener(node: articleSection) {
-    if (!node.title.editable) {
-      let formGroup = this.sectionFormGroups[node.sectionID]!;
-      node.title.label = /{{\s*\S*\s*}}/gm.test(node.title.label) ? node.title.name! : node.title.label;
-      formGroup.valueChanges.subscribe((data) => {
+    let formGroup = this.sectionFormGroups[node.sectionID]!;
+    let shouldInterpolate = /{{\s*\S*\s*}}|<span(\[innerHTML]="[\S]+"|[^>])+>[^<]*<\/span>/gm.test(node.title.template)
+    node.title.label = shouldInterpolate ? node.title.name! : node.title.label;
+    formGroup.valueChanges.subscribe((data) => {
+      if(shouldInterpolate){
         if (node.title.name == '[MM] Materials' || node.title.name == 'Material') {
           let customPropsObj = this.ydocService.customSectionProps?.get('customPropsObj');
           let data = customPropsObj[node.sectionID];
           let valuesCopy = {};
-          let container = document.createElement('div')
           Object.keys(data).forEach((key)=>{
-            container.innerHTML = data[key]
-            valuesCopy[key] = container.textContent
+            valuesCopy[key] = data[key]
           })
           this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, valuesCopy, formGroup).then((newTitle: string) => {
-            container.innerHTML = newTitle;
-            node.title.label = container.textContent!;
+            node.title.label = newTitle
           })
         } else {
-          let container = document.createElement('div')
           let valuesCopy = {};
           Object.keys(formGroup.value).forEach((key)=>{
-            container.innerHTML = formGroup.value[key]
-            valuesCopy[key] = container.textContent
+            valuesCopy[key] = formGroup.value[key]
           })
           this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(node.title.template, valuesCopy, formGroup).then((newTitle: string) => {
-            container.innerHTML = newTitle;
-            node.title.label = container.textContent!;
+            node.title.label = newTitle
           })
         }
-      })
-    } else {
-      let formGroup = this.sectionFormGroups[node.sectionID]!;
-      if (!this.labelupdateLocalMeta[node.sectionID]) {
-        this.labelupdateLocalMeta[node.sectionID] = { time: 0, updatedFrom: 'treelist' }
+      }else if(formGroup.value.sectionTreeTitle && node.title.label!=formGroup.value.sectionTreeTitle){
+        node.title.label = formGroup.value.sectionTreeTitle
       }
-      formGroup.get('sectionTreeTitle')?.valueChanges.subscribe((change) => {
-        //@ts-ignore
-        let updatemeta = this.sectionFormGroups[node.sectionID]!.titleUpdateMeta as { time: number, updatedFrom: string };
-        let value = formGroup.get('sectionTreeTitle')?.value.trim()
-        if (value !== node.title.label && updatemeta.time > this.labelupdateLocalMeta[node.sectionID].time) {
-          let nodeRef = this.findNodeById(node.sectionID)
-          nodeRef!.title.label = change
-          this.labelupdateLocalMeta.time = updatemeta.time
-        }
-      })
-    }
+    })
   }
 
   resetTreeData() {
