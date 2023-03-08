@@ -1,4 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { MatDialogRef } from '@angular/material/dialog';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 
 @Component({
@@ -12,7 +13,8 @@ export class AllnotificationsComponent implements AfterViewInit {
 
   constructor(
     private serviceShare:ServiceShare,
-    private changeDetection:ChangeDetectorRef
+    private changeDetection:ChangeDetectorRef,
+    private dialogRef: MatDialogRef<AllnotificationsComponent>,
     ) { }
 
   ngAfterViewInit(): void {
@@ -28,4 +30,7 @@ export class AllnotificationsComponent implements AfterViewInit {
     this.serviceShare.NotificationsService.viewNotification(event);
   }
 
+  closeDialog() {
+    this.dialogRef.close()
+  }
 }

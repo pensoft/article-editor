@@ -51,7 +51,6 @@ const routes: Routes = [
       },
       { path: 'register', canActivate: [LoginGuard], component: SignupComponent },
       //{ path: 'choose',canActivate: [AuthGuard], component: ChooseManuscriptDialogComponent },
-      { path: 'all-notifications', canActivate: [AuthGuard], component: AllnotificationsComponent },
       { path: 'create', canActivate: [AuthGuard] ,children:[
         {path:'',canActivate:[LoadedCasbinGuard],children:[
           {path:'',canActivate:[CasbinGuard],component:CreateNewProjectComponent}
