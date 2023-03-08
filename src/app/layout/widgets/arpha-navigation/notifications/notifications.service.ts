@@ -16,6 +16,7 @@ export interface notificationEvent {
   new: boolean,
   link?: string,
   metaData?:any,
+  error?: string
 }
 
 @Injectable({
@@ -95,6 +96,9 @@ export class NotificationsService {
         }
         if (task.type == 'pdf.export' && task.status == 'DONE') {
           notification.link = task.data.data ? task.data.data.url : task.data.url;
+        }
+        if (task.data?.error) {
+          notification.error = task.data.error.slice(1, task.data.error.length - 1)
         }
         notificationsFromBackend.push(notification)
       })
