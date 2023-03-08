@@ -598,12 +598,21 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
       serviceShare.openSnackBar('Valid JATS xml has been generated.','Save JATS xml',()=>{
         saveAs(blob, "save.xml");
       },5);
+      serviceShare.NotificationsService.addLocalNotification({
+        date: Date.now(),
+        event: 'JATS',
+        status: 'Done',
+        eventId: uuidv4(),
+        new: true,
+      })
     }else{
-      serviceShare.openSnackBar('The generated JATS xml is not valid. You can view errors in notifications','',()=>{},5);
+      serviceShare.openSnackBar('The generated JATS xml is not valid. You can view errors in notifications','Save JATS xml',()=>{
+        saveAs(blob, "save.xml");
+      },5);
       serviceShare.NotificationsService.addLocalNotification({
         date: Date.now(),
         event: 'JATS errors',
-        status: 'DONE',
+        status: 'FAILED',
         eventId: uuidv4(),
         new: true,
         link: 'open jats render errors',
