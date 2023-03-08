@@ -144,13 +144,13 @@ export class EditorMenuComponent implements OnInit {
 
     if(template) {
       return getRenderedHtml(`<ng-container *ngIf="formGroup" [formGroup]="formGroup">
-    <div contenteditableNode="false" translate="no" class="ProseMirror ProseMirror-example-setup-style ProseMirror-focused">
+    <div>
             <ng-container  *ngTemplateOutlet="${template}"></ng-container>
             ${htmlToCompile}
     </div></ng-container>`);
     } else {
       return getRenderedHtml(`<ng-container *ngIf="formGroup" [formGroup]="formGroup">
-    <div contenteditableNode="true" translate="no" class="ProseMirror ProseMirror-example-setup-style ProseMirror-focused">${htmlToCompile}
+    <div>${htmlToCompile}
     </div></ng-container>`)
     }
   }

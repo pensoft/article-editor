@@ -441,7 +441,7 @@ $itemHeight: 34px;
   border: 0;
 }
 
-.text-section-div-nested {
+::ng-deep .text-section-div-nested {
   align-self: center;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -450,9 +450,19 @@ $itemHeight: 34px;
   flex-grow: 1;
   cursor: text;
   margin: 0 4px 0 2px;
+  p, h1, h2, h3, h4, h5, h6, form-field{
+    display:inline !important;
+  }
 }
 
-.text-section-div {
+::ng-deep .make-block-nodes-inline {
+  display: inline;
+  div, p, h1, h2, h3, h4, h5, h6, form-field{
+    display:inline !important;
+  }
+}
+
+::ng-deep .text-section-div {
   align-self: center;
   text-overflow: ellipsis;
   overflow: hidden;
@@ -461,6 +471,9 @@ $itemHeight: 34px;
   flex-grow: 1;
   cursor: text;
   margin: 0 4px;
+  p, h1, h2, h3, h4, h5, h6, form-field{
+    display:inline !important;
+  }
 }
 
 .text-section-list-item-div {

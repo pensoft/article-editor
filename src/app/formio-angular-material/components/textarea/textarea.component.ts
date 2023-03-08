@@ -3,7 +3,7 @@ import { MaterialComponent } from '../MaterialComponent';
 //@ts-ignore
 import TextAreaComponent from 'formiojs/components/textarea/TextArea.js';
 import isNil from 'lodash/isNil';
-import { FormControl, Validators } from '@angular/forms';
+import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { DOMSerializer, DOMParser, Schema, Fragment } from 'prosemirror-model';
 import { schema } from 'src/app/editor/utils/Schema';
 import { EditorState, TextSelection } from 'prosemirror-state';
@@ -68,7 +68,6 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   validity:any[] = [];
   prosemirrorFocused = false;
   onChange1 = (keepInputRaw: boolean, value1?: string) => {
-    Validator
     let hasChanges = value1?.match(/<span class="(deletion|insertion|format-change)"/gm);
     if (hasChanges && Object.keys(this.instance.component.validate).length > 2) {
       this.instanceValidations = this.instance.component.validate
@@ -83,7 +82,12 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     if (value === undefined || value === null) {
       value = this.instance.emptyValue;
     }
-
+    if(this.instance.root.rawVals){
+      this.instance.root.rawVals[this.instance.component.key] = value1
+    }else{
+      this.instance.root.rawVals = {}
+      this.instance.root.rawVals[this.instance.component.key] = value1
+    }
     if (this.input && this.input.nativeElement.mask && value && !keepInputRaw) {
       this.input.nativeElement.mask.textMaskInputElement.update(value);
       this.control.setValue(this.input.nativeElement.value);
@@ -94,7 +98,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
     this.validity = validity
     this.instance.setCustomValidity(validity, false);
     this.instance.root.changeVisibility(this.instance);
-
+    this.instance.root.triggerChange()
   }
 
   beforeSubmit() {
@@ -173,14 +177,9 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
   }
   options:any
   userSectionTitleAsLable = false;
-  contaniner:HTMLDivElement
   sectionTreeTitle
   getTextContent(html){
-    if(!this.contaniner){
-      this.contaniner = document.createElement('div')
-    }
-    this.contaniner.innerHTML = html;
-    this.sectionTreeTitle = this.contaniner.textContent
+    this.sectionTreeTitle = html
   }
   renderComponents() {
     /* this.setVisible(this.instance.visible); */
@@ -196,9 +195,33 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       ){
         this.userSectionTitleAsLable = true;
         this.sectionTreeTitle = this.instance.root._form.props.initialSectionTitle
+        let labelTemplate = this.instance.root._form.props.sectionLabelTemplate
+        let shouldInterpolate = /{{\s*\S*\s*}}|<span(\[innerHTML]="[\S]+"|[^>])+>[^<]*<\/span>/gm.test(labelTemplate);
+        let dummyFormGroup = new FormGroup({})
         this.instance.events.addListener('formio.change',(ch,ch2)=>{
-          if(ch2&&ch2.changed&&ch2.changed.instance.path == "sectionTreeTitle"){
-            this.getTextContent(ch2.changed.instance.getValue())
+
+          if(shouldInterpolate && ch && ch.data ){
+            let vals = JSON.parse(JSON.stringify(ch.data));
+            if(this.instance.root){
+              let rawVals = this.instance.root.rawVals;
+              Object.keys(rawVals).forEach((key)=>{
+                vals[key] = rawVals[key];
+              })
+            }
+            this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(labelTemplate, vals, dummyFormGroup).then((newTitle: string) => {
+              this.getTextContent(newTitle)
+            })
+          }else if(ch2&&ch2.changed&&ch2.changed.instance.path == "sectionTreeTitle"){
+            let vals = JSON.parse(JSON.stringify(ch.data));
+            if(this.instance.root){
+              let rawVals = this.instance.root.rawVals;
+              Object.keys(rawVals).forEach((key)=>{
+                vals[key] = rawVals[key];
+              })
+            }
+            if(vals.sectionTreeTitle){
+              this.getTextContent(vals.sectionTreeTitle)
+            }
           }
         })
       }
@@ -273,7 +296,7 @@ export class MaterialTextareaComponent extends MaterialComponent implements Afte
       this.editorContainer.editorView.dom.addEventListener('focus', () => {
         this.prosemirrorFocused = true;
       });
-      
+
       this.editorContainer.editorView.dom.addEventListener('blur', () => {
         this.prosemirrorFocused  = false;
       });
