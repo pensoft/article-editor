@@ -1,4 +1,4 @@
-<div class="all-notifications">
+<mat-dialog-content class="all-notifications">
   <div class="all-notifications-content">
     <h1 class="notifications-head">Notifications :</h1>
     <table mat-table [dataSource]="allNotifications" class="notifications-table" *ngIf="allNotifications.length>0">
@@ -16,7 +16,10 @@
 
       <ng-container matColumnDef="event">
         <th mat-header-cell *matHeaderCellDef> Event : </th>
-        <td mat-cell *matCellDef="let element" class="event" [ngClass]="{'new':element.new}" (click)="viewNotification(element)"> {{element.event}} </td>
+        <td mat-cell *matCellDef="let element" (click)="viewNotification(element)"> 
+          <p *ngIf="!element.error" class="event" [ngClass]="{'new': element.new}">{{element.event}}</p>
+          <p *ngIf="element.error">{{element.error}}</p>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="date">
@@ -27,25 +30,12 @@
       <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
       <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
     </table>
-  <!--   <div class="notifications-container" *ngIf="allNotifications.length>0">
-      <div *ngIf="allNotifications.length>0" class="list">
-        <div class="notification" *ngFor="let event of allNotifications" [ngClass]="{'new':event.new}">
-          <div class="event" [ngClass]="{'new':event.new}">
-            <div class="event-content">
-              {{event.event}}
-            </div>
-            <div class="event-date">
-              {{event.date | date}}
-            </div>
-          </div>
-          <button mat-raised-button class="more-info-btn" (click)="openNotificationDialog()">
-            More
-          </button>
-        </div>
-      </div>
-    </div> -->
     <div class="notifications-container" *ngIf="allNotifications.length == 0">
       Yuo dont have any notifications right now.
     </div>
   </div>
-</div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-stroked-button (click)="closeDialog()">Close</button>
+</mat-dialog-actions>
