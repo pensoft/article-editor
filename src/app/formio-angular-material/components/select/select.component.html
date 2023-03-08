@@ -27,7 +27,7 @@
             <span>Nothing was found</span>
           </mat-option>
           <mat-option *ngFor="let option of filteredOptions | async" [value]="option.value">
-            <span [innerHTML]="option.label"></span>
+            <span [innerHTML]="option.label | safehtml"></span>
           </mat-option>
         </mat-select>
 

@@ -14,6 +14,13 @@ export class SafePipe implements PipeTransform {
     return this.sanitizer.bypassSecurityTrustResourceUrl(url);
   }
 }
+@Pipe({ name: 'safehtml' })
+export class SafeHtmlPipe implements PipeTransform {
+  constructor(private sanitizer: DomSanitizer) { }
+  transform(html: string) {
+    return this.sanitizer.bypassSecurityTrustHtml(html);
+  }
+}
 @Component({
   selector: 'mat-formio-comp',
   template: '<mat-card>Unknown Component: {{ instance.component.type }}</mat-card>'
