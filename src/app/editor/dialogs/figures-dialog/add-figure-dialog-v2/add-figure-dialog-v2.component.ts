@@ -146,13 +146,27 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
   renderProsemirrorEditor() {
     let header = this.figureDescription?.nativeElement
     this.figureDescriptionPmContainer = this.prosemirrorEditorsService.renderSeparatedEditorWithNoSync(header, 'popup-menu-container', schema.nodes.paragraph.create({}, schema.text('Type component description here.')))
-    setTimeout(()=>{
-      let view = this.figureDescriptionPmContainer.editorView;
-      let size = view.state.doc.content.size;
-      view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,size)));
-      view.focus()
-      this.ref.detectChanges();
-    },40)
+
+    let view = this.figureDescriptionPmContainer.editorView;
+    //@ts-ignore
+    view.isPopupEditor = true;
+    let size = view.state.doc.content.size;
+    
+    view.props.handleClick = (view, pos, event) => {
+      const size = view.state.doc.content.size;
+
+      if(size == pos || size - pos == 1) {
+        const selection = TextSelection.create(view.state.doc, size)        
+        view.dispatch(view.state.tr.setSelection(selection));
+      }
+      view.focus();
+    }
+
+    setTimeout(() => {
+    view.focus();
+    view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,size)));
+    this.ref.detectChanges();
+    }, 40)  
   }
 
   renderCodemMirrorEditor(figID: string) {

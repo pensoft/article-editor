@@ -1,7 +1,7 @@
 import { AfterViewInit, Compiler, Component, CUSTOM_ELEMENTS_SCHEMA, NgModule, NO_ERRORS_SCHEMA, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormGroup, FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { BrowserModule } from '@angular/platform-browser';
-import { SafePipe } from '@app/formio-angular-material/components/MaterialComponent';
+import { BrowserModule, DomSanitizer } from '@angular/platform-browser';
+import { SafeHtmlPipe, SafePipe } from '@app/formio-angular-material/components/MaterialComponent';
 import { MaterialModule } from '@app/shared/material.module';
 import { Subject } from 'rxjs';
 import { FormControlNameDirective } from '../directives/form-control-name.directive';
@@ -24,6 +24,13 @@ export class EditorMenuComponent implements OnInit {
   interpolateTemplate = (htmlToCompile: string, data: any, formGroup: FormGroup=new FormGroup({}), template?) => {
     let compiler = this.compiler
     let container = this.container
+    const regex1 = /\[innerHTML\]="[^\"\|]+"/gm
+    let array1;
+    while ((array1 = regex1.exec(htmlToCompile)) !== null) {
+      let newStr = array1[0].slice(0,array1[0].length-1)
+      htmlToCompile = htmlToCompile.replace(array1[0],newStr+' | safehtml"')
+    }
+
     function getRenderedHtml(templateString: string) {
       return new Promise(resolve => {
         let html = { template: templateString }
@@ -62,7 +69,8 @@ export class EditorMenuComponent implements OnInit {
           ],
           declarations: [component
            ,FormControlNameDirective,
-           SafePipe
+           SafePipe,
+           SafeHtmlPipe
           ],
           schemas: [CUSTOM_ELEMENTS_SCHEMA,NO_ERRORS_SCHEMA]
         })(class newModule {
