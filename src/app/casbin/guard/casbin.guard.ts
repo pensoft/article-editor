@@ -57,7 +57,9 @@ export class CasbinGuard implements CanActivate {
           resolve(false);
         }})
       })).pipe(tap((x)=>{if(!x){
-        this._snackBar.open("You don't have permission and cannot access this information or do this action.",'Ok');
+        this._snackBar.open("You don't have permission and cannot access this information or do this action.",'Ok', {
+          duration: 3* 1000
+        });
         this.router.navigate(['dashboard'])
       }}))
     }else if(
@@ -79,7 +81,9 @@ export class CasbinGuard implements CanActivate {
           }
         })
       })).pipe(tap((x)=>{if(!x){
-        this._snackBar.open("You don't have permission and cannot access this information or do this action.",'Ok');
+        this._snackBar.open("You don't have permission and cannot access this information or do this action.",'Ok', {
+          duration: 3 * 1000
+        });
         this.router.navigate(['dashboard'])
       }}))
     }

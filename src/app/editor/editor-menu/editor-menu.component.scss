@@ -61,18 +61,6 @@
     left: 50%;
     transform: translateX(-50%);
   }
-  @media screen and (max-width: 600px) {
-    .ProseMirror-menu-dropdown-menu {
-      position: fixed;
-      background: white;
-      color: #666;
-      padding: 8px 4px;
-      display: inline;
-      top: 40px;
-      left: 50%!important;
-      transform: translateX(-50%);
-    }
-  }
   .ProseMirror-menu-dropdown-menu {
     z-index: 15;
     max-width: 400px;

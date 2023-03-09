@@ -65,27 +65,25 @@
           </ng-container>
         </div>
       </div>
-
-
     </div>
+
     <div class="right-group" [ngStyle]="{'display':active == 'editor'?'flex':'none','align-items':'center'}">
+
       <span class="vertical-delimiter"></span>
+
       <arpha-button (clickEvent)="print()"
                     [disabled]="true"
                     label="Print"
-                    class="small secondary"
-                    style="margin-right: 16px;">
+                    class="small secondary">
       </arpha-button>
       <arpha-button (clickEvent)="export()"
                     label="Export"
-                    class="small primary"
-                    style="margin-right: 16px;">
+                    class="small primary">
       </arpha-button>
       <arpha-button (clickEvent)="submit()"
                     [disabled]="true"
                     label="Submit"
-                    class="small primary"
-                    style="margin-right: 16px;">
+                    class="small primary">
       </arpha-button>
     </div>
 
@@ -118,12 +116,12 @@
         </button>
       <mat-menu #beforeMenu="matMenu" xPosition="before">
 
-        <button (click)="turnOnOffTrachChanges(false)" mat-menu-item>
+        <button (click)="turnOnOffTrackChanges(false)" mat-menu-item>
           <mat-icon [ngClass]="{'selected-article-edit-option':!previewMode.mode && !this.shouldTrackChanges}">mode_edit</mat-icon>
           <span>Edit</span>
         </button>
 
-        <button (click)="turnOnOffTrachChanges(true)" mat-menu-item>
+        <button (click)="turnOnOffTrackChanges(true)" mat-menu-item>
           <mat-icon [ngClass]="{'selected-article-edit-option':!previewMode.mode && this.shouldTrackChanges}">drive_file_rename_outline</mat-icon>
           <span>Suggest</span>
         </button>
@@ -157,12 +155,8 @@
   <div class="scrollable-editor-content">
     <mat-drawer-container hasBackdrop='false' class="editor-drawer">
     <div class="main-container">
-      <mat-drawer #metaDataTreeDrawer class="metadataTreeDrawer" mode='over' position='start' *ngIf="innerWidth <= 600">
-        <div #treeDataDiv class="data-tree no-scroll">
-          <app-meta-data-tree class="drag-drop-boundary" style="width:100%;height:100%;"></app-meta-data-tree>
-        </div>
-      </mat-drawer>
-      <div #treeDataDiv *ngIf="innerWidth > 600" class="data-tree no-scroll">
+
+      <div #treeDataDiv class="data-tree no-scroll">
         <app-meta-data-tree></app-meta-data-tree>
         <app-article-metadata></app-article-metadata>
       </div>
@@ -235,11 +229,11 @@
 </mat-menu>
 
 <mat-menu #beforeMenu="matMenu" xPosition="before" yPosition='below'>
-  <button (click)="turnOnOffTrachChanges(true)" mat-menu-item>
+  <button (click)="turnOnOffTrackChanges(true)" mat-menu-item>
     <mat-icon [ngClass]="{'selected-article-edit-option':!previewMode.mode && !this.shouldTrackChanges}">mode_edit</mat-icon>
     <span>Edit</span>
   </button>
-  <button (click)="turnOnOffTrachChanges(false)" mat-menu-item>
+  <button (click)="turnOnOffTrackChanges(false)" mat-menu-item>
     <mat-icon [ngClass]="{'selected-article-edit-option':!previewMode.mode && this.shouldTrackChanges}">drive_file_rename_outline</mat-icon>
     <span>Suggest</span>
   </button>

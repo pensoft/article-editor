@@ -737,6 +737,7 @@ img[ychange_type="removed"] {
 
 .mat-form-field-appearance-legacy .mat-form-field-underline {
   background-color: transparent !important;
+  height: 0 !important;
 }
 
 .comment-edit-dialog {
@@ -826,6 +827,7 @@ insert-image-dialog {
   .mat-form-field-underline,
   .mat-form-field-ripple {
     background-color: transparent !important;
+    height: 0 !important;
   }
 }
 
@@ -838,15 +840,6 @@ insert-image-dialog {
 .btn-resend {
   text-decoration: underline !important;
   padding: 0px !important;
-}
-
-@media screen and (max-width: 600px) {
-  app-root {
-    height: 100%;
-  }
-  app-main {
-    height: 100%;
-  }
 }
 
 /* [data-track] {
@@ -1230,11 +1223,6 @@ router-outlet {
     height: 30px;
     margin-left: -19px;
     transform: translate(-3px, -3px) scale(0.6);
-  }
-  &:nth-of-type(2) {
-    @media screen and (max-width: 600px) {
-      left: 180px;
-    }
   }
 }
 
