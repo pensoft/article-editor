@@ -16,7 +16,7 @@
                 'drag_btn_leaf_node':!isComplex,
                 'drag_btn_list_node':isComplex}"><mat-icon >drag_indicator</mat-icon></button>
       <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTN" (click)="changeDisplay(childrenDiv)"><mat-icon class="{{expandIcon}}"  #icon>{{expandIcon}}</mat-icon></button>
-      <div class="text-section-div" (click)="scrollToProsemirror()" [innerHTML]="node.title.label">
+      <div class="text-section-div" (click)="scrollToProsemirror()" [innerHTML]="node.title.label | safehtml">
       </div>
     </div>
     <div class="section_btn_container">
@@ -67,7 +67,7 @@
                 'drag_btn_leaf_node_nested':!isComplex,
                 'drag_btn_list_node_nested':isComplex}"><mat-icon >drag_indicator</mat-icon></button>
       <button *ngIf="isComplex" #expandBtn mat-icon-button class="expandBTNNested" (click)="changeDisplay(childrenDiv)"><mat-icon class="{{expandIcon}}" #icon>{{expandIcon}}</mat-icon></button>
-      <div class="text-section-div-nested" (click)="scrollToProsemirror()" [innerHTML]="node.title.label">
+      <div class="text-section-div-nested" (click)="scrollToProsemirror()" [innerHTML]="node.title.label | safehtml">
       </div>
     </div>
     <div class="section_btn_container">

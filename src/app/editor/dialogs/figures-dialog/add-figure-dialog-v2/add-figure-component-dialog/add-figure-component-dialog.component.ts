@@ -79,6 +79,18 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
   ngAfterViewInit(){
     let header = this.componentDescription?.nativeElement
     this.componentDescriptionPmContainer = this.serviceShare.ProsemirrorEditorsService.renderSeparatedEditorWithNoSync(header, 'pm-pdf-menu-container', schema.nodes.paragraph.create({},schema.text('Type component description here.')))
+    //@ts-ignore
+    this.componentDescriptionPmContainer.editorView.isPopupEditor = true;
+    this.componentDescriptionPmContainer.editorView.props.handleClick = (view, pos, event) => {
+      const size = view.state.doc.content.size;
+
+      if(size == pos || size - pos == 1) {
+        const selection = TextSelection.create(view.state.doc, size)        
+        view.dispatch(view.state.tr.setSelection(selection));
+      }
+      view.focus();
+    }
+
     this.setComponentDataIfAny()
     this.urlInputElement.nativeElement.focus()
   }

@@ -158,14 +158,10 @@ export const updateControlsAndFigures = (
                 if(node.marks.filter((mark)=>mark.attrs.formControlName != ''&&mark.attrs.formControlName).length>0){
                   controlPath = node.marks.find((mark)=>mark.attrs.formControlName != ''&&mark.attrs.formControlName).attrs.controlPath
                 }
-                if (controlPath == 'sectionTreeTitle') {
-                  const control = fg.get(controlPath) as FormControl;
-                  control.patchValue(getHtmlFromFragment(node.content));
-                } else {
                   const control = fg.get(controlPath) as FormControl;
                   if(control){
                     //@ts-ignore
-                    if (control.componentType && control.componentType == "textarea") {
+                    if ((control.componentType && control.componentType == "textarea"||controlPath=='sectionTreeTitle')) {
                       let html = getHtmlFromFragment(node.content)
                       if (node.attrs.menuType) {
                         //@ts-ignore
@@ -191,7 +187,6 @@ export const updateControlsAndFigures = (
                       }
                     }
                   }
-                }
               } catch (error) {
                 console.error(error);
               }

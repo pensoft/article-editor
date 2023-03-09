@@ -81,7 +81,7 @@ export class CdkListRecursiveComponent implements OnInit, OnDestroy, AfterViewIn
       //let defaultValues = this.prosemirrorEditorsService.defaultValuesObj[node.sectionID]
       let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID);
       let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
-      let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID) : node.formIOSchema;
+      let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID,node) : node.formIOSchema;
 
       let nodeForm: FormGroup = new FormGroup({});
       this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent, node);
@@ -101,7 +101,7 @@ export class CdkListRecursiveComponent implements OnInit, OnDestroy, AfterViewIn
           nodeForm.removeControl(key);
         })
         let defaultValues = dataFromYMap.data
-        let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID);
+        let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID,node);
         this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent, node);
         this.treeService.setTitleListener(node)
       })

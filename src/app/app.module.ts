@@ -131,7 +131,6 @@ import { EditCommentDialogComponent } from './editor/comments-section/edit-comme
 import { CantOpenArticleDialogComponent } from './layout/widgets/arpha-navigation/cant-open-article-dialog/cant-open-article-dialog.component';
 import { UsersRoleIsChangedComponent } from './layout/widgets/arpha-navigation/users-role-is-changed/users-role-is-changed.component';
 import { TestPageComponent } from './casbin/test-page/test-page.component';
-import { EnforcerService } from './casbin/services/enforcer.service';
 import { HasPermissionPipe } from './casbin/permission-pipe/has-permission.pipe';
 import { CasbinInterceptor } from './casbin/interceptor/casbin.interceptor';
 import { NotificationsComponent } from './layout/widgets/arpha-navigation/notifications/notifications.component';

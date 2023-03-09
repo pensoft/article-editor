@@ -43,20 +43,24 @@ export class LabelComponent implements OnInit {
           let vals = JSON.parse(JSON.stringify(ch.data));
           if(this.instance.root){
             let rawVals = this.instance.root.rawVals;
-            Object.keys(rawVals).forEach((key)=>{
-              vals[key] = rawVals[key];
-            })
+            if(rawVals){
+              Object.keys(rawVals).forEach((key)=>{
+                vals[key] = rawVals[key];
+              })
+            }
           }
           this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(labelTemplate, vals, dummyFormGroup).then((newTitle: string) => {
             this.getTextContent(newTitle)
           })
-        }else if(ch2&&ch2.changed&&ch2.changed.instance.path == "sectionTreeTitle"){
+        }else if(ch&&ch.data){
           let vals = JSON.parse(JSON.stringify(ch.data));
           if(this.instance.root){
             let rawVals = this.instance.root.rawVals;
-            Object.keys(rawVals).forEach((key)=>{
-              vals[key] = rawVals[key];
-            })
+            if(this.instance.root.rawVals){
+              Object.keys(rawVals).forEach((key)=>{
+                vals[key] = rawVals[key];
+              })
+            }
           }
           if(vals.sectionTreeTitle){
             this.getTextContent(vals.sectionTreeTitle)
