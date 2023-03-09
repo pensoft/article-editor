@@ -87,10 +87,7 @@ export class LinkButtonsService {
           const top = coordsInCursorPos.top - editorViewRectangle.top;
 
           buttonsContainer.classList.add('edit-link-buttons');
-          buttonsContainer.setAttribute(
-            'style',
-            `top:${top}px;`
-          );
+          buttonsContainer.setAttribute('style', `top:${top}px;`);
           buttonsContainer.setAttribute('tabindex', '-1');
 
           this.linkActions.editLink = () => {
@@ -100,20 +97,24 @@ export class LinkButtonsService {
               .open(AddLinkDialogComponent, {
                 width: '582px',
                 panelClass: 'insert-figure-in-editor',
-                data: { url: href, text: title }
+                data: { url: href, text: title },
               })
               .afterClosed()
               .subscribe((result) => {
-                if (result) {
+                const { url, text } = result;
+
+                if (url && text) {
                   const { from, to, mark: oldMark } = linkMarkInfo;
 
                   const newMark = state.schema.marks.link.create({
-                    href: result.url,
-                    title: result.text,
+                    href: url,
+                    title: text,
                   });
 
                   state.tr.removeMark(from, to, oldMark);
-                  view.dispatch(state.tr.addMark(from, to, newMark));
+                  const newTextNode = state.schema.text(text, [newMark]);
+                  const tr = state.tr.replaceRangeWith(from, to, newTextNode);
+                  view.dispatch(tr);
                 }
               });
           };
