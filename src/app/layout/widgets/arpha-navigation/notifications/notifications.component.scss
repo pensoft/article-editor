@@ -50,20 +50,27 @@
   background: none;
 }
 
-th.mat-header-cell:first-of-type, td.mat-cell:first-of-type, td.mat-footer-cell:first-of-type {
-  padding-left: 0px;
-}
-
-th.mat-header-cell:nth-of-type(2), td.mat-cell:nth-of-type(2), td.mat-footer-cell:nth-of-type(2) {
-  padding: 0 16px 0 16px;
-}
-
-.mat-chip-list-wrapper input.mat-input-element, .mat-chip-list-wrapper .mat-standard-chip {
+.mat-chip-list-wrapper input.mat-input-element,
+.mat-chip-list-wrapper .mat-standard-chip {
   margin: 0;
 }
 
-.th.mat-header-cell:last-of-type, td.mat-cell:last-of-type, td.mat-footer-cell:last-of-type {
-  padding: 0;
+th.mat-header-cell,
+td.mat-cell,
+td.mat-footer-cell {
+  padding: 0 8px;
+}
+
+th.mat-header-cell:first-of-type,
+td.mat-cell:first-of-type,
+td.mat-footer-cell:first-of-type {
+  padding-left: 0;
+}
+
+th.mat-header-cell:last-of-type,
+td.mat-cell:last-of-type,
+td.mat-footer-cell:last-of-type {
+  padding-right: 0;
 }
 
 
