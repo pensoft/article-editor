@@ -1,7 +1,7 @@
 <h2 mat-dialog-title>Delete {{mapping[data.type].objType}}</h2>
 
 <mat-dialog-content class="dynamic-content-height" >
-  <p>Do you really want to {{mapping[data.type].operation}} <strong class="make-block-nodes-inline" [innerHTML]="data.objName"></strong> <span *ngIf="!data.dontshowType">{{mapping[data.type].objType}}</span>?</p>
+  <p>Do you really want to {{mapping[data.type].operation}} <strong class="make-block-nodes-inline" [innerHTML]="data.objName | safehtml"></strong> <span *ngIf="!data.dontshowType">{{mapping[data.type].objType}}</span>?</p>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">

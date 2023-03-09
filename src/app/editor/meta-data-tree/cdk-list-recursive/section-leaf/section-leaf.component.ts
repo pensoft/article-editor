@@ -124,7 +124,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     try {
       let defaultValues = formGroup.value;
       filterFieldsValues( node.formIOSchema,{data:defaultValues},this.serviceShare,node.sectionID,true,'',false)
-      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID, formGroup);
+      let sectionContent = this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID,node, formGroup);
 
       let updateYdoc = new Y.Doc();
       let maindocstate = Y.encodeStateAsUpdate(this.ydocService.ydoc)
@@ -293,7 +293,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       materialData.initialRender = this.serviceShare.YdocService.ydoc.guid
       materialData.active = true;
       materialData.defaultFormIOValues = {};
-      let sectionContent = this.formBuilderService.populateDefaultValues({}, node.formIOSchema, node.sectionID, formGroup);
+      let sectionContent = this.formBuilderService.populateDefaultValues({}, node.formIOSchema, node.sectionID,node, formGroup);
       this.prosemirrorEditorsService.stopSpinner()
       this.dialog.open(EditSectionDialogComponent, {
         //width: '100%',

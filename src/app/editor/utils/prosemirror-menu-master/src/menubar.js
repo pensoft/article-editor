@@ -49,8 +49,12 @@ class MenuBarView {
             if(options.sectionID){
               this.PMMenusAndSchemasDefsMap = this.options.serviceShare.YdocService.ydoc.getMap('PMMenusAndSchemasDefsMap')
             }
-            this.menuContainer = document.getElementsByClassName(options.containerClass)[0]
-                //this.menuContainer = document.getElementsByClassName('menu-container')[0]
+
+            this.menuContainer = 
+            document.getElementsByClassName(
+              options.containerClass
+              )[document.getElementsByClassName(options.containerClass).length - 1];
+
             this.wrapper = crel("div", { class: prefix + "-wrapper" })
             this.menu = this.menuContainer.appendChild(crel("div", { class: prefix }))
             this.menu.className = prefix
