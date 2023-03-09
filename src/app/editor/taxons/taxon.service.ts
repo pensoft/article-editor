@@ -41,6 +41,8 @@ export class TaxonService implements OnDestroy {
   taxonsDataObj: ydocTaxonsObj
   taxonsDataObjSubject = new Subject()
 
+  canShowTaxonButtons: Subject<boolean> = new Subject();
+
   TaxonObjChange = () => {
     this.taxonsDataObj = this.serviceShare.YdocService.TaxonsMap.get('taxonsDataObj');
     this.taxonsDataObjSubject.next(this.taxonsDataObj);
@@ -150,6 +152,7 @@ export class TaxonService implements OnDestroy {
   constructor(
     private serviceShare: ServiceShare
   ) {
+    const self = this;
     this.lastSelectedTaxonMarkSubject.subscribe((data) => {
       this.lastTaxonMarkSelected.pos = data.pos
       this.lastTaxonMarkSelected.sectionId = data.sectionId
@@ -204,7 +207,13 @@ export class TaxonService implements OnDestroy {
         },
         view: function () {
           return {
-            update: (view, prevState) => { },
+            update: (view, prevState) => {
+              if (JSON.stringify(view.state.doc) == JSON.stringify(prevState.doc) && !view.hasFocus()) {
+                return;
+              }
+
+              self.showHideTaxonButtons(view);
+            },
             destroy: () => { }
           }
         },
@@ -552,5 +561,15 @@ export class TaxonService implements OnDestroy {
       })
       view.dispatch(tr);
     })
+  }
+
+  showHideTaxonButtons(view: EditorView) {
+    const {from, to} = view.state.selection;
+              
+    if(to - from >= 3) {
+      this.canShowTaxonButtons.next(true);
+    } else {
+      this.canShowTaxonButtons.next(false);
+    }
   }
 }
