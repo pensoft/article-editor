@@ -101,9 +101,8 @@ export class LinkButtonsService {
               })
               .afterClosed()
               .subscribe((result) => {
-                const { url, text } = result;
-
-                if (url && text) {
+                if (result && result.url && result.text) {
+                  const { url, text } = result;
                   const { from, to, mark: oldMark } = linkMarkInfo;
 
                   const newMark = state.schema.marks.link.create({

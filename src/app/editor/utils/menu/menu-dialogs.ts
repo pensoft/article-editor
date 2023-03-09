@@ -361,9 +361,9 @@ export const insertLinkItem = new MenuItem({
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      const { url, text } = result;
-
-      if (url && text) {
+      if (result && result.url && result.text) {
+        const { url, text } = result;
+      
         const mark = state.schema.marks.link.create({
           href: url,
           title: text,
