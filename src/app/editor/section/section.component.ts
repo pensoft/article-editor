@@ -132,9 +132,11 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
       let vals = JSON.parse(JSON.stringify(change.data));
       if((change.changed && change.changed.instance) || this.formIoRoot){
         let rawVals = (change.changed)?change.changed.instance.root.rawVals:this.formIoRoot.rawVals;
-        Object.keys(rawVals).forEach((key)=>{
-          vals[key] = rawVals[key];
-        })
+        if(rawVals){
+          Object.keys(rawVals).forEach((key)=>{
+            vals[key] = rawVals[key];
+          })
+        }
       }
       if(/{{\s*\S*\s*}}|<span(\[innerHTML]="[\S]+"|[^>])+>[^<]*<\/span>/gm.test(this.section.title.template)){
         this.serviceShare.ProsemirrorEditorsService?.interpolateTemplate(this.section.title.template, vals, this.sectionForm).then((newTitle: string) => {
@@ -213,7 +215,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
         data: submision.data,
         updatedFrom: this.ydocService.ydoc?.guid
       })
-      this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema, this.section.sectionID, this.sectionForm);
+      this.formBuilderService.populateDefaultValues(submision.data, this.section.formIOSchema, this.section.sectionID,this.section, this.sectionForm);
       //this.sectionForm = new FormGroup({});
       Object.keys(this.sectionForm.controls).forEach((key) => {
         this.sectionForm.removeControl(key);
@@ -403,7 +405,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
 
     //this.sectionContent = newSchema;
     if(!this.sectionForm){
-      this.sectionContent = this.formBuilderService.populateDefaultValues(this.treeService.sectionFormGroups[this.section.sectionID].getRawValue(), this.section.formIOSchema, this.section.sectionID, this.sectionForm);
+      this.sectionContent = this.formBuilderService.populateDefaultValues(this.treeService.sectionFormGroups[this.section.sectionID].getRawValue(), this.section.formIOSchema, this.section.sectionID,this.section, this.sectionForm);
     }
 
     this.renderSection = true

@@ -259,7 +259,7 @@ export class TreeService implements OnDestroy {
     let buildForms = (node: any) => {
       let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID);
       let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
-      let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID) : node.formIOSchema;
+      let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID,node) : node.formIOSchema;
       let nodeForm: FormGroup = new FormGroup({});
       this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent, node);
 
@@ -346,7 +346,7 @@ export class TreeService implements OnDestroy {
 
     let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(sectionToRender.sectionID);
     let defaultValues = dataFromYMap ? dataFromYMap.data : sectionToRender!.defaultFormIOValues
-    let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, sectionToRender!.formIOSchema, sectionToRender!.sectionID) : sectionToRender!.formIOSchema;
+    let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, sectionToRender!.formIOSchema, sectionToRender!.sectionID,sectionToRender) : sectionToRender!.formIOSchema;
 
     let nodeForm: FormGroup = new FormGroup({});
     this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent, sectionToRender!);
@@ -383,7 +383,7 @@ export class TreeService implements OnDestroy {
       let buildForms = (node: any) => {
         let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID);
         let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
-        let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID) : node.formIOSchema;
+        let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID,node) : node.formIOSchema;
         let nodeForm: FormGroup = new FormGroup({});
         this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent, node);
 
@@ -644,7 +644,7 @@ export class TreeService implements OnDestroy {
       let buildForms = (node: any) => {
         let dataFromYMap = this.ydocService.sectionFormGroupsStructures!.get(node.sectionID);
         let defaultValues = dataFromYMap ? dataFromYMap.data : node.defaultFormIOValues
-        let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID) : node.formIOSchema;
+        let sectionContent = defaultValues ? this.formBuilderService.populateDefaultValues(defaultValues, node.formIOSchema, node.sectionID,node) : node.formIOSchema;
         let nodeForm: FormGroup = new FormGroup({});
         this.formBuilderService.buildFormGroupFromSchema(nodeForm, sectionContent, node);
 
