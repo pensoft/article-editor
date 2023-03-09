@@ -102,7 +102,7 @@ export class MaterialsSectionComponent implements AfterViewInit {
     materialData.active = true;
     materialData.defaultFormIOValues = {};
     materialData.parent = this.section;
-    let sectionContent = this.formBuilderService.populateDefaultValues({}, this.section.formIOSchema, this.section.sectionID);
+    let sectionContent = this.formBuilderService.populateDefaultValues({}, this.section.formIOSchema, this.section.sectionID,this.section);
     this.dialog.open(EditSectionDialogComponent, {
       width: '95%',
       height: '90%',
