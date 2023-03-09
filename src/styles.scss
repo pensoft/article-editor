@@ -827,6 +827,7 @@ insert-image-dialog {
   .mat-form-field-underline,
   .mat-form-field-ripple {
     background-color: transparent !important;
+    height: 0 !important;
   }
 }
 
