@@ -2132,18 +2132,158 @@ mat-formio-textarea {
 /* Override Dropzone styles */
 
 app-dropzone {
-  .dz-message{
-    background-color: #e9f6f6 !important;
-    /* background: url("../../../assets/img/upload-dropzone.svg");
-    background-repeat: repeat-y;
-    background-attachment: fixed;
-    background-position: center; */
-    height: 80px;
-    border: 2px dashed #00b1b2 !important;
-    border-radius: 6px;
-  }
-  .dz-file-preview{
-    display: none !important;
+
+  dropzone {
+    margin: 0 0 24px 0;
+
+    .dz-wrapper {
+      display: flex;
+      flex-flow: row wrap;
+      gap: 8px;
+      max-height: unset !important;
+      height: max-content !important;
+      overflow: visible !important;
+
+      .dz-message {
+        height: 140px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        background-color: #e9f6f6 !important;
+        background: url("/assets/img/upload-dropzone.svg") no-repeat center center;
+        border: 1px dashed var(--color-00b1b2) !important;
+        border-radius: 6px;
+        margin: 0 !important;
+        font-weight: bold;
+
+        .dz-text {
+          padding: 14px 8px !important;
+
+          .title {
+            display: block;
+            width: 100%;
+            margin: 0;
+            padding: 0;
+            font-weight: bold;
+            font-size: 14px;
+            color: var(--color-192956);
+          }
+
+          .or {
+            display: block;
+            width: 100%;
+            margin: 0;
+            padding: 16px 0;
+            font-weight: bold;
+            font-size: 12px;
+            color: var(--color-192956);
+          }
+
+          .mat-flat-button {
+            display: inline-flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+            align-items: center;
+            border-radius: 6px;
+            text-decoration: none !important;
+            font-size: 12px;
+
+            span.plus-icon {
+              display: block;
+              font-size: 28px;
+              margin: -4px 8px 0 0;
+            }
+          }
+        }
+      }
+
+      .dz-preview {
+        display: inline-flex;
+        flex-flow: row wrap;
+        width: calc(25% - 6px) !important;
+        min-width: 200px;
+        margin: 0 !important;
+        overflow: visible;
+
+        .dz-image {
+          width: 100% !important;
+          border-radius: 6px !important;
+          background: var(--color-ffffff) !important;
+          border: 1px solid var(--color-e3e3e3);
+        }
+
+        .dz-details {
+          padding: 16px !important;
+
+          .dz-filename {
+            &:hover {
+              span {
+                background-color: unset !important;
+                border: 1px solid transparent !important;
+              }
+            }
+          }
+        }
+
+        .dz-progress {
+          border-color: var(--color-00b1b2) !important;
+
+          .dz-upload {
+            background: var(--color-00b1b2) !important;
+          }
+        }
+
+        .dz-error-message {
+          left: 0 !important;
+          width: 100% !important;
+          border-radius: 6px !important;
+          background: var(--warn-color) !important;
+
+          &:after {
+            left: calc(50% - 6px) !important;
+            border-bottom-color: var(--warn-color) !important;
+          }
+        }
+
+        .dz-error-mark {
+          svg {
+            g {
+              g {
+                stroke: var(--warn-color) !important;
+                stroke-opacity: .6 !important;
+              }
+            }
+          }
+        }
+
+        .dz-success-mark {
+          svg {
+            g {
+              path {
+                stroke: var(--primary-color) !important;
+                stroke-opacity: .6 !important;
+              }
+            }
+          }
+        }
+
+
+        .dz-remove {
+          display: block;
+          width: 100%;
+          margin: 8px 0 0 0;
+          border: 1px solid var(--warn-color);
+          border-radius: 6px;
+          color: var(--warn-color);
+          padding: 0 15px;
+          line-height: 34px;
+          text-decoration: none !important;
+
+          &:hover {
+            background: #fff5f5 !important;
+          }
+        }
+      }
+    }
   }
 }
 
