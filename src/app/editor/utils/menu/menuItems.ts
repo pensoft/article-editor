@@ -548,7 +548,7 @@ let allMenuItems: { [key: string]: MenuItem | any } = {
   'highLightMenuItem': highLightMenuItem,
   'footnoteMenuItem': footnoteMenuItem,
   'decreaseIndent':decreaseIndent,
-  'spellCheckMenuItem': spellCheckMenuItem,
+  // 'spellCheckMenuItem': spellCheckMenuItem,
   'toggleUnderline': toggleUnderline,
   'insertFigure': insertFigure,
   // unfinished menu :
