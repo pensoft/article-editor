@@ -3,32 +3,9 @@
   background-color: var(--color-ffffff);
 }
 
-// calcel color #818181
-::placeholder {
-  /* Chrome, Firefox, Opera, Safari 10.1+ */
-  color: #c8c4c4;
-  opacity: 1;
-  /* Firefox */
-}
-
-::-ms-input-placeholder {
-  /* Microsoft Edge */
-  color: #c8c4c4;
-}
-
 .comments-wrapper {
-  //height: calc(100% - 62px);
   height: calc(100% - 44px);
-  //height: 100%;
   overflow-x: hidden;
   overflow-y: hidden;
   width: 100%;
-  @media screen and (max-width: 600px) {
-    height: calc(100% - 89px);
-  }
 }
-
-//.selected-comment {
-//  background: var(--color-f5f5f5);
-//}
-

@@ -13,11 +13,15 @@ export class FormBuilderService {
     this.serviceShare.shareSelf('FormBuilderService',this)
   }
   setfocusToFirst
-  populateDefaultValues(savedForm: any, schema: any, sectionID: string, formGroup?: FormGroup) {
+  populateDefaultValues(savedForm: any, schema: any, sectionID: string,node:articleSection, formGroup?: FormGroup) {
+    let shouldRequireFields = false;
+    if(node.type == 'complex'&&(!node.children||node.children.length == 0)){
+      shouldRequireFields = true;
+    }
     this.setfocusToFirst = false;
     let copySchema = JSON.parse(JSON.stringify(schema))
     let props = {sectionID}
-    let attachSectionId = (componentArray: any[]) => {
+    /* let attachSectionId = (componentArray: any[]) => {
       for(let i = 0 ; i < componentArray.length;i++){
         let component = componentArray[i]
         if (component["properties"]) {
@@ -30,15 +34,34 @@ export class FormBuilderService {
           attachSectionId(component.components)
         }
       }
+    } */
+    let callBack = (component:any) => {
+      if (component["properties"]) {
+        component["properties"]["sectionID"] = sectionID
+      } else {
+        component["properties"] = {}
+        component["properties"]["sectionID"] = sectionID
+      }
+      if(
+        (component.properties.optional_with_subsections == 'true'||component.properties.optional_with_subsections == true)&&
+        shouldRequireFields
+      ){
+        component.validate.required = true;
+      }else if(
+        (component.properties.optional_with_subsections == 'true'||component.properties.optional_with_subsections == true)&&
+        !shouldRequireFields
+      ){
+        component.validate.required = false;
+      }
     }
     for (let index = 0; index < copySchema.components.length; index++) {
       let component: any = copySchema.components[index];
-      this.updateDefaultValue(component,savedForm,props,formGroup)
+      this.updateDefaultValue(component,savedForm,props,callBack,formGroup)
       this.setAutoFocusToFirstEl(component);
     }
-    if (copySchema.components && copySchema.components.length > 0) {
+    /* if (copySchema.components && copySchema.components.length > 0) {
       attachSectionId(schema.components)
-    }
+    } */
     copySchema.props = props
     return copySchema;
   }
@@ -91,39 +114,49 @@ export class FormBuilderService {
     }
   }
 
-  updateDefaultValue(component: any, submission: any,props:any, formGroup?: FormGroup) {
+  updateDefaultValue(component: any, submission: any,props:any,callback:(component:any)=>void, formGroup?: FormGroup) {
     let type = component.type
     let key = component.key
     if (type == 'datagrid') {
       this.updateValue(component, submission,props, formGroup)
+      component.components.forEach((com:any)=>{
+        callback(com)
+      })
     } else if (component.type == 'columns') {
       for(let i = 0 ; i < component.columns.length;i++){
         let col = component.columns[i]
         for(let j = 0 ; j < col.components.length;j++){
           let comp = col.components[j]
           this.updateValue(comp, /* formGroup?.get(component.key+'.'+i).value */submission,props, formGroup)
+          callback(comp)
         }
       }
       this.updateValue(component, submission,props, formGroup)
+      callback(component)
     } else if (type == "select") {
       this.updateValue(component, submission,props, formGroup)
+      callback(component)
     } else if (type == "container") {
       this.updateValue(component, submission,props, formGroup)
+      callback(component)
     } else if(type == "radio"){
       this.updateValue(component, submission,props, formGroup)
+      callback(component)
     }else if (type == 'panel') {
       component.components.forEach((subcomp: any) => {
-        this.updateDefaultValue(subcomp, submission,props, formGroup)
+        this.updateDefaultValue(subcomp, submission,props,callback, formGroup)
+        callback(subcomp)
       })
-    } else if (type == 'table') {
+      callback(component)
+      } else if (type == 'table') {
       for(let i = 0 ; i < component.rows.length;i++){
         let row = component.rows[i];
         for(let j = 0 ; j < row.length;j++){
           let cell = row[j]
           for(let k = 0 ; k < cell.components.length;k++){
             let cellSubComp = cell.components[k]
-            this.updateDefaultValue(cellSubComp, submission,props, formGroup)
-
+            this.updateDefaultValue(cellSubComp, submission,props,callback, formGroup)
+            callback(cellSubComp)
           }
         }
       }
@@ -136,6 +169,7 @@ export class FormBuilderService {
       }) */
     } else {
       this.updateValue(component, submission,props, formGroup)
+      callback(component)
     }
 
   }
