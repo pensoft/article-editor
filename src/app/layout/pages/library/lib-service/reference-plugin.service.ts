@@ -29,7 +29,41 @@ export class ReferencePluginService {
           return { sectionName: _.sectionName,decs:undefined };
         },
         apply:(tr, prev, editorState, newState)=> {
-          let decs: Decoration[] = [];     
+          let decs: Decoration[] = [];
+          if (/* refsObj.refs&& */!serviceShare.ProsemirrorEditorsService!.previewArticleMode.mode) {
+            let docSize = editorState.doc.content.size
+            editorState.doc.nodesBetween(0, docSize - 1, (node, pos, parent, index) => {
+              if (node.type.name == 'reference_citation_end') {
+                let buttonContainer = document.createElement('div');
+                buttonContainer.className = 'citable-items-edit-buttons';
+
+                let nodeStart = pos;
+                let nodeEnd = node.nodeSize+ pos;
+                if ((
+                  editorState.selection.from>=nodeStart&&editorState.selection.from<=nodeEnd
+                )||(
+                  editorState.selection.to>=nodeStart&&editorState.selection.to<=nodeEnd
+                )) {
+                  let button1 = document.createElement('button')
+                  button1.className = 'edit-citable-item-button';
+                  button1.addEventListener('click', () => {
+                    serviceShare.CslService!.editReferenceThroughPMEditor(node,prev.sectionName);
+                  })
+                  button1.style.cursor = 'pointer'
+                  button1.title = 'Click this button to edit this reference.'
+                  let img1 =  createCustomIcon('edit-green.svg', 20, 22)
+                  img1.dom.className = 'update-data-reference-img'
+                  button1.append(img1.dom)
+                  buttonContainer.append(button1);
+                }
+                if (buttonContainer.childNodes.length > 0) {
+                  decs.push(Decoration.widget(pos, (view) => {
+                    return buttonContainer
+                  }))
+                }
+              }
+            })
+          }
           if (decs.length > 0) {
             prev.decs = decs;
             return { ...prev }
@@ -46,8 +80,16 @@ export class ReferencePluginService {
           }
         },
         decorations(state) {
-          let docs = referencePluginKey.getState(state).decs ? referencePluginKey.getState(state).decs.filter((dec: any) => dec) : undefined;
-          return docs && docs.length > 0 ? DecorationSet.create(state.doc, referencePluginKey.getState(state).decs) : DecorationSet.empty;
+          let pluginState = referencePluginKey.getState(state);
+          let focusedEditor = serviceShare.DetectFocusService.sectionName
+          let currentEditor = pluginState.sectionName
+        
+          let {from,to} = state.selection;
+          if(from!=to || currentEditor!=focusedEditor) return DecorationSet.empty;
+
+          
+          let docs = pluginState.decs ? pluginState.decs.filter((dec: any) => dec) : undefined;
+          return docs && docs.length > 0 ? DecorationSet.create(state.doc, pluginState.decs) : DecorationSet.empty;
         }
       },
       view: function () {
