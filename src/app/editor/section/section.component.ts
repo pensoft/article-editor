@@ -33,11 +33,16 @@ import {HelperService} from "@app/editor/section/helpers/helper.service";
 import { ServiceShare } from '../services/service-share.service';
 import { filterFieldsValues } from '../utils/fieldsMenusAndScemasFns';
 import { schema } from '../utils/Schema';
+import { customSecInterface, FunderSectionComponent } from './funder-section/funder-section.component';
+import { MaterialSectionComponent } from './material-section/material-section.component';
+import { MaterialsSectionComponent } from './materials-section/materials-section.component';
+import { TaxonSectionComponent } from './taxon-section/taxon-section.component';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-section',
   templateUrl: './section.component.html',
-  styleUrls: ['./section.component.scss']
+  styleUrls: ['./section.component.scss'],
 })
 export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked {
 
@@ -90,6 +95,8 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
   @ViewChild('container', {read: ViewContainerRef}) container?: ViewContainerRef;
   @ViewChild('formio', {read: ViewContainerRef}) formio?: ViewContainerRef;
 
+  triggerCustomSecSubmit = new Subject()
+
   constructor(
     private compiler: Compiler,
     private editSectionService: EditSectionService,
@@ -102,7 +109,6 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
     private serviceShare:ServiceShare,
     private changeDetectionRef:ChangeDetectorRef
     ) {
-
     /* if(this.formControlService.popUpSectionConteiners[this.section.sectionID]){
       this.popUpContainer = this.formControlService.popUpSectionConteiners[this.section.sectionID]
     }else{
@@ -154,6 +160,8 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
   submitSection(){
     if(this.formIoRoot){
       this.formIoRoot.submit()
+    }else if(this.section.title.name == 'Taxon'||this.section.title.name == '[MM] Materials'||this.section.title.name == 'Material'||this.section.title.name=='[AM] Funder'){
+      this.triggerCustomSecSubmit.next(true)
     }
   }
 
@@ -203,7 +211,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
       if (this.section.type == 'complex') {
         this.submitComplexSectionEdit()
       }
-      if(this.section.title.name == 'Taxon'||this.section.title.name == '[MM] Materials'||this.section.title.name == 'Material'){
+      if(this.section.title.name == 'Taxon'||this.section.title.name == '[MM] Materials'||this.section.title.name == 'Material'||this.section.title.name=='[AM] Funder'){
         // custum section
         this.addCustomSectionData(this.section,submision.data)
       }

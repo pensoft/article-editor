@@ -10,12 +10,14 @@ import {EditSectionDialogComponent} from "@app/editor/dialogs/edit-section-dialo
 import {FormBuilderService} from "@app/editor/services/form-builder.service";
 import Papa from 'papaparse';
 import {HelperService} from "@app/editor/section/helpers/helper.service";
+import { customSecInterface } from '../funder-section/funder-section.component';
+import { Subject } from 'rxjs';
 @Component({
   selector: 'app-materials-section',
   templateUrl: './materials-section.component.html',
   styleUrls: ['./materials-section.component.scss']
 })
-export class MaterialsSectionComponent implements AfterViewInit {
+export class MaterialsSectionComponent implements AfterViewInit,customSecInterface {
 
   @Input() onSubmit!: (data: any) => Promise<any>;
   @Output() onSubmitChange = new EventEmitter<(data: any) => Promise<any>>();
@@ -23,6 +25,11 @@ export class MaterialsSectionComponent implements AfterViewInit {
   @Input() section!: articleSection;
   @Input() fGroup!: FormGroup;
   @Output() sectionChange = new EventEmitter<articleSection>();
+
+  @Input() triggerCustomSecSubmit: Subject<any>;
+  @Output() triggerCustomSecSubmitChange = new EventEmitter<Subject<any>>();
+
+
   importMaterialData!: FormControl
   placeMultiple!: FormControl
   placeMultipleRadio!: FormControl
@@ -80,9 +87,13 @@ export class MaterialsSectionComponent implements AfterViewInit {
     ]));
     this.placeMultipleRadio = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get('placeMultipleRadio')?.value);
     this.render = true;
+
+    this.triggerCustomSecSubmit.subscribe(()=>{
+      this.triggerSubmit()
+    })
   }
 
-  async triggerSubmit() {
+  @Output() async triggerSubmit() {
     let data: any = {
       importMaterialData: this.importMaterialData!.value,
       placeMultiple: this.placeMultiple!.value,
