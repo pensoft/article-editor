@@ -350,7 +350,10 @@ export const addMathBlockMenuItem = new MenuItem({
 export const insertLinkItem = new MenuItem({
   title: 'Insert a link',
   run: (state: EditorState, dispatch: any) => {
-    let url, text;
+    const {from, to} = state.selection;
+    let text = state.doc.textBetween(from, to);
+    let url;
+
     const dialogRef = sharedDialog.open(AddLinkDialogComponent, {
       width: '582px',
       panelClass: 'insert-figure-in-editor',
@@ -358,16 +361,15 @@ export const insertLinkItem = new MenuItem({
     });
 
     dialogRef.afterClosed().subscribe((result) => {
-      if (result) {
-        const { from, to } = state.selection;
-        const selectedText = state.doc.textBetween(from, to);
-
+      if (result && result.url && result.text) {
+        const { url, text } = result;
+      
         const mark = state.schema.marks.link.create({
-          href: result.url,
-          title: result.text,
+          href: url,
+          title: text,
         });
-        const newtextNode = state.schema.text(selectedText, [mark]);
 
+        const newtextNode = state.schema.text(text, [mark]);
         const tr = state.tr.replaceRangeWith(from, to, newtextNode);
         dispatch(tr);
       }

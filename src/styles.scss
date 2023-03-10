@@ -730,6 +730,12 @@ img[ychange_type="removed"] {
   font-weight: normal !important;
 }
 
+.text20px-primary {
+  color: $primary-green;
+  font-size: 14px !important;
+  font-weight: normal !important;
+}
+
 .text14px-primary-dark-blue {
   font-size: 14px;
   color: $primary-dark-blue;
@@ -1174,7 +1180,8 @@ app-root {
     app-dashboard,
     app-editor-container,
     app-landing,
-    app-allnotifications {
+    app-allnotifications,
+    app-profile {
       display: block;
       height: 100%;
       overflow: hidden;
@@ -1182,7 +1189,8 @@ app-root {
 
     app-landing,
     app-dashboard,
-    app-allnotifications {
+    app-allnotifications,
+    app-profile {
       overflow-y: auto;
     }
   }
