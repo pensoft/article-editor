@@ -381,7 +381,7 @@ export class CommentsService {
       // TODO: Get line height of the selected element
       let currentElement = document.elementFromPoint(coordinatesAtFrom.right, coordinatesAtTo.top)
       
-      let editorLineHeight;
+      let editorLineHeight = 0;
       if (currentElement) {
         editorLineHeight = parseInt(window.getComputedStyle(currentElement).lineHeight, 10);
       }
