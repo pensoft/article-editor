@@ -2,12 +2,6 @@
     font-size: 15px;
 }
 
-@media screen and (max-width: 600px) {
-    .meta-data-list {
-        background-color: white;
-    }
-}
-
 ::ng-deep .snackbar-error {
     background-color: white;
     font-size: 18px;

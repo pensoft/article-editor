@@ -1,19 +1,21 @@
-
 .all-notifications {
   display: block;
-  max-width: 90vw;
-  padding: 35px 26px 64px 26px;
-  margin: 0 auto;
+  padding-bottom: 24px;
+  overflow-x: auto;
 
   .all-notifications-content {
     display: block;
     width: 100%;
-    background: white;
-    overflow-y: auto;
+    min-width: 600px;
 
     .notifications-table {
       width: 100%;
-      min-width: 600px;
+
+      th.mat-header-cell,
+      td.mat-cell,
+      td.mat-footer-cell {
+        padding: 0 8px;
+      }
 
       th.mat-header-cell:first-of-type,
       td.mat-cell:first-of-type,
