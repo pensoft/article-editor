@@ -21,10 +21,15 @@ export class EditorMenuComponent implements OnInit {
     this.rposemirrorEditorsService.setIntFunction(this.interpolateTemplate)
   }
 
-  interpolateTemplate = (htmlToCompile: string, data: any, formGroup: FormGroup=new FormGroup({}), template?) => {
+  interpolateTemplate = (htmlToCompile: string, data: any, formGroup: FormGroup=new FormGroup({}), template?, level?: {level: string}) => {
     let compiler = this.compiler
     let container = this.container
     const regex1 = /\[innerHTML\]="[^\"\|]+"/gm
+
+    if (level) {
+      htmlToCompile = htmlToCompile.replace(/\${level}/gm, `${level.level+1}`)
+    }
+
     let array1;
     while ((array1 = regex1.exec(htmlToCompile)) !== null) {
       let newStr = array1[0].slice(0,array1[0].length-1)

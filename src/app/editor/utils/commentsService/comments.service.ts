@@ -379,9 +379,12 @@ export class CommentsService {
       let editorOffsetTop = editor.getBoundingClientRect().top; // Editor Top offset in DOM
       let editorBtnsHeight = editorBtnsWrapper.offsetHeight; // Editor buttons dynamic height
       // TODO: Get line height of the selected element
-      let editorLineHeight = 22; // Line height of selected element (hardcoded to paragraph line height)
-
-
+      let currentElement = document.elementFromPoint(coordinatesAtFrom.right, coordinatesAtTo.top)
+      
+      let editorLineHeight = 0;
+      if (currentElement) {
+        editorLineHeight = parseInt(window.getComputedStyle(currentElement).lineHeight, 10);
+      }
       editorBtnsWrapper.style.display = 'block'
 
       editorBtnsWrapper.style.top = (averageValueTop - editorOffsetTop + editor.scrollTop - editorBtnsHeight/2 + editorLineHeight/2) + 'px';
