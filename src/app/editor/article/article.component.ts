@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { uuidv4 } from 'lib0/random';
 import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../services/ydoc.service';
@@ -23,6 +23,8 @@ export class ArticleComponent implements OnInit {
   articleStructureMap: YMap<any>
   articleFigures?: figure[]
   reload = true
+  @ViewChild('headEditor', { read: ElementRef }) headEditor?: ElementRef;
+
   constructor(
     private ydocService: YdocService,
     private ref: ChangeDetectorRef,
@@ -161,11 +163,14 @@ export class ArticleComponent implements OnInit {
     makeFlat(this.articleSectionsStructure)
     this.articleSectionsStructureFlat = []
     setTimeout(() => {
+      if(this.headEditor){
+        this.moveHeadEditor = articleSectionsStructureFlat.some(x=>x.custom_section_type && x.custom_section_type=='article_title');
+      }
       this.articleSectionsStructureFlat = articleSectionsStructureFlat
       //set article structure flat
     }, 10)
     this.ydocService.customSectionProps?.set('customPropsObj',customPropsObj);
     return articleSectionsStructureFlat
   }
-
+  moveHeadEditor = false;
 }

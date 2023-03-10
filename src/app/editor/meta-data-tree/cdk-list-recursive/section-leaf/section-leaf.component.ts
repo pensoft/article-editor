@@ -150,7 +150,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
           disableClose: false
         }).afterClosed().subscribe(result => {
 
-          if (result && result.compiledHtml) {
+          if (result && result.compiledHtml && node.mode == 'documentMode') {
             //this.PmDialogSessionService.endSession(true);
             this.treeService.editNodeChange(node.sectionID)
 
