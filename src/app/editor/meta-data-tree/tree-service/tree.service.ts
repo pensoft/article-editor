@@ -23,6 +23,8 @@ import { ArticleSectionsService } from '@app/core/services/article-sections.serv
 import { installPatch } from '../cdk-list-recursive/patchCdk';
 import { CdkDropList, DropListRef, transferArrayItem } from '@angular/cdk/drag-drop';
 import { parseSecFormIOJSONMenuAndSchemaDefs } from '@app/editor/utils/fieldsMenusAndScemasFns';
+import { updateYFragment } from '../../../y-prosemirror-src/plugins/sync-plugin.js'
+import {DOMParser} from 'prosemirror-model';
 
 @Injectable({
   providedIn: 'root'
@@ -305,7 +307,7 @@ export class TreeService implements OnDestroy {
     this.treeVisibilityChange.next({ action: 'replaceChildren', newChildren, parent });
   }
 
-  dragNodeChange(from: number, to: number, prevContainerId: string, newContainerId: string) {
+  dragNodeChange(from: number, to: number, prevContainerId: string, newContainerId: string, node: articleSection) {
     /*
     this.serviceShare.YjsHistoryService.startCapturingNewUndoItem();
     this.serviceShare.YjsHistoryService.addUndoItemInformation({type:'section-drag-drop',data:{
@@ -320,9 +322,42 @@ export class TreeService implements OnDestroy {
       //this.serviceShare.FiguresControllerService.updateOnlyFiguresView()
       this.serviceShare.updateCitableElementsViews()
     }, 10)
+
+    this.updateSectionView(node)
+
     this.treeVisibilityChange.next({ action: 'listNodeDrag', from, to, prevContainerId, newContainerId })
   }
+  updateSectionView(node: articleSection) {
+    let findF = (list: articleSection[], cb :(node:articleSection)=>void) => {
+      list.forEach((node) => {
+        cb(node)
+        if (node.children && node.children.length>0) {
+          findF(node.children,cb)
+        }
+      })
+    }
 
+    const updateView = (node: articleSection) => {
+      let level = this.getNodeLevel(node)
+      let htmlTemplate = node.prosemirrorHTMLNodesTempl
+      let sectionFormGroup = this.sectionFormGroups[node.sectionID]
+      let submission = sectionFormGroup.value
+            
+      this.serviceShare.ProsemirrorEditorsService.interpolateTemplate(htmlTemplate, submission, sectionFormGroup, null, {level}).then((result: string) => {
+        let templDiv = document.createElement('div');
+        templDiv.innerHTML = result
+
+        let xmlFragment = this.ydocService.ydoc.getXmlFragment(node.sectionID);
+        
+        let node1 = DOMParser.fromSchema(this.serviceShare.ProsemirrorEditorsService.editorContainers[node.sectionID].editorView.state.schema).parse(templDiv.firstChild!);
+        
+        updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
+        })
+    }
+
+    updateView(node)
+    findF(node.children, updateView)
+  }
   editNodeChange(nodeId: string) {
     this.applyEditChangeV2(nodeId)
     this.applyEditChange(nodeId)
