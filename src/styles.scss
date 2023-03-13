@@ -62,15 +62,24 @@ block-table {
   display: block;
   margin-top: 10px;
   border-radius: 6px;
+  padding: 5px;
   background-color: #fafaf8;
   margin-right: 4px;
   margin-left: 4px;
 
+  h3 p {
+    font-weight: bold;
+  }
+
   table-content {
+    margin: -5px;
+    p {
+      padding: 10px 5px 5px 5px;
+    }
     table {
-      background-color: #fff;
       border-left: none !important;
       border-right: none !important;
+      background-color: #fff;
       td:first-child {
         border-left: none;
       }
@@ -79,29 +88,6 @@ block-table {
         border-right: none;
       }
     }
-  }
-
-  table-content {
-    p {
-      padding: 10px 5px 0px 5px;
-    }
-  }
-
-  table-header-container {
-    p {
-      padding: 0px 5px 0px 5px;
-    }
-  }
-
-  table-footer-container {
-    p {
-      padding: 0px 5px 5px 5px;
-    }
-  }
-
-  h3 p {
-    padding: 0px 5px 0px 5px;
-    font-weight: bold;
   }
 }
 

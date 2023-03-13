@@ -2290,3 +2290,12 @@ app-dropzone {
   }
 }
 
+// Required section content style
+.ProseMirror {
+  form-field[invalid=true] {
+    padding: 6px;
+    .ProseMirror__placeholder {
+      margin: 0;
+    }
+  }
+}

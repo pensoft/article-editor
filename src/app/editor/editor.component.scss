@@ -245,7 +245,7 @@ $treeSpace: 341px;
         flex: 1 1 auto;
         height: fit-content;
         margin: 0;
-        padding: 24px 4px 24px 56px;
+        padding: 24px 4px 24px 52px;
       }
 
       .editor_buttons {
@@ -268,12 +268,15 @@ $treeSpace: 341px;
             button {
               width: 34px;
               height: 34px;
-            }
+              display: flex;
+              justify-content: center;
+              align-items: center;
 
-            .mat-icon {
-              height: 20px;
-              width: 24px;
-              transform: translateY(-4px);
+              .mat-icon {
+                height: 20px;
+                width: 24px;
+                display: block;
+              }
             }
           }
 
