@@ -1745,7 +1745,7 @@ app-comments-section {
   flex-flow: column nowrap;
   gap: 8px;
   position:absolute;
-  left: calc(100% + 10px);
+  left: calc(100% + 6px);
   pointer-events: all;
 
   .edit-citable-item-button,
@@ -1995,6 +1995,9 @@ block-figure {
     > h3 {
       font-size: 15px;
       font-weight: 600;
+      p {
+        font-weight: bold;
+      }
     }
   }
 
@@ -2287,3 +2290,12 @@ app-dropzone {
   }
 }
 
+// Required section content style
+.ProseMirror {
+  form-field[invalid=true] {
+    padding: 6px;
+    .ProseMirror__placeholder {
+      margin: 0;
+    }
+  }
+}

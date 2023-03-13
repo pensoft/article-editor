@@ -58,14 +58,37 @@ end-note-citation {
 }
 
 block-table {
-  border: 1px solid #e2e2dd;
+  border: 1px solid #ddd;
   display: block;
   margin-top: 10px;
-  padding: 5px;
   border-radius: 6px;
+  padding: 5px;
   background-color: #fafaf8;
   margin-right: 4px;
   margin-left: 4px;
+
+  h3 p {
+    font-weight: bold;
+  }
+
+  table-content {
+    margin: -5px;
+    p {
+      padding: 10px 5px 5px 5px;
+    }
+    table {
+      border-left: none !important;
+      border-right: none !important;
+      background-color: #fff;
+      td:first-child {
+        border-left: none;
+      }
+
+      td:last-child {
+        border-right: none;
+      }
+    }
+  }
 }
 
 table-content {
@@ -99,8 +122,9 @@ supplementary-file-citation {
 }
 
 app-figures-prosemirror-view.not-empty {
-  border-top: 2px dashed rgb(0 0 0 / 87%);
+  border-top: 2px dashed #e3e3e3;
   display: block;
+  margin-top: 24px;
 }
 
 .show-article-data {
