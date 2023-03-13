@@ -4,23 +4,29 @@ import {TreeService} from '@app/editor/meta-data-tree/tree-service/tree.service'
 import {articleSection} from '@app/editor/utils/interfaces/articleSection';
 import {HttpClient} from "@angular/common/http";
 import {HelperService} from "@app/editor/section/helpers/helper.service";
-import {Observable} from "rxjs";
+import {Observable, Subject} from "rxjs";
 import {startWith, map} from "rxjs/operators";
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { closeSingleQuote } from 'prosemirror-inputrules';
+import { customSecInterface } from '../funder-section/funder-section.component';
 
 @Component({
   selector: 'app-material-section',
   templateUrl: './material-section.component.html',
   styleUrls: ['./material-section.component.scss']
 })
-export class MaterialSectionComponent implements AfterViewInit {
+export class MaterialSectionComponent implements AfterViewInit,customSecInterface {
 
   @Input() onSubmit!: (data: any) => Promise<any>;
   @Output() onSubmitChange = new EventEmitter<(data: any) => Promise<any>>();
 
   @Input() section!: articleSection;
   @Output() sectionChange = new EventEmitter<articleSection>();
+
+  @Input() triggerCustomSecSubmit: Subject<any>;
+  @Output() triggerCustomSecSubmitChange = new EventEmitter<Subject<any>>();
+
+
   selected = new FormControl(0);
   //@ts-ignore
   materialStructure: any = {categories: {} as any};
@@ -78,6 +84,10 @@ export class MaterialSectionComponent implements AfterViewInit {
       startWith(''),
       map(value => this._filter(value || '')),
     );
+
+    this.triggerCustomSecSubmit.subscribe(()=>{
+      this.triggerSubmit()
+    })
   }
 
   optionSelected(event, tabs) {
@@ -90,7 +100,7 @@ export class MaterialSectionComponent implements AfterViewInit {
     }, 300)
   }
 
-  async triggerSubmit() {
+  @Output() async triggerSubmit() {
     let data: any = {
       typeStatus: this.typeStatus!.value,
       typeHeading: this.typeHeading!.value,

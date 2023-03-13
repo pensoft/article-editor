@@ -4,19 +4,25 @@ import {TreeService} from '@app/editor/meta-data-tree/tree-service/tree.service'
 import {articleSection} from '@app/editor/utils/interfaces/articleSection';
 import {HttpClient} from "@angular/common/http";
 import {ServiceShare} from '@app/editor/services/service-share.service';
+import { customSecInterface } from '../funder-section/funder-section.component';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-taxon-section',
   templateUrl: './taxon-section.component.html',
   styleUrls: ['./taxon-section.component.scss']
 })
-export class TaxonSectionComponent implements AfterViewInit {
+export class TaxonSectionComponent implements AfterViewInit,customSecInterface {
 
   @Input() onSubmit!: (data: any) => Promise<any>;
   @Output() onSubmitChange = new EventEmitter<(data: any) => Promise<any>>();
 
   @Input() section!: articleSection;
   @Output() sectionChange = new EventEmitter<articleSection>();
+
+  @Input() triggerCustomSecSubmit: Subject<any>;
+  @Output() triggerCustomSecSubmitChange = new EventEmitter<Subject<any>>();
+
   render = false;
   classification ?: FormControl
   rank ?: FormControl
@@ -105,6 +111,10 @@ export class TaxonSectionComponent implements AfterViewInit {
     this.text2Control = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get('textField1')?.value)
     this.taxonauthorsandyear = new FormControl(this.treeService.sectionFormGroups[this.section.sectionID].get('taxonauthorsandyear')?.value)
     this.render = true;
+
+    this.triggerCustomSecSubmit.subscribe(()=>{
+      this.triggerSubmit()
+    })
   }
 
   async triggerSubmit() {

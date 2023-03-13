@@ -26,9 +26,10 @@
         <mat-formio #formio [form]="sectionContent" (ready)="ready($event)" (change)="onChange($event)" (submit)="onSubmit($event)"></mat-formio>
       </div>
 
-      <app-taxon-section *ngIf="section.title.name == 'Taxon'" [(onSubmit)]="onSubmit" [(section)]="section"></app-taxon-section>
-      <app-materials-section *ngIf="section.title.name == '[MM] Materials' && !component" [(onSubmit)]="onSubmit" [(section)]="section" [fGroup]="sectionForm"></app-materials-section>
-      <app-material-section *ngIf="section.title.name == 'Material' || component" [(onSubmit)]="onSubmit" [(section)]="section"></app-material-section>
+      <app-taxon-section *ngIf="section.title.name == 'Taxon'" [(onSubmit)]="onSubmit" [(section)]="section" [(triggerCustomSecSubmit)]="triggerCustomSecSubmit"></app-taxon-section>
+      <app-materials-section *ngIf="section.title.name == '[MM] Materials' && !component" [(onSubmit)]="onSubmit" [(section)]="section" [fGroup]="sectionForm" [(triggerCustomSecSubmit)]="triggerCustomSecSubmit"></app-materials-section>
+      <app-material-section *ngIf="section.title.name == 'Material' || component" [(onSubmit)]="onSubmit" [(section)]="section" [(triggerCustomSecSubmit)]="triggerCustomSecSubmit"></app-material-section>
+      <app-funder-section *ngIf="section.title.name == '[AM] Funder'" [(onSubmit)]="onSubmit" [(section)]="section" [(triggerCustomSecSubmit)]="triggerCustomSecSubmit"></app-funder-section>
     </ng-container>
   </div>
 

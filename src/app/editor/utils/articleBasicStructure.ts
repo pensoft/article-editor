@@ -75,7 +75,7 @@ export const renderSectionFunc:
   }
 
   if (sectionFromBackend.type == 2) {
-    sectionFromBackend.schema.sections.forEach((child: any, indexOfChild: number) => {
+    sectionFromBackend.schema.sections?sectionFromBackend.schema.sections.forEach((child: any, indexOfChild: number) => {
       const childSection = JSON.parse(JSON.stringify(customSectionEnums[child]));
       childSection.override = sectionFromBackend.schema.override;
       const props = Object.keys(sectionFromBackend.schema.override.categories).map(key => {
@@ -96,7 +96,7 @@ export const renderSectionFunc:
       deepIterator(childSection, JSON.parse(JSON.stringify(sectionFromBackend.schema.override)));
       // childSection.settings = sectionFromBackend.complex_section_settings[indexOfChild]
       renderSectionFunc(childSection, children, ydoc,serviceShare)
-    })
+    }):undefined
   }
   let newId = uuidv4()
   let newArticleSection: articleSection
@@ -212,7 +212,7 @@ export const renderSectionFunc:
       delete: {active: true, main: false},
       menusAndSchemasDefs:sectionMenusAndSchemaDefs,
       addSubSection: {active: true, main: true},
-      mode: 'documentMode',
+      mode: (!sectionFromBackend.schema.schema||!sectionFromBackend.schema.schema.components||sectionFromBackend.schema.schema.components.length == 0)?'noSchemaSectionMode':'documentMode',
       formIOSchema: formIOJSON,
       pivotId:sectionFromBackend.pivot_id,
       allow_compatibility:sectionFromBackend.allow_compatibility,
@@ -223,8 +223,9 @@ export const renderSectionFunc:
       prosemirrorHTMLNodesTempl: sectionTemplate,
       children: children,
       override: sectionFromBackend.schema.override,
-      type: 'complex',
+      type: (sectionFromBackend.schema.sections&&sectionFromBackend.schema.sections.length>0)?'complex':'simple',
       custom:true,
+      custom_section_type:sectionFromBackend.schema.cutom_section_type?sectionFromBackend.schema.cutom_section_type:undefined,
       sectionIdFromBackend: sectionFromBackend.id,
       sectionTypeID: sectionFromBackend.id,
       sectionTypeVersion: sectionFromBackend.version,
@@ -233,7 +234,6 @@ export const renderSectionFunc:
       originalSectionTemplate:JSON.parse(JSON.stringify(sectionFromBackend)),
       compatibility: taxonTreatmentSection.compatibility ? taxonTreatmentSection.compatibility : undefined
     }
-
     if (sectionFromBackend.complex_section_settings) {
       let minmaxValds: any = {};
       sectionFromBackend.complex_section_settings.forEach((secMinMax: {
