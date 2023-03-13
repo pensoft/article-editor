@@ -55,9 +55,7 @@ export class AuthService implements OnDestroy {
       map((token) => {
         this.storeToken('token', token['access_token']);
         this.storeToken('refresh_token', token['refresh_token']);
-        setTimeout(()=>{
-          this.sharedService.EnforcerService.triggerUpdatePolicy()
-        },0)
+        if(this.userInfo)this.userInfo = undefined
         return token;
       }),
       switchMap((token) => this.getUserInfo(token)),
@@ -147,6 +145,7 @@ export class AuthService implements OnDestroy {
   userInfo:any = undefined
 
   getUserInfo(token = null) {
+
     let getInfo = (token = null)=>{
       const auth = token || this.getToken();
       if(token){
@@ -157,7 +156,7 @@ export class AuthService implements OnDestroy {
         return of(undefined);
       }
       if(this.userInfo){
-        //this.sharedService.EnforcerService.policiesChangeSubject.next(this.userInfo);
+                //this.sharedService.EnforcerService.policiesChangeSubject.next(this.userInfo);
         return of(this.userInfo)
       }else{
       }

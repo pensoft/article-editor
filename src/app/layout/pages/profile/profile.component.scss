@@ -1,5 +1,71 @@
 @import "../../../../assets/colors";
-.name-text{
-    font-size: 24px;
-    color: $primary-dark-blue;
+.name-text {
+  font-size: 24px;
+  color: $primary-dark-blue;
+}
+
+::ng-deep .mat-button:hover:not(.mat-button-disabled) .mat-button-focus-overlay,
+.mat-stroked-button:hover:not(.mat-button-disabled) .mat-button-focus-overlay {
+  opacity: 0;
+}
+
+::ng-deep .mat-button {
+  &.button-back {
+    width: 90px;
+    margin-top: 10px;
+    margin-left: 20px;
+    padding: 0;
+
+    .text20px-primary {
+      font-size: 20px !important;
+    }
+  }
+}
+
+::ng-deep .mat-card {
+  &.card {
+    box-shadow: 0px 3px 6px #1bb1b21f;
+  }
+}
+
+.header-wrapper {
+  margin-top: 40px !important;
+}
+
+.title {
+  margin: 0;
+}
+
+.subtitle {
+  color: $primary-dark-blue;
+}
+
+::ng-deep .mat-form-field {
+  &.form-field {
+    .mat-form-field-wrapper {
+      padding-bottom: 0 !important;
+
+      .mat-form-field-flex {
+        border: 1px solid #e0e0e0 !important;
+      }
+    }
+
+    .mat-select-arrow {
+      color: $primary-green;
+    }
+  }
+}
+
+::ng-deep .mat-form-field-appearance-outline {
+  .mat-form-field-outline-end {
+    border: unset !important;
+  }
+
+  .mat-form-field-outline-start {
+    border: unset !important;
+  }
+}
+
+.row {
+  margin-bottom: 20px;
 }

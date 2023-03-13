@@ -173,7 +173,7 @@
             </div>
             <div class="tag-words-btn-div"
                   [ngStyle]="{
-                    'display':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'none':'block'
+                    'display':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag || !(canShowTaxonButtons | async))?'none':'block'
                   }"
             >
               <button (click)="taxonService.tagText(false)"
@@ -185,7 +185,7 @@
             </div>
             <div class="tag-words-btn-div"
                   [ngStyle]="{
-                    'display':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag)?'none':'block'
+                    'display':(userAccess == 'Commenter'||userAccess == 'Viewer'||!canCreateTag || !(canShowTaxonButtons | async))?'none':'block'
                   }"
             >
               <button (click)="taxonService.tagText(true)" [ngClass]="'tag_text_as_taxon_side_btn'" [matTooltip]="'Tag all occurrence of this text as Taxon.'"

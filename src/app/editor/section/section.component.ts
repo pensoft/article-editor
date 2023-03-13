@@ -33,11 +33,16 @@ import {HelperService} from "@app/editor/section/helpers/helper.service";
 import { ServiceShare } from '../services/service-share.service';
 import { filterFieldsValues } from '../utils/fieldsMenusAndScemasFns';
 import { schema } from '../utils/Schema';
+import { customSecInterface, FunderSectionComponent } from './funder-section/funder-section.component';
+import { MaterialSectionComponent } from './material-section/material-section.component';
+import { MaterialsSectionComponent } from './materials-section/materials-section.component';
+import { TaxonSectionComponent } from './taxon-section/taxon-section.component';
+import { Subject } from 'rxjs';
 
 @Component({
   selector: 'app-section',
   templateUrl: './section.component.html',
-  styleUrls: ['./section.component.scss']
+  styleUrls: ['./section.component.scss'],
 })
 export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked {
 
@@ -90,6 +95,8 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
   @ViewChild('container', {read: ViewContainerRef}) container?: ViewContainerRef;
   @ViewChild('formio', {read: ViewContainerRef}) formio?: ViewContainerRef;
 
+  triggerCustomSecSubmit = new Subject()
+
   constructor(
     private compiler: Compiler,
     private editSectionService: EditSectionService,
@@ -102,7 +109,6 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
     private serviceShare:ServiceShare,
     private changeDetectionRef:ChangeDetectorRef
     ) {
-
     /* if(this.formControlService.popUpSectionConteiners[this.section.sectionID]){
       this.popUpContainer = this.formControlService.popUpSectionConteiners[this.section.sectionID]
     }else{
@@ -154,6 +160,8 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
   submitSection(){
     if(this.formIoRoot){
       this.formIoRoot.submit()
+    }else if(this.section.title.name == 'Taxon'||this.section.title.name == '[MM] Materials'||this.section.title.name == 'Material'||this.section.title.name=='[AM] Funder'){
+      this.triggerCustomSecSubmit.next(true)
     }
   }
 
@@ -203,7 +211,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
       if (this.section.type == 'complex') {
         this.submitComplexSectionEdit()
       }
-      if(this.section.title.name == 'Taxon'||this.section.title.name == '[MM] Materials'||this.section.title.name == 'Material'){
+      if(this.section.title.name == 'Taxon'||this.section.title.name == '[MM] Materials'||this.section.title.name == 'Material'||this.section.title.name=='[AM] Funder'){
         // custum section
         this.addCustomSectionData(this.section,submision.data)
       }
@@ -233,14 +241,15 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
       // get the text content from the codemirror editor which after compiling will be used as the new node structure for sections's Prosemirror
       let tr = this.codemirrorHTMLEditor?.state.update()
       this.codemirrorHTMLEditor?.dispatch(tr!);
+      let level = this.treeService.getNodeLevel(this.section)
       if (prosemirrorNewNodeContent.indexOf(`<ng-template #${this.section.title.name.replace(/[\W_]+/g,'')}`) > -1) {
         if (this.section.title.name === 'Material') {
-          interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
+          interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''), {level});
         } else {
-          interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
+          interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''),{level});
         }
       } else {
-        interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!,submision.data, this.sectionForm);
+        interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!,submision.data, this.sectionForm, null, {level});
       }
       if(submision.data.sectionTreeTitle && submision.data.sectionTreeTitle.length>0){
         this.treeService.saveNewTitleChange(this.section,submision.data.sectionTreeTitle)
@@ -366,15 +375,16 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
       // custum section
       this.addCustomSectionData(this.section,this.section.defaultFormIOValues)
     }
+    let level = this.treeService.getNodeLevel(this.section)
     if (root.prosemirrorHTMLNodesTempl.indexOf(`<ng-template #${this.section.title.name.replace(/[\W_]+/g,'')}`) > -1) {
       prosemirrorNewNodeContent = root.prosemirrorHTMLNodesTempl;
       if (this.section.title.name === 'Material') {
-        interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, this.section.defaultFormIOValues, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
+        interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, this.section.defaultFormIOValues, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''),{level});
       } else {
-        interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''));
+        interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm, this.section.title.name.replace(/[\W_]+/g,''),{level});
       }
     } else {
-      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm);
+      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, {}, this.sectionForm, null,{level});
     }
     submision.compiledHtml = interpolated
     this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)

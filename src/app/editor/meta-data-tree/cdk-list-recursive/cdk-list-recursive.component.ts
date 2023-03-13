@@ -115,7 +115,7 @@ export class CdkListRecursiveComponent implements OnInit, OnDestroy, AfterViewIn
     }
     if (event.previousContainer === event.container) {
       moveItemInArray(event.container.data, event.previousIndex, event.currentIndex);
-      this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, event.previousContainer.id, event.container.id);
+      this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, event.previousContainer.id, event.container.id, event.item.data.node);
     } else {
       // copy data and moe the items the copy then cehck if the list level is grater than 4 if it is wi dont perform the drop instead wi display an error
 
@@ -170,7 +170,7 @@ export class CdkListRecursiveComponent implements OnInit, OnDestroy, AfterViewIn
           event.container.data,
           event.previousIndex,
           event.currentIndex);
-        this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, event.previousContainer.id, event.container.id);
+        this.treeService.dragNodeChange(event.previousIndex, event.currentIndex, event.previousContainer.id, event.container.id, event.item.data.node);
       }
     }
   }

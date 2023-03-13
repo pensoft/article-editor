@@ -62,6 +62,12 @@ export class DetectFocusService {
         },
       },
       props:{
+        handleDOMEvents:{
+          focus:(view)=>{
+            let {sectionName,hasFocus} = detectFocusPluginKey.getState(view.state)
+            setLastEditorFocus(sectionName)
+          }
+        },
         decorations:(state)=>{
           if(this.shouldCreateSelDecoration){
             let {sectionName} = detectFocusPluginKey.getState(state)

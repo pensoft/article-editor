@@ -1,21 +1,21 @@
 <section fxLayout="row" fxLayoutAlign="center" class="container-center mt30px dark-blue">
   <mat-card class="mat-card-shadow mb50px">
     <article fxLayout="column" fxFlex="20%">
-      <button mat-button (click)="backClicked()" class="mt65px">
+      <button mat-button (click)="backClicked()" class="button-back">
                 <mat-icon svgIcon="chevronCircleLeft"></mat-icon> <span class="text14px-primary ml-10px">BACK </span>
-            </button>
+      </button>
     </article>
     <article fxLayout="column" fxLayoutAlign="center" fxFlex="60%">
-      <div fxLayout="row" class="mb30px mt65px">
+      <div fxLayout="row" class="mb30px mt65px header-wrapper">
         <div fxLayout="column" fxFill>
-          <h3 class="text14px-primary text-center">
+          <h3 class="text14px-primary text-center title">
             PERSONAL INFO
           </h3>
-          <p class="text-center">This information can be shared with the applications that you have authorized to access your profile.</p>
+          <p class="text-center subtitle">This information can be shared with the applications that you have authorized to access your profile.</p>
         </div>
       </div>
       <div fxLayout="row" class="mb40px">
-        <mat-card fxFill fxLayout="row" fxLayoutAlign="center center">
+        <mat-card class="card" fxFill fxLayout="row" fxLayoutAlign="center center">
           <div id="avatar" fxFlex="20%" class="mt30px mb30px">
             <app-avatar></app-avatar>
           </div>
@@ -24,25 +24,25 @@
           </div>
           <div>
             <button mat-icon-button>
-                            <mat-icon svgIcon="modeEdit24px"></mat-icon>
-                        </button>
+              <mat-icon svgIcon="modeEdit24px"></mat-icon>
+            </button>
           </div>
         </mat-card>
       </div>
       <div fxLayout="row" class="mb40px">
         <div fxLayout="column" fxLayoutAlign="center center">
-          <h3 class="text14px-primary">
+          <h3 class="text14px-primary title">
             DEMOGRAPHIC
           </h3>
-          <p class="text-center">Adding demographic information in your profile will help make your experience more personalized across all the applications where your profile is used.</p>
+          <p class="text-center subtitle">Adding demographic information in your profile will help make your experience more personalized across all the applications where your profile is used.</p>
         </div>
       </div>
       <div fxLayout="row">
         <div fxLayout="column" fxLayoutAlign="start" fxFlex="100%">
           <form [formGroup]="demographicForm" (ngSubmit)="submitDemographicForm()" fxLayout="column" fxFlex="100%">
-            <div fxLayout="row" fxLayoutAlign="start center">
+            <div class="row" fxLayout="row" fxLayoutAlign="start center">
               <div fxFlex="25%" class="text14px-primary-dark-blue">Country selection</div>
-              <mat-form-field appearance="outline">
+              <mat-form-field class="form-field" appearance="outline">
                 <mat-select formControlName="country">
                   <div *ngFor="let country of countriesInfo">
                     <mat-option [value]="country.name">{{country.name}}</mat-option>
@@ -50,7 +50,7 @@
                 </mat-select>
               </mat-form-field>
             </div>
-            <div fxLayout="row" fxLayoutAlign="start center">
+            <div class="row" fxLayout="row" fxLayoutAlign="start center">
               <div fxFlex="25%" class="text14px-primary-dark-blue">Year Of Birth
               </div>
               <!-- <mat-form-field appearance="outline">
@@ -58,27 +58,27 @@
                   <mat-option [value]="">Year</mat-option>
                 </mat-select>
               </mat-form-field> -->
-              <mat-form-field appearance="outline">
+              <mat-form-field class="form-field" appearance="outline">
                 <input matInput type="text" name="yearOfBirth" formControlName="yearOfBirth">
               </mat-form-field>
             </div>
-            <div fxLayout="row" fxLayoutAlign="start center" fxFlex="100%">
+            <div class="row" fxLayout="row" fxLayoutAlign="start center" fxFlex="100%">
               <div fxFlex="25%" class="text14px-primary-dark-blue">Research area
               </div>
-              <mat-form-field appearance="outline" fxFlex="100%">
+              <mat-form-field class="form-field" appearance="outline" fxFlex="100%">
                 <input matInput type="text" name="area" formControlName="area">
               </mat-form-field>
             </div>
-            <div fxLayout="row" fxLayoutAlign="start center" fxFlex="100%">
+            <div class="row" fxLayout="row" fxLayoutAlign="start center" fxFlex="100%">
               <div fxFlex="25%" class="text14px-primary-dark-blue">Work role</div>
-              <mat-form-field appearance="outline" fxFlex="100%">
+              <mat-form-field class="form-field" appearance="outline" fxFlex="100%">
                 <input matInput type="text" name="workRole" formControlName="workRole">
               </mat-form-field>
             </div>
             <div fxLayout="row" fxLayoutAlign="center center">
               <button mat-raised-button color="primary" type="submit" class="w140px">
-                                Send
-                            </button>
+                    Send
+              </button>
             </div>
           </form>
         </div>

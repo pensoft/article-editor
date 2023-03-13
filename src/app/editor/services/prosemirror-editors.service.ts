@@ -67,7 +67,6 @@ import { getFilterNodesBySchemaDefPlugin } from '../utils/Schema/filterNodesIfSc
 import { CitableElementsEditButtonsService } from '../utils/citable-elements-edit-buttons/citable-elements-edit-buttons.service';
 import { getToolTipPlugin } from '../utils/toolTipPlugin';
 import {getItems} from '../utils/menu/menuItems'
-import { getRefsEditPlugin } from '../utils/refsEditPlugin';
 import { LinkButtonsService } from '../utils/link-buttons/link-buttons.service';
 export interface editorContainersObj { [key: string]: editorContainer }
 export interface editorContainer {
@@ -1011,7 +1010,6 @@ export class ProsemirrorEditorsService {
         //this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         getToolTipPlugin(this.serviceShare),
-        getRefsEditPlugin(this.serviceShare),
         this.detectFocusService.getPlugin(),
         getFilterNodesBySchemaDefPlugin(this.serviceShare),
         this.serviceShare.CitableElementsContextMenuService.getPlugin(),

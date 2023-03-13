@@ -150,7 +150,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
           disableClose: false
         }).afterClosed().subscribe(result => {
 
-          if (result && result.compiledHtml) {
+          if (result && result.compiledHtml && node.mode == 'documentMode') {
             //this.PmDialogSessionService.endSession(true);
             this.treeService.editNodeChange(node.sectionID)
 
@@ -219,8 +219,12 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   }
 
   addNodeHandle(nodeId: string) {
-    this.prosemirrorEditorsService.spinSpinner();
-    this.treeService.addNodeChange(nodeId,this.node.originalSectionTemplate,this.prosemirrorEditorsService.stopSpinner);
+    if(!willBeMoreThan4Levels(this.treeService.getNodeLevel(this.node),this.node.originalSectionTemplate)){
+      this.prosemirrorEditorsService.spinSpinner();
+      this.treeService.addNodeChange(nodeId,this.node.originalSectionTemplate,this.prosemirrorEditorsService.stopSpinner);
+    }else{
+      this.serviceShare.openSnackBar('Adding this subsection will exceed the maximum levels of the tree.','Close',()=>{},4000)
+    }
   }
 
   deleteNodeHandle(nodeId: string) {

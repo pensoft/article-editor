@@ -90,6 +90,10 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
 
   canCreateTag = false;
 
+  get canShowTaxonButtons() {
+    return this.serviceShare.TaxonService.canShowTaxonButtons;
+  }
+
   constructor(
     private ydocService: YdocService,
     private route: ActivatedRoute,
