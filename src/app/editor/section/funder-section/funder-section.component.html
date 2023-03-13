@@ -1,0 +1,38 @@
+<span class="upper-label">Search supporting projects/agencies in OpenAIRE and Open Funder Registry databases</span>
+<mat-form-field class="search-in-refindit mat-form-field-search" appearance="fill">
+  <input type="text"
+          placeholder="Type here..."
+          aria-label="References"
+          matInput
+          #trigger="matAutocompleteTrigger"
+          matAutocompletePosition="below"
+          [formControl]="searchReferencesControl"
+          [matAutocomplete]="auto"
+          #refinditsearch>
+  <mat-icon matPrefix class="prefix-icon">search</mat-icon>
+  <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn">
+    <ng-container>
+      <mat-option *ngIf="loading" class="is-loading">
+        <mat-spinner diameter="25"></mat-spinner>
+      </mat-option>
+    </ng-container>
+    <ng-container *ngIf="searchData">
+      <mat-option class="refindit-autocomplete-option"
+      [class.demo-row-is-clicked]="option == externalSelection" *ngFor="let option of searchData" [value]="option" (click)="select(option, 'external');$event.stopPropagation(); trigger.openPanel()">
+        <div class="option-refindit-view">
+          <div class="refindit-first-author">{{option.ref.autocompleteView.firstAuthor}}</div>
+          <div class="refindit-year">{{option.ref.autocompleteView.year}}</div>
+          <div class="refindit-title">{{option.ref.autocompleteView.title}}</div>
+          <div class="refindit-source">{{option.ref.autocompleteView.source}}</div>
+        </div>
+      </mat-option>
+    </ng-container>
+  </mat-autocomplete>
+</mat-form-field>
+<span class="upper-label">
+  <h2>OR</h2>
+</span>
+<div class="description-edit-container">
+  <span class="upper-label">Add supporting projects/agencies as free text</span>
+  <div class="pm-editor pm-editor-override" #funderContent></div>
+</div>

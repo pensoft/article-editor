@@ -72,7 +72,8 @@ export interface articleSection {
   compatibility?: { allow: { all: boolean, values: number[] }, deny: { all: boolean, values: number[] } }
   custom?:true,
   customSchema:{isCustom:boolean,schema?:{nodes:string[],marks:string[]}};
-  sectionMenusAndSchemasDefsfromJSONByfieldsTags?:{[key:string]:{menu:any,schema:any}}
+  sectionMenusAndSchemasDefsfromJSONByfieldsTags?:{[key:string]:{menu:any,schema:any}},
+  custom_section_type?:string
   originalSectionTemplate:any
 }
 
