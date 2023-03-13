@@ -31,6 +31,7 @@ export class DropzoneComponent implements AfterViewInit {
     createImageThumbnails: false,
     thumbnailWidth: 120,
     thumbnailHeight: 120,
+    //uploadMultiple: false,
     url: environment.apiUrl+'/cdn/v1/upload',
     capture:'',
     timeout: 0,

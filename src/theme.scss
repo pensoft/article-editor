@@ -308,10 +308,11 @@ $altTheme: (primary: $theme-primary,
     min-width: auto;
 
     .ProseMirror-menubar {
+      position: relative;
       min-height: auto;
       padding: 16px 40px;
-      box-shadow: 0 5px 5px #1bb1b22b;
-      position: relative;
+      text-align: center;
+      box-shadow: 0 2px 4px $box-shadow;
       z-index: 1;
     }
   }
