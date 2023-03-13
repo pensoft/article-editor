@@ -29,3 +29,12 @@ export function createCustomIcon(name: string, width?: number, height?: number,d
     dom: icon
   }
 }
+
+
+/*
+ 12,
+      12,
+      0,
+      1.5,
+      1.3
+*/

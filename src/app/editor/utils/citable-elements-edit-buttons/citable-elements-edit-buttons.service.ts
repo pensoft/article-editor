@@ -240,6 +240,9 @@ export class CitableElementsEditButtonsService {
           let focusedEditor = serviceShare.DetectFocusService.sectionName
           let currentEditor = pluginState.sectionName
           let {from,to,$from,$to} = state.selection;
+          let { parent: node } = state.doc.resolve(state.selection.$anchor.pos);
+          
+          if(!node || node.type.name == "reference_citation") return DecorationSet.empty;
           if(from!=to || currentEditor!=focusedEditor) return DecorationSet.empty;
 
           //@ts-ignore
@@ -247,6 +250,7 @@ export class CitableElementsEditButtonsService {
           let {citableElementTag,el,elPos} = this.getElTypeFromPath(posPath)
 
           if(!citableElementTag) return DecorationSet.empty;
+          
           let elementMap = this.elementsMaps[citableElementTag];
           let elementId = el.attrs[elementMap.idProp];
 
@@ -312,10 +316,6 @@ export class CitableElementsEditButtonsService {
           let coordsInCursorPos = view.coordsAtPos(from);
           let editorViewRectangle = view.dom.getBoundingClientRect();
           let top = coordsInCursorPos.top-editorViewRectangle.top;
-
-          // console.log('------------------- ');
-          // console.log('view.coordsAtPos(from): ', view.coordsAtPos(from));
-
           html.setAttribute('style', `top:${top}px;`);
           html.setAttribute('tabindex',"-1");
 

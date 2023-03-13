@@ -10,6 +10,7 @@ export const reference_citation = {
     refCitationID:{default:''},
     citedRefsIds:{default:[]},
     nonexistingelement:{ default:'false' },
+    citedRefsCiTOs: { default: []}
   },
   parseDOM: [{
     tag: "reference-citation", getAttrs(dom: any) {
@@ -18,6 +19,7 @@ export const reference_citation = {
         nonexistingelement: dom.getAttribute('nonexistingelement'),
         refCitationID : dom.getAttribute('refCitationID'),
         citedRefsIds : dom.getAttribute('citedRefsIds')?dom.getAttribute('citedRefsIds').split(','):[],
+        citedRefsCiTOs: dom.getAttribute('citedRefsCiTOs') ? dom.getAttribute('citedRefsCiTOs').split(',') : []
       }
     },
   }],
@@ -27,10 +29,12 @@ export const reference_citation = {
       refCitationID:node.attrs.refCitationID,
       "nonexistingelement": node.attrs.nonexistingelement,
       citedRefsIds:node.attrs.citedRefsIds.join(','),
+      citedRefsCiTOs: node.attrs.citedRefsCiTOs.join(',')
     }
     return ["reference-citation", attributesToDom, 0];
   }
 }
+
 
 export const reference_container = {
   content: "block*",

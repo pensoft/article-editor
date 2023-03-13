@@ -9,6 +9,7 @@ import { normalize } from 'path';
 import { ViewportScroller } from '@angular/common';
 import { saveAs } from 'file-saver'
 import { MarkType } from 'prosemirror-model';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 
 @Injectable({
   providedIn: 'root'
@@ -47,18 +48,17 @@ export class LinkPopUpPluginServiceService {
     }
   }
 
-  constructor(private detectFocusService: DetectFocusService, public csvServiceService: CsvServiceService) {
+  constructor(private serviceShare: ServiceShare, public csvServiceService: CsvServiceService) {
     const self = this;
     let lastFocusedEditor: any
-    lastFocusedEditor = detectFocusService.sectionName
-    this.detectFocusService.focusedEditor.subscribe((data: any) => {
+    lastFocusedEditor = self.serviceShare.DetectFocusService.sectionName
+    self.serviceShare.DetectFocusService.focusedEditor.subscribe((data: any) => {
       if (data) {
         lastFocusedEditor = data
       }
     })
 
     let linkPopUpPluginKey = new PluginKey('commentPlugin')
-    let detectFocusPluginKey = detectFocusService.detectFocusPluginKey
     this.linkPopUpPluginKey = linkPopUpPluginKey
     this.linkPopUpPlugin = new Plugin({
       key: this.linkPopUpPluginKey,
@@ -72,11 +72,13 @@ export class LinkPopUpPluginServiceService {
       },
       props: {
         decorations(state: EditorState) {
-          const pluginState = linkPopUpPluginKey.getState(state);
-          const focusRN = detectFocusPluginKey.getState(state);
+          const pluginState = self.linkPopUpPluginKey.getState(state);
+          const focusedEditor = self.serviceShare.DetectFocusService.sectionName;
+          const currentEditor = pluginState.sectionName;
+          
+          if (focusedEditor != currentEditor) return DecorationSet.empty
+          if(currentEditor == "endEditor") return DecorationSet.empty;
 
-          if (!(focusRN.hasFocus || (lastFocusedEditor == focusRN.sectionName))) return DecorationSet.empty
-          if(pluginState.sectionName == "endEditor") return DecorationSet.empty;
 
           const { $anchor } = state.selection;
           const linkMarkInfo = self.markPosition(state,$anchor.pos, state.schema.marks.link)

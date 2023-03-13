@@ -112,29 +112,29 @@ export class RefsInArticleDialogComponent implements OnDestroy {
     return newRefs
   }
 
-  refsCiTOsControls = {}
+  // refsCiTOsControls = {}
 
   passRefsToSubject() {
     let newRefs = this.getRefsForCurrEditSession();
-    let refsToPass = [...Object.values(newRefs)]
-    refsToPass.forEach((ref:any,i)=>{
-      let formC
-      if(this.refsCiTOsControls[ref.ref.id]){
-        formC = this.refsCiTOsControls[ref.ref.id]
-      }else{
-        formC = new FormControl(ref.refCiTO?this.CiToTypes.find(x=>x.label == ref.refCiTO.label):null);
-        this.refsCiTOsControls[ref.ref.id] = formC
-      }
+    // let refsToPass = [...Object.values(newRefs)]
+    // refsToPass.forEach((ref:any,i)=>{
+    //   let formC
+    //   if(this.refsCiTOsControls[ref.ref.id]){
+    //     formC = this.refsCiTOsControls[ref.ref.id]
+    //   }else{
+    //     formC = new FormControl(ref.refCiTO?this.CiToTypes.find(x=>x.label == ref.refCiTO.label):null);
+    //     this.refsCiTOsControls[ref.ref.id] = formC
+    //   }
 
-      ref.refCiTOControl = formC
-    })
+    //   ref.refCiTOControl = formC
+    // })
     this.ydocAndChangedRefsSubject.next([...Object.values(newRefs)]);
   }
 
   saveRefsInArticle() {
     let newRefs = this.getRefsForCurrEditSession();
-    let refsWithNoFormControls = clearRefFromFormControl(newRefs)
-    this.refMap.set('refsAddedToArticle', refsWithNoFormControls);
+    // let refsWithNoFormControls = clearRefFromFormControl(newRefs)
+    this.refMap.set('refsAddedToArticle', newRefs);
     setTimeout(()=>{
       this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
     },20)
@@ -169,7 +169,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
       this.refsAPI.getStyles().subscribe((refStyles: any) => {
         let referenceStyles = refStyles.data
         let referenceTypesFromBackend = refTypes.data;
-        let oldData = { refData: { formioData: ref.formIOData }, refType: ref.refType, refStyle: ref.refStyle,refCiTO:this.refsCiTOsControls[ref.ref.id]?this.refsCiTOsControls[ref.ref.id].value:ref.refCiTO }
+        let oldData = { refData: { formioData: ref.formIOData }, refType: ref.refType, refStyle: ref.refStyle,refCiTO: null}
         const dialogRef = this.dialog.open(ReferenceEditComponent, {
           data: { referenceTypesFromBackend, oldData, referenceStyles },
           panelClass: ['edit-reference-panel', 'editor-dialog-container'],
@@ -214,9 +214,9 @@ export class RefsInArticleDialogComponent implements OnDestroy {
               refCiTO:result.refCiTO,
               refStyle
             }
-            if(this.refsCiTOsControls[ref.ref.id]){
-              this.refsCiTOsControls[ref.ref.id].setValue(result.refCiTO?this.CiToTypes.find(x=>x.label == result.refCiTO.label):null)
-            }
+            // if(this.refsCiTOsControls[ref.ref.id]){
+            //   this.refsCiTOsControls[ref.ref.id].setValue(result.refCiTO?this.CiToTypes.find(x=>x.label == result.refCiTO.label):null)
+            // }
             let refId = refInstance.ref.id;
             this.changedOrAddedRefs[refId] = refInstance
             if (this.deletedRefsIds.includes(refId)) {
