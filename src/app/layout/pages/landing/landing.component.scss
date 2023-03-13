@@ -107,15 +107,14 @@
         }
 
         .image-container {
-          width: 224px;
-          height: 205px;
-          margin-left: auto;
-          margin-right: auto;
+          width: 260px;
+          margin: 0 auto;
         }
 
         ul.card-content {
           list-style: none;
-          padding: 27px 21px;
+          margin: 0 22px 36px 22px;
+          padding: 0;
 
           li {
             padding-left: 1.5em;
