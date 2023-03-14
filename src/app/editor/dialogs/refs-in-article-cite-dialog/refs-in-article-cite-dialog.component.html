@@ -1,6 +1,6 @@
-<h2 mat-dialog-title class="title-margin-bottom">Cite Reference</h2>
+<h2 mat-dialog-title class="title-margin-bottom">{{ isEditMode ? "Edit" : "Cite" }} Reference</h2>
 
-<div class="search-field-wrapper">
+<div class="search-field-wrapper" *ngIf="!isEditMode">
   <div class="mat-form-field-search-label">Search References</div>
   <mat-form-field class="mat-form-field-search" appearance="fill">
     <input type="text"
@@ -66,8 +66,8 @@
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button (click)="closeDialog()">Cancel</button>
-  <button mat-stroked-button color="primary" (click)="openAddNewRefToEditorDialog()">Add Reference</button>
-  <button mat-flat-button color="primary" [disabled]="checkedRefs.length==0" (click)="citeSelectedRefs()">
-    Cite References
+  <button *ngIf="!isEditMode" mat-stroked-button color="primary" (click)="openAddNewRefToEditorDialog()">Add Reference</button>
+  <button mat-flat-button color="primary" [disabled]="isEditMode ? false : checkedRefs.length==0" (click)="citeSelectedRefs()">
+   {{ isEditMode ? "Save" : "Cite References" }}
   </button>
 </mat-dialog-actions>

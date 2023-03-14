@@ -10,7 +10,7 @@ import { EditorState, TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 
 export let CiToTypes = [
-  {label: "Select CiTo", link: ""},
+  { label: "None", link: "" },
   { label: "agrees with", link: "http://purl.org/spar/cito/agreesWith" },
   { label: "cites as authority", link: "http://purl.org/spar/cito/citesAsAuthority" },
   { label: "cites as recommended reading", link: "http://purl.org/spar/cito/citesAsRecommendedReading" },
@@ -37,7 +37,7 @@ export class EditorsRefsManagerService {
 
   dothSaveToHistory = false;
 
-  citateSelectedReferencesInEditor(citedRefs: string[], view: EditorView, citedRefsAtPos?: {
+  citateSelectedReferencesInEditor(citedRefs: string[], view: EditorView, isEditMode: boolean, citedRefsAtPos?: {
     citedRefsIds: string[],
     citationNode: Node,
     citationPos: number
@@ -64,10 +64,18 @@ export class EditorsRefsManagerService {
 
     this.serviceShare.YjsHistoryService.captureBigOperation();
 
-    let citationTxt = schema.text(refsTxts.join(', '));
-    if (!citedRefsAtPos) {
+    if(isEditMode && !citedRefs.length) {
+      view.dispatch(state.tr.deleteRange(
+        citedRefsAtPos.citationPos - 1,
+        citedRefsAtPos.citationPos + citedRefsAtPos.citationNode.nodeSize - 1
+      ));
+    } else if (!citedRefsAtPos) {
+      let citationTxt = schema.text(refsTxts.join(', '));
+
       view.dispatch(state.tr.replaceSelectionWith(schema.nodes.reference_citation.create(nodeAttrs, citationTxt)));
     } else {
+      let citationTxt = schema.text(refsTxts.join(', '));
+
       view.dispatch(state.tr.replaceWith(citedRefsAtPos.citationPos - 1, citedRefsAtPos.citationPos + citedRefsAtPos.citationNode.nodeSize -  1, schema.nodes.reference_citation.create(nodeAttrs, citationTxt)))
     }
 
