@@ -71,8 +71,10 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
   }
 
   ngAfterViewInit(): void {
-    this.searchrefs.nativeElement.focus()
-    this.ref.detectChanges()
+    if(!this.isEditMode) {
+      this.searchrefs.nativeElement.focus();
+    }
+    this.ref.detectChanges();
   }
 
   saveNewRefsInYdoc(){
@@ -164,6 +166,6 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
   citeSelectedRefs(){
     clearRefFromFormControl(this.refsInYdoc);
 
-    this.dialogRef.close({ citedRefs:this.checkedRefs })
+    this.dialogRef.close({ citedRefs:this.checkedRefs, isEditMode: this.isEditMode })
   }
 }

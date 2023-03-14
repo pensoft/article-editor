@@ -68,7 +68,8 @@ let citateRef = (sharedService: ServiceShare) => {
     })
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        sharedService.EditorsRefsManagerService.citateSelectedReferencesInEditor(result.citedRefs,view,citationObj)
+        const { citedRefs, isEditMode } = result;
+        sharedService.EditorsRefsManagerService.citateSelectedReferencesInEditor(citedRefs, view, isEditMode, citationObj)
       }
       /* if(result){
         sharedService.YjsHistoryService.startCapturingNewUndoItem();

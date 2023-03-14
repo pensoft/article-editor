@@ -108,6 +108,7 @@ export class CitedRefsButtonsService {
                   serviceShare.EditorsRefsManagerService.citateSelectedReferencesInEditor(
                     result.citedRefs,
                     view,
+                    true,
                     citationObj
                   );
                 }

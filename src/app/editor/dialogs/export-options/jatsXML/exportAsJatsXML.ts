@@ -871,7 +871,7 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
         "ref-type": "bibr",
         "rid": rid
       }
-      let CiTO = CiToTypes.find(type => type.label == citedRefsCiTOs[i] && type.label !== "Select CiTo");
+      let CiTO = CiToTypes.find(type => type.label == citedRefsCiTOs[i] && type.label !== "None");
       if(CiTO){
         let CiTOlink = CiTO.link
         xrefAttr['custom-type'] = CiTOlink
