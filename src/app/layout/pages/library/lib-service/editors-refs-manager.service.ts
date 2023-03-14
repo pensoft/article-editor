@@ -6,10 +6,11 @@ import { PMDomParser } from '@app/editor/utils/Schema';
 import { uuidv4 } from 'lib0/random';
 import { endsWith, keys } from 'lodash';
 import { DOMParser, DOMSerializer, Fragment, Node, Schema } from 'prosemirror-model';
-import { EditorState } from 'prosemirror-state';
+import { EditorState, TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 
 export let CiToTypes = [
+  {label: "Select CiTo", link: ""},
   { label: "agrees with", link: "http://purl.org/spar/cito/agreesWith" },
   { label: "cites as authority", link: "http://purl.org/spar/cito/citesAsAuthority" },
   { label: "cites as recommended reading", link: "http://purl.org/spar/cito/citesAsRecommendedReading" },
@@ -37,22 +38,20 @@ export class EditorsRefsManagerService {
   dothSaveToHistory = false;
 
   citateSelectedReferencesInEditor(citedRefs: string[], view: EditorView, citedRefsAtPos?: {
-    citedRefsAtPos: string[],
-    citationAtPos: Node,
+    citedRefsIds: string[],
+    citationNode: Node,
     citationPos: number
-  }) {
-
+    }) {
     let refsInYdoc = this.serviceShare.YdocService.referenceCitationsMap.get('refsAddedToArticle');
-    let props = { refsInYdoc }
 
     let state = view.state;
-    let sel = state.selection;
     let schema = state.schema as Schema;
 
     let nodeAttrs = {
       refCitationID: uuidv4(),
       citedRefsIds: citedRefs,
-      contenteditableNode: false
+      contenteditableNode: false,
+      citedRefsCiTOs: citedRefs.map(id => refsInYdoc[id].refCiTO?.label || CiToTypes[0].label)
     }
 
     let refsTxts: string[] = Object.keys(refsInYdoc).reduce<string[]>((prev: string[], key: string, i: number) => {
@@ -69,11 +68,8 @@ export class EditorsRefsManagerService {
     if (!citedRefsAtPos) {
       view.dispatch(state.tr.replaceSelectionWith(schema.nodes.reference_citation.create(nodeAttrs, citationTxt)));
     } else {
-      view.dispatch(state.tr.replaceWith(citedRefsAtPos.citationPos, citedRefsAtPos.citationPos + citedRefsAtPos.citationAtPos.nodeSize, schema.nodes.reference_citation.create(nodeAttrs, citationTxt)))
+      view.dispatch(state.tr.replaceWith(citedRefsAtPos.citationPos - 1, citedRefsAtPos.citationPos + citedRefsAtPos.citationNode.nodeSize -  1, schema.nodes.reference_citation.create(nodeAttrs, citationTxt)))
     }
-    this.checkIfAnyRefsShouldBeAddedToEndEditor();
-    //this.checkIfAnyRefsShouldBeRemovedFromEndEditor();
-    this.checkIfShouldUpdateRefs();
 
     this.serviceShare.YjsHistoryService.endBigOperationCapture()
   }

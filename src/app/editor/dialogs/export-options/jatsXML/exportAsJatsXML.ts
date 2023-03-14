@@ -1,4 +1,5 @@
 import {ServiceShare} from "@app/editor/services/service-share.service";
+import { CiToTypes } from "@app/layout/pages/library/lib-service/editors-refs-manager.service";
 import {bigJatsFile} from "./jatsFile";
 import {saveAs} from 'file-saver';
 import {create} from 'xmlbuilder2';
@@ -860,15 +861,17 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
     processPmMarkAsXML(node, xmlPar, before)
     return;
   } else if (node.type == "reference_citation") {
-    let citedRefs = node.attrs.citedRefsIds
-    citedRefs.forEach(x=>{
+    let citedRefs = node.attrs.citedRefsIds as string[]
+    let citedRefsCiTOs = node.attrs.citedRefsCiTOs as string[];
+    citedRefs.forEach((x, i)=>{
       let actualRef = options.refObj[x];
-      let rid = refIdsG[x];
+      let rid = refIdsG[x];      
       let refTxt = actualRef.citation.data.text;
       let xrefAttr = {
-        "ref-type": "bibr", "rid": rid
+        "ref-type": "bibr",
+        "rid": rid
       }
-      let CiTO = actualRef.refCiTO
+      let CiTO = CiToTypes.find(type => type.label == citedRefsCiTOs[i] && type.label !== "Select CiTo");
       if(CiTO){
         let CiTOlink = CiTO.link
         xrefAttr['custom-type'] = CiTOlink

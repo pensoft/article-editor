@@ -17,21 +17,47 @@
 <mat-dialog-content class="fixed-dialog-content-height">
   <div class="all-refs-container">
     <div class="mat-checkbox-group" fxLayout="column nowrap">
-      <ng-container *ngFor="let ref of ydocRefsSubject | async">
-        <div class="ref-container">
-          <mat-checkbox class="ref-checkbox"
+      <ng-container *ngIf="!isEditMode">
+        <div class="ref-container" [ngClass]="{'edit-mode': isEditMode}" *ngFor="let ref of ydocRefsSubject | async">
+            <mat-checkbox class="ref-checkbox"
             [checked]="checkedRefs.includes(ref.ref.id)"
             (change)="checkBoxChange($event.checked,ref)"
             [color]='"primary"'>
               <span class="ref-txt" [innerHTML]="ref.citation.textContent | makeTextBold : searchValue"></span>
             </mat-checkbox>
+
             <mat-form-field class="ref-cito-select" *ngIf="ref.refCiTOControl" appearance="fill" #referenceType>
-              <mat-select class="select-reference" [formControl]="ref.refCiTOControl" placeholder="CiTO...">
+              <mat-select class="select-reference" [formControl]="ref.refCiTOControl" placeholder="Select CiTo">
                 <mat-option *ngFor="let type of CiToTypes " [value]="type">
                   {{type.label}}
                 </mat-option>
               </mat-select>
             </mat-form-field>
+
+        </div>
+      </ng-container>
+
+      <!-- If it's edit mode -->
+      <ng-container *ngIf="isEditMode">
+        <div class="ref-container" [ngClass]="{'edit-mode': isEditMode}" *ngFor="let ref of ydocRefsSubject | async">
+
+          <ng-container *ngIf="checkedRefs.includes(ref.ref.id)">
+            <div class="ref-edit-mode" *ngIf="isEditMode">
+              <button mat-icon-button (click)="deleteCitation(ref.ref.id)" color="warn" title="Remove Citation" class="delete-citation">
+                  <mat-icon>delete</mat-icon>
+              </button>
+              <span class="ref-text" [innerHTML]="ref.citation.textContent | makeTextBold : searchValue"></span>
+            </div>
+
+            <mat-form-field class="ref-cito-select" *ngIf="ref.refCiTOControl" appearance="fill" #referenceType>
+              <mat-select class="select-reference" [formControl]="ref.refCiTOControl" placeholder="Select CiTo">
+                <mat-option *ngFor="let type of CiToTypes " [value]="type">
+                  {{type.label}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </ng-container>
+
         </div>
       </ng-container>
     </div>

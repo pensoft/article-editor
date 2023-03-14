@@ -307,6 +307,16 @@
   margin-top: 10px;
 }
 
+::ng-deep .ProseMirror .cite-ref-buttons + p,
+::ng-deep .ProseMirror .cite-ref-buttons + h1,
+::ng-deep .ProseMirror .cite-ref-buttons + h2,
+::ng-deep .ProseMirror .cite-ref-buttons + h3,
+::ng-deep .ProseMirror .cite-ref-buttons + h4,
+::ng-deep .ProseMirror .cite-ref-buttons + h5,
+::ng-deep .ProseMirror .cite-ref-buttons + h6{
+  margin-top: 10px;
+}
+
 ::ng-deep .ProseMirror .edit-link-buttons + p,
 ::ng-deep .ProseMirror .edit-link-buttons + h1,
 ::ng-deep .ProseMirror .edit-link-buttons + h2,
