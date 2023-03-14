@@ -1860,17 +1860,21 @@ app-comments-section {
     .mat-paginator-container {
       min-height: auto;
 
+      .mat-paginator-page-size {
+        display: none;
+      }
+
       .mat-paginator-range-actions {
-        position: relative;
+        display: flex;
+        flex-flow: row nowrap;
+        justify-content: center;
         padding: 0;
 
         .mat-paginator-range-label {
-          position: absolute;
-          top: 0;
-          right: 0;
-          left: 0;
+          flex-grow: 1;
+          order: 2;
           margin: 0;
-          padding: 0 28px;
+          padding: 0 8px;
           text-align: center;
           transform: none;
           font-size: 14px;
@@ -1880,8 +1884,18 @@ app-comments-section {
         }
 
         button {
+          width: 28px;
+          height: 28px;
           background: var(--color-white);
           box-shadow: 0 2px 4px #00B1B22D;
+
+          &:first-of-type {
+            order: 1;
+          }
+
+          &:last-of-type {
+            order: 3;
+          }
 
           span {
             display: flex;
