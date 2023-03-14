@@ -156,8 +156,6 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   let subjectGeographicalCl = subjGroupGeographicalCl.ele('subject').txt('Central America and the Caribbean')// should probably come from the article layout
   /*          */
   let titleGroup = article_meta.ele('title-group')
-  /*              */
-  let articleTitle = titleGroup.ele('article-title').txt(serviceShare.YdocService.articleData ? serviceShare.YdocService.articleData.name : 'Untitled')
   /*          */
   let contribGroup = article_meta.ele('contrib-group', {"content-type": "authors"})
 
@@ -307,18 +305,6 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   /*                  */
   let licenseP = license.ele('license-p').txt('This is an open access article distributed under the terms of the Creative Commons Attribution License (CC BY 4.0), which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.')
   /*          */
-  let abstract = article_meta.ele('abstract')
-  /*              */
-  let abstractLabel = abstract.ele('title').txt('Abstract')
-  /*              */
-  let abstractContent = abstract.ele('p').txt('Abstract content') // should come fron the editor as a section
-  /*          */
-  let kwdGroup = article_meta.ele('kwd-group')
-  /*              */
-  let kwdGroupLabel = kwdGroup.ele('label').txt('Keywords');
-  /*              */
-  let kwdGroupKwd1 = kwdGroup.ele('kwd').txt('keyword1'); // sgould come from the editor as a section or from meta data
-  /*          */
   let fundingGroup = article_meta.ele('funding-group')
   /*              */
   let fundingStatement = fundingGroup.ele('funding-statement').txt('Funding information'); // meta data for the article
@@ -331,32 +317,60 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   /*              */
   let countsRef = counts.ele('ref-count', {"count": "" + refCount})
   /**/
-  let body = article.ele('body')
+  let body
+  let notes
+  let back = article.ele('back')
+
   // create all article sections
   serviceShare.TreeService.articleSectionsStructure.forEach((sec) => {
     let secId = sec.sectionID;
     let container = serviceShare.ProsemirrorEditorsService.editorContainers[secId]
-    if(container){
-      let secview = container.editorView;
-      parseSection(secview, body, serviceShare, sec,{refObj});
+    let secview = container?.editorView;
+    if (container && secview) {
+
+      switch (sec.title.name) {
+        case '[AM] Title':{
+          let element = sec.jats_tag ? titleGroup.ele(sec.jats_tag) : titleGroup.ele('label')
+          parseNode(secview.state.toJSON().doc, element, false, '--', 0,{articleTitle: true})
+          break
+        }
+        case '[AM] Keywords':{
+          let kwdGroup = article_meta.ele('kwd-group')
+          parseNode(secview.state.toJSON().doc, kwdGroup, false, '--', 0,{keywordGroup: true})
+        }
+        break
+        case '[AM] Funding program':
+        case '[AM] Grant title':
+        case '[AM] Hosting institution':
+        case '[AM] Ethics and security':
+        case '[AM] Conflicts of interest':{
+          if (!notes) {
+            notes = front.ele('notes')
+          }
+          let element = sec.jats_tag ? notes.ele(sec.jats_tag, {"sec-type": sec.title.name}) : notes.ele('sec', {"sec-type": sec.title.name})
+          parseNode(secview.state.toJSON().doc, element, false, '--', 0,{})
+          break
+        }
+        case '[AM] Abstract':{
+          const element = sec.jats_tag ? article_meta.ele(sec.jats_tag) : article_meta.ele('abstract')
+          parseNode(secview.state.toJSON().doc, element, false, '--', 0,{abstract: true})
+          break
+        }
+        case '[AM] Author contributions':{
+          const element = sec.jats_tag ? back.ele(sec.jats_tag, {"sec-type": sec.title.name}) : back.ele('sec', {"sec-type": sec.title.name})
+          parseNode(secview.state.toJSON().doc, element, false, '--', 0,{})
+          break
+        }
+        default:
+          if (!body) {
+            body = article.ele('body')
+          }
+          parseSection(secview, body, serviceShare, sec,{refObj});
+          break;
+      }
     }
   })
   /**/
-  let back = article.ele('back') // refs , Acknowledgements ,
-  /*    */
-  let ackBack = back.ele('ack');
-  /*        */
-  let ackBackTitle = ackBack.ele('title').txt('Acknowledgements');
-  /*        */
-  let ackBackP = ackBack.ele('p').txt("Acknowledgements content");
-  /*    */
-  let backNotes = back.ele('notes');
-  /*        */
-  let backNotesSec = backNotes.ele('sec', {"sec-type": "Author contributions"}); // author contribution
-  /*            */
-  let backNotesSecTitle = backNotesSec.ele('title').txt('Author contributions');
-  /*            */
-  let backNotesSecP = backNotesSec.ele('p').txt('Author contributions content');
   /*    */
   let refsList = back.ele('ref-list');
   /*        */
@@ -848,13 +862,27 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
   let shouldSkipNextBlockElements = false;
   let shouldContinueRendering = true
   if (node.type == 'heading') {
-    if (index == 0) {
+    if (index == 0 && options.articleTitle) {
+      return;
+    }
+    if (index == 0 && (options.keywordGroup || options.abstract)) {
+      newParNode = xmlPar.ele('label')
+      options.keywordLabel = true
+    } else if (index == 0) {
       newParNode = xmlPar.ele('title')
+    } else if (options.articleTitle) {
+      newParNode = xmlPar
     } else {
       newParNode = xmlPar.ele('p')
     }
     shouldSkipNextBlockElements = true;
   } else if (node.type == 'text' && (!node.marks || node.marks.length == 0)) {
+    if (options.keywordGroup && !options.keywordLabel) {
+      const keywords = node.text.split(',').map(keyword => keyword.trim());
+      keywords.forEach(keyword => xmlPar.ele('kwd').txt(keyword))
+      return
+    }
+    delete options.keywordLabel
     xmlPar.txt(node.text);
     return;
   } else if (node.type == 'text' && node.marks && node.marks.length > 0) {
@@ -881,7 +909,11 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
     })
     shouldContinueRendering  = false;
   } else if (node.type == "paragraph") {
-    newParNode = xmlPar.ele('p')
+    if (options.keywordGroup) {
+      newParNode = xmlPar
+    } else {
+      newParNode = xmlPar.ele('p')
+    }
   } else if (node.type == 'math_inline') {
     newParNode = xmlPar.ele('inline-formula').ele('tex-math', {id: "M" + mathCount})
     mathCount++

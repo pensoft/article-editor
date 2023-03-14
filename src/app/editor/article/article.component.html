@@ -2,7 +2,7 @@
   <app-head-prosemirror-view *ngIf="!moveHeadEditor" #headEditor></app-head-prosemirror-view>
   <ng-container *ngFor="let section of articleSectionsStructureFlat,let i = index">
     <app-section [(section)]="articleSectionsStructureFlat![i]"></app-section>
-    <app-head-prosemirror-view *ngIf="section.custom_section_type=='article_title'&&moveHeadEditor" #headEditor></app-head-prosemirror-view>
+    <app-head-prosemirror-view *ngIf="section.jats_tag=='article-title'&&moveHeadEditor" #headEditor></app-head-prosemirror-view>
   </ng-container>
   <app-figures-prosemirror-view [figures]="articleFigures!" [ngClass]="{'not-empty':!prosemirrorEditorsService.endDocIsEmpty}"></app-figures-prosemirror-view>
   <div class="end-article-spase"></div>
