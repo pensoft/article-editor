@@ -1741,7 +1741,9 @@ app-comments-section {
     }
   }
 }
-.citable-items-edit-buttons, .edit-link-buttons {
+.citable-items-edit-buttons,
+.edit-link-buttons,
+.cite-ref-buttons {
   display: flex;
   flex-flow: column nowrap;
   gap: 8px;
@@ -1754,7 +1756,9 @@ app-comments-section {
   .move-citable-item-up-button,
   .move-citable-item-down-button,
   .edit-link-button,
-  .unlink-button {
+  .unlink-button,
+  .edit-cite-ref-button,
+  .delete-cite-ref-button {
     display: flex;
     flex-flow: row nowrap;
     justify-content: center;
@@ -1796,6 +1800,14 @@ app-comments-section {
     &.move-citable-item-down-button {
       // border-color: var(--color-192956);
       box-shadow: 0 1px 2px 1px var(--color-818181), 0 0 0 0 var(--color-818181), 0 1px 3px 0 var(--color-818181);
+    }
+
+    &.edit-cite-ref-button {
+      box-shadow: 0 1px 2px 1px var(--color-818181), 0 0 0 0 var(--color-818181), 0 1px 3px 0 var(--color-818181);
+    }
+
+    &.delete-cite-ref-button {
+      box-shadow: 0 1px 2px 1px var(--color-e56b87), 0 0 0 0 var(--color-e56b87), 0 1px 3px 0 var(--color-e56b87);
     }
 
     img {

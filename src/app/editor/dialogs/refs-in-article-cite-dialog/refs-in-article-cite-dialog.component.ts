@@ -35,13 +35,15 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
 
   searchControl = new FormControl('')
 
+  isEditMode: boolean;
+
   constructor(
     private ydocService:YdocService,
     public dialogRef: MatDialogRef<RefsInArticleCiteDialogComponent>,
     public dialog: MatDialog,
     private ref:ChangeDetectorRef,
     private serviceShare:ServiceShare,
-    @Inject(MAT_DIALOG_DATA) public data: {citedRefsAtPos?:string[]},
+    @Inject(MAT_DIALOG_DATA) public data: { citedRefsIds: string[], citedRefsCiTOs: string[], isEditMode: boolean },
     ) {
     this.refMap = this.ydocService.referenceCitationsMap;
     this.refMap.observe(this.observeRefMapChanges)
@@ -91,23 +93,30 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
       this.passRefsToSubject()
     }, 20)
   }
+  
   refsCiTOsControls:{[key:string]:FormControl} = {}
-
   passRefsToSubject() {
     let newRefs = this.refsInYdoc
+    
     Object.values(newRefs).forEach((ref:any,i)=>{
       let formC:FormControl
       if(this.refsCiTOsControls[ref.ref.id]){
         formC = this.refsCiTOsControls[ref.ref.id]
-      }else{
-        formC = new FormControl(ref.refCiTO?this.CiToTypes.find(x=>x.label == ref.refCiTO.label):null);
+      } else if (this.isEditMode) {
+        formC = new FormControl(null);
+        this.data.citedRefsIds.forEach((id, i) => {
+          if(ref.ref.id == id) {
+            formC.setValue((CiToTypes.find(t => t.label == this.data.citedRefsCiTOs[i])));
+          }
+        })
+        this.refsCiTOsControls[ref.ref.id] = formC;
+      } else{
+        formC = new FormControl(null);
         this.refsCiTOsControls[ref.ref.id] = formC
       }
-      formC.valueChanges.subscribe((change)=>{
-        this.saveNewRefsInYdoc()
-      })
       ref.refCiTOControl = formC
     })
+
     this.ydocRefsSubject.next([...Object.values(newRefs).filter((x:any)=>{
       if(!x.citation.textContent){
         let container = document.createElement('div');
@@ -124,8 +133,9 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
       this.searchValue = value
       this.passRefsToSubject()
     })
-    if(this.data.citedRefsAtPos){
-      this.checkedRefs.push(...this.data.citedRefsAtPos)
+    if(this.data.isEditMode){
+      this.checkedRefs.push(...this.data.citedRefsIds);
+      this.isEditMode = true;
     }
   }
 
@@ -147,8 +157,13 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
     }
   }
 
+  deleteCitation(citationId) {
+    this.checkedRefs = this.checkedRefs.filter(id => id != citationId)
+  }
+
   citeSelectedRefs(){
-    let refsWithNoFormControls = clearRefFromFormControl(this.refsInYdoc)
-    this.dialogRef.close({citedRefs:this.checkedRefs,refsInYdoc:refsWithNoFormControls})
+    clearRefFromFormControl(this.refsInYdoc);
+
+    this.dialogRef.close({ citedRefs:this.checkedRefs })
   }
 }

@@ -32,39 +32,42 @@ export function shareDialog(dialog: MatDialog) {
 
 let citateRef = (sharedService: ServiceShare) => {
   return (state: EditorState, dispatch: any, view: EditorView) => {
-    //@ts-ignore
-    let resolvedPosPath = state.selection.$anchor.path
-    let citedRefsAtPos
-    let citationAtPos
-    let citationPos
-    let citationObj
-    for(let i = resolvedPosPath.length-3;i>=0&&!citedRefsAtPos;i-=3){
-      let node:Node = resolvedPosPath[i];
-      if(!citedRefsAtPos&&node.type.name == 'reference_citation'){
-        citedRefsAtPos = node.attrs.citedRefsIds;
-        citationAtPos = node
-        citationPos = resolvedPosPath[i-1]
+    const $pos = state.doc.resolve(state.selection.$anchor.pos);
+    const {parent: node} = $pos;
+    const from = $pos.start();
+
+    let citedRefsIds: string[];
+    let citedRefsCiTOs: string[];
+    let citationNode: Node;
+    let citationPos: number;
+    let citationObj: {
+      citedRefsIds: string[],
+      citationNode: Node,
+      citationPos: number
+      }
+    let isEditMode: boolean;
+
+    if(node && node.type.name == "reference_citation") {
+        citedRefsIds = node.attrs.citedRefsIds;
+        citedRefsCiTOs = node.attrs.citedRefsCiTOs;
+        isEditMode = true;
+        citationNode = node;
+        citationPos = from;
         citationObj = {
-          citedRefsAtPos,
-          citationAtPos,
+          citedRefsIds,
+          citationNode,
           citationPos
         }
-      }
     }
 
     let dialogRef = sharedDialog.open(RefsInArticleCiteDialogComponent,{
       panelClass: 'editor-dialog-container',
-      data:{citedRefsAtPos},
+      data: { citedRefsIds, citedRefsCiTOs, isEditMode },
       width: '680px',
       // height:'461px',
     })
     dialogRef.afterClosed().subscribe(result => {
       if(result){
-        let citedRefs = result.citedRefs
-        let refsInYdoc = JSON.parse(JSON.stringify(result.refsInYdoc))
-        Object.values(refsInYdoc).forEach((ref:any)=>{
-          ref.citation.text = ref.citation.data.text;
-        })
         sharedService.EditorsRefsManagerService.citateSelectedReferencesInEditor(result.citedRefs,view,citationObj)
       }
       /* if(result){
@@ -94,9 +97,13 @@ let citateRef = (sharedService: ServiceShare) => {
     });
   }
 }
+
 let canCitate = (state: EditorState) => {
   let sel = state.selection;
-  if(!state.schema.nodes.reference_citation) return false;
+  const $pos = state.doc.resolve(state.selection.$anchor.pos);
+  const {parent: node} = $pos;
+  
+  if(!state.schema.nodes.reference_citation || node.type?.name == "reference_citation") return false;
   if(sel.from !== sel.to) return false;
   return true;
 }
