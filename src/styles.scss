@@ -1356,10 +1356,6 @@ router-outlet {
   border-radius: 18px !important;
 }
 
-.mat-paginator-range-actions {
-  padding-right: 72px;
-}
-
 .mat-tab-label-content {
   color: $primary-green;
 }
@@ -1367,35 +1363,6 @@ router-outlet {
 .tab-profile-info {
   .mat-tab-label-content {
     color: $primary-green;
-  }
-}
-
-.paginator {
-  button:first-of-type {
-    width: 28px;
-    height: 28px;
-    line-height: 28px;
-    margin-right: 100px;
-    background: $primary-green;
-    color: #fff;
-  }
-  button:last-of-type {
-    width: 28px;
-    height: 28px;
-    line-height: 28px;
-    background: $primary-green;
-    color: #fff;
-  }
-  button.mat-focus-indicator.mat-tooltip-trigger.mat-icon-button.mat-button-base.mat-button-disabled {
-    background: $primary-green;
-    color: #fff;
-  }
-  .mat-paginator-range-label {
-    margin: 0 32px 0 24px;
-    transform: translate(140px, 0px);
-  }
-  .mat-paginator-page-size.ng-star-inserted {
-    display: none;
   }
 }
 
