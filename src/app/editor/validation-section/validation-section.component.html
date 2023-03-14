@@ -1,9 +1,8 @@
 <mat-card class="mat-card">
   <mat-card-header>
-    <mat-icon svgIcon="validate"></mat-icon>
-    <mat-card-title>Article Validation</mat-card-title>
+    <mat-card-title><mat-icon svgIcon="validate"></mat-icon> Article Validation</mat-card-title>
   </mat-card-header>
-  <mat-card-subtitle>{{results}} Results</mat-card-subtitle>
+  <mat-card-subtitle *ngIf="displayErrors&&!spinnerComponent">{{results}} Results</mat-card-subtitle>
   <ng-container *ngIf="!spinnerComponent&&!displayErrors">
     <mat-card-content>
       <div class="image-container">
@@ -12,11 +11,12 @@
       <p> Validate your article <br>before submitting it <br>for review. </p>
     </mat-card-content>
     <mat-card-actions>
-      <arpha-button (clickEvent)="validate()" label="Validate" class="small secondary" style="margin-right: 16px;">
+      <arpha-button (clickEvent)="validate()" label="Validate" class="small secondary">
       </arpha-button>
     </mat-card-actions>
   </ng-container>
 </mat-card>
+
 <div *ngIf="spinnerComponent&&!displayErrors" #spinnerIssue>
   <div class="spinnerSpace"><img #spinner class="spinnerImg" src="./../../../../assets//icons//spinner.svg" alt=""></div>
   <div class="persentage">
@@ -60,15 +60,14 @@
         <li>{{error.errorMessage}}</li>
       </ul>
     </div>
-    <hr class="error-hr">
     <div class="number-of-characters">Number of characters(with spaces): {{articleLength}}</div>
-    <arpha-button (clickEvent)="validate()" label="Validate" class="small secondary validate-with-errors" style="margin-right: 16px;">
+    <arpha-button (clickEvent)="validate()" label="Validate" class="small secondary validate-with-errors">
     </arpha-button>
   </div>
   <div *ngIf="results==0">
     <img class="succes-img" src="./../../../assets/img/Illustration-validation.svg" alt="">
     <div class="succes">Successfully validated!</div>
-    <arpha-button (clickEvent)="validate()" label="Update" class="small gray validate-with-errors" style="margin-right: 16px;">
+    <arpha-button (clickEvent)="validate()" label="Update" class="small gray validate-with-errors">
     </arpha-button>
   </div>
 </div>

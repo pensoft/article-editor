@@ -2317,3 +2317,8 @@ app-dropzone {
     }
   }
 }
+
+// Progress bar buffer styling
+.mat-progress-bar-buffer {
+  background-color: var(--color-e3e3e3) !important;
+}
