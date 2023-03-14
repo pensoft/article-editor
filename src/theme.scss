@@ -2140,7 +2140,7 @@ app-dropzone {
   dropzone {
     margin: 0 0 24px 0;
 
-    .dz-wrapper {
+    .dropzone.dz-wrapper.dz-single {
       display: flex;
       flex-flow: row wrap;
       gap: 8px;
@@ -2203,12 +2203,13 @@ app-dropzone {
       .dz-preview {
         display: inline-flex;
         flex-flow: row wrap;
-        width: calc(25% - 6px) !important;
-        min-width: 200px;
-        margin: 0 !important;
+        width: 100%;
+        max-width: 300px;
+        margin: 0 auto !important;
         overflow: visible;
 
         .dz-image {
+          height: 120px;
           width: 100% !important;
           border-radius: 6px !important;
           background: var(--color-ffffff) !important;
@@ -2237,8 +2238,10 @@ app-dropzone {
         }
 
         .dz-error-message {
-          left: 0 !important;
-          width: 100% !important;
+          left: 8px !important;
+          top: 54% !important;
+          transform: none !important;
+          width: calc(100% - 16px) !important;
           border-radius: 6px !important;
           background: var(--warn-color) !important;
 
@@ -2249,6 +2252,8 @@ app-dropzone {
         }
 
         .dz-error-mark {
+          top: 33% !important;
+
           svg {
             g {
               g {
@@ -2260,6 +2265,8 @@ app-dropzone {
         }
 
         .dz-success-mark {
+          top: 33% !important;
+
           svg {
             g {
               path {
@@ -2270,11 +2277,9 @@ app-dropzone {
           }
         }
 
-
         .dz-remove {
           display: block;
-          width: 100%;
-          margin: 8px 0 0 0;
+          margin: 8px auto 0 auto;
           border: 1px solid var(--warn-color);
           border-radius: 6px;
           color: var(--warn-color);
