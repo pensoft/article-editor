@@ -40,7 +40,7 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
 
 let tablesHtmlTemplate = `
 <block-table [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.table_number]="data.tableNumber" [attr.table_id]="data.tableID">
-  <h3 tagname="h3" contenteditablenode="false"><p contenteditablenode="false">Table: {{data.tableNumber+1}}</p></h3>
+  <h3 tagname="h3" contenteditablenode="false"><p contenteditablenode="false">Table {{data.tableNumber+1}}.</p></h3>
   <table-header-container>
     <table-description *ngIf="data.tableHeader" formControlName="tableHeader" style="display:block;">
     </table-description>
