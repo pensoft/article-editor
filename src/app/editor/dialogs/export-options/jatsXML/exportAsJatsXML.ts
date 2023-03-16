@@ -912,6 +912,7 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
   let shouldContinueRendering = true
   if (node.type == 'heading') {
     if (index == 0 && options.articleTitle) {
+      xmlPar.txt(node.content[0].content[0].text);
       return;
     }
     if (index == 0 && (options?.keywordGroup || options.abstract)) {
@@ -926,6 +927,7 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
     }
     shouldSkipNextBlockElements = true;
   } else if (node.type == 'text' && (!node.marks || node.marks.length == 0)) {
+    
     if (options?.keywordGroup && !options?.keywordLabel) {
       const keywords = node.text.split(',').map(keyword => keyword.trim());
       keywords.forEach(keyword => keyword ? xmlPar.ele('kwd').txt(keyword) : undefined)
