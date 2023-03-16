@@ -27,8 +27,8 @@
             </mat-checkbox>
 
             <mat-form-field class="ref-cito-select" *ngIf="ref.refCiTOControl" appearance="fill" #referenceType>
-              <mat-select class="select-reference" [formControl]="ref.refCiTOControl" placeholder="Select CiTo">
-                <mat-option *ngFor="let type of CiToTypes " [value]="type">
+              <mat-select class="select-reference" [formControl]="ref.refCiTOControl">
+                  <mat-option *ngFor="let type of CiToTypes" [value]="type">
                   {{type.label}}
                 </mat-option>
               </mat-select>
@@ -50,7 +50,7 @@
             </div>
 
             <mat-form-field class="ref-cito-select" *ngIf="ref.refCiTOControl" appearance="fill" #referenceType>
-              <mat-select class="select-reference" [formControl]="ref.refCiTOControl" placeholder="Select CiTo">
+              <mat-select class="select-reference" [formControl]="ref.refCiTOControl">
                 <mat-option *ngFor="let type of CiToTypes " [value]="type">
                   {{type.label}}
                 </mat-option>

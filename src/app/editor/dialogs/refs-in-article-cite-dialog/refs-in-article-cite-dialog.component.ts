@@ -113,7 +113,7 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
         })
         this.refsCiTOsControls[ref.ref.id] = formC;
       } else{
-        formC = new FormControl(null);
+        formC = new FormControl(CiToTypes.find(t => t.label == "None"));
         this.refsCiTOsControls[ref.ref.id] = formC
       }
       ref.refCiTOControl = formC
