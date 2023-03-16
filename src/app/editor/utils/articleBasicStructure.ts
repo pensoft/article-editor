@@ -225,7 +225,7 @@ export const renderSectionFunc:
       override: sectionFromBackend.schema.override,
       type: (sectionFromBackend.schema.sections&&sectionFromBackend.schema.sections.length>0)?'complex':'simple',
       custom:true,
-      custom_section_type:sectionFromBackend.schema.cutom_section_type?sectionFromBackend.schema.cutom_section_type:undefined,
+      jats_tag:sectionFromBackend.schema.jats_tag?sectionFromBackend.schema.jats_tag:undefined,
       sectionIdFromBackend: sectionFromBackend.id,
       sectionTypeID: sectionFromBackend.id,
       sectionTypeVersion: sectionFromBackend.version,

@@ -1,4 +1,4 @@
-<span class="upper-label">Search supporting projects/agencies in OpenAIRE and Open Funder Registry databases</span>
+<!-- <span class="upper-label">Search supporting projects/agencies in OpenAIRE and Open Funder Registry databases</span>
 <mat-form-field class="search-in-refindit mat-form-field-search" appearance="fill">
   <input type="text"
           placeholder="Type here..."
@@ -20,18 +20,24 @@
       <mat-option class="refindit-autocomplete-option"
       [class.demo-row-is-clicked]="option == externalSelection" *ngFor="let option of searchData" [value]="option" (click)="select(option, 'external');$event.stopPropagation(); trigger.openPanel()">
         <div class="option-refindit-view">
-          <div class="refindit-first-author">{{option.ref.autocompleteView.firstAuthor}}</div>
+          <!-- <div class="refindit-first-author">{{option.ref.autocompleteView.firstAuthor}}</div>
           <div class="refindit-year">{{option.ref.autocompleteView.year}}</div>
           <div class="refindit-title">{{option.ref.autocompleteView.title}}</div>
-          <div class="refindit-source">{{option.ref.autocompleteView.source}}</div>
-        </div>
-      </mat-option>
-    </ng-container>
-  </mat-autocomplete>
-</mat-form-field>
-<span class="upper-label">
-  <h2>OR</h2>
-</span>
+          <div class="refindit-source">{{option.ref.autocompleteView.source}}</div> -->
+      
+          <!-- ------------------------ DEMO ---------------------------------- -->
+          <!-- <div class="refindit-first-author">{{option.first_author}}</div> -->
+          <!-- <div class="refindit-year">{{option.year}}</div> -->
+          <!-- <div class="refindit-title">{{option.title}}</div> -->
+          <!-- <div class="refindit-source">{{option.source}}</div> -->
+        <!-- </div> -->
+      <!-- </mat-option> -->
+    <!-- </ng-container> -->
+  <!-- </mat-autocomplete> -->
+<!-- </mat-form-field> -->
+<!-- <span class="upper-label"> -->
+  <!-- <h2>OR</h2> -->
+<!-- </span> -->
 <div class="description-edit-container">
   <span class="upper-label">Add supporting projects/agencies as free text</span>
   <div class="pm-editor pm-editor-override" #funderContent></div>

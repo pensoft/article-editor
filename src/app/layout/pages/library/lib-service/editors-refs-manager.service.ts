@@ -167,7 +167,7 @@ export class EditorsRefsManagerService {
     })
     if (node) {
       if(end_editor_refs_container && end_editor_refs_container.content.childCount == 1){
-        from = from - 19
+        from = from - 15 // 19
         to = to+1
       }
       endEdView.dispatch(state.tr.replaceWith(from - 1, to + 1, Fragment.empty).setMeta('skipChange', true));

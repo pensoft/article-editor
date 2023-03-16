@@ -18,6 +18,20 @@ let tableIdsG: any;
 let supplFilesIdsG: any;
 let endNotesIdsG: any;
 
+interface IOptions {
+  refObj: any;
+  articleMeta: XMLBuilder;
+  titleGroup: XMLBuilder;
+  notes: XMLBuilder;
+  back: XMLBuilder;
+  body: XMLBuilder;
+  kwdGroup: XMLBuilder;
+  abstractContainer: XMLBuilder;
+  fundingGroup: XMLBuilder;
+  keywordGroup?: boolean;
+  keywordLabel?: boolean;
+}
+
 export function exportAsJatsXML(serviceShare: ServiceShare) {
   serviceShare.ProsemirrorEditorsService.spinSpinner()
   let figObj = serviceShare.YdocService.figuresMap.get('ArticleFigures')
@@ -156,9 +170,8 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   let subjectGeographicalCl = subjGroupGeographicalCl.ele('subject').txt('Central America and the Caribbean')// should probably come from the article layout
   /*          */
   let titleGroup = article_meta.ele('title-group')
-  /*              */
-  let articleTitle = titleGroup.ele('article-title').txt(serviceShare.YdocService.articleData ? serviceShare.YdocService.articleData.name : 'Untitled')
-  /*          */
+    /*          */
+  
   let contribGroup = article_meta.ele('contrib-group', {"content-type": "authors"})
 
   let collaborators = serviceShare.YdocService.collaborators.get('collaborators').collaborators
@@ -235,8 +248,6 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
     /*              */
     let country = aff.ele('country', {'country': 'RO'}).txt(affiliation.affiliation.country);
   })
-
-  /*          */
   let authorNotes = article_meta.ele('author-notes') // should probably come from the backend
   /*              */
   let fnCor = authorNotes.ele('fn', {"fn-type": "corresp"})
@@ -264,6 +275,8 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   let yearpubDateEpub = pubDateEpub.ele('year').txt('2016')
   /*          */
   let volume = article_meta.ele('volume').txt('4')
+
+  let volumeId = article_meta.ele('volume-id').txt('4')
   /*          */
   let elocationId = article_meta.ele('elocation-id').txt('e7720')
   /*          */
@@ -307,56 +320,46 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   /*                  */
   let licenseP = license.ele('license-p').txt('This is an open access article distributed under the terms of the Creative Commons Attribution License (CC BY 4.0), which permits unrestricted use, distribution, and reproduction in any medium, provided the original author and source are credited.')
   /*          */
-  let abstract = article_meta.ele('abstract')
-  /*              */
-  let abstractLabel = abstract.ele('title').txt('Abstract')
-  /*              */
-  let abstractContent = abstract.ele('p').txt('Abstract content') // should come fron the editor as a section
-  /*          */
-  let kwdGroup = article_meta.ele('kwd-group')
-  /*              */
-  let kwdGroupLabel = kwdGroup.ele('label').txt('Keywords');
-  /*              */
-  let kwdGroupKwd1 = kwdGroup.ele('kwd').txt('keyword1'); // sgould come from the editor as a section or from meta data
-  /*          */
-  let fundingGroup = article_meta.ele('funding-group')
-  /*              */
-  let fundingStatement = fundingGroup.ele('funding-statement').txt('Funding information'); // meta data for the article
-  /*          */
-  let counts = article_meta.ele('counts'); // number of refs,figs,tables in the article
-  /*              */
-  let countsFig = counts.ele('fig-count', {"count": "" + figCount})
-  /*              */
-  let countsTable = counts.ele('table-count', {"count": "" + tableCount})
-  /*              */
-  let countsRef = counts.ele('ref-count', {"count": "" + refCount})
+
+  const abstractContainer = article_meta.ele('abstract');
+  const kwdGroup = article_meta.ele('kwd-group');
+  const fundingGroup = article_meta.ele("funding-group");
+
+  
   /**/
-  let body = article.ele('body')
+  let body = article.ele("body")
+  let notes = front.ele('notes')
+  let back = article.ele('back')
+
+  
+const options: IOptions = { refObj, articleMeta: article_meta, titleGroup, notes, back, body, abstractContainer, kwdGroup, fundingGroup }
   // create all article sections
-  serviceShare.TreeService.articleSectionsStructure.forEach((sec) => {
+serviceShare.TreeService.articleSectionsStructure.forEach((sec) => {
     let secId = sec.sectionID;
     let container = serviceShare.ProsemirrorEditorsService.editorContainers[secId]
-    if(container){
-      let secview = container.editorView;
-      parseSection(secview, body, serviceShare, sec,{refObj});
-    }
-  })
+    let secview = container?.editorView;
+
+    parseSection(secview, body, serviceShare, sec, options) 
+})
+
+let counts = article_meta.ele('counts'); // number of refs,figs,tables in the article
+  /*              */
+let countsFig = counts.ele('fig-count', {"count": "" + figCount})
+  /*              */
+let countsTable = counts.ele('table-count', {"count": "" + tableCount})
+  /*              */
+let countsRef = counts.ele('ref-count', {"count": "" + refCount})
+
+
+
+/*          */
+
+// let fundingGroup = article_meta.ele('funding-group')
+/*              */
+// let fundingStatement = fundingGroup.ele('funding-statement').txt('Funding information'); // meta data for the article
+/*          */
+
   /**/
-  let back = article.ele('back') // refs , Acknowledgements ,
-  /*    */
-  let ackBack = back.ele('ack');
-  /*        */
-  let ackBackTitle = ackBack.ele('title').txt('Acknowledgements');
-  /*        */
-  let ackBackP = ackBack.ele('p').txt("Acknowledgements content");
-  /*    */
-  let backNotes = back.ele('notes');
-  /*        */
-  let backNotesSec = backNotes.ele('sec', {"sec-type": "Author contributions"}); // author contribution
-  /*            */
-  let backNotesSecTitle = backNotesSec.ele('title').txt('Author contributions');
-  /*            */
-  let backNotesSecP = backNotesSec.ele('p').txt('Author contributions content');
   /*    */
   let refsList = back.ele('ref-list');
   /*        */
@@ -624,6 +627,60 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   })
 }
 
+function customNodesParser(sec: articleSection, secview: EditorView, serviceShare,options: IOptions ) {
+      if(secview) {
+        switch (sec.title.name) {
+        case '[AM] Title':{
+          let element = sec.jats_tag ? options.titleGroup.ele(sec.jats_tag) : options.titleGroup.ele('article-title')
+          parseNode(secview.state.toJSON().doc, element, false, '--', 0,{articleTitle: true, ...options})
+          break
+        }
+        case '[AM] Keywords':{
+          parseNode(secview.state.toJSON().doc, options.kwdGroup, false, '--', 0,{keywordGroup: true, ...options})
+        }
+        break
+        case '[AM] Funding program':
+        case '[AM] Grant title':
+        case '[AM] Hosting institution':
+        case '[AM] Ethics and security':
+        case '[AM] Conflicts of interest':{
+
+          let element = sec.jats_tag ? options.notes.ele(sec.jats_tag, {"sec-type": sec.title.name}) : options.notes.ele('sec', {"sec-type": sec.title.name})
+          parseNode(secview.state.toJSON().doc, element, false, '--', 0, options)
+          break
+        }
+        case '[AM] Abstract':{
+          parseNode(secview.state.toJSON().doc, options.abstractContainer, false, '--', 0,{abstract: true, ...options})
+          break
+        }
+        case '[AM] Author contributions':{
+          const element = sec.jats_tag ? options.back.ele(sec.jats_tag, {"sec-type": sec.title.name}) : options.back.ele('sec', {"sec-type": sec.title.name})
+          parseNode(secview.state.toJSON().doc, element, false, '--', 0, options)
+          break
+        }
+        default:
+          parseSection(secview, options.body, serviceShare, sec, options);
+          break;
+        }
+   } else if (sec.title.name == "[AM] Funder") {
+    const data = serviceShare.YdocService.customSectionProps.get("customPropsObj")[sec.sectionID];
+
+    if(data?.data) {
+      const arr = data.data.split(',');
+
+      arr.forEach((f) => {
+        if(f.trim().length > 0) {
+          const awardGroup = options.fundingGroup.ele("award-group");
+          const fundingSource = awardGroup.ele("funding-source");
+          fundingSource.ele("named-content", {"content-type": "funder_name"}).txt(f.trim());
+        }
+      })
+    }
+  }
+
+} 
+
+
 function parseMaterial(material: articleSection, matList: XMLBuilder, serviceShare: ServiceShare) {
   let matData = material.defaultFormIOValues;
   let matP = matList.ele('p')
@@ -801,15 +858,19 @@ function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serv
 }
 
 function parseSection(view: EditorView | undefined, container: XMLBuilder, serviceShare: ServiceShare, section: articleSection,options:any) {
-  if (section.title.name != 'Taxon' && section.title.name != '[MM] Materials' && section.title.name != 'Material' && section.title.name != 'Taxon' && section.title.name != '[MM] Taxon treatments') { // not a custum section
+  if (section.title.name != 'Taxon' && section.title.name != '[MM] Materials' && section.title.name != 'Material' && section.title.name != 'Taxon' && section.title.name != '[MM] Taxon treatments' && !section.title.name.startsWith('[AM]')) { // not a custum section
     let secXml = container.ele('sec', {"sec-type": section.title.name});
     let title = secXml.ele('title').txt(section.title.label.length > 0 ? section.title.label : section.title.name)
     view ? parseNode(view.state.toJSON().doc, secXml, false, '--', 0,options) : undefined;
     if (section.type == 'complex' && section.children && section.children.length > 0) {
-      section.children.forEach((child) => {
+      section.children.forEach((child, i) => {
         let chId = child.sectionID;
         let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-        parseSection(view, secXml, serviceShare, child,options);
+    
+        if(section.children.length - 1 == i && secXml.first().node.nodeName == "title" && secXml.last().node.nodeName == "title") {
+          secXml.remove();
+        }
+         parseSection(view, secXml, serviceShare, child,options);
       })
     }
     if (secXml.some((node, i) => {
@@ -818,6 +879,8 @@ function parseSection(view: EditorView | undefined, container: XMLBuilder, servi
       title.remove();
     } else {
     }
+  } else if (section.title.name.startsWith('[AM]')) {
+    customNodesParser(section,  view, serviceShare, options);
   } else if (section.title.name == '[MM] Taxon treatments') {
     // render taxons section
     let secXml = container.ele('sec', {"sec-type": 'Taxon treatments'});
@@ -848,17 +911,33 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
   let shouldSkipNextBlockElements = false;
   let shouldContinueRendering = true
   if (node.type == 'heading') {
-    if (index == 0) {
+    if (index == 0 && options.articleTitle) {
+      return;
+    }
+    if (index == 0 && (options?.keywordGroup || options.abstract)) {
+      newParNode = xmlPar.ele('label')
+      options.keywordLabel = true
+    } else if (index == 0) {
       newParNode = xmlPar.ele('title')
+    } else if (options.articleTitle) {
+      newParNode = xmlPar
     } else {
       newParNode = xmlPar.ele('p')
     }
     shouldSkipNextBlockElements = true;
   } else if (node.type == 'text' && (!node.marks || node.marks.length == 0)) {
+    if (options?.keywordGroup && !options?.keywordLabel) {
+      const keywords = node.text.split(',').map(keyword => keyword.trim());
+      keywords.forEach(keyword => keyword ? xmlPar.ele('kwd').txt(keyword) : undefined)
+      return
+    }
+    delete options?.keywordLabel
     xmlPar.txt(node.text);
     return;
   } else if (node.type == 'text' && node.marks && node.marks.length > 0) {
-    processPmMarkAsXML(node, xmlPar, before)
+    
+      processPmMarkAsXML(node, xmlPar, before, options)
+
     return;
   } else if (node.type == "reference_citation") {
     let citedRefs = node.attrs.citedRefsIds as string[]
@@ -881,7 +960,11 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
     })
     shouldContinueRendering  = false;
   } else if (node.type == "paragraph") {
-    newParNode = xmlPar.ele('p')
+    if (options?.keywordGroup) {
+      newParNode = xmlPar
+    } else {
+      newParNode = xmlPar.ele('p')
+    }
   } else if (node.type == 'math_inline') {
     newParNode = xmlPar.ele('inline-formula').ele('tex-math', {id: "M" + mathCount})
     mathCount++
@@ -953,7 +1036,7 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
   }
 }
 
-let processPmMarkAsXML = (node: any, xmlPar: XMLBuilder, before: string) => {
+let processPmMarkAsXML = (node: any, xmlPar: XMLBuilder, before: string, options: IOptions) => {
   let xmlParent = xmlPar
   if((node.marks as any[]).some((mark)=>
     ["citation","table_citation","supplementary_file_citation","end_note_citation"].includes(mark.type)&&
@@ -1017,7 +1100,14 @@ let processPmMarkAsXML = (node: any, xmlPar: XMLBuilder, before: string) => {
         }
       })
     } else if (mark.type == 'taxon'){
-      xmlParent = xmlParent.ele('tp:taxon-name');
+      if(options?.keywordGroup) {
+        if(node.text) {
+          node.text = node.text.split(',').find(k => k.trim().length > 0).trim();
+        }
+        xmlParent = xmlParent.ele('kwd').ele("tp:taxon-name");
+      } else {
+        xmlParent = xmlParent.ele('tp:taxon-name');
+      }
     } else if (mark.type == 'em') {
       xmlParent = xmlParent.ele('italic');
     } else if (mark.type == "strong") {
