@@ -164,7 +164,7 @@ export class ArticleComponent implements OnInit {
     this.articleSectionsStructureFlat = []
     setTimeout(() => {
       if(this.headEditor){
-        this.moveHeadEditor = articleSectionsStructureFlat.some(x=>x.custom_section_type && x.custom_section_type=='article_title');
+        this.moveHeadEditor = articleSectionsStructureFlat.some(x=>x.jats_tag && x.jats_tag=='article-title');
       }
       this.articleSectionsStructureFlat = articleSectionsStructureFlat
       //set article structure flat

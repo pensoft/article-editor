@@ -73,7 +73,7 @@ export interface articleSection {
   custom?:true,
   customSchema:{isCustom:boolean,schema?:{nodes:string[],marks:string[]}};
   sectionMenusAndSchemasDefsfromJSONByfieldsTags?:{[key:string]:{menu:any,schema:any}},
-  custom_section_type?:string
+  jats_tag?: string
   originalSectionTemplate:any
 }
 

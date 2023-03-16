@@ -3,8 +3,10 @@ import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, 
 import { FormControl } from '@angular/forms';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { articleSection } from '@app/editor/utils/interfaces/articleSection';
+import { editorContainer } from '@app/editor/utils/interfaces/editor-container';
 import { schema } from '@app/editor/utils/Schema';
 import { environment } from '@env';
+import { EditorView } from 'prosemirror-view';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
 
@@ -28,9 +30,12 @@ export class FunderSectionComponent implements OnInit,customSecInterface,AfterVi
   @Input() triggerCustomSecSubmit: Subject<any>;
   @Output() triggerCustomSecSubmitChange = new EventEmitter<Subject<any>>();
 
+  sectionData;
+  editorView: EditorView;
+
   @ViewChild('funderContent', { read: ElementRef }) funderContent?: ElementRef;
   @ViewChild('refinditsearch', { read: ElementRef }) refinditsearch?: ElementRef;
-  funderContentPmContainer
+  funderContentPmContainer: editorContainer;
 
   searchReferencesControl = new FormControl('');
   loading = false;
@@ -41,11 +46,41 @@ export class FunderSectionComponent implements OnInit,customSecInterface,AfterVi
     private serviceShare:ServiceShare,
     private http: HttpClient,
     private ref:ChangeDetectorRef
-  ) { }
+  ) { }  
+
+  /**
+    addCustomSectionData(section:articleSection,data:any){
+    let customPropsObj = this.ydocService.customSectionProps?.get('customPropsObj');
+    customPropsObj[section.sectionID] = data;
+    this.ydocService.customSectionProps?.set('customPropsObj',customPropsObj);
+  }
+   */
 
   ngAfterViewInit(): void {
-    let header = this.funderContent?.nativeElement
-    this.funderContentPmContainer = this.serviceShare.ProsemirrorEditorsService.renderSeparatedEditorWithNoSync(header, 'popup-menu-container', schema.nodes.paragraph.create({},schema.text('Type component description here.')))
+    let header = this.funderContent?.nativeElement;
+
+    this.sectionData = this.serviceShare.YdocService.customSectionProps.get("customPropsObj")[this.section.sectionID];
+
+    this.funderContentPmContainer = 
+    this.serviceShare.ProsemirrorEditorsService
+      .renderSeparatedEditorWithNoSync(
+        header, 'popup-menu-container',
+        // this.sectionData?.funderData
+        // ?
+        // this.sectionData?.funderData
+        // :
+        schema.nodes.paragraph
+          .create({},schema.text(
+            this.sectionData?.data
+            ?
+            this.sectionData.data
+            :
+            'Type component description here.'
+          ))
+      )
+
+      this.editorView = this.funderContentPmContainer.editorView;
+
     //@ts-ignore
     this.funderContentPmContainer.editorView.isPopupEditor = true;
     this.searchReferencesControl.valueChanges.pipe(
@@ -53,7 +88,7 @@ export class FunderSectionComponent implements OnInit,customSecInterface,AfterVi
       debounceTime(700),
       distinctUntilChanged(),
     ).subscribe((value: any) => {
-      if (this.externalSelection !== value) {
+      if (this.externalSelection !== value) {        
         this.searchExternalRefs(value);
       }
     });
@@ -74,11 +109,21 @@ export class FunderSectionComponent implements OnInit,customSecInterface,AfterVi
     this.searchData = undefined;
     this.loading = true;
     this.ref.detectChanges()
-    this.oldSub = this.http.get(environment.EXTERNAL_REFS_API, {
+
+    // environment.EXTERNAL_REFS_API
+    /*
+      {
       responseType: 'text',
       params: {
         search: 'simple',
         text: searchText,
+      }
+    */
+
+    this.oldSub = this.http.get('http://mock-data.com/', {
+      responseType: "text",
+      params:{
+        search: searchText,
       }
     }).subscribe((data1) => {
       let parsedJson = JSON.parse(data1);
@@ -92,9 +137,10 @@ export class FunderSectionComponent implements OnInit,customSecInterface,AfterVi
 
   displayFn(option: any): string {
     if (option) {
-      return option?.ref?.title || option?.refData?.referenceData?.title + ' | ' +
-        (option?.refData?.formioData?.authors[0] ? (option?.refData?.formioData?.authors[0]?.first || option?.refData?.formioData?.authors[0]?.last || option?.refData?.formioData?.authors[0]?.given) : 'no name') + ' | ' +
-        option.refData.referenceData.type;
+      return option.title + " | " + option.first_author  + " | " + option.year;
+      // return option?.ref?.title || option?.refData?.referenceData?.title + ' | ' +
+      //   (option?.refData?.formioData?.authors[0] ? (option?.refData?.formioData?.authors[0]?.first || option?.refData?.formioData?.authors[0]?.last || option?.refData?.formioData?.authors[0]?.given) : 'no name') + ' | ' +
+      //   option.refData.referenceData.type;
     }
     return '';
   }
@@ -110,6 +156,23 @@ export class FunderSectionComponent implements OnInit,customSecInterface,AfterVi
   }
 
   triggerSubmit(){
-    this.onSubmit({data:{asd:'asd'}})
+    // serviceShare.ProsemirrorEditorsService.editorContainers /JATS/
+
+    //@ts-ignore
+    let path = this.editorView.state.selection.$from.path;
+
+    let funderData;
+    let counter = 0;
+
+    while(!funderData && counter < path.length){
+      let node = path[counter]
+      let nodeTag = node.type.name;
+      if(nodeTag == "paragraph"){
+        funderData = node.content?.content[0]?.text || "";
+      }
+      counter+=3
+    }
+    
+    this.onSubmit({ data: { data: funderData } })
   }
 }
