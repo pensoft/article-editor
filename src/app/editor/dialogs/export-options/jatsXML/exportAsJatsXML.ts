@@ -487,7 +487,7 @@ let countsRef = counts.ele('ref-count', {"count": "" + refCount})
       let dom = document.createElement('div');
       dom.innerHTML = endNote.end_note;
       let fnContentJSON = domPMParser.parse(dom).toJSON();
-      parseNode(fnContentJSON, footNoteContentXML, true, '--', 1,{skipTableWrap:true});
+      parseNode(fnContentJSON, footNoteContentXML, true, '--', 1,{skipTableWrap:true, ...options});
     })
   }
 
@@ -501,7 +501,7 @@ let countsRef = counts.ele('ref-count', {"count": "" + refCount})
     let figCaption = figXML.ele('caption');
     figCaption.ele('title').txt("Figure " + ((fig.figureNumber + 1) + '.'));
 
-    parseNode(figDescNodes, figCaption, false, '--', 0);
+    parseNode(figDescNodes, figCaption, false, '--', 0, options);
     fig.components.forEach((figComp, i) => {
       let figCompXML = figXML.ele('fig', {position: "float", orientation: "portrait"});
       let figCompXMLCaption = figCompXML.ele('caption');
@@ -514,7 +514,7 @@ let countsRef = counts.ele('ref-count', {"count": "" + refCount})
       let domOfCompDesc = document.createElement('div');
       domOfCompDesc.innerHTML = figCompDesc;
       let figCompDescNodes = domPMParser.parse(domOfCompDesc).toJSON();
-      parseNode(figCompDescNodes, figCompXMLCaption, false, '--', 0);
+      parseNode(figCompDescNodes, figCompXMLCaption, false, '--', 0, options);
 
       if (figCompType == "image") {
         let figCompGraphic = figCompXML.ele('graphic', {
@@ -546,18 +546,18 @@ let countsRef = counts.ele('ref-count', {"count": "" + refCount})
     let tableHeadingNodes = domPMParser.parse(dom).toJSON();
 
     let captionEle = tableXML.ele('caption')
-    parseNode(tableHeadingNodes, captionEle, false, '--', 0);
+    parseNode(tableHeadingNodes, captionEle, false, '--', 0, options);
 
     let dom1 = document.createElement('div');
     dom1.innerHTML = tableData.content;
     let tableContentNodes = domPMParser.parse(dom1).toJSON();
-    parseNode(tableContentNodes, tableXML, false, '--', 0,{skipTableWrap:true});
+    parseNode(tableContentNodes, tableXML, false, '--', 0,{skipTableWrap:true, ...options});
 
     let dom2 = document.createElement('div');
     dom2.innerHTML = tableData.footer;
     let tableFooterNodes = domPMParser.parse(dom2).toJSON();
     let footerElement = tableXML.ele('table-wrap-foot');
-    parseNode(tableFooterNodes, footerElement, false, '--', 0);
+    parseNode(tableFooterNodes, footerElement, false, '--', 0, options);
   })
 
   Object.keys(suppleFilesObj).forEach((supplFileId)=>{
@@ -576,7 +576,7 @@ let countsRef = counts.ele('ref-count', {"count": "" + refCount})
     dom.innerHTML = supplFileData.brief_description;
     let supplFileDescNodes = domPMParser.parse(dom).toJSON();
     caption.ele('title').txt(supplFileData.title)
-    parseNode(supplFileDescNodes, caption, false, '--', 1,{skipTableWrap:true});
+    parseNode(supplFileDescNodes, caption, false, '--', 1,{skipTableWrap:true, ...options});
 
     let authorAttrb = supplFileXML.ele('attrib',{
       'specific-use':"authors"
@@ -718,42 +718,42 @@ function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serv
   if (name) {
     let nameEl = nomenclatureEl.ele('tp:taxon-name')
     name.content.forEach((ch, i) => {
-      parseNode(ch, nameEl, true, '', i)
+      parseNode(ch, nameEl, true, '', i, options)
     })
   }
   let authority = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "authority");
   if (authority) {
     let El = nomenclatureEl.ele('tp:taxon-authority')
     authority.content.forEach((ch, i) => {
-      parseNode(ch, El, true, '', i)
+      parseNode(ch, El, true, '', i, options)
     })
   }
   let status = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "status");
   if (status) {
     let El = nomenclatureEl.ele('tp:taxon-status')
     status.content.forEach((ch, i) => {
-      parseNode(ch, El, true, '', i)
+      parseNode(ch, El, true, '', i, options)
     })
   }
   let identifier = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "identifier");
   if (identifier) {
     let El = nomenclatureEl.ele('tp:taxon-identifier')
     identifier.content.forEach((ch, i) => {
-      parseNode(ch, El, true, '', i)
+      parseNode(ch, El, true, '', i, options)
     })
   }
   let link = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == "link");
   if (link) {
     let El = nomenclatureEl.ele('xref')
     link.content.forEach((ch, i) => {
-      parseNode(ch, El, true, '', i)
+      parseNode(ch, El, true, '', i, options)
     })
   }
   let genus = nomencData.content.find((el) => el.type == "form_field" && el.attrs.formControlName == 'genus');
   if (genus) {
     let El = nomenclatureEl.ele('tp:type-genus').ele('tp:taxon-name')
     genus.content.forEach((ch, i) => {
-      parseNode(ch, El, true, '', i)
+      parseNode(ch, El, true, '', i, options)
     })
   }
   /* let species = nomencData.content.find((el)=>el.type == "form_field"&&el.attrs.formControlName == 'species');
@@ -767,13 +767,13 @@ function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serv
   if (location) {
     let El = nomenclatureEl.ele('tp:taxon-type-location')
     location.content.forEach((ch, i) => {
-      parseNode(ch, El, true, '', i)
+      parseNode(ch, El, true, '', i, options)
     })
   }
   let taxExtLinks = section.children.find((sec) => sec.title.name == '[MM] External Links');
   let taxExtLinksEl = xmlTaxon.ele('tp:treatment-sec', {"sec-type": taxExtLinks.title.name})
   let viewExtLinks = serviceShare.ProsemirrorEditorsService.editorContainers[taxExtLinks.sectionID] ? serviceShare.ProsemirrorEditorsService.editorContainers[taxExtLinks.sectionID].editorView : undefined;
-  viewExtLinks ? parseNode(viewExtLinks.state.toJSON().doc, taxExtLinksEl, false, '--', 0) : undefined;
+  viewExtLinks ? parseNode(viewExtLinks.state.toJSON().doc, taxExtLinksEl, false, '--', 0, options) : undefined;
   let taxMaterials = section.children.find((sec) => sec.title.name == '[MM] Materials');
   let taxMatSection = xmlTaxon.ele('tp:treatment-sec', {"sec-type": taxMaterials.title.name})
   let materailsTitle = taxMatSection.ele('title').txt('Materials');
@@ -790,13 +790,13 @@ function parseTaxon(taxview: EditorView | undefined, container: XMLBuilder, serv
       let chId = treatmentSubSec.sectionID;
       let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
       let taxonSection = xmlTaxon.ele('tp:treatment-sec', {"sec-type": treatmentSubSec.title.name})
-      view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
+      view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0, options) : undefined;
       if (treatmentSubSec.type == 'complex' && treatmentSubSec.children && treatmentSubSec.children.length > 0) {
         treatmentSubSec.children.forEach((subsec) => {
           let chId = subsec.sectionID;
           let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
           let taxonSection = xmlTaxon.ele('tp:treatment-sec', {"sec-type": subsec.title.name})
-          view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0) : undefined;
+          view ? parseNode(view.state.toJSON().doc, taxonSection, false, '--', 0, options) : undefined;
           if (subsec.type == 'complex' && subsec.children && subsec.children.length > 0) {
             subsec.children.forEach((subsecchild) => {
               let chId = subsecchild.sectionID;
