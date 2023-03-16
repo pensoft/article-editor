@@ -18,11 +18,11 @@
     There are no allowed sections
   </div>
 
-  <mat-selection-list #topic [multiple]="false" [ngClass]="{'no-results': searchResults.length == 0}">
+  <mat-selection-list #topic [multiple]="false" [ngClass]="{'sections-list': true, 'no-results': searchResults.length == 0}">
     <mat-list-option *ngIf="initialSectionResults.length>0" [disabled]="true">
       Initial Sections:
     </mat-list-option>
-    <mat-list-option *ngFor="let section of initialSectionResults" [value]="section">
+    <mat-list-option *ngFor="let section of initialSectionResults; let first_initial = first; let last_initial = last" [value]="section" [ngClass]="{'first-item':first_initial, 'last-item':last_initial}">
       <div class="section-add-container"  matTooltip="{{(section.secname != section.name)?'Sectioon name: '+section.secname:null}}">
         <span class="section-name-container">
           {{section.name}}
@@ -35,7 +35,7 @@
     <mat-list-option *ngIf="compatibilitySectionsResults.length>0" [disabled]="true">
       Compatibility Sections:
     </mat-list-option>
-    <mat-list-option *ngFor="let section of compatibilitySectionsResults" [value]="section">
+    <mat-list-option *ngFor="let section of compatibilitySectionsResults; let first_compatible = first; let last_compatible = last" [value]="section" [ngClass]="{'first-item':first_compatible, 'last-item':last_compatible}">
       <div class="section-add-container" matTooltip="{{(section.secname != section.name)?'Sectioon name: '+section.secname:null}}">
         <span class="section-name-container">
           {{section.name}}

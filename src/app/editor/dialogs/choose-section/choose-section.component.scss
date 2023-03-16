@@ -37,6 +37,7 @@ label {
   z-index: 100;
   pointer-events: none;
   background-color: #8080805c;
+
   .get-sections-spinner{
     width: 100px;
     height: 100px;
@@ -44,5 +45,40 @@ label {
     top: calc(50% - 50px);
     z-index: 5;
     right: calc(50% - 50px);
+  }
+}
+
+.mat-selection-list.sections-list {
+  border: 0;
+  border-radius: 0;
+
+  .mat-list-option {
+    border: 1px solid var(--color-cacdd3);
+    border-top: 0;
+
+    &.mat-list-item-disabled {
+      background: var(--color-ffffff);
+      font: 400 16px / 28px var(--font-family-open-sans);
+      letter-spacing: 0.0094em;
+      border: 0;
+
+      ::ng-deep {
+        .mat-list-item-content {
+          padding: 0;
+        }
+      }
+    }
+
+    &.first-item {
+      border-top: 1px solid var(--color-cacdd3);
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+    }
+
+    &.last-item {
+      border-bottom-left-radius: 15px;
+      border-bottom-right-radius: 15px;
+      margin-bottom: 8px;
+    }
   }
 }

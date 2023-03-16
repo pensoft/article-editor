@@ -33,7 +33,7 @@ let figuresHtmlTemplate = `
     </ng-container>
   </figure-components-container>
   <figure-descriptions-container>
-      <h3 tagname="h3" contenteditablenode="false"><p contenteditablenode="false">Figure: {{data.figureNumber+1}}</p></h3>
+      <h3 tagname="h3" contenteditablenode="false"><p contenteditablenode="false">Figure {{data.figureNumber+1}}.</p></h3>
       <figure-description *ngIf="data.figureDescription" formControlName="figureDescription" style="display:block;">
       </figure-description>
       <ng-container  formArrayName="figureComponents" >
@@ -151,12 +151,12 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
     //@ts-ignore
     view.isPopupEditor = true;
     let size = view.state.doc.content.size;
-    
+
     view.props.handleClick = (view, pos, event) => {
       const size = view.state.doc.content.size;
 
       if(size == pos || size - pos == 1) {
-        const selection = TextSelection.create(view.state.doc, size)        
+        const selection = TextSelection.create(view.state.doc, size)
         view.dispatch(view.state.tr.setSelection(selection));
       }
       view.focus();
@@ -166,7 +166,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
     view.focus();
     view.dispatch(view.state.tr.setSelection(TextSelection.create(view.state.doc,size)));
     this.ref.detectChanges();
-    }, 40)  
+    }, 40)
   }
 
   renderCodemMirrorEditor(figID: string) {
@@ -216,7 +216,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
   editComponent(component: any, i: number) {
     this.dialog.open(AddFigureComponentDialogComponent, {
-      width: '640px',
+      width: '840px',
       data: { component },
       disableClose: false
     }).afterClosed().subscribe((result: { component: any }) => {
@@ -243,7 +243,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
   addComponent() {
     this.dialog.open(AddFigureComponentDialogComponent, {
-      width: '640px',
+      width: '840px',
       disableClose: false
     }).afterClosed().subscribe((result: { component: any }) => {
       if (result) {
