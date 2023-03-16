@@ -7,7 +7,8 @@
           <div *ngIf="row[i].container" class="cell-component">
             <code *ngIf="!singleMedia">{{getCharValue(r * nOfColumns + i)}}</code>
             <!-- row[i].container.pdfImgResized?row[i].container.pdfImgResized:row[i].container.pdfImgOrigin -->
-            <img  src="{{row[i].container.pdfImgResized?row[i].container.pdfImgResized:row[i].container.pdfImgOrigin}}" alt="" title="default image" />
+            <!-- <img  src="{{row[i].container.pdfImgResized?row[i].container.pdfImgResized:row[i].container.pdfImgOrigin}}" alt="" title="default image" /> -->
+            <img src="{{row[i].container.url}}" alt="" title="default image" />
           </div>
         </ng-container>
       </ng-container>
