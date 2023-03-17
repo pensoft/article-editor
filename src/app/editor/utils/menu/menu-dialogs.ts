@@ -16,7 +16,7 @@ import { InsertDiagramDialogComponent } from "../../dialogs/insert-diagram-dialo
 import { InsertImageDialogComponent } from "../../dialogs/insert-image-dialog/insert-image-dialog.component";
 import { InsertSpecialSymbolDialogComponent } from "../../dialogs/insert-special-symbol-dialog/insert-special-symbol-dialog.component";
 import { TableSizePickerComponent } from "../table-size-picker/table-size-picker.component";
-import { canInsert, createCustomIcon, videoPlayerIcon } from "./common-methods";
+import { canInsert, createCustomIcon, isCitationSelected, videoPlayerIcon } from "./common-methods";
 import { InsertTableComponent } from "@app/editor/dialogs/citable-tables-dialog/insert-table/insert-table.component";
 import { StateEffectType } from "@codemirror/state";
 import { InsertSupplementaryFileComponent } from "@app/editor/dialogs/supplementary-files/insert-supplementary-file/insert-supplementary-file.component";
@@ -298,7 +298,7 @@ export const insertSpecialSymbolItem = new MenuItem({
     }
     return true;
   },
-  enable(state:EditorState) { return true },
+  enable(state:EditorState) { return isCitationSelected(state, undefined, true) },
   icon: createCustomIcon('Icon feather-star.svg', 20)
 });
 
@@ -334,7 +334,7 @@ export let insertVideoItem = (serviceShare:ServiceShare)=>{
       }
       return true
     },
-    enable(state:EditorState) { return state.schema.nodes.video&&canInsert(state, state.schema.nodes.video) },
+    enable(state:EditorState) { return isCitationSelected(state, () => state.schema.nodes.video&&canInsert(state, state.schema.nodes.video)) },
     icon: videoPlayerIcon
   });
 }
@@ -383,7 +383,7 @@ export const insertLinkItem = new MenuItem({
       }
     });
   },
-  enable(state:EditorState) { return state.schema.marks.link },
+  enable(state:EditorState) { return isCitationSelected(state, undefined, state.schema.marks.link) },
   icon: createCustomIcon('connect.svg', 18)
 })
 
@@ -412,7 +412,7 @@ export const insertTableItem = new MenuItem({
     }
     return true
   },
-  enable(state:EditorState) { return state.schema.nodes.table },
+  enable(state:EditorState) { return isCitationSelected(state, undefined, state.schema.nodes.table) },
 });
 
 export const addAnchorTagItem = new MenuItem({

@@ -30,6 +30,37 @@ export function createCustomIcon(name: string, width?: number, height?: number,d
   }
 }
 
+export function isCitationSelected (state: EditorState, callback?: Function, statement?: any) {
+    // const $pos = state.doc.resolve(state.selection.$anchor.pos);
+    // const { parent, parentOffset } = $pos;
+  
+    // if (parent && parent.type.name == "reference_citation") return false;
+  
+    // const { node } = parent.childAfter(parentOffset);
+    // if(!node) return;
+    
+    // // const element
+    // if(node.marks && node.marks.find(mark =>  ["citation", "supplementary_file_citation", "table_citation", "end_note_citation"].includes(mark.type.name))) {
+    //  return false;
+    // }
+
+    const { from, to } = state.selection;
+    let isCitation = false;
+    state.doc.nodesBetween(from, to, (node, pos) => {
+      if(node.type.name == "reference_citation" || 
+         node.marks.find(mark => ["citation", "supplementary_file_citation", "table_citation", "end_note_citation"].includes(mark.type.name))) {
+         
+          isCitation = true;        
+      }
+    })
+
+    if(isCitation) return false;
+    if(callback) return callback();
+    if(statement) return statement;
+    
+    return true;
+}
+
 
 /*
  12,

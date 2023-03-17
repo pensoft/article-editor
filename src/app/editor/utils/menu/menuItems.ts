@@ -15,7 +15,7 @@ import { wrapItem, blockTypeItem, selectParentNodeItem as selectParentNodeItemPM
 import { YMap } from "yjs/dist/src/internals";
 import { liftListItem, sinkListItem, wrapInList } from "./listLogic";
 import { Subject } from 'rxjs';
-import { canInsert, createCustomIcon } from './common-methods';
+import { canInsert, createCustomIcon, isCitationSelected } from './common-methods';
 import { insertFigure,insertSupplementaryFile, insertImageItem, insertSpecialSymbolItem, insertDiagramItem, insertVideoItem, addMathBlockMenuItem, addMathInlineMenuItem, insertLinkItem, addAnchorTagItem, insertTableItem, citateReference, insertTable, insertEndNote } from './menu-dialogs';
 import { MarkType, Node, NodeType, DOMParser, DOMSerializer, Mark, Fragment } from 'prosemirror-model';
 //@ts-ignore
@@ -51,7 +51,7 @@ function getLinkMenuItemRun(state: EditorState, dispatch: any, view: EditorView)
 function markItem(markType: MarkType,markKey:string, options: any) {
   let passedOptions: any = {
     active(state: EditorState) { return markActive(state, markType) },
-    enable:(state:EditorState)=>{return state.schema.marks[markKey]}
+    enable:(state:EditorState)=>{return isCitationSelected(state, undefined,state.schema.marks[markKey])}
   }
   for (let prop in options) passedOptions[prop] = options[prop]
   return cmdItem(toggleMark(markType), passedOptions)
@@ -176,7 +176,7 @@ const toggleCode = markItem(schema.marks.code,'code', { title: "Toggle code font
 let wrapInBulletListFunc = wrapInList(schema.nodes.bullet_list)
 const wrapBulletList = new MenuItem({
   title: "Wrap in bullet list",
-  enable(state: EditorState) { return wrapInBulletListFunc(state) },
+  enable(state: EditorState) { return isCitationSelected(state, () =>  wrapInBulletListFunc(state)) },
   run(state: EditorState, dispatch: any,view) {
     wrapInBulletListFunc(state,dispatch,view);
     joinUp(view.state,view.dispatch,view)
@@ -188,7 +188,7 @@ const wrapBulletList = new MenuItem({
 let wrapInOrderedListFunc = wrapInList(schema.nodes.ordered_list)
 const wrapOrderedList = new MenuItem({
   title: "Wrap in ordered list",
-  enable(state: EditorState) { return wrapInOrderedListFunc(state) },
+  enable(state: EditorState) { return isCitationSelected(state, () => wrapInOrderedListFunc(state)) },
   run(state: EditorState, dispatch: any,view) {
     wrapInOrderedListFunc(state,view.dispatch,view);
     joinUp(view.state,view.dispatch,view)
@@ -440,7 +440,7 @@ const spellCheckMenuItem = new MenuItem({
   title: 'Turn off/on spellcheck',
   // @ts-ignore
   run: getLinkMenuItemRun,
-  enable(state: EditorState) { return true },
+  enable(state: EditorState) { return isCitationSelected(state, undefined, true) },
   icon: createCustomIcon('spellcheck.svg', 29)
 })
 function logNodesItemRun(state: EditorState, dispatch: any, view: EditorView) {
