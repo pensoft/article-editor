@@ -13,25 +13,33 @@ https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image6.jpg */
 export const figureBasicData = {
   "description": "<p class=\"set-align-left\">Caption basic example</p>",
   "components": [
-    {
-      "description": "<p class=\"set-align-left\">mue, auctor sit amet aliquam vel, ullamcorper sit amet ligula.oon</p>",
+    
+      {
+        "url": "https://ps-cdn.dev.scalewest.com/image/9d436583-e3ae-44a3-9e78-5f1478fe1828",
+        "description": `<p align="set-align-left" class="set-align-left">moon</p>`,
+        "componentType": "image",
+        "pdfImgOrigin": "https://ps-cdn.dev.scalewest.com/image/9d436583-e3ae-44a3-9e78-5f1478fe1828",
+      },
+      {
+        "url": "https://ps-cdn.dev.scalewest.com/image/bf7c8b07-0143-47d6-811d-4174685fb2cb",
+        "description": `<p align="set-align-left" class="set-align-left">Sunrise</p>`,
+        "componentType": "image",
+        "pdfImgOrigin": "https://ps-cdn.dev.scalewest.com/image/bf7c8b07-0143-47d6-811d-4174685fb2cb",
+      },
+     {
+      "url": "https://ps-cdn.dev.scalewest.com/image/f233515b-dda3-4f6a-b646-2a8e7bb94063",
+      "description": `<p align="set-align-left" class="set-align-left">Forest</p>`,
       "componentType": "image",
-      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBSxBFtvMzHp5meoU4Pe2LXU56WcJg3uU5O5bnpqsWbzMBJmnT"
-    },
-    {
-      "description": "<p class=\"set-align-left\">mue, auctor sit amet aliquam vel, ullamcorper sit amet ligula.oon</p>",
-      "componentType": "image",
-      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB94GXwEX5gtOMEXM0v-BhpwmGulU6lXJ9rQ&usqp=CAU"
-    },
-    {
-      "description": "<p class=\"set-align-left\">mue, auctor sit amet aliquam vel, ullamcorper sit amet ligula.oon</p>",
-      "componentType": "image",
-      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_BUqnSU-hcr1mMoxzri9l_3cKytZnBNew5g&usqp=CAU"
-    },
-    {
-      "description": "<p class=\"set-align-left\">mue, auctor sit amet aliquam vel, ullamcorper sit amet ligula.oon</p>",
-      "componentType": "image",
-      "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMxAUDn_aEXvgLRsgAg_XcYJcd5DmEjnmtQA&usqp=CAU"
+      "pdfImgOrigin": "https://ps-cdn.dev.scalewest.com/image/f233515b-dda3-4f6a-b646-2a8e7bb94063",
+      
+      },
+      {
+      
+        "url": "https://ps-cdn.dev.scalewest.com/image/02a5f079-bde8-40b3-bc3b-60bc0faf5a62",
+        "description": `<p align="set-align-left" class="set-align-left">Galaxy</p>`,
+        "componentType": "image",
+        "pdfImgOrigin": "https://ps-cdn.dev.scalewest.com/image/02a5f079-bde8-40b3-bc3b-60bc0faf5a62",
+      
     }
   ],
   "figureID": "fa679ae6-d6af-44fb-aecf-21fd6492603f",
@@ -46,7 +54,7 @@ export const figureBasicData = {
       [
         {
           "container": {
-            "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBSxBFtvMzHp5meoU4Pe2LXU56WcJg3uU5O5bnpqsWbzMBJmnT",
+            "url": "https://ps-cdn.dev.scalewest.com/image/9d436583-e3ae-44a3-9e78-5f1478fe1828",
             "description": "moon",
             "componentType": "image",
             "height": 0.25,
@@ -58,7 +66,7 @@ export const figureBasicData = {
       [
         {
           "container": {
-            "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB94GXwEX5gtOMEXM0v-BhpwmGulU6lXJ9rQ&usqp=CAU",
+            "url": "https://ps-cdn.dev.scalewest.com/image/bf7c8b07-0143-47d6-811d-4174685fb2cb",
             "description": "Sunrise",
             "componentType": "image",
             "hpers": 0.21958638564409008,
@@ -71,7 +79,7 @@ export const figureBasicData = {
       [
         {
           "container": {
-            "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_BUqnSU-hcr1mMoxzri9l_3cKytZnBNew5g&usqp=CAU",
+            "url": "https://ps-cdn.dev.scalewest.com/image/f233515b-dda3-4f6a-b646-2a8e7bb94063",
             "description": "Forest",
             "componentType": "image",
             "hpers": 0.21958638564409008,
@@ -84,7 +92,7 @@ export const figureBasicData = {
       [
         {
           "container": {
-            "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMxAUDn_aEXvgLRsgAg_XcYJcd5DmEjnmtQA&usqp=CAU",
+            "url": "https://ps-cdn.dev.scalewest.com/image/02a5f079-bde8-40b3-bc3b-60bc0faf5a62",
             "description": "Galaxy",
             "componentType": "image",
             "hpers": 0.16918951025036447,
@@ -136,30 +144,34 @@ export const figureJson = {
               "defaultValue": [
                 {
                   "container": {
-                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSBSxBFtvMzHp5meoU4Pe2LXU56WcJg3uU5O5bnpqsWbzMBJmnT",
+                    "url": "https://ps-cdn.dev.scalewest.com/image/9d436583-e3ae-44a3-9e78-5f1478fe1828",
                     "description": `<p align="set-align-left" class="set-align-left">moon</p>`,
                     "componentType": "image",
+                    "pdfImgOrigin": "https://ps-cdn.dev.scalewest.com/image/02a5f079-bde8-40b3-bc3b-60bc0faf5a62o",
                   }
                 },
                 {
                   "container": {
-                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSB94GXwEX5gtOMEXM0v-BhpwmGulU6lXJ9rQ&usqp=CAU",
+                    "url": "https://ps-cdn.dev.scalewest.com/image/af43b649-c4e1-41a0-9d01-03eedc6f23b5",
                     "description": `<p align="set-align-left" class="set-align-left">Sunrise</p>`,
                     "componentType": "image",
+                    "pdfImgOrigin": "https://ps-cdn.dev.scalewest.com/image/02a5f079-bde8-40b3-bc3b-60bc0faf5a62",
                   }
                 },
                 {
                   "container": {
-                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT_BUqnSU-hcr1mMoxzri9l_3cKytZnBNew5g&usqp=CAU",
+                    "url": "https://ps-cdn.dev.scalewest.com/image/f233515b-dda3-4f6a-b646-2a8e7bb94063",
                     "description": `<p align="set-align-left" class="set-align-left">Forest</p>`,
                     "componentType": "image",
+                    "pdfImgOrigin": "https://ps-cdn.dev.scalewest.com/image/f233515b-dda3-4f6a-b646-2a8e7bb94063",
                   }
                 },
                 {
                   "container": {
-                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQMxAUDn_aEXvgLRsgAg_XcYJcd5DmEjnmtQA&usqp=CAU",
+                    "url": "https://ps-cdn.dev.scalewest.com/image/02a5f079-bde8-40b3-bc3b-60bc0faf5a62",
                     "description": `<p align="set-align-left" class="set-align-left">Galaxy</p>`,
                     "componentType": "image",
+                    "pdfImgOrigin": "https://ps-cdn.dev.scalewest.com/image/02a5f079-bde8-40b3-bc3b-60bc0faf5a62",
                   }
                 }
               ],

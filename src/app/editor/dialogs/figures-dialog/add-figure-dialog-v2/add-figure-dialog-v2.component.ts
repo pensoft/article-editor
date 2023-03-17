@@ -137,6 +137,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
         let state = descPmView.state;
         descPmView.dispatch(state.tr.replaceWith(0, state.doc.content.size, prosemirrorNode.content));
       }
+      
       this.figNewComponents = JSON.parse(JSON.stringify(this.figData.components));
     } catch (e) {
       console.error(e);
@@ -204,7 +205,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
       figurePlace:this.data.fig?this.data.fig.figurePlace:'endEditor',
       viewed_by_citat:this.data.fig?this.data.fig.viewed_by_citat:'endEditor'
     }
-    console.log(this.figNewComponents);
+
     figureForSubmit.components.forEach((component)=>{
       if(this.urlMapping[component.pdfImgOrigin]){
         component.pdfImgResized = this.urlMapping[component.pdfImgOrigin];
@@ -280,7 +281,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
   }
 
   updatePreview(checkDiff:boolean){
-    console.log('update preview');
+
     let hasEmptyFields = false;
     let differrance = false;
     this.getMappedComponentsForPreviw().forEach((comp: any, i: number) => {
@@ -305,7 +306,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
     if(differrance||!checkDiff){
       if(!hasEmptyFields){
         this.figureComponentsInPrevew = this.getMappedComponentsForPreviw()
-        console.log(this.figureComponentsInPrevew);
+
         this.rowOrder = [];
         this.figureComponentsInPrevew.forEach((figure:any,index:number)=>{
 
@@ -346,8 +347,6 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
         this.maxImgWidthPers = maxImgWidth*100/a4Pixels[0];
 
         let calcImgPersentageFromFullA4 = (img:HTMLImageElement,maxImgHeight:number,maxImgWidth:number,a4PixelRec:number[],figComp:any) => {
-          console.log(figComp,img);
-          console.log(img.naturalHeight,img.naturalWidth);
           if(img.naturalHeight<maxImgHeight&&img.naturalWidth<maxImgWidth){
             let heightPersent = img.naturalHeight/a4PixelRec[1];
             let widthPersent = img.naturalWidth/a4PixelRec[0];
@@ -383,15 +382,18 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
             this.urlMapping[figComp.container.pdfImgOrigin] = figComp.container.pdfImgResized;
           }
         }
-        console.log(this.figureRows);
+
         for(let i = 0;i<this.figureRows.length;i++){
           for(let j = 0;j<this.figureRows[i].length;j++){
             let image = this.figureRows[i][j];
             let newImg = new Image();
-            console.log(image);
-            newImg.addEventListener('load',()=>{
-              calcImgPersentageFromFullA4(newImg,maxImgHeight,maxImgWidth,a4Pixels,image);
-            })
+
+            // newImg.addEventListener('load',()=>{
+            //   calcImgPersentageFromFullA4(newImg,maxImgHeight,maxImgWidth,a4Pixels,image);
+            // })
+
+            calcImgPersentageFromFullA4(newImg,maxImgHeight,maxImgWidth,a4Pixels,image);
+
             newImg.src = image.container.pdfImgOrigin;
           }
         }
