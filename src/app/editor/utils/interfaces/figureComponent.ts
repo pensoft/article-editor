@@ -3,7 +3,8 @@ export interface figure_component {
     'componentType':string,
     'url':string,
     'description':string,
-    "thumbnail":string
+    "thumbnail":string,
+    "pdfImgOrigin": string
 }
 
 export interface figure {
