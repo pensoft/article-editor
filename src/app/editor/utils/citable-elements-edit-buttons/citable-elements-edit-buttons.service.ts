@@ -235,6 +235,32 @@ export class CitableElementsEditButtonsService {
 
           return false;
         },
+        handleClick(view: EditorView, pos: number, event: MouseEvent) {
+          const $pos = view.state.doc.resolve(pos);
+          const { parent, parentOffset } = $pos;
+          let from: number;
+          let to: number;          
+           
+          if (parent && parent.type.name == "reference_citation") {
+            from = $pos.start();
+            to = from + parent.nodeSize;            
+
+            const newSelection = view.state.tr.setSelection(TextSelection.create(view.state.doc, from, to - 1));
+            view.dispatch(newSelection);
+          } else {
+            const { node, offset } = parent.childAfter(parentOffset);
+            if(!node) return;
+            if(!node.marks || !node.marks.find(mark =>  ["citation", "supplementary_file_citation", "table_citation", "end_note_citation"].includes(mark.type.name))) {
+              return;
+            }
+            
+            from = $pos.start() + offset;
+            to = from + node.nodeSize;
+
+            let tr = view.state.tr.setSelection(TextSelection.create(view.state.doc, from, to));
+            view.dispatch(tr);            
+          }
+        },
         decorations:(state: EditorState) => {
           let pluginState = this.citableElementsEditButtonsPluginKey.getState(state);
           let focusedEditor = serviceShare.DetectFocusService.sectionName
