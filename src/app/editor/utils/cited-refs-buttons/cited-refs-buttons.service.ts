@@ -1,184 +1,210 @@
 import { Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 
-import { EditorState, Plugin, PluginKey, Transaction } from 'prosemirror-state';
-import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
+import { EditorState, Plugin, PluginKey, TextSelection, Transaction } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
 
+import { RefsInArticleDialogComponent } from '@app/editor/dialogs/refs-in-article-dialog/refs-in-article-dialog.component';
 import { RefsInArticleCiteDialogComponent } from '@app/editor/dialogs/refs-in-article-cite-dialog/refs-in-article-cite-dialog.component';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-import { createCustomIcon } from '../menu/common-methods';
+import { FiguresDialogComponent } from '@app/editor/dialogs/figures-dialog/figures-dialog.component';
+import { SupplementaryFilesDialogComponent } from '@app/editor/dialogs/supplementary-files/supplementary-files.component';
+import { EndNotesDialogComponent } from '@app/editor/dialogs/end-notes/end-notes.component';
+import { CitableTablesDialogComponent } from '@app/editor/dialogs/citable-tables-dialog/citable-tables-dialog.component';
 
 @Injectable({
   providedIn: 'root',
 })
-export class CitedRefsButtonsService {
-  citedRefsPluginKey = new PluginKey('citedRefsButtonsPlugin');
-  citedRefsButtonsPlugin: Plugin;
+export class CitationButtonsService {
+  citationButtonsPluginKey = new PluginKey('citationButtonsPlugin');
+  citationButtonsPlugin: Plugin;
+  citationElementsNodeNames = ["citation", "supplementary_file_citation", "table_citation", "end_note_citation"];
 
-  citeEditButton: HTMLButtonElement;
-  citeDeleteButton: HTMLButtonElement;
+  citableElementsDialogs = {
+    "citation": FiguresDialogComponent,
+    "supplementary_file_citation": SupplementaryFilesDialogComponent,
+    "table_citation": CitableTablesDialogComponent,
+    "end_note_citation": EndNotesDialogComponent
+  }
 
-  citeActions = {
-    editCiteRef: () => {},
-    deleteCiteRef: () => {},
-  };
-
-  citeButtonsClasses = ['edit-cite-ref-button', 'delete-cite-ref-button'];
+  citationNodeNamesAndButtonsTitles = {
+    "citation": "Edit Figures",
+    "supplementary_file_citation": "Edit Supplementary Files",
+    "table_citation": "Edit Tables",
+    "end_note_citation": "Edit End Notes",
+  }
 
   constructor(private serviceShare: ServiceShare, private dialog: MatDialog) {
-    this.createButtons();
-    this.citedRefsButtonsPlugin = new Plugin({
-      key: this.citedRefsPluginKey,
+    const self = this;
+    this.citationButtonsPlugin = new Plugin({
+      key: this.citationButtonsPluginKey,
       state: {
         init: (config: any, _: EditorState) => {
-          return { sectionName: config.sectionName };
+          return { sectionName: config.sectionName, editorType: config.editorType ? config.editorType : undefined};
         },
         apply: (transaction: Transaction, value, _, newState) => {
           return value;
         },
       },
       props: {
-        handleDOMEvents: {
-          blur: (view: EditorView, event: MouseEvent) => {
-            if (
-              event.relatedTarget &&
-              event.relatedTarget instanceof HTMLButtonElement &&
-              this.citeButtonsClasses.includes(event.relatedTarget.className)
-            ) {
-              event.relatedTarget.click();
+        handleClick(view: EditorView, pos: number, event: MouseEvent) {
+          const $pos = view.state.doc.resolve(pos);
+          const { parent, parentOffset } = $pos;
+          let from: number;
+          let to: number;          
+           
+          if (parent && parent.type.name == "reference_citation") {
+            from = $pos.start();
+            to = from + parent.nodeSize;            
+
+            const newSelection = view.state.tr.setSelection(TextSelection.create(view.state.doc, from, to - 1));
+            view.dispatch(newSelection);
+          } else {
+            const { node, offset } = parent.childAfter(parentOffset);
+            if(!node) return;
+            if(!node.marks || !node.marks.find(mark => self.citationElementsNodeNames.includes(mark.type.name))) {
+              return;
             }
-          },
-        },
-        decorations: (state: EditorState) => {
-          const pluginState = this.citedRefsPluginKey.getState(state);
-          const focusedEditor =
-            this.serviceShare.DetectFocusService.sectionName;
-          const currentEditor = pluginState.sectionName;
-          const { from, to } = state.selection;
+            
+            from = $pos.start() + offset;
+            to = from + node.nodeSize;
 
-          if (from != to || currentEditor != focusedEditor) {
-            return DecorationSet.empty;
+            let tr = view.state.tr.setSelection(TextSelection.create(view.state.doc, from, to));
+            view.dispatch(tr);            
           }
-
-          const anchor = state.selection.$anchor;
-          const referenceCitationInfo = this.citeRefPosition(state, anchor.pos);
-
-          if (!referenceCitationInfo) {
-            return DecorationSet.empty;
-          }
-
-          const buttonsContainer = document.createElement('div');
-          buttonsContainer.className = 'cite-ref-buttons';
-          buttonsContainer.style.pointerEvents = 'all';
-          buttonsContainer.append(this.citeEditButton);
-          buttonsContainer.append(this.citeDeleteButton);
-
-          const view =
-            serviceShare.ProsemirrorEditorsService.editorContainers[
-              currentEditor
-            ].editorView;
-
-          const coordsInCursorPos = view.coordsAtPos(from);
-          const editorViewRectangle = view.dom.getBoundingClientRect();
-
-          const top = coordsInCursorPos.top - editorViewRectangle.top;
-
-          buttonsContainer.setAttribute('style', `top: ${top}px`);
-          buttonsContainer.setAttribute('tabindex', '-1');
-
-          this.citeActions.editCiteRef = () => {
-            const { from, referenceCitation } = referenceCitationInfo;
-            const { citedRefsCiTOs, citedRefsIds } = referenceCitation.attrs;
-
-            this.dialog
-              .open(RefsInArticleCiteDialogComponent, {
-                panelClass: 'editor-dialog-container',
-                data: { citedRefsIds, citedRefsCiTOs, isEditMode: true },
-                width: '680px',
-              })
-              .afterClosed()
-              .subscribe((result) => {
-                if (result) {
-                  const citationObj = {
-                    citedRefsIds,
-                    citationNode: referenceCitation,
-                    citationPos: from,
-                  };
-
-                  serviceShare.EditorsRefsManagerService.citateSelectedReferencesInEditor(
-                    result.citedRefs,
-                    view,
-                    true,
-                    citationObj
-                  );
-                }
-              });
-          };
-
-          this.citeActions.deleteCiteRef = () => {
-            const { from, referenceCitation } = referenceCitationInfo;
-
-            const tr = state.tr.deleteRange(
-              from - 1,
-              from + referenceCitation.nodeSize - 1
-            );
-            view.dispatch(tr);
-          };
-
-          return DecorationSet.create(state.doc, [
-            Decoration.widget(0, () => buttonsContainer),
-          ]);
         },
       },
+      view: function(view: EditorView) {
+        return {
+          update: (view: EditorView, prevState) => {
+            if (JSON.stringify(view.state.doc) == JSON.stringify(prevState.doc) && !view.hasFocus()) {
+              return;
+            }            
+
+            self.attachCitationRefButtons(view);
+          },
+          destroy: () => {}
+        }
+      }
     });
   }
 
+  attachCitationRefButtons(view: EditorView) {
+    const anchor = view.state.selection.$anchor;
+    const referenceCitationInfo = this.citeRefPosition(view.state, anchor.pos);
+    const mark = this.findCitationMark(view, anchor.pos);
+    const { from, to } = view.state.selection;
+
+    const btnsWrapper = document.getElementsByClassName('editor_buttons_wrapper')[0] as HTMLDivElement
+    const editCitableElementsContainer = btnsWrapper.getElementsByClassName('citable-items-edit-btn-container')[0] as HTMLDivElement;
+    const editCitationBtnContainer = btnsWrapper.getElementsByClassName('edit-cite-ref-btn-container')[0] as HTMLDivElement;
+    const deleteCitationBtnContainer = btnsWrapper.getElementsByClassName('delete-citation-btn-container')[0] as HTMLDivElement;
+    
+    if(mark && from != to) {
+      editCitableElementsContainer.style.display = "block";
+      editCitationBtnContainer.style.display = "none";
+      deleteCitationBtnContainer.style.display = "none";
+
+      const editCitableElementsButton = editCitableElementsContainer.getElementsByClassName('edit-citable-button')[0] as HTMLButtonElement;
+      editCitableElementsButton.title = this.citationNodeNamesAndButtonsTitles[mark.type.name];
+
+      editCitableElementsButton.removeAllListeners!("click");
+      editCitableElementsButton.addEventListener("click", (event: MouseEvent) => {
+      
+      this.dialog.open(this.citableElementsDialogs[mark.type.name] as any, {
+        data: {},
+        disableClose: false
+      })
+    })
+      return;
+    } else if (referenceCitationInfo && from != to) {
+      const editReferenceItemBtn = editCitableElementsContainer.getElementsByClassName('edit-citable-button')[0] as HTMLButtonElement;
+      const editCitationBtn = editCitationBtnContainer.getElementsByClassName('edit-cite-ref-button')[0] as HTMLButtonElement;
+      const deleteCitationBtn = deleteCitationBtnContainer.getElementsByClassName('delete-citation-btn')[0] as HTMLButtonElement;
+
+      editReferenceItemBtn.title = "Edit References";
+      editCitableElementsContainer.style.display = "block";
+      editCitationBtnContainer.style.display = "block";
+      deleteCitationBtnContainer.style.display = "block";
+
+      editReferenceItemBtn.removeAllListeners!("click");
+      editCitationBtn.removeAllListeners!("click");
+      deleteCitationBtn.removeAllListeners!("click");
+
+      editReferenceItemBtn.addEventListener("click", (event: MouseEvent) => {
+        this.dialog.open(RefsInArticleDialogComponent, {
+          data: {},
+          disableClose: false
+        })
+      })
+
+      editCitationBtn.addEventListener("click", (event: MouseEvent) => {
+          // const referenceCitationInfo = citeRefPosition(view.state, anchor.pos);
+          // if(!referenceCitationInfo) return;
+          const { from, referenceCitation } = referenceCitationInfo;
+          let { citedRefsCiTOs, citedRefsIds } = referenceCitation.attrs;
+
+          this.dialog.open(RefsInArticleCiteDialogComponent, {
+              panelClass: 'editor-dialog-container',
+              data: { citedRefsIds, citedRefsCiTOs, isEditMode: true },
+              width: '680px',
+            })
+            .afterClosed()
+            .subscribe((result) => {
+              if (result) {                
+                const citationObj = {
+                  citedRefsIds,
+                  citationNode: referenceCitation,
+                  citationPos: from,
+                };
+
+                this.serviceShare.EditorsRefsManagerService.citateSelectedReferencesInEditor(
+                  result.citedRefs,
+                  view,
+                  true,
+                  citationObj
+                );
+              }
+              btnsWrapper.style.display = "none";
+            });
+      })
+
+      deleteCitationBtn.addEventListener("click", (event: MouseEvent) => {
+          // const referenceCitationInfo = citeRefPosition(view.state, anchor.pos);
+          // if(!referenceCitationInfo) return;
+          const { from, referenceCitation } = referenceCitationInfo;
+
+          const tr = view.state.tr.deleteRange(
+            from - 1,
+            from + referenceCitation.nodeSize - 1
+          );
+          view.dispatch(tr);
+          btnsWrapper.style.display = "none";
+      })
+    }    
+    if((!referenceCitationInfo && !mark) || from == to) {
+      editCitableElementsContainer.style.display = "none";
+      editCitationBtnContainer.style.display = "none";
+      deleteCitationBtnContainer.style.display = "none";
+    }
+    if(this.citationButtonsPluginKey.getState(view.state).editorType == "popupEditor") {
+      btnsWrapper.style.display = "none";
+    }
+  }
+  
   citeRefPosition(state: EditorState, pos: number) {
     const $pos = state.doc.resolve(pos);
-
     const { parent: node } = $pos;
     if (!node || node.type.name !== 'reference_citation') return;
-
-    let from = $pos.start();
+    const from = $pos.start();
 
     return { from, referenceCitation: node };
   }
 
-  createButtons() {
-    this.citeEditButton = document.createElement('button');
-    this.citeEditButton.className = 'edit-cite-ref-button';
-    this.citeEditButton.setAttribute('tabindex', '-1');
-    this.citeEditButton.style.cursor = 'pointer';
-    this.citeEditButton.title = 'Edit Citation';
-    const { dom: trfCitation } = createCustomIcon(
-      'refCitation.svg',
-      16,
-      16,
-      0,
-      1.5,
-      1.3
-    );
-    this.citeEditButton.append(trfCitation);
-    this.citeEditButton.addEventListener('click', () => {
-      this.citeActions.editCiteRef();
-    });
-
-    this.citeDeleteButton = document.createElement('button');
-    this.citeDeleteButton.className = 'delete-cite-ref-button';
-    this.citeDeleteButton.setAttribute('tabindex', '-1');
-    this.citeDeleteButton.style.cursor = 'pointer';
-    this.citeDeleteButton.title = 'Delete Citation.';
-    const { dom: deleteImg } = createCustomIcon(
-      'delete_forever-red.svg',
-      16,
-      16,
-      0,
-      1.5,
-      1.3
-    );
-    this.citeDeleteButton.append(deleteImg);
-    this.citeDeleteButton.addEventListener('click', () => {
-      this.citeActions.deleteCiteRef();
-    });
+  findCitationMark(view: EditorView, pos: number) {
+    const $pos = view.state.doc.resolve(pos);
+    const { parent, parentOffset } = $pos;
+    const { node } = parent.childAfter(parentOffset);
+    return node && node.marks?.find((mark => this.citationElementsNodeNames.includes(mark.type?.name)));
   }
 }
