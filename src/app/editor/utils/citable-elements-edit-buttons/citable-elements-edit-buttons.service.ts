@@ -27,8 +27,6 @@ export class CitableElementsEditButtonsService {
   citableElementsEditButtonsPlugin : Plugin
 
   citableElementsBlockNodesNames = ['block_figure','block_table','block_supplementary_file','block_end_note'];
-  citationElementsNodeNames = ["citation", "supplementary_file_citation", "table_citation", "end_note_citation"];
-
   elementsMaps ={
     'block_figure':{
       idProp:'figure_id',
@@ -237,18 +235,40 @@ export class CitableElementsEditButtonsService {
 
           return false;
         },
+        handleClick(view: EditorView, pos: number, event: MouseEvent) {
+          const $pos = view.state.doc.resolve(pos);
+          const { parent, parentOffset } = $pos;
+          let from: number;
+          let to: number;          
+           
+          if (parent && parent.type.name == "reference_citation") {
+            from = $pos.start();
+            to = from + parent.nodeSize;            
+
+            const newSelection = view.state.tr.setSelection(TextSelection.create(view.state.doc, from, to - 1));
+            view.dispatch(newSelection);
+          } else {
+            const { node, offset } = parent.childAfter(parentOffset);
+            if(!node) return;
+            if(!node.marks || !node.marks.find(mark =>  ["citation", "supplementary_file_citation", "table_citation", "end_note_citation"].includes(mark.type.name))) {
+              return;
+            }
+            
+            from = $pos.start() + offset;
+            to = from + node.nodeSize;
+
+            let tr = view.state.tr.setSelection(TextSelection.create(view.state.doc, from, to));
+            view.dispatch(tr);            
+          }
+        },
         decorations:(state: EditorState) => {
           let pluginState = this.citableElementsEditButtonsPluginKey.getState(state);
           let focusedEditor = serviceShare.DetectFocusService.sectionName
           let currentEditor = pluginState.sectionName
-          let {from,to,$from} = state.selection;
-          let { parent, parentOffset } = state.doc.resolve(state.selection.$anchor.pos);
-          let { node } = parent.childAfter(parentOffset);
+          let {from,to,$from,$to} = state.selection;
+          let { parent: node } = state.doc.resolve(state.selection.$anchor.pos);
           
-          if((parent && parent.type.name == "reference_citation") || 
-             (node && node.marks?.find((mark => this.citationElementsNodeNames.includes(mark.type?.name))))) {
-              return DecorationSet.empty;
-          } 
+          if(!node || node.type.name == "reference_citation") return DecorationSet.empty;
           if(from!=to || currentEditor!=focusedEditor) return DecorationSet.empty;
 
           //@ts-ignore

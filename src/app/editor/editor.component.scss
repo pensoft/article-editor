@@ -260,48 +260,10 @@ $treeSpace: 341px;
 
           .commentBtnDiv,
           .trackChangesBtnDiv,
-          .tag-words-btn-div,
-          .citable-items-edit-btn-container,
-          .edit-cite-ref-btn-container,
-          .delete-citation-btn-container {
+          .tag-words-btn-div {
             padding: 5px 0;
             height: 50px;
             transition: visibility 0s, opacity 0.2s linear;
-
-            .edit-citable-button,
-            .edit-cite-ref-button,
-            .delete-citation-btn {
-              padding: 4px;
-              border-radius: 50% !important;
-              background: var(--color-ffffff);
-              pointer-events: all;
-              cursor: pointer;
-              border: none;
-              
-              &.edit-citable-button {
-                box-shadow: 0 1px 2px 1px var(--color-00b1b2), 0 0 0 0 var(--color-00b1b2), 0 1px 3px 0 var(--color-00b1b2);
-              }
-
-              &.edit-cite-ref-button {
-                box-shadow: 0 1px 2px 1px var(--color-818181), 0 0 0 0 var(--color-818181), 0 1px 3px 0 var(--color-818181);
-
-                img {
-                  width: 24px;
-                }
-              }
-
-              &.delete-citation-btn {
-                box-shadow: 0 1px 2px 1px var(--color-e56b87), 0 0 0 0 var(--color-e56b87), 0 1px 3px 0 var(--color-e56b87);
-
-                img {
-                  width: 20px;
-                }
-              }
-              
-              img {
-                width: 16px;
-              }
-            }
 
             button {
               width: 34px;
@@ -495,21 +457,3 @@ $treeSpace: 341px;
     height: 400px;
   }
 }
-
-// .citable-items-edit-button {
-//   display: flex;
-//   flex-flow: column nowrap;
-//   gap: 8px;
-//   position:absolute;
-//   left: calc(100% + 6px);
-//   pointer-events: all;
-
-//     .editor-citable-button {
-      
-      
-      
-//   }
-  
-
-  
-// }
