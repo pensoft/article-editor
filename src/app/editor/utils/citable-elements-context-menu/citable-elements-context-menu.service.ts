@@ -58,7 +58,7 @@ export class CitableElementsContextMenuService {
       let contextBoxWidth = citableElementMap.contextMenuBoxWidth
 
       let relativeElement = document.createElement('div');
-      relativeElement.setAttribute('style', 'position: relative;display: inline;line-height: 21px;font-size: 14px;')
+      relativeElement.setAttribute('style', 'position: relative;display: inline;line-height: 21px;font-size: 14px; cursor: default;')
       relativeElement.setAttribute('class', 'citat-menu-context')
 
       let absElPosition = document.createElement('div');
@@ -89,7 +89,8 @@ export class CitableElementsContextMenuService {
       padding-right: 9px;
       border: 2px solid black;
       display: block;cursor: pointer;
-      width: 100%;`)
+      width: 100%;
+      user-select: none;`)
       deleteCitationButton.setAttribute('style', `
       background-color: #fbdfd2;
       border-radius: 13px;
@@ -99,7 +100,8 @@ export class CitableElementsContextMenuService {
       margin-top: 8px;
       display: block;
       width: 100%;
-      border: 2px solid black;`)
+      border: 2px solid black;
+      user-select: none;`)
 
       editCitationButton.addEventListener('click', () => {
 
@@ -281,7 +283,7 @@ export class CitableElementsContextMenuService {
           if ((tr.getMeta(key) && !tr.getMeta(key).citationIsClicked) || shouldCloseContextMenu) {
             prev.decorations = undefined
             shouldCloseContextMenu = false
-          } else if (tr.getMeta(key)&&from == to) {
+          } else if (tr.getMeta(key)&&from !== to) {
 
             let meta = tr.getMeta(key)
             let nodeAtSel = newState.doc.nodeAt(from);
