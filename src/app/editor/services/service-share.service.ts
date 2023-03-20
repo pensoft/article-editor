@@ -35,6 +35,7 @@ import { ChangesSectionComponent } from '../changes-section/changes-section.comp
 import { CollaboratorsService } from '../dialogs/add-contributors-dialog/collaborators.service';
 import { TaxonService } from '../taxons/taxon.service';
 import { CitationButtonsService } from '../utils/citation-buttons/citation-buttons.service';
+import { mergeMap } from 'rxjs/operators';
 @Injectable({
   providedIn: 'root'
 })
@@ -133,13 +134,17 @@ export class ServiceShare {
       this.ProsemirrorEditorsService.stopSpinner()
       dialogRef.afterClosed().subscribe(result => {
         if(!result) return ;
-        this.AuthService.getUserInfo().subscribe((userData)=>{
-          let selectedLayout = (this.articleLayouts.data as Array<any>).find((layout: any) => {
-            return layout.id == result
-          }).template
-          let articleStructure: articleSection[] = []
-          //let filteredSections = selectedLayout.sections.filter((section: any) => { return section.type == 0 });
 
+        let userData;
+        this.AuthService.getUserInfo()
+        .pipe(mergeMap(data => {
+          userData = data;
+
+          return this.ArticleSectionsService.getLayoutById(result);
+        })).subscribe((articleData: any)=>{          
+          let selectedLayout = articleData.data.template;
+          
+          let articleStructure: articleSection[] = []
           this.ArticlesService!.createArticle('Untitled',+result).subscribe((createArticleRes:any)=>{
             this.resetServicesData();
             this.YdocService!.setArticleData(createArticleRes.data,true)
