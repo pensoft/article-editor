@@ -14,6 +14,14 @@ export class ArticleSectionsService {
     this.serviceShare.shareSelf('ArticleSectionsService',this)
   }
 
+  getArticleById(id: string) {
+    return this._http.get(API_ARTICLES_URL + `/items/${id}`);
+  }
+
+  getLayoutById(id: string) {
+    return this._http.get(API_ARTICLE_TEMPLATES_URL + `/${id}`);
+  }
+
   getSectionById(id:number){
       return this._http.get(`${API_ARTICLES_URL}/sections/${id}`)
   }
