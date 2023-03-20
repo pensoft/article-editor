@@ -34,6 +34,7 @@ import { CitableElementsContextMenuService } from '../utils/citable-elements-con
 import { ChangesSectionComponent } from '../changes-section/changes-section.component';
 import { CollaboratorsService } from '../dialogs/add-contributors-dialog/collaborators.service';
 import { TaxonService } from '../taxons/taxon.service';
+import { CitationButtonsService } from '../utils/citation-buttons/citation-buttons.service';
 @Injectable({
   providedIn: 'root'
 })
@@ -46,6 +47,7 @@ export class ServiceShare {
   ChangesSectionComponent?:ChangesSectionComponent
   CitableElementsService?:CitableElementsService
   CitableElementsContextMenuService?:CitableElementsContextMenuService
+  citationButtonsService: CitationButtonsService
   ReferencePluginService?:ReferencePluginService
   CslService?:CslService
   ProsemirrorEditorsService?:ProsemirrorEditorsService

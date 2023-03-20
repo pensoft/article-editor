@@ -68,7 +68,7 @@ import { CitableElementsEditButtonsService } from '../utils/citable-elements-edi
 import { getToolTipPlugin } from '../utils/toolTipPlugin';
 import {getItems} from '../utils/menu/menuItems'
 import { LinkButtonsService } from '../utils/link-buttons/link-buttons.service';
-import { CitationButtonsService } from '../utils/cited-refs-buttons/cited-refs-buttons.service';
+import { CitationButtonsService } from '../utils/citation-buttons/citation-buttons.service';
 export interface editorContainersObj { [key: string]: editorContainer }
 export interface editorContainer {
   editorID: string,

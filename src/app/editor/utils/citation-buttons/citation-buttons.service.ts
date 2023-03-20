@@ -36,6 +36,7 @@ export class CitationButtonsService {
 
   constructor(private serviceShare: ServiceShare, private dialog: MatDialog) {
     const self = this;
+    serviceShare.shareSelf("citationButtonsService", this);
     this.citationButtonsPlugin = new Plugin({
       key: this.citationButtonsPluginKey,
       state: {
@@ -101,6 +102,7 @@ export class CitationButtonsService {
     const deleteCitationBtnContainer = btnsWrapper.getElementsByClassName('delete-citation-btn-container')[0] as HTMLDivElement;
     
     if(mark && from != to) {
+      // this.serviceShare.TaxonService.canShowTaxonButtons.next(false);
       editCitableElementsContainer.style.display = "block";
       editCitationBtnContainer.style.display = "none";
       deleteCitationBtnContainer.style.display = "none";
@@ -118,6 +120,7 @@ export class CitationButtonsService {
     })
       return;
     } else if (referenceCitationInfo && from != to) {
+      // this.serviceShare.TaxonService.canShowTaxonButtons.next(false);
       const editReferenceItemBtn = editCitableElementsContainer.getElementsByClassName('edit-citable-button')[0] as HTMLButtonElement;
       const editCitationBtn = editCitationBtnContainer.getElementsByClassName('edit-cite-ref-button')[0] as HTMLButtonElement;
       const deleteCitationBtn = deleteCitationBtnContainer.getElementsByClassName('delete-citation-btn')[0] as HTMLButtonElement;
