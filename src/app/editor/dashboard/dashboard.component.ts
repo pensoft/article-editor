@@ -223,11 +223,13 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
     this.serviceShare.createNewArticle();
   }
 
-  editArticle(articleData: any) {
+  editArticle(articleData: any) {    
     this.serviceShare.resetServicesData();
-    this.ydocService.setArticleData(articleData);
+    this.articleSectionsService.getArticleById(articleData.id).subscribe((res: any) => {      
+      this.ydocService.setArticleData(res.data);
+      this.router.navigate([articleData.uuid])
+    })
     //this.router.navigateByUrl('/'+articleData.uuid, { state: { id:1 , name:'Angular',articleData } });
-    this.router.navigate([articleData.uuid])
   }
 
   deleteArticle(deleteArticle: any) {

@@ -312,15 +312,19 @@ export class TrackChangesService {
                     border: 1.4px solid black;`)
 
                     acceptBtn.addEventListener('click', () => {
+                      let view = serviceShare.ProsemirrorEditorsService.editorContainers[pluginState.sectionName].editorView;
                       acceptReject.action = 'accept';
                       acceptReject.pos = markPos;
                       acceptReject.editorId = pluginState.sectionName;
+                      acceptChange(view, attr.class, attr);
                       relativeElement.style.display = 'none';
                     })
                     rejectBtn.addEventListener('click', () => {
+                      let view = serviceShare.ProsemirrorEditorsService.editorContainers[pluginState.sectionName].editorView;
                       acceptReject.action = 'reject';
                       acceptReject.pos = markPos;
                       acceptReject.editorId = pluginState.sectionName;
+                      rejectChange(view, attr.class, attr);
                       relativeElement.style.display = 'none';
                     })
 
