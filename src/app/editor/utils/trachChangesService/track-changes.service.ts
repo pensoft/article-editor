@@ -194,6 +194,7 @@ export class TrackChangesService {
     private ydocService: YdocService,
     private serviceShare:ServiceShare
   ) {
+    const self = this;
     serviceShare.shareSelf('TrackChangesService',this);
     this.lastSelectedChangeSubject.subscribe((data) => {
       this.lastChangeSelected.pmDocStartPos = data.pmDocStartPos
@@ -318,6 +319,7 @@ export class TrackChangesService {
                       acceptReject.editorId = pluginState.sectionName;
                       acceptChange(view, attr.class, attr);
                       relativeElement.style.display = 'none';
+                      self.resetTrackChangesService();
                     })
                     rejectBtn.addEventListener('click', () => {
                       let view = serviceShare.ProsemirrorEditorsService.editorContainers[pluginState.sectionName].editorView;
@@ -326,6 +328,7 @@ export class TrackChangesService {
                       acceptReject.editorId = pluginState.sectionName;
                       rejectChange(view, attr.class, attr);
                       relativeElement.style.display = 'none';
+                      self.resetTrackChangesService();
                     })
 
                     buttonsContainer.append(acceptBtn, rejectBtn);
