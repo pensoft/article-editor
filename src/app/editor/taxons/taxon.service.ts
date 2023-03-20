@@ -1,7 +1,7 @@
 import { Injectable, OnDestroy } from '@angular/core';
 import { uuidv4 } from 'lib0/random';
 import { Fragment, Mark, Node, Slice } from 'prosemirror-model';
-import { AllSelection, Plugin, PluginKey, Selection, TextSelection } from 'prosemirror-state';
+import { AllSelection, EditorState, Plugin, PluginKey, Selection, TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
 import { Subject } from 'rxjs';
 import { ServiceShare } from '../services/service-share.service';
@@ -565,8 +565,11 @@ export class TaxonService implements OnDestroy {
 
   showHideTaxonButtons(view: EditorView) {
     const {from, to} = view.state.selection;
+    const anchor = view.state.selection.$anchor;
+    const referenceCitationInfo = this.serviceShare.citationButtonsService.citeRefPosition(view.state, anchor.pos);
+    const mark = this.serviceShare.citationButtonsService.findCitationMark(view, anchor.pos);
               
-    if(to - from >= 3) {
+    if(to - from >= 3 && !referenceCitationInfo && !mark) {
       this.canShowTaxonButtons.next(true);
     } else {
       this.canShowTaxonButtons.next(false);
