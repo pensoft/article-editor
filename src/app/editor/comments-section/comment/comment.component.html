@@ -99,10 +99,10 @@
                  placeholder="Write a reply..."
                  autocomplete="off"
                  [formControl]="replyFormControl"
-                 (focus)="showReplyFocusHandle(ReplyDiv)"
+                 (focus)="showReplyFocusHandle(ReplyDiv, autocomplete)"
                  (blur)="hideReplyBlurHandle(ReplyDiv)"
                  (keydown)="autocomplete.keyHandle($event)">
-          <app-collaborators-auto-complete [(commentmarkId)]="comment.commentMarkId" [(inputFormControl)]="replyFormControl" #autocomplete></app-collaborators-auto-complete>
+          <app-collaborators-auto-complete (clickOutside)="clickOutsideHandler($event, autocomplete)" [(commentmarkId)]="comment.commentMarkId" [(inputFormControl)]="replyFormControl" #autocomplete></app-collaborators-auto-complete>
           <mat-icon matSuffix class="comment-reply-field-icon">alternate_email</mat-icon>
         </mat-form-field>
 
