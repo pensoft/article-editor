@@ -290,6 +290,7 @@ export class CommentsService {
                 const actualMark = node.marks.find(mark => mark.type === commentsMark)
                 if (actualMark) {
                   commentInSelection(actualMark, pos)
+                  addCommentSubject1.next({ type: "commentData", sectionName: prev.sectionName, showBox: false })
                   selectedAComment = true;
                 }
 

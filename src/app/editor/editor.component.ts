@@ -187,8 +187,8 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
 
     this.serviceShare.CommentsService.lastSelectedCommentSubject.subscribe((data) => {
       if (!data.commentId || !data.commentMarkId || !data.pos || !data.sectionId) return;
-      let {from, to} = this.prosemirrorEditorServie.editorContainers[data.sectionId].editorView.state.selection
-      if (from != to || data.sectionId != this.serviceShare.DetectFocusService.sectionName) return;
+      // let {from, to} = this.prosemirrorEditorServie.editorContainers[data.sectionId].editorView.state.selection
+      if (data.sectionId != this.serviceShare.DetectFocusService.sectionName) return;
       if (!this.sidebarDrawer?.opened) {
         this.sidebarDrawer?.toggle();
       }
