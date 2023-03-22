@@ -68,9 +68,10 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
 
   ngAfterViewInit() {
     let articlesDataFromResolver = this.route.snapshot.data['product'];
-    /* this.articleSectionsService.getAllLayouts().subscribe((articleLayouts: any) => {
+
+    this.articleSectionsService.getAllLayouts().subscribe((articleLayouts: any) => {      
       this.articleLayouts = [...articleLayouts.data, { name: 'none', id: -1 }]
-    }) */
+    })
     // If the user changes the sort order, reset back to the first page.
     this.sort!.sortChange.subscribe(() => {
       this.paginator!.pageIndex = 0;
@@ -103,9 +104,9 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
           if (this.searchValue && this.searchValue != '') {
             params['filter[name]'] = this.searchValue
           }
-          /* if(this.selectedType!=-1){
-
-          } */
+          if(this.selectedType != -1) {
+              params['filter[layout_id]'] = this.selectedType;
+          }
           this.isLoadingResults = true;
           /* if(this.allArticlesData){
             return of({data:JSON.parse(JSON.stringify(this.allArticlesData))})
@@ -216,7 +217,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
     }, 300)
   }
   filterByType(selectValue: any) {
-    this.selectedType = selectValue;
+    this.selectedType = selectValue;    
     this.typeChange.next('typechange')
   }
   openchooseDialog() {

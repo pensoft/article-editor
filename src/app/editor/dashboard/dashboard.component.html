@@ -26,7 +26,7 @@
           <mat-icon matPrefix class="prefix-icon">search</mat-icon>
         </mat-form-field>
         <mat-form-field class="width-select">
-          <mat-label class="type-select-label">Template</mat-label>
+          <mat-label class="type-select-label">Type</mat-label>
           <mat-select #matSelect (selectionChange)="filterByType(matSelect.value)">
             <ng-container *ngFor="let type of articleLayouts">
               <mat-option value="{{type.id}}">{{type.name}}</mat-option>

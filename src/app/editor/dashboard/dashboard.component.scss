@@ -78,6 +78,20 @@
   }
 }
 
+
+::ng-deep .mat-select-value {
+    max-width: 100%;
+    min-width: 100%;
+    width: auto;
+}
+
+::ng-deep .mat-form-field-infix {
+    width: auto !important;
+    min-width: 180px !important;
+    padding-right: 13px !important;
+}
+
+
 .example-loading-shade {
   position: fixed;
   top: 0;
