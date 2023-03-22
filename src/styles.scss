@@ -416,7 +416,7 @@ end-note-citation:hover {
   cursor: pointer;
 }
 
-.ProseMirror *[contenteditablenode="false"] {
+.ProseMirror *[contenteditablenode="false"]:not(figure-components-container, figure-component) {
   caret-color: transparent;
 
   &:hover:not(
