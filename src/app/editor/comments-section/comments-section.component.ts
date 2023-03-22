@@ -317,9 +317,9 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
       // determine what kind of change it is
       if (JSON.stringify(oldPos) != JSON.stringify(newPos) || cause || this.tryMoveItemsUp) {
         if (JSON.stringify(idsOldOrder) == JSON.stringify(idsNewOrder) || cause || this.tryMoveItemsUp) { // comments are in same order
-          if (oldPos[oldPos.length - 1].top > newPos[newPos.length - 1].top) {  // comments have decreased top should loop from top
+          if (oldPos.length > 0 && oldPos[oldPos.length - 1].top > newPos[newPos.length - 1].top) {  // comments have decreased top should loop from top
             this.loopFromTopAndOrderComments(sortedComments, comments)
-          } else if (oldPos[oldPos.length - 1].top < newPos[newPos.length - 1].top) { // comments have increased top should loop from bottom
+          } else if (oldPos.length > 0 && oldPos[oldPos.length - 1].top < newPos[newPos.length - 1].top) { // comments have increased top should loop from bottom
             this.loopFromBottomAndOrderComments(sortedComments, comments, container)
           } else if (cause == 'hide_comment_box' || cause == 'replay_rerender' || cause == 'change_in_comments_in_ydoc' || cause == 'show_more_less_click') {
             this.loopFromTopAndOrderComments(sortedComments, comments)
