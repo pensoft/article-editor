@@ -241,207 +241,210 @@ export class TrackChangesService {
           if (meta) {
             try {
               if (oldState.selection.empty) {
-                let marks1 = newState.selection.$head.marks()
-                let markPos = oldState.selection.from
-                let nodeAtSelect = oldState.doc.nodeAt(markPos)
-                let sameMarks = nodeAtSelect?.marks == meta.marks;
-                if (sameMarks && meta.focus) {
+                // let marks1 = newState.selection.$head.marks()
+                // let markPos = oldState.selection.from
+                // let nodeAtSelect = oldState.doc.nodeAt(markPos)
+                // let sameMarks = nodeAtSelect?.marks == meta.marks;
+                // if (sameMarks && meta.focus) {
 
-                  pluginState.createdDecorations = DecorationSet.create(oldState.doc, [Decoration.widget(oldState.selection.from, (view) => {
-                    let relativeElement = document.createElement('div');
-                    relativeElement.setAttribute('style', 'position: relative;display: inline;line-height: 21px;font-size: 14px;')
-                    relativeElement.setAttribute('class', 'changes-placeholder')
+                  // pluginState.createdDecorations = DecorationSet.create(oldState.doc, [Decoration.widget(oldState.selection.from, (view) => {
+                  //   let relativeElement = document.createElement('div');
+                  //   relativeElement.setAttribute('style', 'position: relative;display: inline;line-height: 21px;font-size: 14px;')
+                  //   relativeElement.setAttribute('class', 'changes-placeholder')
 
-                    let absElPosition = document.createElement('div');
-                    absElPosition.setAttribute('class', 'changes-placeholder')
+                  //   let absElPosition = document.createElement('div');
+                  //   absElPosition.setAttribute('class', 'changes-placeholder')
 
-                    let changePlaceholder = document.createElement('div');
-                    let markContent = document.createElement('div');
+                  //   let changePlaceholder = document.createElement('div');
+                  //   let markContent = document.createElement('div');
 
-                    let markData = document.createElement('div');
-                    let attr = nodeAtSelect?.marks.filter((mark) => {
-                      return mark.attrs.class == 'insertion'
-                        || mark.attrs.class == 'deletion'
-                        || mark!.type.name == 'insFromPopup'
-                        || mark!.type.name == 'delFromPopup'
-                        || mark.attrs.class == 'format-change'
-                    })[0].attrs!
-                    if (attr.class == 'insertion') {
-                      markData.textContent = `Insertion from ${attr.username} \nUserId = ${attr.user}`;
-                    } else if (attr.class == 'deletion') {
-                      markData.textContent = `Deletion from ${attr.username} \nUserId = ${attr.user}`;
-                    } else if (attr.class == 'ins-from-popup') {
-                      markData.textContent = `Isertion Change from dialog save made by ${attr.username} \nUserId = ${attr.user}`;
-                    } else if (attr.class == 'del-from-popup') {
-                      markData.textContent = `Deletion Change from dialog save made by ${attr.username} \nUserId = ${attr.user}`;
-                    } else if (attr.class == 'format-change'){
-                      markData.textContent = `Text Format Change made by ${attr.username} \nUserId = ${attr.user}`;
-                    }
-                    markData.setAttribute('class', 'changes-placeholder')
+                  //   let markData = document.createElement('div');
+                  //   let attr = nodeAtSelect?.marks.filter((mark) => {
+                  //     return mark.attrs.class == 'insertion'
+                  //       || mark.attrs.class == 'deletion'
+                  //       || mark!.type.name == 'insFromPopup'
+                  //       || mark!.type.name == 'delFromPopup'
+                  //       || mark.attrs.class == 'format-change'
+                  //   })[0].attrs!
+                  //   if (attr.class == 'insertion') {
+                  //     markData.textContent = `Insertion from ${attr.username} \nUserId = ${attr.user}`;
+                  //   } else if (attr.class == 'deletion') {
+                  //     markData.textContent = `Deletion from ${attr.username} \nUserId = ${attr.user}`;
+                  //   } else if (attr.class == 'ins-from-popup') {
+                  //     markData.textContent = `Isertion Change from dialog save made by ${attr.username} \nUserId = ${attr.user}`;
+                  //   } else if (attr.class == 'del-from-popup') {
+                  //     markData.textContent = `Deletion Change from dialog save made by ${attr.username} \nUserId = ${attr.user}`;
+                  //   } else if (attr.class == 'format-change'){
+                  //     markData.textContent = `Text Format Change made by ${attr.username} \nUserId = ${attr.user}`;
+                  //   }
+                  //   markData.setAttribute('class', 'changes-placeholder')
 
-                    markContent.append(markData)
+                  //   markContent.append(markData)
 
-                    changePlaceholder.append(markContent)
-                    changePlaceholder.style.position = 'absolute';
-                    changePlaceholder.setAttribute('class', 'changes-placeholder')
-
-
-                    let buttonsContainer = document.createElement('div');
-                    buttonsContainer.setAttribute('class', 'changes-placeholder')
-                    buttonsContainer.setAttribute('style', `display:block`)
-
-                    let acceptBtn = document.createElement('button')
-                    acceptBtn.setAttribute('class', 'changes-placeholder')
-                    let rejectBtn = document.createElement('button')
-                    rejectBtn.setAttribute('class', 'changes-placeholder')
-                    acceptBtn.textContent = 'Accept'
-                    rejectBtn.textContent = 'Decline'
-                    acceptBtn.setAttribute('style', `display: inline;
-                    background-color: #eff9ef;
-                    border-radius: 13px;
-                    padding: 4px;
-                    padding-left: 9px;cursor: pointer;
-                    padding-right: 9px;
-                    border: 1.4px solid black;`)
-                    rejectBtn.setAttribute('style', `display: inline;
-                    background-color: #fbdfd2;
-                    border-radius: 13px;
-                    padding: 4px;
-                    padding-left: 9px;cursor: pointer;
-                    padding-right: 9px;
-                    margin-left: 7px;
-                    border: 1.4px solid black;`)
-
-                    acceptBtn.addEventListener('click', () => {
-                      let view = serviceShare.ProsemirrorEditorsService.editorContainers[pluginState.sectionName].editorView;
-                      acceptReject.action = 'accept';
-                      acceptReject.pos = markPos;
-                      acceptReject.editorId = pluginState.sectionName;
-                      acceptChange(view, attr.class, attr);
-                      relativeElement.style.display = 'none';
-                      self.resetTrackChangesService();
-                    })
-                    rejectBtn.addEventListener('click', () => {
-                      let view = serviceShare.ProsemirrorEditorsService.editorContainers[pluginState.sectionName].editorView;
-                      acceptReject.action = 'reject';
-                      acceptReject.pos = markPos;
-                      acceptReject.editorId = pluginState.sectionName;
-                      rejectChange(view, attr.class, attr);
-                      relativeElement.style.display = 'none';
-                      self.resetTrackChangesService();
-                    })
-
-                    buttonsContainer.append(acceptBtn, rejectBtn);
-
-                    let arrow = document.createElement('div');
-                    arrow.setAttribute('class', 'changes-placeholder')
+                  //   changePlaceholder.append(markContent)
+                  //   changePlaceholder.style.position = 'absolute';
+                  //   changePlaceholder.setAttribute('class', 'changes-placeholder')
 
 
-                    changePlaceholder.append(buttonsContainer, arrow);
+                  //   let buttonsContainer = document.createElement('div');
+                  //   buttonsContainer.setAttribute('class', 'changes-placeholder')
+                  //   buttonsContainer.setAttribute('style', `display:block`)
 
-                    let backgroundColor = '#00b1b2eb'
-                    relativeElement.appendChild(changePlaceholder);
-                    if (editorCenter.top && editorCenter.left) {
+                  //   let acceptBtn = document.createElement('button')
+                  //   acceptBtn.setAttribute('class', 'changes-placeholder')
+                  //   let rejectBtn = document.createElement('button')
+                  //   rejectBtn.setAttribute('class', 'changes-placeholder')
+                  //   acceptBtn.textContent = 'Accept'
+                  //   rejectBtn.textContent = 'Decline'
+                  //   acceptBtn.setAttribute('style', `display: inline;
+                  //   background-color: #eff9ef;
+                  //   border-radius: 13px;
+                  //   padding: 4px;
+                  //   padding-left: 9px;cursor: pointer;
+                  //   padding-right: 9px;
+                  //   border: 1.4px solid black;`)
+                  //   rejectBtn.setAttribute('style', `display: inline;
+                  //   background-color: #fbdfd2;
+                  //   border-radius: 13px;
+                  //   padding: 4px;
+                  //   padding-left: 9px;cursor: pointer;
+                  //   padding-right: 9px;
+                  //   margin-left: 7px;
+                  //   border: 1.4px solid black;`)
+
+                  //   acceptBtn.addEventListener('click', () => {
+                  //     let view = serviceShare.ProsemirrorEditorsService.editorContainers[pluginState.sectionName].editorView;
+                  //     acceptReject.action = 'accept';
+                  //     acceptReject.pos = markPos;
+                  //     acceptReject.editorId = pluginState.sectionName;
+                  //     acceptChange(view, attr.class, attr);
+                  //     relativeElement.style.display = 'none';
+                  //     self.resetTrackChangesService();
+                  //   })
+                  //   rejectBtn.addEventListener('click', () => {
+                  //     let view = serviceShare.ProsemirrorEditorsService.editorContainers[pluginState.sectionName].editorView;
+                  //     acceptReject.action = 'reject';
+                  //     acceptReject.pos = markPos;
+                  //     acceptReject.editorId = pluginState.sectionName;
+                  //     rejectChange(view, attr.class, attr);
+                  //     relativeElement.style.display = 'none';
+                  //     self.resetTrackChangesService();
+                  //   })
+
+                  //   buttonsContainer.append(acceptBtn, rejectBtn);
+
+                  //   let arrow = document.createElement('div');
+                  //   arrow.setAttribute('class', 'changes-placeholder')
+
+
+                  //   changePlaceholder.append(buttonsContainer, arrow);
+
+                  //   let backgroundColor = '#00b1b2eb'
+                  //   relativeElement.appendChild(changePlaceholder);
+                    // if (editorCenter.top && editorCenter.left) {
                       /* createPopper(absElPosition, changePlaceholder , {
                         placement: 'top-start',
                         strategy:'absolute'
                       }); */
-                      if (meta.coords.top <= editorCenter.top && meta.coords.left <= editorCenter.left) {
-                        //topleft
-                        changePlaceholder.setAttribute('style', `
-                        position: absolute;
-                        display: inline;
-                        transform: translate(-8%, 34%);
-                        background-color: ${backgroundColor};
-                        border-radius: 2px;
-                        width: 150px;
-                        z-index: 10;
-                        padding: 6px;`)
-                        arrow.setAttribute('style', `
-                        position: absolute;
 
-                        border-bottom: 10px solid ${backgroundColor};
-                        border-left: 6px solid rgba(0, 0, 0, 0);
-                        border-right: 6px solid rgba(0, 0, 0, 0);
-                        content: "";
-                        display: inline-block;
-                        height: 0;
-                        vertical-align: top;
-                        width: 0;
-                        top: 0;
-                        transform: translate(0, -9px);
-                        `)
-                      } else if (meta.coords.top <= editorCenter.top && meta.coords.left > editorCenter.left) {
-                        //topright
-                        changePlaceholder.setAttribute('style', `
-                        position: absolute;
-                        display: inline;
-                        transform: translate(-92%, 34%);
-                        background-color: ${backgroundColor};
-                        border-radius: 2px;
-                        width: 150px;
-                        z-index: 10;
-                        padding: 6px;`)
-                        arrow.setAttribute('style', `
-                        position: absolute;
-                        left: 132px;
-                        border-bottom: 10px solid ${backgroundColor};
-                        border-left: 6px solid rgba(0, 0, 0, 0);
-                        border-right: 6px solid rgba(0, 0, 0, 0);
-                        content: "";
-                        display: inline-block;
-                        height: 0;
-                        vertical-align: top;
-                        width: 0;
-                        top: 0;
-                        transform: translate(0, -9px);
-                        `)
-                      } else if (meta.coords.top > editorCenter.top && meta.coords.left <= editorCenter.left) {
-                        //bottomleft
-                        changePlaceholder.setAttribute('style', `    position: absolute;
-                        display: inline;
-                        transform: translate(-10%, -111%);
-                        background-color: ${backgroundColor};
-                        border-radius: 2px;
-                        width: 150px;
-                        z-index: 10;
-                        padding: 6px;`)
-                        arrow.setAttribute('style', `    position: absolute;
-                        border-bottom: 10px solid ${backgroundColor};
-                        border-left: 6px solid rgba(0, 0, 0, 0);
-                        border-right: 6px solid rgba(0, 0, 0, 0);
-                        content: "";
-                        display: inline-block;
-                        height: 0;
-                        vertical-align: top;
-                        width: 0;
-                        transform: rotate(
-                        180deg) translate(-26%, -5px);
-                        `)
-                      } else if (meta.coords.top > editorCenter.top && meta.coords.left > editorCenter.left) {
-                        //bottomright
-                        changePlaceholder.setAttribute('style', `    position: absolute;
-                        display: inline;
-                        transform: translate(-91%, -111%);
-                        background-color: ${backgroundColor};
-                        border-radius: 2px;
-                        width: 150px;
-                        z-index: 10;
-                        padding: 6px;`)
-                        arrow.setAttribute('style', `    position: absolute;
-                        right: 9%;
-                        border-bottom: 10px solid ${backgroundColor};
-                        border-left: 6px solid rgba(0, 0, 0, 0);
-                        border-right: 6px solid rgba(0, 0, 0, 0);
-                        content: "";
-                        display: inline-block;
-                        height: 0;
-                        vertical-align: top;
-                        width: 0;
-                        transform: rotate(
-                    180deg) translate(-50%, -5px);
-                        `)
-                      }
+                      /* ================================== Inline Changes Modal ===================================== */
+                    //   if (meta.coords.top <= editorCenter.top && meta.coords.left <= editorCenter.left) {
+                    //     //topleft
+                    //     changePlaceholder.setAttribute('style', `
+                    //     position: absolute;
+                    //     display: inline;
+                    //     transform: translate(-8%, 34%);
+                    //     background-color: ${backgroundColor};
+                    //     border-radius: 2px;
+                    //     width: 150px;
+                    //     z-index: 10;
+                    //     padding: 6px;`)
+                    //     arrow.setAttribute('style', `
+                    //     position: absolute;
+
+                    //     border-bottom: 10px solid ${backgroundColor};
+                    //     border-left: 6px solid rgba(0, 0, 0, 0);
+                    //     border-right: 6px solid rgba(0, 0, 0, 0);
+                    //     content: "";
+                    //     display: inline-block;
+                    //     height: 0;
+                    //     vertical-align: top;
+                    //     width: 0;
+                    //     top: 0;
+                    //     transform: translate(0, -9px);
+                    //     `)
+                    //   } else if (meta.coords.top <= editorCenter.top && meta.coords.left > editorCenter.left) {
+                    //     //topright
+                    //     changePlaceholder.setAttribute('style', `
+                    //     position: absolute;
+                    //     display: inline;
+                    //     transform: translate(-92%, 34%);
+                    //     background-color: ${backgroundColor};
+                    //     border-radius: 2px;
+                    //     width: 150px;
+                    //     z-index: 10;
+                    //     padding: 6px;`)
+                    //     arrow.setAttribute('style', `
+                    //     position: absolute;
+                    //     left: 132px;
+                    //     border-bottom: 10px solid ${backgroundColor};
+                    //     border-left: 6px solid rgba(0, 0, 0, 0);
+                    //     border-right: 6px solid rgba(0, 0, 0, 0);
+                    //     content: "";
+                    //     display: inline-block;
+                    //     height: 0;
+                    //     vertical-align: top;
+                    //     width: 0;
+                    //     top: 0;
+                    //     transform: translate(0, -9px);
+                    //     `)
+                    //   } else if (meta.coords.top > editorCenter.top && meta.coords.left <= editorCenter.left) {
+                    //     //bottomleft
+                    //     changePlaceholder.setAttribute('style', `    position: absolute;
+                    //     display: inline;
+                    //     transform: translate(-10%, -111%);
+                    //     background-color: ${backgroundColor};
+                    //     border-radius: 2px;
+                    //     width: 150px;
+                    //     z-index: 10;
+                    //     padding: 6px;`)
+                    //     arrow.setAttribute('style', `    position: absolute;
+                    //     border-bottom: 10px solid ${backgroundColor};
+                    //     border-left: 6px solid rgba(0, 0, 0, 0);
+                    //     border-right: 6px solid rgba(0, 0, 0, 0);
+                    //     content: "";
+                    //     display: inline-block;
+                    //     height: 0;
+                    //     vertical-align: top;
+                    //     width: 0;
+                    //     transform: rotate(
+                    //     180deg) translate(-26%, -5px);
+                    //     `)
+                    //   } else if (meta.coords.top > editorCenter.top && meta.coords.left > editorCenter.left) {
+                    //     //bottomright
+                    //     changePlaceholder.setAttribute('style', `    position: absolute;
+                    //     display: inline;
+                    //     transform: translate(-91%, -111%);
+                    //     background-color: ${backgroundColor};
+                    //     border-radius: 2px;
+                    //     width: 150px;
+                    //     z-index: 10;
+                    //     padding: 6px;`)
+                    //     arrow.setAttribute('style', `    position: absolute;
+                    //     right: 9%;
+                    //     border-bottom: 10px solid ${backgroundColor};
+                    //     border-left: 6px solid rgba(0, 0, 0, 0);
+                    //     border-right: 6px solid rgba(0, 0, 0, 0);
+                    //     content: "";
+                    //     display: inline-block;
+                    //     height: 0;
+                    //     vertical-align: top;
+                    //     width: 0;
+                    //     transform: rotate(
+                    // 180deg) translate(-50%, -5px);
+                    //     `)
+                    //   }
+                      /* ============================================================================================= */
 
                       /* topleft
                             position: absolute;
@@ -466,12 +469,13 @@ export class TrackChangesService {
     transform: translate(15%, 0%);
                       */
 
-                    }
-                    return relativeElement;
-                  })]);
-                } else {
+                    // }
+                    // return relativeElement;
+                  // })]);
+                  
+                // } else {
                   pluginState.createdDecorations = DecorationSet.empty
-                }
+                // }
               } else {
                 pluginState.createdDecorations = DecorationSet.empty;
               }
