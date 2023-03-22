@@ -183,9 +183,9 @@ export class ChangesSectionComponent implements OnInit, AfterViewInit {
       // determine what kind of change it is
       if (JSON.stringify(oldPos) != JSON.stringify(newPos) || cause || this.tryMoveItemsUp) {
         if (JSON.stringify(idsOldOrder) == JSON.stringify(idsNewOrder) || cause || this.tryMoveItemsUp) { // comments are in same order
-          if (oldPos[oldPos.length - 1].top > newPos[newPos.length - 1].top) {  // comments have decreased top should loop from top
+          if (oldPos[oldPos.length - 1]?.top > newPos[newPos.length - 1].top) {  // comments have decreased top should loop from top
             this.loopFromTopAndOrderChanges(sortedChanges, changes)
-          } else if (oldPos[oldPos.length - 1].top < newPos[newPos.length - 1].top) { // comments have increased top should loop from bottom
+          } else if (oldPos[oldPos.length - 1]?.top < newPos[newPos.length - 1].top) { // comments have increased top should loop from bottom
             this.loopFromBottomAndOrderChanges(sortedChanges, changes, container)
           } else if (cause == 'change_in_comments_in_ydoc' ) {
             this.loopFromTopAndOrderChanges(sortedChanges, changes)

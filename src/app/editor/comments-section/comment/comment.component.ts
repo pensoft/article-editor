@@ -132,7 +132,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
       // comment deleted
       changed = true;
     }
-    if (changed) {
+    if (changed && commentInYdoc) {
       this.userComment = JSON.parse(JSON.stringify(commentInYdoc))
 
       setTimeout(() => {
@@ -232,13 +232,20 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
   }
 
-  showReplyFocusHandle(replyDiv: HTMLDivElement) {
+  showReplyFocusHandle(replyDiv: HTMLDivElement, autocomplete) {
     this.activeReply = true;
+    autocomplete.showResults();
   }
 
   hideReplyBlurHandle(replyDiv: HTMLDivElement) {
     if (this.replyFormControl.value == '') {
       this.activeReply = false;
+    }
+  }
+
+  clickOutsideHandler(event, autocomplete) {
+    if(event.target.tagName !== "INPUT" && event.target.tagName !== "MAT-ICON"){
+      autocomplete.hideResults();
     }
   }
 

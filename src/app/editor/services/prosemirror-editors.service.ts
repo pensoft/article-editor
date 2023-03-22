@@ -68,7 +68,7 @@ import { CitableElementsEditButtonsService } from '../utils/citable-elements-edi
 import { getToolTipPlugin } from '../utils/toolTipPlugin';
 import {getItems} from '../utils/menu/menuItems'
 import { LinkButtonsService } from '../utils/link-buttons/link-buttons.service';
-import { CitedRefsButtonsService } from '../utils/cited-refs-buttons/cited-refs-buttons.service';
+import { CitationButtonsService } from '../utils/citation-buttons/citation-buttons.service';
 export interface editorContainersObj { [key: string]: editorContainer }
 export interface editorContainer {
   editorID: string,
@@ -167,7 +167,7 @@ export class ProsemirrorEditorsService {
     private yjsHistory: YjsHistoryService,
     private citableElementEditButtonsPluginService:CitableElementsEditButtonsService,
     private linkButtonsPluginService: LinkButtonsService,
-    private citeRefsButtonsService: CitedRefsButtonsService,
+    private citationButtonsService: CitationButtonsService,
     private serviceShare: ServiceShare) {
 
     // change the mathBlock input rule
@@ -536,7 +536,7 @@ export class ProsemirrorEditorsService {
         getFilterNodesBySchemaDefPlugin(this.serviceShare),
         this.citableElementEditButtonsPluginService.citableElementsEditButtonsPlugin,
         this.linkButtonsPluginService.linkButtonsPlugin,
-        this.citeRefsButtonsService.citedRefsButtonsPlugin,
+        this.citationButtonsService.citationButtonsPlugin,
         transactionControllerPlugin,
         handleRefDelete,
         changeNodes,
@@ -1022,7 +1022,7 @@ export class ProsemirrorEditorsService {
         this.commentsService.getPlugin(),
         this.citableElementEditButtonsPluginService.citableElementsEditButtonsPlugin,
         this.linkButtonsPluginService.linkButtonsPlugin,
-        this.citeRefsButtonsService.citedRefsButtonsPlugin,
+        this.citationButtonsService.citationButtonsPlugin,
         this.trackChangesService.getHideShowPlugin(),
         this.linkPopUpPluginService.linkPopUpPlugin,
         //inputRules({ rules: [inlineMathInputRule, blockMathInputRule] }),
@@ -1301,6 +1301,7 @@ export class ProsemirrorEditorsService {
         mathPlugin,
         keymap(keymapObj),
         getFilterNodesBySchemaDefPlugin(this.serviceShare),
+        this.citationButtonsService.citationButtonsPlugin,
         this.placeholderPluginService.getPlugin(),
         transactionControllerPlugin,
         this.trackChangesService.getHideShowPlugin(),
@@ -1486,6 +1487,7 @@ export class ProsemirrorEditorsService {
         columnResizing({}),
         tableEditing(),
         this.placeholderPluginService.getPlugin(),
+        this.citationButtonsService.citationButtonsPlugin,
         inputRules({ rules: [this.inlineMathInputRuleGlobal, this.blockMathInputRuleGlobal] }),
         ...menuBar({
           floating: true,

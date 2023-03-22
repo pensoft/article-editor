@@ -66,15 +66,43 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
         this.editorView = this.editorsService.editorContainers[this.lastFocusedEditor!].editorView
         this.showAddCommentBox = commentsService.addCommentData.showBox
       }
-      this.detectFocus.focusedEditor.subscribe((data: any) => {
-        if (data) {
-          this.lastFocusedEditor = data
-          this.editorView = this.editorsService.editorContainers[data].editorView;
+      // this.detectFocus.focusedEditor.subscribe((data: any) => {
+      //   if (data) {
+      //     this.lastFocusedEditor = data
+      //     this.editorView = this.editorsService.editorContainers[data].editorView;
 
 
+      //   }
+      // })
+      this.lastSelSub = this.commentsService.lastSelectedCommentSubject.subscribe((data) => {
+        if (data.commentId && data.commentMarkId && data.sectionId) {
+          this.shouldScrollSelected = true
+        } else {
+          this.tryMoveItemsUp = true
+          setTimeout(() => {
+            this.doneRendering()
+          }, 20)
+          /* if (this.preservedScroll === 0 || this.preservedScroll) {
+            let container = document.getElementsByClassName('comments-wrapper')[0] as HTMLDivElement;
+            let articleElement = document.getElementsByClassName('editor-container')[0] as HTMLDivElement
+  
+            container.scroll({
+              top: articleElement.scrollTop,
+              left: 0,
+              behavior: 'smooth'
+            })
+            this.preservedScroll = undefined
+          } */
         }
+        setTimeout(() => {
+          this.commentsService.getCommentsInAllEditors()
+        }, 200)
       })
       this.addCommentSubject.subscribe((data) => {
+        this.lastFocusedEditor = detectFocus.sectionName;
+        if(this.lastFocusedEditor) {
+          this.editorView = this.editorsService.editorContainers[this.lastFocusedEditor].editorView;
+        }
           if (!this.editorView || !this.editorView.state) {
           return;
         } else if (data.type == 'commentData') {
@@ -289,9 +317,9 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
       // determine what kind of change it is
       if (JSON.stringify(oldPos) != JSON.stringify(newPos) || cause || this.tryMoveItemsUp) {
         if (JSON.stringify(idsOldOrder) == JSON.stringify(idsNewOrder) || cause || this.tryMoveItemsUp) { // comments are in same order
-          if (oldPos[oldPos.length - 1].top > newPos[newPos.length - 1].top) {  // comments have decreased top should loop from top
+          if (oldPos.length > 0 && oldPos[oldPos.length - 1].top > newPos[newPos.length - 1].top) {  // comments have decreased top should loop from top
             this.loopFromTopAndOrderComments(sortedComments, comments)
-          } else if (oldPos[oldPos.length - 1].top < newPos[newPos.length - 1].top) { // comments have increased top should loop from bottom
+          } else if (oldPos.length > 0 && oldPos[oldPos.length - 1].top < newPos[newPos.length - 1].top) { // comments have increased top should loop from bottom
             this.loopFromBottomAndOrderComments(sortedComments, comments, container)
           } else if (cause == 'hide_comment_box' || cause == 'replay_rerender' || cause == 'change_in_comments_in_ydoc' || cause == 'show_more_less_click') {
             this.loopFromTopAndOrderComments(sortedComments, comments)
@@ -392,19 +420,34 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     if (this.showAddCommentBox) {
       let addCommentBoxEl = document.getElementsByClassName('add-comment-box')[0] as HTMLDivElement
       let articleElement = document.getElementById('app-article-element') as HTMLDivElement
+      let editorContainer = document.getElementsByClassName("editor-container")[0] as HTMLDivElement;
+      let editorRectangle = editorContainer.getBoundingClientRect();
       let articleElementRactangle = articleElement.getBoundingClientRect()
       let boxH = addCommentBoxEl.getBoundingClientRect().height;
       let newMarkPos = this.editorView.state.selection.from
       let domCoords = this.editorView.coordsAtPos(newMarkPos)
-      let boxTop = domCoords.top - articleElementRactangle.top
+      let boxTop = domCoords.top - articleElementRactangle.top - boxH;
       this.addCommentBoxTop = boxTop;
       this.addCommentBoxH = boxH;
       addCommentBoxEl.style.top = boxTop + 'px';
       addCommentBoxEl.style.opacity = '1';
       let inputElement = document.getElementsByClassName('comment-input')[0] as HTMLInputElement;
       setTimeout(()=>{
-        inputElement.focus()
+        inputElement.focus();       
       },100)
+      setTimeout(() => {
+        let scroll = 0;
+        if(editorContainer.scrollTop >= 0) {
+          scroll = 1;
+        }     
+        if(editorRectangle.height - editorContainer.scrollTop  < 0) {
+          scroll = -1
+        }
+        editorContainer.scrollBy({
+          top: scroll,
+          behavior: "smooth"
+        })
+      }, 200);
       let positionsArr: { id: string, displayedTop: number, height: number }[] = []
       Object.keys(this.displayedCommentsPositions).forEach((key) => {
         let val = this.displayedCommentsPositions[key];
@@ -507,11 +550,11 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
         domElement.style.top = this.displayedCommentsPositions[id].displayedTop + 'px'
       })
     }
-    /* comments.forEach((val)=>{
+    comments.forEach((val)=>{
       if(val.style.opacity == '0'){
         val.style.opacity = '1'
       }
-    }) */
+    })
     this.lastSorted = JSON.parse(JSON.stringify(sortedComments))
 
     /* {
@@ -622,8 +665,8 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
       userColor: this.prosemirrorEditorsService.userInfo.color.userColor,
       userContrastColor: this.prosemirrorEditorsService.userInfo.color.userContrastColor,
     })(state!, dispatch);
-    let sectionName = this.addCommentEditorId
-    this.addCommentSubject!.next({ type: 'commentData', sectionName, showBox: false })
+    // let sectionName = this.addCommentEditorId
+    // this.addCommentSubject!.next({ type: 'commentData', sectionName, showBox: false })
     this.preventRerenderUntilCommentAdd.bool = true
     this.preventRerenderUntilCommentAdd.id = commentId
     setTimeout(() => {
@@ -817,30 +860,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     this.setFromControlChangeListener()
     this.setContainerHeight()
     this.setScrollListener()
-    this.lastSelSub = this.commentsService.lastSelectedCommentSubject.subscribe((data) => {
-      if (data.commentId && data.commentMarkId && data.sectionId) {
-        this.shouldScrollSelected = true
-      } else {
-        this.tryMoveItemsUp = true
-        setTimeout(() => {
-          this.doneRendering()
-        }, 20)
-        /* if (this.preservedScroll === 0 || this.preservedScroll) {
-          let container = document.getElementsByClassName('comments-wrapper')[0] as HTMLDivElement;
-          let articleElement = document.getElementsByClassName('editor-container')[0] as HTMLDivElement
-
-          container.scroll({
-            top: articleElement.scrollTop,
-            left: 0,
-            behavior: 'smooth'
-          })
-          this.preservedScroll = undefined
-        } */
-      }
-      setTimeout(() => {
-        this.commentsService.getCommentsInAllEditors()
-      }, 200)
-    })
 
     this.commentsService.commentsChangeSubject.subscribe((msg) => {
       let commentsToAdd: commentData[] = []
@@ -931,6 +950,12 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     })
 
     this.commentsService.getCommentsInAllEditors()
+  }
+
+  clickOutsideHandler(event, autocomplete) {
+    if(event.target.tagName !== "INPUT" && event.target.tagName !== "MAT-ICON"){
+      autocomplete.hideResults();
+    }
   }
 
 }

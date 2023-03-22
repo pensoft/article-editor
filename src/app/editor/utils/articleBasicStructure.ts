@@ -402,14 +402,14 @@ export const getFilteredSectionChooseData :(node:articleSection)=>sectionChooseD
   let pivotIdsAtMax:number[] = []
 
   Object.keys(node.subsectionValidations).forEach((pivot_id)=>{
-    let validation = node.subsectionValidations[+pivot_id]
+    let validation = node.subsectionValidations[pivot_id]
     let count = 0;
     node.children.forEach((child)=>{
       if(child.pivotId == +pivot_id){
         count++;
       }
     })
-    if(count >= validation.max){
+    if(count >= validation?.max){
       pivotIdsAtMax.push(+pivot_id);
     }
 

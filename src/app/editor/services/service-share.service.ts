@@ -34,6 +34,10 @@ import { CitableElementsContextMenuService } from '../utils/citable-elements-con
 import { ChangesSectionComponent } from '../changes-section/changes-section.component';
 import { CollaboratorsService } from '../dialogs/add-contributors-dialog/collaborators.service';
 import { TaxonService } from '../taxons/taxon.service';
+import { CitationButtonsService } from '../utils/citation-buttons/citation-buttons.service';
+import { catchError, mergeMap } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { createDemoTemplate } from '../utils/serverErrorWorkAround';
 @Injectable({
   providedIn: 'root'
 })
@@ -46,6 +50,7 @@ export class ServiceShare {
   ChangesSectionComponent?:ChangesSectionComponent
   CitableElementsService?:CitableElementsService
   CitableElementsContextMenuService?:CitableElementsContextMenuService
+  citationButtonsService: CitationButtonsService
   ReferencePluginService?:ReferencePluginService
   CslService?:CslService
   ProsemirrorEditorsService?:ProsemirrorEditorsService
@@ -131,14 +136,21 @@ export class ServiceShare {
       this.ProsemirrorEditorsService.stopSpinner()
       dialogRef.afterClosed().subscribe(result => {
         if(!result) return ;
-        this.AuthService.getUserInfo().subscribe((userData)=>{
-          let selectedLayout = (this.articleLayouts.data as Array<any>).find((layout: any) => {
-            return layout.id == result
-          }).template
-          let articleStructure: articleSection[] = []
-          //let filteredSections = selectedLayout.sections.filter((section: any) => { return section.type == 0 });
 
-          this.ArticlesService!.createArticle('Untitled',+result).subscribe((createArticleRes:any)=>{
+        let userData;
+        this.AuthService.getUserInfo()
+        .pipe(mergeMap(data => {
+          userData = data;
+
+          return this.ArticleSectionsService.getLayoutById(result);
+        })).subscribe((articleData: any)=>{          
+          let selectedLayout = articleData.data.template;
+          
+          let articleStructure: articleSection[] = []
+          this.ArticlesService!.createArticle('Untitled',+result).pipe(catchError(() => {
+            createDemoTemplate.data.uuid = uuidv4();
+            return  of(createDemoTemplate)
+          })).subscribe((createArticleRes:any)=>{
             this.resetServicesData();
             this.YdocService!.setArticleData(createArticleRes.data,true)
             this.router.navigate([createArticleRes.data.uuid])
