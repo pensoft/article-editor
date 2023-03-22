@@ -6,7 +6,8 @@
 @import './src/assets/colors';
 
 citation {
-  background: #b2f0f0;
+  background: #b2f0f0 !important;
+  color: #000 !important;
   white-space: pre;
   caret-color: transparent;
 }
@@ -52,7 +53,8 @@ app-main {
 }
 
 end-note-citation {
-  background: #b2f0f0;
+  background: #b2f0f0 !important;
+  color: #000 !important;
   white-space: pre;
   font-size: 0.85em !important;
   vertical-align: super;
@@ -98,13 +100,15 @@ table-content {
 }
 
 table-citation {
-  background: #b2f0f0;
+  background: #b2f0f0 !important;
+  color: #000 !important;
   white-space: pre;
   caret-color: transparent;
 }
 
 supplementary-file-citation {
-  background: #b2f0f0;
+  background: #b2f0f0 !important;
+  color: #000 !important;
   white-space: pre;
   caret-color: transparent;
 }
