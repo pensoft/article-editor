@@ -415,7 +415,28 @@ export const insertTableItem = new MenuItem({
     }
     return true
   },
-  enable(state:EditorState) { return isCitationSelected(state, undefined, state.schema.nodes.table) },
+  enable(state:EditorState) { 
+    let hasTable = false
+    if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+      state.doc.firstChild.content.forEach(childNode => {
+        if (childNode.type.name === 'table') {
+          hasTable = true;
+        }
+      });
+
+    let $head = state.selection.$head;
+    let isInTable = false
+    for (let d = $head.depth; d > 0; d--) {
+      if ($head.node(d).type.spec.tableRole == 'row') {
+        isInTable = true
+      }
+    }
+  
+    if (hasTable && !isInTable) {
+        return false;
+      }
+    }
+    return isCitationSelected(state, undefined, state.schema.nodes.table) },
 });
 
 export const addAnchorTagItem = new MenuItem({
