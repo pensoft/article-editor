@@ -1211,7 +1211,10 @@ export class ProsemirrorEditorsService {
     if(options.allowedTags && options.allowedTags.length>0 ){
       allowedTags = options.allowedTags
     }
-    if (!nodesArray || nodesArray.size == 0) {
+    
+    if (options.path == 'tableContent') {
+      doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({allowedTags, styling: "min-height: 80px; width: 100%;"}))
+    } else if ((!nodesArray || nodesArray.size == 0)) {
       doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({allowedTags}, editorSchema.nodes.paragraph.create({})))
     } else {
       doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({allowedTags}, nodesArray.content))
@@ -1315,7 +1318,7 @@ export class ProsemirrorEditorsService {
       ].concat(exampleSetup({ schema:editorSchema, /* menuContent: fullMenuWithLog, */ containerClass: menuContainerClass }))
       ,
       // @ts-ignore
-      data: { placeHolder: placeholder },
+      data: { placeHolder: placeholder, path: options.path },
       // @ts-ignore
       sectionName: editorID,
       sectionID: sectionID,
@@ -1397,11 +1400,11 @@ export class ProsemirrorEditorsService {
       },
       dispatchTransaction,
       handleClick: handleClick(),
-      handlePaste: handlePaste(this.serviceShare),
+      handlePaste: handlePaste(this.serviceShare, options),
       handleTripleClickOn,
       handleDoubleClick:
       handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
-      handleKeyDown: handleKeyDown(this.serviceShare),
+      handleKeyDown: handleKeyDown(this.serviceShare, options),
       //createSelectionBetween:createSelectionBetween(this.editorsEditableObj,editorID),
 
     });
