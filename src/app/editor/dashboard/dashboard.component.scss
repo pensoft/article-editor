@@ -79,16 +79,21 @@
 }
 
 
-::ng-deep .mat-select-value {
-    max-width: 100%;
-    min-width: 100%;
-    width: auto;
-}
+// ::ng-deep .mat-select-value {
+//     max-width: 100%;
+//     min-width: 100%;
+//     width: auto;
+// }
 
 ::ng-deep .mat-form-field-infix {
     width: auto !important;
-    min-width: 180px !important;
     padding-right: 13px !important;
+    display: flex !important;
+}
+
+::ng-deep .mat-autocomplete-panel.mat-autocomplete-visible {
+  width: auto !important;
+  min-width: 240px !important;
 }
 
 
@@ -155,16 +160,32 @@
 }
 
 .width-select {
-  width: 110px;
+  width: 125px;
   max-width: calc(30% - 16px);
   letter-spacing: 0;
+  transition: all 0.3s ease;
 }
 
-.type-select-label {
+.type-select-label,
+.icon {
   color: $h-green;
   font-size: 19px;
   font-weight: bold;
 }
+
+.icon {
+  cursor: pointer;
+  font-size: 25px;
+}
+
+.type-input {
+  cursor: pointer;
+  &:focus {
+    cursor: text;
+  }
+}
+
+
 
 .p26px {
   padding: 0 26px;
