@@ -86,7 +86,7 @@
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]>Cancel</button>
-  <button mat-stroked-button color="warn" (click)="askremove = true">Remove</button>
+  <button *ngIf="!isOwner" mat-stroked-button color="warn" (click)="askremove = true">Remove</button>
   <button mat-flat-button color="primary" [disabled]="formSubmitDisabled()" (click)="editCollaborator()">Save</button>
 </mat-dialog-actions>
 

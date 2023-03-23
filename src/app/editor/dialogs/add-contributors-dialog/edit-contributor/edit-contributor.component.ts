@@ -38,6 +38,7 @@ export class EditContributorComponent implements AfterViewInit, AfterViewChecked
   accessSelect = new FormControl('', Validators.required)
   roleSelect = new FormControl('Contributor', Validators.required);
   affiliations = new FormArray([]);
+  isOwner = false;
 
   editUserForm: any = new FormGroup({
     'accessSelect': this.accessSelect,
@@ -113,6 +114,7 @@ export class EditContributorComponent implements AfterViewInit, AfterViewChecked
     if(this.data.contrData.access == 'Owner'){
       this.accessOptions.push({name:'Owner'});
       this.accessSelect.disable();
+      this.isOwner = true
     }
     this.accessSelect.setValue(this.data.contrData.access)
     this.roleSelect.setValue(this.data.contrData.role)
