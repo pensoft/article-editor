@@ -5,7 +5,7 @@
 @import "../node_modules/prosemirror-view/style/prosemirror.css";
 @import './src/assets/colors';
 
-citation {
+citation[nonexistingelement="false"] {
   background: #b2f0f0 !important;
   color: #000 !important;
   white-space: pre;
@@ -52,7 +52,7 @@ app-main {
   }
 }
 
-end-note-citation {
+end-note-citation[nonexistingelement="false"] {
   background: #b2f0f0 !important;
   color: #000 !important;
   white-space: pre;
@@ -99,14 +99,14 @@ table-content {
   display: block;
 }
 
-table-citation {
+table-citation[nonexistingelement="false"] {
   background: #b2f0f0 !important;
   color: #000 !important;
   white-space: pre;
   caret-color: transparent;
 }
 
-supplementary-file-citation {
+supplementary-file-citation[nonexistingelement="false"] {
   background: #b2f0f0 !important;
   color: #000 !important;
   white-space: pre;
