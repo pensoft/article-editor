@@ -6,7 +6,8 @@
 @import './src/assets/colors';
 
 citation {
-  background: #b2f0f0;
+  background: #b2f0f0 !important;
+  color: #000 !important;
   white-space: pre;
   caret-color: transparent;
 }
@@ -52,7 +53,8 @@ app-main {
 }
 
 end-note-citation {
-  background: #b2f0f0;
+  background: #b2f0f0 !important;
+  color: #000 !important;
   white-space: pre;
   font-size: 0.85em !important;
   vertical-align: super;
@@ -98,13 +100,15 @@ table-content {
 }
 
 table-citation {
-  background: #b2f0f0;
+  background: #b2f0f0 !important;
+  color: #000 !important;
   white-space: pre;
   caret-color: transparent;
 }
 
 supplementary-file-citation {
-  background: #b2f0f0;
+  background: #b2f0f0 !important;
+  color: #000 !important;
   white-space: pre;
   caret-color: transparent;
 }
@@ -416,13 +420,17 @@ end-note-citation:hover {
   cursor: pointer;
 }
 
-.ProseMirror  {
-  p[contenteditablenode="false"]:hover {
-    cursor: default;
-  }
+.ProseMirror *[contenteditablenode="false"]:not(figure-components-container, figure-component) {
+  caret-color: transparent;
 
-  p[contenteditablenode="false"] {
-    caret-color: transparent;
+  &:hover:not(
+    supplementary-file-citation,
+    table-citation,
+    reference-citation,
+    citation,
+    end-note-citation
+    ) {
+    cursor: default;
   }
 }
 
