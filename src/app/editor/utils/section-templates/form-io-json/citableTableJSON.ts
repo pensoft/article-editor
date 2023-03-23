@@ -1,3 +1,6 @@
+import { endNoteJSON } from "./endNoteFormIOJSON"
+import { supplementaryFileJSON } from "./supplementaryFileFormIOJson"
+
 export const tableJson = {
   "components": [
     {
@@ -8,28 +11,32 @@ export const tableJson = {
       "validate": {
         "required": true
       },
-      "properties":{
+      "properties": {
+        "addTableEditor": true,
+        "menuType": "[['toggleStrong','toggleEm','undoItem','redoItem']]",
+        "allowedTags": "{'nodes': ['headings'],'marks': ['em','strong','code','underline','subscript','superscript','comment']}"
       },
       "key": "tableHeader",
       "type": "textarea",
-      "autofocus":true,
+      "autofocus": true,
       "input": true
     },
     {
       "label": "Table content",
       "autoExpand": false,
       "tableView": true,
-      "defaultValue":
-      `<form-field><p align="set-align-left" class="set-align-left">Content for the table.</p></form-field>`,
+      "defaultValue": "",
       "validate": {
         "required": true
       },
       "properties": {
+        "menuType": "[['undoItem', 'redoItem'],['tableMenu']]",
+        "allowedTags": "{'nodes':['video','citable-figures','headings','page_break','tables','reference-citation','citable-tables'],'marks':['em','underline','subscript','superscript']}"
       },
       "key": "tableContent",
       "type": "textarea",
       "input": true
-    },{
+    }, {
       "label": "Footer",
       "autoExpand": false,
       "tableView": true,
@@ -37,16 +44,17 @@ export const tableJson = {
       "validate": {
         "required": true
       },
-      "properties":{
+      "properties": {
+        "addTableEditor": true
       },
       "key": "tableFooter",
       "type": "textarea",
       "input": true
-    }
+    },
   ]
 }
 
-let CitableElementsSchemasV2Template = {
+export let CitableElementsSchemasV2Template = {
   "sections": [
     "Tables",
     "SupplementaryMaterials",
@@ -54,123 +62,9 @@ let CitableElementsSchemasV2Template = {
   ],
   "override": {
     "categories": {
-      "Tables": {
-        "components": [
-          {
-            "label": "Header",
-            "autoExpand": false,
-            "tableView": true,
-            "defaultValue": `<p align="set-align-left" class="set-align-left">Header for the table.</p>`,
-            "validate": {
-              "required": true
-            },
-            "properties":{
-            },
-            "key": "tableHeader",
-            "type": "textarea",
-            "autofocus":true,
-            "input": true
-          },
-          {
-            "label": "Table content",
-            "autoExpand": false,
-            "tableView": true,
-            "defaultValue":
-            `<form-field><p align="set-align-left" class="set-align-left">Content for the table.</p></form-field>`,
-            "validate": {
-              "required": true
-            },
-            "properties": {
-            },
-            "key": "tableContent",
-            "type": "textarea",
-            "input": true
-          },{
-            "label": "Footer",
-            "autoExpand": false,
-            "tableView": true,
-            "defaultValue": `<p align="set-align-left" class="set-align-left">Footer for the table.</p>`,
-            "validate": {
-              "required": true
-            },
-            "properties":{
-            },
-            "key": "tableFooter",
-            "type": "textarea",
-            "input": true
-          }
-        ]
-      },
-      "SupplementaryMaterials": {
-        "components": [
-            {
-                "label": "Title",
-                "tableView": true,
-                "validate": {
-                    "required": true
-                },
-                "key": "supplementaryFileTitle",
-                "type": "textfield",
-                "autofocus":true,
-                "input": true
-            },
-            {
-                "label": "Authors",
-                "tableView": true,
-                "validate": {
-                    "required": true
-                },
-                "key": "supplementaryFileAuthors",
-                "type": "textfield",
-                "input": true
-            },
-            {
-                "label": "Data type",
-                "tableView": true,
-                "validate": {
-                    "required": true
-                },
-                "key": "supplementaryFileDataType",
-                "type": "textfield",
-                "input": true
-            },
-            {
-                "label": "Brief description",
-                "autoExpand": false,
-                "tableView": true,
-                "key": "supplementaryFileBriefDescription",
-                "type": "textarea",
-                "input": true
-            },
-            {
-                "label": "File URL",
-                "tableView": true,
-                "validate": {
-                    "required": true
-                },
-                "key": "supplementaryFileURL",
-                "type": "textfield",
-                "input": true
-            }
-
-        ]
-      },
-      "Footnotes": {
-        "components": [
-          {
-            "label": "End Note",
-            "autoExpand": false,
-            "tableView": true,
-            "validate": {
-              "required": true
-            },
-            "autofocus":true,
-            "key": "endNote",
-            "type": "textarea",
-            "input": true
-          }
-        ]
-      }
+      "Tables": tableJson,
+      "SupplementaryMaterials": supplementaryFileJSON,
+      "Footnotes": endNoteJSON,
     }
   }
 }
