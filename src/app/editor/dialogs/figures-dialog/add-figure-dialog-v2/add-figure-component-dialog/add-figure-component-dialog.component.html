@@ -65,5 +65,5 @@
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button color="primary" (click)="closeDialog()">Cancel</button>
-  <button mat-flat-button color="primary" [disabled]="!typeFromControl.valid||!urlFormControl.valid" (click)="submitDialog()">Save</button>
+  <button mat-flat-button color="primary" [disabled]="!typeFromControl.valid||!isUrlFormControlValid()" (click)="submitDialog()">Save</button>
 </mat-dialog-actions>
