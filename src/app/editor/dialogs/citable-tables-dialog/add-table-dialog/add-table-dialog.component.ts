@@ -64,7 +64,7 @@ export let tablesHtmlTemplate = `
                                formControlName="tableFooter" 
                                style="display:block;"
                                menuType="OnlyCitableElementsAndCommentsMenu" 
-                               allowedTags="OnlyCitableElementsAndCommentsSchema"
+                               allowedTags="{'nodes':['video','citable-figures','headings','page_break','tables','reference-citation','citable-tables'],'marks':['em','underline','subscript','superscript']}"
                                >
     		</table-description>
   		</table-footer-container>
@@ -189,9 +189,9 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
 
     }else{
       this.formIoSubmission = change.data
-      this.isValid = !!change.data?.tableHeader?.length && 
-                      !!change.data?.tableContent?.length &&
-                      !!change.data?.tableFooter?.length
+      this.isValid = !!change.data?.tableHeader?.length &&
+        !!change.data?.tableContent?.length &&
+        !!change.data?.tableFooter?.length
       if(change.changed&&change.changed.instance){
         this.formIoRoot = change.changed.instance.root
       }
@@ -236,7 +236,7 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
 
       let tableFormGroup = citationElementMap.table_citation.buildElementFormGroup(submision.data)
 
-      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, tableFormGroup);
+      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, tableFormGroup, null, {table: true});
       let templ = document.createElement('div')
       templ.innerHTML = interpolated
       let Slice = DOMParser.fromSchema(schema).parse(templ.firstChild!);

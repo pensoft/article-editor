@@ -18,6 +18,37 @@ import { elementOnWhichClickShouldNoteBeHandled } from "./transactionControlling
 
 export function handlePaste(sharedService:ServiceShare, options?: any) {
   return function handlePaste(view: EditorView, event: ClipboardEvent, slice: Slice) {
+
+    if (options.path == 'tableContent') {
+      let $head = view.state.selection.$head;
+      let isInTable = false
+      for (let d = $head.depth; d > 0; d--) {
+        if ($head.node(d).type.spec.tableRole == 'row') {
+          isInTable = true
+        }
+      }
+      if (isInTable) {
+        return false;
+      }
+
+      let hasTable = false
+      view.state.doc.firstChild.content.forEach(childNode => {
+        if (childNode.type.name === 'table') {
+          hasTable = true;
+        }
+      });
+
+      const clipboard = event.clipboardData;
+      const tableData = clipboard.getData("text/html");
+      const tableRegex = /<table[\s\S]*?>[\s\S]*?<\/table>/gm;
+      const isTable = tableRegex.test(tableData);
+
+      if (hasTable && isTable) {
+        return true
+      }
+      return !isTable
+    }
+
     let newPastedCitation = false;
     let newPastedTableCitation = false;
     slice.content.nodesBetween(0, slice.size - 2, (node:any, pos, parent) => {
@@ -224,10 +255,15 @@ export let handleKeyDown = (serviceShare: ServiceShare, options?: any) => {
     try {
 
       if (options.path == 'tableContent') {
-        let pos = view.state.selection.$anchor.pos
-        let {parent} = view.state.doc.resolve(pos)
-        if (parent.attrs.allowedTags && !event.ctrlKey && !event.metaKey && !event.altKey && !event.shiftKey && event.key !== "Enter") {
+        let { from, to } = view.state.selection
+        let coordinatesAtFrom = view.coordsAtPos(from);
+        let coordinatesAtTo = view.coordsAtPos(to);
+        let currentElement = document.elementFromPoint(coordinatesAtFrom.right, coordinatesAtTo.top)
+        const parent = currentElement?.parentElement
+        const grandParent = parent?.parentElement
+        if ((parent.classList.length||grandParent.classList.length) && !event.ctrlKey && !event.metaKey && !event.altKey && !event.shiftKey && event.key !== "Enter") {
           event.preventDefault();
+          return;
         }
       }
 

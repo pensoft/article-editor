@@ -1213,7 +1213,11 @@ export class ProsemirrorEditorsService {
     }
     
     if (options.path == 'tableContent') {
-      doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({allowedTags, styling: "min-height: 80px; width: 100%;"}))
+      if (nodesArray?.content) {
+        doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({allowedTags, styling: "min-height: 80px; width: 100%;"}, nodesArray?.content))
+      } else {
+        doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({allowedTags, styling: "min-height: 80px; width: 100%;"}))
+      }
     } else if ((!nodesArray || nodesArray.size == 0)) {
       doc = editorSchema.nodes.doc.create({}, editorSchema.nodes.form_field.create({allowedTags}, editorSchema.nodes.paragraph.create({})))
     } else {
