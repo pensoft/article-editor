@@ -13,7 +13,6 @@ export function validateCountry(control: AbstractControl): { [key: string]: any 
   if (countryNames.indexOf(control.value) !== -1) {
     return null
   }
-  console.log(control)
   return { invalidValue: true };
 };
 
