@@ -9,6 +9,7 @@ type ErrorMessage = {
 }
 
 export function validateCountry(control: AbstractControl): { [key: string]: any } | null {
+  if (!control.value) return null
   if (countryNames.indexOf(control.value) !== -1) {
     return null
   }
