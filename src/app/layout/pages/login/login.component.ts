@@ -122,13 +122,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     },3000);
   }
 
-  /*signIn() {
+  signIn() {
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
 
     lpClient.signIn().then(async signInResult => {
       if (signInResult) {
         const token: string = await lpClient.getToken();
-        this.authService.storeToken('token', token);
+        this.authService.storeToken(token);
         const loginSubscr = this.authService.getUserInfo().pipe(take(1))
           .subscribe((user: UserModel | undefined) => {
             if (user) {
@@ -143,9 +143,9 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.unsubscribe.push(loginSubscr);
       }
     }).catch(err => {console.error(err)});
-  }*/
+  }
 
-  async signIn() {
+  /*async signIn() {
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
     try {
       console.log('START SIGNING');
@@ -155,9 +155,32 @@ export class LoginComponent implements OnInit, OnDestroy {
     } catch (e) {
       console.error(e);
     }
+  }*/
+
+  orcidSignIn() {
+    this.serviceShare.ProsemirrorEditorsService.spinSpinner();
+
+    lpClient.signIn().then(async signInResult => {
+      if (signInResult) {
+        const token: string = await ssoClient.getToken();
+        this.authService.storeToken(token);
+        const loginSubscr = this.authService.getUserInfo().pipe(take(1))
+          .subscribe((user: UserModel | undefined) => {
+            if (user) {
+              setTimeout(()=>{
+                this.router.navigate(['/dashboard']);
+              },2000)
+              this.formioBaseService.login();
+            } else {
+              this.hasError = true;
+            }
+          });
+        this.unsubscribe.push(loginSubscr);
+      }
+    }).catch(err => {console.error(err)});
   }
 
-  async orcidSignIn() {
+  /*async orcidSignIn() {
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
     try {
       const signInResult = await ssoClient.signIn();
@@ -165,7 +188,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     } catch (e) {
       console.error(e);
     }
-  }
+  }*/
 
   async processSigninResult(signInResult){
     if(signInResult){
