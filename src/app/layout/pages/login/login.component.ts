@@ -168,6 +168,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   async processSigninResult(signInResult){
     if(signInResult){
       const token = await lpClient.getToken();
+      console.log('token', token);
       this.authService.storeToken(token);
       const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
         .subscribe((user: UserModel | undefined) => {
