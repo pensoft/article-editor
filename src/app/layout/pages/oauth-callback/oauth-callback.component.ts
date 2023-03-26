@@ -33,7 +33,7 @@ export class OauthCallbackComponent implements OnInit, OnDestroy {
     lpClient.handleRedirectCallback().then( async signInResult => {
       const token = await lpClient.getToken();
       this.authService.storeToken(token);
-      debugger;
+
       const loginSubscr = this.authService.getUserInfo().pipe(take(1))
         .subscribe((user: UserModel | undefined) => {
         if (user) {
