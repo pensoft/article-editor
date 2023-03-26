@@ -124,8 +124,9 @@ export class LoginComponent implements OnInit, OnDestroy {
 
   signIn() {
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
-
+    console.log('CLICK');
     lpClient.signIn().then(async signInResult => {
+      console.log('CLICK Result', signInResult)
       if (signInResult) {
         const token: string = await lpClient.getToken();
         this.authService.storeToken(token);
