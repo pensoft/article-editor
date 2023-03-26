@@ -148,7 +148,9 @@ export class LoginComponent implements OnInit, OnDestroy {
   async signIn() {
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
     try {
+      debugger;
       const signInResult = await lpClient.signIn();
+      debugger;
       await this.processSigninResult(signInResult);
     } catch (e) {
       console.error(e);
@@ -169,6 +171,7 @@ export class LoginComponent implements OnInit, OnDestroy {
     if(signInResult){
       const token = await lpClient.getToken();
       console.log('token', token);
+      debugger;
       this.authService.storeToken(token);
       const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
         .subscribe((user: UserModel | undefined) => {
