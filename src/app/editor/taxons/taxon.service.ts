@@ -75,11 +75,19 @@ export class TaxonService implements OnDestroy {
     let taxonInSel = false;
     let taxonMark:Mark
     let markPos:number
+    let hasComment = false;
     view.state.doc.nodesBetween(from, to, (node, pos, parent, i) => {
+      if(node &&
+        node.marks && 
+        node.marks.find((mark) => mark.type.name == 'comment')
+      ) {
+        hasComment = true;
+      } 
       if (
         node.marks &&
         node.marks.length > 0 &&
-        node.marks.some((mark) => mark.type.name == 'taxon')
+        node.marks.some((mark) => mark.type.name == 'taxon') &&
+        !hasComment
       ) {
         taxonInSel = true;
         taxonMark = node.marks.find((mark) => mark.type.name == 'taxon')
@@ -109,7 +117,7 @@ export class TaxonService implements OnDestroy {
       }
       }
     }
-    if(taxonInSel && taxonMark && ( taxonMark.attrs.removedtaxon == 'false' || taxonMark.attrs.removedtaxon == false) && view.hasFocus()){
+    if(taxonInSel && taxonMark && !hasComment && ( taxonMark.attrs.removedtaxon == 'false' || taxonMark.attrs.removedtaxon == false) && view.hasFocus()){
       this.taxonMarkInSelection(taxonMark,markPos,sectionId)
     }else if(taxonInSel && taxonMark && ( taxonMark.attrs.removedtaxon == true || taxonMark.attrs.removedtaxon == 'true') && view.hasFocus()){
       taxonInSel = false;
