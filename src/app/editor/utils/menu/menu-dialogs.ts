@@ -24,6 +24,8 @@ import { InsertEndNoteComponent } from "@app/editor/dialogs/end-notes/insert-end
 import { RefsInArticleCiteDialogComponent } from "@app/editor/dialogs/refs-in-article-cite-dialog/refs-in-article-cite-dialog.component";
 import { InsertVideoComponent } from "@app/editor/dialogs/insert-video/insert-video.component";
 
+const CITATION_ELEMENTS = ["citation", "supplementary_file_citation", "table_citation", "end_note_citation"];
+
 let sharedDialog: MatDialog;
 
 export function shareDialog(dialog: MatDialog) {
@@ -100,12 +102,11 @@ let citateRef = (sharedService: ServiceShare) => {
 }
 
 let canCitate = (state: EditorState) => {
-  let sel = state.selection;
-  const $pos = state.doc.resolve(state.selection.$anchor.pos);
-  const {parent: node} = $pos;
-  
-  if(!state.schema.nodes.reference_citation || node.type?.name == "reference_citation") return false;
-  if(sel.from !== sel.to) return false;
+  const node = state.doc.nodeAt(state.selection.from);
+  const { parent } = state.doc.resolve(state.selection.$anchor.pos);
+    
+  if(node && (node.marks.find(m => CITATION_ELEMENTS.includes(m?.type.name)) || parent.type.name == "reference_citation")) return false;
+  if(state.selection.from !== state.selection.to) return false;
   return true;
 }
 export const citateReference = (sharedService: ServiceShare) => {
@@ -169,7 +170,12 @@ export const insertEndNote = new MenuItem({
     return true;
   },
   //@ts-ignore
-  enable(state) { return state.schema.marks.citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'figures_nodes_container', 'block_figure' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
+  enable(state: EditorState) { 
+    const node = state.doc.nodeAt(state.selection.from);
+    const { parent } = state.doc.resolve(state.selection.$anchor.pos);
+    if(node && (node.marks.find(m => CITATION_ELEMENTS.includes(m?.type.name)) || parent.type.name == "reference_citation")) return false;
+    //@ts-ignore
+    return state.schema.marks.citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'figures_nodes_container', 'block_figure'*/].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
   icon: createCustomIcon('end-note.svg', 20,20,3,0)
 })
 
@@ -195,7 +201,12 @@ export const insertSupplementaryFile = new MenuItem({
     return true;
   },
   //@ts-ignore
-  enable(state) { return state.schema.marks.citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'figures_nodes_container', 'block_figure' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
+  enable(state) {
+    const node = state.doc.nodeAt(state.selection.from);
+    const { parent } = state.doc.resolve(state.selection.$anchor.pos);
+    if(node && (node.marks.find(m => CITATION_ELEMENTS.includes(m?.type.name)) || parent.type.name == "reference_citation")) return false; 
+    //@ts-ignore
+    return state.schema.marks.citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'figures_nodes_container', 'block_figure' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
   icon: createCustomIcon('supplementary-file.svg', 22,22,3,0)
 })
 
@@ -222,7 +233,11 @@ export const insertFigure = new MenuItem({
     return true;
   },
   //@ts-ignore
-  enable(state) { return state.schema.marks.citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'figures_nodes_container', 'block_figure' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
+  enable(state) { 
+    const node = state.doc.nodeAt(state.selection.from);
+    const { parent } = state.doc.resolve(state.selection.$anchor.pos);
+    if(node && (node.marks.find(m => CITATION_ELEMENTS.includes(m?.type.name)) || parent.type.name == "reference_citation")) return false;
+    return state.schema.marks.citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'figures_nodes_container', 'block_figure' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
   icon: createCustomIcon('addfigure.svg', 18)
 })
 
@@ -248,7 +263,11 @@ export const insertTable = new MenuItem({
     return true;
   },
   //@ts-ignore
-  enable(state) { return state.schema.marks.table_citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'tables_nodes_container', 'block_table' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
+  enable(state) { 
+    const node = state.doc.nodeAt(state.selection.from);
+    const { parent } = state.doc.resolve(state.selection.$anchor.pos);
+    if(node && (node.marks.find(m => CITATION_ELEMENTS.includes(m?.type.name)) || parent.type.name == "reference_citation")) return false;
+    return state.schema.marks.table_citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'tables_nodes_container', 'block_table' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) },
   icon: createCustomIcon('citeTable.svg', 18,18,0,2,1.2)
 })
 
@@ -399,20 +418,44 @@ export const insertTableItem = new MenuItem({
         data: { rows: rows, cols: cols }
       });
 
+      const $pos = state.selection.$anchor
+      const from = $pos.start()
+
       tableSizePickerDialog.afterClosed().subscribe(result => {
         const { rows, cols } = result;
         let paragraph = state.schema.nodes.paragraph.createAndFill()
         let formField = state.schema.nodes.form_field.createAndFill(undefined, paragraph)
         let singleRow = Fragment.fromArray(new Array(cols).fill(state.schema.nodes.table_cell.createAndFill(undefined, formField), 0, cols));
         let table = Fragment.fromArray(new Array(rows).fill(state.schema.nodes.table_row.create(undefined, singleRow), 0, rows));
-        const tr = state.tr.replaceSelectionWith(state.schema.nodes.table.create(undefined, table));
+        const tr = state.tr.insert(from,state.schema.nodes.table.create(undefined, table))
         if (dispatch) { dispatch(tr); }
         return true;
       });
     }
     return true
   },
-  enable(state:EditorState) { return isCitationSelected(state, undefined, state.schema.nodes.table) },
+  enable(state:EditorState) { 
+    let hasTable = false
+    if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+      state.doc.firstChild.content.forEach(childNode => {
+        if (childNode.type.name === 'table') {
+          hasTable = true;
+        }
+      });
+
+    let $head = state.selection.$head;
+    let isInTable = false
+    for (let d = $head.depth; d > 0; d--) {
+      if ($head.node(d).type.spec.tableRole == 'row') {
+        isInTable = true
+      }
+    }
+  
+    if (hasTable && !isInTable) {
+        return false;
+      }
+    }
+    return isCitationSelected(state, undefined, state.schema.nodes.table) },
 });
 
 export const addAnchorTagItem = new MenuItem({

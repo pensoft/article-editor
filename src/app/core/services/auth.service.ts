@@ -53,8 +53,8 @@ export class AuthService implements OnDestroy {
       responseType:'json' */
     }).pipe(
       map((token) => {
-        this.storeToken('token', token['access_token']);
-        this.storeToken('refresh_token', token['refresh_token']);
+        this.storeToken(token['access_token']);
+        this.storeToken(token['refresh_token'], 'refreshToken');
         if(this.userInfo)this.userInfo = undefined
         return token;
       }),
@@ -105,28 +105,24 @@ export class AuthService implements OnDestroy {
   }
 
   isLoggedIn() {
-    return this.getToken() ? true : false; // add your strong logic
+    return !!this.getToken();
   }
 
-  storeToken(tokenType, token: string) {
+  storeToken(token, tokenType = 'token') {
     localStorage.setItem(tokenType, token);
   }
 
-  getToken() {
-    return localStorage.getItem('token');
+  getToken(key = 'token') {
+    return localStorage.getItem(key);
   }
 
   isTokenExpired(access_token:string){
     return this.jwtHelper.isTokenExpired(access_token);
   }
 
-  getRefreshToken() {
-    return localStorage.getItem('refreshToken');
-  }
-
   refreshToken() {
-    const refreshToken = this.getRefreshToken();
-    return this._http.post<any>(`${API_AUTH_URL}/refresh-token`, {'refresh-token': refreshToken})
+    const refreshToken = this.getToken('refreshToken');
+    return this._http.post<any>(`${API_AUTH_URL}/refresh-token`, {'refresh_token': refreshToken})
       .pipe(
         map(({access_token: token, refresh_token: refreshToken}) =>
           ({
@@ -149,8 +145,8 @@ export class AuthService implements OnDestroy {
     let getInfo = (token = null)=>{
       const auth = token || this.getToken();
       if(token){
-        this.storeToken('token', token['access_token']);
-        this.storeToken('refresh_token', token['refresh_token']);
+        this.storeToken(token['access_token']);
+        this.storeToken(token['refresh_token'], 'refreshToken');
       }
       if (!auth) {
         return of(undefined);

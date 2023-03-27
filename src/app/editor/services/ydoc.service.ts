@@ -17,6 +17,10 @@ import { ArticlesService } from '@app/core/services/articles.service';
 import { Transaction as YTransaction } from 'yjs';
 import { layoutMenuAndSchemaSettings, mapSchemaDef, parseSecFormIOJSONMenuAndSchemaDefs, parseSecHTMLMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
 import { TaxonService } from '../taxons/taxon.service';
+import { CitableElementsSchemasV2Template } from '../utils/section-templates/form-io-json/citableTableJSON';
+import { tablesHtmlTemplate } from '../dialogs/citable-tables-dialog/add-table-dialog/add-table-dialog.component';
+import { supplementaryFileHtmlTemplate } from '../dialogs/supplementary-files/add-supplementary-file/add-supplementary-file.component';
+import { endNoteHtmlTemplate } from '../dialogs/end-notes/add-end-note/add-end-note.component';
 
 export interface mainSectionValidations{[pivot_id:string]:{min:number,max:number}}
 
@@ -533,6 +537,22 @@ export class YdocService {
       // filter sections from ctable elements schemas section
       data.layout.template.sections = data.layout.template.sections.filter(x => x.name != 'Citable Elements Schemas');
       this.saveCitableElementsSchemas(artilceCitableElementsSchemas);
+    } else {
+      let section = {
+        schema: CitableElementsSchemasV2Template,
+        template: `
+          <ng-template #Tables>	
+          ${tablesHtmlTemplate}
+        </ng-template>
+        <ng-template #SupplementaryMaterials>
+        ${supplementaryFileHtmlTemplate}
+        </ng-template>
+        <ng-template #Footnotes>
+         ${endNoteHtmlTemplate}
+        </ng-template>
+          `
+      }
+      this.saveCitableElementsSchemas(section);
     }
     let mainSectionValidations:mainSectionValidations = {}
     let fnc = (sec)=>{

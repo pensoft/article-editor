@@ -1,4 +1,4 @@
-import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { TextSelection } from 'prosemirror-state';
 import { EditorView } from 'prosemirror-view';
@@ -25,7 +25,7 @@ export interface changeData {
 })
 
 
-export class ChangesSectionComponent implements OnInit, AfterViewInit {
+export class ChangesSectionComponent implements OnInit, AfterViewInit, OnDestroy {
 
   doneRenderingChangesSubject: Subject<any> = new Subject()
 
@@ -38,7 +38,7 @@ export class ChangesSectionComponent implements OnInit, AfterViewInit {
   nOfCommThatShouldBeRendered
   shouldScrollSelected
   initialRender = false;
-  lastSelSub:Subscription
+  subscription = new Subscription();
   tryMoveItemsUp
   displayedChangesPositions: { [key: string]: { displayedTop: number, height: number } } = {}
   lastArticleScrollPosition = 0
@@ -52,19 +52,25 @@ export class ChangesSectionComponent implements OnInit, AfterViewInit {
     )
     {
 
-      this.subjSub = this.doneRenderingChangesSubject.subscribe((data) => {
+      this.subscription.add(this.doneRenderingChangesSubject.subscribe((data) => {
         if (this.rendered < this.nOfCommThatShouldBeRendered) {
           this.rendered++;
         }
         if (this.rendered == this.nOfCommThatShouldBeRendered) {
           this.doneRendering()
         }
-      })
+      }))
   }
 
 
   ngOnInit() {
     this.changesService.getChangesInAllEditors();
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
+    (document.getElementsByClassName('editor-container')[0] as HTMLDivElement).removeAllListeners('scroll');
+    (document.getElementsByClassName('changes-wrapper')[0] as HTMLDivElement).removeAllListeners('wheel');
   }
 
   notRendered = true;
@@ -226,59 +232,61 @@ export class ChangesSectionComponent implements OnInit, AfterViewInit {
       let changeContainer = changes.find((element) => {
         return element.getAttribute('changeid') == selectedChange.changeMarkId
       })
-      changeContainer.style.top = selectedChangeSorted.domTop + 'px';
-      this.displayedChangesPositions[selectedChange.changeMarkId] = { displayedTop: selectedChangeSorted.domTop, height: changeContainer.getBoundingClientRect().height }
+      if(changeContainer) {
+        changeContainer.style.top = selectedChangeSorted.domTop + 'px';
+        this.displayedChangesPositions[selectedChange.changeMarkId] = { displayedTop: selectedChangeSorted.domTop, height: changeContainer.getBoundingClientRect().height }
 
-      //loop comments up in the group and move them if any
-      let lastChangeTop = selectedChangeSorted.domTop;
-      let i = selectedChangeIndex - 1
-      let changesGroupTopEnd = false
-      while (i >= 0 && !changesGroupTopEnd) {
-        let chng = sortedChanges[i]
-        let id = chng.changeMarkId;
-        let domElement = changes.find((element) => {
-          return element.getAttribute('changeid') == id
-        })
-        let h = domElement.getBoundingClientRect().height
-        if (lastChangeTop > chng.domTop + h) {
-          let pos = chng.domTop
-          domElement.style.top = pos + 'px';
-          this.displayedChangesPositions[id] = { displayedTop: pos, height: h }
-          lastChangeTop = pos;
-        } else {
-          let pos = lastChangeTop - h
-          domElement.style.top = pos + 'px';
-          this.displayedChangesPositions[id] = { displayedTop: pos, height: h }
-          lastChangeTop = pos;
+        //loop comments up in the group and move them if any
+        let lastChangeTop = selectedChangeSorted.domTop;
+        let i = selectedChangeIndex - 1
+        let changesGroupTopEnd = false
+        while (i >= 0 && !changesGroupTopEnd) {
+          let chng = sortedChanges[i]
+          let id = chng.changeMarkId;
+          let domElement = changes.find((element) => {
+            return element.getAttribute('changeid') == id
+          })
+          let h = domElement.getBoundingClientRect().height
+          if (lastChangeTop > chng.domTop + h) {
+            let pos = chng.domTop
+            domElement.style.top = pos + 'px';
+            this.displayedChangesPositions[id] = { displayedTop: pos, height: h }
+            lastChangeTop = pos;
+          } else {
+            let pos = lastChangeTop - h
+            domElement.style.top = pos + 'px';
+            this.displayedChangesPositions[id] = { displayedTop: pos, height: h }
+            lastChangeTop = pos;
+          }
+          i--;
         }
-        i--;
-      }
-      let lastElementBottom = selectedChangeSorted.domTop + changeContainer.getBoundingClientRect().height;
-      let i1 = selectedChangeIndex + 1
-      let n = sortedChanges.length
-      let changesGroupBottomEnd = false
-      while (i1 < n && !changesGroupBottomEnd) {
-        let chng = sortedChanges[i1];
-        let index = i1
-        let id = chng.changeMarkId;
-        let domElement = changes.find((element) => {
-          return element.getAttribute('changeid') == id
-        })
-        let h = domElement.getBoundingClientRect().height
-        if (lastElementBottom < chng.domTop) {
-          let pos = chng.domTop
-          domElement.style.top = pos + 'px';
-          this.displayedChangesPositions[id] = { displayedTop: pos, height: h }
-          lastElementBottom = pos + h;
-        } else {
-          let pos = lastElementBottom
-          domElement.style.top = pos + 'px';
-          this.displayedChangesPositions[id] = { displayedTop: pos, height: h }
-          lastElementBottom = pos + h;
+        let lastElementBottom = selectedChangeSorted.domTop + changeContainer.getBoundingClientRect().height;
+        let i1 = selectedChangeIndex + 1
+        let n = sortedChanges.length
+        let changesGroupBottomEnd = false
+        while (i1 < n && !changesGroupBottomEnd) {
+          let chng = sortedChanges[i1];
+          let index = i1
+          let id = chng.changeMarkId;
+          let domElement = changes.find((element) => {
+            return element.getAttribute('changeid') == id
+          })
+          let h = domElement.getBoundingClientRect().height
+          if (lastElementBottom < chng.domTop) {
+            let pos = chng.domTop
+            domElement.style.top = pos + 'px';
+            this.displayedChangesPositions[id] = { displayedTop: pos, height: h }
+            lastElementBottom = pos + h;
+          } else {
+            let pos = lastElementBottom
+            domElement.style.top = pos + 'px';
+            this.displayedChangesPositions[id] = { displayedTop: pos, height: h }
+            lastElementBottom = pos + h;
+          }
+          i1++
         }
-        i1++
+        this.shouldScrollSelected = false;
       }
-      this.shouldScrollSelected = false;
     }
 
     changes.forEach(el=>{
@@ -370,7 +378,7 @@ export class ChangesSectionComponent implements OnInit, AfterViewInit {
       this.changesObj = changesObj
       this.changes = (Object.values(this.changesObj) as Array<any>).flat()
     }) */
-    this.lastSelSub = this.changesService.lastSelectedChangeSubject.subscribe((data) => {
+    this.subscription.add(this.changesService.lastSelectedChangeSubject.subscribe((data) => {
       if (data.changeMarkId && data.section && data.pmDocStartPos) {
         this.shouldScrollSelected = true;
       } else {
@@ -382,8 +390,8 @@ export class ChangesSectionComponent implements OnInit, AfterViewInit {
       setTimeout(() => {
         this.changesService.getChangesInAllEditors()
       }, 200)
-    })
-    this.changesService.changesChangeSubject.subscribe((msg) => {
+    }))
+    this.subscription.add(this.changesService.changesChangeSubject.subscribe((msg) => {
       let changesToAdd: changeData[] = []
       let changesToRemove: changeData[] = []
       let allChangesInEditors: changeData[] = []
@@ -469,7 +477,7 @@ export class ChangesSectionComponent implements OnInit, AfterViewInit {
       if (editedChange) {
         this.setContainerHeight()
       }
-    })
+    }))
     this.changesService.getChangesInAllEditors()
   }
 
