@@ -407,6 +407,8 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     if (this.showAddCommentBox) {
       let addCommentBoxEl = document.getElementsByClassName('add-comment-box')[0] as HTMLDivElement
       let articleElement = document.getElementById('app-article-element') as HTMLDivElement
+      let editorContainer = document.getElementsByClassName("editor-container")[0] as HTMLDivElement;
+      let editorRectangle = editorContainer.getBoundingClientRect();
       let articleElementRactangle = articleElement.getBoundingClientRect()
       let boxH = addCommentBoxEl.getBoundingClientRect().height;
       let newMarkPos = this.editorView.state.selection.from
@@ -420,6 +422,19 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
       setTimeout(()=>{
         inputElement.focus();       
       },100)
+        setTimeout(() => {
+          let scroll = 0;
+          if(editorContainer.scrollTop >= 0) {
+            scroll = 1;
+          }     
+          if(editorRectangle.height - editorContainer.scrollTop  < 0) {
+            scroll = -1
+          }
+          editorContainer.scrollBy({
+            top: scroll,
+            behavior: "smooth"
+          })
+        }, 200);
       let positionsArr: { id: string, displayedTop: number, height: number }[] = []
       Object.keys(this.displayedCommentsPositions).forEach((key) => {
         let val = this.displayedCommentsPositions[key];
