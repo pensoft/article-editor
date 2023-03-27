@@ -420,13 +420,17 @@ end-note-citation:hover {
   cursor: pointer;
 }
 
-.ProseMirror  {
-  p[contenteditablenode="false"]:hover {
-    cursor: default;
-  }
+.ProseMirror *[contenteditablenode="false"]:not(figure-components-container, figure-component) {
+  caret-color: transparent;
 
-  p[contenteditablenode="false"] {
-    caret-color: transparent;
+  &:hover:not(
+    supplementary-file-citation,
+    table-citation,
+    reference-citation,
+    citation,
+    end-note-citation
+    ) {
+    cursor: default;
   }
 }
 

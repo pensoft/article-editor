@@ -26,7 +26,7 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
 import { filterFieldsValues } from '@app/editor/utils/fieldsMenusAndScemasFns';
 
 
-let endNoteHtmlTemplate = `
+export let endNoteHtmlTemplate = `
 <block-end-note [attr.end_note_number]="data.end_note_number" [attr.end_note_id]="data.end_note_ID">
   <end-note *ngIf="data.endNote">
     <p style="display: inline;" contenteditablenode="false">

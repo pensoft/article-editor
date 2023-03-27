@@ -10,7 +10,7 @@ import { MaterialModule } from 'src/app/shared/material.module';
 import { STORAGE_PROVIDERS } from 'src/app/shared/storage.service';
 import { ThemeToggleComponent } from 'src/app/layout/widgets/thema-toggle/theme-toggle.component';
 import { windowProvider, WindowToken } from 'src/app/shared/window';
-import { environment } from '../environments/environment';
+import { environment } from '@env';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { EditorComponent } from './editor/editor.component';
@@ -379,6 +379,7 @@ const gravatarConfig: GravatarConfig = {
   ],
 
   providers: [
+    {provide: 'API_GATEWAY_SERVICE', useValue: environment.apiUrl},
     {provide: 'AUTH_SERVICE', useValue: environment.authServer},
     HasPermissionPipe,
     BoldPipe,
