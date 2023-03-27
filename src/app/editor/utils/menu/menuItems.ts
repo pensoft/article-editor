@@ -330,7 +330,7 @@ let selectionIsInListItem = (decrease:boolean)=>{
       }
     }
 
-    if(listItemThatFromIsIn == listItemThatToIsIn&&parrentList&&(parrentList.firstChild!=listItemThatToIsIn||decrease)){
+    if((listItemThatFromIsIn == listItemThatToIsIn&&parrentList&&(parrentList.firstChild!=listItemThatToIsIn)||decrease)){
       return true
     }else{
       return false;
