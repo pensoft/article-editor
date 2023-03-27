@@ -51,7 +51,7 @@ export interface commentData {
   section: string,
   commentAttrs: any,
   commentMarkId: string,
-  selected: boolean
+  selected: boolean,
 }
 @Injectable({
   providedIn: 'root'
@@ -328,7 +328,7 @@ export class CommentsService {
               }
             }
           }
-          if (!selectedAComment && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() ) {
+          if (!selectedAComment && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() && lastCommentSelected.commentId) {
             setLastSelectedComment(undefined, undefined, undefined, undefined)
           }
 
@@ -420,9 +420,7 @@ export class CommentsService {
   }
 
   setLastSelectedComment = (commentId?: string, pos?: number, sectionId?: string, commentMarkId?: string,focus?:true) => {
-    if (!this.sameAsLastSelectedComment(commentId, pos, sectionId, commentMarkId)||focus) {
       this.lastSelectedCommentSubject.next({ commentId, pos, sectionId, commentMarkId })
-    }
   }
 
   commentsObj: { [key: string]: commentData } = {}
