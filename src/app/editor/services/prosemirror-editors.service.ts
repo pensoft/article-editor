@@ -1048,6 +1048,8 @@ export class ProsemirrorEditorsService {
     const dispatchTransaction = (transaction: Transaction) => {
       this.transactionCount++
       try {
+        const firstChild = transaction.doc.firstChild;
+        if(firstChild?.type.name == "paragraph") return;
         if (lastStep == transaction.steps[0] && !transaction.getMeta('emptyTR')) {
           if (lastStep) { return }
         }

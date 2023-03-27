@@ -155,7 +155,17 @@ app-figures-prosemirror-view.not-empty {
   border-top: 2px dashed #e3e3e3;
   display: block;
   margin-top: 24px;
+  
+  // .ProseMirror {
+  //   >p {
+  //     -webkit-user-select: none;
+  //     -ms-user-select: none;
+  //     user-select: none;
+  //   } 
+  // }
 }
+
+
 
 .show-article-data {
   width: 90% !important;
