@@ -55,7 +55,6 @@ export let tablesHtmlTemplate = `
   		</table-header-container>
   		<table-content *ngIf="data.tableContent" 
                        formControlName="tableContent"
-                       menuType="[['undoItem', 'redoItem' ],['tableMenu']]"
                        >
   		</table-content>
   		<table-footer-container>
