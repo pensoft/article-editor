@@ -318,6 +318,10 @@ supplementary-file-brief-description,end-note{
 .ins-from-popup {
   color: color(attr(usercontrastcolor));
   background: color(attr(usercolor));
+
+  >.taxon {
+    background-color: transparent !important;
+  }
 }
 
 .form-field-inline-view {
@@ -605,6 +609,10 @@ img[ychange_type="removed"] {
   color: black;
   background-color: #ffd0d0;
   text-decoration: line-through black;
+
+  >.taxon {
+    background-color: transparent !important;
+  }
 }
 
 /* .del-from-popup{
