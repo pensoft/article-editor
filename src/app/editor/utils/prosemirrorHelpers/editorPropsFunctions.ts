@@ -19,7 +19,7 @@ import { elementOnWhichClickShouldNoteBeHandled } from "./transactionControlling
 export function handlePaste(sharedService:ServiceShare, options?: any) {
   return function handlePaste(view: EditorView, event: ClipboardEvent, slice: Slice) {
 
-    if (options.path == 'tableContent') {
+    if (options?.path == 'tableContent') {
       let $head = view.state.selection.$head;
       let isInTable = false
       for (let d = $head.depth; d > 0; d--) {
@@ -74,6 +74,19 @@ export function handlePaste(sharedService:ServiceShare, options?: any) {
         node.attrs.math_id = uuidv4()
       } else if (node.type.name == 'reference_citation') {
         node.attrs.refCitationID = uuidv4();
+      }
+
+      const linkMark = node.marks.find(mark => mark.type.name === 'link')
+      if (linkMark) {
+        let attrsKeys = Object.keys(linkMark.attrs)
+
+        attrsKeys.forEach((key)=>{
+          if(key == 'styling'){
+            //@ts-ignore
+            linkMark.attrs[key] = ""
+          }
+        })
+        
       }
     })
     let sel = view.state.selection
@@ -254,7 +267,7 @@ export let handleKeyDown = (serviceShare: ServiceShare, options?: any) => {
   return (view: EditorView, event: KeyboardEvent) => {
     try {
 
-      if (options.path == 'tableContent') {
+      if (options?.path == 'tableContent') {
         let { from, to } = view.state.selection
         let coordinatesAtFrom = view.coordsAtPos(from);
         let coordinatesAtTo = view.coordsAtPos(to);
