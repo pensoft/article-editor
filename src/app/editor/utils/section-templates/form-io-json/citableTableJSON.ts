@@ -30,7 +30,6 @@ export const tableJson = {
         "required": true
       },
       "properties": {
-        "menuType": "[['undoItem', 'redoItem'],['tableMenu']]",
         "allowedTags": "{'nodes':['video','citable-figures','headings','page_break','tables','reference-citation','citable-tables'],'marks':['em','underline','subscript','superscript']}"
       },
       "key": "tableContent",
