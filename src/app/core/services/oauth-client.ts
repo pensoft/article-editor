@@ -12,7 +12,7 @@ export const lpClient = createLaravelPassportClient({
 
   // the uri the authentication server will send the authorization codes to
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  redirect_uri: `${window.location.origin}${environment.production ? '/demo' : ''}/callback`,
+  redirect_uri: `${window.location.origin}/callback`,
   isAutoRefresh: false
 });
 
@@ -28,6 +28,6 @@ export const ssoClient = createLaravelPassportClient({
 
   // the uri the authentication server will send the authorization codes to
   // eslint-disable-next-line @typescript-eslint/naming-convention
-  redirect_uri: `${window.location.origin}${environment.production ? '/demo' : ''}/callback`,
+  redirect_uri: `${window.location.origin}/callback`,
   isAutoRefresh: false
 });
