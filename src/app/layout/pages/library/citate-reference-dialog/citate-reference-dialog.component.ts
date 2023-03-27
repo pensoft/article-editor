@@ -209,6 +209,7 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
       params: {
         search: 'simple',
         text: searchText,
+        db: ["crossref", "datacite"]
       }
     }).subscribe((data1) => {
       let parsedJson = JSON.parse(data1);

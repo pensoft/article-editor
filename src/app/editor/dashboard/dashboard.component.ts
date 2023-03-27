@@ -17,6 +17,8 @@ import { CDK_DRAG_HANDLE } from '@angular/cdk/drag-drop';
 import { leadingComment } from '@angular/compiler';
 import { EnforcerService } from '@app/casbin/services/enforcer.service';
 import { I } from '@angular/cdk/keycodes';
+import { FormControl, FormGroup } from '@angular/forms';
+import { debounce } from 'lodash';
 
 @Component({
   selector: 'app-dashboard',
@@ -41,6 +43,10 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
   selectedType = -1;
   refreshSubject = new Subject();
   onRender = true;
+  filteredAutocompleteTemplates: Observable<any[]>;
+  canShowTemplateTypes = false;
+
+  templateType = new FormControl("");
 
   @ViewChild(MatPaginator) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
@@ -69,8 +75,8 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
   ngAfterViewInit() {
     let articlesDataFromResolver = this.route.snapshot.data['product'];
 
-    this.articleSectionsService.getAllLayouts().subscribe((articleLayouts: any) => {      
-      this.articleLayouts = [...articleLayouts.data, { name: 'none', id: -1 }]
+    this.articleSectionsService.getAllLayouts().subscribe((articleLayouts: any) => {
+      this.articleLayouts = [ { name: 'None', id: -1 }, ...articleLayouts.data]
     })
     // If the user changes the sort order, reset back to the first page.
     this.sort!.sortChange.subscribe(() => {
@@ -80,6 +86,17 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
     this.typeChange.subscribe(() => {
       this.paginator!.pageIndex = 0;
     })
+
+    this.filteredAutocompleteTemplates = this.templateType
+      .valueChanges
+      .pipe(
+        map(value => 
+          value.length > 0 || this.canShowTemplateTypes ? 
+          this.articleLayouts.filter(type => type.name.toLowerCase().includes(value.toLowerCase())) 
+          : 
+          this.articleLayouts
+          )
+        )
 
     if(this.serviceShare.ProsemirrorEditorsService.spinning){
       this.serviceShare.ProsemirrorEditorsService.stopSpinner()
@@ -216,10 +233,43 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
       this.timer = undefined
     }, 300)
   }
-  filterByType(selectValue: any) {
-    this.selectedType = selectValue;    
-    this.typeChange.next('typechange')
+
+  // searchTemplateType(input: HTMLInputElement) {
+  //   if(this.timer) {
+  //     clearTimeout(this.timer);
+  //   }
+  //   this.timer = setTimeout(() => {
+  //     this.searchTemplate = input.value;
+  //     this.typeChange.next("typechange");
+  //     this.timer = undefined;
+  //   }, 300);
+  // }
+
+  // filterByType(input: HTMLInputElement) {
+  //   if(input.value) {
+  //     this.selectedType = this.articleLayouts.find(type => type.name.includes(input.value))?.id || -1;    
+  //     this.typeChange.next('typechange');
+  //   } else {
+  //     this.selectedType = -1;
+  //     this.typeChange.next('typechange');
+  //   }
+  // }
+
+  filterByType(input: HTMLInputElement, event?) {
+    if(input.value.length > 0 && (event.target.className == "mat-option-text" || event.target.tagName == "MAT-OPTION" || event.key == "Enter")) {
+      this.selectedType = this.articleLayouts.find(type => type.name == input.value)?.id;
+      if(this.selectedType) {
+        this.typeChange.next('typechange')
+      }
+    } else if(event.target.tagName !== "MAT-ICON" && !event.target.className.includes("mat-form-field-infix") && input.value == '' && !event.key){
+      (document.getElementsByClassName('width-select')[0] as HTMLElement).style.width = "125px"
+    }
   }
+
+  focusHandler() {
+    (document.getElementsByClassName('width-select')[0] as HTMLElement).style.width = "240px"
+  }
+
   openchooseDialog() {
     this.serviceShare.createNewArticle();
   }

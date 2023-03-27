@@ -399,20 +399,44 @@ export const insertTableItem = new MenuItem({
         data: { rows: rows, cols: cols }
       });
 
+      const $pos = state.selection.$anchor
+      const from = $pos.start()
+
       tableSizePickerDialog.afterClosed().subscribe(result => {
         const { rows, cols } = result;
         let paragraph = state.schema.nodes.paragraph.createAndFill()
         let formField = state.schema.nodes.form_field.createAndFill(undefined, paragraph)
         let singleRow = Fragment.fromArray(new Array(cols).fill(state.schema.nodes.table_cell.createAndFill(undefined, formField), 0, cols));
         let table = Fragment.fromArray(new Array(rows).fill(state.schema.nodes.table_row.create(undefined, singleRow), 0, rows));
-        const tr = state.tr.replaceSelectionWith(state.schema.nodes.table.create(undefined, table));
+        const tr = state.tr.insert(from,state.schema.nodes.table.create(undefined, table))
         if (dispatch) { dispatch(tr); }
         return true;
       });
     }
     return true
   },
-  enable(state:EditorState) { return isCitationSelected(state, undefined, state.schema.nodes.table) },
+  enable(state:EditorState) { 
+    let hasTable = false
+    if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+      state.doc.firstChild.content.forEach(childNode => {
+        if (childNode.type.name === 'table') {
+          hasTable = true;
+        }
+      });
+
+    let $head = state.selection.$head;
+    let isInTable = false
+    for (let d = $head.depth; d > 0; d--) {
+      if ($head.node(d).type.spec.tableRole == 'row') {
+        isInTable = true
+      }
+    }
+  
+    if (hasTable && !isInTable) {
+        return false;
+      }
+    }
+    return isCitationSelected(state, undefined, state.schema.nodes.table) },
 });
 
 export const addAnchorTagItem = new MenuItem({

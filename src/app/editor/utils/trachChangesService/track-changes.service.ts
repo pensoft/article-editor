@@ -185,9 +185,9 @@ export class TrackChangesService {
   }
 
   setLastSelectedChange = (pos?: number, sectionId?: string, changeMarkIdPrim?: string,focus?:true) => {
-    if (!this.sameAsLastSelectedChange(pos, sectionId, changeMarkIdPrim)||focus) {
+    // if (!this.sameAsLastSelectedChange(pos, sectionId, changeMarkIdPrim)||focus) {
       this.lastSelectedChangeSubject.next({ pmDocStartPos:pos, section:sectionId, changeMarkId:changeMarkIdPrim })
-    }
+    // }
   }
 
   constructor(
@@ -545,7 +545,7 @@ export class TrackChangesService {
               }
             } */
           }
-          if (!selectedAChange && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() ) {
+          if (!selectedAChange && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() && lastChangeSelected.changeMarkId) {
             setLastSelectedChange(undefined, undefined, undefined, undefined)
           }
           if (!(newState.selection instanceof AllSelection) /* && view.hasFocus() && tr.steps.length > 0 */) {
