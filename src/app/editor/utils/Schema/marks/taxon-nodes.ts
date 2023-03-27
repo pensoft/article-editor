@@ -6,7 +6,7 @@ export const taxon = {
     removedtaxon: { deafult: 'false' }
   },
   inclusive: false,
-  excludes:"_",
+  excludes: "",
   parseDOM: [{
     tag: 'span.taxon',
     getAttrs(dom: any) {

@@ -1028,6 +1028,10 @@ span.taxon[removedtaxon="false"]{
     background-color: gold;
     /* color: black; */
   }
+
+  >.taxon {
+    background-color: transparent !important;
+  }
 }
 
 .commentList,
