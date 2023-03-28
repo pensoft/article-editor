@@ -267,6 +267,10 @@ export let handleKeyDown = (serviceShare: ServiceShare, options?: any) => {
   return (view: EditorView, event: KeyboardEvent) => {
     try {
 
+      if (view.state.selection.$from.parent.attrs.contenteditableNode === false) {
+        return true
+      }
+      
       if (options?.path == 'tableContent') {
         let { from, to } = view.state.selection
         let coordinatesAtFrom = view.coordsAtPos(from);
