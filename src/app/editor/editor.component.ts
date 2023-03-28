@@ -71,6 +71,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked,
   roomName?: string | null;
   shouldTrackChanges?: boolean;
   active = 'editor';
+  articleTemplate: string;
 
   titleControl = new FormControl();
 
@@ -350,6 +351,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked,
         } else {
           this.titleControl.setValue(this.ydocService.articleData.name);
         }
+        this.articleTemplate = this.ydocService.articleData.layout.name;
       }
     });
 
