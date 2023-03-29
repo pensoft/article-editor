@@ -1,5 +1,16 @@
 import { D, E } from '@angular/cdk/keycodes';
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import { DateSelectionModelChange } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import { uuidv4 } from 'lib0/random';
@@ -20,6 +31,7 @@ import { ContributorsApiService } from '@app/core/services/comments/contributors
 import { EditCommentDialogComponent } from '../edit-comment-dialog/edit-comment-dialog.component';
 import { Router } from '@angular/router';
 import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
+import { takeUntil } from 'rxjs/operators';
 
 export function getDate(date: number) {
   let timeOffset = (new Date()).getTimezoneOffset() * 60 * 1000;
@@ -34,8 +46,8 @@ export function getDate(date: number) {
   templateUrl: './comment.component.html',
   styleUrls: ['./comment.component.scss']
 })
-export class CommentComponent implements OnInit, AfterViewInit {
-
+export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
+  private unsubscribe$ = new Subject<void>();
   @Input() comment?: commentData;
 
   @Input() doneRenderingCommentsSubject?: Subject<any>;
@@ -91,11 +103,11 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.userComment = this.commentsMap?.get(this.comment!.commentAttrs.id) || { initialComment: undefined, commentReplies: undefined };
-    this.authService.getUserInfo().subscribe((userInfo)=>{
+    this.authService.currentUser$.pipe(takeUntil(this.unsubscribe$)).subscribe((userInfo)=>{
       //@ts-ignore
-      this.currUserId = userInfo.data.id
+      this.currUserId = userInfo.id
     })
-    this.prosemirrorEditorService.mobileVersionSubject.subscribe((data) => {
+    this.prosemirrorEditorService.mobileVersionSubject.pipe(takeUntil(this.unsubscribe$)).subscribe((data) => {
       // data == true => mobule version
       this.mobileVersion = data
     })
@@ -146,14 +158,14 @@ export class CommentComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.doneRenderingCommentsSubject.next('rendered')
     }, 10)
-    this.sharedService.CommentsService.ydocCommentsChangeSubject.subscribe((commentsObj) => {
+    this.sharedService.CommentsService.ydocCommentsChangeSubject.pipe(takeUntil(this.unsubscribe$)).subscribe((commentsObj) => {
       let ydocCommentInstance = commentsObj[this.comment.commentAttrs.id]
       this.checkIfCommentHasChanged(ydocCommentInstance)
     })
     this.userComment?.commentReplies.forEach((comment, index) => {
       this.repliesShowMore[index] = false
     })
-    this.sharedService.CommentsService.lastSelectedCommentSubject.subscribe((comment) => {
+    this.sharedService.CommentsService.lastSelectedCommentSubject.pipe(takeUntil(this.unsubscribe$)).subscribe((comment) => {
       if(this.ydocService.curUserAccess&&this.ydocService.curUserAccess=='Viewer'){
         return
       }
@@ -338,5 +350,10 @@ export class CommentComponent implements OnInit, AfterViewInit {
     setTimeout(()=>{
       this.doneRenderingCommentsSubject.next('replay_rerender')
     },400)
+  }
+
+  ngOnDestroy(): void {
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 }

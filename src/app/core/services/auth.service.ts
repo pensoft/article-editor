@@ -35,7 +35,7 @@ export class AuthService implements OnDestroy {
     public _http: HttpClient,
     private router: Router,
     private sharedService:ServiceShare,
-    private jwtHelper: JwtHelperService
+    private jwtHelper: JwtHelperService,
   ) {
     this.currentUserSubject = new BehaviorSubject<UserType>(undefined);
     this.currentUser$ = this.currentUserSubject.asObservable();
@@ -55,10 +55,10 @@ export class AuthService implements OnDestroy {
       map((token) => {
         this.storeToken(token['access_token']);
         this.storeToken(token['refresh_token'], 'refreshToken');
-        if(this.userInfo)this.userInfo = undefined
+        //if(this.userInfo)this.userInfo = undefined
         return token;
       }),
-      switchMap((token) => this.getUserInfo(token)),
+      switchMap((token) => this.getUserInfo()),
       catchError((err) => {
         return of(err);
       })
@@ -109,7 +109,9 @@ export class AuthService implements OnDestroy {
   }
 
   storeToken(token, tokenType = 'token') {
-    localStorage.setItem(tokenType, token);
+    if(token) {
+      localStorage.setItem(tokenType, token);
+    }
   }
 
   getToken(key = 'token') {
@@ -142,7 +144,30 @@ export class AuthService implements OnDestroy {
 
   getUserInfo(token = null) {
 
-    let getInfo = (token = null)=>{
+    const auth = token || this.getToken();
+
+    if (!auth) {
+      return of(undefined);
+    }
+
+    this.storeToken(auth);
+
+    return this._http.get<any>(`${API_AUTH_URL}/me`)
+      .pipe(
+        map((user) => {
+          if (user) {
+            this.currentUserSubject.next(user.data);
+            /*this.sharedService.EnforcerService?.policiesChangeSubject.next(user);*/
+          } else {
+            this.logout();
+          }
+          this.setGlobalStylesForUser(user);
+          return user;
+        }),
+
+      )
+
+    /*let getInfo = (token = null)=>{
       const auth = token || this.getToken();
       if(token){
         this.storeToken(token['access_token']);
@@ -171,7 +196,7 @@ export class AuthService implements OnDestroy {
           )
     }
 
-    return getInfo(token).pipe(tap(this.setGlobalStylesForUser));
+    return getInfo(token).pipe(tap(this.setGlobalStylesForUser));*/
   }
 
   userGlobalStyle?:HTMLStyleElement

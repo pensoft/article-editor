@@ -65,16 +65,23 @@ export class NotificationsService {
     private http: HttpClient,
     private readonly echoService: EchoService,
   ) {
-    ServiceShare.AuthService.getUserInfo().subscribe((user)=>{
+    ServiceShare.AuthService.currentUser$.subscribe((user)=>{
+
       const token = ServiceShare.AuthService.getToken();
       this.echoService.echo.connector.options.auth.headers['Authorization'] = 'Bearer ' + token;
-      this.echoService.join(`task_manager:private-tasks.${user.data.id}`, 'public')
-        .listen(`task_manager:private-tasks.${user.data.id}`, '.TaskCreatedEvent')
-        .subscribe(data => { this.handleTaskUpdatesEvents(data) })
+      if(user) {
+        this.echoService.join(`task_manager:private-tasks.${user.id}`, 'public')
+          .listen(`task_manager:private-tasks.${user.id}`, '.TaskCreatedEvent')
+          .subscribe(data => {
+            this.handleTaskUpdatesEvents(data)
+          })
 
-      this.echoService.join(`task_manager:private-tasks.${user.data.id}`, 'public')
-        .listen(`task_manager:private-tasks.${user.data.id}`, '.TaskUpdateEvent')
-        .subscribe(data => { this.handleTaskUpdatesEvents(data) })
+        this.echoService.join(`task_manager:private-tasks.${user.id}`, 'public')
+          .listen(`task_manager:private-tasks.${user.id}`, '.TaskUpdateEvent')
+          .subscribe(data => {
+            this.handleTaskUpdatesEvents(data)
+          })
+      }
     })
     ServiceShare.shareSelf('NotificationsService', this)
   }

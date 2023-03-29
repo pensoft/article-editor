@@ -292,14 +292,14 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
         return params.get('id')
       }))
       .subscribe((roomName) => {
-        this.authService.getUserInfo().subscribe((userInfo) => {
+        this.authService.currentUser$.subscribe((userInfo) => {
           this.roomName = roomName;
           let commentId = window.location.href.split(roomName)[1].replace('#', '');
           if (commentId && commentId.length > 0) {
             this.commentService.shouldScrollComment = true;
             this.commentService.markIdOfScrollComment = commentId;
           }
-          this.ydocService.init(roomName!, userInfo, articleData);
+          this.ydocService.init(roomName!, {data: userInfo}, articleData);
 
         });
       });

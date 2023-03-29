@@ -19,7 +19,7 @@ import { environment } from '@env';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class LoginComponent implements OnInit {
   version = environment.VERSION;
   build_number = environment.BUILD_NUMBER;
 
@@ -32,7 +32,6 @@ export class LoginComponent implements OnInit, OnDestroy {
   hasError!: boolean;
   returnUrl!: string;
   isLoading$: Observable<boolean> = this._broadcaster.listen(CONSTANTS.SHOW_LOADER);
-  private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
 
   @ViewChild('errorContainer') errorContainer;
   errorText = '';
@@ -123,14 +122,14 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   signIn() {
-    //this.serviceShare.ProsemirrorEditorsService.spinSpinner();
+    this.serviceShare.ProsemirrorEditorsService.spinSpinner();
     console.log('CLICK');
     lpClient.signIn().then(async signInResult => {
       console.log('CLICK Result', signInResult)
       if (signInResult) {
         const token: string = await lpClient.getToken();
         this.authService.storeToken(token);
-        const loginSubscr = this.authService.getUserInfo().pipe(take(1))
+        const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
           .subscribe((user: UserModel | undefined) => {
             if (user) {
               setTimeout(()=>{
@@ -141,7 +140,6 @@ export class LoginComponent implements OnInit, OnDestroy {
               this.hasError = true;
             }
           });
-        this.unsubscribe.push(loginSubscr);
       }
     }).catch(err => {console.error(err)});
   }
@@ -165,7 +163,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       if (signInResult) {
         const token: string = await ssoClient.getToken();
         this.authService.storeToken(token);
-        const loginSubscr = this.authService.getUserInfo().pipe(take(1))
+        const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
           .subscribe((user: UserModel | undefined) => {
             if (user) {
               setTimeout(()=>{
@@ -176,7 +174,6 @@ export class LoginComponent implements OnInit, OnDestroy {
               this.hasError = true;
             }
           });
-        this.unsubscribe.push(loginSubscr);
       }
     }).catch(err => {console.error(err)});
   }
@@ -205,15 +202,10 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.hasError = true;
           }
         });
-      this.unsubscribe.push(loginSubscr);
     }
   }
 
   goToRegister() {
     window.location.href = `${environment.authServer}/register?return_uri=${encodeURIComponent(window.location.href)}`
-  }
-
-  ngOnDestroy() {
-    this.unsubscribe.forEach((sb) => sb.unsubscribe());
   }
 }

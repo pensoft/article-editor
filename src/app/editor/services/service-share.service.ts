@@ -138,14 +138,14 @@ export class ServiceShare {
         if(!result) return ;
 
         let userData;
-        this.AuthService.getUserInfo()
+        this.AuthService.currentUser$
         .pipe(mergeMap(data => {
-          userData = data;
+          userData = { data };
 
           return this.ArticleSectionsService.getLayoutById(result);
-        })).subscribe((articleData: any)=>{          
+        })).subscribe((articleData: any)=>{
           let selectedLayout = articleData.data.template;
-          
+
           let articleStructure: articleSection[] = []
           this.ArticlesService!.createArticle('Untitled',+result).pipe(catchError(() => {
             createDemoTemplate.data.uuid = uuidv4();

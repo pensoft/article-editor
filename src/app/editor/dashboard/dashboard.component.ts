@@ -90,10 +90,10 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
     this.filteredAutocompleteTemplates = this.templateType
       .valueChanges
       .pipe(
-        map(value => 
-          value.length > 0 || this.canShowTemplateTypes ? 
-          this.articleLayouts.filter(type => type.name.toLowerCase().includes(value.toLowerCase())) 
-          : 
+        map(value =>
+          value.length > 0 || this.canShowTemplateTypes ?
+          this.articleLayouts.filter(type => type.name.toLowerCase().includes(value.toLowerCase()))
+          :
           this.articleLayouts
           )
         )
@@ -134,7 +134,6 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
           }
           return this.articlesService.getAllArticles(params).pipe(catchError(() => new Observable(undefined)))
           //}
-          return 'sd'
         }),
         map((data: any) => {
           this.isLoadingResults = false;
@@ -247,7 +246,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
 
   // filterByType(input: HTMLInputElement) {
   //   if(input.value) {
-  //     this.selectedType = this.articleLayouts.find(type => type.name.includes(input.value))?.id || -1;    
+  //     this.selectedType = this.articleLayouts.find(type => type.name.includes(input.value))?.id || -1;
   //     this.typeChange.next('typechange');
   //   } else {
   //     this.selectedType = -1;
@@ -274,9 +273,9 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
     this.serviceShare.createNewArticle();
   }
 
-  editArticle(articleData: any) {    
+  editArticle(articleData: any) {
     this.serviceShare.resetServicesData();
-    this.articleSectionsService.getArticleById(articleData.id).subscribe((res: any) => {      
+    this.articleSectionsService.getArticleById(articleData.id).subscribe((res: any) => {
       this.ydocService.setArticleData(res.data);
       this.router.navigate([articleData.uuid])
     })
