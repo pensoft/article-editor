@@ -16,7 +16,8 @@ export interface notificationEvent {
   new: boolean,
   link?: string,
   metaData?:any,
-  error?: string
+  error?: string,
+  data?: any
 }
 
 @Injectable({
@@ -97,9 +98,10 @@ export class NotificationsService {
         let event = task.type;
         let status = task.status;
         let eventId = task.task_id;
+        const data =  task.data?.data || null;
         let isNew = !oldNotifictions.includes(event.eventId)
         let notification: notificationEvent = {
-          date, event, status, eventId, new: isNew
+          date, event, status, eventId, new: isNew, data
         }
         if (task.type == 'pdf.export' && task.status == 'DONE') {
           notification.link = task.data.data ? task.data.data.url : task.data.url;
@@ -120,6 +122,7 @@ export class NotificationsService {
       let isNew = !this.getOldNotificationsIds().includes(eventData.task.task_id)
       let task: notificationEvent = {
         event: eventData.task.type,
+        data: eventData.task.data?.data || null,
         date: date.getTime(),
         eventId: eventData.task.task_id,
         status: eventData.task.status,
