@@ -138,7 +138,7 @@ export class TrackChangesService {
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
             domTop: domCoords.top - articleElementRactangle.top - articlePosOffset,
-            changeTxt: node.textContent,
+            changeTxt: this.getallChangeOccurrences(actualMark.attrs.id, parent),
             changeAttrs: actualMark.attrs,
             type:actualMark.type.name,
             selected: markIsLastSelected,
@@ -146,6 +146,20 @@ export class TrackChangesService {
         }
       }
     })
+  }
+
+  getallChangeOccurrences(id: string, parent: Node) {
+    let nodeSize = parent.content.size;
+    let textContent = '';
+
+    parent.nodesBetween(0, nodeSize, (node: Node) => {
+      const actualMark = node.marks.find(mark => changesMarksNames.includes(mark.type.name));
+      if(actualMark && actualMark.attrs.id == id) {
+        textContent += node.textContent;
+      }
+    })
+
+    return textContent;
   }
 
   updateTimestamp
@@ -185,9 +199,9 @@ export class TrackChangesService {
   }
 
   setLastSelectedChange = (pos?: number, sectionId?: string, changeMarkIdPrim?: string,focus?:true) => {
-    if (!this.sameAsLastSelectedChange(pos, sectionId, changeMarkIdPrim)||focus) {
+    // if (!this.sameAsLastSelectedChange(pos, sectionId, changeMarkIdPrim)||focus) {
       this.lastSelectedChangeSubject.next({ pmDocStartPos:pos, section:sectionId, changeMarkId:changeMarkIdPrim })
-    }
+    // }
   }
 
   constructor(
@@ -545,7 +559,7 @@ export class TrackChangesService {
               }
             } */
           }
-          if (!selectedAChange && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() ) {
+          if (!selectedAChange && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() && lastChangeSelected.changeMarkId) {
             setLastSelectedChange(undefined, undefined, undefined, undefined)
           }
           if (!(newState.selection instanceof AllSelection) /* && view.hasFocus() && tr.steps.length > 0 */) {

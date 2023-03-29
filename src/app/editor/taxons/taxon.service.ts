@@ -75,11 +75,21 @@ export class TaxonService implements OnDestroy {
     let taxonInSel = false;
     let taxonMark:Mark
     let markPos:number
+    let hasOtherMark = false;
     view.state.doc.nodesBetween(from, to, (node, pos, parent, i) => {
+      if(node &&
+        node.marks && 
+        node.marks.find((mark) => mark.type.name == 'comment' || 
+        mark.type.name == 'insertion' || 
+        mark.type.name == 'deletion')
+      ) {
+        hasOtherMark = true;
+      } 
       if (
         node.marks &&
         node.marks.length > 0 &&
-        node.marks.some((mark) => mark.type.name == 'taxon')
+        node.marks.some((mark) => mark.type.name == 'taxon') &&
+        !hasOtherMark
       ) {
         taxonInSel = true;
         taxonMark = node.marks.find((mark) => mark.type.name == 'taxon')
@@ -109,7 +119,7 @@ export class TaxonService implements OnDestroy {
       }
       }
     }
-    if(taxonInSel && taxonMark && ( taxonMark.attrs.removedtaxon == 'false' || taxonMark.attrs.removedtaxon == false) && view.hasFocus()){
+    if(taxonInSel && taxonMark && !hasOtherMark && ( taxonMark.attrs.removedtaxon == 'false' || taxonMark.attrs.removedtaxon == false) && view.hasFocus()){
       this.taxonMarkInSelection(taxonMark,markPos,sectionId)
     }else if(taxonInSel && taxonMark && ( taxonMark.attrs.removedtaxon == true || taxonMark.attrs.removedtaxon == 'true') && view.hasFocus()){
       taxonInSel = false;
@@ -465,7 +475,7 @@ export class TaxonService implements OnDestroy {
             pmDocStartPos: pos,
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
-            taxonTxt: node.textContent,
+            taxonTxt: this.getallTaxonOccurrences(actualMark.attrs.taxmarkid, parent),
             domTop: domCoords.top - articleElementRactangle.top - articlePosOffset - 45,
             taxonAttrs: actualMark.attrs,
             selected: markIsLastSelected,
@@ -473,6 +483,20 @@ export class TaxonService implements OnDestroy {
         }
       }
     })
+  }
+
+  getallTaxonOccurrences(taxonId: string, parent: Node) {
+    let nodeSize = parent.content.size;
+    let textContent = '';
+
+    parent.nodesBetween(0, nodeSize, (node: Node) => {
+      const actualMark = node.marks.find(mark => mark.type.name === "taxon");
+      if(actualMark && actualMark.attrs.taxmarkid == taxonId) {
+        textContent += node.textContent;
+      }
+    })
+
+    return textContent;
   }
 
   sameAsLastSelectedTaxonMark = (pos?:number,sectionId?: string, taxonMarkId?: string ) => {

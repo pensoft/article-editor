@@ -44,9 +44,8 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
   refreshSubject = new Subject();
   onRender = true;
   filteredAutocompleteTemplates: Observable<any[]>;
-  canShowTemplateTypes = false;
 
-  templateType = new FormControl("");
+  templateTypeControl = new FormControl("");
 
   @ViewChild(MatPaginator) paginator?: MatPaginator;
   @ViewChild(MatSort) sort?: MatSort;
@@ -76,7 +75,8 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
     let articlesDataFromResolver = this.route.snapshot.data['product'];
 
     this.articleSectionsService.getAllLayouts().subscribe((articleLayouts: any) => {
-      this.articleLayouts = [ { name: 'None', id: -1 }, ...articleLayouts.data]
+      // this.articleLayouts = [ { name: 'None', id: -1 }, ...articleLayouts.data]
+      this.articleLayouts = articleLayouts.data;
     })
     // If the user changes the sort order, reset back to the first page.
     this.sort!.sortChange.subscribe(() => {
@@ -87,11 +87,11 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
       this.paginator!.pageIndex = 0;
     })
 
-    this.filteredAutocompleteTemplates = this.templateType
+    this.filteredAutocompleteTemplates = this.templateTypeControl
       .valueChanges
       .pipe(
         map(value =>
-          value.length > 0 || this.canShowTemplateTypes ?
+          value.length > 0 ?
           this.articleLayouts.filter(type => type.name.toLowerCase().includes(value.toLowerCase()))
           :
           this.articleLayouts
@@ -122,7 +122,7 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
             params['filter[name]'] = this.searchValue
           }
           if(this.selectedType != -1) {
-              params['filter[layout_id]'] = this.selectedType;
+            params['filter[layout_id]'] = this.selectedType;
           }
           this.isLoadingResults = true;
           /* if(this.allArticlesData){
@@ -260,8 +260,17 @@ export class DashboardComponent implements AfterViewInit, AfterViewChecked {
       if(this.selectedType) {
         this.typeChange.next('typechange')
       }
-    } else if(event.target.tagName !== "MAT-ICON" && !event.target.className.includes("mat-form-field-infix") && input.value == '' && !event.key){
+    } else if(event.target.tagName !== "MAT-ICON" && !(event.target.classname && event.target.className.includes("mat-form-field-infix")) && input.value == '' && !event.key){
       (document.getElementsByClassName('width-select')[0] as HTMLElement).style.width = "125px"
+    }
+  }
+
+  removeTypeInputText(input: HTMLInputElement) {
+    this.templateTypeControl.setValue('');
+
+    if(this.selectedType !== -1) {
+      this.selectedType = -1;
+      this.typeChange.next('typechange');
     }
   }
 

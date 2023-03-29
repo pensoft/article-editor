@@ -1,13 +1,13 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { UserModel } from '@core/models/user.model';
 import { AuthService } from '@core/services/auth.service';
 import { BroadcasterService } from '@core/services/broadcaster.service';
 import { CONSTANTS } from '@core/services/constants';
 import { FormioBaseService } from '@core/services/formio-base.service';
 import { Observable, Subscription } from 'rxjs';
-import { first, take } from 'rxjs/operators';
+import { filter, first, take } from 'rxjs/operators';
 import { uuidv4 } from "lib0/random";
 import { lpClient, ssoClient } from "@core/services/oauth-client";
 import { ServiceShare } from '@app/editor/services/service-share.service';
@@ -36,6 +36,7 @@ export class LoginComponent implements OnInit {
   @ViewChild('errorContainer') errorContainer;
   errorText = '';
   passwordIsVisible = false;
+  previousUrl = '';
 
   constructor(
     private fb: FormBuilder,
@@ -46,6 +47,9 @@ export class LoginComponent implements OnInit {
     public formioBaseService: FormioBaseService,
     private serviceShare: ServiceShare
   ) {
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
+      this.previousUrl = event.url;
+    });
   }
 
   get f() {
@@ -88,7 +92,9 @@ export class LoginComponent implements OnInit {
       .subscribe((user: UserModel) => {
         if (user) {
           setTimeout(()=>{
-            this.router.navigate(['dashboard']);
+            // this.router.navigate(['dashboard']);
+            const previousUrl = this.router.routerState.snapshot.root.queryParams['previousUrl'] || '/';
+            this.router.navigateByUrl(previousUrl);
             this.serviceShare.ProsemirrorEditorsService.stopSpinner()
 
           },2000)

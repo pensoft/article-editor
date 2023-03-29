@@ -58,6 +58,7 @@ export const marks: MarkSpec = {
         },
         parseDOM: [{ tag: "sup" }]
     },
+    taxon,
     comment,
     ...trackChangesMarks,
     delFromPopup,
@@ -66,7 +67,6 @@ export const marks: MarkSpec = {
     end_note_citation,
     citation,
     supplementary_file_citation,
-    taxon,
     ...basicmarks,
     invalid: {
         parseDOM: [
