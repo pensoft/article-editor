@@ -29,7 +29,7 @@ export class CasbinGuard implements CanActivate {
       return from(new Promise<boolean>((resolve, reject) => {
         let articleId = route.params.id;
         let userData
-        this.authService.currentUser$.subscribe({next:(data)=>{
+        this.sharedService.AuthService.currentUser$.subscribe({next:(data)=>{
           userData = data
           let articleByIdRequest = this.sharedService.ArticlesService?.getArticleByUuid(articleId).pipe(shareReplay());
           articleByIdRequest.subscribe((res: any) => {
