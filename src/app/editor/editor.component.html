@@ -98,7 +98,17 @@
     <mat-icon>account_tree</mat-icon>
     </button>
     </div> -->
-    <div class="left-column-placeholder"></div>
+    <div class="left-column-placeholder">
+      <div class="template-name-placeholder">
+        <span class="template-label">Template</span>
+        <div class="template-name">
+          <span>{{articleTemplate}}</span>
+          <div class="template-img-placeholder">
+            <img class="template-img" alt="undo-icon" src="./assets/icons/undo.svg" />
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="prosemirror_menu_container">
       <app-editor-menu [ngStyle]="{'display':(userAccess == 'Commenter'||userAccess == 'Viewer')?'none':'block'}">

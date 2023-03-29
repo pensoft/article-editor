@@ -5,8 +5,9 @@
 @import "../node_modules/prosemirror-view/style/prosemirror.css";
 @import './src/assets/colors';
 
-citation {
-  background: #b2f0f0;
+citation[nonexistingelement="false"] {
+  background: #b2f0f0 !important;
+  color: #000 !important;
   white-space: pre;
   caret-color: transparent;
 }
@@ -51,8 +52,9 @@ app-main {
   }
 }
 
-end-note-citation {
-  background: #b2f0f0;
+end-note-citation[nonexistingelement="false"] {
+  background: #b2f0f0 !important;
+  color: #000 !important;
   white-space: pre;
   font-size: 0.85em !important;
   vertical-align: super;
@@ -97,14 +99,16 @@ table-content {
   display: block;
 }
 
-table-citation {
-  background: #b2f0f0;
+table-citation[nonexistingelement="false"] {
+  background: #b2f0f0 !important;
+  color: #000 !important;
   white-space: pre;
   caret-color: transparent;
 }
 
-supplementary-file-citation {
-  background: #b2f0f0;
+supplementary-file-citation[nonexistingelement="false"] {
+  background: #b2f0f0 !important;
+  color: #000 !important;
   white-space: pre;
   caret-color: transparent;
 }
@@ -152,6 +156,8 @@ app-figures-prosemirror-view.not-empty {
   display: block;
   margin-top: 24px;
 }
+
+
 
 .show-article-data {
   width: 90% !important;
@@ -314,6 +320,10 @@ supplementary-file-brief-description,end-note{
 .ins-from-popup {
   color: color(attr(usercontrastcolor));
   background: color(attr(usercolor));
+
+  >.taxon {
+    background-color: transparent !important;
+  }
 }
 
 .form-field-inline-view {
@@ -416,13 +426,17 @@ end-note-citation:hover {
   cursor: pointer;
 }
 
-.ProseMirror  {
-  p[contenteditablenode="false"]:hover {
-    cursor: default;
-  }
+.ProseMirror *[contenteditablenode="false"]:not(figure-components-container, figure-component) {
+  caret-color: transparent;
 
-  p[contenteditablenode="false"] {
-    caret-color: transparent;
+  &:hover:not(
+    supplementary-file-citation,
+    table-citation,
+    reference-citation,
+    citation,
+    end-note-citation
+    ) {
+    cursor: default;
   }
 }
 
@@ -597,6 +611,10 @@ img[ychange_type="removed"] {
   color: black;
   background-color: #ffd0d0;
   text-decoration: line-through black;
+
+  >.taxon {
+    background-color: transparent !important;
+  }
 }
 
 /* .del-from-popup{
@@ -1019,6 +1037,10 @@ span.taxon[removedtaxon="false"]{
   .active-comment {
     background-color: gold;
     /* color: black; */
+  }
+
+  >.taxon {
+    background-color: transparent !important;
   }
 }
 

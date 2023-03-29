@@ -1,13 +1,13 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { UserModel } from '@core/models/user.model';
 import { AuthService } from '@core/services/auth.service';
 import { BroadcasterService } from '@core/services/broadcaster.service';
 import { CONSTANTS } from '@core/services/constants';
 import { FormioBaseService } from '@core/services/formio-base.service';
 import { Observable, Subscription } from 'rxjs';
-import { first, take } from 'rxjs/operators';
+import { filter, first, take } from 'rxjs/operators';
 import { uuidv4 } from "lib0/random";
 import { lpClient, ssoClient } from "@core/services/oauth-client";
 import { ServiceShare } from '@app/editor/services/service-share.service';
@@ -37,6 +37,7 @@ export class LoginComponent implements OnInit, OnDestroy {
   @ViewChild('errorContainer') errorContainer;
   errorText = '';
   passwordIsVisible = false;
+  previousUrl = '';
 
   constructor(
     private fb: FormBuilder,
@@ -47,6 +48,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     public formioBaseService: FormioBaseService,
     private serviceShare: ServiceShare
   ) {
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
+      this.previousUrl = event.url;
+    });
   }
 
   get f() {
@@ -89,7 +93,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       .subscribe((user: UserModel) => {
         if (user) {
           setTimeout(()=>{
-            this.router.navigate(['dashboard']);
+            // this.router.navigate(['dashboard']);
+            const previousUrl = this.router.routerState.snapshot.root.queryParams['previousUrl'] || '/';
+            this.router.navigateByUrl(previousUrl);
             this.serviceShare.ProsemirrorEditorsService.stopSpinner()
 
           },2000)
@@ -122,13 +128,14 @@ export class LoginComponent implements OnInit, OnDestroy {
     },3000);
   }
 
-  /*signIn() {
-    this.serviceShare.ProsemirrorEditorsService.spinSpinner();
-
+  signIn() {
+    //this.serviceShare.ProsemirrorEditorsService.spinSpinner();
+    console.log('CLICK');
     lpClient.signIn().then(async signInResult => {
+      console.log('CLICK Result', signInResult)
       if (signInResult) {
         const token: string = await lpClient.getToken();
-        this.authService.storeToken('token', token);
+        this.authService.storeToken(token);
         const loginSubscr = this.authService.getUserInfo().pipe(take(1))
           .subscribe((user: UserModel | undefined) => {
             if (user) {
@@ -143,19 +150,44 @@ export class LoginComponent implements OnInit, OnDestroy {
         this.unsubscribe.push(loginSubscr);
       }
     }).catch(err => {console.error(err)});
-  }*/
+  }
 
-  async signIn() {
+  /*async signIn() {
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
     try {
+      console.log('START SIGNING');
       const signInResult = await lpClient.signIn();
+      console.log('signInResult', signInResult);
       await this.processSigninResult(signInResult);
     } catch (e) {
       console.error(e);
     }
+  }*/
+
+  orcidSignIn() {
+    this.serviceShare.ProsemirrorEditorsService.spinSpinner();
+
+    lpClient.signIn().then(async signInResult => {
+      if (signInResult) {
+        const token: string = await ssoClient.getToken();
+        this.authService.storeToken(token);
+        const loginSubscr = this.authService.getUserInfo().pipe(take(1))
+          .subscribe((user: UserModel | undefined) => {
+            if (user) {
+              setTimeout(()=>{
+                this.router.navigate(['/dashboard']);
+              },2000)
+              this.formioBaseService.login();
+            } else {
+              this.hasError = true;
+            }
+          });
+        this.unsubscribe.push(loginSubscr);
+      }
+    }).catch(err => {console.error(err)});
   }
 
-  async orcidSignIn() {
+  /*async orcidSignIn() {
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
     try {
       const signInResult = await ssoClient.signIn();
@@ -163,12 +195,13 @@ export class LoginComponent implements OnInit, OnDestroy {
     } catch (e) {
       console.error(e);
     }
-  }
+  }*/
 
   async processSigninResult(signInResult){
     if(signInResult){
       const token = await lpClient.getToken();
-      this.authService.storeToken('token', token);
+      console.log('token', token);
+      this.authService.storeToken(token);
       const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
         .subscribe((user: UserModel | undefined) => {
           if (user) {

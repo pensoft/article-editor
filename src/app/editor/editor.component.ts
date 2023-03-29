@@ -5,6 +5,7 @@ import {
   Component,
   ElementRef,
   HostListener,
+  OnDestroy,
   OnInit,
   ViewChild,
 } from '@angular/core';
@@ -25,7 +26,7 @@ import {uuidv4} from 'lib0/random';
 import {
   CitableElementsContextMenuService
 } from './utils/citable-elements-context-menu/citable-elements-context-menu.service';
-import {Subject} from 'rxjs';
+import {Subject, Subscription} from 'rxjs';
 import {
   debounceTime,
   distinctUntilChanged,
@@ -61,7 +62,7 @@ import {TaxonService} from './taxons/taxon.service';
   styleUrls: ['./editor.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked {
+export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked, OnDestroy {
   articleSectionsStructure?: articleSection[];
 
   ydoc?: Y.Doc;
@@ -70,6 +71,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
   roomName?: string | null;
   shouldTrackChanges?: boolean;
   active = 'editor';
+  articleTemplate: string;
 
   titleControl = new FormControl();
 
@@ -87,6 +89,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
   innerWidth: any;
   trackChangesData?: any;
   usersInArticle: any[] = []
+  subscription = new Subscription();
 
   canCreateTag = false;
 
@@ -154,11 +157,10 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
     this.OnOffTrackingChangesShowTrackingSubject =
       prosemirrorEditorServie.OnOffTrackingChangesShowTrackingSubject;
 
-    this.serviceShare.TrackChangesService.lastSelectedChangeSubject.subscribe((data) => {
-
+    this.serviceShare.TrackChangesService.lastSelectedChangeSubject.pipe(debounceTime(200)).subscribe((data) => {
       if (!data.changeMarkId || !data.pmDocStartPos || !data.section) return;
-      let {from, to} = this.prosemirrorEditorServie.editorContainers[data.section].editorView.state.selection
-      if (from != to || data.section != this.serviceShare.DetectFocusService.sectionName) return;
+      // let {from, to} = this.prosemirrorEditorServie.editorContainers[data.section].editorView.state.selection
+      if (data.section != this.serviceShare.DetectFocusService.sectionName) return;
       if (!this.sidebarDrawer?.opened) {
         this.sidebarDrawer?.toggle();
       }
@@ -170,7 +172,9 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
       }
     })
 
-    this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject.subscribe((data) => {
+    this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject
+    .pipe(debounceTime(200))
+    .subscribe((data) => {
       if (!data.pos || !data.sectionId || !data.taxonMarkId) return;
       let {from, to} = this.prosemirrorEditorServie.editorContainers[data.sectionId].editorView.state.selection
       if (from != to || data.sectionId != this.serviceShare.DetectFocusService.sectionName) return;
@@ -185,7 +189,9 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
       }
     })
 
-    this.serviceShare.CommentsService.lastSelectedCommentSubject.subscribe((data) => {
+    this.serviceShare.CommentsService.lastSelectedCommentSubject
+    .pipe(debounceTime(200))
+    .subscribe((data) => {
       if (!data.commentId || !data.commentMarkId || !data.pos || !data.sectionId) return;
       // let {from, to} = this.prosemirrorEditorServie.editorContainers[data.sectionId].editorView.state.selection
       if (data.sectionId != this.serviceShare.DetectFocusService.sectionName) return;
@@ -199,15 +205,19 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
         }, 20)
       }
     })
+    
 
-    this.commentService.addCommentSubject.subscribe((data) => {
-      if (data.type == 'commentData') {
+    this.subscription.add(this.commentService.addCommentSubject.subscribe((data) => {
+      if (data.type == 'commentData' && this.sidebar !== 'comments' && data.showBox) {
         if (!this.sidebarDrawer?.opened) {
           this.sidebarDrawer?.toggle();
         }
         this.sidebar = 'comments';
+        setTimeout(() => {
+          this.commentService.addCommentSubject.next(data);
+        }, 20);
       }
-    });
+    }));
 
     let initArtcleStructureMap = () => {
       let hideshowDataInit = this.ydocService.trackChangesMetadata!.get(
@@ -341,6 +351,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
         } else {
           this.titleControl.setValue(this.ydocService.articleData.name);
         }
+        this.articleTemplate = this.ydocService.articleData.layout.name;
       }
     });
 
@@ -418,5 +429,9 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked 
   }
 
   submit() {
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 }

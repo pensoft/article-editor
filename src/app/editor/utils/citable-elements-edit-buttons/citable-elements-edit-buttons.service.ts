@@ -222,30 +222,28 @@ export class CitableElementsEditButtonsService {
             }
           }
         },
-        handleClickOn (view: EditorView, pos: number, node: Node) {
+        handleClickOn (view: EditorView, pos: number, node: Node,_,event) {
           const { state } = view;
           const { schema } = state;
 
-          if (node.type === schema.nodes.figure_component) {            
-              const $pos = state.doc.resolve(pos);              
-              
-              const selection = TextSelection.create(state.doc, $pos.before());
-              
+          if (node.type === schema.nodes.figure_component) {                   
+              const $pos = state.doc.resolve(pos);           
+              const selection = TextSelection.create(view.state.doc, $pos.before());
               view.dispatch(state.tr.setSelection(selection));
               return true;
+          } else if(node.type.name == "figure_block" || node.type.name == "figure_components_container") {
+            return true;
           }
-
-          return false;
         },
         decorations:(state: EditorState) => {
           let pluginState = this.citableElementsEditButtonsPluginKey.getState(state);
           let focusedEditor = serviceShare.DetectFocusService.sectionName
           let currentEditor = pluginState.sectionName
           let {from,to,$from} = state.selection;
-          let { parent, parentOffset } = state.doc.resolve(state.selection.$anchor.pos);
-          let { node } = parent.childAfter(parentOffset);
+          let $pos = state.doc.resolve(state.selection.$anchor.pos);
+          let { node } = $pos.parent.childAfter($pos.parentOffset);
           
-          if((parent && parent.type.name == "reference_citation") || 
+          if((parent && $pos.parent.type.name == "reference_citation") || 
              (node && node.marks?.find((mark => this.citationElementsNodeNames.includes(mark.type?.name))))) {
               return DecorationSet.empty;
           } 
@@ -316,7 +314,11 @@ export class CitableElementsEditButtonsService {
                 }
               })
             },
-          })
+          })          
+          
+          if($pos.parent && $pos.parent.type.name == "figure_component") {
+            from = $pos.before();
+          }
 
           let view = serviceShare.ProsemirrorEditorsService.editorContainers[currentEditor].editorView
           let coordsInCursorPos = view.coordsAtPos(from);

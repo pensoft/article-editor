@@ -1,5 +1,5 @@
 import { D, E } from '@angular/cdk/keycodes';
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnInit, Output, ViewChild } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
 import { DateSelectionModelChange } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import { uuidv4 } from 'lib0/random';
@@ -12,7 +12,7 @@ import { YdocService } from '../../services/ydoc.service';
 import { AuthService } from "@core/services/auth.service";
 import { commentData, commentYdocSave, ydocComment } from '@app/editor/utils/commentsService/comments.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { TextSelection } from 'prosemirror-state';
 import { FormControl } from '@angular/forms';
 import { fakeUser } from '@app/core/services/comments/comments-interceptor.service';
@@ -34,7 +34,7 @@ export function getDate(date: number) {
   templateUrl: './comment.component.html',
   styleUrls: ['./comment.component.scss']
 })
-export class CommentComponent implements OnInit, AfterViewInit {
+export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
 
   @Input() comment?: commentData;
 
@@ -56,6 +56,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
   userComment?: commentYdocSave;
   mobileVersion: boolean
   filteredUsers:fakeUser[]
+  subscription = new Subscription();
 
   replyFormControl = new FormControl('');
   showAutoComplete =  false;
@@ -78,12 +79,12 @@ export class CommentComponent implements OnInit, AfterViewInit {
     if (this.ydocService.editorIsBuild) {
       this.commentsMap = this.ydocService.getCommentsMap()
     }
-    this.ydocService.ydocStateObservable.subscribe((event) => {
+    this.subscription.add(this.ydocService.ydocStateObservable.subscribe((event) => {
       if (event == 'docIsBuild') {
         this.commentsMap = this.ydocService.getCommentsMap()
 
       }
-    });
+    }));
     this.mobileVersion = prosemirrorEditorService.mobileVersion
   }
 
@@ -91,15 +92,14 @@ export class CommentComponent implements OnInit, AfterViewInit {
 
   ngOnInit(): void {
     this.userComment = this.commentsMap?.get(this.comment!.commentAttrs.id) || { initialComment: undefined, commentReplies: undefined };
-    this.authService.getUserInfo().subscribe((userInfo)=>{
+    this.subscription.add(this.authService.getUserInfo().subscribe((userInfo)=>{
       //@ts-ignore
       this.currUserId = userInfo.data.id
-    })
-    this.prosemirrorEditorService.mobileVersionSubject.subscribe((data) => {
+    }))
+    this.subscription.add(this.prosemirrorEditorService.mobileVersionSubject.subscribe((data) => {
       // data == true => mobule version
       this.mobileVersion = data
-    })
-
+    }))
   }
 
   commentIsChangedInYdoc() {
@@ -146,14 +146,14 @@ export class CommentComponent implements OnInit, AfterViewInit {
     setTimeout(() => {
       this.doneRenderingCommentsSubject.next('rendered')
     }, 10)
-    this.sharedService.CommentsService.ydocCommentsChangeSubject.subscribe((commentsObj) => {
+    this.subscription.add(this.sharedService.CommentsService.ydocCommentsChangeSubject.subscribe((commentsObj) => {
       let ydocCommentInstance = commentsObj[this.comment.commentAttrs.id]
       this.checkIfCommentHasChanged(ydocCommentInstance)
-    })
+    }))
     this.userComment?.commentReplies.forEach((comment, index) => {
       this.repliesShowMore[index] = false
     })
-    this.sharedService.CommentsService.lastSelectedCommentSubject.subscribe((comment) => {
+    this.subscription.add(this.sharedService.CommentsService.lastSelectedCommentSubject.subscribe((comment) => {
       if(this.ydocService.curUserAccess&&this.ydocService.curUserAccess=='Viewer'){
         return
       }
@@ -164,8 +164,7 @@ export class CommentComponent implements OnInit, AfterViewInit {
         (this.ReplyDiv.nativeElement as HTMLDivElement).style.display = 'none'
         this.selected.emit(false);
       }
-    })
-
+    }))
   }
 
   selectComment() {
@@ -189,18 +188,58 @@ export class CommentComponent implements OnInit, AfterViewInit {
     }
   }
 
-  onDelete() {
-    let from = this.comment?.pmDocStartPos;
-    let to = this.comment?.pmDocEndPos;
-    let viewRef = this.sharedService.ProsemirrorEditorsService.editorContainers[this.comment.section].editorView
-    let state = viewRef.state
-    let commentsMark = state?.schema.marks.comment
+  onDelete(view: EditorView, commentId: string, isFirstTime?: boolean) {
+    let state = view.state;
+    let commentsMark = state?.schema.marks.comment;
+    let docSize = state.doc.content.size;
+    let textstart: any;
+    let textend: any;
+    let commentFound = false;
 
-    viewRef.dispatch(state?.tr.removeMark(from!, to!, commentsMark)!)
-    this.commentsMap?.delete(this.comment?.commentAttrs.id)
+    state.doc.nodesBetween(0, docSize - 2, (node, pos, parent) => {
+      let mark = node.marks.find(mark => mark.attrs.id == commentId);
+     
+      if (mark) {
+        textstart = pos;
+        textend = pos + node.nodeSize;
+        commentFound = true;
+      }
+    })
+
+    if (commentFound) {
+      view.dispatch(state?.tr.removeMark(textstart, textend, commentsMark));
+
+      let resolvedPosAtStart = view.state.doc.resolve(textstart);
+      let resolvedPosAtEnd = view.state.doc.resolve(textend);
+  
+      let nodeBefore = resolvedPosAtStart.nodeBefore;
+      let nodeAfter = resolvedPosAtEnd.nodeAfter;
+
+      if (nodeBefore) {
+        let markConn = nodeBefore.marks.find(mark => mark.attrs.id == commentId)
+        if (markConn) {
+          setTimeout(()=> {
+            this.onDelete(view, commentId);
+          }, 0)
+        }
+      }
+      if (nodeAfter) {
+        let markConn = nodeAfter.marks.filter(mark => mark.attrs.id == commentId)[0]
+        if (markConn) {
+          setTimeout(()=> {
+            this.onDelete(view, commentId);
+          }, 0)
+        }
+      }
+      if(isFirstTime) {
+        this.commentsMap?.delete(this.comment?.commentAttrs.id);
+      }
+    }
+    
   }
 
   deleteComment(showConfirmDialog, comment) {
+    let viewRef = this.sharedService.ProsemirrorEditorsService.editorContainers[this.comment.section].editorView
     if (showConfirmDialog) {
       let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
         data: { objName: comment, type: 'comment' },
@@ -208,12 +247,12 @@ export class CommentComponent implements OnInit, AfterViewInit {
       })
       dialogRef.afterClosed().subscribe((data: any) => {
         if (data) {
-          this.onDelete()
+          this.onDelete(viewRef, this.comment.commentAttrs.id, true);
         }
       })
       return;
     }
-    this.onDelete()
+    this.onDelete(viewRef, this.comment.commentAttrs.id, true)
   }
 
   deleteReply(id: string, reply: string) {
@@ -338,5 +377,9 @@ export class CommentComponent implements OnInit, AfterViewInit {
     setTimeout(()=>{
       this.doneRenderingCommentsSubject.next('replay_rerender')
     },400)
+  }
+
+  ngOnDestroy(): void {
+    this.subscription.unsubscribe();
   }
 }
