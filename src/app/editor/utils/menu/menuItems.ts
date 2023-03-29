@@ -183,8 +183,12 @@ let liftItem = liftListItem(schema.nodes.list_item)
 let wrapInBulletListFunc = wrapInList(schema.nodes.bullet_list)
 const wrapBulletList = new MenuItem({
   title: "Wrap in bullet list",
-  enable(state: EditorState) { return true 
-    // isCitationSelected(state, () =>  wrapInBulletListFunc(state)) 
+  enable(state: EditorState) {
+    if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+      return isInTable(state)
+    }
+    return true;
+    // isCitationSelected(state, () =>  wrapInBulletListFunc(state))
   },
   run(state: EditorState, dispatch: any,view) {
     let {$from, $to} = state.selection
@@ -193,7 +197,7 @@ const wrapBulletList = new MenuItem({
     if (range) {
       liftItem(state, dispatch, view);
     } else {
-      wrapInBulletListFunc(state,dispatch,view);
+    wrapInBulletListFunc(state,dispatch,view);
     }
 
     // joinUp(view.state,view.dispatch,view)
@@ -205,7 +209,11 @@ const wrapBulletList = new MenuItem({
 let wrapInOrderedListFunc = wrapInList(schema.nodes.ordered_list)
 const wrapOrderedList = new MenuItem({
   title: "Wrap in ordered list",
-  enable(state: EditorState) { return true 
+  enable(state: EditorState) {
+    if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+      return isInTable(state)
+    }
+    return true;
     // isCitationSelected(state, () => wrapInOrderedListFunc(state))
   },
   run(state: EditorState, dispatch: any,view) {
@@ -215,7 +223,7 @@ const wrapOrderedList = new MenuItem({
     if(range) {
       liftItem(state, dispatch, view);
     } else {
-      wrapInOrderedListFunc(state,view.dispatch,view);
+    wrapInOrderedListFunc(state,view.dispatch,view);
     }
 
     // joinUp(view.state,view.dispatch,view)
