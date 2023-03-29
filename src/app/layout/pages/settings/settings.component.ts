@@ -9,15 +9,15 @@ import { AuthService } from '@app/core/services/auth.service';
   styleUrls: ['./settings.component.scss'],
 })
 export class SettingsComponent implements OnInit {
-  userName?: IUserDetail[];
+  userName?: string;
   constructor(
     private authService: AuthService,
     private viewportScroller: ViewportScroller
   ) {}
 
   ngOnInit(): void {
-    this.authService.getUserInfo().subscribe((response) => {
-      const name = response.data.name;
+    this.authService.currentUser$.subscribe((response) => {
+      const name = response.name;
       this.userName = name;
     });
   }

@@ -5,6 +5,7 @@ import { ActivatedRouteSnapshot, CanActivate, NavigationEnd, Router, RouterState
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { from, Observable } from 'rxjs';
 import { delayWhen, shareReplay, switchMap, tap } from 'rxjs/operators';
+import { AuthService } from '@core/services/auth.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,8 @@ export class CasbinGuard implements CanActivate {
   constructor(
     private router: Router,
     private sharedService: ServiceShare,
-    private _snackBar: MatSnackBar
+    private _snackBar: MatSnackBar,
+    private readonly authService: AuthService
     ) {
   }
   canActivate(
@@ -27,7 +29,7 @@ export class CasbinGuard implements CanActivate {
       return from(new Promise<boolean>((resolve, reject) => {
         let articleId = route.params.id;
         let userData
-        this.sharedService.AuthService.getUserInfo().subscribe({next:(data)=>{
+        this.sharedService.AuthService.currentUser$.subscribe({next:(data)=>{
           userData = data
           let articleByIdRequest = this.sharedService.ArticlesService?.getArticleByUuid(articleId).pipe(shareReplay());
           articleByIdRequest.subscribe((res: any) => {
@@ -38,7 +40,7 @@ export class CasbinGuard implements CanActivate {
                 if(admin){
                   resolve(true);
                 }else{
-                  let currUserId = userData.data.id;
+                  let currUserId = userData.id;
                   let collaborators:{user_id:string,type:string}[] = res.data.collaborators;
                   if(collaborators.some((user)=>user.user_id == currUserId)||res.data.user.id == currUserId){
                     resolve(true);

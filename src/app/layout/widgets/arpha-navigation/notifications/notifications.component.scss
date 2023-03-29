@@ -3,13 +3,14 @@
   cursor: pointer;
 }
 
-::ng-deep .notifications-toolbar-table{
+::ng-deep .notifications-toolbar-table {
   margin: 0;
   width: 100%;
   border: none;
   box-shadow: none;
 }
-.abs-cont{
+
+.abs-cont {
   position: absolute;
   top: 35px;
   right: 0;
@@ -21,9 +22,11 @@
   font-weight: 400;
   font-size: 17px;
 }
+
 .notifications-container {
   position: relative;
   z-index: 20;
+
   .event {
     width: 100%;
     word-wrap: break-word;
@@ -31,6 +34,7 @@
     cursor: pointer;
     line-height: 1.5;
   }
+
   .view-all-btn {
     border: none;
     cursor: pointer;
@@ -41,11 +45,13 @@
     color: #02b3b6;
     transform: translate(0px, 10px);
   }
-  .new{
+
+  .new {
     font-weight: 1000;
     text-decoration: underline;
   }
 }
+
 .mat-chip.mat-standard-chip::after {
   background: none;
 }
@@ -78,4 +84,8 @@ td.mat-footer-cell:last-of-type {
   font-size: 12px;
   padding: 4px 9px;
   min-height: 24px;
+}
+
+.nowrap {
+  white-space: nowrap !important;
 }

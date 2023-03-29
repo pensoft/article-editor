@@ -1,13 +1,13 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { UserModel } from '@core/models/user.model';
 import { AuthService } from '@core/services/auth.service';
 import { BroadcasterService } from '@core/services/broadcaster.service';
 import { CONSTANTS } from '@core/services/constants';
 import { FormioBaseService } from '@core/services/formio-base.service';
 import { Observable, Subscription } from 'rxjs';
-import { first, take } from 'rxjs/operators';
+import { filter, first, take } from 'rxjs/operators';
 import { uuidv4 } from "lib0/random";
 import { lpClient, ssoClient } from "@core/services/oauth-client";
 import { ServiceShare } from '@app/editor/services/service-share.service';
@@ -19,7 +19,7 @@ import { environment } from '@env';
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss']
 })
-export class LoginComponent implements OnInit, OnDestroy {
+export class LoginComponent implements OnInit {
   version = environment.VERSION;
   build_number = environment.BUILD_NUMBER;
 
@@ -32,11 +32,11 @@ export class LoginComponent implements OnInit, OnDestroy {
   hasError!: boolean;
   returnUrl!: string;
   isLoading$: Observable<boolean> = this._broadcaster.listen(CONSTANTS.SHOW_LOADER);
-  private unsubscribe: Subscription[] = []; // Read more: => https://brianflove.com/2016/12/11/anguar-2-unsubscribe-observables/
 
   @ViewChild('errorContainer') errorContainer;
   errorText = '';
   passwordIsVisible = false;
+  previousUrl = '';
 
   constructor(
     private fb: FormBuilder,
@@ -47,6 +47,9 @@ export class LoginComponent implements OnInit, OnDestroy {
     public formioBaseService: FormioBaseService,
     private serviceShare: ServiceShare
   ) {
+    this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
+      this.previousUrl = event.url;
+    });
   }
 
   get f() {
@@ -89,7 +92,9 @@ export class LoginComponent implements OnInit, OnDestroy {
       .subscribe((user: UserModel) => {
         if (user) {
           setTimeout(()=>{
-            this.router.navigate(['dashboard']);
+            // this.router.navigate(['dashboard']);
+            const previousUrl = this.router.routerState.snapshot.root.queryParams['previousUrl'] || '/';
+            this.router.navigateByUrl(previousUrl);
             this.serviceShare.ProsemirrorEditorsService.stopSpinner()
 
           },2000)
@@ -123,14 +128,14 @@ export class LoginComponent implements OnInit, OnDestroy {
   }
 
   signIn() {
-    //this.serviceShare.ProsemirrorEditorsService.spinSpinner();
+    this.serviceShare.ProsemirrorEditorsService.spinSpinner();
     console.log('CLICK');
     lpClient.signIn().then(async signInResult => {
       console.log('CLICK Result', signInResult)
       if (signInResult) {
         const token: string = await lpClient.getToken();
         this.authService.storeToken(token);
-        const loginSubscr = this.authService.getUserInfo().pipe(take(1))
+        const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
           .subscribe((user: UserModel | undefined) => {
             if (user) {
               setTimeout(()=>{
@@ -141,7 +146,6 @@ export class LoginComponent implements OnInit, OnDestroy {
               this.hasError = true;
             }
           });
-        this.unsubscribe.push(loginSubscr);
       }
     }).catch(err => {console.error(err)});
   }
@@ -165,7 +169,7 @@ export class LoginComponent implements OnInit, OnDestroy {
       if (signInResult) {
         const token: string = await ssoClient.getToken();
         this.authService.storeToken(token);
-        const loginSubscr = this.authService.getUserInfo().pipe(take(1))
+        const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
           .subscribe((user: UserModel | undefined) => {
             if (user) {
               setTimeout(()=>{
@@ -176,7 +180,6 @@ export class LoginComponent implements OnInit, OnDestroy {
               this.hasError = true;
             }
           });
-        this.unsubscribe.push(loginSubscr);
       }
     }).catch(err => {console.error(err)});
   }
@@ -205,15 +208,10 @@ export class LoginComponent implements OnInit, OnDestroy {
             this.hasError = true;
           }
         });
-      this.unsubscribe.push(loginSubscr);
     }
   }
 
   goToRegister() {
     window.location.href = `${environment.authServer}/register?return_uri=${encodeURIComponent(window.location.href)}`
-  }
-
-  ngOnDestroy() {
-    this.unsubscribe.forEach((sb) => sb.unsubscribe());
   }
 }

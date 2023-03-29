@@ -36,13 +36,14 @@
            (keydown)="filterByType(typeInput, $event)"
            (focus)="focusHandler()"
            (clickOutside)="filterByType(typeInput, $event)"
-           [formControl]="templateType"
+           [formControl]="templateTypeControl"
            [matAutocomplete]="layoutsGroup">
           <mat-autocomplete  #layoutsGroup="matAutocomplete" >
               <mat-option *ngFor="let type of (filteredAutocompleteTemplates | async) || articleLayouts" [value]="type.name">
                     {{type.name}}
               </mat-option>
           </mat-autocomplete>
+          <mat-icon class="icon" *ngIf="typeInput.value.length > 0" (click)="removeTypeInputText(typeInput)">close</mat-icon>
           <mat-icon class="icon">keyboard_arrow_down</mat-icon>
           <!-- <mat-select #matSelect (selectionChange)="filterByType(matSelect.value)">
             <ng-container *ngFor="let type of articleLayouts">

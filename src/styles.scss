@@ -157,6 +157,8 @@ app-figures-prosemirror-view.not-empty {
   margin-top: 24px;
 }
 
+
+
 .show-article-data {
   width: 90% !important;
   height: 90% !important;
@@ -318,6 +320,10 @@ supplementary-file-brief-description,end-note{
 .ins-from-popup {
   color: color(attr(usercontrastcolor));
   background: color(attr(usercolor));
+
+  >.taxon {
+    background-color: transparent !important;
+  }
 }
 
 .form-field-inline-view {
@@ -605,6 +611,10 @@ img[ychange_type="removed"] {
   color: black;
   background-color: #ffd0d0;
   text-decoration: line-through black;
+
+  >.taxon {
+    background-color: transparent !important;
+  }
 }
 
 /* .del-from-popup{
@@ -1027,6 +1037,10 @@ span.taxon[removedtaxon="false"]{
   .active-comment {
     background-color: gold;
     /* color: black; */
+  }
+
+  >.taxon {
+    background-color: transparent !important;
   }
 }
 
