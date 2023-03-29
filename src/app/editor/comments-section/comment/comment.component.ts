@@ -188,18 +188,58 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  onDelete() {
-    let from = this.comment?.pmDocStartPos;
-    let to = this.comment?.pmDocEndPos;
-    let viewRef = this.sharedService.ProsemirrorEditorsService.editorContainers[this.comment.section].editorView
-    let state = viewRef.state
-    let commentsMark = state?.schema.marks.comment
+  onDelete(view: EditorView, commentId: string, isFirstTime?: boolean) {
+    let state = view.state;
+    let commentsMark = state?.schema.marks.comment;
+    let docSize = state.doc.content.size;
+    let textstart: any;
+    let textend: any;
+    let commentFound = false;
 
-    viewRef.dispatch(state?.tr.removeMark(from!, to!, commentsMark)!)
-    this.commentsMap?.delete(this.comment?.commentAttrs.id)
+    state.doc.nodesBetween(0, docSize - 2, (node, pos, parent) => {
+      let mark = node.marks.find(mark => mark.attrs.id == commentId);
+     
+      if (mark) {
+        textstart = pos;
+        textend = pos + node.nodeSize;
+        commentFound = true;
+      }
+    })
+
+    if (commentFound) {
+      view.dispatch(state?.tr.removeMark(textstart, textend, commentsMark));
+
+      let resolvedPosAtStart = view.state.doc.resolve(textstart);
+      let resolvedPosAtEnd = view.state.doc.resolve(textend);
+  
+      let nodeBefore = resolvedPosAtStart.nodeBefore;
+      let nodeAfter = resolvedPosAtEnd.nodeAfter;
+
+      if (nodeBefore) {
+        let markConn = nodeBefore.marks.find(mark => mark.attrs.id == commentId)
+        if (markConn) {
+          setTimeout(()=> {
+            this.onDelete(view, commentId);
+          }, 0)
+        }
+      }
+      if (nodeAfter) {
+        let markConn = nodeAfter.marks.filter(mark => mark.attrs.id == commentId)[0]
+        if (markConn) {
+          setTimeout(()=> {
+            this.onDelete(view, commentId);
+          }, 0)
+        }
+      }
+      if(isFirstTime) {
+        this.commentsMap?.delete(this.comment?.commentAttrs.id);
+      }
+    }
+    
   }
 
   deleteComment(showConfirmDialog, comment) {
+    let viewRef = this.sharedService.ProsemirrorEditorsService.editorContainers[this.comment.section].editorView
     if (showConfirmDialog) {
       let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
         data: { objName: comment, type: 'comment' },
@@ -207,12 +247,12 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
       })
       dialogRef.afterClosed().subscribe((data: any) => {
         if (data) {
-          this.onDelete()
+          this.onDelete(viewRef, this.comment.commentAttrs.id, true);
         }
       })
       return;
     }
-    this.onDelete()
+    this.onDelete(viewRef, this.comment.commentAttrs.id, true)
   }
 
   deleteReply(id: string, reply: string) {
