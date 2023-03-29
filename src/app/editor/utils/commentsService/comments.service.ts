@@ -51,7 +51,7 @@ export interface commentData {
   section: string,
   commentAttrs: any,
   commentMarkId: string,
-  selected: boolean
+  selected: boolean,
 }
 @Injectable({
   providedIn: 'root'
@@ -328,7 +328,7 @@ export class CommentsService {
               }
             }
           }
-          if (!selectedAComment && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() ) {
+          if (!selectedAComment && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() && lastCommentSelected.commentId) {
             setLastSelectedComment(undefined, undefined, undefined, undefined)
           }
 
@@ -420,9 +420,7 @@ export class CommentsService {
   }
 
   setLastSelectedComment = (commentId?: string, pos?: number, sectionId?: string, commentMarkId?: string,focus?:true) => {
-    if (!this.sameAsLastSelectedComment(commentId, pos, sectionId, commentMarkId)||focus) {
       this.lastSelectedCommentSubject.next({ commentId, pos, sectionId, commentMarkId })
-    }
   }
 
   commentsObj: { [key: string]: commentData } = {}
@@ -479,13 +477,27 @@ export class CommentsService {
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
             domTop: domCoords.top - articleElementRactangle.top-articlePosOffset,
-            commentTxt: node.textContent,
+            commentTxt: this.getallCommentOccurrences(actualMark.attrs.id, parent),
             commentAttrs: actualMark.attrs,
             selected: markIsLastSelected,
           }
         }
       }
     })
+  }
+
+  getallCommentOccurrences(commentId: string, parent: Node) {
+    let nodeSize = parent.content.size;
+    let textContent = '';
+
+    parent.nodesBetween(0, nodeSize, (node: Node) => {
+      const actualMark = node.marks.find(mark => mark.type.name === "comment");
+      if(actualMark && actualMark.attrs.id == commentId) {
+        textContent += node.textContent;
+      }
+    })
+
+    return textContent;
   }
 
   removeEditorComment(editorId: any) {

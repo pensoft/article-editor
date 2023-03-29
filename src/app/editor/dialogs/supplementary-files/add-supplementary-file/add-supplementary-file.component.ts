@@ -25,7 +25,7 @@ import { filterFieldsValues } from '@app/editor/utils/fieldsMenusAndScemasFns';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 
 
-let supplementaryFileHtmlTemplate = `
+export let supplementaryFileHtmlTemplate = `
 <block-supplementary-file [attr.supplementary_file_number]="data.supplementary_file_number" [attr.supplementary_file_id]="data.supplementary_file_ID">
 <supplementary-file-title style="display: inline;" *ngIf="data.supplementaryFileTitle">
 <h3 style="display: inline;" tagname="h3" contenteditablenode="false" >

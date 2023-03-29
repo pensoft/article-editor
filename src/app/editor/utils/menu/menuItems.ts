@@ -27,6 +27,7 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
 import { EditSectionService } from '@app/editor/dialogs/edit-section-dialog/edit-section.service.js';
 import { includes } from 'lodash';
 import { state } from '@angular/animations';
+import { isInTable } from "./../../../../../prosemirror-tables/src"
 
 export const undoIcon = {
   width: 1024, height: 1024,
@@ -51,7 +52,12 @@ function getLinkMenuItemRun(state: EditorState, dispatch: any, view: EditorView)
 function markItem(markType: MarkType,markKey:string, options: any) {
   let passedOptions: any = {
     active(state: EditorState) { return markActive(state, markType) },
-    enable:(state:EditorState)=>{return isCitationSelected(state, undefined,state.schema.marks[markKey])}
+    enable:(state:EditorState)=>{
+    if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+      return isInTable(state)
+    }
+      return isCitationSelected(state, undefined,state.schema.marks[markKey])
+    }
   }
   for (let prop in options) passedOptions[prop] = options[prop]
   return cmdItem(toggleMark(markType), passedOptions)
@@ -176,7 +182,12 @@ const toggleCode = markItem(schema.marks.code,'code', { title: "Toggle code font
 let wrapInBulletListFunc = wrapInList(schema.nodes.bullet_list)
 const wrapBulletList = new MenuItem({
   title: "Wrap in bullet list",
-  enable(state: EditorState) { return isCitationSelected(state, () =>  wrapInBulletListFunc(state)) },
+  enable(state: EditorState) {
+    if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+      return isInTable(state)
+    }
+    return isCitationSelected(state, () =>  wrapInBulletListFunc(state))
+  },
   run(state: EditorState, dispatch: any,view) {
     wrapInBulletListFunc(state,dispatch,view);
     joinUp(view.state,view.dispatch,view)
@@ -188,7 +199,12 @@ const wrapBulletList = new MenuItem({
 let wrapInOrderedListFunc = wrapInList(schema.nodes.ordered_list)
 const wrapOrderedList = new MenuItem({
   title: "Wrap in ordered list",
-  enable(state: EditorState) { return isCitationSelected(state, () => wrapInOrderedListFunc(state)) },
+  enable(state: EditorState) {
+    if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+      return isInTable(state)
+    }
+    return isCitationSelected(state, () => wrapInOrderedListFunc(state))
+  },
   run(state: EditorState, dispatch: any,view) {
     wrapInOrderedListFunc(state,view.dispatch,view);
     joinUp(view.state,view.dispatch,view)
@@ -273,7 +289,12 @@ for (let i = 1; i <= 6; i++)
     title: "Change to heading " + i,
     label: "Level " + i,
     attrs: { tagName: 'h' + i },
-    enable:(state:EditorState)=>{return !!state.schema.nodes.heading}
+    enable:(state:EditorState)=>{
+      if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+        return isInTable(state)
+      }
+      return !!state.schema.nodes.heading
+    }
   })
 const headings = Object.values(headingsObj);
 
@@ -299,6 +320,10 @@ const setAlignLeft = new MenuItem({
 
 let selectionIsInListItem = (decrease:boolean)=>{
   return (state:EditorState)=>{
+    if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+      return isInTable(state)
+    }
+    
     let {$from,$to} = state.selection;
 
     //@ts-ignore
@@ -330,7 +355,7 @@ let selectionIsInListItem = (decrease:boolean)=>{
       }
     }
 
-    if(listItemThatFromIsIn == listItemThatToIsIn&&parrentList&&(parrentList.firstChild!=listItemThatToIsIn||decrease)){
+    if((listItemThatFromIsIn == listItemThatToIsIn&&parrentList&&(parrentList.firstChild!=listItemThatToIsIn)||decrease)){
       return true
     }else{
       return false;
@@ -418,6 +443,9 @@ function insertPB(state: EditorState, dispatch: (p: Transaction) => void, view: 
 }
 
 function canInsertPB(state: EditorState) {
+  if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+    return isInTable(state)
+  }
   return !!state.schema.nodes.page_break;
 }
 

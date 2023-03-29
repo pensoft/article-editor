@@ -36,6 +36,10 @@ export class PlaceholderPluginService {
             doc.childCount === 1 && doc.firstChild!.isTextblock && doc.firstChild!.content.size === 0;
             let hasNoTextContent = doc.textContent == ''
             let formGroup = sharedService.TreeService!.sectionFormGroups[pluginData.sectionID]
+
+          if (pluginData?.data?.path == 'tableContent') {
+           return DecorationSet.empty
+          }
           if(data&&data.placeHolder){
             if (hasNoChildren || isEmptyTextBlock || hasNoTextContent) {
               let position = doc.inlineContent ? 0 : 1;

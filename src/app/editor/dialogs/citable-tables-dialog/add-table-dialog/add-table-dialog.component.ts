@@ -38,20 +38,36 @@ import { filterFieldsValues } from '@app/editor/utils/fieldsMenusAndScemasFns';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 
 
-let tablesHtmlTemplate = `
+export let tablesHtmlTemplate = `
 <block-table [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.table_number]="data.tableNumber" [attr.table_id]="data.tableID">
-  <h3 tagname="h3" contenteditablenode="false"><p contenteditablenode="false">Table {{data.tableNumber+1}}.</p></h3>
-  <table-header-container>
-    <table-description *ngIf="data.tableHeader" formControlName="tableHeader" style="display:block;">
-    </table-description>
-  </table-header-container>
-  <table-content *ngIf="data.tableContent" formControlName="tableContent">
-  </table-content>
-  <table-footer-container>
-    <table-description *ngIf="data.tableFooter" formControlName="tableFooter" style="display:block;">
-    </table-description>
-  </table-footer-container>
-</block-table>
+  		<h3 tagname="h3" contenteditablenode="false">
+        	<p contenteditablenode="false">Table: {{data.tableNumber+1}}</p>
+      	</h3>
+  		<table-header-container>
+    		<table-description 
+                               *ngIf="data.tableHeader" 
+                               formControlName="tableHeader" 
+                               style="display:block;" 
+                              menuType="[['toggleEm', 'toggleUnderline'],['toggleSubscriptItem','toggleSuperscriptItem'],['undoItem', 'redoItem', 'insertVideoItem'],['logNodesMenuItem', 'insertPageBreak', 'headings']]"
+                              allowedTags="{'nodes':['video','citable-figures','headings','page_break','tables','reference-citation','citable-tables'],'marks':['em','underline','subscript','superscript']}"
+                               >
+    		</table-description>
+  		</table-header-container>
+  		<table-content *ngIf="data.tableContent" 
+                       formControlName="tableContent"
+                       >
+  		</table-content>
+  		<table-footer-container>
+    		<table-description 
+                               *ngIf="data.tableFooter" 
+                               formControlName="tableFooter" 
+                               style="display:block;"
+                               menuType="OnlyCitableElementsAndCommentsMenu" 
+                               allowedTags="{'nodes':['video','citable-figures','headings','page_break','tables','reference-citation','citable-tables'],'marks':['em','underline','subscript','superscript']}"
+                               >
+    		</table-description>
+  		</table-footer-container>
+	</block-table>
 
 `
 @Component({
@@ -164,15 +180,17 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
     this.changeDetectorRef.detectChanges();
   }
 
-  isValid:boolean = true;
+  isValid:boolean = false;
   formIoSubmission:any
   formIoRoot:any
   onChange(change: any) {
     if(change instanceof Event){
 
     }else{
-      this.isValid
       this.formIoSubmission = change.data
+      this.isValid = !!change.data?.tableHeader?.length &&
+        !!change.data?.tableContent?.length &&
+        !!change.data?.tableFooter?.length
       if(change.changed&&change.changed.instance){
         this.formIoRoot = change.changed.instance.root
       }
@@ -217,7 +235,7 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
 
       let tableFormGroup = citationElementMap.table_citation.buildElementFormGroup(submision.data)
 
-      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, tableFormGroup);
+      interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!, submision.data, tableFormGroup, null, {table: true});
       let templ = document.createElement('div')
       templ.innerHTML = interpolated
       let Slice = DOMParser.fromSchema(schema).parse(templ.firstChild!);
