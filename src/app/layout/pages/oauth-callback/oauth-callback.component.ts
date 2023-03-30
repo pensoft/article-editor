@@ -14,9 +14,8 @@ import {lpClient} from "@core/services/oauth-client";
   templateUrl: './oauth-callback.component.html',
   styleUrls: ['./oauth-callback.component.scss']
 })
-export class OauthCallbackComponent implements OnInit, OnDestroy {
+export class OauthCallbackComponent implements OnInit {
   returnUrl: string;
-  private unsubscribe: Subscription[] = [];
   hasError: boolean;
   constructor(private readonly authService: AuthService,
               private route: ActivatedRoute,
@@ -30,23 +29,22 @@ export class OauthCallbackComponent implements OnInit, OnDestroy {
     this._broadcaster.broadcast(CONSTANTS.SHOW_LOADER, true);
 
     this.hasError = false;
+    const begin = performance.now();
     lpClient.handleRedirectCallback().then( async signInResult => {
       const token = await lpClient.getToken();
-      this.authService.storeToken('token', token);
-      const loginSubscr = this.authService.getUserInfo().pipe(take(1))
+      this.authService.storeToken(token);
+      const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
         .subscribe((user: UserModel | undefined) => {
         if (user) {
+          const requestDuration = `${performance.now() - begin}`;
+          console.log(`${requestDuration} ms <--`);
           this.router.navigate(['/dashboard']);
           this.formioBaseService.login();
         } else {
           this.hasError = true;
         }
       });
-      this.unsubscribe.push(loginSubscr);
     });
   }
 
-  ngOnDestroy() {
-    this.unsubscribe.forEach((sb) => sb.unsubscribe());
-  }
 }

@@ -10,7 +10,7 @@ import { MaterialModule } from 'src/app/shared/material.module';
 import { STORAGE_PROVIDERS } from 'src/app/shared/storage.service';
 import { ThemeToggleComponent } from 'src/app/layout/widgets/thema-toggle/theme-toggle.component';
 import { windowProvider, WindowToken } from 'src/app/shared/window';
-import { environment } from '../environments/environment';
+import { environment } from '@env';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { EditorComponent } from './editor/editor.component';
@@ -174,6 +174,8 @@ import { EmbedVideo } from 'ngx-embed-video';
 import { LogoutComponent } from './layout/pages/logout/logout.component';
 import { InsertVideoComponent } from './editor/dialogs/insert-video/insert-video.component';
 import { FunderSectionComponent } from './editor/section/funder-section/funder-section.component';
+import { AuthService } from '@core/services/auth.service';
+import { ServiceShare } from '@app/editor/services/service-share.service';
 
 //@ts-ignore
 EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE, 'event-dispatcher']
@@ -200,6 +202,14 @@ export function HttpLoaderFactory(http: HttpClient) {
 const gravatarConfig: GravatarConfig = {
   fallback: FALLBACK.robohash,
 };
+
+function appInitializer(authService: AuthService) {
+  return () => {
+    return new Promise((resolve) => {
+      authService.getUserInfo().subscribe().add(resolve);
+    });
+  };
+}
 
 @NgModule({
   declarations: [
@@ -379,6 +389,7 @@ const gravatarConfig: GravatarConfig = {
   ],
 
   providers: [
+    {provide: 'API_GATEWAY_SERVICE', useValue: environment.apiUrl},
     {provide: 'AUTH_SERVICE', useValue: environment.authServer},
     HasPermissionPipe,
     BoldPipe,
@@ -387,6 +398,18 @@ const gravatarConfig: GravatarConfig = {
       provide: HTTP_INTERCEPTORS,
       useClass: HTTPReqResInterceptor,
       multi: true,
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: appInitializer,
+      multi: true,
+      deps: [AuthService],
+    },
+    {
+      provide: APP_INITIALIZER,
+      useFactory: appInitializer,
+      multi: true,
+      deps: [AuthService],
     },
     {
       provide: HTTP_INTERCEPTORS,

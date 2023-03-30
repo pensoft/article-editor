@@ -35,7 +35,9 @@ import { ChangesSectionComponent } from '../changes-section/changes-section.comp
 import { CollaboratorsService } from '../dialogs/add-contributors-dialog/collaborators.service';
 import { TaxonService } from '../taxons/taxon.service';
 import { CitationButtonsService } from '../utils/citation-buttons/citation-buttons.service';
-import { mergeMap } from 'rxjs/operators';
+import { catchError, mergeMap } from 'rxjs/operators';
+import { of } from 'rxjs';
+import { createDemoTemplate } from '../utils/serverErrorWorkAround';
 @Injectable({
   providedIn: 'root'
 })
@@ -136,16 +138,19 @@ export class ServiceShare {
         if(!result) return ;
 
         let userData;
-        this.AuthService.getUserInfo()
+        this.AuthService.currentUser$
         .pipe(mergeMap(data => {
-          userData = data;
+          userData = { data };
 
           return this.ArticleSectionsService.getLayoutById(result);
-        })).subscribe((articleData: any)=>{          
+        })).subscribe((articleData: any)=>{
           let selectedLayout = articleData.data.template;
-          
+
           let articleStructure: articleSection[] = []
-          this.ArticlesService!.createArticle('Untitled',+result).subscribe((createArticleRes:any)=>{
+          this.ArticlesService!.createArticle('Untitled',+result).pipe(catchError(() => {
+            createDemoTemplate.data.uuid = uuidv4();
+            return  of(createDemoTemplate)
+          })).subscribe((createArticleRes:any)=>{
             this.resetServicesData();
             this.YdocService!.setArticleData(createArticleRes.data,true)
             this.router.navigate([createArticleRes.data.uuid])

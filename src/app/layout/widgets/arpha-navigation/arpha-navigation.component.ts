@@ -85,7 +85,7 @@ export class ArphaNavigationComponent implements AfterViewInit {
   }
 
   logout() {
-    const returnUrl = `${window.location.origin}${environment.production ? '/demo' : ''}/logout`;
+    const returnUrl = `${window.location.origin}/logout`;
     window.location.href = `${this.authServiceUrl}/logout?return_uri=${encodeURIComponent(returnUrl)}`;
     //this.auth.invalidateToken();
     //document.location.reload();

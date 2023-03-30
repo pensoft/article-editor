@@ -37,7 +37,7 @@ export class AppComponent implements AfterViewInit {
     });
   }
   ngAfterViewInit(): void {
-    this.serviceShare.AuthService.getUserInfo().subscribe({
+    /*this.serviceShare.AuthService.getUserInfo().subscribe({
       next:(data)=>{
 
       },
@@ -46,7 +46,7 @@ export class AppComponent implements AfterViewInit {
         this.router.navigate(['login']);
         console.error(err);
       }
-    })
+    })*/
     this.prosemirrorEditorsService.setSpinner(this.globalSpinner.nativeElement)
   }
 }

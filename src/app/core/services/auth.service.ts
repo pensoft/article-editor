@@ -35,7 +35,7 @@ export class AuthService implements OnDestroy {
     public _http: HttpClient,
     private router: Router,
     private sharedService:ServiceShare,
-    private jwtHelper: JwtHelperService
+    private jwtHelper: JwtHelperService,
   ) {
     this.currentUserSubject = new BehaviorSubject<UserType>(undefined);
     this.currentUser$ = this.currentUserSubject.asObservable();
@@ -53,12 +53,12 @@ export class AuthService implements OnDestroy {
       responseType:'json' */
     }).pipe(
       map((token) => {
-        this.storeToken('token', token['access_token']);
-        this.storeToken('refresh_token', token['refresh_token']);
-        if(this.userInfo)this.userInfo = undefined
+        this.storeToken(token['access_token']);
+        this.storeToken(token['refresh_token'], 'refreshToken');
+        //if(this.userInfo)this.userInfo = undefined
         return token;
       }),
-      switchMap((token) => this.getUserInfo(token)),
+      switchMap((token) => this.getUserInfo()),
       catchError((err) => {
         return of(err);
       })
@@ -105,28 +105,26 @@ export class AuthService implements OnDestroy {
   }
 
   isLoggedIn() {
-    return this.getToken() ? true : false; // add your strong logic
+    return !!this.getToken();
   }
 
-  storeToken(tokenType, token: string) {
-    localStorage.setItem(tokenType, token);
+  storeToken(token, tokenType = 'token') {
+    if(token) {
+      localStorage.setItem(tokenType, token);
+    }
   }
 
-  getToken() {
-    return localStorage.getItem('token');
+  getToken(key = 'token') {
+    return localStorage.getItem(key);
   }
 
   isTokenExpired(access_token:string){
     return this.jwtHelper.isTokenExpired(access_token);
   }
 
-  getRefreshToken() {
-    return localStorage.getItem('refreshToken');
-  }
-
   refreshToken() {
-    const refreshToken = this.getRefreshToken();
-    return this._http.post<any>(`${API_AUTH_URL}/refresh-token`, {'refresh-token': refreshToken})
+    const refreshToken = this.getToken('refreshToken');
+    return this._http.post<any>(`${API_AUTH_URL}/refresh-token`, {'refresh_token': refreshToken})
       .pipe(
         map(({access_token: token, refresh_token: refreshToken}) =>
           ({
@@ -146,11 +144,34 @@ export class AuthService implements OnDestroy {
 
   getUserInfo(token = null) {
 
-    let getInfo = (token = null)=>{
+    const auth = token || this.getToken();
+
+    if (!auth) {
+      return of(undefined);
+    }
+
+    this.storeToken(auth);
+
+    return this._http.get<any>(`${API_AUTH_URL}/me`)
+      .pipe(
+        map((user) => {
+          if (user) {
+            this.currentUserSubject.next(user.data);
+            /*this.sharedService.EnforcerService?.policiesChangeSubject.next(user);*/
+          } else {
+            this.logout();
+          }
+          this.setGlobalStylesForUser(user);
+          return user;
+        }),
+
+      )
+
+    /*let getInfo = (token = null)=>{
       const auth = token || this.getToken();
       if(token){
-        this.storeToken('token', token['access_token']);
-        this.storeToken('refresh_token', token['refresh_token']);
+        this.storeToken(token['access_token']);
+        this.storeToken(token['refresh_token'], 'refreshToken');
       }
       if (!auth) {
         return of(undefined);
@@ -175,7 +196,7 @@ export class AuthService implements OnDestroy {
           )
     }
 
-    return getInfo(token).pipe(tap(this.setGlobalStylesForUser));
+    return getInfo(token).pipe(tap(this.setGlobalStylesForUser));*/
   }
 
   userGlobalStyle?:HTMLStyleElement

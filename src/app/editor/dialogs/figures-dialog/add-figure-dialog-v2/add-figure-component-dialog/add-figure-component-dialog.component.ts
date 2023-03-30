@@ -21,6 +21,12 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
   videoUrl: string
   urlSubscription: Subscription
 
+  MediaUrls = {
+    video: '',
+    image: '',
+    'embedded video': ''
+  }
+
   @ViewChild('componentDescription', { read: ElementRef }) componentDescription?: ElementRef;
   @ViewChild('urlInputElement', { read: ElementRef }) urlInputElement?: ElementRef;
 
@@ -41,6 +47,11 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
     }, }
   ) {
     this.urlSubscription = this.urlFormControl.valueChanges.subscribe(url => {
+      if (!url) {
+        return;
+      }
+      this.MediaUrls[this.typeFromControl.value] = url
+
       if(this.typeFromControl.value == 'embedded video'){
         const videoHtml = this.embedService.embed(url);
         if (!videoHtml) {
@@ -52,6 +63,19 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
         this.videoUrl = match ? match[1] : '';
       }
       this.lastSource = 'url'
+    })
+
+    this.urlSubscription = this.typeFromControl.valueChanges.subscribe(type => {
+      this.urlFormControl.setValue('')
+      if (type == 'video') {
+        this.urlFormControl.disable()
+      } else {
+        this.urlFormControl.enable()
+      }
+
+      if (this.MediaUrls[type]) {
+        this.urlFormControl.setValue(this.MediaUrls[type])
+      }
     })
   }
 
@@ -128,6 +152,7 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
 
   submitDialog() {
     this.urlSubscription.unsubscribe()
+    this.urlSubscription.unsubscribe()
     if(this.typeFromControl.value == 'embedded video'){
       this.urlFormControl.setValue(this.videoUrl)
     }
@@ -188,5 +213,9 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
       this.typeFromControl.setValue('video')
       setData()
     }
+  }
+
+  isUrlFormControlValid() : boolean { 
+    return this.urlFormControl.disabled ? !!this.MediaUrls.video : this.urlFormControl.valid
   }
 }

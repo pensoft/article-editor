@@ -45,6 +45,7 @@ import {treatmentSectionsCustom} from "@core/services/custom_sections/treatment_
 import {taxonSection} from "@core/services/custom_sections/taxon";
 import { EnforcerService } from '@app/casbin/services/enforcer.service';
 import { filterFieldsValues } from '@app/editor/utils/fieldsMenusAndScemasFns';
+import { TextSelection } from 'prosemirror-state';
 
 @Component({
   selector: 'app-section-leaf',
@@ -240,21 +241,28 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     })
   }
   oldIndex?:string
-  scrolledToView?: boolean
+  // scrolledToView?: boolean
 
 
   scrollToProsemirror() {
     if (this.node.type == 'simple') {
       let editorContainer = this.prosemirrorEditorsService.editorContainers[this.node.sectionID];
-      if (editorContainer && !this.scrolledToView) {
-        let editorView = editorContainer.editorView;
-        if (!editorView.hasFocus()) {
-          editorView.focus()
-          editorView.dispatch(editorView.state.tr.scrollIntoView());
-        }
-        this.scrolledToView = true;
-      }
 
+      if (editorContainer) {
+        let editorView = editorContainer.editorView;
+        const { doc } = editorView.state;
+        editorView.focus();
+        editorView.dispatch(editorView.state.tr.scrollIntoView().setSelection(TextSelection.create(doc, doc.firstChild.nodeSize)));
+      }
+    } else if (this.node.type == "complex") {
+      let editorContainer = this.prosemirrorEditorsService.editorContainers[this.node.sectionID];
+
+      if (editorContainer) {
+        let editorView = editorContainer.editorView;
+        const { doc } = editorView.state;
+        editorView.focus();
+        editorView.dispatch(editorView.state.tr.scrollIntoView().setSelection(TextSelection.create(doc, doc.firstChild.nodeSize)));
+      }
     }
   }
 

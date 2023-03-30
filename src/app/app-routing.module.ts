@@ -41,8 +41,8 @@ const routes: Routes = [
     path: '',
     component: MainComponent,
     children: [
-      { path: '', canActivate: [LoginGuard], component: LandingComponent },
-      { path: 'login', canActivate: [LoginGuard], component: LoginComponent },
+      /*{ path: '', canActivate: [LoginGuard], component: LandingComponent },*/
+      { path: 'login', canActivate: [/*LoginGuard*/], component: LoginComponent },
       { path: 'logout', canActivate: [AuthGuard], component: LogoutComponent },
       {
         path: 'callback',
@@ -51,31 +51,35 @@ const routes: Routes = [
       },
       { path: 'register', canActivate: [LoginGuard], component: SignupComponent },
       //{ path: 'choose',canActivate: [AuthGuard], component: ChooseManuscriptDialogComponent },
-      { path: 'create', canActivate: [AuthGuard] ,children:[
-        {path:'',canActivate:[LoadedCasbinGuard],children:[
-          {path:'',canActivate:[CasbinGuard],component:CreateNewProjectComponent}
-        ]}
-      ]},
+      {
+        path: 'create',
+        canActivate: [AuthGuard, LoadedCasbinGuard, CasbinGuard],
+        component:CreateNewProjectComponent
+      },
       { path: 'add-files', canActivate: [AuthGuard], component: DialogAddFilesComponent },
-      { path: 'dashboard', canActivate: [AuthGuard] ,children:[
-        {path:'',canActivate:[LoadedCasbinGuard],children:[
-          {path:'',canActivate:[AnyProjectsGuard],component:DashboardComponent,resolve:{product:DashboardResolver}}
-        ]}
-      ]},
-/*       { path: 'dashboard', canActivate: [
-        AuthGuard,
-        LoadedCasbinGuard,
-        AnyProjectsGuard,
-      ], component: DashboardComponent }, */
+      {
+        path: 'dashboard',
+        canActivate: [AuthGuard, LoadedCasbinGuard, AnyProjectsGuard] ,
+        component:DashboardComponent,
+        resolve:{
+          product:DashboardResolver
+        }
+      },
       { path: 'profile', canActivate: [AuthGuard, AnyProjectsGuard], component: ProfileComponent },
       { path: 'profile-info', canActivate: [AuthGuard, AnyProjectsGuard], component: ProfileInfoComponent },
       { path: 'recent-permisson', canActivate: [AuthGuard, AnyProjectsGuard], component: RecentPermissionComponent },
       { path: 'casbin-tes', canActivate: [AuthGuard, AnyProjectsGuard], component:  TestPageComponent},
-      { path: ':id', canActivate: [AuthGuard] ,children:[
-        {path:'',canActivate:[LoadedCasbinGuard],children:[
-          {path:'',canActivate:[CasbinGuard],component:EditorContainerComponent,resolve:{product:CasbinResolver}}
-        ]}
-      ]},
+      {
+        path: ':id',
+        canActivate: [AuthGuard, LoadedCasbinGuard, CasbinGuard] ,
+        component:EditorContainerComponent,
+        resolve:{product:CasbinResolver}
+      },
+      {
+        path: '',
+        redirectTo: '/dashboard',
+        pathMatch: 'full',
+      },
     ],
   },
 ];

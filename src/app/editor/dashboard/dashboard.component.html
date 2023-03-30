@@ -13,11 +13,12 @@
       </div>
     </article>
     <article fxLayout="row" fxLayoutAlign="start center">
-      <form (keydown)="search(inputText)" fxFlex="100%" fxLayoutGap="32px" fxLayoutAlign="start center"
-            class="search-form p26px">
+      <form fxFlex="100%" fxLayoutGap="32px" fxLayoutAlign="start center"
+            class="search-form p26px" >
 
         <mat-form-field class="mat-form-field-search is-small has-fixed-width" appearance="fill">
           <input type="text"
+                 (keydown)="search(inputText)"
                  #inputText
                  class="input-search"
                  placeholder="Search by name"
@@ -27,11 +28,28 @@
         </mat-form-field>
         <mat-form-field class="width-select">
           <mat-label class="type-select-label">Template</mat-label>
-          <mat-select #matSelect (selectionChange)="filterByType(matSelect.value)">
+          <input 
+           class="type-input"
+           type="text"
+           #typeInput
+           matInput
+           (keydown)="filterByType(typeInput, $event)"
+           (focus)="focusHandler()"
+           (clickOutside)="filterByType(typeInput, $event)"
+           [formControl]="templateTypeControl"
+           [matAutocomplete]="layoutsGroup">
+          <mat-autocomplete  #layoutsGroup="matAutocomplete" >
+              <mat-option *ngFor="let type of (filteredAutocompleteTemplates | async) || articleLayouts" [value]="type.name">
+                    {{type.name}}
+              </mat-option>
+          </mat-autocomplete>
+          <mat-icon class="icon" *ngIf="typeInput.value.length > 0" (click)="removeTypeInputText(typeInput)">close</mat-icon>
+          <mat-icon class="icon">keyboard_arrow_down</mat-icon>
+          <!-- <mat-select #matSelect (selectionChange)="filterByType(matSelect.value)">
             <ng-container *ngFor="let type of articleLayouts">
               <mat-option value="{{type.id}}">{{type.name}}</mat-option>
             </ng-container>
-          </mat-select>
+          </mat-select> -->
         </mat-form-field>
       </form>
     </article>

@@ -103,7 +103,7 @@ const mappingObj: any = {
         refobj['author'] = []
       }
       firstauthor.forEach((author) => {
-        if (author && (author[0] || author[1])) {
+        if (author && typeof author == "object" && (author[0] || author[1])) {
           refobj['author'].push({ "family": author[0] ? author[0] : '', "given": author[1] ? author[1] : '' })
         }
       })
@@ -114,7 +114,7 @@ const mappingObj: any = {
         formioobj['authors'] = []
       }
       firstauthor.forEach((author) => {
-        if (author && (author[0] || author[1])) {
+        if (author && typeof author == "object" && (author[0] || author[1])) {
           formioobj['authors'].push({
             "first": author[0] ? author[0] : '',
             "last": author[1] ? author[1] : '',
@@ -232,7 +232,7 @@ const mappingObj: any = {
     })` },
   },
   "related": undefined,
-  "source": undefined,
+  "source":  { type: ['string'], cslProp: "container-title", formIOprop: "container-title" },
   "issue": { type: 'string', cslProp: 'issue', formIOprop: "issue" },
 }
 export function mapRef1(ref: any) {
@@ -286,130 +286,130 @@ export function mapRef1(ref: any) {
   }
   return { ref: maped, formIOData }
 }
-function mapRef(ref: any) {
-  let maped: any = {};
-  let formIOData: any = {}
-  if (ref.authors && ref.authors instanceof Array && ref.authors.length > 0) {
-    if (!maped['author']) {
-      maped['author'] = []
-      formIOData['authors'] = []
-    }
-    ref.authors.forEach((author: string[] | null | null[]) => {
-      if (author && (author[0] || author[1])) {
-        maped['author'].push({ "family": author[0] ? author[0] : '', "given": author[1] ? author[1] : '' })
-        formIOData['authors'].push({
-          "first": author[0] ? author[0] : '',
-          "last": author[1] ? author[1] : '',
-          "name": "",
-          "role": "author",
-          "type": "person"
-        })
-      }
-    })
-  }
-  if (ref.firstauthor && ref.firstauthor instanceof Array && ref.firstauthor.length > 0) {
-    if (!maped['author']) {
-      maped['author'] = []
-      formIOData['authors'] = []
-    }
-    ref.firstauthor.forEach((author: string[] | null | null[]) => {
-      if (author && (author[0] || author[1])) {
-        maped['author'].push({ "family": author[0] ? author[0] : '', "given": author[1] ? author[1] : '' })
-        formIOData['authors'].push({
-          "first": author[0] ? author[0] : '',
-          "last": author[1] ? author[1] : '',
-          "name": "",
-          "role": "author",
-          "type": "person"
-        })
-      }
-    })
-  }
-  if (ref.doi) {
-    maped['DOI'] = ref.doi
-    formIOData['DOI'] = ref.doi
-  }
-  if (ref.href) {
-    maped['URL'] = ref.href
-    formIOData['URL'] = ref.href
-  }
-  if (ref.title) {
-    maped['title'] = ref.title
-    formIOData['title'] = ref.title
-  }
-  if (ref.year) {
-    let val = `${ref.year}`;
-    let dateParts = val.split('-')
-    formIOData['issued'] = val
-    if (dateParts.length == 1) {
-      dateParts.push('1')
-      dateParts.push('1')
-    }
-    if (dateParts.length == 2) {
-      dateParts.push('1')
-    }
-    maped['issued'] = {
-      "date-parts": [
-        dateParts
-      ]
-    }
-  }
-  if (ref.publicationDate) {
-    let val = `${ref.publicationDate}`
-    let dateParts = val.split('-')
-    formIOData['issued'] = val
-    if (dateParts.length == 1) {
-      dateParts.push('1')
-      dateParts.push('1')
-    }
-    if (dateParts.length == 2) {
-      dateParts.push('1')
-    }
-    maped['issued'] = {
-      "date-parts": [
-        dateParts
-      ]
-    }
-  }
-  if (ref.issue) {
-    maped['issue'] = ref.issue
-    formIOData['issue'] = ref.issue
-  }
-  if (ref.volume) {
-    maped['volume'] = ref.volume
-    formIOData['volume'] = ref.volume
-  }
-  if (ref.publishedIn) {
-    maped['city'] = ref.publishedIn
-    formIOData['city'] = ref.publishedIn
-  }
-  if (ref.abstract) {
-    maped['abstract'] = ref.abstract
-    formIOData['abstract'] = ref.abstract
-  }
-  if (ref.spage && ref.epage) {
-    maped['page'] = ref.spage + '-' + ref.epage
-    formIOData['page'] = ref.spage + '-' + ref.epage
-  }
-  if (ref.type) {
-    maped['type'] = ref.type.replace(' ', '-').toLocaleLowerCase()
-  } else {
-    maped['type'] = 'article-journal'
-  }
-  if (ref.id) {
-    if (ref.id instanceof String) {
-      maped['id'] = ref.id
-    } else if (typeof ref.id == 'object') {
-      maped['id'] = Object.values(ref.id).join(':SePaRaToR:')
-    } else {
-      maped['id'] = ref.doi ? ref.doi : uuidv4()
-    }
-  } else {
-    maped['id'] = ref.doi ? ref.doi : uuidv4()
-  }
+// function mapRef(ref: any) {
+//   let maped: any = {};
+//   let formIOData: any = {}
+//   if (ref.authors && ref.authors instanceof Array && ref.authors.length > 0) {
+//     if (!maped['author']) {
+//       maped['author'] = []
+//       formIOData['authors'] = []
+//     }
+//     ref.authors.forEach((author: string[] | null | null[]) => {
+//       if (author && (author[0] || author[1])) {
+//         maped['author'].push({ "family": author[0] ? author[0] : '', "given": author[1] ? author[1] : '' })
+//         formIOData['authors'].push({
+//           "first": author[0] ? author[0] : '',
+//           "last": author[1] ? author[1] : '',
+//           "name": "",
+//           "role": "author",
+//           "type": "person"
+//         })
+//       }
+//     })
+//   }
+//   if (ref.firstauthor && ref.firstauthor instanceof Array && ref.firstauthor.length > 0) {
+//     if (!maped['author']) {
+//       maped['author'] = []
+//       formIOData['authors'] = []
+//     }
+//     ref.firstauthor.forEach((author: string[] | null | null[]) => {
+//       if (author && (author[0] || author[1])) {
+//         maped['author'].push({ "family": author[0] ? author[0] : '', "given": author[1] ? author[1] : '' })
+//         formIOData['authors'].push({
+//           "first": author[0] ? author[0] : '',
+//           "last": author[1] ? author[1] : '',
+//           "name": "",
+//           "role": "author",
+//           "type": "person"
+//         })
+//       }
+//     })
+//   }
+//   if (ref.doi) {
+//     maped['DOI'] = ref.doi
+//     formIOData['DOI'] = ref.doi
+//   }
+//   if (ref.href) {
+//     maped['URL'] = ref.href
+//     formIOData['URL'] = ref.href
+//   }
+//   if (ref.title) {
+//     maped['title'] = ref.title
+//     formIOData['title'] = ref.title
+//   }
+//   if (ref.year) {
+//     let val = `${ref.year}`;
+//     let dateParts = val.split('-')
+//     formIOData['issued'] = val
+//     if (dateParts.length == 1) {
+//       dateParts.push('1')
+//       dateParts.push('1')
+//     }
+//     if (dateParts.length == 2) {
+//       dateParts.push('1')
+//     }
+//     maped['issued'] = {
+//       "date-parts": [
+//         dateParts
+//       ]
+//     }
+//   }
+//   if (ref.publicationDate) {
+//     let val = `${ref.publicationDate}`
+//     let dateParts = val.split('-')
+//     formIOData['issued'] = val
+//     if (dateParts.length == 1) {
+//       dateParts.push('1')
+//       dateParts.push('1')
+//     }
+//     if (dateParts.length == 2) {
+//       dateParts.push('1')
+//     }
+//     maped['issued'] = {
+//       "date-parts": [
+//         dateParts
+//       ]
+//     }
+//   }
+//   if (ref.issue) {
+//     maped['issue'] = ref.issue
+//     formIOData['issue'] = ref.issue
+//   }
+//   if (ref.volume) {
+//     maped['volume'] = ref.volume
+//     formIOData['volume'] = ref.volume
+//   }
+//   if (ref.publishedIn) {
+//     maped['city'] = ref.publishedIn
+//     formIOData['city'] = ref.publishedIn
+//   }
+//   if (ref.abstract) {
+//     maped['abstract'] = ref.abstract
+//     formIOData['abstract'] = ref.abstract
+//   }
+//   if (ref.spage && ref.epage) {
+//     maped['page'] = ref.spage + '-' + ref.epage
+//     formIOData['page'] = ref.spage + '-' + ref.epage
+//   }
+//   if (ref.type) {
+//     maped['type'] = ref.type.replace(' ', '-').toLocaleLowerCase()
+//   } else {
+//     maped['type'] = 'article-journal'
+//   }
+//   if (ref.id) {
+//     if (ref.id instanceof String) {
+//       maped['id'] = ref.id
+//     } else if (typeof ref.id == 'object') {
+//       maped['id'] = Object.values(ref.id).join(':SePaRaToR:')
+//     } else {
+//       maped['id'] = ref.doi ? ref.doi : uuidv4()
+//     }
+//   } else {
+//     maped['id'] = ref.doi ? ref.doi : uuidv4()
+//   }
 
-  return { ref: maped, formIOData }
-}
+//   return { ref: maped, formIOData }
+// }
 export let mapExternalRefs = (data1: string) => {
   let stringArray = data1.split('][').map((val, i) => {
     let newVal = val;

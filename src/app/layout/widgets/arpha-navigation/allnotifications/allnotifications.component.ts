@@ -33,4 +33,8 @@ export class AllnotificationsComponent implements AfterViewInit {
   closeDialog() {
     this.dialogRef.close()
   }
+
+  getName(element) {
+    return element.data?.article_title || element.event;
+  }
 }

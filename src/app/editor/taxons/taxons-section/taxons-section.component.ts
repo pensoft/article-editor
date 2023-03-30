@@ -192,20 +192,23 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
       let domElement = taxContainers.find((element) => {
         return element.getAttribute('taxonid') == id
       })
-      let h = domElement.getBoundingClientRect().height
-      if (lastElementPosition < tax.domTop) {
-        let pos = tax.domTop
-        domElement.style.top = pos + 'px';
-        domElement.style.opacity = '1';
-        this.displayedTaxonsPositions[id] = { displayedTop: pos, height: h }
-        lastElementPosition = pos + h;
-      } else {
-        let pos = lastElementPosition
-        domElement.style.top = pos + 'px';
-        domElement.style.opacity = '1';
-        this.displayedTaxonsPositions[id] = { displayedTop: pos, height: h }
-        lastElementPosition = pos + h;
+      if(domElement) {
+        let h = domElement.getBoundingClientRect().height
+        if (lastElementPosition < tax.domTop) {
+          let pos = tax.domTop
+          domElement.style.top = pos + 'px';
+          domElement.style.opacity = '1';
+          this.displayedTaxonsPositions[id] = { displayedTop: pos, height: h }
+          lastElementPosition = pos + h;
+        } else {
+          let pos = lastElementPosition
+          domElement.style.top = pos + 'px';
+          domElement.style.opacity = '1';
+          this.displayedTaxonsPositions[id] = { displayedTop: pos, height: h }
+          lastElementPosition = pos + h;
+        }
       }
+      
       i++
     }
   }
