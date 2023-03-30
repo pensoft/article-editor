@@ -194,7 +194,7 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
     if (actualComment) {
       //let commentMiddlePos = Math.floor((actualComment.pmDocStartPos+ actualComment.pmDocEndPos)/2)
       view.focus()
-      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualComment.pmDocStartPos), view.state.doc.resolve(actualComment.pmDocEndPos))).setMeta('selected-comment',true))
+      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualComment.pmDocStartPos), view.state.doc.resolve(actualComment.pmDocEndPos))).setMeta('selected-comment',true).scrollIntoView())
 
       this.sharedService.ProsemirrorEditorsService.dispatchEmptyTransaction()
       //this.showHideReply(this.ReplyDiv.nativeElement as HTMLDivElement, true)
