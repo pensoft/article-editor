@@ -242,13 +242,26 @@ export class TreeService implements OnDestroy {
   getNodeLevel(node: articleSection) {
     if(!node) return 0;
     let nodeLevel: number
+    const re = /<h([1-6]).*>/g;
     let findLevel = (children: articleSection[], level: number) => {
-      children.forEach((child) => {
+      children.forEach((child, i) => {
         if (child.sectionID == node.sectionID) {
           nodeLevel = level;
         }
-        if (nodeLevel == undefined && child.type == 'complex' && child.children.length > 0) {
-          findLevel(child.children, level + 1);
+        if (child.type == 'complex' && child.children.length > 0) {
+          const m = re.exec(child.originalSectionTemplate.template);
+
+          if(m){
+            nodeLevel = +m[1];
+          }
+          findLevel(child.children, nodeLevel + 1);
+        } else if (child.type == 'complex' && child.children.length == 0) {
+          const m = re.exec(child.originalSectionTemplate.template);
+          if(m) {
+            level = +m[1] + 1;
+          } else {
+            level++
+          }
         }
       })
     }

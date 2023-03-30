@@ -27,7 +27,9 @@ export class EditorMenuComponent implements OnInit {
     const regex1 = /\[innerHTML\]="[^\"\|]+"/gm
 
     if (options?.level) {
-      htmlToCompile = htmlToCompile.replace(/\${level}/gm, `${options.level+1}`)
+      htmlToCompile = htmlToCompile.replace(/\${level}/gm, `${options.level}`)
+    } else if (options?.level == 0) {
+      htmlToCompile = htmlToCompile.replace(/\${level}/gm, `2`);
     }
 
     if (data.tableContent) {
