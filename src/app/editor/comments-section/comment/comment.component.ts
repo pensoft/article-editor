@@ -221,7 +221,9 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
     })
 
     if (commentFound) {
-      view.dispatch(state?.tr.removeMark(textstart, textend, commentsMark));
+      view.focus();
+      view.dispatch(state?.tr.removeMark(textstart, textend, commentsMark))
+      this.sharedService.ProsemirrorEditorsService.dispatchEmptyTransaction()
 
       let resolvedPosAtStart = view.state.doc.resolve(textstart);
       let resolvedPosAtEnd = view.state.doc.resolve(textend);
