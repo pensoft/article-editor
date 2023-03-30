@@ -179,6 +179,7 @@ const toggleEm = markItem(schema.marks.em,'em', { title: "Toggle emphasis", icon
 
 const toggleCode = markItem(schema.marks.code,'code', { title: "Toggle code font", icon: icons.code })
 
+let liftItem = liftListItem(schema.nodes.list_item)
 let wrapInBulletListFunc = wrapInList(schema.nodes.bullet_list)
 const wrapBulletList = new MenuItem({
   title: "Wrap in bullet list",
@@ -186,12 +187,21 @@ const wrapBulletList = new MenuItem({
     if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
       return isInTable(state)
     }
-    return isCitationSelected(state, () =>  wrapInBulletListFunc(state))
+    return true;
+    // isCitationSelected(state, () =>  wrapInBulletListFunc(state))
   },
   run(state: EditorState, dispatch: any,view) {
+    let {$from, $to} = state.selection
+    let range = $from.blockRange($to, node => node.childCount > 0 && node.firstChild!.type == schema.nodes.list_item)
+    
+    if (range) {
+      liftItem(state, dispatch, view);
+    } else {
     wrapInBulletListFunc(state,dispatch,view);
-    joinUp(view.state,view.dispatch,view)
-    joinDown(view.state,view.dispatch,view)
+    }
+
+    // joinUp(view.state,view.dispatch,view)
+    // joinDown(view.state,view.dispatch,view)
   },
   icon: createCustomIcon('bullets.svg', 25, 25)
 })
@@ -203,12 +213,21 @@ const wrapOrderedList = new MenuItem({
     if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
       return isInTable(state)
     }
-    return isCitationSelected(state, () => wrapInOrderedListFunc(state))
+    return true;
+    // isCitationSelected(state, () => wrapInOrderedListFunc(state))
   },
   run(state: EditorState, dispatch: any,view) {
+    let {$from, $to} = state.selection
+    let range = $from.blockRange($to, node => node.childCount > 0 && node.firstChild!.type == schema.nodes.list_item)
+
+    if(range) {
+      liftItem(state, dispatch, view);
+    } else {
     wrapInOrderedListFunc(state,view.dispatch,view);
-    joinUp(view.state,view.dispatch,view)
-    joinDown(view.state,view.dispatch,view)
+    }
+
+    // joinUp(view.state,view.dispatch,view)
+    // joinDown(view.state,view.dispatch,view)
   },
   icon: createCustomIcon('numbering.svg', 16)
 })
