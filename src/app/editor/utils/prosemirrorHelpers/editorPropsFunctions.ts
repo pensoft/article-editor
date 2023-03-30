@@ -267,7 +267,7 @@ export let handleKeyDown = (serviceShare: ServiceShare, options?: any) => {
   return (view: EditorView, event: KeyboardEvent) => {
     try {
 
-      if (view.state.selection.$from.parent.attrs.contenteditableNode === false) {
+      if (view.state.selection.$from.parent.attrs.contenteditableNode == 'false' || view.state.selection.$from.parent.attrs.contenteditableNode === false) {
         return true
       }
       
