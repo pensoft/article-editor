@@ -8,6 +8,8 @@ import { Subject, Subscription } from 'rxjs';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { changeData } from '../changes-section.component';
+import { AuthService } from '@core/services/auth.service';
+import { takeUntil } from 'rxjs/operators';
 
 @Component({
   selector: 'app-change',
@@ -15,7 +17,7 @@ import { changeData } from '../changes-section.component';
   styleUrls: ['./change.component.scss']
 })
 export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
-
+  private unsubscribe$ = new Subject<void>();
   @Input() change: changeData;
   @Input() index: number;
 
@@ -31,7 +33,8 @@ export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
   constructor(
     public changesService: TrackChangesService,
     private serviceShare:ServiceShare,
-    public ydocService:YdocService
+    public ydocService:YdocService,
+    private readonly authService: AuthService
     ) {
     this.previewMode = serviceShare.ProsemirrorEditorsService!.previewArticleMode
     this.changesService.lastSelectedChangeSubject.subscribe((change) => {
@@ -64,13 +67,15 @@ export class ChangeComponent implements OnInit ,AfterViewInit,OnDestroy{
   }
 
   ngOnDestroy(): void {
-    this.sub?this.sub.unsubscribe():undefined
+    this.sub?this.sub.unsubscribe():undefined;
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 
   currUserId;
   ngOnInit(): void {
-    this.serviceShare.AuthService.getUserInfo().subscribe((userInfo)=>{
-      this.currUserId = userInfo.data.id
+    this.authService.currentUser$.pipe(takeUntil(this.unsubscribe$)).subscribe((userInfo)=>{
+      this.currUserId = userInfo.id
     })
   }
 

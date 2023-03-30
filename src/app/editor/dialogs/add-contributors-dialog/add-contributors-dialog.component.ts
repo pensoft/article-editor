@@ -226,8 +226,8 @@ export class AddContributorsDialogComponent implements AfterViewInit, OnDestroy 
 
   collaboratorstSubs: Subscription
   ngAfterViewInit(): void {
-    this.sharedService.AuthService.getUserInfo().subscribe((response) => {
-      this.currentUser = response.data;
+    this.sharedService.AuthService.currentUser$.subscribe((response) => {
+      this.currentUser = response;
       if (this.collaborators) {
         this.checkIfCurrUserIsOwner()
       }

@@ -18,6 +18,7 @@ export class AnyProjectsGuard implements CanActivate {
 
   }
   canActivate(route: ActivatedRouteSnapshot, state: RouterStateSnapshot) {
+    console.log('--AnyProjectsGuard--');
     return new Promise<boolean>((resolve, reject) => {
       let articleId = route.params.id;
       let articlesGetObservable = this.sharedService.ArticlesService?.getAllArticles({page:1,pageSize:7,sort:'-id'}).pipe(shareReplay());

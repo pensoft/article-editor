@@ -1,5 +1,16 @@
 import { D, E } from '@angular/cdk/keycodes';
-import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnDestroy,
+  OnInit,
+  Output,
+  ViewChild
+} from '@angular/core';
 import { DateSelectionModelChange } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
 import { uuidv4 } from 'lib0/random';
@@ -20,6 +31,7 @@ import { ContributorsApiService } from '@app/core/services/comments/contributors
 import { EditCommentDialogComponent } from '../edit-comment-dialog/edit-comment-dialog.component';
 import { Router } from '@angular/router';
 import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
+import { takeUntil } from 'rxjs/operators';
 
 export function getDate(date: number) {
   let timeOffset = (new Date()).getTimezoneOffset() * 60 * 1000;
@@ -35,7 +47,7 @@ export function getDate(date: number) {
   styleUrls: ['./comment.component.scss']
 })
 export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
-
+  private unsubscribe$ = new Subject<void>();
   @Input() comment?: commentData;
 
   @Input() doneRenderingCommentsSubject?: Subject<any>;
@@ -56,7 +68,6 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
   userComment?: commentYdocSave;
   mobileVersion: boolean
   filteredUsers:fakeUser[]
-  subscription = new Subscription();
 
   replyFormControl = new FormControl('');
   showAutoComplete =  false;
@@ -79,12 +90,12 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.ydocService.editorIsBuild) {
       this.commentsMap = this.ydocService.getCommentsMap()
     }
-    this.subscription.add(this.ydocService.ydocStateObservable.subscribe((event) => {
+    this.ydocService.ydocStateObservable.pipe(takeUntil(this.unsubscribe$)).subscribe((event) => {
       if (event == 'docIsBuild') {
         this.commentsMap = this.ydocService.getCommentsMap()
 
       }
-    }));
+    });
     this.mobileVersion = prosemirrorEditorService.mobileVersion
   }
 
@@ -92,14 +103,16 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
 
   ngOnInit(): void {
     this.userComment = this.commentsMap?.get(this.comment!.commentAttrs.id) || { initialComment: undefined, commentReplies: undefined };
-    this.subscription.add(this.authService.getUserInfo().subscribe((userInfo)=>{
+    this.authService.currentUser$.pipe(takeUntil(this.unsubscribe$)).subscribe((userInfo)=>{
       //@ts-ignore
-      this.currUserId = userInfo.data.id
-    }))
-    this.subscription.add(this.prosemirrorEditorService.mobileVersionSubject.subscribe((data) => {
+      this.currUserId = userInfo.id
+    })
+    this.prosemirrorEditorService.mobileVersionSubject.pipe(takeUntil(this.unsubscribe$)).subscribe((data) => {
       // data == true => mobule version
       this.mobileVersion = data
-    }))
+    })
+
+
   }
 
   commentIsChangedInYdoc() {
@@ -146,14 +159,14 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
     setTimeout(() => {
       this.doneRenderingCommentsSubject.next('rendered')
     }, 10)
-    this.subscription.add(this.sharedService.CommentsService.ydocCommentsChangeSubject.subscribe((commentsObj) => {
+    this.sharedService.CommentsService.ydocCommentsChangeSubject.pipe(takeUntil(this.unsubscribe$)).subscribe((commentsObj) => {
       let ydocCommentInstance = commentsObj[this.comment.commentAttrs.id]
       this.checkIfCommentHasChanged(ydocCommentInstance)
-    }))
+    })
     this.userComment?.commentReplies.forEach((comment, index) => {
       this.repliesShowMore[index] = false
     })
-    this.subscription.add(this.sharedService.CommentsService.lastSelectedCommentSubject.subscribe((comment) => {
+    this.sharedService.CommentsService.lastSelectedCommentSubject.pipe(takeUntil(this.unsubscribe$)).subscribe((comment) => {
       if(this.ydocService.curUserAccess&&this.ydocService.curUserAccess=='Viewer'){
         return
       }
@@ -164,7 +177,8 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
         (this.ReplyDiv.nativeElement as HTMLDivElement).style.display = 'none'
         this.selected.emit(false);
       }
-    }))
+    })
+
   }
 
   selectComment() {
@@ -180,7 +194,7 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
     if (actualComment) {
       //let commentMiddlePos = Math.floor((actualComment.pmDocStartPos+ actualComment.pmDocEndPos)/2)
       view.focus()
-      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualComment.pmDocStartPos), view.state.doc.resolve(actualComment.pmDocEndPos))).setMeta('selected-comment',true))
+      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualComment.pmDocStartPos), view.state.doc.resolve(actualComment.pmDocEndPos))).setMeta('selected-comment',true).scrollIntoView())
 
       this.sharedService.ProsemirrorEditorsService.dispatchEmptyTransaction()
       //this.showHideReply(this.ReplyDiv.nativeElement as HTMLDivElement, true)
@@ -188,18 +202,60 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  onDelete() {
-    let from = this.comment?.pmDocStartPos;
-    let to = this.comment?.pmDocEndPos;
-    let viewRef = this.sharedService.ProsemirrorEditorsService.editorContainers[this.comment.section].editorView
-    let state = viewRef.state
-    let commentsMark = state?.schema.marks.comment
+  onDelete(view: EditorView, commentId: string, isFirstTime?: boolean) {
+    let state = view.state;
+    let commentsMark = state?.schema.marks.comment;
+    let docSize = state.doc.content.size;
+    let textstart: any;
+    let textend: any;
+    let commentFound = false;
 
-    viewRef.dispatch(state?.tr.removeMark(from!, to!, commentsMark)!)
-    this.commentsMap?.delete(this.comment?.commentAttrs.id)
+    state.doc.nodesBetween(0, docSize - 2, (node, pos, parent) => {
+      let mark = node.marks.find(mark => mark.attrs.id == commentId);
+
+      if (mark) {
+        textstart = pos;
+        textend = pos + node.nodeSize;
+        commentFound = true;
+      }
+    })
+
+    if (commentFound) {
+      view.focus();
+      view.dispatch(state?.tr.removeMark(textstart, textend, commentsMark))
+      this.sharedService.ProsemirrorEditorsService.dispatchEmptyTransaction()
+
+      let resolvedPosAtStart = view.state.doc.resolve(textstart);
+      let resolvedPosAtEnd = view.state.doc.resolve(textend);
+
+      let nodeBefore = resolvedPosAtStart.nodeBefore;
+      let nodeAfter = resolvedPosAtEnd.nodeAfter;
+
+      if (nodeBefore) {
+        let markConn = nodeBefore.marks.find(mark => mark.attrs.id == commentId)
+        if (markConn) {
+          setTimeout(()=> {
+            this.onDelete(view, commentId);
+          }, 0)
+        }
+      }
+      if (nodeAfter) {
+        let markConn = nodeAfter.marks.filter(mark => mark.attrs.id == commentId)[0]
+        if (markConn) {
+          setTimeout(()=> {
+            this.onDelete(view, commentId);
+          }, 0)
+        }
+      }
+      if(isFirstTime) {
+        this.commentsMap?.delete(this.comment?.commentAttrs.id);
+      }
+    }
+
   }
 
   deleteComment(showConfirmDialog, comment) {
+    let viewRef = this.sharedService.ProsemirrorEditorsService.editorContainers[this.comment.section].editorView
     if (showConfirmDialog) {
       let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
         data: { objName: comment, type: 'comment' },
@@ -207,12 +263,12 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
       })
       dialogRef.afterClosed().subscribe((data: any) => {
         if (data) {
-          this.onDelete()
+          this.onDelete(viewRef, this.comment.commentAttrs.id, true);
         }
       })
       return;
     }
-    this.onDelete()
+    this.onDelete(viewRef, this.comment.commentAttrs.id, true)
   }
 
   deleteReply(id: string, reply: string) {
@@ -340,6 +396,7 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subscription.unsubscribe();
+    this.unsubscribe$.next();
+    this.unsubscribe$.complete();
   }
 }

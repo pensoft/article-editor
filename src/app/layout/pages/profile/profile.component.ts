@@ -16,7 +16,7 @@ import { countriesInfo } from '../../../../assets/json/country';
   styleUrls: ['./profile.component.scss'],
 })
 export class ProfileComponent implements OnInit {
-  public userName?: IUserDetail[];
+  public userName?: string;
   public demographicForm!: FormGroup;
   public countriesData: ICountriesData[] = [];
 
@@ -38,8 +38,8 @@ export class ProfileComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.authService.getUserInfo().subscribe((response) => {
-      const name = response.data.name;
+    this.authService.currentUser$.subscribe((response) => {
+      const name = response.name;
       this.userName = name;
     });
 

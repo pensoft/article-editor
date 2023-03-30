@@ -1491,14 +1491,16 @@ app-comments-section {
             }
 
             .mat-form-field-suffix {
-              top: -5px;
-              right: 3px;
+              // right: 3px;
+              // top: -5px;
             }
 
             .mat-form-field-infix {
               height: 34px;
               padding: 0;
               border: 0;
+              display: flex;
+              align-items: center;
 
               > input {
                 line-height: 18px;
@@ -1511,6 +1513,7 @@ app-comments-section {
             color: #bbbaba9e !important;
             height: 16px;
             width: 16px;
+            margin-top: 7px;
           }
         }
       }
