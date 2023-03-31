@@ -220,7 +220,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   }
 
   addNodeHandle(nodeId: string) {
-    if(!willBeMoreThan4Levels(this.treeService.getNodeLevel(this.node),this.node.originalSectionTemplate)){
+    if(!willBeMoreThan4Levels(this.treeService.getNodeLevel(this.node).nodeLevel,this.node.originalSectionTemplate)){
       this.prosemirrorEditorsService.spinSpinner();
       this.treeService.addNodeChange(nodeId,this.node.originalSectionTemplate,this.prosemirrorEditorsService.stopSpinner);
     }else{
@@ -330,7 +330,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, treatmentSectionsCustom, 'end');
     } else {
       taxonSection.parent = node;
-      let sectionlevel = this.treeService.getNodeLevel(node)
+      let { nodeLevel: sectionlevel } = this.treeService.getNodeLevel(node)
 
       let fileredSections = getFilteredSectionChooseData(node)
 
