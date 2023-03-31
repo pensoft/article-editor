@@ -269,7 +269,7 @@ export class TreeService implements OnDestroy {
     }
     findLevel(this.articleSectionsStructure!, 0, 0);
     //@ts-ignore
-    return {nodeLevel, hTag: hTag >= 2 ? hTag : 0};
+    return {nodeLevel, hTag };
   }
 
   buildNewFormGroups(nodes: articleSection[]) {
