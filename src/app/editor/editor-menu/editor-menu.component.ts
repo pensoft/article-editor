@@ -26,9 +26,9 @@ export class EditorMenuComponent implements OnInit {
     let container = this.container
     const regex1 = /\[innerHTML\]="[^\"\|]+"/gm
 
-    if (options?.level) {
-      htmlToCompile = htmlToCompile.replace(/\${level}/gm, `${options.level}`)
-    } else if (options?.level == 0) {
+    if (options?.hTag) {
+      htmlToCompile = htmlToCompile.replace(/\${level}/gm, `${options.hTag > 6 ? 6 : options.hTag}`)
+    } else if (options?.hTag == 0) {
       htmlToCompile = htmlToCompile.replace(/\${level}/gm, `2`);
     }
 

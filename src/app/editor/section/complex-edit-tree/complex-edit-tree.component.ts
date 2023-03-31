@@ -149,7 +149,7 @@ export class ComplexEditTreeComponent implements OnInit {
     let nodeLevel = this.treeService.getNodeLevel(this.section);
     this.sectionsService.getAllSections({ page: 1, pageSize: 999 }).subscribe((response: any) => {
       let sectionTemplates1 = filterChooseSectionsFromBackend(this.section.compatibility, response.data)
-      let sectionlevel = this.treeService.getNodeLevel(this.section)
+      let { nodeLevel: sectionlevel } = this.treeService.getNodeLevel(this.section)
       let sectionTemplates = (sectionTemplates1 as any[]).filter((el: any) => {
         let elementLevel = countSectionFromBackendLevel(el)
         return (elementLevel + sectionlevel < 3);
