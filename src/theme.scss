@@ -1160,7 +1160,8 @@ mat-radio-group {
 /* Right sidebar Search styling */
 app-changes-section,
 app-taxons-section,
-app-comments-section {
+app-comments-section,
+app-meta-data-tree {
 
   .search-changes,
   .search-taxons,
@@ -2337,4 +2338,22 @@ app-dropzone {
 // Progress bar buffer styling
 .mat-progress-bar-buffer {
   background-color: var(--color-e3e3e3) !important;
+}
+
+// Sections search bar override
+app-meta-data-tree {
+  .search-comments {
+    .search-box-comments {
+      .mat-form-field-wrapper .mat-form-field-flex {
+        background-color: var(--color-f9fafc) !important;
+      }
+    }
+  }
+  .fixed-search-comments {
+    position: sticky;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+  }
 }
