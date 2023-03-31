@@ -15,6 +15,13 @@ import { FullSchemaDOMPMSerializer , FullSchemaDOMPMParser} from "../Schema/filt
 import { elementOnWhichClickShouldNoteBeHandled } from "./transactionControllingFunctions";
 
 
+export function transformPastedHTML(html) {
+  if (html.includes('wikipedia.org')) {
+    return html.replace(/Jump up to:/gm, "")
+  }
+  return html
+}
+
 
 export function handlePaste(sharedService:ServiceShare, options?: any) {
   return function handlePaste(view: EditorView, event: ClipboardEvent, slice: Slice) {

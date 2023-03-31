@@ -55,7 +55,7 @@ import { TreeService } from '../meta-data-tree/tree-service/tree.service';
 import { menuBar } from '../utils/prosemirror-menu-master/src/menubar.js'
 import { FormioControl } from 'src/app/formio-angular-material/FormioControl';
 import { AddMarkStep, Mapping, RemoveMarkStep, ReplaceAroundStep, ReplaceStep } from 'prosemirror-transform';
-import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn, selectWholeCitatMarksAndRefCitatNode, handleScrollToSelection } from '../utils/prosemirrorHelpers';
+import { handleClick, handleDoubleClick as handleDoubleClickFN, handleKeyDown, handlePaste, createSelectionBetween, handleTripleClickOn, preventDragDropCutOnNoneditablenodes, updateControlsAndFigures, handleClickOn, selectWholeCitatMarksAndRefCitatNode, handleScrollToSelection, transformPastedHTML } from '../utils/prosemirrorHelpers';
 //@ts-ignore
 import { figure } from '../utils/interfaces/figureComponent';
 import { CitatContextMenuService } from '../utils/citat-context-menu/citat-context-menu.service';
@@ -491,6 +491,7 @@ export class ProsemirrorEditorsService {
           }
           return false;
         },
+        transformPastedHTML: transformPastedHTML,
         handleDrop: (plugin, view, event, slice) => {
           if (this.previewArticleMode.mode) {
             return true
@@ -742,6 +743,7 @@ export class ProsemirrorEditorsService {
       },
       dispatchTransaction,
       handlePaste: handlePaste(this.serviceShare),
+      transformPastedHTML: transformPastedHTML,
       handleClick: handleClick(),
       handleClickOn: handleClickOn(),
       handleTripleClickOn,
@@ -899,6 +901,7 @@ export class ProsemirrorEditorsService {
       handleClick: handleClick(),
       handleClickOn: handleClickOn(),
       handlePaste: handlePaste(this.serviceShare),
+      transformPastedHTML: transformPastedHTML,
       handleTripleClickOn,
       handleKeyDown: handleKeyDown(this.serviceShare),
     });
@@ -1124,6 +1127,7 @@ export class ProsemirrorEditorsService {
       handleClick: handleClick(),
       handleClickOn: handleClickOn(),
       handlePaste: handlePaste(this.serviceShare),
+      transformPastedHTML: transformPastedHTML,
       handleTripleClickOn,
       handleDoubleClick: handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
       handleKeyDown: handleKeyDown(this.serviceShare),
@@ -1346,6 +1350,7 @@ export class ProsemirrorEditorsService {
     let lastStep: any
     let lastContainingInsertionMark: any
     const dispatchTransaction = (transaction: Transaction) => {
+      console.log('transaction.selection', transaction.selection)
       this.transactionCount++
       try {
         if (lastStep == transaction.steps[0]) {
@@ -1407,6 +1412,7 @@ export class ProsemirrorEditorsService {
       dispatchTransaction,
       handleClick: handleClick(),
       handlePaste: handlePaste(this.serviceShare, options),
+      transformPastedHTML: transformPastedHTML,
       handleTripleClickOn,
       handleDoubleClick:
       handleDoubleClickFN(hideshowPluginKEey, this.serviceShare),
@@ -1542,6 +1548,7 @@ export class ProsemirrorEditorsService {
     editorView = new EditorView(container, {
       state: edState,
       handlePaste: handlePaste(this.serviceShare),
+      transformPastedHTML: transformPastedHTML,
       clipboardTextSerializer: (slice: Slice) => {
         return mathSerializer.serializeSlice(slice);
       },
