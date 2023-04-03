@@ -19,8 +19,8 @@
 
 .notifications-component {
   position: relative;
-  margin-right: 0px;
-  margin-left: 15px;
+  margin-right: 8px;
+  margin-left: 16px;
 
   .mat-badge {
     .mat-badge-content {
@@ -80,9 +80,7 @@ animation: fade-out 1s;
   .arrow-icon {
     margin-right: 8px !important;
   }
-  .theme-toggle {
-    margin-right: 22px;
-  }
+
   .avatar {
     height: 35px;
     width: 35px;
@@ -116,6 +114,38 @@ animation: fade-out 1s;
     z-index: 10;
   }
 }
+
+.dropdown-btn {
+  padding-right: 0;
+
+  ::ng-deep {
+    .mat-button-wrapper {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      gap: 8px;
+
+      .mat-icon.expand-less {
+        display: none;
+      }
+
+      &[aria-expanded="true"] {
+        .mat-icon.expand-more {
+          display: none;
+        }
+
+        .mat-icon.expand-less {
+          display: inline-block;
+        }
+      }
+    }
+  }
+
+  ::ng-deep .mat-button-focus-overlay {
+    display: none;
+  }
+}
+
 .text-dashbord-header {
   font-size: 14px;
   font-weight: normal;
@@ -123,6 +153,7 @@ animation: fade-out 1s;
   padding: 0 0 0 5px;
   animation: fade-out 1s;
 }
+
 @keyframes fade-in {
   from {
     opacity: 1;
