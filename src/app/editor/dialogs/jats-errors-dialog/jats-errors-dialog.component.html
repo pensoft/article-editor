@@ -3,8 +3,15 @@
 <mat-dialog-content class="dynamic-content-height">
   <div class="errors-container">
     <div class="jats-error" *ngFor="let error of data.errors">
-        <div class="message">{{error.message}}</div>
-        <div class="position">{{error.line}}:{{error.column}}</div>
+        <ng-container *ngIf="error.message; else simpleMessage">
+          <div class="message">{{error.message}}</div>
+          <div class="position" *ngIf="error.line&&error.column">{{error.line}}:{{error.column}}</div>
+        </ng-container>
+        <ng-template #simpleMessage>
+          <div class="message">
+            {{error}}
+          </div>
+        </ng-template>
     </div>
   </div>
 </mat-dialog-content>
