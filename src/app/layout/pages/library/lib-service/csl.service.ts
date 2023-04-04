@@ -88,11 +88,18 @@ export class CslService {
     this.currentRef = ref;
     this.citeproc = new CSL.Engine(this.citeprocSys, /* pensoftStyle */refStyle);
     this.citeproc.updateItems([ref.id]);
-    let citationData = this.generateCitation([{
+    let citationData = [
+      this.generateCitation([{
       "citationID": newCitationId,
       "citationItems": [{ "id": ref.id }],
-      "properties": { "noteIndex": 1 }
-    }, [], []]);
+      "properties": { "noteIndex": 1, "mode": "author-only" }
+    }, [], []]), 
+    this.generateCitation([{
+      "citationID": newCitationId,
+      "citationItems": [{ "id": ref.id }],
+      "properties": { "noteIndex": 1, "mode": "composite" }
+    }, [], []])
+  ];
     let bibliography = this.citeproc.makeBibliography();
     return {
       bibliography: bibliography[1][0],

@@ -25,7 +25,7 @@ const mappingObj: any = {
         }
         refobj['issued'] = {
           "date-parts": [
-            dateParts
+            dateParts[0]
           ]
         }
     })` },
@@ -46,7 +46,7 @@ const mappingObj: any = {
             dateParts[i] = "0"+dateParts[i]
           }
         }
-        formioobj['issued'] = dateParts.join("-")
+        formioobj['issued'] = dateParts[0]
     })` },
   },
   "publicationDate": {
@@ -70,7 +70,7 @@ const mappingObj: any = {
         }
         refobj['issued'] = {
           "date-parts": [
-            dateParts
+            dateParts[0]
           ]
         }
     })` },
@@ -91,7 +91,7 @@ const mappingObj: any = {
             dateParts[i] = "0"+dateParts[i]
           }
         }
-        formioobj['issued'] = dateParts.join("-")
+        formioobj['issued'] = dateParts[0]
     })` },
   },
   "publishedIn": { type: 'string', cslProp: 'city', formIOprop: "city" },

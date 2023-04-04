@@ -46,6 +46,39 @@
   }
 }
 
+.citation-prev-container {
+  width: 100%;
+}
+
+::ng-deep .drag-form {
+    width: 90%;
+    margin: auto;
+
+    .mat-form-field-infix{
+      height: 120px;
+    }
+
+    .drag-element {
+      cursor: grab;
+    }
+}
+
+.style-btn-container {
+  width: 80%;
+  margin: auto;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 0 0 10px 0;
+  gap: 10px;
+
+  .mat-citation-style-btn {
+    color: #fff;
+    background-color: var(--color-00b1b2);
+  }
+}
+
+
 /* ::ng-deep .ref-container {
   padding: 10px;
   border-top: 1px solid;

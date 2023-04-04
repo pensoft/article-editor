@@ -145,11 +145,14 @@ export class CitationButtonsService {
           // const referenceCitationInfo = citeRefPosition(view.state, anchor.pos);
           // if(!referenceCitationInfo) return;
           const { from, referenceCitation } = referenceCitationInfo;
-          let { citedRefsCiTOs, citedRefsIds } = referenceCitation.attrs;
+          const { citedRefsCiTOs, citedRefsIds, citationStyle } = referenceCitation.attrs;
+          const texts = referenceCitation.textContent.split(', ');
+          const data = citedRefsIds.map((refCitationID: string, i: number) => ({ text: texts[i], refCitationID, citationStyle }))
+          
 
           this.dialog.open(RefsInArticleCiteDialogComponent, {
               panelClass: 'editor-dialog-container',
-              data: { citedRefsIds, citedRefsCiTOs, isEditMode: true },
+              data: { data, citedRefsCiTOs, isEditMode: true },
               width: '680px',
             })
             .afterClosed()
@@ -181,7 +184,7 @@ export class CitationButtonsService {
             from - 1,
             from + referenceCitation.nodeSize - 1
           );
-          view.dispatch(tr);
+          view.dispatch(tr.setMeta("deleteRefCitation", true));
           btnsWrapper.style.display = "none";
       })
     }    
@@ -196,6 +199,7 @@ export class CitationButtonsService {
   }
   
   citeRefPosition(state: EditorState, pos: number) {
+    
     const $pos = state.doc.resolve(pos);
     const { parent: node } = $pos;
     if (!node || node.type.name !== 'reference_citation') return;

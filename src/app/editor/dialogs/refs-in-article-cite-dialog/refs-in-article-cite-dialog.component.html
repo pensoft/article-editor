@@ -20,7 +20,7 @@
       <ng-container *ngIf="!isEditMode">
         <div class="ref-container" [ngClass]="{'edit-mode': isEditMode}" *ngFor="let ref of ydocRefsSubject | async">
             <mat-checkbox class="ref-checkbox"
-            [checked]="checkedRefs.includes(ref.ref.id)"
+            [checked]="isExist(ref)"
             (change)="checkBoxChange($event.checked,ref)"
             [color]='"primary"'>
               <span class="ref-txt" [innerHTML]="ref.citation.textContent | makeTextBold : searchValue"></span>
@@ -41,8 +41,8 @@
       <ng-container *ngIf="isEditMode">
         <div class="ref-container" [ngClass]="{'edit-mode': isEditMode}" *ngFor="let ref of ydocRefsSubject | async">
 
-          <ng-container *ngIf="checkedRefs.includes(ref.ref.id)">
-            <div class="ref-edit-mode" *ngIf="isEditMode">
+          <ng-container *ngIf="isExist(ref)">
+            <div class="ref-edit-mode">
               <button mat-icon-button (click)="deleteCitation(ref.ref.id)" color="warn" title="Remove Citation" class="delete-citation">
                   <mat-icon>delete</mat-icon>
               </button>
@@ -57,12 +57,41 @@
               </mat-select>
             </mat-form-field>
           </ng-container>
-
+          
         </div>
       </ng-container>
     </div>
   </div>
 </mat-dialog-content>
+
+          <div class="citation-prev-container">
+              <div class="style-btn-container">
+                <button class="mat-citation-style-btn" mat-button (click)="changeCitationStyle(0)">Citation Style 1</button>
+                <button class="mat-citation-style-btn" mat-button (click)="changeCitationStyle(1)">Citation Style 2</button>
+              </div>
+              
+              <mat-form-field class="example-chip-list drag-form">
+                  <mat-chip-list #chipList cdkDropListGroup #citationsContainer>
+                      <div *ngFor="let citation of checkedRefs; let i = index" cdkDropList [cdkDropListData]="i" >
+                        <mat-chip 
+                        class="drag-element"
+                        [selectable]="true" 
+                        cdkDrag [cdkDragData]="i" 
+                        (cdkDragEntered)="dragEntered($event)" 
+                        [removable]="true" 
+                        (removed)="deleteCitation(citation.refCitationID)"
+                        >
+                        {{citation.text}}
+                        <mat-icon matChipRemove >cancel</mat-icon>
+                      </mat-chip>
+                    </div>
+                      <input 
+                      [matChipInputFor]="chipList" 
+                      [disabled]="true"
+                      >
+                  </mat-chip-list>
+              </mat-form-field>
+          </div>
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button (click)="closeDialog()">Cancel</button>
