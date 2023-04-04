@@ -150,8 +150,8 @@ export function handleDeleteOfRefsFigsCitationsAndComments(sharedService: Servic
     let rerenderingElements = false;
 
     transactions.forEach((transaction) => {
-      //@ts-ignore
-      if (transaction.steps.length > 0 && (transaction.meta && transaction.meta.uiEvent != 'paste' && transaction.meta.uiEvent != 'drop')) {
+            //@ts-ignore
+      if (!transaction.getMeta("deleteRefCitation") && transaction.steps.length > 0 && (transaction.meta && transaction.meta.uiEvent != 'paste' && transaction.meta.uiEvent != 'drop')) {
         transaction.steps.forEach((step) => {
           //@ts-ignore
           if (step instanceof ReplaceStep && step.slice.content.size == 0) {
@@ -209,6 +209,7 @@ export function handleDeleteOfRefsFigsCitationsAndComments(sharedService: Servic
       if (deletedRefCitations.length > 0) {
         setTimeout(()=>{
           sharedService.YjsHistoryService.capturingNewItem = true
+          debugger
           sharedService.EditorsRefsManagerService!.updateRefsInEndEditorAndTheirCitations();
           setTimeout(()=>{
             sharedService.YjsHistoryService.stopCapturingUndoItem()

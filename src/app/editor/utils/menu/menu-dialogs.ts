@@ -35,44 +35,45 @@ export function shareDialog(dialog: MatDialog) {
 
 let citateRef = (sharedService: ServiceShare) => {
   return (state: EditorState, dispatch: any, view: EditorView) => {
-    const $pos = state.doc.resolve(state.selection.$anchor.pos);
-    const {parent: node} = $pos;
-    const from = $pos.start();
+    // const $pos = state.doc.resolve(state.selection.$anchor.pos);
+    // const {parent: node} = $pos;
+    // const from = $pos.start();
 
-    let citedRefsIds: string[];
-    let citedRefsCiTOs: string[];
-    let citationNode: Node;
-    let citationPos: number;
-    let citationObj: {
-      citedRefsIds: string[],
-      citationNode: Node,
-      citationPos: number
-      }
-    let isEditMode: boolean;
+    // let citedRefsIds: string[];
+    // let citedRefsCiTOs: string[];
+    // let citationNode: Node;
+    // let citationPos: number;
+    // let citationObj: {
+    //   citedRefsIds: string[],
+    //   citationNode: Node,
+    //   citationPos: number
+    //   }
+    // let isEditMode: boolean;
 
-    if(node && node.type.name == "reference_citation") {
-        citedRefsIds = node.attrs.citedRefsIds;
-        citedRefsCiTOs = node.attrs.citedRefsCiTOs;
-        isEditMode = true;
-        citationNode = node;
-        citationPos = from;
-        citationObj = {
-          citedRefsIds,
-          citationNode,
-          citationPos
-        }
-    }
+    // if(node && node.type.name == "reference_citation") {
+    //     citedRefsIds = node.attrs.citedRefsIds;
+    //     citedRefsCiTOs = node.attrs.citedRefsCiTOs;
+    //     isEditMode = true;
+    //     citationNode = node;
+    //     citationPos = from;
+    //     citationObj = {
+    //       citedRefsIds,
+    //       citationNode,
+    //       citationPos
+    //     }
+    // }
 
     let dialogRef = sharedDialog.open(RefsInArticleCiteDialogComponent,{
       panelClass: 'editor-dialog-container',
-      data: { citedRefsIds, citedRefsCiTOs, isEditMode },
+      data: { citedRefsIds: undefined, citedRefsCiTOs: undefined, isEditMode: false },
       width: '680px',
       // height:'461px',
     })
     dialogRef.afterClosed().subscribe(result => {
       if(result){
         const { citedRefs, isEditMode } = result;
-        sharedService.EditorsRefsManagerService.citateSelectedReferencesInEditor(citedRefs, view, isEditMode, citationObj)
+        
+        sharedService.EditorsRefsManagerService.citateSelectedReferencesInEditor(citedRefs, view, isEditMode)
       }
       /* if(result){
         sharedService.YjsHistoryService.startCapturingNewUndoItem();

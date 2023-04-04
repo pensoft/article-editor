@@ -37,30 +37,29 @@ export class EditorsRefsManagerService {
 
   dothSaveToHistory = false;
 
-  citateSelectedReferencesInEditor(citedRefs: string[], view: EditorView, isEditMode: boolean, citedRefsAtPos?: {
+  citateSelectedReferencesInEditor(
+    citedRefs: {text: string, refCitationID: string, citationStyle: number }[], 
+    view: EditorView, 
+    isEditMode: boolean, 
+    citedRefsAtPos?: {
     citedRefsIds: string[],
     citationNode: Node,
     citationPos: number
     }) {
     let refsInYdoc = this.serviceShare.YdocService.referenceCitationsMap.get('refsAddedToArticle');
+    let citationStyle = citedRefs[0]?.citationStyle;
 
     let state = view.state;
     let schema = state.schema as Schema;
 
     let nodeAttrs = {
       refCitationID: uuidv4(),
-      citedRefsIds: citedRefs,
+      citedRefsIds: citedRefs.map(c => c.refCitationID),
       contenteditableNode: false,
-      citedRefsCiTOs: citedRefs.map(id => refsInYdoc[id].refCiTO?.label || CiToTypes[0].label)
+      citedRefsCiTOs: citedRefs.map(c => refsInYdoc[c.refCitationID].refCiTO?.label || CiToTypes[0].label),
+      citationStyle
     }
-
-    let refsTxts: string[] = Object.keys(refsInYdoc).reduce<string[]>((prev: string[], key: string, i: number) => {
-      if (citedRefs.includes(key)) {
-        let ref = refsInYdoc[key];
-        prev.push(ref.citation.data.text)
-      }
-      return prev
-    }, []);
+    let refsTxts = citedRefs.map(c => c.text);
 
     this.serviceShare.YjsHistoryService.captureBigOperation();
 
@@ -68,7 +67,7 @@ export class EditorsRefsManagerService {
       view.dispatch(state.tr.deleteRange(
         citedRefsAtPos.citationPos - 1,
         citedRefsAtPos.citationPos + citedRefsAtPos.citationNode.nodeSize - 1
-      ));
+      ).setMeta("deleteRefCitation", true));
     } else if (!citedRefsAtPos) {
       let citationTxt = schema.text(refsTxts.join(', '));
 
@@ -132,12 +131,12 @@ export class EditorsRefsManagerService {
 
     let refsWithNoFormControls = clearRefFromFormControl(refsInEndEditor)
     this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsWithNoFormControls);
-
+        
     Object.keys(refsInEndEditor).forEach((key) => {
-      refsInEndEditor[key].originalDisplayText = refsInEndEditor[key].citation.data.text;
-      refsInEndEditor[key].originalBibliography = refsInEndEditor[key].citation.bibliography;
+      refsInEndEditor[key].originalBibliography = refsInEndEditor[key].citation.bibliography;   
       refsInEndEditor[key].displayHTMLOriginal = refsInEndEditor[key].citation.textContent;
     })
+    
     this.updateCitationsDisplayTextAndBibliography(refsInEndEditor)
 
     deleatedRefsIds.forEach((refId) => {
@@ -297,8 +296,8 @@ export class EditorsRefsManagerService {
     Object.keys(this.serviceShare.ProsemirrorEditorsService!.editorContainers).forEach((sectionId) => {
       let edView = this.serviceShare.ProsemirrorEditorsService!.editorContainers[sectionId].editorView
       let allRefsCitationIdsInEditors = this.getAllCitationsIdsInEditor(edView)
-      allRefsCitationIdsInEditors.forEach((citeId) => {
-        this.updateRefsCitationsInEditor(edView, refs, citeId)
+      allRefsCitationIdsInEditors.forEach((citationObj) => {
+        this.updateRefsCitationsInEditor(edView, refs, citationObj)
       })
     })
   }
@@ -312,13 +311,14 @@ export class EditorsRefsManagerService {
     state.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
       if (n.type.name == 'reference_citation') {
         let citationId = n.attrs.refCitationID;
-        citaitonIds.push(citationId)
+        let citationStyle = n.attrs.citationStyle
+        citaitonIds.push({ citationId, citationStyle })
       }
     })
     return citaitonIds
   }
 
-  updateRefsCitationsInEditor(view, refs, citeId) {
+  updateRefsCitationsInEditor(view, refs, citationObj) {
     let edView = view;
 
     let node: any;
@@ -332,15 +332,19 @@ export class EditorsRefsManagerService {
 
     let allRefsIds = Object.keys(refs)
     state.doc.nodesBetween(0, docSize - 1, (n, p, par, i) => {
-      if (n.type.name == 'reference_citation' && n.attrs.refCitationID == citeId && n.attrs.citedRefsIds.some(x=>allRefsIds.includes(x))) {
+      if (n.type.name == 'reference_citation' && 
+          n.attrs.refCitationID == citationObj.citationId && 
+          n.attrs.citedRefsIds.some(x=>allRefsIds.includes(x)) &&
+          n.attrs.citationStyle == citationObj.citationStyle) {
         let citationTextContent = n.textContent;
-        let citationCurrTextContent: string = allRefsIds.reduce<string[]>((prev: string[], key: string, i: number) => {
-          if (n.attrs.citedRefsIds.includes(key)) {
-            let ref = refs[key];
-            prev.push(ref.citationDisplayText)
+        let citationCurrTextContent: string = n.attrs.citedRefsIds.reduce((prev: string[], key: string, i: number) => {
+          if (allRefsIds.includes(key)) { 
+            let text = refs[key].citation.data[+citationObj.citationStyle].text;
+            prev.push(text);
           }
           return prev
         }, []).join(', ');
+        debugger
         if (citationTextContent != citationCurrTextContent) {
           citatNewTxt = citationCurrTextContent
           found = true

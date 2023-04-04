@@ -8,14 +8,7 @@ import { Subject } from 'rxjs';
 import { YMap } from 'yjs/dist/src/internals';
 import { RefsAddNewInArticleDialogComponent } from '../refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
 import { clearRefFromFormControl } from '../refs-in-article-dialog/refs-in-article-dialog.component';
-
-interface refsObj{
-  [key:string]:articleRef
-}
-
-interface articleRef{
-  ref
-}
+import { CdkDragEnter, moveItemInArray } from '@angular/cdk/drag-drop';
 
 @Component({
   selector: 'app-refs-in-article-cite-dialog',
@@ -27,15 +20,16 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
   refsInYdoc
   refMap: YMap<any>;
   addRefsThisSession:string[] = []
-  checkedRefs:string[] = []
+  checkedRefs: { text: string, refCitationID: string, citationStyle: number }[] = []
   CiToTypes = CiToTypes
+  citationStyle = 0;
+  citations = []
+  isEditMode: boolean;
+
   @ViewChild('searchrefs', { read: ElementRef }) searchrefs?: ElementRef;
-
-  ydocRefsSubject = new Subject<any>();
-
   searchControl = new FormControl('')
 
-  isEditMode: boolean;
+  ydocRefsSubject = new Subject<any>();
 
   constructor(
     private ydocService:YdocService,
@@ -43,7 +37,11 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
     public dialog: MatDialog,
     private ref:ChangeDetectorRef,
     private serviceShare:ServiceShare,
-    @Inject(MAT_DIALOG_DATA) public data: { citedRefsIds: string[], citedRefsCiTOs: string[], isEditMode: boolean },
+    @Inject(MAT_DIALOG_DATA) public data: { 
+      data: { text: string, refCitationID: string, citationStyle: number }[], 
+      citedRefsCiTOs: string[] | undefined, 
+      isEditMode: boolean
+    }
     ) {
     this.refMap = this.ydocService.referenceCitationsMap;
     this.refMap.observe(this.observeRefMapChanges)
@@ -63,7 +61,11 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
           let refId = refInstance.ref.ref.id;
           this.refsInYdoc[refId] = refInstance.ref
           this.addRefsThisSession.push(refId);
-          this.checkedRefs.push(refId);
+          this.checkedRefs.push({ 
+            text: refInstance.ref.citation.data[this.citationStyle].text,
+            refCitationID: refInstance.ref.ref.id,
+            citationStyle: this.citationStyle
+          });
         })
         this.saveNewRefsInYdoc()
       }
@@ -106,8 +108,8 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
         formC = this.refsCiTOsControls[ref.ref.id]
       } else if (this.isEditMode) {
         formC = new FormControl(null);
-        this.data.citedRefsIds.forEach((id, i) => {
-          if(ref.ref.id == id) {
+        this.data.data.forEach((c, i) => {
+          if(ref.ref.id == c.refCitationID) {
             formC.setValue((CiToTypes.find(t => t.label == this.data.citedRefsCiTOs[i])));
           }
         })
@@ -136,7 +138,9 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
       this.passRefsToSubject()
     })
     if(this.data.isEditMode){
-      this.checkedRefs.push(...this.data.citedRefsIds);
+      debugger
+      this.checkedRefs = this.data.data;
+      this.citationStyle = this.checkedRefs[0].citationStyle;
       this.isEditMode = true;
     }
   }
@@ -152,20 +156,48 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
   checkBoxChange(checked,ref){
     let refId = ref.ref.id
     if(checked){
-      this.checkedRefs.push(refId);
+      this.checkedRefs.push({ text: ref.citation.data[this.citationStyle].text, refCitationID: ref.ref.id, citationStyle: this.citationStyle });      
     }else{
-      this.checkedRefs = this.checkedRefs.filter(x => x!=refId);
+      this.checkedRefs = this.checkedRefs.filter(c => c.refCitationID != refId);
       this.addRefsThisSession = this.addRefsThisSession.filter(x => x!=refId);
     }
   }
 
-  deleteCitation(citationId) {
-    this.checkedRefs = this.checkedRefs.filter(id => id != citationId)
+  deleteCitation(citationId: string) {
+    this.checkedRefs = this.checkedRefs.filter(c => c.refCitationID != citationId);
   }
 
+  changeCitationStyle(style: number) {
+    let newCitations = [];
+
+    this.checkedRefs.forEach(({ refCitationID }) => {
+      newCitations.push({text: this.refsInYdoc[refCitationID].citation.data[style].text, refCitationID, citationStyle: style});
+    })
+
+    this.checkedRefs = newCitations;
+    this.citationStyle = style;
+  }
+
+  isExist(ref) {
+    return !!this.checkedRefs.find(c => c.refCitationID == ref.ref.id);
+  }
+
+  dragEntered(event: CdkDragEnter<number>) {
+    const drag = event.item;
+    const dropList = event.container;
+    const dragIndex = drag.data;
+    const dropIndex = dropList.data;
+
+    const phContainer = dropList.element.nativeElement;
+    const phElement = phContainer.querySelector('.cdk-drag-placeholder');
+    phContainer.removeChild(phElement);
+    phContainer.parentElement.insertBefore(phElement, phContainer);
+    moveItemInArray(this.checkedRefs, dragIndex, dropIndex);    
+  }
+  
   citeSelectedRefs(){
     clearRefFromFormControl(this.refsInYdoc);
-
-    this.dialogRef.close({ citedRefs:this.checkedRefs, isEditMode: this.isEditMode })
+    
+    this.dialogRef.close({ citedRefs: this.checkedRefs, isEditMode: this.isEditMode })
   }
 }

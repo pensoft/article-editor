@@ -12,7 +12,7 @@ import { YMap } from 'yjs/dist/src/internals';
 import { AskBeforeDeleteComponent } from '../ask-before-delete/ask-before-delete.component';
 import { RefsAddNewInArticleDialogComponent } from '../refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
 
-export let clearRefFromFormControl = (newRefs:any)=>{
+export let clearRefFromFormControl = (newRefs:any)=>{  
   let refsWithNoFormControls = {}
     Object.keys(newRefs).forEach((key:any,i)=>{
       let ref = newRefs[key]
