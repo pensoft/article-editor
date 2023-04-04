@@ -23,10 +23,10 @@ import { editorContainer, editorContainersObj } from '@app/editor/services/prose
   providedIn: 'root'
 })
 export class CslService {
+  refsInYdoc: any;
   currentRef: any;
 
   citeprocSys = {
-
     // Given a language tag in RFC-4646 form, this method retrieves the
     // locale definition file.  This method must return a valid *serialized*
     // CSL locale. (In other words, an blob of XML as an unparsed string.  The
@@ -40,7 +40,11 @@ export class CslService {
     // Given an identifier, this retrieves one citation item.  This method
     // must return a valid CSL-JSON object.
     retrieveItem: (id: any) => {
-      return this.currentRef;
+      if(this.currentRef) {
+        return this.currentRef;
+      } else {
+        return this.refsInYdoc[id].ref;
+      }
     }
   };
   citeproc: any
@@ -51,17 +55,42 @@ export class CslService {
     public dialog: MatDialog,
     private ydocService: YdocService
   ) {
-    this.serviceShare.shareSelf('CslService', this)
-    this.citeproc = new CSL.Engine(this.citeprocSys, /* pensoftStyle */basicStyle);
+    this.serviceShare.shareSelf('CslService', this)    
+    this.citeproc = new CSL.Engine(
+      this.citeprocSys, 
+      /* pensoftStyle */
+      this.serviceShare.YdocService.articleData.layout.citation_style ? 
+      this.serviceShare.YdocService.articleData.layout.citation_style.style_content
+      :
+      harvardStyle
+    );
+  }
 
+  sortCitations(newRefs: any) {
+    let sortedReferences = {};
+    this.refsInYdoc = newRefs;
+    
+    const sortedRefsIds = this.citeproc.updateItems(Object.keys(this.refsInYdoc));
+
+    sortedRefsIds.forEach(id => {
+      sortedReferences[id] = this.refsInYdoc[id];
+    })
+
+    return sortedReferences
   }
 
   genereteCitationStr(style: string, referenceData: any) {
-    this.currentRef = referenceData;
 
-
-    this.citeproc = new CSL.Engine(this.citeprocSys, this.serviceShare.YdocService.articleData.layout.citation_style ? this.serviceShare.YdocService.articleData.layout.citation_style.style_content : harvardStyle);
+    this.citeproc = new CSL.Engine(
+      this.citeprocSys, 
+      /* pensoftStyle */
+      this.serviceShare.YdocService.articleData.layout.citation_style ? 
+      this.serviceShare.YdocService.articleData.layout.citation_style.style_content
+      :
+      harvardStyle
+    );
     this.citeproc.updateItems([referenceData.id]);
+    
     let newCitationId = uuidv4()
     let citationData: any = this.generateCitation([{
       "citationID": newCitationId,
@@ -86,8 +115,17 @@ export class CslService {
   getBasicCitation(ref: any, refStyle: string) {
     let newCitationId = uuidv4()
     this.currentRef = ref;
-    this.citeproc = new CSL.Engine(this.citeprocSys, /* pensoftStyle */refStyle);
+
+    this.citeproc = new CSL.Engine(
+      this.citeprocSys, 
+      /* pensoftStyle */
+      this.serviceShare.YdocService.articleData.layout.citation_style ? 
+      this.serviceShare.YdocService.articleData.layout.citation_style.style_content
+      :
+      harvardStyle
+    );
     this.citeproc.updateItems([ref.id]);
+
     let citationData = [
       this.generateCitation([{
       "citationID": newCitationId,
@@ -101,6 +139,7 @@ export class CslService {
     }, [], []])
   ];
     let bibliography = this.citeproc.makeBibliography();
+    this.currentRef = undefined;
     return {
       bibliography: bibliography[1][0],
       data: citationData,
