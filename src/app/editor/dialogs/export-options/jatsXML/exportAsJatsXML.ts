@@ -941,13 +941,14 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
       processPmMarkAsXML(node, xmlPar, before, options)
 
     return;
-  } else if (node.type == "reference_citation") {
+  } else if (node.type == "reference_citation" && node.attrs.nonexistingelement == false) {
     let citedRefs = node.attrs.citedRefsIds as string[]
     let citedRefsCiTOs = node.attrs.citedRefsCiTOs as string[];
     citedRefs.forEach((x, i)=>{
       let actualRef = options.refObj[x];
       let rid = refIdsG[x];      
-      let refTxt = actualRef.citation.data.text;
+      debugger
+      let refTxt = actualRef.citation.data[+node.attrs.citationStyle].text;
       let xrefAttr = {
         "ref-type": "bibr",
         "rid": rid
