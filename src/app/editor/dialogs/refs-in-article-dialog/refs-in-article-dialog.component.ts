@@ -116,25 +116,17 @@ export class RefsInArticleDialogComponent implements OnDestroy {
 
   passRefsToSubject() {
     let newRefs = this.getRefsForCurrEditSession();
-    // let refsToPass = [...Object.values(newRefs)]
-    // refsToPass.forEach((ref:any,i)=>{
-    //   let formC
-    //   if(this.refsCiTOsControls[ref.ref.id]){
-    //     formC = this.refsCiTOsControls[ref.ref.id]
-    //   }else{
-    //     formC = new FormControl(ref.refCiTO?this.CiToTypes.find(x=>x.label == ref.refCiTO.label):null);
-    //     this.refsCiTOsControls[ref.ref.id] = formC
-    //   }
+    newRefs = this.serviceShare.CslService.sortCitations(newRefs);
 
-    //   ref.refCiTOControl = formC
-    // })
     this.ydocAndChangedRefsSubject.next([...Object.values(newRefs)]);
   }
 
-  saveRefsInArticle() {
-    let newRefs = this.getRefsForCurrEditSession();
-    // let refsWithNoFormControls = clearRefFromFormControl(newRefs)
-    this.refMap.set('refsAddedToArticle', newRefs);
+  saveRefsInArticle() {    
+    let newRefs = this.getRefsForCurrEditSession();  
+    newRefs = this.serviceShare.CslService.sortCitations(newRefs);
+    this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
+
+
     setTimeout(()=>{
       this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
     },20)

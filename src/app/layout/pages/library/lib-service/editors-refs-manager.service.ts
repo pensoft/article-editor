@@ -91,7 +91,6 @@ export class EditorsRefsManagerService {
     let refsInEndEditor = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor');
     let refsInArticle = this.serviceShare.YdocService.referenceCitationsMap.get('refsAddedToArticle');
 
-
     let refsThatViewsShouldBeUpdated = {};
     let deletedRefs = {}
     Object.keys(refsInEndEditor).forEach((refId) => {
@@ -133,8 +132,8 @@ export class EditorsRefsManagerService {
     this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsWithNoFormControls);
         
     Object.keys(refsInEndEditor).forEach((key) => {
-      refsInEndEditor[key].originalBibliography = refsInEndEditor[key].citation.bibliography;   
-      refsInEndEditor[key].displayHTMLOriginal = refsInEndEditor[key].citation.textContent;
+      refsInEndEditor[key].displayHTMLOriginal = refsInEndEditor[key].citation.bibliography;   
+      refsInEndEditor[key].originalBibliography = refsInEndEditor[key].citation.textContent;
     })
     
     this.updateCitationsDisplayTextAndBibliography(refsInEndEditor)
@@ -182,7 +181,7 @@ export class EditorsRefsManagerService {
 
     Object.keys(refs).forEach((refId) => {
       let ref = refs[refId]
-      let cictatDispTxt = ref.originalDisplayText;
+      let cictatDispTxt = ref.originalBibliography;
       if (!countObj[cictatDispTxt]) {
         countObj[cictatDispTxt] = 1;
       } else {
@@ -198,13 +197,13 @@ export class EditorsRefsManagerService {
         let count = 1;
         Object.keys(refs).forEach((refId) => {
           let ref = refs[refId]
-          if (ref.originalDisplayText == text) {
+          if (ref.originalBibliography == text) {
             updatedReferences.push(refId)
             let char = String.fromCharCode(96 + count)
-            let citationDisText = this.checkTextAndReplace(ref.originalDisplayText, char)
+            let citationDisText = this.checkTextAndReplace(ref.originalBibliography, char)
             ref.citationDisplayText = citationDisText
-            let bibliography = this.checkTextAndReplace(ref.originalBibliography, char)
-            let html = this.checkTextAndReplace(ref.displayHTMLOriginal, char)
+            let bibliography = this.checkTextAndReplace(ref.displayHTMLOriginal, char)
+            let html = this.checkTextAndReplace(ref.originalBibliography, char)
             ref.bibliography = bibliography
             ref.displayHTML = html
             count++;
@@ -214,9 +213,9 @@ export class EditorsRefsManagerService {
         updatedAnyDisplayText = true
         Object.keys(refs).forEach((refId) => {
           let ref = refs[refId]
-          if (ref.originalDisplayText == text) {
+          if (ref.originalBibliography == text) {
             updatedReferences.push(refId)
-            ref.citationDisplayText = ref.originalDisplayText
+            ref.citationDisplayText = ref.originalBibliography
             ref.bibliography = ref.originalBibliography
             ref.displayHTML = ref.displayHTMLOriginal
           }
@@ -226,8 +225,11 @@ export class EditorsRefsManagerService {
     })
 
     if (updatedAnyDisplayText) {
+      refs = this.serviceShare.CslService.sortCitations(refs);
+      this.addNewRefToEndEditor(Object.values(refs));
       setTimeout(() => {
         this.updateReferenceCitats(updatedReferences, refs);
+
       }, 10)
     }
     this.checkIfShouldMarkRefsCitationsAsDeleted(refs)
@@ -344,7 +346,6 @@ export class EditorsRefsManagerService {
           }
           return prev
         }, []).join(', ');
-        debugger
         if (citationTextContent != citationCurrTextContent) {
           citatNewTxt = citationCurrTextContent
           found = true
@@ -481,58 +482,56 @@ export class EditorsRefsManagerService {
     let refsInEndEditorKeys = Object.keys(allCitedRefs);
     let refsInArticleKeys = Object.keys(refsInYdoc);
     let newRefs = refsInArticleKeys.filter(x => !refsInEndEditorKeys.includes(x));
+
     newRefs.forEach((refId) => {
-      let ref = refsInYdoc[refId];
-      allCitedRefs[refId] = ref
+      allCitedRefs[refId] = refsInYdoc[refId];
     });
 
     let refsWithNoFormControls = clearRefFromFormControl(allCitedRefs)
     this.serviceShare.YdocService.referenceCitationsMap.set('referencesInEditor', refsWithNoFormControls);
 
-    newRefs.forEach((refId) => {
-      let ref = refsInYdoc[refId];
-      this.addNewRefToEndEditor(ref);
-    });
-
+    if(newRefs.length > 0) {
+      this.addNewRefToEndEditor(Object.values(refsInYdoc));
+    }
   }
 
-  addNewRefToEndEditor(ref: any) {
+  addNewRefToEndEditor(refs: any) {
     let view = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'].editorView;
-    let nodeStart: number = view.state.doc.nodeSize - 2
-    let nodeEnd: number = view.state.doc.nodeSize - 2
+    let nodeStart: number = view.state.doc.nodeSize - 2    
+    let nodeEnd: number;
     let state = view.state
-    let referenceContainerIsRendered = false;
+    let schema: Schema = view.state.schema;
+
     view.state.doc.forEach((node, offset, index) => {
       if (node.type.name == 'reference_container') {
         nodeStart = offset + node.nodeSize - 1
         nodeEnd = offset + node.nodeSize - 1
-        referenceContainerIsRendered = true
       }
     })
-    let schema: Schema = view.state.schema;
-    let referenceData = { refId: ref.ref.id, last_modified: ref.ref_last_modified };
-    let referenceStyle = { name: ref.refStyle.name, last_modified: ref.refStyle.last_modified };
-    let referenceType = { name: ref.refType.name, last_modified: ref.refType.last_modified };
-    let recCitationAttrs = {
-      contenteditableNode: 'false',
-      refCitationID: uuidv4(),
-      referenceData,
-      referenceStyle,
-      referenceType
-    }
 
-    let refNode = schema.nodes.reference_citation_end.create(recCitationAttrs, getHtmlInlineNodes(ref.citation.bibliography))
-    let refContainerNode = schema.nodes.reference_block_container.create({ contenteditableNode: 'false' }, refNode)
-    if (!referenceContainerIsRendered) {
-      let refTitle = schema.nodes.paragraph.create({ contenteditableNode: 'false' }, schema.text('References'))
-      let h1 = schema.nodes.heading.create({ tagName: 'h1' }, refTitle)
-      let allRefsContainer = schema.nodes.reference_container.create({ contenteditableNode: 'false' }, refContainerNode)
-      let tr = state.tr.replaceWith(nodeStart, nodeEnd, [h1, allRefsContainer])
-      view.dispatch(tr.setMeta('addToLastHistoryGroup', true))
-    } else {
-      let tr = state.tr.replaceWith(nodeStart, nodeEnd, refContainerNode)
-      view.dispatch(tr.setMeta('addToLastHistoryGroup', true))
-    }
+    let refTitle = schema.nodes.paragraph.create({ contenteditableNode: 'false' }, schema.text('References'))
+    let h1 = schema.nodes.heading.create({ tagName: 'h1' }, refTitle)
+    let nodesArr: Node[] = [];
+
+    refs.forEach(ref => {
+      let referenceData = { refId: ref.ref.id, last_modified: ref.ref_last_modified };
+      let referenceStyle = { name: ref.refStyle.name, last_modified: ref.refStyle.last_modified };
+      let referenceType = { name: ref.refType.name, last_modified: ref.refType.last_modified };
+      let recCitationAttrs = {
+        contenteditableNode: 'false',
+        refCitationID: uuidv4(),
+        referenceData,
+        referenceStyle,
+        referenceType
+      }
+
+      let refNode = schema.nodes.reference_citation_end.create(recCitationAttrs, getHtmlInlineNodes(ref.citation.bibliography))
+      let refContainerNode = schema.nodes.reference_block_container.create({ contenteditableNode: 'false' }, refNode)
+      nodesArr.push(refContainerNode);
+    })      
+    let allRefsContainer = schema.nodes.reference_container.create({ contenteditableNode: 'false' }, nodesArr)
+    let tr = state.tr.replaceWith(0, nodeEnd, [h1, allRefsContainer])
+    view.dispatch(tr.setMeta('addToLastHistoryGroup', true))
   }
 
   checkTextAndReplace(text: string, char: string) {
