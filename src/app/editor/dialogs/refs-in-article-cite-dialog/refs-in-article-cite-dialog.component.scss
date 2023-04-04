@@ -75,6 +75,11 @@
   .mat-citation-style-btn {
     color: #fff;
     background-color: var(--color-00b1b2);
+    width: 120px;
+
+    &.selected {
+      background-color: #006d6d;
+    }
   }
 }
 

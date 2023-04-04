@@ -66,8 +66,8 @@
 
           <div class="citation-prev-container">
               <div class="style-btn-container">
-                <button class="mat-citation-style-btn" mat-button (click)="changeCitationStyle(0)">Citation Style 1</button>
-                <button class="mat-citation-style-btn" mat-button (click)="changeCitationStyle(1)">Citation Style 2</button>
+                <button class="mat-citation-style-btn" [ngClass]="{'selected': citationStyle == 0 }" mat-button (click)="changeCitationStyle(0)">Author only</button>
+                <button class="mat-citation-style-btn" [ngClass]="{'selected': citationStyle == 1 }" mat-button (click)="changeCitationStyle(1)">Composite</button>
               </div>
               
               <mat-form-field class="example-chip-list drag-form">
