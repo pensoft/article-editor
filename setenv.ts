@@ -4,7 +4,7 @@ const { argv } = require('yargs');
 const { version } = require('./package.json');
 const path = require('path')
 // read environment variables from .env file
-require('dotenv').config({path: path.resolve(__dirname, '.env')});
+require('dotenv').config();
 const packageFile = './package.json';
 const packageContent = require(packageFile);
 // read the command line arguments passed with yargs
@@ -28,7 +28,7 @@ writeFile(path.join(envPath, prodEnviromentFile), '', (err: any) => {
 });
 
 
-console.log(process.env);
+console.log(process.env)
 const websocket = {
   host: new URL(process.env.WEBSOCKET_HOST || process.env.ARTICLE_STORAGE_WEBSOCKET_HOST).hostname,
   port: process.env.WEBSOCKET_PORT || process.env.ARTICLE_STORAGE_WEBSOCKET_PORT,
