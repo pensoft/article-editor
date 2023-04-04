@@ -66,5 +66,7 @@ export const environment = {
 writeFile(path.join(envPath, targetFile), environmentFileContent, (err: any) => {
   if (err) {
     console.error(err);
+  } else {
+    console.log(`Environment file has been generated with content:`, environmentFileContent);
   }
 });
