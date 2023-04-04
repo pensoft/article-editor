@@ -314,7 +314,7 @@ let ReferenceTypesData1 = [
           "input": true,
           "clearOnHide": false,
           "validate": {
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -516,7 +516,7 @@ let ReferenceTypesData1 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -742,7 +742,7 @@ let ReferenceTypesData1 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -1056,7 +1056,7 @@ let ReferenceTypesData1 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -1416,7 +1416,7 @@ let ReferenceTypesData1 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -1671,7 +1671,7 @@ let ReferenceTypesData1 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -1881,7 +1881,7 @@ let ReferenceTypesData1 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -2056,7 +2056,7 @@ let ReferenceTypesData1 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -2215,7 +2215,7 @@ let ReferenceTypesData1 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -2385,7 +2385,7 @@ let ReferenceTypesData2 = [
           "input": true,
           "clearOnHide": false,
           "validate": {
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -2578,6 +2578,7 @@ let ReferenceTypesData2 = [
             }
           ]
         },
+
         {
           "label": "Year of publication",
           "tableView": true,
@@ -2587,7 +2588,7 @@ let ReferenceTypesData2 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -2813,7 +2814,7 @@ let ReferenceTypesData2 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -3127,7 +3128,7 @@ let ReferenceTypesData2 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -3487,7 +3488,7 @@ let ReferenceTypesData2 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -3742,7 +3743,7 @@ let ReferenceTypesData2 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -3952,7 +3953,7 @@ let ReferenceTypesData2 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -4127,7 +4128,7 @@ let ReferenceTypesData2 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -4286,7 +4287,7 @@ let ReferenceTypesData2 = [
           "clearOnHide": false,
           "validate": {
             "required": true,
-            "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+            pattern: '[0-9]{4}'
           }
         },
         {
@@ -4519,7 +4520,7 @@ let defaultReferences = [
             "input": true,
             "clearOnHide": false,
             "validate": {
-              "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+              pattern: '[0-9]{4}'
             }
           },
           {
@@ -4804,7 +4805,7 @@ let defaultReferences = [
             "clearOnHide": false,
             "validate": {
               "required": true,
-              "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+              pattern: '[0-9]{4}'
             },
             "defaultValue": "1999-04-04"
           },
@@ -5079,7 +5080,7 @@ let defaultReferences = [
             "clearOnHide": false,
             "validate": {
               "required": true,
-              "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+              pattern: '[0-9]{4}'
             },
             "defaultValue": "2003-04-04"
           },
@@ -5307,7 +5308,7 @@ let defaultReferences = [
             "clearOnHide": false,
             "validate": {
               "required": true,
-              "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+              pattern: '[0-9]{4}'
             },
             "defaultValue": "2222-02-02"
           },
@@ -5588,7 +5589,7 @@ let defaultReferences = [
             "clearOnHide": false,
             "validate": {
               "required": true,
-              "pattern": "[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])"
+              pattern: '[0-9]{4}'
             }
           },
           {

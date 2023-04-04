@@ -19,7 +19,8 @@ export interface formField {
 export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
   'JOURNAL ARTICLE': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])' }, label: 'Year of publication' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}' }, label: 'Year of publication' },
+    // { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])' }, label: 'Year of publication' },
     { cslKey: 'title', validations: { required: true }, label: 'Article title' },
     { cslKey: 'container-title', validations: { required: true }, label: 'Journal name' },
     { cslKey: 'volume', label: 'Volume' },
@@ -31,7 +32,7 @@ export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
   ],
   'BOOK': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year of publication' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}', required: true }, label: 'Year of publication' },
     { cslKey: 'title', validations: { required: true }, label: 'Book title' },
     { cslKey: 'translated-title', label: 'Translated title' },
     { cslKey: 'edition', label: 'Edition' },
@@ -46,7 +47,7 @@ export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
   ],
   'BOOK CHAPTER': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year of publication' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}', required: true }, label: 'Year of publication' },
     { cslKey: 'title', validations: { required: true }, label: 'Chapter title' },
     { cslKey: 'container-title', validations: { required: true }, label: 'Book title' },
     { cslKey: 'editor', label: 'Editors' },
@@ -61,7 +62,7 @@ export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
   ],
   'CONFERENCE PAPER': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year of publication' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}', required: true }, label: 'Year of publication' },
     { cslKey: 'title', validations: { required: true }, label: 'Title' },
     { cslKey: 'editor', label: 'Editors' },
     { cslKey: 'volume', label: 'Volume' },
@@ -81,7 +82,7 @@ export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
 
   'CONFERENCE PROCEEDINGS': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year of publication' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}', required: true }, label: 'Year of publication' },
     { cslKey: 'title', validations: { required: true }, label: 'Title' },
     { cslKey: 'volume', label: 'Volume' },
     { cslKey: 'event-title', label: 'Conference name' },
@@ -101,7 +102,7 @@ export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
     { cslKey: 'authors', label: 'Authors' },
     { cslKey: 'institution', label: 'Institution' },
     //{cslKey:'',key:'addAuthor',label:'Add Author'},
-    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year of publication' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}', required: true }, label: 'Year of publication' },
     { cslKey: 'title', validations: { required: true }, label: 'Book title' },
     { cslKey: 'translated-title', label: 'Translated title' },
     { cslKey: 'publisher', validations: { required: true }, label: 'Publisher' },
@@ -114,7 +115,7 @@ export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
   ],
   'SOFTWARE/DATA': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year of publication' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}', required: true }, label: 'Year of publication' },
     { cslKey: 'title', validations: { required: true }, label: 'Title' },
     { cslKey: 'version', label: 'Version' },
     { cslKey: 'publisher', label: 'Publisher' },
@@ -123,14 +124,14 @@ export let referencesFormFieldsOnly: { [key: string]: formField[] } = {
   ],
   'WEBSITE': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}', required: true }, label: 'Year' },
     { cslKey: 'URL', validations: { required: true }, label: 'URL' },
     { cslKey: 'title', label: 'Title' },
     { cslKey: 'access-date', label: 'Date of access' },
   ],
   'OTHER': [
     { cslKey: 'authors', label: 'Authors' },
-    { cslKey: 'issued', validations: { pattern: '[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[01])', required: true }, label: 'Year of publication' },
+    { cslKey: 'issued', validations: { pattern: '[0-9]{4}', required: true }, label: 'Year of publication' },
     { cslKey: 'title', validations: { required: true }, label: 'Title' },
     { cslKey: 'notes', label: 'Notes' },
     { cslKey: 'publisher', label: 'Publisher' },
