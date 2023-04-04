@@ -168,6 +168,7 @@ export class CslService {
   }
 
   editReferenceThroughPMEditor(node: Node, sectionId: string) {
+    debugger
     let attrs = JSON.parse(JSON.stringify(node.attrs));
     this.refsAPI.getReferences().subscribe((refsRes: any) => {
       let refsInYdoc = this.serviceShare.YdocService.referenceCitationsMap.get('refsAddedToArticle');

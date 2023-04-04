@@ -132,8 +132,8 @@ export class EditorsRefsManagerService {
     this.serviceShare.YdocService!.referenceCitationsMap?.set('referencesInEditor', refsWithNoFormControls);
         
     Object.keys(refsInEndEditor).forEach((key) => {
-      refsInEndEditor[key].originalBibliography = refsInEndEditor[key].citation.bibliography;   
-      refsInEndEditor[key].displayHTMLOriginal = refsInEndEditor[key].citation.textContent;
+      refsInEndEditor[key].displayHTMLOriginal = refsInEndEditor[key].citation.bibliography;   
+      refsInEndEditor[key].originalBibliography = refsInEndEditor[key].citation.textContent;
     })
     
     this.updateCitationsDisplayTextAndBibliography(refsInEndEditor)
@@ -181,7 +181,7 @@ export class EditorsRefsManagerService {
 
     Object.keys(refs).forEach((refId) => {
       let ref = refs[refId]
-      let cictatDispTxt = ref.originalDisplayText;
+      let cictatDispTxt = ref.originalBibliography;
       if (!countObj[cictatDispTxt]) {
         countObj[cictatDispTxt] = 1;
       } else {
@@ -197,13 +197,13 @@ export class EditorsRefsManagerService {
         let count = 1;
         Object.keys(refs).forEach((refId) => {
           let ref = refs[refId]
-          if (ref.originalDisplayText == text) {
+          if (ref.originalBibliography == text) {
             updatedReferences.push(refId)
             let char = String.fromCharCode(96 + count)
-            let citationDisText = this.checkTextAndReplace(ref.originalDisplayText, char)
+            let citationDisText = this.checkTextAndReplace(ref.originalBibliography, char)
             ref.citationDisplayText = citationDisText
-            let bibliography = this.checkTextAndReplace(ref.originalBibliography, char)
-            let html = this.checkTextAndReplace(ref.displayHTMLOriginal, char)
+            let bibliography = this.checkTextAndReplace(ref.displayHTMLOriginal, char)
+            let html = this.checkTextAndReplace(ref.originalBibliography, char)
             ref.bibliography = bibliography
             ref.displayHTML = html
             count++;
@@ -213,9 +213,9 @@ export class EditorsRefsManagerService {
         updatedAnyDisplayText = true
         Object.keys(refs).forEach((refId) => {
           let ref = refs[refId]
-          if (ref.originalDisplayText == text) {
+          if (ref.originalBibliography == text) {
             updatedReferences.push(refId)
-            ref.citationDisplayText = ref.originalDisplayText
+            ref.citationDisplayText = ref.originalBibliography
             ref.bibliography = ref.originalBibliography
             ref.displayHTML = ref.displayHTMLOriginal
           }
@@ -225,8 +225,11 @@ export class EditorsRefsManagerService {
     })
 
     if (updatedAnyDisplayText) {
+      refs = this.serviceShare.CslService.sortCitations(refs);
+      this.addNewRefToEndEditor(Object.values(refs));
       setTimeout(() => {
         this.updateReferenceCitats(updatedReferences, refs);
+
       }, 10)
     }
     this.checkIfShouldMarkRefsCitationsAsDeleted(refs)
