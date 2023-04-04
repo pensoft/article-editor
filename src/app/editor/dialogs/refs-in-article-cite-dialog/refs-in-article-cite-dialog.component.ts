@@ -138,7 +138,6 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
       this.passRefsToSubject()
     })
     if(this.data.isEditMode){
-      debugger
       this.checkedRefs = this.data.data;
       this.citationStyle = this.checkedRefs[0].citationStyle;
       this.isEditMode = true;
