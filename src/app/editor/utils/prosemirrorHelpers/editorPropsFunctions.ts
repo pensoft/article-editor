@@ -278,7 +278,7 @@ export let handleKeyDown = (serviceShare: ServiceShare, options?: any) => {
         return true
       }
       
-      if (options?.path == 'tableContent') {
+       if (options?.path == 'tableContent') {
         let { from, to } = view.state.selection
         let coordinatesAtFrom = view.coordsAtPos(from);
         let coordinatesAtTo = view.coordsAtPos(to);
@@ -336,6 +336,9 @@ export let handleKeyDown = (serviceShare: ServiceShare, options?: any) => {
         }
         if (parentRef?.attrs.contenteditableNode != 'false' && parentRef?.attrs.contenteditableNode !== false) {
           canEdit = true
+        }
+        else {
+          return true;
         }
       }
       let NodeBeforeHasNoneditableMark = sel.$anchor.nodeBefore?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false' || mark.attrs.contenteditableNode === false }).length! > 0

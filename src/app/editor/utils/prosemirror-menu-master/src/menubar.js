@@ -125,9 +125,9 @@ class MenuBarView {
                       /* if(node.attrs.formControlName=="sectionTreeTitle"){
                         userIsInSectionTreeTitleNode = true;
                       } */
-                      if(node.attrs.contenteditableNode === false || node.attrs.contenteditableNode === "false") {
-                        contenteditableNode = false
-                      }
+                     }
+                    if(node.attrs.contenteditableNode === false || node.attrs.contenteditableNode === "false") {
+                      contenteditableNode = false
                     }
                   }
                 }

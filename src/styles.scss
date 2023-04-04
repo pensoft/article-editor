@@ -306,7 +306,8 @@ supplementary-file-authors,
 supplementary-file-data-type,
 supplementary-file-brief-description,
 supplementary-file-url{
-  display: block;
+  display: flex;
+  gap: 2px;
 }
 supplementary-file-brief-description,end-note{
   form-field{
