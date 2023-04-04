@@ -118,26 +118,26 @@ animation: fade-out 1s;
 .dropdown-btn {
   padding-right: 0;
 
+  .mat-icon.expand-less {
+    display: none;
+  }
+
+  &[aria-expanded="true"] {
+    .mat-icon.expand-more {
+      display: none;
+    }
+
+    .mat-icon.expand-less {
+      display: inline-block;
+    }
+  }
+
   ::ng-deep {
     .mat-button-wrapper {
       display: flex;
       flex-flow: row nowrap;
       align-items: center;
       gap: 8px;
-
-      .mat-icon.expand-less {
-        display: none;
-      }
-
-      &[aria-expanded="true"] {
-        .mat-icon.expand-more {
-          display: none;
-        }
-
-        .mat-icon.expand-less {
-          display: inline-block;
-        }
-      }
     }
   }
 
