@@ -28,7 +28,7 @@ writeFile(path.join(envPath, prodEnviromentFile), '', (err: any) => {
 });
 
 
-
+console.log(process.env)
 const websocket = {
   host: new URL(process.env.WEBSOCKET_HOST || process.env.ARTICLE_STORAGE_WEBSOCKET_HOST).hostname,
   port: process.env.WEBSOCKET_PORT || process.env.ARTICLE_STORAGE_WEBSOCKET_PORT,
@@ -66,5 +66,7 @@ export const environment = {
 writeFile(path.join(envPath, targetFile), environmentFileContent, (err: any) => {
   if (err) {
     console.error(err);
+  } else {
+    console.log(`Environment file has been generated with content:`, environmentFileContent);
   }
 });

@@ -28,7 +28,7 @@
         </mat-form-field>
         <mat-form-field class="width-select">
           <mat-label class="type-select-label">Template</mat-label>
-          <input 
+          <input
            class="type-input"
            type="text"
            #typeInput
@@ -39,7 +39,9 @@
            [formControl]="templateTypeControl"
            [matAutocomplete]="layoutsGroup">
           <mat-autocomplete  #layoutsGroup="matAutocomplete" >
-              <mat-option *ngFor="let type of (filteredAutocompleteTemplates | async) || articleLayouts" [value]="type.name">
+              <mat-option class="template-option"
+                *ngFor="let type of (filteredAutocompleteTemplates | async) || articleLayouts"
+                [value]="type.name">
                     {{type.name}}
               </mat-option>
           </mat-autocomplete>
