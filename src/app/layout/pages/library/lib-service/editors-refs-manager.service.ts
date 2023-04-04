@@ -90,7 +90,6 @@ export class EditorsRefsManagerService {
   checkIfShouldUpdateRefs() {
     let refsInEndEditor = this.serviceShare.YdocService!.referenceCitationsMap?.get('referencesInEditor');
     let refsInArticle = this.serviceShare.YdocService.referenceCitationsMap.get('refsAddedToArticle');
-debugger
 
     let refsThatViewsShouldBeUpdated = {};
     let deletedRefs = {}
@@ -344,7 +343,6 @@ debugger
           }
           return prev
         }, []).join(', ');
-        debugger
         if (citationTextContent != citationCurrTextContent) {
           citatNewTxt = citationCurrTextContent
           found = true
@@ -429,7 +427,6 @@ debugger
   }
 
   removeRefFromEndEditorById(refId: string) {
-    debugger
     let endEditor = this.serviceShare.ProsemirrorEditorsService!.editorContainers['endEditor'];
     let view = endEditor.editorView;
     let st = view.state;
