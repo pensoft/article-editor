@@ -103,6 +103,8 @@ export class MaterialEditGridComponent extends MaterialNestedComponent implement
   public valid = true;
   public RowStates = EditRowState;
 
+  isInitialRender = true;
+
   getRowTemplate(content:any) {
     return `<mat-list style="display: flex;">
       {% (components || []).forEach(function(component) { %}
@@ -178,7 +180,10 @@ export class MaterialEditGridComponent extends MaterialNestedComponent implement
       this.renderTemplate(this.headerElement!, this.header);
       this.renderTemplate(this.footerElement!, this.footer);
       instance.editRows.forEach((row, i) => {
-        this.saveRow(row, i);
+        this.updateRowTemplate(row, i, {});
+        if(i == 0) {
+          this.editRow(row, i)
+        }
       })
     }, 0);
     super.setInstance(instance);
@@ -191,7 +196,7 @@ export class MaterialEditGridComponent extends MaterialNestedComponent implement
   editRow(row:any, index:any) {
     const { state } = row;
     const { NEW, REMOVED } = this.RowStates;
-
+    debugger
     if (state === NEW || state === REMOVED) {
       return;
     }
@@ -245,10 +250,12 @@ export class MaterialEditGridComponent extends MaterialNestedComponent implement
         this.updateRowTemplate(rows[index], index, {});
       }
     }
+    this.isInitialRender = false;
   }
 
   cancelRow(index:any) {
     this.instance.cancelRow(index);
+    this.isInitialRender = false;
     this.valid = true;
   }
 
