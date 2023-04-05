@@ -266,6 +266,7 @@ export class CommentsService {
           }
           let selectedAComment = false;
           let commentsMark = newState.schema.marks.comment
+          let foundedChangesMark = false;
           let commentInSelection = (actualMark: Mark, pos: number) => {
             err = true
             errorMessage = "There is a comment here already"
@@ -281,13 +282,14 @@ export class CommentsService {
               }
             }
           }
-          let sectionContainer = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName]
-          let view = sectionContainer?sectionContainer.editorView:undefined
+          let sectionContainer = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName];
+          let view = sectionContainer ? sectionContainer.editorView : undefined;
           if (!(newState.selection instanceof AllSelection) && view && view.hasFocus() ) {
 
             newState.doc.nodesBetween(from, to, (node, pos, parent) => {
               if (node.marks.length > 0) {
-                const actualMark = node.marks.find(mark => mark.type === commentsMark)
+                const actualMark = node.marks.find(mark => mark.type == commentsMark);
+
                 if (actualMark) {
                   commentInSelection(actualMark, pos)
                   addCommentSubject1.next({ type: "commentData", sectionName: prev.sectionName, showBox: false })
@@ -300,45 +302,50 @@ export class CommentsService {
               }
             })
           }
+
           if (!commentableAttr && !err) {
             errorMessage = "You can't leave a comment there."
             err = true
           }
+
           if (!selectedAComment && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() ) {
+
             let sel = newState.selection
             let nodeAfterSelection = sel.$to.nodeAfter
             let nodeBeforeSelection = sel.$from.nodeBefore
             let foundMark = false;
             if (nodeAfterSelection) {
               let pos = sel.to
-              let commentMark = nodeAfterSelection.marks.find(mark => mark.type === commentsMark)
-              if (commentMark  ) {
-                commentInSelection(commentMark, pos)
+              let commentMark = nodeAfterSelection.marks.find(mark => mark.type === commentsMark);
+
+              if (commentMark) {
+                commentInSelection(commentMark, pos);
                 selectedAComment = true;
                 foundMark = true;
               }
             }
             if (nodeBeforeSelection) {
               let pos = sel.from - nodeBeforeSelection.nodeSize
-              let commentMark = nodeBeforeSelection.marks.find(mark => mark.type === commentsMark)
-              if (commentMark  ) {
-                commentInSelection(commentMark, pos)
+              let commentMark = nodeAfterSelection.marks.find(mark => mark.type === commentsMark)
+             
+              if (commentMark){
+                commentInSelection(commentMark, pos);
                 selectedAComment = true;
                 foundMark = true;
               }
             }
           }
           if (!selectedAComment && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() && lastCommentSelected.commentId) {
-            setLastSelectedComment(undefined, undefined, undefined, undefined)
+            setLastSelectedComment(undefined, undefined, undefined, undefined);
           }
 
           if (!(newState.selection instanceof AllSelection) /* && view.hasFocus() && tr.steps.length > 0 */) {
-            changeInEditors()
+            changeInEditors();
           }
           let commentdata = { type: 'commentAllownes', sectionId: prev.sectionName, allow: !err, text, errorMessage, err }
-          addCommentSubject1.next(commentdata)
+          addCommentSubject1.next(commentdata);
 
-          return { ...prev, commentsStatus: commentdata }
+          return { ...prev, commentsStatus: commentdata };
         },
       },
 
@@ -514,8 +521,5 @@ export class CommentsService {
     return this.commentsPlugin
   }
 
-
-
-  register
 }
 
