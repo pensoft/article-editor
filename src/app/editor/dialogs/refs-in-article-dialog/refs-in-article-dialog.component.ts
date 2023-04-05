@@ -112,8 +112,6 @@ export class RefsInArticleDialogComponent implements OnDestroy {
     return newRefs
   }
 
-  // refsCiTOsControls = {}
-
   passRefsToSubject() {
     let newRefs = this.getRefsForCurrEditSession();
     newRefs = this.serviceShare.CslService.sortCitations(newRefs);
@@ -206,9 +204,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
               refCiTO:result.refCiTO,
               refStyle
             }
-            // if(this.refsCiTOsControls[ref.ref.id]){
-            //   this.refsCiTOsControls[ref.ref.id].setValue(result.refCiTO?this.CiToTypes.find(x=>x.label == result.refCiTO.label):null)
-            // }
+
             let refId = refInstance.ref.id;
             this.changedOrAddedRefs[refId] = refInstance
             if (this.deletedRefsIds.includes(refId)) {
