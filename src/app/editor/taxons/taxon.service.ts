@@ -102,10 +102,11 @@ export class TaxonService implements OnDestroy {
       let sel = view.state.selection
       let nodeAfterSelection = sel.$to.nodeAfter
       let nodeBeforeSelection = sel.$from.nodeBefore
-      if (nodeAfterSelection) {
+      
+      if (nodeAfterSelection && nodeAfterSelection.marks) {
         let pos = sel.to;
-        taxonMark = nodeBeforeSelection.marks.find(mark => mark.type.name == 'taxon');
-        hasOtherMark = !!nodeBeforeSelection.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
+        taxonMark = nodeBeforeSelection?.marks.find(mark => mark.type.name == 'taxon');
+        hasOtherMark = !!nodeBeforeSelection?.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
 
         if (taxonMark) {
           taxonInSel = true;
@@ -113,10 +114,10 @@ export class TaxonService implements OnDestroy {
         }
       }
 
-      if (nodeBeforeSelection) {
+      if (nodeBeforeSelection  && nodeAfterSelection) {
         let pos = sel.from - nodeBeforeSelection.nodeSize;
-        taxonMark = nodeBeforeSelection.marks.find(mark => mark.type.name == 'taxon');
-        hasOtherMark = !!nodeBeforeSelection.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
+        taxonMark = nodeBeforeSelection?.marks.find(mark => mark.type.name == 'taxon');
+        hasOtherMark = !!nodeBeforeSelection?.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
 
         if (taxonMark) {
           taxonInSel = true;
@@ -124,11 +125,11 @@ export class TaxonService implements OnDestroy {
         }
       }
 
-      if(!hasOtherMark) {
-        hasOtherMark = !!nodeBeforeSelection.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
+      if(!hasOtherMark && nodeBeforeSelection && nodeAfterSelection) {
+        hasOtherMark = !!nodeBeforeSelection?.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
 
         if(!hasOtherMark) {
-        hasOtherMark = !!nodeAfterSelection.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
+        hasOtherMark = !!nodeAfterSelection?.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
         }
       }
     }

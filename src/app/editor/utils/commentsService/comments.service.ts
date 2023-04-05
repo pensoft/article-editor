@@ -316,7 +316,7 @@ export class CommentsService {
             let foundMark = false;
             if (nodeAfterSelection) {
               let pos = sel.to
-              let commentMark = nodeAfterSelection.marks.find(mark => mark.type === commentsMark);
+              let commentMark = nodeAfterSelection?.marks.find(mark => mark.type === commentsMark);
 
               if (commentMark) {
                 commentInSelection(commentMark, pos);
@@ -326,7 +326,7 @@ export class CommentsService {
             }
             if (nodeBeforeSelection) {
               let pos = sel.from - nodeBeforeSelection.nodeSize
-              let commentMark = nodeAfterSelection.marks.find(mark => mark.type === commentsMark)
+              let commentMark = nodeAfterSelection?.marks.find(mark => mark.type === commentsMark)
              
               if (commentMark){
                 commentInSelection(commentMark, pos);

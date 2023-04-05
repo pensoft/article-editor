@@ -51,7 +51,6 @@ export class ChangesSectionComponent implements OnInit, AfterViewInit, OnDestroy
     private sharedService:ServiceShare,
     )
     {
-
       this.subscription.add(this.doneRenderingChangesSubject.subscribe((data) => {
         if (this.rendered < this.nOfCommThatShouldBeRendered) {
           this.rendered++;
@@ -60,7 +59,7 @@ export class ChangesSectionComponent implements OnInit, AfterViewInit, OnDestroy
           this.doneRendering()
         }
       }))
-  }
+   }
 
 
   ngOnInit() {
@@ -498,7 +497,8 @@ export class ChangesSectionComponent implements OnInit, AfterViewInit, OnDestroy
     let articleElement = document.getElementsByClassName('editor-container')[0] as HTMLDivElement
     let editorsElement = document.getElementById('app-article-element') as HTMLDivElement
     let changesContainer = document.getElementsByClassName('all-changes-container')[0] as HTMLElement
-    let spaceElement = document.getElementsByClassName('end-article-spase')[0] as HTMLDivElement
+    let spaceElement = document.getElementsByClassName('end-article-spase')[0] as HTMLDivElement;
+    (document.getElementsByClassName('end-article-spase')[0] as HTMLDivElement).style.minHeight = "500px";
     articleElement.addEventListener('scroll', (event) => {
       this.lastArticleScrollPosition = articleElement.scrollTop
       if (this.lastSorted && this.lastSorted.length > 0) {
@@ -507,7 +507,7 @@ export class ChangesSectionComponent implements OnInit, AfterViewInit, OnDestroy
         let elBottom = dispPos.displayedTop + dispPos.height;
         let containerH = changesContainer.getBoundingClientRect().height
         if (containerH < elBottom) {
-          changesContainer.style.height = (elBottom + 30) + 'px'
+          changesContainer.style.height = (elBottom + 150) + 'px'
         }/* else if(containerH > elBottom+100){
           commentsContainer.style.height = (elBottom + 30) + 'px'
         } */
@@ -515,9 +515,9 @@ export class ChangesSectionComponent implements OnInit, AfterViewInit, OnDestroy
         let spaceElementH = spaceElement.getBoundingClientRect().height
         let actualEditorH = editorH - spaceElementH
         if (editorH < elBottom) {
-          spaceElement.style.height = ((elBottom + 30) - actualEditorH) + 'px'
+          spaceElement.style.height = ((elBottom + 150) - actualEditorH) + 'px'
         } else if (editorH > elBottom + 100 && spaceElementH > 0) {
-          let space = ((elBottom + 30) - actualEditorH) < 0 ? 0 : ((elBottom + 30) - actualEditorH)
+          let space = ((elBottom + 150) - actualEditorH) < 0 ? 0 : ((elBottom + 150) - actualEditorH)
           spaceElement.style.height = space + 'px'
 
         }

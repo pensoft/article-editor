@@ -545,7 +545,7 @@ export class TrackChangesService {
 
               if (nodeAfterSelection && !actualMark) {
                 let pos = sel.to;
-                actualMark = nodeBeforeSelection.marks.find(mark => mark.type.name == 'insertion' || mark.type.name == 'deletion');
+                actualMark = nodeBeforeSelection?.marks.find(mark => mark.type.name == 'insertion' || mark.type.name == 'deletion');
         
                 if (actualMark) {
                   position = pos;
@@ -554,7 +554,7 @@ export class TrackChangesService {
         
               if (nodeBeforeSelection && !actualMark) {
                 let pos = sel.from - nodeBeforeSelection.nodeSize;
-                actualMark = nodeBeforeSelection.marks.find(mark => mark.type.name == 'insertion' || mark.type.name == 'deletion');
+                actualMark = nodeBeforeSelection?.marks.find(mark => mark.type.name == 'insertion' || mark.type.name == 'deletion');
         
                 if (actualMark) {
                   position = pos;
@@ -562,10 +562,10 @@ export class TrackChangesService {
               }
         
               if(!hasOtherMark && nodeBeforeSelection && nodeAfterSelection) {
-                hasOtherMark = !!nodeBeforeSelection.marks.find(mark => mark.type.name == "comment");
+                hasOtherMark = !!nodeBeforeSelection?.marks.find(mark => mark.type.name == "comment");
         
                 if(!hasOtherMark) {
-                hasOtherMark = !!nodeAfterSelection.marks.find(mark => mark.type.name == "comment");
+                hasOtherMark = !!nodeAfterSelection?.marks.find(mark => mark.type.name == "comment");
                 }
               }
               if (actualMark && !hasOtherMark) {

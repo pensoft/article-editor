@@ -15,28 +15,25 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
   doneRenderingTaxonsSubject: Subject<any> = new Subject()
   searchForm = new FormControl('');
 
+  subjSub = new Subscription();
+
   constructor(
     private serviceShare:ServiceShare
   ) {
-    this.subjSub = this.doneRenderingTaxonsSubject.subscribe((data) => {
+    this.subjSub.add(this.doneRenderingTaxonsSubject.subscribe((data) => {
       if (this.rendered < this.nOfTaxThatShouldBeRendered) {
         this.rendered++;
       }
       if (this.rendered == this.nOfTaxThatShouldBeRendered) {
         this.doneRendering()
       }
-    })
+    }))
   }
 
-  subjSub: Subscription
-
   ngOnDestroy(): void {
-    if (this.subjSub) {
-      this.subjSub.unsubscribe()
-    }
-    if (this.lastSelSub) {
-      this.lastSelSub.unsubscribe()
-    }
+    this.subjSub.unsubscribe();
+    (document.getElementsByClassName('editor-container')[0] as HTMLDivElement).removeAllListeners('scroll');
+    (document.getElementsByClassName('taxons-wrapper')[0] as HTMLDivElement).removeAllListeners('wheel');
   }
 
   findTaxonsWithBackendService(){
@@ -55,7 +52,7 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
   searchIndex: number = 0;
   searchResults?: taxonMarkData[]
   setFromControlChangeListener() {
-    this.searchForm.valueChanges.pipe(debounce(val => interval(700))).subscribe((val) => {
+    this.subjSub.add(this.searchForm.valueChanges.pipe(debounce(val => interval(700))).subscribe((val) => {
       if (val && val != "" && typeof val == 'string' && val.trim().length > 0) {
         let searchVal = val.toLocaleLowerCase()
         let foundTaxons = this.allTaxons.filter(x=>x.taxonTxt.toLocaleLowerCase().includes(searchVal))
@@ -70,7 +67,7 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
       } else {
         this.searching = false;
       }
-    })
+    }))
   }
 
   allTaxons: taxonMarkData[] = []
@@ -96,15 +93,15 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
         let elBottom = dispPos.displayedTop + dispPos.height;
         let containerH = ctaxonContainer.getBoundingClientRect().height
         if (containerH < elBottom) {
-          ctaxonContainer.style.height = (elBottom + 30) + 'px'
+          ctaxonContainer.style.height = (elBottom + 150) + 'px'
         }
         let editorH = editorsElement.getBoundingClientRect().height
         let spaceElementH = spaceElement.getBoundingClientRect().height
         let actualEditorH = editorH - spaceElementH
         if (editorH < elBottom) {
-          spaceElement.style.height = ((elBottom + 30) - actualEditorH) + 'px'
+          spaceElement.style.height = ((elBottom + 150) - actualEditorH) + 'px'
         } else if (editorH > elBottom + 100 && spaceElementH > 0) {
-          let space = ((elBottom + 30) - actualEditorH) < 0 ? 0 : ((elBottom + 30) - actualEditorH)
+          let space = ((elBottom + 150) - actualEditorH) < 0 ? 0 : ((elBottom + 150) - actualEditorH)
           spaceElement.style.height = space + 'px'
 
         }
@@ -264,6 +261,7 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
   preventRerenderUntilTaxonAdd = { bool: false, id: '' }
 
   doneRendering(cause?: string) {
+    (document.getElementsByClassName('end-article-spase')[0] as HTMLDivElement).style.minHeight = "500px";
     let taxons = Array.from(document.getElementsByClassName('taxon-container')) as HTMLDivElement[];
     let container = document.getElementsByClassName('all-taxons-container')[0] as HTMLDivElement;
     let allTaxonsCopy: taxonMarkData[] = JSON.parse(JSON.stringify(this.allTaxons));
@@ -407,7 +405,7 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
     this.setFromControlChangeListener()
     this.setContainerHeight()
     this.setScrollListener()
-    this.lastSelSub = this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject.subscribe((data) => {
+    this.subjSub.add(this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject.subscribe((data) => {
       if (data.taxonMarkId && data.sectionId) {
         this.shouldScrollSelected = true
       } else {
@@ -419,9 +417,9 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
       setTimeout(() => {
         this.serviceShare.TaxonService.getTaxonsInAllEditors()
       }, 200)
-    })
+    }))
 
-    this.serviceShare.TaxonService.taxonsMarksObjChangeSubject.subscribe((msg) => {
+    this.subjSub.add(this.serviceShare.TaxonService.taxonsMarksObjChangeSubject.subscribe((msg) => {
       let taxonsToAdd: taxonMarkData[] = []
       let taxonsToRemove: taxonMarkData[] = []
       let allTaxonsInEditors: taxonMarkData[] = []
@@ -503,7 +501,7 @@ export class TaxonsSectionComponent implements OnDestroy, AfterViewInit {
       if (editedTaxons) {
         this.setContainerHeight()
       }
-    })
+    }))
 
     this.serviceShare.TaxonService.getTaxonsInAllEditors()
   }
