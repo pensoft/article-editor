@@ -77,6 +77,7 @@ export class TaxonService implements OnDestroy {
     let markPos:number
     let hasOtherMark = false;
     view.state.doc.nodesBetween(from, to, (node, pos, parent, i) => {
+      debugger
       if(node &&
         node.marks && 
         node.marks.find((mark) => mark.type.name == 'comment' || 
@@ -85,46 +86,60 @@ export class TaxonService implements OnDestroy {
       ) {
         hasOtherMark = true;
       } 
+
       if (
         node.marks &&
         node.marks.length > 0 &&
-        node.marks.some((mark) => mark.type.name == 'taxon') &&
-        !hasOtherMark
+        node.marks.some((mark) => mark.type.name == 'taxon')
       ) {
         taxonInSel = true;
         taxonMark = node.marks.find((mark) => mark.type.name == 'taxon')
         markPos = pos
       }
     })
-    if (!taxonInSel && !(view.state.selection instanceof AllSelection) && view  && view.hasFocus() ) {
+
+    if (!hasOtherMark && !taxonInSel && !(view.state.selection instanceof AllSelection) && view  && view.hasFocus() ) {
       let sel = view.state.selection
       let nodeAfterSelection = sel.$to.nodeAfter
       let nodeBeforeSelection = sel.$from.nodeBefore
-      if (nodeAfterSelection) {
-        let pos = sel.to
-        let taxonMarkFoundMark = nodeAfterSelection.marks.find(mark => mark.type.name == 'taxon')
-        if (taxonMarkFoundMark) {
-          taxonMark = taxonMarkFoundMark
+      
+      if (nodeAfterSelection && nodeAfterSelection.marks) {
+        let pos = sel.to;
+        taxonMark = nodeBeforeSelection?.marks.find(mark => mark.type.name == 'taxon');
+        hasOtherMark = !!nodeBeforeSelection?.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
+
+        if (taxonMark) {
           taxonInSel = true;
           markPos = pos
+        }
       }
-      }
-      if (nodeBeforeSelection) {
-        let pos = sel.from - nodeBeforeSelection.nodeSize
-        let taxonMarkFoundMark = nodeBeforeSelection.marks.find(mark => mark.type.name == 'taxon')
-        if (taxonMarkFoundMark  ) {
-          taxonMark = taxonMarkFoundMark
+
+      if (nodeBeforeSelection  && nodeAfterSelection) {
+        let pos = sel.from - nodeBeforeSelection.nodeSize;
+        taxonMark = nodeBeforeSelection?.marks.find(mark => mark.type.name == 'taxon');
+        hasOtherMark = !!nodeBeforeSelection?.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
+
+        if (taxonMark) {
           taxonInSel = true;
           markPos = pos
+        }
       }
+
+      if(!hasOtherMark && nodeBeforeSelection && nodeAfterSelection) {
+        hasOtherMark = !!nodeBeforeSelection?.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
+
+        if(!hasOtherMark) {
+        hasOtherMark = !!nodeAfterSelection?.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
+        }
       }
     }
-    if(taxonInSel && taxonMark && !hasOtherMark && ( taxonMark.attrs.removedtaxon == 'false' || taxonMark.attrs.removedtaxon == false) && view.hasFocus()){
-      this.taxonMarkInSelection(taxonMark,markPos,sectionId)
-    }else if(taxonInSel && taxonMark && ( taxonMark.attrs.removedtaxon == true || taxonMark.attrs.removedtaxon == 'true') && view.hasFocus()){
+
+    if(taxonInSel && taxonMark && !hasOtherMark && (taxonMark.attrs.removedtaxon == 'false' || taxonMark.attrs.removedtaxon == false) && view.hasFocus()){
+      this.taxonMarkInSelection(taxonMark,markPos,sectionId);
+    } else if(taxonInSel && taxonMark && ( taxonMark.attrs.removedtaxon == true || taxonMark.attrs.removedtaxon == 'true') && view.hasFocus()){
       taxonInSel = false;
-    }else if (!taxonInSel && !(view.state.selection instanceof AllSelection) && view  && view.hasFocus() ) {
-      this.setLastSelectedTaxonMark(undefined, undefined, undefined)
+    } else if (!taxonInSel && !(view.state.selection instanceof AllSelection) && view  && view.hasFocus() ) {
+      this.setLastSelectedTaxonMark(undefined, undefined, undefined);
     }
 
     return taxonInSel

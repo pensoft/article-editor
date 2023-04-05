@@ -68,14 +68,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
         this.editorView = this.editorsService.editorContainers[this.lastFocusedEditor!].editorView
         this.showAddCommentBox = commentsService.addCommentData.showBox
       }
-      // this.detectFocus.focusedEditor.subscribe((data: any) => {
-      //   if (data) {
-      //     this.lastFocusedEditor = data
-      //     this.editorView = this.editorsService.editorContainers[data].editorView;
 
-
-      //   }
-      // })
       this.subjSub.add(this.commentsService.lastSelectedCommentSubject.subscribe((data) => {        
         if (data.commentId && data.commentMarkId && data.sectionId) {
           this.shouldScrollSelected = true
@@ -84,17 +77,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
           setTimeout(() => {
             this.doneRendering()
           }, 20)
-          /* if (this.preservedScroll === 0 || this.preservedScroll) {
-            let container = document.getElementsByClassName('comments-wrapper')[0] as HTMLDivElement;
-            let articleElement = document.getElementsByClassName('editor-container')[0] as HTMLDivElement
-  
-            container.scroll({
-              top: articleElement.scrollTop,
-              left: 0,
-              behavior: 'smooth'
-            })
-            this.preservedScroll = undefined
-          } */
         }
         setTimeout(() => {
           this.commentsService.getCommentsInAllEditors()
@@ -252,7 +234,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
          return parseFloat(a.style.top) - parseFloat(b.style.top) 
         }
       });
-      
+    (document.getElementsByClassName('end-article-spase')[0] as HTMLDivElement).style.minHeight = "500px";
     let container = document.getElementsByClassName('all-comments-container')[0] as HTMLDivElement;
     let allCommentCopy: commentData[] = JSON.parse(JSON.stringify(this.allComments));
     let sortedComments = allCommentCopy.sort((c1, c2) => {

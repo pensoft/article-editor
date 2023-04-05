@@ -157,10 +157,12 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked,
     this.OnOffTrackingChangesShowTrackingSubject =
       prosemirrorEditorServie.OnOffTrackingChangesShowTrackingSubject;
 
-    this.serviceShare.TrackChangesService.lastSelectedChangeSubject.pipe(debounceTime(200)).subscribe((data) => {
+    this.subscription.add(this.serviceShare.TrackChangesService.lastSelectedChangeSubject
+      .pipe(debounceTime(200))
+      .subscribe((data) => {
       if (!data.changeMarkId || !data.pmDocStartPos || !data.section) return;
-      // let {from, to} = this.prosemirrorEditorServie.editorContainers[data.section].editorView.state.selection
-      if (data.section != this.serviceShare.DetectFocusService.sectionName) return;
+      let {from, to} = this.prosemirrorEditorServie.editorContainers[data.section].editorView.state.selection
+      if (from !== to && data.section != this.serviceShare.DetectFocusService.sectionName) return;
       if (!this.sidebarDrawer?.opened) {
         this.sidebarDrawer?.toggle();
       }
@@ -170,9 +172,9 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked,
           this.serviceShare.TrackChangesService.lastSelectedChangeSubject.next(data)
         }, 20)
       }
-    })
+    }))
 
-    this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject
+    this.subscription.add(this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject
     .pipe(debounceTime(200))
     .subscribe((data) => {
       if (!data.pos || !data.sectionId || !data.taxonMarkId) return;
@@ -187,14 +189,14 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked,
           this.serviceShare.TaxonService.lastSelectedTaxonMarkSubject.next(data)
         }, 20)
       }
-    })
+    }))
 
-    this.serviceShare.CommentsService.lastSelectedCommentSubject
+    this.subscription.add(this.serviceShare.CommentsService.lastSelectedCommentSubject
     .pipe(debounceTime(200))
     .subscribe((data) => {
       if (!data.commentId || !data.commentMarkId || !data.pos || !data.sectionId) return;
-      // let {from, to} = this.prosemirrorEditorServie.editorContainers[data.sectionId].editorView.state.selection
-      if (data.sectionId != this.serviceShare.DetectFocusService.sectionName) return;
+      let {from, to} = this.prosemirrorEditorServie.editorContainers[data.sectionId].editorView.state.selection
+      if (from !== to && data.sectionId != this.serviceShare.DetectFocusService.sectionName) return;
       if (!this.sidebarDrawer?.opened) {
         this.sidebarDrawer?.toggle();
       }
@@ -204,7 +206,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked,
           this.serviceShare.CommentsService.lastSelectedCommentSubject.next(data)
         }, 20)
       }
-    })
+    }))
     
 
     this.subscription.add(this.commentService.addCommentSubject.subscribe((data) => {

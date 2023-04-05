@@ -192,7 +192,20 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     })
     if (actualComment) {
-      //let commentMiddlePos = Math.floor((actualComment.pmDocStartPos+ actualComment.pmDocEndPos)/2)
+      // const nodeSize = view.state.doc.content.size;
+      // let hasDecrease = 0;
+
+      // view.state.doc.nodesBetween(0, nodeSize, (node, pos, parent) => {
+      //   if (node && node.marks) {
+      //     if(node.marks.find(mark => ["insertion", 'deletion', 'taxon'].includes(mark.type.name)) && node.marks.find(node => node.attrs.commentmarkid == actualComment.commentMarkId)) {
+      //       console.log('tuk');
+      //       console.log(node);
+            
+      //       hasDecrease = 1;
+      //     }
+      //   }
+      // })
+      
       view.focus()
       view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualComment.pmDocStartPos), view.state.doc.resolve(actualComment.pmDocEndPos))).setMeta('selected-comment',true).scrollIntoView())
 
