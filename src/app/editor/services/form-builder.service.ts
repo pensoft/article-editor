@@ -185,7 +185,7 @@ export class FormBuilderService {
     let type = component.type
     let key = component.key
     if(this.setfocusToFirst)return;
-    if (type == 'datagrid') {
+    if (type == 'editgrid') {
       component.components.forEach(comp=>{
         this.setAutoFocus(comp)
       })
