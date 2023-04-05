@@ -13,7 +13,7 @@
         </mat-expansion-panel-header>
       </mat-expansion-panel>
 
-      <mat-expansion-panel *ngFor="let row of instance.editRows; index as i;" [expanded]="instance.isOpen(row) || isInitialRender">
+      <mat-expansion-panel *ngFor="let row of instance.editRows; index as i;" [expanded]="instance.isOpen(row)">
         <mat-expansion-panel-header (click)="editRow(row, i)">
           <span *ngIf="row.state !== RowStates.NEW" #rows fxFill></span>
         </mat-expansion-panel-header>
