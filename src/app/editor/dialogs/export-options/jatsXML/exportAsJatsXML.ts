@@ -947,7 +947,6 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
     citedRefs.forEach((x, i)=>{
       let actualRef = options.refObj[x];
       let rid = refIdsG[x];      
-      debugger
       let refTxt = actualRef.citation.data[+node.attrs.citationStyle].text;
       let xrefAttr = {
         "ref-type": "bibr",
