@@ -191,7 +191,6 @@ export class MaterialEditGridComponent extends MaterialNestedComponent implement
   editRow(row:any, index:any) {
     const { state } = row;
     const { NEW, REMOVED } = this.RowStates;
-
     if (state === NEW || state === REMOVED) {
       return;
     }
