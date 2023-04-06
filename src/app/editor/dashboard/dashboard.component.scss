@@ -221,11 +221,12 @@ td:first-child {
 }
 
 .more-avatar {
-  float: left;
   margin-left: -10px;
   border: 2px solid #ffffff;
   border-radius: 50%;
   display: flex;
+  justify-content: center;
+  align-items: center;
   flex-direction: row;
 }
 
