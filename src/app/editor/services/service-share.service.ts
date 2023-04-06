@@ -136,7 +136,7 @@ export class ServiceShare {
       this.ProsemirrorEditorsService.stopSpinner()
       dialogRef.afterClosed().subscribe(result => {
         if(!result) return ;
-
+        this.ProsemirrorEditorsService.spinSpinner();
         let userData;
         this.AuthService.currentUser$
         .pipe(mergeMap(data => {
