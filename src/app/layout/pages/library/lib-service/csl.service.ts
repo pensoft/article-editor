@@ -136,6 +136,11 @@ export class CslService {
       "citationID": newCitationId,
       "citationItems": [{ "id": ref.id }],
       "properties": { "noteIndex": 1, "mode": "composite" }
+    }, [], []]),
+    this.generateCitation([{
+      "citationID": newCitationId,
+      "citationItems": [{ "id": ref.id }],
+      "properties": { "noteIndex": 1, "mode": "suppress-author" }
     }, [], []])
   ];
     let bibliography = this.citeproc.makeBibliography();

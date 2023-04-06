@@ -63,24 +63,12 @@
     }
 }
 
-.style-btn-container {
-  width: 80%;
-  margin: auto;
+.radio-btns {
   display: flex;
-  align-items: flex-end;
-  justify-content: flex-end;
-  padding: 0 0 10px 0;
-  gap: 10px;
-
-  .mat-citation-style-btn {
-    color: #fff;
-    background-color: var(--color-00b1b2);
-    width: 120px;
-
-    &.selected {
-      background-color: #006d6d;
-    }
-  }
+  gap: 20px;
+  justify-content: end;
+  margin: auto;
+  width: 80%;
 }
 
 
