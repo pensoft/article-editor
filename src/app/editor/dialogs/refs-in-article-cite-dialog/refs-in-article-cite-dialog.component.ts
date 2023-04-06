@@ -4,7 +4,7 @@ import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dial
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
 import { CiToTypes } from '@app/layout/pages/library/lib-service/editors-refs-manager.service';
-import { Subject } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 import { YMap } from 'yjs/dist/src/internals';
 import { RefsAddNewInArticleDialogComponent } from '../refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
 import { clearRefFromFormControl } from '../refs-in-article-dialog/refs-in-article-dialog.component';
@@ -27,9 +27,11 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
   isEditMode: boolean;
 
   @ViewChild('searchrefs', { read: ElementRef }) searchrefs?: ElementRef;
-  searchControl = new FormControl('')
+  searchControl = new FormControl('');
+  citationStyleControl = new FormControl(0);
 
   ydocRefsSubject = new Subject<any>();
+  subscription = new Subscription();
 
   constructor(
     private ydocService:YdocService,
@@ -133,19 +135,23 @@ export class RefsInArticleCiteDialogComponent implements OnInit,AfterViewInit, O
 
   searchValue:string = ''
   ngOnInit(): void  {
-    this.searchControl.valueChanges.subscribe((value)=>{
+    this.subscription.add(this.searchControl.valueChanges.subscribe((value)=>{
       this.searchValue = value
       this.passRefsToSubject()
-    })
+    }))
+    this.subscription.add(this.citationStyleControl.valueChanges.subscribe(value => this.changeCitationStyle(+value)));
+
     if(this.data.isEditMode){
       this.checkedRefs = this.data.data;
-      this.citationStyle = this.checkedRefs[0].citationStyle;
+      this.citationStyle = +this.checkedRefs[0].citationStyle;
+      this.citationStyleControl.setValue(this.citationStyle);
       this.isEditMode = true;
     }
   }
 
   ngOnDestroy(): void {
     this.refMap.unobserve(this.observeRefMapChanges);
+    this.subscription.unsubscribe();
   }
 
   closeDialog(){
