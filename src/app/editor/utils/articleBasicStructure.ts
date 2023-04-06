@@ -76,26 +76,26 @@ export const renderSectionFunc:
 
   if (sectionFromBackend.type == 2) {
     sectionFromBackend.schema.sections?sectionFromBackend.schema.sections.forEach((child: any, indexOfChild: number) => {
-      const childSection = JSON.parse(JSON.stringify(customSectionEnums[child]));
-      childSection.override = sectionFromBackend.schema.override;
-      const props = Object.keys(sectionFromBackend.schema.override.categories).map(key => {
-        return sectionFromBackend.schema.override.categories[key].entries.map(entry => {
-          return entry.localName
+        const childSection = JSON.parse(JSON.stringify(customSectionEnums[child]));
+        childSection.override = sectionFromBackend.schema.override;
+        const props = Object.keys(sectionFromBackend.schema.override.categories).map(key => {
+          return sectionFromBackend.schema.override.categories[key].entries.map(entry => {
+            return entry.localName
+          })
+        }).flat();
+        props.map(el => {
+          material.schema.components.push({
+            "label": el,
+            "autoExpand": false,
+            "tableView": true,
+            "key": el,
+            "type": "textarea",
+            "input": true
+          } as any)
         })
-      }).flat();
-      props.map(el => {
-        material.schema.components.push({
-          "label": el,
-          "autoExpand": false,
-          "tableView": true,
-          "key": el,
-          "type": "textarea",
-          "input": true
-        } as any)
-      })
-      deepIterator(childSection, JSON.parse(JSON.stringify(sectionFromBackend.schema.override)));
-      // childSection.settings = sectionFromBackend.complex_section_settings[indexOfChild]
-      renderSectionFunc(childSection, children, ydoc,serviceShare)
+        deepIterator(childSection, JSON.parse(JSON.stringify(sectionFromBackend.schema.override)));
+        // childSection.settings = sectionFromBackend.complex_section_settings[indexOfChild]
+        renderSectionFunc(childSection, children, ydoc,serviceShare)
     }):undefined
   }
   let newId = uuidv4()
@@ -294,14 +294,15 @@ export const checkIfSectionsAreUnderOrAtMin = (childToCheck: articleSection, par
   let v = parentNode.subsectionValidations
   if (v && Object.keys(v).length > 0) {
     let nodeID = childToCheck.pivotId
-    if (isValidNumber(nodeID)&&v[nodeID]) {
+    let settingsPvID = childToCheck.originalSectionTemplate.settings.pivot_id
+    if ((isValidNumber(nodeID)&&v[nodeID]) || (isValidNumber(settingsPvID)&&v[settingsPvID])) {
       let nOfNodesOfSameType = 0;
       ((container&&container.length>0) ? container : parentNode.children).forEach((child: articleSection) => {
         if (child.pivotId == nodeID) {
           nOfNodesOfSameType++;
         }
       })
-      if (v[nodeID].min >= nOfNodesOfSameType) {
+      if (v[nodeID]?.min >= nOfNodesOfSameType ||  v[settingsPvID]?.min >= nOfNodesOfSameType) {
         return false;
       }
     }
@@ -343,14 +344,15 @@ export const checkIfSectionsAreAboveOrAtMax = (childToCheck: articleSection, par
   let v = parentNode.subsectionValidations
   if (v && Object.keys(v).length > 0) {
     let pivotId = childToCheck.pivotId
-    if (isValidNumber(pivotId)&&v[pivotId]) {
+    let settingsPvID = childToCheck.originalSectionTemplate.settings.pivot_id
+    if ((isValidNumber(pivotId)&&v[pivotId]) || (isValidNumber(settingsPvID)&&v[settingsPvID])) {
       let nOfNodesOfSameType = 0;
       (container ? container : parentNode.children).forEach((child: articleSection) => {
         if (child.pivotId == pivotId) {
           nOfNodesOfSameType++;
         }
       })
-      if (v[pivotId].max <= nOfNodesOfSameType) {
+      if (v[pivotId]?.max <= nOfNodesOfSameType ||  v[settingsPvID]?.max <= nOfNodesOfSameType) {
         return false;
       }
     }

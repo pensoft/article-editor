@@ -158,6 +158,9 @@ export class ServiceShare {
             selectedLayout.sections = selectedLayout.sections.filter(x=>x.name!='Citable Elements Schemas');
             selectedLayout.sections.forEach((section: any) => {
               if(section.settings&&section.settings.main_section == true){
+                if ('min_instances' in  section.settings && section.settings.min_instances === 0) {
+                  return
+                }
                 let newSection = renderSectionFunc(section,articleStructure,this.YdocService!.ydoc,this,'end');
               }
             })

@@ -1,5 +1,21 @@
 import { uuidv4 } from "lib0/random";
 
+/**
+ *  // let dateParts = val.split('-')
+    // if (dateParts.length == 1) {
+    //   dateParts.push('01')
+    //   dateParts.push('01')
+    // }
+    // if (dateParts.length == 2) {
+    //   dateParts.push('01')
+    // }
+    // for(let i =0 ; i < dateParts.length;i++){
+    //   if(dateParts[i].length == 1) {
+    //     dateParts[i] = "0"+dateParts[i]
+    //   }
+    // }
+ */
+
 const mappingObj: any = {
   "doi": { type: ['string'], cslProp: 'DOI', formIOprop: "DOI" },
   "href": { type: ['string'], cslProp: 'URL', formIOprop: "URL" },
@@ -10,22 +26,10 @@ const mappingObj: any = {
       prop: 'issued', func: `(function a(year,refobj,formioobj,extRef){
         if(!year) return
         let val = year.toString();
-        let dateParts = val.split('-')
-        if (dateParts.length == 1) {
-          dateParts.push('01')
-          dateParts.push('01')
-        }
-        if (dateParts.length == 2) {
-          dateParts.push('01')
-        }
-        for(let i =0 ; i < dateParts.length;i++){
-          if(dateParts[i].length == 1) {
-            dateParts[i] = "0"+dateParts[i]
-          }
-        }
+
         refobj['issued'] = {
           "date-parts": [
-            dateParts[0]
+            val.split("-")[0]
           ]
         }
     })` },
@@ -33,20 +37,8 @@ const mappingObj: any = {
       prop: 'issued', func: `(function a(year,refobj,formioobj,extRef){
         if(!year) return
         let val = year.toString();
-        let dateParts = val.split('-')
-        if (dateParts.length == 1) {
-          dateParts.push('01')
-          dateParts.push('01')
-        }
-        if (dateParts.length == 2) {
-          dateParts.push('01')
-        }
-        for(let i =0 ; i < dateParts.length;i++){
-          if(dateParts[i].length == 1) {
-            dateParts[i] = "0"+dateParts[i]
-          }
-        }
-        formioobj['issued'] = dateParts[0]
+
+        formioobj['issued'] = val.split('-')[0];
     })` },
   },
   "publicationDate": {
@@ -55,22 +47,10 @@ const mappingObj: any = {
       prop: 'issued', func: `(function a(year,refobj,formioobj,extRef){
         if(!year) return
         let val = year.toString();
-        let dateParts = val.split('-')
-        if (dateParts.length == 1) {
-          dateParts.push('01')
-          dateParts.push('01')
-        }
-        if (dateParts.length == 2) {
-          dateParts.push('01')
-        }
-        for(let i =0 ; i < dateParts.length;i++){
-          if(dateParts[i].length == 1) {
-            dateParts[i] = "0"+dateParts[i]
-          }
-        }
+        
         refobj['issued'] = {
           "date-parts": [
-            dateParts[0]
+            val.split('-')[0]
           ]
         }
     })` },
@@ -78,20 +58,8 @@ const mappingObj: any = {
       prop: 'issued', func: `(function a(year,refobj,formioobj,extRef){
         if(!year) return
         let val = year.toString();
-        let dateParts = val.split('-')
-        if (dateParts.length == 1) {
-          dateParts.push('01')
-          dateParts.push('01')
-        }
-        if (dateParts.length == 2) {
-          dateParts.push('01')
-        }
-        for(let i =0 ; i < dateParts.length;i++){
-          if(dateParts[i].length == 1) {
-            dateParts[i] = "0"+dateParts[i]
-          }
-        }
-        formioobj['issued'] = dateParts[0]
+        
+        formioobj['issued'] = val.split('-')[0];
     })` },
   },
   "publishedIn": { type: 'string', cslProp: 'city', formIOprop: "city" },

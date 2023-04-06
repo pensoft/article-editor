@@ -123,19 +123,21 @@ export class MaterialEditGridComponent extends MaterialNestedComponent implement
     }
     const formioComponent = forms[index];
     const {data} = formioComponent.formio.submission;
-    const isInvalid = Object.keys(data).some(
-      value => isString(data[value]) && data[value].length === 0
-    );
+    // const isInvalid = Object.keys(data).some(
+    //   value => isString(data[value])
+    // );
 
-    if (isInvalid) {
-      this.valid = false;
-    } else {
-      this.valid = true;
-    }
+    // if (isInvalid) {
+    //   this.valid = false;
+    // } else {
+    //   this.valid = true;
+    // }
+    this.valid = true;
   }
 
   setInstance(instance:any) {
     if (
+      
       instance.component.templates.header &&
       (DEFAULT_HEADER_TEMPLATES.indexOf(hashCode(instance.component.templates.header)) !== -1)
     ) {
@@ -175,6 +177,9 @@ export class MaterialEditGridComponent extends MaterialNestedComponent implement
     setTimeout(() => {
       this.renderTemplate(this.headerElement!, this.header);
       this.renderTemplate(this.footerElement!, this.footer);
+      instance.editRows.forEach((row, i) => {
+        this.saveRow(row, i);
+      })
     }, 0);
     super.setInstance(instance);
   }
@@ -186,7 +191,6 @@ export class MaterialEditGridComponent extends MaterialNestedComponent implement
   editRow(row:any, index:any) {
     const { state } = row;
     const { NEW, REMOVED } = this.RowStates;
-
     if (state === NEW || state === REMOVED) {
       return;
     }

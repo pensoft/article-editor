@@ -39,7 +39,9 @@
       hasPermission:'/articles/sections/*':
       'GET' |
       async)
-      " [style.display]="'none'" [attr.buttonaction]="'post_add'" [ngStyle]="{'order':'4'}" mat-mini-fab class="addSectionBtn section_btn_nestedList hidden" (click)="addSectionToNode(node, nodeFormGroup)"><mat-icon class="matIcon">post_add</mat-icon></button>
+      " [style.display]="'none'" [attr.buttonaction]="'post_add'" [ngStyle]="{'order':'4'}" mat-mini-fab class="addSectionBtn section_btn_nestedList hidden" (click)="addSectionToNode(node, nodeFormGroup);showButtons(cdkDragSection,false,
+      !isComplex?'sectionBorderNested':'sectionBorderListNested',
+      !isComplex?'selectedEditorNestedLeaf':'selectedEditorNestedList',node)"><mat-icon class="matIcon">post_add</mat-icon></button>
     </div>
   </div>
   <div #listDiv class="example-list-dropdownbox" [style.display]="'none'" #childrenDiv>
@@ -82,7 +84,9 @@
       <button [style.display]="'none'" [ngStyle]="{'order':'3'}" [attr.buttonaction]="'delete'" mat-mini-fab class="section_btn_nestedList hidden is-delete" *ngIf="node?.delete?.active" (click)="deleteNodeHandle(node.sectionID)">
         <img src="./assets/icons/delete_forever-red.svg" alt="{{node.title.label}}">
       </button>
-      <button [style.display]="'none'" [ngStyle]="{'order':'4'}" [attr.buttonaction]="'post_add'" mat-mini-fab class="addSectionBtn section_btn_nestedList hidden" *ngIf="node?.addSubSection?.active" (click)="addSectionToNode(node, nodeFormGroup)"><mat-icon class="matIcon">post_add</mat-icon></button>
+      <button [style.display]="'none'" [ngStyle]="{'order':'4'}" [attr.buttonaction]="'post_add'" mat-mini-fab class="addSectionBtn section_btn_nestedList hidden" *ngIf="node?.addSubSection?.active" (click)="addSectionToNode(node, nodeFormGroup);showButtons(cdkDragSection,false,
+      !isComplex?'sectionBorderNested':'sectionBorderListNested',
+      !isComplex?'selectedEditorNestedLeaf':'selectedEditorNestedList',node)"><mat-icon class="matIcon">post_add</mat-icon></button>
     </div>
   </div>
   <div #listDiv class="example-list-dropdownbox-nested" [style.display]="'none'" #childrenDiv>

@@ -21,7 +21,7 @@
         <mat-formio [form]="instance.component" #forms (change)="validate(i)"></mat-formio>
 
         <span fxLayout="row" fxLayoutGap="1em">
-          <button mat-raised-button color="primary" [disabled]="!valid" (click)="saveRow(row, i)">Save</button>
+          <button mat-raised-button color="primary" [disabled]="!valid" (click)="saveRow(row, i)">Add</button>
           <button mat-raised-button color="secondary" (click)="cancelRow(i)">Cancel</button>
           <button mat-raised-button color="warn" (click)="instance.removeRow(i)" class="delete-button">
             <mat-icon>delete</mat-icon>
