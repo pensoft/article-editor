@@ -68,7 +68,7 @@ export const renderSectionFunc:
   if (sectionFromBackend.type == 1) {
     sectionFromBackend.sections.forEach((childSection: any, indexOfChild: number) => {
       childSection.settings = sectionFromBackend.complex_section_settings[indexOfChild]
-      if(childSection.name != 'Citable Elements Schemas'){
+      if(childSection.name != 'Figures'||childSection.name != 'References'||childSection.name != 'Tables'||childSection.name != 'SupplementaryMaterials'||childSection.name != 'Footnotes'){
         renderSectionFunc(childSection, children, ydoc,serviceShare)
       }
     })
