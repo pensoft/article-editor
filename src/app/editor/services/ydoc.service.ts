@@ -531,29 +531,62 @@ export class YdocService {
     this.citableElementsSchemasSection = citableElementsSchemasSection
   }
 
+  hasFigures = false
+  hasReferences = false
+  hasTable = false
+  hasSupplementaryMaterials = false
+  hasFootnotes = false
   saveArticleData(data) {
-    let artilceCitableElementsSchemas = data.layout.template.sections.find(x => x.name == "Citable Elements Schemas");
-    if (artilceCitableElementsSchemas) {
-      // filter sections from ctable elements schemas section
-      data.layout.template.sections = data.layout.template.sections.filter(x => x.name != 'Citable Elements Schemas');
-      this.saveCitableElementsSchemas(artilceCitableElementsSchemas);
-    } else {
-      let section = {
-        schema: CitableElementsSchemasV2Template,
-        template: `
-          <ng-template #Tables>	
-          ${tablesHtmlTemplate}
-        </ng-template>
-        <ng-template #SupplementaryMaterials>
-        ${supplementaryFileHtmlTemplate}
-        </ng-template>
-        <ng-template #Footnotes>
-         ${endNoteHtmlTemplate}
-        </ng-template>
-          `
-      }
-      this.saveCitableElementsSchemas(section);
+    let sections = {
+      schema: {
+        sections: [],
+        override: {
+          categories: {}
+        }
+      },
+      template: ""
     }
+
+    let artilceFiguresSchemas = data.layout.template.sections.find(x => x.name == "Figures")
+    if (artilceFiguresSchemas) {
+      data.layout.template.sections = data.layout.template.sections.filter(x => x.name !== "Figures");
+      this.hasFigures = true
+    }
+
+    if (data.layout.template.sections.find(x => x.name == "References")) {
+      data.layout.template.sections = data.layout.template.sections.filter(x => x.name !== "References");
+      this.hasReferences = true
+    }
+
+    let artilceTablesSchemas = data.layout.template.sections.find(x => x.name == "Tables");
+    if (artilceTablesSchemas) {
+      sections.schema.sections.push("Tables")
+      sections.schema.override.categories['Tables'] = artilceTablesSchemas.schema.override.categories.Tables
+      sections.template += artilceTablesSchemas.template
+      data.layout.template.sections = data.layout.template.sections.filter(x => x.name !== "Tables");
+      this.hasTable= true
+    }
+
+    let artilceSupplementaryMaterialsSchemas = data.layout.template.sections.find(x => x.name == "SupplementaryMaterials");
+    if (artilceSupplementaryMaterialsSchemas) {
+      sections.schema.sections.push("SupplementaryMaterials")
+      sections.schema.override.categories['SupplementaryMaterials'] = artilceSupplementaryMaterialsSchemas.schema.override.categories.SupplementaryMaterials
+      sections.template += artilceSupplementaryMaterialsSchemas.template
+      data.layout.template.sections = data.layout.template.sections.filter(x => x.name !== "SupplementaryMaterials");
+      this.hasSupplementaryMaterials = true
+    }
+
+    let artilceFootnotesSchemas = data.layout.template.sections.find(x => x.name == "Footnotes");
+    if (artilceFootnotesSchemas) {
+      sections.schema.sections.push("Footnotes")
+      sections.schema.override.categories['Footnotes'] = artilceFootnotesSchemas.schema.override.categories.Footnotes
+      sections.template += artilceFootnotesSchemas.template
+      data.layout.template.sections = data.layout.template.sections.filter(x => x.name !== "Footnotes");
+      this.hasFootnotes = true
+    }
+
+    this.saveCitableElementsSchemas(sections);
+    
     let mainSectionValidations:mainSectionValidations = {}
     let fnc = (sec)=>{
       if(sec.pivot_id){

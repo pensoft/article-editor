@@ -155,12 +155,9 @@ export class ServiceShare {
             this.YdocService!.setArticleData(createArticleRes.data,true)
             this.router.navigate([createArticleRes.data.uuid])
             this.YdocService.newArticleIsCreated(userData,createArticleRes.data.uuid)
-            selectedLayout.sections = selectedLayout.sections.filter(x=>x.name!='Citable Elements Schemas');
+            selectedLayout.sections = selectedLayout.sections.filter(x=>x.name!='Figures'&&x.name!='References'&&x.name!='Tables'&&x.name!='SupplementaryMaterials'&&x.name!='Footnotes');
             selectedLayout.sections.forEach((section: any) => {
               if(section.settings&&section.settings.main_section == true){
-                if ('min_instances' in  section.settings && section.settings.min_instances === 0) {
-                  return
-                }
                 let newSection = renderSectionFunc(section,articleStructure,this.YdocService!.ydoc,this,'end');
               }
             })
