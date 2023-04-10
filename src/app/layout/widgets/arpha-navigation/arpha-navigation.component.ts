@@ -19,7 +19,6 @@ export class ArphaNavigationComponent implements AfterViewInit {
   version = environment.VERSION;
   build_number = environment.BUILD_NUMBER;
 
-  public icon = 'expand_more';
   changeText = false;
   mobileVersion: boolean = false;
   languages = ['en', 'bg', 'de'];
@@ -47,11 +46,13 @@ export class ArphaNavigationComponent implements AfterViewInit {
       this.mobileVersion = data
     })
   }
+
   openchooseDialog() {
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
     this.router.navigate(['dashboard']);
     this.serviceShare.shouldOpenNewArticleDialog = true;
   }
+
   openNotifyUserAccessChangeDialog = (oldAccess: string, newAccess: string) => {
     let cantOpenDialog = this.sharedDialog.open(UsersRoleIsChangedComponent, { data: { oldAccess, newAccess } })
   }
@@ -59,7 +60,6 @@ export class ArphaNavigationComponent implements AfterViewInit {
   setLanguage(lang: string) {
     this.translate.use(lang)
   }
-
 
   openDashBoard() {
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
@@ -76,16 +76,8 @@ export class ArphaNavigationComponent implements AfterViewInit {
     return this.authService.isLoggedIn();
   }
 
-  public changeIcon(expand_less: string) {
-    if (this.icon === 'expand_more') {
-      this.icon = 'expand_less';
-    } else {
-      this.icon = 'expand_more';
-    }
-  }
-
   logout() {
-    const returnUrl = `${window.location.origin}${environment.production ? '/demo' : ''}/logout`;
+    const returnUrl = `${window.location.origin}/logout`;
     window.location.href = `${this.authServiceUrl}/logout?return_uri=${encodeURIComponent(returnUrl)}`;
     //this.auth.invalidateToken();
     //document.location.reload();

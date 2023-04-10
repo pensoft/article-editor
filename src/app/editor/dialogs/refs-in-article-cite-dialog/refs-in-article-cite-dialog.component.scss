@@ -46,6 +46,32 @@
   }
 }
 
+.citation-prev-container {
+  width: 100%;
+}
+
+::ng-deep .drag-form {
+    width: 90%;
+    margin: auto;
+
+    .mat-form-field-infix{
+      height: 120px;
+    }
+
+    .drag-element {
+      cursor: grab;
+    }
+}
+
+.radio-btns {
+  display: flex;
+  gap: 20px;
+  justify-content: end;
+  margin: auto;
+  width: 80%;
+}
+
+
 /* ::ng-deep .ref-container {
   padding: 10px;
   border-top: 1px solid;

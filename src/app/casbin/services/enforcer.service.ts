@@ -1,13 +1,8 @@
-import { E, I } from "@angular/cdk/keycodes";
-import { HttpClient } from "@angular/common/http";
-import { Injectable, OnInit } from "@angular/core";
-import { FlexStyleBuilder } from "@angular/flex-layout";
-import { MatSnackBar } from "@angular/material/snack-bar";
+import { Injectable } from "@angular/core";
 import { AuthService } from "@app/core/services/auth.service";
 import { ServiceShare } from "@app/editor/services/service-share.service";
-import { forEach } from "lodash";
 import { BehaviorSubject, from, NEVER, Observable, of, Subscription } from "rxjs";
-import { concatMap, map, switchMap, tap } from "rxjs/operators";
+import { concatMap, map } from "rxjs/operators";
 import { ACL } from "../interfaces";
 import JwtEnforcer from "../lib/JwtEnforcer";
 import { getModel } from "../models/index";
@@ -30,7 +25,13 @@ export class EnforcerService {
   constructor(private serviceShare:ServiceShare, private authService: AuthService) {
     this.false.subscribe((d) => false);
     this.triggerUpdatePolicy();
-    this.serviceShare.shareSelf('EnforcerService',this)
+    this.serviceShare.shareSelf('EnforcerService',this);
+    this.authService.currentUser$.subscribe(data => {
+      console.log('EnforcerService -> User', data);
+      if(data) {
+        this.policiesChangeSubject.next({data});
+      }
+    })
   }
 
   policiesChangeSubject = new BehaviorSubject(null);

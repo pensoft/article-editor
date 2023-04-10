@@ -27,7 +27,7 @@ export class ArticleSectionsService {
   }
 
   getAllSections(params:any){
-    return this._http.get(`${API_ARTICLES_URL}/sections`,{params}).pipe(map((x:any)=>{return {data:x.data.filter(x=>x.name != "Citable Elements Schemas")}}));
+    return this._http.get(`${API_ARTICLES_URL}/sections`,{params}).pipe(map((x:any)=>{return {data:x.data.filter(x=>x.name!='Figures'&&x.name!='References'&&x.name!='Tables'&&x.name!='SupplementaryMaterials'&&x.name!='Footnotes')}}));
   }
 
   getAllLayouts(params?:any){

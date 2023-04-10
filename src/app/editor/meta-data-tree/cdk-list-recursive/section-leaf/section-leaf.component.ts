@@ -220,7 +220,7 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
   }
 
   addNodeHandle(nodeId: string) {
-    if(!willBeMoreThan4Levels(this.treeService.getNodeLevel(this.node),this.node.originalSectionTemplate)){
+    if(!willBeMoreThan4Levels(this.treeService.getNodeLevel(this.node).nodeLevel,this.node.originalSectionTemplate)){
       this.prosemirrorEditorsService.spinSpinner();
       this.treeService.addNodeChange(nodeId,this.node.originalSectionTemplate,this.prosemirrorEditorsService.stopSpinner);
     }else{
@@ -330,16 +330,9 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, treatmentSectionsCustom, 'end');
     } else {
       taxonSection.parent = node;
-      let sectionlevel = this.treeService.getNodeLevel(node)
+      let { nodeLevel: sectionlevel } = this.treeService.getNodeLevel(node)
 
-      let fileredSections = getFilteredSectionChooseData(node)
-
-      const dialogRef = this.dialog.open(ChooseSectionComponent, {
-        width: '563px',
-        panelClass: 'choose-namuscript-dialog',
-        data: {templates: fileredSections, sectionlevel:sectionlevel+1,node}
-      });
-      dialogRef.afterClosed().subscribe((result:sectionChooseData) => {
+      const addNode = (result:sectionChooseData) => {
         if(result){
           if(result.source == 'template'){
             if(!willBeMoreThan4Levels(sectionlevel+1,result.template)){
@@ -364,15 +357,20 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
         }else{
           this.prosemirrorEditorsService.stopSpinner()
         }
+      }
 
-        /* if(result){
-          this.serviceShare.ArticleSectionsService!.getSectionById(result).subscribe((res: any) => {
-            res.data.parent = node;
-            this.serviceShare.TreeService!.addNodeAtPlaceChange(node.sectionID, res.data, 0)
-            this.expandThisAndParentView()
-          })
-        } */
+      let fileredSections = getFilteredSectionChooseData(node)
+
+      if (fileredSections?.length === 1 && fileredSections[0].source !== "backend") {
+        addNode(fileredSections[0])
+        return;
+      }
+      const dialogRef = this.dialog.open(ChooseSectionComponent, {
+        width: '563px',
+        panelClass: 'choose-namuscript-dialog',
+        data: {templates: fileredSections, sectionlevel:sectionlevel+1,node}
       });
+      dialogRef.afterClosed().subscribe(addNode);
       /* this.serviceShare.ArticleSectionsService!.getAllSections({page: 1, pageSize: 10}).pipe(map((res: any) => {
         //res.data.push(taxonSectionData);
         return res

@@ -119,7 +119,7 @@ supplementary-file-url {
     a {
     margin-top: 2px;
     padding: 2px 11px 4px;
-    color: #fff;
+    color: #fff !important;
     border: 1px solid #1E90FF;
     background-color: #1E90FF;
     border-radius: 25px;
@@ -130,7 +130,7 @@ supplementary-file-url {
 
     &:hover {
       background-color: #fff;
-      color: #1E90FF;
+      color: #1E90FF !important;
     }
   }
 }
@@ -306,7 +306,8 @@ supplementary-file-authors,
 supplementary-file-data-type,
 supplementary-file-brief-description,
 supplementary-file-url{
-  display: block;
+  display: flex;
+  gap: 2px;
 }
 supplementary-file-brief-description,end-note{
   form-field{
@@ -609,8 +610,14 @@ img[ychange_type="removed"] {
 .deletion,
 .del-from-popup {
   color: black;
-  background-color: #ffd0d0;
+  background-color: #fee7e7;
   text-decoration: line-through black;
+
+  .active-deletion {
+    background-color: #feb1b1;
+    //#ffd0d0
+    
+  }
 
   >.taxon {
     background-color: transparent !important;
@@ -1026,17 +1033,25 @@ page-break:after {
 }
 
 span.taxon[removedtaxon="false"]{
-  background-color: #7989ffb8;
+  background-color: #aab4fdb8;
+
+  .active-taxon {
+    background-color: #7989ffb8;
+  }
+}
+
+.active-insertion {
+  background-color: #00B1B2 !important;
+  color: white !important;
 }
 
 .comment {
-  background-color: gold;
+  background-color: #fff0d4;
   span {
     background-color: transparent;
   }
   .active-comment {
-    background-color: gold;
-    /* color: black; */
+    background-color: #ffbb2a;
   }
 
   >.taxon {

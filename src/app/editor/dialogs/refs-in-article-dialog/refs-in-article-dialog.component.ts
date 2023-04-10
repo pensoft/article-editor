@@ -12,7 +12,7 @@ import { YMap } from 'yjs/dist/src/internals';
 import { AskBeforeDeleteComponent } from '../ask-before-delete/ask-before-delete.component';
 import { RefsAddNewInArticleDialogComponent } from '../refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
 
-export let clearRefFromFormControl = (newRefs:any)=>{
+export let clearRefFromFormControl = (newRefs:any)=>{  
   let refsWithNoFormControls = {}
     Object.keys(newRefs).forEach((key:any,i)=>{
       let ref = newRefs[key]
@@ -112,29 +112,19 @@ export class RefsInArticleDialogComponent implements OnDestroy {
     return newRefs
   }
 
-  // refsCiTOsControls = {}
-
   passRefsToSubject() {
     let newRefs = this.getRefsForCurrEditSession();
-    // let refsToPass = [...Object.values(newRefs)]
-    // refsToPass.forEach((ref:any,i)=>{
-    //   let formC
-    //   if(this.refsCiTOsControls[ref.ref.id]){
-    //     formC = this.refsCiTOsControls[ref.ref.id]
-    //   }else{
-    //     formC = new FormControl(ref.refCiTO?this.CiToTypes.find(x=>x.label == ref.refCiTO.label):null);
-    //     this.refsCiTOsControls[ref.ref.id] = formC
-    //   }
+    newRefs = this.serviceShare.CslService.sortCitations(newRefs);
 
-    //   ref.refCiTOControl = formC
-    // })
     this.ydocAndChangedRefsSubject.next([...Object.values(newRefs)]);
   }
 
-  saveRefsInArticle() {
-    let newRefs = this.getRefsForCurrEditSession();
-    // let refsWithNoFormControls = clearRefFromFormControl(newRefs)
-    this.refMap.set('refsAddedToArticle', newRefs);
+  saveRefsInArticle() {    
+    let newRefs = this.getRefsForCurrEditSession();  
+    newRefs = this.serviceShare.CslService.sortCitations(newRefs);
+    this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
+
+
     setTimeout(()=>{
       this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
     },20)
@@ -214,9 +204,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
               refCiTO:result.refCiTO,
               refStyle
             }
-            // if(this.refsCiTOsControls[ref.ref.id]){
-            //   this.refsCiTOsControls[ref.ref.id].setValue(result.refCiTO?this.CiToTypes.find(x=>x.label == result.refCiTO.label):null)
-            // }
+
             let refId = refInstance.ref.id;
             this.changedOrAddedRefs[refId] = refInstance
             if (this.deletedRefsIds.includes(refId)) {

@@ -56,4 +56,7 @@ export class NotificationsComponent implements AfterViewInit {
     this.showNotifications = !this.showNotifications
   }
 
+  getName(element) {
+    return element.data?.article_title || element.event;
+  }
 }

@@ -23,6 +23,7 @@ import { InsertSupplementaryFileComponent } from "@app/editor/dialogs/supplement
 import { InsertEndNoteComponent } from "@app/editor/dialogs/end-notes/insert-end-note/insert-end-note.component";
 import { RefsInArticleCiteDialogComponent } from "@app/editor/dialogs/refs-in-article-cite-dialog/refs-in-article-cite-dialog.component";
 import { InsertVideoComponent } from "@app/editor/dialogs/insert-video/insert-video.component";
+import { isInTable } from "./../../../../../prosemirror-tables/src"
 
 const CITATION_ELEMENTS = ["citation", "supplementary_file_citation", "table_citation", "end_note_citation"];
 
@@ -34,44 +35,45 @@ export function shareDialog(dialog: MatDialog) {
 
 let citateRef = (sharedService: ServiceShare) => {
   return (state: EditorState, dispatch: any, view: EditorView) => {
-    const $pos = state.doc.resolve(state.selection.$anchor.pos);
-    const {parent: node} = $pos;
-    const from = $pos.start();
+    // const $pos = state.doc.resolve(state.selection.$anchor.pos);
+    // const {parent: node} = $pos;
+    // const from = $pos.start();
 
-    let citedRefsIds: string[];
-    let citedRefsCiTOs: string[];
-    let citationNode: Node;
-    let citationPos: number;
-    let citationObj: {
-      citedRefsIds: string[],
-      citationNode: Node,
-      citationPos: number
-      }
-    let isEditMode: boolean;
+    // let citedRefsIds: string[];
+    // let citedRefsCiTOs: string[];
+    // let citationNode: Node;
+    // let citationPos: number;
+    // let citationObj: {
+    //   citedRefsIds: string[],
+    //   citationNode: Node,
+    //   citationPos: number
+    //   }
+    // let isEditMode: boolean;
 
-    if(node && node.type.name == "reference_citation") {
-        citedRefsIds = node.attrs.citedRefsIds;
-        citedRefsCiTOs = node.attrs.citedRefsCiTOs;
-        isEditMode = true;
-        citationNode = node;
-        citationPos = from;
-        citationObj = {
-          citedRefsIds,
-          citationNode,
-          citationPos
-        }
-    }
+    // if(node && node.type.name == "reference_citation") {
+    //     citedRefsIds = node.attrs.citedRefsIds;
+    //     citedRefsCiTOs = node.attrs.citedRefsCiTOs;
+    //     isEditMode = true;
+    //     citationNode = node;
+    //     citationPos = from;
+    //     citationObj = {
+    //       citedRefsIds,
+    //       citationNode,
+    //       citationPos
+    //     }
+    // }
 
     let dialogRef = sharedDialog.open(RefsInArticleCiteDialogComponent,{
       panelClass: 'editor-dialog-container',
-      data: { citedRefsIds, citedRefsCiTOs, isEditMode },
+      data: { citedRefsIds: undefined, citedRefsCiTOs: undefined, isEditMode: false },
       width: '680px',
       // height:'461px',
     })
     dialogRef.afterClosed().subscribe(result => {
       if(result){
         const { citedRefs, isEditMode } = result;
-        sharedService.EditorsRefsManagerService.citateSelectedReferencesInEditor(citedRefs, view, isEditMode, citationObj)
+        
+        sharedService.EditorsRefsManagerService.citateSelectedReferencesInEditor(citedRefs, view, isEditMode)
       }
       /* if(result){
         sharedService.YjsHistoryService.startCapturingNewUndoItem();
@@ -102,6 +104,9 @@ let citateRef = (sharedService: ServiceShare) => {
 }
 
 let canCitate = (state: EditorState) => {
+  if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+    return isInTable(state) && state.selection.from == state.selection.to
+  }
   const node = state.doc.nodeAt(state.selection.from);
   const { parent } = state.doc.resolve(state.selection.$anchor.pos);
     
@@ -171,6 +176,10 @@ export const insertEndNote = new MenuItem({
   },
   //@ts-ignore
   enable(state: EditorState) { 
+    if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+      //@ts-ignore
+      return isInTable(state) && state.schema.marks.citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'figures_nodes_container', 'block_figure'*/].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true)
+    }
     const node = state.doc.nodeAt(state.selection.from);
     const { parent } = state.doc.resolve(state.selection.$anchor.pos);
     if(node && (node.marks.find(m => CITATION_ELEMENTS.includes(m?.type.name)) || parent.type.name == "reference_citation")) return false;
@@ -202,6 +211,9 @@ export const insertSupplementaryFile = new MenuItem({
   },
   //@ts-ignore
   enable(state) {
+    if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+      return isInTable(state) && state.schema.marks.citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'figures_nodes_container', 'block_figure' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true)
+    }
     const node = state.doc.nodeAt(state.selection.from);
     const { parent } = state.doc.resolve(state.selection.$anchor.pos);
     if(node && (node.marks.find(m => CITATION_ELEMENTS.includes(m?.type.name)) || parent.type.name == "reference_citation")) return false; 
@@ -233,7 +245,10 @@ export const insertFigure = new MenuItem({
     return true;
   },
   //@ts-ignore
-  enable(state) { 
+  enable(state) {
+    if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+      return isInTable(state) && state.schema.marks.citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'figures_nodes_container', 'block_figure' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true) 
+    }
     const node = state.doc.nodeAt(state.selection.from);
     const { parent } = state.doc.resolve(state.selection.$anchor.pos);
     if(node && (node.marks.find(m => CITATION_ELEMENTS.includes(m?.type.name)) || parent.type.name == "reference_citation")) return false;
@@ -264,6 +279,9 @@ export const insertTable = new MenuItem({
   },
   //@ts-ignore
   enable(state) { 
+    if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+      return isInTable(state) && state.schema.marks.table_citation&&state.selection.empty && (state.doc.resolve(state.selection.from).path as Array<Node | number>).reduce((prev, curr, index) => { if (curr instanceof Node && [/* 'tables_nodes_container', 'block_table' */].includes(curr.type.name)) { return prev && false } else { return prev && true } }, true)
+    }
     const node = state.doc.nodeAt(state.selection.from);
     const { parent } = state.doc.resolve(state.selection.$anchor.pos);
     if(node && (node.marks.find(m => CITATION_ELEMENTS.includes(m?.type.name)) || parent.type.name == "reference_citation")) return false;
@@ -317,7 +335,12 @@ export const insertSpecialSymbolItem = new MenuItem({
     }
     return true;
   },
-  enable(state:EditorState) { return isCitationSelected(state, undefined, true) },
+  enable(state:EditorState) {
+    if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+      return isInTable(state)
+    }
+    return isCitationSelected(state, undefined, true)
+  },
   icon: createCustomIcon('Icon feather-star.svg', 20)
 });
 
@@ -353,7 +376,12 @@ export let insertVideoItem = (serviceShare:ServiceShare)=>{
       }
       return true
     },
-    enable(state:EditorState) { return isCitationSelected(state, () => state.schema.nodes.video&&canInsert(state, state.schema.nodes.video)) },
+    enable(state:EditorState) {
+      if (state.doc.firstChild?.type.name == 'form_field' && state.doc.firstChild.attrs.allowedTags == 'customTableJSONAllowedTags1') {
+        return isInTable(state)
+      }
+      return isCitationSelected(state, () => state.schema.nodes.video&&canInsert(state, state.schema.nodes.video))
+    },
     icon: videoPlayerIcon
   });
 }
@@ -443,15 +471,9 @@ export const insertTableItem = new MenuItem({
         }
       });
 
-    let $head = state.selection.$head;
-    let isInTable = false
-    for (let d = $head.depth; d > 0; d--) {
-      if ($head.node(d).type.spec.tableRole == 'row') {
-        isInTable = true
-      }
-    }
+    const inTable = isInTable(state)
   
-    if (hasTable && !isInTable) {
+    if (hasTable && !inTable) {
         return false;
       }
     }

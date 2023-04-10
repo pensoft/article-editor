@@ -203,6 +203,11 @@ export class RefsAddNewInArticleDialogComponent implements OnInit,AfterViewInit,
       if(!refIns.ref.type){
         refIns.ref.type = "article-journal"
       }
+
+      if(!refIns.ref.id) {
+        refIns.ref.id = uuidv4();
+      }
+
       let refMappedType = this.referenceTypesFromBackend.find(x=>x.type == refIns.ref.type);
       let refBasicCitation: any = this.serviceShare.CslService.getBasicCitation(refIns.ref, refStyle.style);
       let container = document.createElement('div');

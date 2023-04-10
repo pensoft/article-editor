@@ -28,7 +28,7 @@
         </mat-form-field>
         <mat-form-field class="width-select">
           <mat-label class="type-select-label">Template</mat-label>
-          <input 
+          <input
            class="type-input"
            type="text"
            #typeInput
@@ -36,13 +36,16 @@
            (keydown)="filterByType(typeInput, $event)"
            (focus)="focusHandler()"
            (clickOutside)="filterByType(typeInput, $event)"
-           [formControl]="templateType"
+           [formControl]="templateTypeControl"
            [matAutocomplete]="layoutsGroup">
           <mat-autocomplete  #layoutsGroup="matAutocomplete" >
-              <mat-option *ngFor="let type of (filteredAutocompleteTemplates | async) || articleLayouts" [value]="type.name">
+              <mat-option class="template-option"
+                *ngFor="let type of (filteredAutocompleteTemplates | async) || articleLayouts"
+                [value]="type.name">
                     {{type.name}}
               </mat-option>
           </mat-autocomplete>
+          <mat-icon class="icon" *ngIf="typeInput.value.length > 0" (click)="removeTypeInputText(typeInput)">close</mat-icon>
           <mat-icon class="icon">keyboard_arrow_down</mat-icon>
           <!-- <mat-select #matSelect (selectionChange)="filterByType(matSelect.value)">
             <ng-container *ngFor="let type of articleLayouts">
@@ -111,7 +114,7 @@
 
         <!-- Author Column -->
         <ng-container matColumnDef="autor">
-          <th mat-header-cell *matHeaderCellDef>Author</th>
+          <th mat-header-cell *matHeaderCellDef>Authors</th>
           <td mat-cell *matCellDef="let row">
             <div class="more-avatar">
 

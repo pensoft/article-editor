@@ -15,6 +15,13 @@ import { FullSchemaDOMPMSerializer , FullSchemaDOMPMParser} from "../Schema/filt
 import { elementOnWhichClickShouldNoteBeHandled } from "./transactionControllingFunctions";
 
 
+export function transformPastedHTML(html) {
+  if (html.includes('wikipedia.org')) {
+    return html.replace(/Jump up to:/gm, "")
+  }
+  return html
+}
+
 
 export function handlePaste(sharedService:ServiceShare, options?: any) {
   return function handlePaste(view: EditorView, event: ClipboardEvent, slice: Slice) {
@@ -267,7 +274,11 @@ export let handleKeyDown = (serviceShare: ServiceShare, options?: any) => {
   return (view: EditorView, event: KeyboardEvent) => {
     try {
 
-      if (options?.path == 'tableContent') {
+      if (view.state.selection.$from.parent.attrs.contenteditableNode == 'false' || view.state.selection.$from.parent.attrs.contenteditableNode === false) {
+        return true
+      }
+      
+       if (options?.path == 'tableContent') {
         let { from, to } = view.state.selection
         let coordinatesAtFrom = view.coordsAtPos(from);
         let coordinatesAtTo = view.coordsAtPos(to);
@@ -325,6 +336,9 @@ export let handleKeyDown = (serviceShare: ServiceShare, options?: any) => {
         }
         if (parentRef?.attrs.contenteditableNode != 'false' && parentRef?.attrs.contenteditableNode !== false) {
           canEdit = true
+        }
+        else {
+          return true;
         }
       }
       let NodeBeforeHasNoneditableMark = sel.$anchor.nodeBefore?.marks.filter((mark) => { return mark.attrs.contenteditableNode == 'false' || mark.attrs.contenteditableNode === false }).length! > 0

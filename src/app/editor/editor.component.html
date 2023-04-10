@@ -3,9 +3,23 @@
     <div class="left-group">
 
       <button (click)="clickEditorTab()" color="primary" mat-button [class.active]="active=='editor'"
-              style="color:var(--color-192956)">
-        <mat-icon svgIcon="edit1"></mat-icon>
-        <span style="margin-left:2px">Editor</span>
+              style="color:var(--color-192956)" [disabled]="true" [ngSwitch]="userAccess">
+        <ng-container *ngSwitchCase="'Owner'">
+          <mat-icon svgIcon="edit1"></mat-icon>
+          <span style="margin-left:2px">Owner</span>
+        </ng-container>
+        <ng-container *ngSwitchCase="'Editor'">
+          <mat-icon svgIcon="edit1"></mat-icon>
+          <span style="margin-left:2px">Editor</span>
+        </ng-container>
+        <ng-container *ngSwitchCase="'Commenter'">
+          <mat-icon svgIcon="comments"></mat-icon>
+          <span style="margin-left:2px">Commenter</span>
+        </ng-container>
+        <ng-container *ngSwitchCase="'Viewer'">
+          <mat-icon svgIcon="eyeGreen"></mat-icon>
+          <span style="margin-left:2px">Viewer</span>
+        </ng-container>
       </button>
      <!--  <button *ngIf="
                 enforcer.newBeahviorSubject |
@@ -98,7 +112,17 @@
     <mat-icon>account_tree</mat-icon>
     </button>
     </div> -->
-    <div class="left-column-placeholder"></div>
+    <div class="left-column-placeholder">
+      <div class="template-name-placeholder">
+        <span class="template-label">Template</span>
+        <div class="template-name">
+          <span>{{articleTemplate}}</span>
+          <div class="template-img-placeholder">
+            <img class="template-img" alt="undo-icon" src="./assets/icons/undo.svg" />
+          </div>
+        </div>
+      </div>
+    </div>
 
     <div class="prosemirror_menu_container">
       <app-editor-menu [ngStyle]="{'display':(userAccess == 'Commenter'||userAccess == 'Viewer')?'none':'block'}">

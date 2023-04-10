@@ -5,7 +5,11 @@
       <div class="app-version">v:{{version}} | build:{{build_number}}</div>
     </a>
     <div class="add-article-navigation">
-      <button mat-button [matMenuTriggerFor]="menu2">{{'lang' | translate }}</button>
+      <!-- <button mat-button class="dropdown-btn" [matMenuTriggerFor]="menu2">
+        {{'lang' | translate }}
+        <mat-icon color="primary" class="expand-less">expand_less</mat-icon>
+        <mat-icon color="primary" class="expand-more">expand_more</mat-icon>
+      </button> -->
       <mat-menu #menu2="matMenu">
         <button mat-menu-item  (click)="setLanguage(language)" *ngFor="let language of languages">
           {{ language | translate }}
@@ -30,20 +34,21 @@
         </div>
       </div>
       <app-theme-toggle class="theme-toggle"></app-theme-toggle>
-      <ng-container *ngIf="authService.currentUserSubject | async as user">
-        <ngx-avatar size="36" [gravatarId]="user.email" [name]="user.name" bgColor="#00B3B4"></ngx-avatar>
-      </ng-container>
       <app-notifications class="notifications-component" ></app-notifications>
-      <button mat-button [matMenuTriggerFor]="menu">
-        <mat-icon color="primary" (click)="changeIcon('expand_less')">{{icon}}</mat-icon>
+      <button mat-button class="dropdown-btn" [matMenuTriggerFor]="menu">
+        <ng-container *ngIf="authService.currentUserSubject | async as user">
+          <ngx-avatar size="36" [gravatarId]="user.email" [name]="user.name" bgColor="#00B3B4"></ngx-avatar>
+        </ng-container>
+        <mat-icon color="primary" class="expand-less">expand_less</mat-icon>
+        <mat-icon color="primary" class="expand-more">expand_more</mat-icon>
       </button>
       <mat-menu #menu="matMenu">
-        <button mat-menu-item routerLink="/user-profile">
+        <button mat-menu-item routerLink="/profile">
           <span>View Profile</span>
         </button>
-        <button mat-menu-item routerLink="/edit-profile">
+        <!-- <button mat-menu-item routerLink="/edit-profile">
           <span>Edit Profile</span>
-        </button>
+        </button> -->
         <arpha-button label="Log Out" (clickEvent)="logout()" class="text-icon upload-row"></arpha-button>
       </mat-menu>
     </div>

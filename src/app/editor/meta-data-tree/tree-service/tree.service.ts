@@ -240,21 +240,36 @@ export class TreeService implements OnDestroy {
   }
 
   getNodeLevel(node: articleSection) {
-    if(!node) return 0;
+    if(!node) return {nodeLevel: 0, hTag: 0};
     let nodeLevel: number
-    let findLevel = (children: articleSection[], level: number) => {
-      children.forEach((child) => {
+    let hTag = 0
+    let isIn = false;
+    const regex = /<h([1-6]).*>/g;
+    let findLevel = (children: articleSection[], level: number, h: number) => {
+      children.forEach((child, i) => {
+        const match = regex.exec(child.originalSectionTemplate.template);
         if (child.sectionID == node.sectionID) {
+          if(match) {
+            hTag = +match[1];
+          } else {
+            if(level > 0) {
+              hTag = h + i
+            } else {
+              hTag = 2;
+            }
+          }
+          child.level = hTag;
           nodeLevel = level;
+          isIn = true;
         }
-        if (nodeLevel == undefined && child.type == 'complex' && child.children.length > 0) {
-          findLevel(child.children, level + 1);
+        if (!isIn && nodeLevel == undefined && child.type == 'complex' && child.children.length > 0) {
+          findLevel(child.children, level + 1, child.level + 1);
         }
       })
     }
-    findLevel(this.articleSectionsStructure!, 0);
+    findLevel(this.articleSectionsStructure!, 0, 0);
     //@ts-ignore
-    return nodeLevel;
+    return {nodeLevel, hTag };
   }
 
   buildNewFormGroups(nodes: articleSection[]) {
@@ -338,12 +353,12 @@ export class TreeService implements OnDestroy {
     }
 
     const updateView = (node: articleSection) => {
-      let level = this.getNodeLevel(node)
+      let {nodeLevel, hTag} = this.getNodeLevel(node)
       let htmlTemplate = node.prosemirrorHTMLNodesTempl
       let sectionFormGroup = this.sectionFormGroups[node.sectionID]
       let submission = sectionFormGroup.value
             
-      this.serviceShare.ProsemirrorEditorsService.interpolateTemplate(htmlTemplate, submission, sectionFormGroup, null, {level}).then((result: string) => {
+      this.serviceShare.ProsemirrorEditorsService.interpolateTemplate(htmlTemplate, submission, sectionFormGroup, null, {hTag}).then((result: string) => {
         let templDiv = document.createElement('div');
         templDiv.innerHTML = result
 
@@ -653,7 +668,7 @@ export class TreeService implements OnDestroy {
 
   showAddSubsectionBtn(node: articleSection) {
     let fileredSections = getFilteredSectionChooseData(node)
-    return (this.getNodeLevel(node)+1 < 4&&fileredSections.length>0)
+    return (this.getNodeLevel(node).nodeLevel+1 < 4&&fileredSections.length>0)
   }
 
   findParentNodeWithChildID(nodeid: string) {
