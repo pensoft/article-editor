@@ -202,7 +202,7 @@ export class CommentsService {
     }, 500)
   }
 
-  addInlineDecoration(state: EditorState, pos: number, view: EditorView) {
+  addInlineDecoration(state: EditorState, pos: number) {
     const $pos = state.doc.resolve(pos);
     const { parent, parentOffset } = $pos;
     const { node } = parent.childAfter(parentOffset);
@@ -396,13 +396,8 @@ export class CommentsService {
           const { from, to } = state.selection;
 
           if (currentEditor != focusedEditor) return DecorationSet.empty;
-          const view = serviceShare.ProsemirrorEditorsService.editorContainers[currentEditor]?.editorView;
 
-          if(!view) return DecorationSet.empty;
-          
-          
-          const markInfo = addInlineDecoration(state, from, view);
-          
+          const markInfo = addInlineDecoration(state, from);
           if(!markInfo) return DecorationSet.empty;
           
           return DecorationSet.create(state.doc, [
