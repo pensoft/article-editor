@@ -141,7 +141,7 @@ export class TrackChangesService {
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
             domTop: domCoords.top - articleElementRactangle.top - articlePosOffset,
-            changeTxt: this.getallChangeOccurrences(actualMark.attrs.id, parent),
+            changeTxt: this.getallChangeOccurrences(actualMark.attrs.id, view),
             changeAttrs: actualMark.attrs,
             type:actualMark.type.name,
             selected: markIsLastSelected,
@@ -151,12 +151,12 @@ export class TrackChangesService {
     })
   }
 
-  getallChangeOccurrences(id: string, parent: Node) {
-    let nodeSize = parent.content.size;
+  getallChangeOccurrences(id: string, view: EditorView) {
+    let nodeSize = view.state.doc.content.size;
     let textContent = '';
 
-    parent.nodesBetween(0, nodeSize, (node: Node) => {
-      const actualMark = node.marks.find(mark => changesMarksNames.includes(mark.type.name));
+    view.state.doc.nodesBetween(0, nodeSize, (node: Node) => {
+      const actualMark = node?.marks.find(mark => changesMarksNames.includes(mark.type.name));
       if(actualMark && actualMark.attrs.id == id) {
         textContent += node.textContent;
       }
