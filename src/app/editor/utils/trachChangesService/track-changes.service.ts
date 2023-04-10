@@ -588,12 +588,48 @@ export class TrackChangesService {
         },
       }, props: {
         decorations: (state) => {
-          let pluginState = hideShowPluginKey.getState(state);
+          const pluginState = hideShowPluginKey.getState(state);
+          const focusedEditor = this.serviceShare.DetectFocusService.sectionName;
+          const currentEditor = pluginState.sectionName;
+          const { from, to } = state.selection;
+
+          if (currentEditor != focusedEditor) return DecorationSet.empty;
+          
+          const markInfo = self.addInlineDecoration(state, from);
+          
+          if(!markInfo) return DecorationSet.empty;
+          
+          if(markInfo.markName == "insertion") {
+            return DecorationSet.create(state.doc, [
+            Decoration.inline(markInfo.from, markInfo.to, {class: 'active-insertion'})
+            ])
+          } else if (markInfo.markName == "deletion") {
+            return DecorationSet.create(state.doc, [
+              Decoration.inline(markInfo.from, markInfo.to, {class: 'active-deletion'})
+            ])
+          }
+          
           return pluginState.createdDecorations
         }
       },
     });
     this.hideShowPlugin = hideShowPlugin;
+  }
+
+  addInlineDecoration(state: EditorState, pos: number) {
+    const $pos = state.doc.resolve(pos);
+
+    const { parent, parentOffset } = $pos;
+    const { node, offset } = parent.childAfter(parentOffset);
+    if (!node) return;
+
+    const mark = node.marks.find((mark) => mark.type.name === 'insertion' || mark.type.name === 'deletion');
+    if (!mark) return;
+
+    let from = $pos.start() + offset;
+    let to = from + node.nodeSize;
+
+    return { from, to, markName: mark.type.name };
   }
 
   getHideShowPlugin() {
