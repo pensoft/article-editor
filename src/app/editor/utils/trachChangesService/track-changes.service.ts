@@ -596,7 +596,6 @@ export class TrackChangesService {
           if (currentEditor != focusedEditor) return DecorationSet.empty;
           
           const markInfo = self.addInlineDecoration(state, from);
-          
           if(!markInfo) return DecorationSet.empty;
           
           if(markInfo.markName == "insertion") {
@@ -617,19 +616,27 @@ export class TrackChangesService {
   }
 
   addInlineDecoration(state: EditorState, pos: number) {
-    const $pos = state.doc.resolve(pos);
-
-    const { parent, parentOffset } = $pos;
-    const { node, offset } = parent.childAfter(parentOffset);
+    const node = state.doc.nodeAt(pos)
     if (!node) return;
 
-    const mark = node.marks.find((mark) => mark.type.name === 'insertion' || mark.type.name === 'deletion');
-    if (!mark) return;
+    const mark = node.marks?.find((mark) => mark.type.name == 'insertion' || mark.type.name == 'deletion');    
+    if (!mark || node.marks?.find((m) => m.type.name == "comment")) return;
 
-    let from = $pos.start() + offset;
-    let to = from + node.nodeSize;
+    let from: number;
+    let to: number;
 
-    return { from, to, markName: mark.type.name };
+    const nodeSize = state.doc.content.size;
+    state.doc.nodesBetween(0, nodeSize, (node, pos, parent, i) => {
+      const mark2 = node?.marks.find(mark => mark.type.name == mark.type.name);
+      
+      if(mark2 && mark2.attrs.id == mark.attrs.id && !from) {
+        from = pos;      
+      }
+      if(mark2 && mark2.attrs.id == mark.attrs.id){
+        to = pos + node.nodeSize;        
+      }
+    })
+    return { from, to: to || from + node.nodeSize, markName: mark.type.name };
   }
 
   getHideShowPlugin() {

@@ -203,10 +203,7 @@ export class CommentsService {
   }
 
   addInlineDecoration(state: EditorState, pos: number) {
-    const $pos = state.doc.resolve(pos);
-    const { parent, parentOffset } = $pos;
-    const { node } = parent.childAfter(parentOffset);
-
+    const node = state.doc.nodeAt(pos)
     if (!node) return;
 
     const mark = node.marks.find((mark) => mark.type.name === 'comment');
@@ -540,7 +537,7 @@ export class CommentsService {
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
             domTop: domCoords.top - articleElementRactangle.top-articlePosOffset,
-            commentTxt: this.getallCommentOccurrences(actualMark.attrs.id, parent),
+            commentTxt: this.getallCommentOccurrences(actualMark.attrs.id, view),
             commentAttrs: actualMark.attrs,
             selected: markIsLastSelected,
           }
@@ -549,11 +546,11 @@ export class CommentsService {
     })
   }
 
-  getallCommentOccurrences(commentId: string, parent: Node) {
-    let nodeSize = parent.content.size;
+  getallCommentOccurrences(commentId: string, view: EditorView) {
+    let nodeSize = view.state.doc.content.size;
     let textContent = '';
 
-    parent.nodesBetween(0, nodeSize, (node: Node) => {
+    view.state.doc.nodesBetween(0, nodeSize, (node: Node) => {
       const actualMark = node.marks.find(mark => mark.type.name === "comment");
       if(actualMark && actualMark.attrs.id == commentId) {
         textContent += node.textContent;
