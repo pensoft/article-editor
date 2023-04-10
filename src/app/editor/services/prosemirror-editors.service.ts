@@ -587,6 +587,9 @@ export class ProsemirrorEditorsService {
         if (nodeAtSel && !transaction.getMeta('titleupdateFromControl') && nodeAtSel.attrs.controlPath && nodeAtSel.attrs.controlPath == "sectionTreeTitle" && transaction.steps.filter(step => { return step instanceof ReplaceStep || step instanceof ReplaceAroundStep }).length > 0) {
           transaction.setMeta('editingTitle', true);
         }
+        if(nodeAtSel && nodeAtSel.lastChild.type.name == "spacer") {
+          return;
+        }
 
         //@ts-ignore
         if (lastStep == transaction.steps[0] && !transaction.getMeta('emptyTR')) {
@@ -1056,6 +1059,12 @@ export class ProsemirrorEditorsService {
         if (lastStep == transaction.steps[0] && !transaction.getMeta('emptyTR')) {
           if (lastStep) { return }
         }
+        let nodeAtSel = transaction.selection.$head.parent || transaction.selection.$anchor.parent;
+
+        if(nodeAtSel && nodeAtSel.lastChild.type.name == "spacer") {          
+          return;
+        }
+
         let isMath = false
         if (transaction.selection instanceof NodeSelection && (transaction.selection.node.type.name == 'math_inline' || transaction.selection.node.type.name == 'math_display')) {
           let hasmarkAddRemoveStep = transaction.steps.filter((step) => {
