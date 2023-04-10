@@ -1498,3 +1498,9 @@ router-outlet {
   height: 15px;
   margin-right: 5px;
 }
+
+@media screen and (max-width: 1500px) {
+  .editor-dialog-container {
+    max-height: 800px !important;
+  }
+}
