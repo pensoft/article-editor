@@ -30,8 +30,8 @@ export class LinkPopUpPluginServiceService {
         aTag.click();
         URL.revokeObjectURL(tempUrl);
         aTag.remove();
-    }).catch(() => {
-    });
+      }).catch(() => {
+      });
     }else{
       var pom = document.createElement('a');
       pom.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
@@ -75,7 +75,7 @@ export class LinkPopUpPluginServiceService {
           const pluginState = self.linkPopUpPluginKey.getState(state);
           const focusedEditor = self.serviceShare.DetectFocusService.sectionName;
           const currentEditor = pluginState.sectionName;
-          
+
           if (focusedEditor != currentEditor) return DecorationSet.empty
           if(currentEditor == "endEditor") return DecorationSet.empty;
 
@@ -86,13 +86,13 @@ export class LinkPopUpPluginServiceService {
           if(!linkMarkInfo) return DecorationSet.empty;
 
           const { from, mark } = linkMarkInfo;
-          
+
           if (mark.attrs.download) {
 
-          } else {            
+          } else {
             const linkPopUp = document.createElement('div')
             linkPopUp.classList.add('link_popup_div');
-            const link = document.createElement('a') as HTMLAnchorElement;            
+            const link = document.createElement('a') as HTMLAnchorElement;
             link.href = mark.attrs.href;
             link.textContent = mark.attrs.href;
 
@@ -140,9 +140,9 @@ export class LinkPopUpPluginServiceService {
             const { pos } = view.state.selection.$anchor;
             const { link } = view.state.schema.marks;
             const markInfo = self.markPosition(view.state, pos, link);
-            
-            if(markInfo && 
-              event.relatedTarget && 
+
+            if(markInfo &&
+              event.relatedTarget &&
               event.relatedTarget instanceof HTMLAnchorElement) {
               event.relatedTarget.click();
             }
@@ -151,19 +151,32 @@ export class LinkPopUpPluginServiceService {
       },
     })
   }
-  
+
   markPosition(state: EditorState, pos: number, markType: MarkType) {
     const $pos = state.doc.resolve(pos);
     const { parent, parentOffset } = $pos;
     const { node, offset } = parent.childAfter(parentOffset);
     if (!node) return;
-    
+
     const mark = node.marks.find((mark) => mark.type === markType);
-    if (!mark) return;
-    
+    if (!mark) {
+      try {
+        const { node: node2, offset: offset2 } = parent.childAfter(parentOffset - 1);
+        if (!node2) return;
+        const mark2 = node2.marks.find((mark) => mark.type === markType);
+        if (!mark2) return;
+        let from = $pos.start() + offset2;
+        let to = from + node2.nodeSize;
+
+        return { from, to, mark:mark2 };
+      } catch {
+        return;
+      }
+    };
+
     let from = $pos.start() + offset;
     let to = from + node.nodeSize;
-    
+
     return { from, to, mark };
   }
 }

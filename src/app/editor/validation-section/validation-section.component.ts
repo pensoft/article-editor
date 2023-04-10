@@ -102,7 +102,7 @@ export class ValidationSectionComponent implements OnDestroy {
         //@ts-ignore
         (this.spinnerEl!.nativeElement as HTMLImageElement).style.transform = 'rotate(' + this.deg + 'deg)';
       }, 100)
-      let rules = JSON.parse(JSON.stringify(this.ydocService.articleData.layout.rules))
+      let rules = JSON.parse(JSON.stringify(this.ydocService.articleData.layout.template.rules))
       let donevalidationSubject = new Subject();
       this.donevalidationSubject = donevalidationSubject
       rules.push({ rule: 'FormControls' })

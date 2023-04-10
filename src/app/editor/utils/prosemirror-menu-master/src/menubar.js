@@ -104,6 +104,7 @@ class MenuBarView {
             let menuTypeOnNode = 'main';
             let menuInAttrs = false;
             let userIsInSectionTreeTitleNode = false;
+            let contenteditableNode = true;
             let firstFormControlName // the first when we loop form inside to the outside in the node structure -> the outer formControl name
             let doc = editorView.state.doc
             let docSize = doc.content.size
@@ -124,6 +125,9 @@ class MenuBarView {
                       /* if(node.attrs.formControlName=="sectionTreeTitle"){
                         userIsInSectionTreeTitleNode = true;
                       } */
+                     }
+                    if(node.attrs.contenteditableNode === false || node.attrs.contenteditableNode === "false") {
+                      contenteditableNode = false
                     }
                   }
                 }
@@ -189,6 +193,11 @@ class MenuBarView {
               this.menu.style.display = 'block';
             }
             if(userIsInSectionTreeTitleNode && editorView.hasFocus()){
+              Array.from(this.menuContainer.children).forEach((child) => {
+                child.style.display = 'none';
+              })
+            }
+            if(!contenteditableNode && editorView.hasFocus()){
               Array.from(this.menuContainer.children).forEach((child) => {
                 child.style.display = 'none';
               })

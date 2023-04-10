@@ -44,7 +44,7 @@ function removeTextWithChangeMark(view: EditorView, markattrs: any, action: 'acc
     let nodeBefore = resolvedPosAtStart.nodeBefore;
     let nodeAfter = resolvedPosAtEnd.nodeAfter;
 
-    let searchingFor = markType.name == 'insertion' ? 'deletion' : 'insertion';
+    let searchingFor = markType.name == 'insertion' ? 'insertion' : 'deletion';
     if (nodeBefore) {
       let markConn = nodeBefore.marks.filter(mark => mark.type.name == searchingFor)[0]
       if (markConn) {
@@ -118,7 +118,7 @@ function removeChangeMarkFromText(view: EditorView, markattrs: any, action: 'acc
     let nodeBefore = resolvedPosAtStart.nodeBefore;
     let nodeAfter = resolvedPosAtEnd.nodeAfter;
 
-    let searchingFor = markType.name == 'insertion' ? 'deletion' : 'insertion';
+    let searchingFor = markType.name == 'insertion' ? 'insertion' : 'deletion';
     if (nodeBefore) {
       let markConn = nodeBefore.marks.filter(mark => mark.type.name == searchingFor)[0]
       if (markConn) {

@@ -221,11 +221,12 @@ td:first-child {
 }
 
 .more-avatar {
-  float: left;
   margin-left: -10px;
   border: 2px solid #ffffff;
   border-radius: 50%;
   display: flex;
+  justify-content: center;
+  align-items: center;
   flex-direction: row;
 }
 
@@ -340,3 +341,14 @@ th.mat-header-cell {
 }
 
 
+.template-option {
+  padding: 0 16px;
+
+  ::ng-deep {
+    .mat-option-text {
+      display: block !important;
+      padding: 16px 0 !important;
+      border: none !important;
+    }
+  }
+}

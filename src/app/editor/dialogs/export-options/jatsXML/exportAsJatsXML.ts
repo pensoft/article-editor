@@ -923,13 +923,13 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
     } else if (options.articleTitle) {
       newParNode = xmlPar
     } else {
-      newParNode = xmlPar.ele('p')
+        newParNode = xmlPar.ele('p')
     }
     shouldSkipNextBlockElements = true;
   } else if (node.type == 'text' && (!node.marks || node.marks.length == 0)) {
     
     if (options?.keywordGroup && !options?.keywordLabel) {
-      const keywords = node.text.split(',').map(keyword => keyword.trim());
+      const keywords = node.text.split(/[,\s]/).map(keyword => keyword.trim());
       keywords.forEach(keyword => keyword ? xmlPar.ele('kwd').txt(keyword) : undefined)
       return
     }
@@ -941,13 +941,16 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
       processPmMarkAsXML(node, xmlPar, before, options)
 
     return;
-  } else if (node.type == "reference_citation") {
+  } else if (node.type == "reference_citation" && node.attrs.nonexistingelement == false) {
     let citedRefs = node.attrs.citedRefsIds as string[]
     let citedRefsCiTOs = node.attrs.citedRefsCiTOs as string[];
     citedRefs.forEach((x, i)=>{
+      if (x === 'pointing-to-deleted-ref') {
+        return
+      }
       let actualRef = options.refObj[x];
       let rid = refIdsG[x];      
-      let refTxt = actualRef.citation.data.text;
+      let refTxt = actualRef.citation.data[+node.attrs.citationStyle].text;
       let xrefAttr = {
         "ref-type": "bibr",
         "rid": rid
@@ -965,16 +968,17 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
     if (options?.keywordGroup) {
       newParNode = xmlPar
     } else {
-      newParNode = xmlPar.ele('p')
+        newParNode = xmlPar.ele('p')
     }
   } else if (node.type == 'math_inline') {
-    newParNode = xmlPar.ele('inline-formula').ele('tex-math', {id: "M" + mathCount})
+    newParNode = xmlPar.ele('inline-formula')
     mathCount++
   } else if (node.type == 'math_display') {
-    newParNode = xmlPar.ele('disp-formula').ele('tex-math', {id: "M" + mathCount})
+    newParNode = xmlPar.ele('disp-formula').ele('tex-math', {id: "M" + mathCount}).txt(`\\begin{document}$$${node.content[0].text}$$\\end{document}`)
     mathCount++
+    return
   } else if (node.type == 'ordered_list') {
-    newParNode = xmlPar.ele('list', {"list-type": "ordered"})
+    newParNode = xmlPar.ele('list', {"list-type": "order"})
   } else if (node.type == 'bullet_list') {
     newParNode = xmlPar.ele('list', {"list-type": "simple"})
   } else if (node.type == 'list_item') {
@@ -1118,11 +1122,16 @@ let processPmMarkAsXML = (node: any, xmlPar: XMLBuilder, before: string, options
       xmlParent = xmlParent.ele('underline');
     } else if (mark.type == "subscript") {
       xmlParent = xmlParent.ele('sub');
-    } else if (mark.type == "superscript") {
+    } else if (mark.type == "superscript" && node.text !== " ") {
       xmlParent = xmlParent.ele('sup');
     } else if (mark.type == 'link') {
       let linkHref = mark.attrs.href;
       xmlParent = xmlParent.ele('ext-link', {"xlink:href": linkHref, "ext-link-type": 'uri', "xlink:type": "simple"});
+    }
+    //@ts-ignore
+    else if (xmlParent.node.localName === 'kwd-group') {
+      xmlParent.last().txt(node.text)
+      return
     }
     if (i == node.marks.length - 1) {
       xmlParent.txt(node.text);
@@ -1167,7 +1176,9 @@ let isEmpty = (node:any) => {
 
 function parseNode(node: any, xmlPar: XMLBuilder, shouldSkipBlockElements: boolean, before: string, index: number,options?:any) {
   // prevent render of empty(with no text content) nested elements
-  if(isEmpty(node)) return;
+  if(isEmpty(node)){
+    return;
+  }
   if (nodesToSkip.includes(node.type) || (shouldSkipBlockElements && isBlockNode(node.type) && !nodesNotToLoop.includes(node.type) && !nodesThatShouldNotBeSkipped.includes(node.type))) { // nodes that should be skipped and looped through their children
     if (node.content && node.content.length > 0) {
       node.content.forEach((ch, i) => {

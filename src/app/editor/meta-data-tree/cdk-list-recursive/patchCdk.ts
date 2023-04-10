@@ -130,7 +130,7 @@ function canReceive(target: any, item: any, treeService: TreeService) {
   } else {
     let node = treeService.findNodeById(target.data.id)
     parentCompatibility = node?.compatibility
-    dropTargetLevel = treeService.getNodeLevel(node!) + 1;
+    dropTargetLevel = treeService.getNodeLevel(node!).nodeLevel + 1;
 
   }
   let levelsInItem = 0;

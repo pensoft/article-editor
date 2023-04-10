@@ -18,10 +18,13 @@ export let selInChange = (sel:Selection,node:Node,nodePos:number) =>{
   return nodestart<=sel.from&&nodeend>=sel.to
 }
 
-let changesMarksNames = ['insertion','deletion'];
+let changesMarksNames = ['insertion', 'deletion'];
 
 let changeMarksOnNode = (node:Node)=>{
-  return  node.marks.find(mark => changesMarksNames.includes(mark.type.name))
+  if(!node.marks.find(mark => mark.type.name == 'comment')) {
+      return  node.marks.find(mark => changesMarksNames.includes(mark.type.name)) 
+  }
+  return false;
 }
 
 const checkPosition = (editorP: { top: number, bottom: number }, positionToCheck: { top: number, bottom: number }) => {
@@ -138,7 +141,7 @@ export class TrackChangesService {
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
             domTop: domCoords.top - articleElementRactangle.top - articlePosOffset,
-            changeTxt: node.textContent,
+            changeTxt: this.getallChangeOccurrences(actualMark.attrs.id, parent),
             changeAttrs: actualMark.attrs,
             type:actualMark.type.name,
             selected: markIsLastSelected,
@@ -146,6 +149,20 @@ export class TrackChangesService {
         }
       }
     })
+  }
+
+  getallChangeOccurrences(id: string, parent: Node) {
+    let nodeSize = parent.content.size;
+    let textContent = '';
+
+    parent.nodesBetween(0, nodeSize, (node: Node) => {
+      const actualMark = node.marks.find(mark => changesMarksNames.includes(mark.type.name));
+      if(actualMark && actualMark.attrs.id == id) {
+        textContent += node.textContent;
+      }
+    })
+
+    return textContent;
   }
 
   updateTimestamp
@@ -500,51 +517,66 @@ export class TrackChangesService {
           let view = sectionContainer?sectionContainer.editorView:undefined
 
           if (!(newState.selection instanceof AllSelection) && view && view.hasFocus() ) {
-
+            let actualMark;
+            let hasOtherMark: boolean;
+            let position: number;
             newState.doc.nodesBetween(from, to, (node, pos, parent) => {
-              if (node.marks.length > 0) {
-                const actualMark = changeMarksOnNode(node)
-                if (actualMark && selInChange(newState.selection,node,pos)) {
-                  changeInSelection(actualMark, pos)
-                  selectedAChange = true;
-                }
+              if(
+                node &&
+                node.marks && 
+                node.marks.find((mark) => mark.type.name == 'comment')
+                ) {
+                hasOtherMark = true;
+              } 
+        
+              if (
+                node.marks &&
+                node.marks.length > 0 &&
+                node.marks.find((mark) => mark.type.name == 'insertion' || mark.type.name == 'deletion')
+              ) {
+                actualMark = node.marks.find((mark) => mark.type.name == 'insertion' || mark.type.name == 'deletion')
+                position = pos
               }
             })
+
+              let sel = view.state.selection;
+              let nodeAfterSelection = sel.$to.nodeAfter;
+              let nodeBeforeSelection = sel.$from.nodeBefore;
+
+              if (nodeAfterSelection && !actualMark) {
+                let pos = sel.to;
+                actualMark = nodeBeforeSelection?.marks.find(mark => mark.type.name == 'insertion' || mark.type.name == 'deletion');
+        
+                if (actualMark) {
+                  position = pos;
+                }
+              }
+        
+              if (nodeBeforeSelection && !actualMark) {
+                let pos = sel.from - nodeBeforeSelection.nodeSize;
+                actualMark = nodeBeforeSelection?.marks.find(mark => mark.type.name == 'insertion' || mark.type.name == 'deletion');
+        
+                if (actualMark) {
+                  position = pos;
+                }
+              }
+        
+              if(!hasOtherMark && nodeBeforeSelection && nodeAfterSelection) {
+                hasOtherMark = !!nodeBeforeSelection?.marks.find(mark => mark.type.name == "comment");
+        
+                if(!hasOtherMark) {
+                hasOtherMark = !!nodeAfterSelection?.marks.find(mark => mark.type.name == "comment");
+                }
+              }
+              if (actualMark && !hasOtherMark) {
+                changeInSelection(actualMark, position)
+                selectedAChange = true;
+              }
+            
+
+            
           }
 
-          //check nodes before and after selection if there is no change in the selection
-          if (!selectedAChange && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() ) {
-            let sel = newState.selection
-            let nodeAfterSelection = sel.$to.nodeAfter
-            let nodeBeforeSelection = sel.$from.nodeBefore
-            let foundMark = false;
-            if (nodeAfterSelection) {
-              let pos = sel.to
-              let commentMark = changeMarksOnNode(nodeAfterSelection)
-              if (commentMark  && selInChange(newState.selection,nodeAfterSelection,pos)) {
-                changeInSelection(commentMark, pos)
-                selectedAChange = true;
-                foundMark = true;
-              }
-            }
-            if(nodeBeforeSelection && !foundMark){
-              let pos = sel.from
-              let commentMark = changeMarksOnNode(nodeBeforeSelection)
-              if (commentMark  && selInChange(newState.selection,nodeBeforeSelection,pos)) {
-                changeInSelection(commentMark, pos)
-                selectedAChange = true;
-                foundMark = true;
-              }
-            }
-            /* if (nodeBeforeSelection && !foundMark) {
-              let pos = sel.from - nodeBeforeSelection.nodeSize
-              let commentMark = nodeBeforeSelection.marks.find(mark => mark.type === commentsMark)
-              if (commentMark && selInComment(newState.selection,nodeBeforeSelection,pos)) {
-                commentInSelection(commentMark, pos)
-                selectedAComment = true;
-              }
-            } */
-          }
           if (!selectedAChange && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() && lastChangeSelected.changeMarkId) {
             setLastSelectedChange(undefined, undefined, undefined, undefined)
           }
@@ -556,12 +588,48 @@ export class TrackChangesService {
         },
       }, props: {
         decorations: (state) => {
-          let pluginState = hideShowPluginKey.getState(state);
+          const pluginState = hideShowPluginKey.getState(state);
+          const focusedEditor = this.serviceShare.DetectFocusService.sectionName;
+          const currentEditor = pluginState.sectionName;
+          const { from, to } = state.selection;
+
+          if (currentEditor != focusedEditor) return DecorationSet.empty;
+          
+          const markInfo = self.addInlineDecoration(state, from);
+          
+          if(!markInfo) return DecorationSet.empty;
+          
+          if(markInfo.markName == "insertion") {
+            return DecorationSet.create(state.doc, [
+            Decoration.inline(markInfo.from, markInfo.to, {class: 'active-insertion'})
+            ])
+          } else if (markInfo.markName == "deletion") {
+            return DecorationSet.create(state.doc, [
+              Decoration.inline(markInfo.from, markInfo.to, {class: 'active-deletion'})
+            ])
+          }
+          
           return pluginState.createdDecorations
         }
       },
     });
     this.hideShowPlugin = hideShowPlugin;
+  }
+
+  addInlineDecoration(state: EditorState, pos: number) {
+    const $pos = state.doc.resolve(pos);
+
+    const { parent, parentOffset } = $pos;
+    const { node, offset } = parent.childAfter(parentOffset);
+    if (!node) return;
+
+    const mark = node.marks.find((mark) => mark.type.name === 'insertion' || mark.type.name === 'deletion');
+    if (!mark) return;
+
+    let from = $pos.start() + offset;
+    let to = from + node.nodeSize;
+
+    return { from, to, markName: mark.type.name };
   }
 
   getHideShowPlugin() {

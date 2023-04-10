@@ -7,8 +7,8 @@ export const toolTipPluginKey = new PluginKey('tool-tip-plugin')
 
 export const getToolTipPlugin = function(serviceShare:ServiceShare){
   let currUserId
-  serviceShare.AuthService.getUserInfo().subscribe((userInfo)=>{
-    currUserId = userInfo.data.id
+  serviceShare.AuthService.currentUser$.subscribe((userInfo)=>{
+    currUserId = userInfo.id
   })
   let toolTip = document.createElement('span')
   let toolTipArrow = document.createElement('span');

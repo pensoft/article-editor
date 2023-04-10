@@ -6,7 +6,7 @@ import { YdocService } from '../services/ydoc.service';
 import { YMap } from 'yjs/dist/src/internals';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
 
-import {BehaviorSubject, Observable, of} from 'rxjs';
+import {BehaviorSubject, Observable, interval, of} from 'rxjs';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import {CdkDragDrop, moveItemInArray} from '@angular/cdk/drag-drop';
 import { TreeService } from './tree-service/tree.service';
@@ -14,6 +14,10 @@ import { treeNode } from '../utils/interfaces/treeNode';
 import { articleSection } from '../utils/interfaces/articleSection';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { SnackBarErrorComponentComponent } from './snack-bar-error-component/snack-bar-error-component.component';
+import { FormControl } from '@angular/forms';
+import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
+import { debounce } from 'rxjs/operators';
+import { TextSelection } from 'prosemirror-state';
 
 @Component({
   selector: 'app-meta-data-tree',
@@ -24,8 +28,9 @@ import { SnackBarErrorComponentComponent } from './snack-bar-error-component/sna
 export class MetaDataTreeComponent implements OnInit,AfterViewInit{
   articleSectionsStructure ?:articleSection[]
   errorDuration = 4;
+  searchForm = new FormControl('');
   metadataMap?:YMap<any>
-  constructor(public treeService:TreeService,private ydocService:YdocService,private _snackBar: MatSnackBar){
+  constructor(public treeService:TreeService,private ydocService:YdocService,private _snackBar: MatSnackBar, private prosemirrorEditorsService: ProsemirrorEditorsService){
     this.treeService.errorSnackbarSubject.subscribe((data)=>{
       this._snackBar.openFromComponent(SnackBarErrorComponentComponent, {
         panelClass:'snackbar-error',
@@ -52,7 +57,76 @@ export class MetaDataTreeComponent implements OnInit,AfterViewInit{
   }
 
   ngAfterViewInit(){
+    this.setFormControlChangeListener();
+  }
 
+  searching: boolean = false
+  searchIndex: number = 0;
+  searchResults?: articleSection[];
+
+  setFormControlChangeListener() {
+    this.searchForm.valueChanges.pipe(debounce(val => interval(700))).subscribe((val) => {
+      if (val && val != "" && typeof val == 'string' && val.trim().length > 0) {
+        const searchVal = val.toLocaleLowerCase();
+        const allSections = this.articleSectionsStructure;
+      
+        const searchSections = (sections: articleSection[], searchValue: string) => {
+          let foundSections = [];
+          for (const section of sections) {
+            if (section.title && section.title.label.toLocaleLowerCase().includes(searchValue)) {
+               foundSections.push(section);
+            }
+            if (section.children && section.children.length > 0) {
+              const foundChildrenSections = searchSections(section.children, searchValue);
+              foundSections = foundSections.concat(foundChildrenSections);
+            }
+          }
+          return foundSections;
+        }
+       
+        const foundSections = searchSections(allSections, searchVal);
+        if (foundSections.length > 0) {
+          this.searchResults = foundSections;
+          this.searchIndex = 0;
+          this.selectSection(foundSections[0]);
+          this.searching = true;
+        } else {
+          this.searching = false;
+        }
+      } else {
+        this.searching = false;
+      }
+    })
+  }
+
+  selectSection(section: articleSection) {
+    const editorContainer = this.prosemirrorEditorsService.editorContainers[section.sectionID];
+    if (editorContainer) {
+      const editorView = editorContainer.editorView;
+      const { doc } = editorView.state;
+      console.log(doc);
+      editorView.focus();
+      editorView.dispatch(editorView.state.tr.scrollIntoView().setSelection(TextSelection.create(doc, doc.firstChild.nodeSize)));
+    }
+  }
+
+  selectPrevSectionFromSearch() {
+    this.searchIndex--;
+    const section = this.searchResults[this.searchIndex];
+    this.selectSection(section);
+  }
+
+  selectNextSectionFromSearch() {
+    this.searchIndex++;
+    const section = this.searchResults[this.searchIndex];
+    this.selectSection(section);
+  }
+
+  endSearch() {
+    this.searching = false
+    this.searchIndex = 0;
+    this.searchResults = []
+    this.searchForm.setValue('');
   }
 }
 

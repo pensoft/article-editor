@@ -78,7 +78,7 @@ export class TaxonComponent implements OnInit,AfterViewInit {
     })
     if (actualTaxon) {
       view.focus()
-      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualTaxon.pmDocStartPos), view.state.doc.resolve(actualTaxon.pmDocEndPos))).setMeta('selected-comment',true))
+      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualTaxon.pmDocStartPos), view.state.doc.resolve(actualTaxon.pmDocStartPos))).setMeta('selected-comment',true))
       this.sharedService.ProsemirrorEditorsService.dispatchEmptyTransaction()
     }
   }

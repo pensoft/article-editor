@@ -48,14 +48,13 @@ export let tablesHtmlTemplate = `
                                *ngIf="data.tableHeader" 
                                formControlName="tableHeader" 
                                style="display:block;" 
-                              menuType="[['toggleEm', 'toggleUnderline'],['toggleSubscriptItem','toggleSuperscriptItem'],['undoItem', 'redoItem', 'insertVideoItem'],['logNodesMenuItem', 'insertPageBreak', 'headings']]"
+                              menuType="[['toggleEm', 'toggleUnderline'],['toggleSubscriptItem','toggleSuperscriptItem'],['undoItem', 'redoItem', 'insertVideoItem'],['insertPageBreak', 'headings']]"
                               allowedTags="{'nodes':['video','citable-figures','headings','page_break','tables','reference-citation','citable-tables'],'marks':['em','underline','subscript','superscript']}"
                                >
     		</table-description>
   		</table-header-container>
   		<table-content *ngIf="data.tableContent" 
                        formControlName="tableContent"
-                       menuType="[['undoItem', 'redoItem' ],['tableMenu']]"
                        >
   		</table-content>
   		<table-footer-container>

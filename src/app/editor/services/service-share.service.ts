@@ -136,16 +136,16 @@ export class ServiceShare {
       this.ProsemirrorEditorsService.stopSpinner()
       dialogRef.afterClosed().subscribe(result => {
         if(!result) return ;
-
+        this.ProsemirrorEditorsService.spinSpinner();
         let userData;
-        this.AuthService.getUserInfo()
+        this.AuthService.currentUser$
         .pipe(mergeMap(data => {
-          userData = data;
+          userData = { data };
 
           return this.ArticleSectionsService.getLayoutById(result);
-        })).subscribe((articleData: any)=>{          
+        })).subscribe((articleData: any)=>{
           let selectedLayout = articleData.data.template;
-          
+
           let articleStructure: articleSection[] = []
           this.ArticlesService!.createArticle('Untitled',+result).pipe(catchError(() => {
             createDemoTemplate.data.uuid = uuidv4();
@@ -155,7 +155,7 @@ export class ServiceShare {
             this.YdocService!.setArticleData(createArticleRes.data,true)
             this.router.navigate([createArticleRes.data.uuid])
             this.YdocService.newArticleIsCreated(userData,createArticleRes.data.uuid)
-            selectedLayout.sections = selectedLayout.sections.filter(x=>x.name!='Citable Elements Schemas');
+            selectedLayout.sections = selectedLayout.sections.filter(x=>x.name!='Figures'&&x.name!='References'&&x.name!='Tables'&&x.name!='SupplementaryMaterials'&&x.name!='Footnotes');
             selectedLayout.sections.forEach((section: any) => {
               if(section.settings&&section.settings.main_section == true){
                 let newSection = renderSectionFunc(section,articleStructure,this.YdocService!.ydoc,this,'end');

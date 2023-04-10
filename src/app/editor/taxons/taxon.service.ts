@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { uuidv4 } from 'lib0/random';
 import { Fragment, Mark, Node, Slice } from 'prosemirror-model';
 import { AllSelection, EditorState, Plugin, PluginKey, Selection, TextSelection } from 'prosemirror-state';
-import { EditorView } from 'prosemirror-view';
+import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
 import { Subject } from 'rxjs';
 import { ServiceShare } from '../services/service-share.service';
 import { articlePosOffset } from '../utils/commentsService/comments.service';
@@ -75,7 +75,7 @@ export class TaxonService implements OnDestroy {
     let taxonInSel = false;
     let taxonMark:Mark
     let markPos:number
-    let hasParentMark = false;
+    let hasOtherMark = false;
     view.state.doc.nodesBetween(from, to, (node, pos, parent, i) => {
       if(node &&
         node.marks && 
@@ -83,48 +83,62 @@ export class TaxonService implements OnDestroy {
         mark.type.name == 'insertion' || 
         mark.type.name == 'deletion')
       ) {
-        hasParentMark = true;
+        hasOtherMark = true;
       } 
+
       if (
         node.marks &&
         node.marks.length > 0 &&
-        node.marks.some((mark) => mark.type.name == 'taxon') &&
-        !hasParentMark
+        node.marks.some((mark) => mark.type.name == 'taxon')
       ) {
         taxonInSel = true;
         taxonMark = node.marks.find((mark) => mark.type.name == 'taxon')
         markPos = pos
       }
     })
-    if (!taxonInSel && !(view.state.selection instanceof AllSelection) && view  && view.hasFocus() ) {
+
+    if (!hasOtherMark && !taxonInSel && !(view.state.selection instanceof AllSelection) && view  && view.hasFocus() ) {
       let sel = view.state.selection
       let nodeAfterSelection = sel.$to.nodeAfter
       let nodeBeforeSelection = sel.$from.nodeBefore
-      if (nodeAfterSelection) {
-        let pos = sel.to
-        let taxonMarkFoundMark = nodeAfterSelection.marks.find(mark => mark.type.name == 'taxon')
-        if (taxonMarkFoundMark) {
-          taxonMark = taxonMarkFoundMark
+      
+      if (nodeAfterSelection && nodeAfterSelection.marks) {
+        let pos = sel.to;
+        taxonMark = nodeBeforeSelection?.marks.find(mark => mark.type.name == 'taxon');
+        hasOtherMark = !!nodeBeforeSelection?.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
+
+        if (taxonMark) {
           taxonInSel = true;
           markPos = pos
+        }
       }
-      }
-      if (nodeBeforeSelection) {
-        let pos = sel.from - nodeBeforeSelection.nodeSize
-        let taxonMarkFoundMark = nodeBeforeSelection.marks.find(mark => mark.type.name == 'taxon')
-        if (taxonMarkFoundMark  ) {
-          taxonMark = taxonMarkFoundMark
+
+      if (nodeBeforeSelection  && nodeAfterSelection) {
+        let pos = sel.from - nodeBeforeSelection.nodeSize;
+        taxonMark = nodeBeforeSelection?.marks.find(mark => mark.type.name == 'taxon');
+        hasOtherMark = !!nodeBeforeSelection?.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
+
+        if (taxonMark) {
           taxonInSel = true;
           markPos = pos
+        }
       }
+
+      if(!hasOtherMark && nodeBeforeSelection && nodeAfterSelection) {
+        hasOtherMark = !!nodeBeforeSelection?.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
+
+        if(!hasOtherMark) {
+        hasOtherMark = !!nodeAfterSelection?.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion");
+        }
       }
     }
-    if(taxonInSel && taxonMark && !hasParentMark && ( taxonMark.attrs.removedtaxon == 'false' || taxonMark.attrs.removedtaxon == false) && view.hasFocus()){
-      this.taxonMarkInSelection(taxonMark,markPos,sectionId)
-    }else if(taxonInSel && taxonMark && ( taxonMark.attrs.removedtaxon == true || taxonMark.attrs.removedtaxon == 'true') && view.hasFocus()){
+
+    if(taxonInSel && taxonMark && !hasOtherMark && (taxonMark.attrs.removedtaxon == 'false' || taxonMark.attrs.removedtaxon == false) && view.hasFocus()){
+      this.taxonMarkInSelection(taxonMark,markPos,sectionId);
+    } else if(taxonInSel && taxonMark && ( taxonMark.attrs.removedtaxon == true || taxonMark.attrs.removedtaxon == 'true') && view.hasFocus()){
       taxonInSel = false;
-    }else if (!taxonInSel && !(view.state.selection instanceof AllSelection) && view  && view.hasFocus() ) {
-      this.setLastSelectedTaxonMark(undefined, undefined, undefined)
+    } else if (!taxonInSel && !(view.state.selection instanceof AllSelection) && view  && view.hasFocus() ) {
+      this.setLastSelectedTaxonMark(undefined, undefined, undefined);
     }
 
     return taxonInSel
@@ -153,6 +167,23 @@ export class TaxonService implements OnDestroy {
     this.updateTimeout = setTimeout(() => {
       this.updateAllTaxonsMarks()
     }, 500)
+  }
+
+  addInlineDecoration(state: EditorState, pos: number) {
+    const $pos = state.doc.resolve(pos);
+
+    const { parent, parentOffset } = $pos;
+    const { node, offset } = parent.childAfter(parentOffset);
+    if (!node) return;
+
+    const mark = node.marks.find((mark) => mark.type.name === 'taxon');
+    if (!mark) return;
+    if(node.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion")) return;
+
+    let from = $pos.start() + offset;
+    let to = from + node.nodeSize;
+
+    return { from, to };
   }
 
   lastSelectedTaxonMarkSubject:Subject<{
@@ -215,6 +246,24 @@ export class TaxonService implements OnDestroy {
             return prev
           },
         },
+        props: {
+          decorations: (state: EditorState) => {
+            const pluginState = this.taxonPluginKey.getState(state);
+            const focusedEditor = this.serviceShare.DetectFocusService.sectionName;
+            const currentEditor = pluginState.sectionName;
+            const { from, to } = state.selection;
+  
+            if (currentEditor != focusedEditor) return DecorationSet.empty;
+            
+            const markInfo = self.addInlineDecoration(state, from);
+            
+            if(!markInfo) return DecorationSet.empty;
+            
+            return DecorationSet.create(state.doc, [
+              Decoration.inline(markInfo.from, markInfo.to, {class: 'active-taxon'})
+            ])
+          }
+        },
         view: function () {
           return {
             update: (view, prevState) => {
@@ -264,11 +313,23 @@ export class TaxonService implements OnDestroy {
     }
   }
 
-  markTextAsTaxon(from: number, to: number, taxonKey: string, view: EditorView) {
-    this.tagCreateData.view.dispatch(this.tagCreateData.view.state.tr.addMark(from, to, schema.mark('taxon', {
+  markTextAsTaxon(from: number, to: number, taxonKey: string) {
+    const view = this.tagCreateData.view;
+    view.dispatch(
+      view.state.tr.addMark(from, to, schema.mark('taxon', {
       taxmarkid: uuidv4(),
       removedtaxon: false,
     })))
+
+    this.tagCreateData.view.focus()
+    this.setTextSelection(from);
+  }
+
+  setTextSelection(from: number) {
+    this.tagCreateData.view.dispatch(
+      this.tagCreateData.view.state.tr.setSelection(
+      new TextSelection(this.tagCreateData.view.state.doc.resolve(from), this.tagCreateData.view.state.doc.resolve(from))
+    ))
   }
 
   tagOnlyTextInCurrSelection() {
@@ -278,7 +339,7 @@ export class TaxonService implements OnDestroy {
       let { from, to } = state.selection
       let taxonKey = state.doc.textBetween(from, to);
       this.addTaxonToYdocIfNotAdded(taxonKey);
-      this.markTextAsTaxon(from, to, taxonKey, view)
+      this.markTextAsTaxon(from, to, taxonKey)
     }
   }
 
@@ -475,7 +536,7 @@ export class TaxonService implements OnDestroy {
             pmDocStartPos: pos,
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
-            taxonTxt: node.textContent,
+            taxonTxt: this.getallTaxonOccurrences(actualMark.attrs.taxmarkid, parent),
             domTop: domCoords.top - articleElementRactangle.top - articlePosOffset - 45,
             taxonAttrs: actualMark.attrs,
             selected: markIsLastSelected,
@@ -483,6 +544,20 @@ export class TaxonService implements OnDestroy {
         }
       }
     })
+  }
+
+  getallTaxonOccurrences(taxonId: string, parent: Node) {
+    let nodeSize = parent.content.size;
+    let textContent = '';
+
+    parent.nodesBetween(0, nodeSize, (node: Node) => {
+      const actualMark = node.marks.find(mark => mark.type.name === "taxon");
+      if(actualMark && actualMark.attrs.taxmarkid == taxonId) {
+        textContent += node.textContent;
+      }
+    })
+
+    return textContent;
   }
 
   sameAsLastSelectedTaxonMark = (pos?:number,sectionId?: string, taxonMarkId?: string ) => {
