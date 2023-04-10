@@ -610,8 +610,13 @@ img[ychange_type="removed"] {
 .deletion,
 .del-from-popup {
   color: black;
-  background-color: #ffd0d0;
+  background-color: #fee7e7;
   text-decoration: line-through black;
+
+  .active-deletion {
+    background-color: #feb1b1;
+    //#ffd0d0
+  }
 
   >.taxon {
     background-color: transparent !important;
@@ -1027,17 +1032,25 @@ page-break:after {
 }
 
 span.taxon[removedtaxon="false"]{
-  background-color: #7989ffb8;
+  background-color: #aab4fdb8;
+
+  .active-taxon {
+    background-color: #7989ffb8;
+  }
+}
+
+.active-insertion {
+  background-color: #00B1B2 !important;
+  color: white !important;
 }
 
 .comment {
-  background-color: gold;
+  background-color: #fff0d4;
   span {
     background-color: transparent;
   }
   .active-comment {
-    background-color: gold;
-    /* color: black; */
+    background-color: #ffbb2a;
   }
 
   >.taxon {

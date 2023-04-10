@@ -647,14 +647,15 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
       userColor: this.prosemirrorEditorsService.userInfo.color.userColor,
       userContrastColor: this.prosemirrorEditorsService.userInfo.color.userContrastColor,
     })(state!, dispatch);
-    // let sectionName = this.addCommentEditorId
-    // this.addCommentSubject!.next({ type: 'commentData', sectionName, showBox: false })
+
+    let sectionName = this.addCommentEditorId
+    this.addCommentSubject!.next({ type: 'commentData', sectionName, showBox: false })
     this.preventRerenderUntilCommentAdd.bool = true
     this.preventRerenderUntilCommentAdd.id = commentId
     setTimeout(() => {
       this.prosemirrorEditorsService.dispatchEmptyTransaction()
       this.editorView.focus()
-      this.editorView.dispatch(this.editorView.state.tr.setSelection(new TextSelection(this.editorView.state.doc.resolve(from), this.editorView.state.doc.resolve(to))))
+      this.editorView.dispatch(this.editorView.state.tr.setSelection(new TextSelection(this.editorView.state.doc.resolve(from), this.editorView.state.doc.resolve(from))))
       input.value = ''
       setTimeout(() => {
         let pluginData = this.commentsService.commentPluginKey.getState(this.editorView.state)
@@ -759,7 +760,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     let st = edView.state
     let doc = st.doc
     let tr = st.tr;
-    let textSel = new TextSelection(doc.resolve(actualMark.pmDocStartPos), doc.resolve(actualMark.pmDocEndPos));
+    let textSel = new TextSelection(doc.resolve(actualMark.pmDocStartPos), doc.resolve(actualMark.pmDocStartPos));
     edView.dispatch(tr.setSelection(textSel));
     let articleElement = document.getElementsByClassName('editor-container')[0] as HTMLDivElement;
     articleElement.scroll({

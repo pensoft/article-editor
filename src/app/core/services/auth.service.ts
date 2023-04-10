@@ -209,7 +209,7 @@ export class AuthService implements OnDestroy {
     style.type = 'text/css';
     style.appendChild(document.createTextNode(`
       span.insertion[user="${userData.data.id}"]{
-        background-color: #00B1B2 !important;
+        background-color: #00e0e1 !important;
         color: white !important;
       }`));
     this.userGlobalStyle = style
