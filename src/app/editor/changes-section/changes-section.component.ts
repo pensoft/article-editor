@@ -504,8 +504,8 @@ export class ChangesSectionComponent implements OnInit, AfterViewInit, OnDestroy
       if (this.lastSorted && this.lastSorted.length > 0) {
         let lastElement = this.lastSorted[this.lastSorted.length - 1];
         let dispPos = this.displayedChangesPositions[lastElement.changeAttrs.id]
-        let elBottom = dispPos.displayedTop + dispPos.height;
-        let containerH = changesContainer.getBoundingClientRect().height
+        let elBottom = dispPos?.displayedTop + dispPos?.height;
+        let containerH = changesContainer?.getBoundingClientRect().height
         if (containerH < elBottom) {
           changesContainer.style.height = (elBottom + 150) + 'px'
         }/* else if(containerH > elBottom+100){
