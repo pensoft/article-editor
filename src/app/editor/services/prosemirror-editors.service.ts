@@ -1056,7 +1056,6 @@ export class ProsemirrorEditorsService {
         if (lastStep == transaction.steps[0] && !transaction.getMeta('emptyTR')) {
           if (lastStep) { return }
         }
-
         let isMath = false
         if (transaction.selection instanceof NodeSelection && (transaction.selection.node.type.name == 'math_inline' || transaction.selection.node.type.name == 'math_display')) {
           let hasmarkAddRemoveStep = transaction.steps.filter((step) => {
