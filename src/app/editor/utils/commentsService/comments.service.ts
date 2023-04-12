@@ -13,7 +13,7 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
 import { Mark, Node } from 'prosemirror-model';
 import { YMap } from 'yjs/dist/src/internals';
 import { checkAllEditorsIfMarkOfCommentExists } from './commentMarksHelpers';
-import { I } from '@angular/cdk/keycodes';
+import { I, P } from '@angular/cdk/keycodes';
 
 export const articlePosOffset = 24;
 
@@ -203,17 +203,25 @@ export class CommentsService {
   }
 
   addInlineDecoration(state: EditorState, pos: number) {
-    const $pos = state.doc.resolve(pos);
-
-    const { parent, parentOffset } = $pos;
-    const { node, offset } = parent.childAfter(parentOffset);
+    const node = state.doc.nodeAt(pos)
     if (!node) return;
 
     const mark = node.marks.find((mark) => mark.type.name === 'comment');
     if (!mark) return;
 
-    let from = $pos.start() + offset;
-    let to = from + node.nodeSize;
+    let from: number;
+    let to: number;
+
+    const nodeSize = state.doc.content.size;
+    state.doc.nodesBetween(0, nodeSize, (node, pos, parent, i) => {
+      const mark2 = node?.marks.find(mark => mark.type.name == 'comment');
+      if(mark2 && mark2.attrs.id == mark.attrs.id && !from) {
+        from = pos;
+      }
+      if(mark2 && mark2.attrs.id == mark.attrs.id){
+        to = pos + node.nodeSize;
+      }
+    })
 
     return { from, to };
   }
@@ -385,9 +393,8 @@ export class CommentsService {
           const { from, to } = state.selection;
 
           if (currentEditor != focusedEditor) return DecorationSet.empty;
-          
+
           const markInfo = addInlineDecoration(state, from);
-          
           if(!markInfo) return DecorationSet.empty;
           
           return DecorationSet.create(state.doc, [
@@ -530,7 +537,7 @@ export class CommentsService {
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
             domTop: domCoords.top - articleElementRactangle.top-articlePosOffset,
-            commentTxt: this.getallCommentOccurrences(actualMark.attrs.id, parent),
+            commentTxt: this.getallCommentOccurrences(actualMark.attrs.id, view),
             commentAttrs: actualMark.attrs,
             selected: markIsLastSelected,
           }
@@ -539,11 +546,11 @@ export class CommentsService {
     })
   }
 
-  getallCommentOccurrences(commentId: string, parent: Node) {
-    let nodeSize = parent.content.size;
+  getallCommentOccurrences(commentId: string, view: EditorView) {
+    let nodeSize = view.state.doc.content.size;
     let textContent = '';
 
-    parent.nodesBetween(0, nodeSize, (node: Node) => {
+    view.state.doc.nodesBetween(0, nodeSize, (node: Node) => {
       const actualMark = node.marks.find(mark => mark.type.name === "comment");
       if(actualMark && actualMark.attrs.id == commentId) {
         textContent += node.textContent;

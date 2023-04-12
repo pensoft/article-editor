@@ -170,18 +170,30 @@ export class TaxonService implements OnDestroy {
   }
 
   addInlineDecoration(state: EditorState, pos: number) {
-    const $pos = state.doc.resolve(pos);
-
-    const { parent, parentOffset } = $pos;
-    const { node, offset } = parent.childAfter(parentOffset);
+    const node = state.doc.nodeAt(pos)
     if (!node) return;
 
-    const mark = node.marks.find((mark) => mark.type.name === 'taxon');
-    if (!mark) return;
-    if(node.marks.find(mark => mark.type.name == "comment" || mark.type.name == "insertion" || mark.type.name == "deletion")) return;
+    const mark = node.marks.find((mark) => mark.type.name === 'taxon' && !mark.attrs.removedtaxon);    
+    if (!mark || 
+      node.marks
+      .find((m) => m.type.name == "insertion" || 
+      m.type.name == "deletion" || 
+      m.type.name == "comment"
+      )) return;
 
-    let from = $pos.start() + offset;
-    let to = from + node.nodeSize;
+    let from: number;
+    let to: number;
+
+    const nodeSize = state.doc.content.size;
+    state.doc.nodesBetween(0, nodeSize, (node, pos, parent, i) => {
+      const mark2 = node?.marks.find(mark => mark.type.name == 'taxon');
+      if(mark2 && mark2.attrs.taxmarkid == mark.attrs.taxmarkid && !from) {
+        from = pos;
+      }
+      if(mark2 && mark2.attrs.taxmarkid == mark.attrs.taxmarkid){
+        to = pos + node.nodeSize;
+      }
+    })
 
     return { from, to };
   }
@@ -536,7 +548,7 @@ export class TaxonService implements OnDestroy {
             pmDocStartPos: pos,
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
-            taxonTxt: this.getallTaxonOccurrences(actualMark.attrs.taxmarkid, parent),
+            taxonTxt: this.getallTaxonOccurrences(actualMark.attrs.taxmarkid, view),
             domTop: domCoords.top - articleElementRactangle.top - articlePosOffset - 45,
             taxonAttrs: actualMark.attrs,
             selected: markIsLastSelected,
@@ -546,11 +558,11 @@ export class TaxonService implements OnDestroy {
     })
   }
 
-  getallTaxonOccurrences(taxonId: string, parent: Node) {
-    let nodeSize = parent.content.size;
+  getallTaxonOccurrences(taxonId: string, view: EditorView) {
+    let nodeSize = view.state.doc.content.size;
     let textContent = '';
 
-    parent.nodesBetween(0, nodeSize, (node: Node) => {
+    view.state.doc.nodesBetween(0, nodeSize, (node: Node) => {
       const actualMark = node.marks.find(mark => mark.type.name === "taxon");
       if(actualMark && actualMark.attrs.taxmarkid == taxonId) {
         textContent += node.textContent;
