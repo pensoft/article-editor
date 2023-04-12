@@ -51,10 +51,14 @@
   width: 100%;
 }
 
-::ng-deep .add-new-ref-tabs{
-  height: 100%;
-  .mat-tab-body-wrapper{
-    height: 100%;
+::ng-deep .add-new-ref-tabs {
+  .mat-tab-body-wrapper {
+    overflow: hidden;
+    margin: 0 -10px;
+
+    .mat-tab-body-content {
+      padding: 0 10px;
+    }
   }
 }
 
