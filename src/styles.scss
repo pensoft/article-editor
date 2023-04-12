@@ -115,7 +115,7 @@ supplementary-file-citation[nonexistingelement="false"] {
 
 supplementary-file-url {
   margin-top: 4px;
-  
+
     a {
     margin-top: 2px;
     padding: 2px 11px 4px;
@@ -618,7 +618,7 @@ img[ychange_type="removed"] {
   .active-deletion {
     background-color: #feb1b1;
     //#ffd0d0
-    
+
   }
 
   >.taxon {
@@ -1499,10 +1499,4 @@ router-outlet {
   width: 15px;
   height: 15px;
   margin-right: 5px;
-}
-
-@media screen and (max-width: 1500px) {
-  .editor-dialog-container {
-    max-height: 800px !important;
-  }
 }
