@@ -52,6 +52,7 @@ export class FiguresDialogComponent implements AfterViewInit {
         this.figuresNumbers?.splice(figIndex, 1, result.figure.figureID)
         this.figures![result.figure.figureID] = result.figure
         this.editedFigures[result.figure.figureID] = true
+        this.serviceShare.CitableElementsService.writeElementDataGlobal(this.figures!, this.figuresNumbers, 'citation');
       } else {
         //this.serviceShare.PmDialogSessionService!.endSubsession(false)
       }
@@ -67,9 +68,10 @@ export class FiguresDialogComponent implements AfterViewInit {
       if (data) {
         this.figuresNumbers?.splice(figIndex, 1);
         delete this.figures![fig.figureID]
-        if (this.editedFigures[fig.figureID]) {
-          delete this.editedFigures[fig.figureID]
-        }
+          if (this.editedFigures[fig.figureID]) {
+            delete this.editedFigures[fig.figureID]
+          }
+        this.serviceShare.CitableElementsService.writeElementDataGlobal(this.figures!, this.figuresNumbers, 'citation');
       }
     })
   }
@@ -83,6 +85,7 @@ export class FiguresDialogComponent implements AfterViewInit {
         //this.serviceShare.PmDialogSessionService!.endSubsession(true);
         this.figuresNumbers?.push(result.figure.figureID)
         this.figures![result.figure.figureID] = result.figure
+        this.serviceShare.CitableElementsService.writeElementDataGlobal(this.figures!, this.figuresNumbers, 'citation');
       } else {
         //this.serviceShare.PmDialogSessionService!.endSubsession(false);
       }
@@ -91,7 +94,6 @@ export class FiguresDialogComponent implements AfterViewInit {
 
 
   saveFigures() {
-    this.serviceShare.CitableElementsService.writeElementDataGlobal(this.figures!, this.figuresNumbers, 'citation');
     this.dialogRef.close(true)
   }
 
