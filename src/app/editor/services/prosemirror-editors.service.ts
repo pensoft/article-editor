@@ -587,9 +587,6 @@ export class ProsemirrorEditorsService {
         if (nodeAtSel && !transaction.getMeta('titleupdateFromControl') && nodeAtSel.attrs.controlPath && nodeAtSel.attrs.controlPath == "sectionTreeTitle" && transaction.steps.filter(step => { return step instanceof ReplaceStep || step instanceof ReplaceAroundStep }).length > 0) {
           transaction.setMeta('editingTitle', true);
         }
-        if(nodeAtSel && nodeAtSel.lastChild.type.name == "spacer") {
-          return;
-        }
 
         //@ts-ignore
         if (lastStep == transaction.steps[0] && !transaction.getMeta('emptyTR')) {
@@ -1058,11 +1055,6 @@ export class ProsemirrorEditorsService {
         if(firstChild?.type.name == "paragraph") return;
         if (lastStep == transaction.steps[0] && !transaction.getMeta('emptyTR')) {
           if (lastStep) { return }
-        }
-        let nodeAtSel = transaction.selection.$head.parent || transaction.selection.$anchor.parent;
-
-        if(nodeAtSel && nodeAtSel.lastChild.type.name == "spacer") {          
-          return;
         }
 
         let isMath = false
