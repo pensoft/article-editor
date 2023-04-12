@@ -97,7 +97,6 @@ export class LinkPopUpPluginServiceService {
             link.textContent = mark.attrs.href;
 
             let cursorLeftCoords = view.coordsAtPos(state.selection.from).left;
-            console.log(cursorLeftCoords);
             
             if(cursorLeftCoords < 500) {
               linkPopUp.style.width = "145px";
