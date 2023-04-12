@@ -588,7 +588,7 @@ export class ProsemirrorEditorsService {
           transaction.setMeta('editingTitle', true);
         }
 
-        if(nodeAtSel?.lastChild.type.name == "spacer") {
+        if(nodeAtSel?.lastChild?.type.name == "spacer") {
           return;
         }
 
@@ -1062,7 +1062,7 @@ export class ProsemirrorEditorsService {
         }
 
         let nodeAtSel = transaction.selection.$head.parent || transaction.selection.$anchor.parent
-        if(nodeAtSel?.lastChild.type.name == "spacer") {
+        if(nodeAtSel?.lastChild?.type.name == "spacer") {
           return;
         }
 
