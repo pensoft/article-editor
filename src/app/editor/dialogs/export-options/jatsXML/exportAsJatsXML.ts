@@ -11,6 +11,7 @@ import {EditorView} from "prosemirror-view";
 import {schema} from "@app/editor/utils/Schema";
 import {environment} from "@env";
 import { uuidv4 } from "lib0/random";
+import moment from "moment";
 
 let figIdsG: any;
 let refIdsG: any;
@@ -602,25 +603,20 @@ let countsRef = counts.ele('ref-count', {"count": "" + refCount})
       serviceShare.openSnackBar('Valid JATS xml has been generated.','Save JATS xml',()=>{
         saveAs(blob, "save.xml");
       },5);
-      serviceShare.NotificationsService.addLocalNotification({
-        date: Date.now(),
-        event: 'JATS',
-        status: 'Done',
-        eventId: uuidv4(),
-        new: true,
-      })
+      
     }else{
       serviceShare.openSnackBar('The generated JATS xml is not valid. You can view errors in notifications','Save JATS xml',()=>{
         saveAs(blob, "save.xml");
       },5);
+      let date = Date.now()
       serviceShare.NotificationsService.addLocalNotification({
-        date: Date.now(),
+        date,
         event: 'JATS errors',
         status: 'FAILED',
         eventId: uuidv4(),
         new: true,
         link: 'open jats render errors',
-        metaData:data.errors||['Dummy error only for JATS error dialog.']
+        metaData: ['Status - Failed', `Document - ${serviceShare.YdocService.articleData.name}`, 'Type - JATS Export', moment(date).format('MMM DD, YYYY, hh:mm:ss A')]
       })
     }
 

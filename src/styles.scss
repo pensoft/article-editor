@@ -179,6 +179,8 @@ spacer {
   height: 20px;
   width: 100%;
   display: block;
+  cursor: default;
+  caret-color: transparent;
 }
 
 .editor-drawer {
@@ -616,7 +618,7 @@ img[ychange_type="removed"] {
   .active-deletion {
     background-color: #feb1b1;
     //#ffd0d0
-    
+
   }
 
   >.taxon {
@@ -1038,10 +1040,19 @@ span.taxon[removedtaxon="false"]{
   .active-taxon {
     background-color: #7989ffb8;
   }
+
+  .active-insertion {
+    background-color: #00B1B2 !important;
+    color: white !important;
+  }
+
+  .active-deletion {
+    background-color: #feb1b1;
+  }
 }
 
 .active-insertion {
-  background-color: #00B1B2 !important;
+  background-color: #008889 !important;
   color: white !important;
 }
 
@@ -1488,4 +1499,10 @@ router-outlet {
   width: 15px;
   height: 15px;
   margin-right: 5px;
+}
+
+@media screen and (max-width: 1500px), screen and (max-height: 900px) {
+  .editor-dialog-container {
+    height: 700px !important;
+  }
 }

@@ -297,6 +297,16 @@
   padding: 2px;
 }
 
+::ng-deep .ProseMirror {
+  tables-nodes-container {
+    margin-bottom: 12px !important;
+  }
+
+  supplementary-files-nodes-container {
+    margin-bottom: 15px !important;
+  }
+}
+
 ::ng-deep .ProseMirror p:first-child,
 ::ng-deep .ProseMirror h1:first-child,
 ::ng-deep .ProseMirror h2:first-child,
@@ -304,7 +314,8 @@
 ::ng-deep .ProseMirror h4:first-child,
 ::ng-deep .ProseMirror h5:first-child,
 ::ng-deep .ProseMirror h6:first-child {
-  margin-top: 10px;
+  margin-top: 26px;
+  margin-bottom: 10px;
 }
 
 ::ng-deep .ProseMirror .cite-ref-buttons + p,
@@ -314,7 +325,8 @@
 ::ng-deep .ProseMirror .cite-ref-buttons + h4,
 ::ng-deep .ProseMirror .cite-ref-buttons + h5,
 ::ng-deep .ProseMirror .cite-ref-buttons + h6{
-  margin-top: 10px;
+  margin-top: 26px;
+  margin-bottom: 10px;
 }
 
 ::ng-deep .ProseMirror .edit-link-buttons + p,
@@ -324,7 +336,8 @@
 ::ng-deep .ProseMirror .edit-link-buttons + h4,
 ::ng-deep .ProseMirror .edit-link-buttons + h5,
 ::ng-deep .ProseMirror .edit-link-buttons + h6 {
-  margin-top: 10px;
+  margin-top: 26px;
+  margin-bottom: 10px;
 }
 
 ::ng-deep .ProseMirror {

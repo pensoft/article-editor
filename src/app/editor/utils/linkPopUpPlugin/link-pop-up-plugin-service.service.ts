@@ -75,7 +75,7 @@ export class LinkPopUpPluginServiceService {
           const pluginState = self.linkPopUpPluginKey.getState(state);
           const focusedEditor = self.serviceShare.DetectFocusService.sectionName;
           const currentEditor = pluginState.sectionName;
-
+          const view = serviceShare.ProsemirrorEditorsService.editorContainers[currentEditor]?.editorView;
           if (focusedEditor != currentEditor) return DecorationSet.empty
           if(currentEditor == "endEditor") return DecorationSet.empty;
 
@@ -95,6 +95,15 @@ export class LinkPopUpPluginServiceService {
             const link = document.createElement('a') as HTMLAnchorElement;
             link.href = mark.attrs.href;
             link.textContent = mark.attrs.href;
+
+            let cursorLeftCoords = view.coordsAtPos(state.selection.from).left;
+            
+            if(cursorLeftCoords < 500) {
+              linkPopUp.style.width = "145px";
+            } else if (cursorLeftCoords > 1150) {
+              linkPopUp.style.width = "138px";
+            }
+            
 
             linkPopUp.addEventListener('click', e => {
               e.preventDefault();
