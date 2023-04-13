@@ -225,22 +225,18 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
   renderCodeMirrorEditor() {
     let settings = this.ydocService.printMap!.get('pdfPrintSettings');
-
-    if(!settings) {
-      settings = this.pdfSettingsSave;
-    }
     
-    this.ydocService.printMap!.set('pdfPrintSettings',settings);
     if(Object.keys(settings).length == 0 ){
+      this.ydocService.printMap!.set('pdfPrintSettings',this.pdfSettingsSave);
     }else{
       this.pdfSettingsSave = settings
     }
-    let pdfPrintSettings = settings ? settings : (
+    let pdfPrintSettings = Object.keys(settings).length > 0 ? settings : (
       this.ydocService.articleData &&
       this.ydocService.articleData.layout &&
       this.ydocService.articleData.layout.settings &&
       this.ydocService.articleData.layout.settings.print_settings
-    ) ? this.ydocService.articleData.layout.settings.print_settings : {};
+    ) ? this.ydocService.articleData.layout.settings.print_settings : this.pdfSettingsSave;
     if (!settings) {
       this.ydocService.printMap!.set('pdfPrintSettings', pdfPrintSettings);
     }
