@@ -2,7 +2,6 @@ import { uuidv4 } from "lib0/random";
 import { reference } from "../data/data";
 
 export function genereteNewReference(refData: reference, data: any) {
-  debugger
   /* [ {
           "citationID": "SXDNEKR5AD",
           "citationItems": [{ "id": "2kntpabvm2" }],
