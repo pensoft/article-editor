@@ -35,8 +35,9 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
   editorView?: EditorView
   userInfo: any
 
-  @ViewChild('input', { read: ElementRef })
-  commentInput?: ElementRef;
+  @ViewChild('input', { read: ElementRef }) commentInput?: ElementRef;
+  @ViewChild('commentsInput', { read: ElementRef }) commentsSearchinput?: ElementRef;
+  
   searchForm = new FormControl('');
 
   rendered = 0;
@@ -808,8 +809,13 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
             } else {
               com.style.opacity = "1";
             }
-          })        
+          })
           this.selectComent(foundComs[0].pmmark);
+
+          setTimeout(() => {
+            this.commentsSearchinput?.nativeElement.focus();
+          }, 10);
+          
           this.searchResults = foundComs;
           this.searchIndex = 0;
           this.searching = true;
