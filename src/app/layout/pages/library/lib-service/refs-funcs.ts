@@ -2,6 +2,7 @@ import { uuidv4 } from "lib0/random";
 import { reference } from "../data/data";
 
 export function genereteNewReference(refData: reference, data: any) {
+  debugger
   /* [ {
           "citationID": "SXDNEKR5AD",
           "citationItems": [{ "id": "2kntpabvm2" }],
@@ -38,7 +39,7 @@ export function genereteNewReference(refData: reference, data: any) {
           creator.type == 'person' &&
           ((creator.first && creator.first != '') || (creator.last && creator.last != ''))
         ) {
-          addCreator({ "family": creator.first || '', "given": creator.last || '' }, role);
+          addCreator({ "family": creator.last || '', "given": creator.first || '' }, role);
         } else if (
           creator.type == 'institution' &&
           (creator.name && creator.name != '')
