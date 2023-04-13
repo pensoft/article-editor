@@ -52,6 +52,7 @@ export class CitableTablesDialogComponent {
         this.tables![result.table.tableID] = result.table
         this.newTableNodes[result.table.tableID] = result.tableNode
         this.editedTables[result.table.tableID] = true
+        this.serviceShare.CitableElementsService.writeElementDataGlobal( this.tables!, this.tablesNumbers!,'table_citation');
       } else {
         //this.serviceShare.PmDialogSessionService!.endSubsession(false)
       }
@@ -67,9 +68,10 @@ export class CitableTablesDialogComponent {
       if (data) {
         this.tablesNumbers?.splice(tableIndex, 1);
         delete this.tables![table.tableID]
-        if (this.editedTables[table.tableID]) {
-          delete this.editedTables[table.tableID]
-        }
+          if (this.editedTables[table.tableID]) {
+            delete this.editedTables[table.tableID]
+          }
+        this.serviceShare.CitableElementsService.writeElementDataGlobal( this.tables!, this.tablesNumbers!,'table_citation');
       }
     })
 
@@ -116,6 +118,7 @@ export class CitableTablesDialogComponent {
         this.tablesNumbers?.push(result.table.tableID)
         this.tables![result.table.tableID] = result.table
         this.newTableNodes[result.table.tableID] = result.tableNode
+        this.serviceShare.CitableElementsService.writeElementDataGlobal( this.tables!, this.tablesNumbers!,'table_citation');
       } else {
         //this.serviceShare.PmDialogSessionService!.endSubsession(false);
       }
@@ -123,7 +126,6 @@ export class CitableTablesDialogComponent {
   }
 
   saveTables() {
-    this.serviceShare.CitableElementsService.writeElementDataGlobal( this.tables!, this.tablesNumbers!,'table_citation');
     //this.CitableTablesService.writeTablesDataGlobal(this.newTableNodes, this.tables!, this.tablesNumbers!, this.editedTables)
     this.dialogRef.close(true)
   }

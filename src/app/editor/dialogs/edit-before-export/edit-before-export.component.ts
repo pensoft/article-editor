@@ -225,19 +225,18 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
   renderCodeMirrorEditor() {
     let settings = this.ydocService.printMap!.get('pdfPrintSettings');
-
-    settings = this.pdfSettingsSave;
-    this.ydocService.printMap!.set('pdfPrintSettings',settings);
+    
     if(Object.keys(settings).length == 0 ){
+      this.ydocService.printMap!.set('pdfPrintSettings',this.pdfSettingsSave);
     }else{
       this.pdfSettingsSave = settings
     }
-    let pdfPrintSettings = settings ? settings : (
+    let pdfPrintSettings = Object.keys(settings).length > 0 ? settings : (
       this.ydocService.articleData &&
       this.ydocService.articleData.layout &&
       this.ydocService.articleData.layout.settings &&
       this.ydocService.articleData.layout.settings.print_settings
-    ) ? this.ydocService.articleData.layout.settings.print_settings : {};
+    ) ? this.ydocService.articleData.layout.settings.print_settings : this.pdfSettingsSave;
     if (!settings) {
       this.ydocService.printMap!.set('pdfPrintSettings', pdfPrintSettings);
     }
@@ -275,21 +274,86 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
   pdfSettingsSave: any = {
     "nodes": {
-      "h1": { "marginTop": 10, "marginBottom": 40, "fontSize": this.basicFont+4 },
-      "h2": { "marginTop": 5, "marginBottom": 30, "fontSize": this.basicFont+2 },
-      "h3": { "marginTop": 5, "marginBottom": 25, "fontSize": this.basicFont+1 },
-      "h4": { "marginTop": 5, "marginBottom": 20, "fontSize": this.basicFont },
-      "h5": { "marginTop": 4, "marginBottom": 15, "fontSize": this.basicFont-1 },
-      "h6": { "marginTop": 3, "marginBottom": 10, "fontSize": this.basicFont-2 },
-      "p": { "marginTop": 2, "marginBottom": 8, "fontSize": this.basicFont },
-      "table": { "marginTop": 5, "marginBottom": 10 },
-      "block-figure": { "marginTop": 10, "marginBottom": 40 },
-      "ol": { "marginTop": 5, "marginBottom": 10, "fontSize": this.basicFont },
-      "ul": { "marginTop": 5, "marginBottom": 10, "fontSize": this.basicFont },
-      "math-display": { "marginTop": 10, "marginBottom": 10 },
-      "form-field": { "marginTop": 5, "marginBottom": 10, "fontSize": this.basicFont },
-      "br": { "marginTop": 2, "marginBottom": 2 },
-      "form-field-inline": { "marginTop": 2, "marginBottom": 2, "fontSize": this.basicFont }
+      "h1": {
+        "marginTop": 10,
+        "marginBottom": 10,
+        "fontSize": 18,
+        "lineHeight": 1.3
+      },
+      "h2": {
+        "marginTop": 20,
+        "marginBottom": 10,
+        "fontSize": 15
+      },
+      "h3": {
+        "marginTop": 15,
+        "marginBottom": 10,
+        "fontSize": 12
+      },
+      "h4": {
+        "marginTop": 12,
+        "marginBottom": 8,
+        "fontSize": 11
+      },
+      "h5": {
+        "marginTop": 9,
+        "marginBottom": 6,
+        "fontSize": 10
+      },
+      "h6": {
+        "marginTop": 6,
+        "marginBottom": 4,
+        "fontSize": 9
+      },
+      "p": {
+        "marginTop": 2,
+        "marginBottom": 5,
+        "lineHeight": 1.2,
+        "fontSize": 12
+      },
+      "table": {
+        "marginTop": 5,
+        "marginBottom": 10
+      },
+      "block-figure": {
+        "marginTop": 10,
+        "marginBottom": 10
+      },
+      "ol": {
+        "marginTop": 5,
+        "marginBottom": 10,
+        "fontSize": 11
+      },
+      "ul": {
+        "marginTop": 5,
+        "marginBottom": 10,
+        "fontSize": 11
+      },
+      "math-display": {
+        "marginTop": 10,
+        "marginBottom": 10
+      },
+      "form-field": {
+        "marginTop": 5,
+        "marginBottom": 5,
+        "fontSize": 11
+      },
+      "br": {
+        "marginTop": 2,
+        "marginBottom": 2
+      },
+      "form-field-inline": {
+        "marginTop": 2,
+        "marginBottom": 2,
+        "fontSize": 11
+      },
+      "block-table": {
+        "marginTop": 5,
+        "marginBottom": 5
+      },
+      "reference-citation-end": {
+        "marginLeft": 10
+      }
     },
     "maxFiguresImagesDownscale": "80%",
     "maxMathDownscale": "80%",
@@ -306,8 +370,16 @@ export class EditBeforeExportComponent implements AfterViewInit {
       "A5": false
     },
     "minParagraphLinesAtEndOfPage": 1,
-    "header": { "marginTop": 20, "marginBottom": 15, "fontSize": this.basicFont-4 },
-    "footer": { "marginTop": 15, "marginBottom": 15, "fontSize": this.basicFont-4 }
+    "header": {
+      "marginTop": 20,
+      "marginBottom": 15,
+      "fontSize": 7
+    },
+    "footer": {
+      "marginTop": 15,
+      "marginBottom": 15,
+      "fontSize": 7
+    }
   }
 
   closePdfPrintDialog() {
@@ -398,9 +470,9 @@ export class EditBeforeExportComponent implements AfterViewInit {
     let pdfSettings: any = this.fillSettings()
     let articleId = this.ydocService.articleData.uuid;
     //https://ps-article-storage.dev.scalewest.com/api/article/dfc43b3b-4700-4234-b398-bd9bec17db0d
-    //let articleData = getYdocData(this.ydocService.ydoc);
+    let articleData = getYdocData(this.ydocService.ydoc);
 
-    let articleData:any = {};
+    // let articleData:any = {};
     articleData.pdfSettings = pdfSettings;
     articleData.headerPmNodesJson = headerPmNodesJson;
     articleData.footerPmNodesJson = footerPmNodesJson;

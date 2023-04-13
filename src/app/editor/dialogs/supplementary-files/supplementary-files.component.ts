@@ -53,6 +53,7 @@ export class SupplementaryFilesDialogComponent {
         this.supplementaryFiles![result.supplementaryFile.supplementary_file_ID] = result.supplementaryFile
         this.newSupplementaryFilesNodes[result.supplementaryFile.supplementary_file_ID] = result.supplementaryFileNode
         this.editedSupplementaryFiles[result.supplementaryFile.supplementary_file_ID] = true
+        this.serviceShare.CitableElementsService.writeElementDataGlobal(this.supplementaryFiles!, this.supplementaryFilesNumbers!,'supplementary_file_citation');
       } else {
         //this.serviceShare.PmDialogSessionService!.endSubsession(false)
       }
@@ -68,9 +69,10 @@ export class SupplementaryFilesDialogComponent {
       if (data) {
         this.supplementaryFilesNumbers?.splice(supplementaryFileIndex, 1);
         delete this.supplementaryFiles![supplementaryFile.supplementary_file_ID]
-        if (this.editedSupplementaryFiles[supplementaryFile.supplementary_file_ID]) {
-          delete this.editedSupplementaryFiles[supplementaryFile.supplementary_file_ID];
-        }
+          if (this.editedSupplementaryFiles[supplementaryFile.supplementary_file_ID]) {
+            delete this.editedSupplementaryFiles[supplementaryFile.supplementary_file_ID];
+          }
+        this.serviceShare.CitableElementsService.writeElementDataGlobal(this.supplementaryFiles!, this.supplementaryFilesNumbers!,'supplementary_file_citation');
       }
     })
   }
@@ -88,6 +90,7 @@ export class SupplementaryFilesDialogComponent {
         this.supplementaryFilesNumbers?.push(result.supplementaryFile.supplementary_file_ID)
         this.supplementaryFiles![result.supplementaryFile.supplementary_file_ID] = result.supplementaryFile
         this.newSupplementaryFilesNodes[result.supplementaryFile.supplementary_file_ID] = result.supplementaryFileNode
+        this.serviceShare.CitableElementsService.writeElementDataGlobal(this.supplementaryFiles!, this.supplementaryFilesNumbers!,'supplementary_file_citation');
       } else {
         //this.serviceShare.PmDialogSessionService!.endSubsession(false);
       }
@@ -95,7 +98,6 @@ export class SupplementaryFilesDialogComponent {
   }
 
   saveSupplementaryFiles() {
-    this.serviceShare.CitableElementsService.writeElementDataGlobal(this.supplementaryFiles!, this.supplementaryFilesNumbers!,'supplementary_file_citation');
     this.dialogRef.close(true)
   }
 
