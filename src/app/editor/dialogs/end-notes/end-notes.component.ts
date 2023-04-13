@@ -50,6 +50,7 @@ export class EndNotesDialogComponent {
         this.endNotes![result.endNote.end_note_ID] = result.endNote
         this.newEndNotesNodes[result.endNote.end_note_ID] = result.endNoteNode
         this.editedEndNotes[result.endNote.end_note_ID] = true
+        this.serviceShare.CitableElementsService.writeElementDataGlobal(this.endNotes!, this.endNotesNumbers!,'end_note_citation');
       } else {
       }
     })
@@ -64,9 +65,10 @@ export class EndNotesDialogComponent {
       if (data) {
         this.endNotesNumbers?.splice(endNoteIndex, 1);
         delete this.endNotes![endNote.end_note_ID]
-        if (this.editedEndNotes[endNote.end_note_ID]) {
-          delete this.editedEndNotes[endNote.end_note_ID];
-        }
+          if (this.editedEndNotes[endNote.end_note_ID]) {
+            delete this.editedEndNotes[endNote.end_note_ID];
+          }
+        this.serviceShare.CitableElementsService.writeElementDataGlobal(this.endNotes!, this.endNotesNumbers!,'end_note_citation');
       }
     })
   }
@@ -82,13 +84,13 @@ export class EndNotesDialogComponent {
         this.endNotesNumbers?.push(result.endNote.end_note_ID)
         this.endNotes![result.endNote.end_note_ID] = result.endNote
         this.newEndNotesNodes[result.endNote.end_note_ID] = result.endNoteNode
+        this.serviceShare.CitableElementsService.writeElementDataGlobal(this.endNotes!, this.endNotesNumbers!,'end_note_citation');
       } else {
       }
     })
   }
 
   saveEndNotes() {
-    this.serviceShare.CitableElementsService.writeElementDataGlobal(this.endNotes!, this.endNotesNumbers!,'end_note_citation');
     this.dialogRef.close(true)
   }
 

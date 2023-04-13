@@ -13,7 +13,7 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
 import { Mark, Node } from 'prosemirror-model';
 import { YMap } from 'yjs/dist/src/internals';
 import { checkAllEditorsIfMarkOfCommentExists } from './commentMarksHelpers';
-import { I } from '@angular/cdk/keycodes';
+import { I, P } from '@angular/cdk/keycodes';
 
 export const articlePosOffset = 24;
 
@@ -202,6 +202,30 @@ export class CommentsService {
     }, 500)
   }
 
+  addInlineDecoration(state: EditorState, pos: number) {
+    const node = state.doc.nodeAt(pos)
+    if (!node) return;
+
+    const mark = node.marks.find((mark) => mark.type.name === 'comment');
+    if (!mark) return;
+
+    let from: number;
+    let to: number;
+
+    const nodeSize = state.doc.content.size;
+    state.doc.nodesBetween(0, nodeSize, (node, pos, parent, i) => {
+      const mark2 = node?.marks.find(mark => mark.type.name == 'comment');
+      if(mark2 && mark2.attrs.id == mark.attrs.id && !from) {
+        from = pos;
+      }
+      if(mark2 && mark2.attrs.id == mark.attrs.id){
+        to = pos + node.nodeSize;
+      }
+    })
+
+    return { from, to };
+  }
+
   constructor(private serviceShare: ServiceShare) {
     this.lastSelectedCommentSubject.subscribe((data) => {
       this.lastCommentSelected.commentId = data.commentId
@@ -248,6 +272,7 @@ export class CommentsService {
     let setLastSelectedComment = this.setLastSelectedComment
     let sameAsLastSelectedComment = this.sameAsLastSelectedComment
     let changeInEditors = this.changeInEditors
+    let addInlineDecoration = this.addInlineDecoration;
     this.commentsPlugin = new Plugin({
       key: this.commentPluginKey,
       state: {
@@ -268,8 +293,8 @@ export class CommentsService {
           let commentsMark = newState.schema.marks.comment
           let foundedChangesMark = false;
           let commentInSelection = (actualMark: Mark, pos: number) => {
-            err = true
-            errorMessage = "There is a comment here already"
+            // err = true
+            // errorMessage = "There is a comment here already"
             if (sameAsLastSelectedComment(actualMark.attrs.id, pos, prev.sectionName, actualMark.attrs.commentmarkid)) {
               return
             } else {
@@ -286,17 +311,17 @@ export class CommentsService {
           let view = sectionContainer ? sectionContainer.editorView : undefined;
           if (!(newState.selection instanceof AllSelection) && view && view.hasFocus() ) {
 
-            newState.doc.nodesBetween(from, to, (node, pos, parent) => {
-              if (node.marks.length > 0) {
-                const actualMark = node.marks.find(mark => mark.type == commentsMark);
+            newState.doc.nodesBetween(from, to, (node, pos, parent) => {              
+              // if (node.marks.length > 0) {
+              //   const actualMark = node.marks.find(mark => mark.type == commentsMark);
 
-                if (actualMark) {
-                  commentInSelection(actualMark, pos)
-                  addCommentSubject1.next({ type: "commentData", sectionName: prev.sectionName, showBox: false })
-                  selectedAComment = true;
-                }
+              //   if (actualMark) {                  
+              //     commentInSelection(actualMark, pos)
+              //     addCommentSubject1.next({ type: "commentData", sectionName: prev.sectionName, showBox: false })
+              //     // selectedAComment = true;
+              //   }
 
-              }
+              // }
               if (node.attrs.commentable == 'false') {
                 commentableAttr = false
               }
@@ -313,15 +338,13 @@ export class CommentsService {
             let sel = newState.selection
             let nodeAfterSelection = sel.$to.nodeAfter
             let nodeBeforeSelection = sel.$from.nodeBefore
-            let foundMark = false;
             if (nodeAfterSelection) {
               let pos = sel.to
               let commentMark = nodeAfterSelection?.marks.find(mark => mark.type === commentsMark);
 
               if (commentMark) {
-                commentInSelection(commentMark, pos);
+                commentInSelection(commentMark, to);
                 selectedAComment = true;
-                foundMark = true;
               }
             }
             if (nodeBeforeSelection) {
@@ -331,10 +354,24 @@ export class CommentsService {
               if (commentMark){
                 commentInSelection(commentMark, pos);
                 selectedAComment = true;
-                foundMark = true;
+              }
+            }
+
+            
+            let node1 = newState.doc.nodeAt(from);
+            let node2 = newState.doc.nodeAt(to);
+
+            if(node1 && node2 && from !== to) {
+              let commentMark1 = node1?.marks.find(mark => mark.type === commentsMark);
+              let commentMark2 = node2?.marks.find(mark => mark.type === commentsMark);
+
+              if(commentMark1 && commentMark2) {
+                err = true;
+                errorMessage = "There is a comment here already";
               }
             }
           }
+
           if (!selectedAComment && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() && lastCommentSelected.commentId) {
             setLastSelectedComment(undefined, undefined, undefined, undefined);
           }
@@ -348,7 +385,23 @@ export class CommentsService {
           return { ...prev, commentsStatus: commentdata };
         },
       },
+      props: {
+        decorations: (state: EditorState) => {
+          const pluginState = this.commentPluginKey.getState(state);
+          const focusedEditor = this.serviceShare.DetectFocusService.sectionName;
+          const currentEditor = pluginState.sectionName;
+          const { from, to } = state.selection;
 
+          if (currentEditor != focusedEditor) return DecorationSet.empty;
+
+          const markInfo = addInlineDecoration(state, from);
+          if(!markInfo) return DecorationSet.empty;
+          
+          return DecorationSet.create(state.doc, [
+            Decoration.inline(markInfo.from, markInfo.to, {class: 'active-comment'})
+          ])
+        }
+      },
       view: function () {
         return {
           update: (view, prevState) => {
@@ -427,7 +480,7 @@ export class CommentsService {
   }
 
   setLastSelectedComment = (commentId?: string, pos?: number, sectionId?: string, commentMarkId?: string,focus?:true) => {
-      this.lastSelectedCommentSubject.next({ commentId, pos, sectionId, commentMarkId })
+    this.lastSelectedCommentSubject.next({ commentId, pos, sectionId, commentMarkId })
   }
 
   commentsObj: { [key: string]: commentData } = {}
@@ -484,7 +537,7 @@ export class CommentsService {
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
             domTop: domCoords.top - articleElementRactangle.top-articlePosOffset,
-            commentTxt: this.getallCommentOccurrences(actualMark.attrs.id, parent),
+            commentTxt: this.getallCommentOccurrences(actualMark.attrs.id, view),
             commentAttrs: actualMark.attrs,
             selected: markIsLastSelected,
           }
@@ -493,11 +546,11 @@ export class CommentsService {
     })
   }
 
-  getallCommentOccurrences(commentId: string, parent: Node) {
-    let nodeSize = parent.content.size;
+  getallCommentOccurrences(commentId: string, view: EditorView) {
+    let nodeSize = view.state.doc.content.size;
     let textContent = '';
 
-    parent.nodesBetween(0, nodeSize, (node: Node) => {
+    view.state.doc.nodesBetween(0, nodeSize, (node: Node) => {
       const actualMark = node.marks.find(mark => mark.type.name === "comment");
       if(actualMark && actualMark.attrs.id == commentId) {
         textContent += node.textContent;

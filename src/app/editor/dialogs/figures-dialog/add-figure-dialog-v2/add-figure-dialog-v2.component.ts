@@ -70,7 +70,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
   figuresTemplatesObj: any
   codemirrorHTMLEditor?: EditorView
   sectionContent = JSON.parse(JSON.stringify(figureJson));
-  figData = figureBasicData
+  figData: any;
   figNewComponents: any[] = []
 
   figureComponentsInPrevew = []
@@ -123,9 +123,9 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
           this.updatePreview(false)
         })
       })
-      this.updatePreview(false)
+      // this.updatePreview(false)
       if (!this.data.fig) {
-        this.columnsFormControl.setValue(2)
+        this.columnsFormControl.setValue(1)
       } else {
         let nOfColumns = this.data.fig.canvasData.nOfColumns
         this.columnsFormControl.setValue(nOfColumns)
@@ -138,7 +138,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
         descPmView.dispatch(state.tr.replaceWith(0, state.doc.content.size, prosemirrorNode.content));
       }
       
-      this.figNewComponents = JSON.parse(JSON.stringify(this.figData.components));
+      this.figNewComponents = JSON.parse(JSON.stringify(this.figData?.components || []));
     } catch (e) {
       console.error(e);
     }
@@ -146,7 +146,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
   renderProsemirrorEditor() {
     let header = this.figureDescription?.nativeElement
-    this.figureDescriptionPmContainer = this.prosemirrorEditorsService.renderSeparatedEditorWithNoSync(header, 'popup-menu-container', schema.nodes.paragraph.create({}, schema.text('Type component description here.')))
+    this.figureDescriptionPmContainer = this.prosemirrorEditorsService.renderSeparatedEditorWithNoSync(header, 'popup-menu-container', schema.nodes.paragraph.create({}))
 
     let view = this.figureDescriptionPmContainer.editorView;
     //@ts-ignore
@@ -231,7 +231,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
 
   deleteComponent(component: any, i: number) {
     let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
-      data: { type: component.componentType, dontshowType:true },
+      data: { objName: component.componentType, type: component.componentType, dontshowType:true },
       panelClass: 'ask-before-delete-dialog',
     })
     dialogRef.afterClosed().subscribe((data: any) => {

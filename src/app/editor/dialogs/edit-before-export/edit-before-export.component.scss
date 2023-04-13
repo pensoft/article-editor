@@ -427,15 +427,15 @@
   padding: 2px;
 }
 
-::ng-deep .ProseMirror p:first-child,
-::ng-deep .ProseMirror h1:first-child,
-::ng-deep .ProseMirror h2:first-child,
-::ng-deep .ProseMirror h3:first-child,
-::ng-deep .ProseMirror h4:first-child,
-::ng-deep .ProseMirror h5:first-child,
-::ng-deep .ProseMirror h6:first-child {
-  margin-top: 10px;
-}
+// ::ng-deep .ProseMirror p:first-child,
+// ::ng-deep .ProseMirror h1:first-child,
+// ::ng-deep .ProseMirror h2:first-child,
+// ::ng-deep .ProseMirror h3:first-child,
+// ::ng-deep .ProseMirror h4:first-child,
+// ::ng-deep .ProseMirror h5:first-child,
+// ::ng-deep .ProseMirror h6:first-child {
+//   margin-top: 10px;
+// }
 
 ::ng-deep .ProseMirror {
   line-height: 1.5;

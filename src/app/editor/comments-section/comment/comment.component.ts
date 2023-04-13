@@ -192,27 +192,18 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     })
     if (actualComment) {
-      // const nodeSize = view.state.doc.content.size;
-      // let hasDecrease = 0;
-
-      // view.state.doc.nodesBetween(0, nodeSize, (node, pos, parent) => {
-      //   if (node && node.marks) {
-      //     if(node.marks.find(mark => ["insertion", 'deletion', 'taxon'].includes(mark.type.name)) && node.marks.find(node => node.attrs.commentmarkid == actualComment.commentMarkId)) {
-      //       console.log('tuk');
-      //       console.log(node);
-            
-      //       hasDecrease = 1;
-      //     }
-      //   }
-      // })
       
       view.focus()
-      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualComment.pmDocStartPos), view.state.doc.resolve(actualComment.pmDocEndPos))).setMeta('selected-comment',true).scrollIntoView())
+      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualComment.pmDocStartPos), view.state.doc.resolve(actualComment.pmDocStartPos))).setMeta('selected-comment',true).scrollIntoView())
 
       this.sharedService.ProsemirrorEditorsService.dispatchEmptyTransaction()
       //this.showHideReply(this.ReplyDiv.nativeElement as HTMLDivElement, true)
       //this.sharedService.CommentsService.lastSelectedCommentSubject.next({ commentId:actualComment.commentAttrs.id, pos:actualComment.pmDocStartPos, sectionId:actualComment.section, commentMarkId:actualComment.commentAttrs.commentmarkid })
     }
+  }
+
+  delete(dispatch: any, tr: any) {
+    dispatch(tr);
   }
 
   onDelete(view: EditorView, commentId: string, isFirstTime?: boolean) {
@@ -223,47 +214,74 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
     let textend: any;
     let commentFound = false;
 
-    state.doc.nodesBetween(0, docSize - 2, (node, pos, parent) => {
-      let mark = node.marks.find(mark => mark.attrs.id == commentId);
-
-      if (mark) {
-        textstart = pos;
-        textend = pos + node.nodeSize;
-        commentFound = true;
+    state.doc.nodesBetween(0, docSize, (node, pos, parent) => {
+      let comment = node?.marks.find(c => c.attrs.id == commentId);
+      if(comment){
+          view.dispatch(state.tr.removeMark(pos, pos + node.nodeSize, commentsMark));
       }
     })
 
-    if (commentFound) {
-      view.focus();
-      view.dispatch(state?.tr.removeMark(textstart, textend, commentsMark))
-      this.sharedService.ProsemirrorEditorsService.dispatchEmptyTransaction()
-
-      let resolvedPosAtStart = view.state.doc.resolve(textstart);
-      let resolvedPosAtEnd = view.state.doc.resolve(textend);
-
-      let nodeBefore = resolvedPosAtStart.nodeBefore;
-      let nodeAfter = resolvedPosAtEnd.nodeAfter;
-
-      if (nodeBefore) {
-        let markConn = nodeBefore.marks.find(mark => mark.attrs.id == commentId)
-        if (markConn) {
-          setTimeout(()=> {
-            this.onDelete(view, commentId);
-          }, 0)
-        }
-      }
-      if (nodeAfter) {
-        let markConn = nodeAfter.marks.filter(mark => mark.attrs.id == commentId)[0]
-        if (markConn) {
-          setTimeout(()=> {
-            this.onDelete(view, commentId);
-          }, 0)
-        }
-      }
-      if(isFirstTime) {
-        this.commentsMap?.delete(this.comment?.commentAttrs.id);
-      }
+    if(isFirstTime) {
+      this.commentsMap?.delete(this.comment?.commentAttrs.id);
     }
+
+    /**
+     * let view = containers[key].editorView
+      let state = view.state;
+      let positions = this.getPositionsOfNonEmptyMarksSameAsTaxon(state.doc,taxon.taxonTxt)
+      let tr = view.state.tr;
+      positions.forEach((pos)=>{
+        let attrs = {...pos.attrs};
+        attrs.removedtaxon = true;
+        let mark = schema.marks.taxon.create(attrs)
+        let slice = new Slice(Fragment.from(schema.text(taxon.taxonTxt,[mark])),0,0)
+        tr = tr.replaceWith(pos.from,pos.to,Fragment.empty)
+        tr = tr.replace(pos.from,pos.from,slice)
+      })
+      view.dispatch(tr);
+     */
+
+    // state.doc.nodesBetween(0, docSize - 2, (node, pos, parent) => {
+    //   let mark = node.marks.find(mark => mark.attrs.id == commentId);
+
+    //   if (mark) {
+    //     textstart = pos;
+    //     textend = pos + node.nodeSize;
+    //     commentFound = true;
+    //   }
+    // })
+
+    // if (commentFound) {
+    //   view.focus();
+    //   view.dispatch(state?.tr.removeMark(textstart, textend, commentsMark))
+    //   this.sharedService.ProsemirrorEditorsService.dispatchEmptyTransaction()
+
+    //   let resolvedPosAtStart = view.state.doc.resolve(textstart);
+    //   let resolvedPosAtEnd = view.state.doc.resolve(textend);
+
+    //   let nodeBefore = resolvedPosAtStart.nodeBefore;
+    //   let nodeAfter = resolvedPosAtEnd.nodeAfter;
+
+    //   if (nodeBefore) {
+    //     let markConn = nodeBefore.marks.find(mark => mark.attrs.id == commentId)
+    //     if (markConn) {
+    //       setTimeout(()=> {
+    //         this.onDelete(view, commentId);
+    //       }, 0)
+    //     }
+    //   }
+    //   if (nodeAfter) {
+    //     let markConn = nodeAfter.marks.filter(mark => mark.attrs.id == commentId)[0]
+    //     if (markConn) {
+    //       setTimeout(()=> {
+    //         this.onDelete(view, commentId);
+    //       }, 0)
+    //     }
+    //   }
+    //   if(isFirstTime) {
+    //     this.commentsMap?.delete(this.comment?.commentAttrs.id);
+    //   }
+    // }
 
   }
 

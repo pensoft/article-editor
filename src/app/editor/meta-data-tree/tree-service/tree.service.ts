@@ -253,7 +253,7 @@ export class TreeService implements OnDestroy {
             hTag = +match[1];
           } else {
             if(level > 0) {
-              hTag = h + i
+              hTag = h;
             } else {
               hTag = 2;
             }
