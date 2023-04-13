@@ -85,7 +85,7 @@ export class AuthService implements OnDestroy {
   logout() {
     this.removeGlobalStyleForUser()
     localStorage.clear();
-    this.router.navigate(['/login'], {
+    this.router.navigate(['/'], {
       queryParams: {},
     })
     this.userInfo = undefined

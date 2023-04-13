@@ -17,7 +17,7 @@ export class AuthGuard implements CanActivate {
       const extras: NavigationExtras = {
         queryParams: {'previousUrl': state.url}
       };
-      this.router.navigate(['/login'], extras);
+      this.router.navigate(['/'], extras);
       this._authservice.userInfo = undefined;
       return false;
     } else {
