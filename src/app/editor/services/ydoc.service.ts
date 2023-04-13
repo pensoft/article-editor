@@ -288,6 +288,8 @@ export class YdocService {
     let externalRefs = this.referenceCitationsMap?.get('externalRefs');
     let localRefs = this.referenceCitationsMap?.get('localRefs');
     let refsAddedToArticle = this.referenceCitationsMap?.get('refsAddedToArticle');
+    let citedRefsInArticle = this.referenceCitationsMap.get('citedRefsInArticle')
+
     let customPropsObj = this.customSectionProps?.get('customPropsObj');
     let elementsCitations = this.citableElementsMap?.get('elementsCitations');
 
@@ -433,6 +435,9 @@ export class YdocService {
     }
     if (!referencesInEditor) {
       this.referenceCitationsMap?.set('referencesInEditor', {})
+    }
+    if (!citedRefsInArticle) {
+      this.referenceCitationsMap.set('citedRefsInArticle', {})
     }
     if (!usersColors) {
       this.usersDataMap.set('usersColors', {});

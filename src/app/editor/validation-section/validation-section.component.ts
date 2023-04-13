@@ -109,6 +109,8 @@ export class ValidationSectionComponent implements OnDestroy {
       rules.push({ rule: 'CitatedFigures' })
       rules.push({ rule: 'ValidateComplexSections' })
       rules.push({ rule: 'ValidateCitedRefs' })
+      // rules.push({ rule: 'ValidateCitedTables' })
+      // rules.push({ rule: 'ValidateCitedEndNotes' })
       /* rules.push(
         {
           rule: 'SectionPosition',
@@ -420,33 +422,33 @@ export class ValidationSectionComponent implements OnDestroy {
               } else if (el.rule == "ValidateComplexSections") {
                 let articleSectionStructure = this.treeService.articleSectionsStructure;
                 let validateComplexSecMinMax = (complexSection: articleSection, sectionsFromBackend: any) => {
-                  let errors: string[] = []
-                  let children = complexSection.children;
-                  Object.keys(complexSection.subsectionValidations!).forEach((pivotId: any) => {
-                    let subSecMinMax = complexSection.subsectionValidations![pivotId];
-                    let countOfType = 0;
+                  // let errors: string[] = []
+                  // let children = complexSection.children;
+                  // Object.keys(complexSection.subsectionValidations!).forEach((pivotId: any) => {
+                  //   let subSecMinMax = complexSection.subsectionValidations![pivotId];
+                  //   let countOfType = 0;
 
-                    children.forEach((child) => {
-                      if (child.pivotId == pivotId) {
-                        countOfType++;
-                      }
-                    })
-                    let sectionFromBackend = sectionsFromBackend.find((el: any) => {return (el.pivot_id == pivotId)})
-                    if(sectionFromBackend){
-                      let secName = sectionFromBackend.name
-                      if (countOfType < subSecMinMax.min) {
-                        errors.push(`Number of "${secName}" sections should be more than ${subSecMinMax.min - 1}`);
-                      }
-                      if (countOfType > subSecMinMax.max) {
-                        errors.push(`Number of "${secName}" sections should be less than ${subSecMinMax.max + 1}`);
-                      }
-                    }else{
-                      console.error('There is no section with this ID.')
-                    }
-                  })
-                  if (errors.length > 0) {
-                    this.complexSectionsMinMaxErrors.push({ fulfilled: false, errorMessage: `Complex section "${complexSection.title.label}" should match the required minimum and maximum validations. ${errors.join('. ')}` })
-                  }
+                  //   children.forEach((child) => {
+                  //     if (child.pivotId == pivotId) {
+                  //       countOfType++;
+                  //     }
+                  //   })
+                  //   let sectionFromBackend = sectionsFromBackend.find((el: any) => {return (el.pivot_id == pivotId)})
+                  //   if(sectionFromBackend){
+                  //     let secName = sectionFromBackend.name
+                  //     if (countOfType < subSecMinMax.min) {
+                  //       errors.push(`Number of "${secName}" sections should be more than ${subSecMinMax.min - 1}`);
+                  //     }
+                  //     if (countOfType > subSecMinMax.max) {
+                  //       errors.push(`Number of "${secName}" sections should be less than ${subSecMinMax.max + 1}`);
+                  //     }
+                  //   }else{
+                  //     console.error('There is no section with this ID.')
+                  //   }
+                  // })
+                  // if (errors.length > 0) {
+                  //   this.complexSectionsMinMaxErrors.push({ fulfilled: false, errorMessage: `Complex section "${complexSection.title.label}" should match the required minimum and maximum validations. ${errors.join('. ')}` })
+                  // }
                 }
                 this.articleSectionsService.getAllSections({ page: 1, pageSize: 999 }).subscribe((resData: any) => {
                   let loopTree = (section: articleSection) => {
@@ -463,17 +465,17 @@ export class ValidationSectionComponent implements OnDestroy {
                   donevalidationSubject.next(null)
                 })
               } else if (el.rule == 'ValidateCitedRefs'){
-                let refsInEndEditor = this.ydocService!.referenceCitationsMap?.get('referencesInEditor');
-                let refsInArticle = this.ydocService.referenceCitationsMap.get('refsAddedToArticle');
+                let refsInEndEditor = this.ydocService.referenceCitationsMap?.get('referencesInEditor');
+                let citedRefsInArticle = this.ydocService.referenceCitationsMap.get('citedRefsInArticle');
 
-                let keysOfRefsInEndEditor = Object.keys(refsInEndEditor)
-                let keysOfRefsInArticle = Object.keys(refsInArticle);
+                let keysOfRefsInEndEditor = Object.keys(refsInEndEditor);
+                let keysOfcitedRefsInArticle = Object.keys(citedRefsInArticle);
 
-                let nonCitedRefs  = {}
+                let nonCitedRefs  = {};
 
-                keysOfRefsInArticle.forEach((key)=>{
-                  if(!keysOfRefsInEndEditor.includes(key)){
-                    nonCitedRefs[key] = refsInArticle[key]
+                keysOfRefsInEndEditor.forEach((key)=>{
+                  if(!keysOfcitedRefsInArticle.includes(key)){
+                    nonCitedRefs[key] = refsInEndEditor[key];
                   }
                 })
                 Object.keys(nonCitedRefs).forEach((refId)=>{
@@ -494,7 +496,7 @@ export class ValidationSectionComponent implements OnDestroy {
         })
       })
     }
-    let validateData = await validAsync()
+    let validateData = await validAsync();
     if (validateData == 'cancel') {
 
     } else {
