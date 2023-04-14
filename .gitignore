@@ -43,3 +43,4 @@ testem.log
 .DS_Store
 Thumbs.db
 articlle_editor - Shortcut.lnk
+/assets/config.json
