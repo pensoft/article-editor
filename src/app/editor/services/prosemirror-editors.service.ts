@@ -1360,7 +1360,6 @@ export class ProsemirrorEditorsService {
     let lastStep: any
     let lastContainingInsertionMark: any
     const dispatchTransaction = (transaction: Transaction) => {
-      // console.log('transaction.selection', transaction.selection)
       this.transactionCount++
       try {
         if (lastStep == transaction.steps[0]) {

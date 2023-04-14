@@ -134,7 +134,7 @@ export class MenuService {
     menu.fullMenu[8].push(menuItems.insertLink);
   }
 
-  attachMenuItems(menuName: string,passedMenuData?:any) {
+  attachMenuItems(menuName: string,passedMenuData?:any) {    
     let menuItemsData
     if (!this.sectionMenus[menuName]) {
       menuItemsData = [...this.sectionMenus['fullMenu1']]
@@ -206,7 +206,7 @@ export class MenuService {
     }
     /* r.typeMenu = new Dropdown(cut([r.makeParagraph, r.makeCodeBlock, r.makeHead1 && new DropdownSubmenu(cut([
       r.makeHead1, r.makeHead2, r.makeHead3, r.makeHead4, r.makeHead5, r.makeHead6
-    ]), {label: "Heading"})]), {label: "Type..."}) */
+    ]), {label: "Heading"})]), {label: "Type..."}) */    
     menuItemsData.forEach((menuSection, i) => {
       menuBuild[i] = [];
       menuSection.forEach((menuItem, j) => {
