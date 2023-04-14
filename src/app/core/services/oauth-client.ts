@@ -1,33 +1,41 @@
 //@ts-ignore
 import createLaravelPassportClient from 'laravel-passport-spa-js';
-import {environment} from '@env';
+import { Inject, Injectable } from '@angular/core';
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
 
-export const lpClient = createLaravelPassportClient({
-  // the domain of your authentication server
-  domain: environment.authServer,
+@Injectable({providedIn: 'root'})
+export class OauthClient {
+  constructor(
+    @Inject(APP_CONFIG) private config: AppConfig,
+  ){}
 
-  // the id of your Passport client
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  client_id: environment.passport_client_id,
+  public lpClient = createLaravelPassportClient({
+    // the domain of your authentication server
+    domain: this.config.authService,
 
-  // the uri the authentication server will send the authorization codes to
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  redirect_uri: `${window.location.origin}/callback`,
-  isAutoRefresh: false
-});
+    // the id of your Passport client
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    client_id: this.config.pkceClientId,
 
-export const ssoClient = createLaravelPassportClient({
-  // the domain of your authentication server
-  domain: environment.authServer,
+    // the uri the authentication server will send the authorization codes to
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    redirect_uri: `${window.location.origin}/callback`,
+    isAutoRefresh: false
+  });
 
-  // the id of your Passport client
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  client_id: environment.passport_client_id,
+  public ssoClient = createLaravelPassportClient({
+    // the domain of your authentication server
+    domain: this.config.authService,
 
-  oauthPrefix: 'orcid',
+    // the id of your Passport client
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    client_id: this.config.pkceClientId,
 
-  // the uri the authentication server will send the authorization codes to
-  // eslint-disable-next-line @typescript-eslint/naming-convention
-  redirect_uri: `${window.location.origin}/callback`,
-  isAutoRefresh: false
-});
+    oauthPrefix: 'orcid',
+
+    // the uri the authentication server will send the authorization codes to
+    // eslint-disable-next-line @typescript-eslint/naming-convention
+    redirect_uri: `${window.location.origin}/callback`,
+    isAutoRefresh: false
+  });
+}

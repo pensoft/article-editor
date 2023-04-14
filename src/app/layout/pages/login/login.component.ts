@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import { Component, Inject, OnInit, ViewChild } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router';
 import { UserModel } from '@core/models/user.model';
@@ -9,10 +9,11 @@ import { FormioBaseService } from '@core/services/formio-base.service';
 import { Observable, Subscription } from 'rxjs';
 import { filter, first, take } from 'rxjs/operators';
 import { uuidv4 } from "lib0/random";
-import { lpClient, ssoClient } from "@core/services/oauth-client";
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import { environment } from '@env';
+import { OauthClient } from '@app/core/services/oauth-client';
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
+import Packages from '../../../../../package.json';
 
 @Component({
   selector: 'app-login',
@@ -20,8 +21,7 @@ import { environment } from '@env';
   styleUrls: ['./login.component.scss']
 })
 export class LoginComponent implements OnInit {
-  version = environment.VERSION;
-  build_number = environment.BUILD_NUMBER;
+  version = `${Packages.version}`;
 
   // KeenThemes mock, change it to:
   defaultAuth: any = {
@@ -45,7 +45,9 @@ export class LoginComponent implements OnInit {
     private router: Router,
     private _broadcaster: BroadcasterService,
     public formioBaseService: FormioBaseService,
-    private serviceShare: ServiceShare
+    private serviceShare: ServiceShare,
+    private readonly oauthClient: OauthClient,
+    @Inject(APP_CONFIG) private config: AppConfig,
   ) {
     this.router.events.pipe(filter(event => event instanceof NavigationEnd)).subscribe((event: NavigationEnd) => {
       this.previousUrl = event.url;
@@ -130,10 +132,10 @@ export class LoginComponent implements OnInit {
   signIn() {
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
     console.log('CLICK');
-    lpClient.signIn().then(async signInResult => {
+    this.oauthClient.lpClient.signIn().then(async signInResult => {
       console.log('CLICK Result', signInResult)
       if (signInResult) {
-        const token: string = await lpClient.getToken();
+        const token: string = await this.oauthClient.lpClient.getToken();
         this.authService.storeToken(token);
         const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
           .subscribe((user: UserModel | undefined) => {
@@ -165,9 +167,9 @@ export class LoginComponent implements OnInit {
   orcidSignIn() {
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
 
-    lpClient.signIn().then(async signInResult => {
+    this.oauthClient.lpClient.signIn().then(async signInResult => {
       if (signInResult) {
-        const token: string = await ssoClient.getToken();
+        const token: string = await this.oauthClient.ssoClient.getToken();
         this.authService.storeToken(token);
         const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
           .subscribe((user: UserModel | undefined) => {
@@ -196,7 +198,7 @@ export class LoginComponent implements OnInit {
 
   async processSigninResult(signInResult){
     if(signInResult){
-      const token = await lpClient.getToken();
+      const token = await this.oauthClient.lpClient.getToken();
       console.log('token', token);
       this.authService.storeToken(token);
       const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
@@ -212,6 +214,6 @@ export class LoginComponent implements OnInit {
   }
 
   goToRegister() {
-    window.location.href = `${environment.authServer}/register?return_uri=${encodeURIComponent(window.location.href)}`
+    window.location.href = `${this.config.authService}/register?return_uri=${encodeURIComponent(window.location.href)}`
   }
 }

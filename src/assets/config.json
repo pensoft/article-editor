@@ -1,0 +1,20 @@
+{
+
+  "production": true,
+  "websocketHost": "%env.ARTICLE_STORAGE_WEBSOCKET_HOST%",
+  "websocketPort": "%env.ARTICLE_STORAGE_WEBSOCKET_PORT%",
+
+  "externalRefsApi": "%env.EXTERNAL_REFS_API%",
+  "authService": "%env.AUTH_SERVICE%",
+
+  "apiGatewayService": "%env.API_GATEWAY_SERVICE%",
+
+  "pkceClientId": "%env.ARTICLE_EDITOR_PKCE_CLIENT_ID%",
+  "pgClientId": "%env.ARTICLE_EDITOR_PG_CLIENT_ID%",
+  "pgClientSecret": "%env.ARTICLE_EDITOR_PG_CLIENT_SECRET%",
+
+  "articleApiVersion": "1",
+  "eventDispatcherService": "%env.EVENT_DISPATCHER_SERVICE%",
+
+  "validateJats": "%env.JATS_VALIDATION_SERVICE%"
+}

@@ -1,20 +1,28 @@
 import { HttpClient } from '@angular/common/http';
-import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectorRef,
+  Component,
+  ElementRef,
+  Inject,
+  OnDestroy,
+  OnInit,
+  ViewChild
+} from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { RefsApiService } from '@app/layout/pages/library/lib-service/refs-api.service';
-import { Observable, Subscriber, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter, map, startWith } from 'rxjs/operators';
-import { environment } from '@env';
+import { Observable, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
 import { genereteNewReference } from '@app/layout/pages/library/lib-service/refs-funcs';
 import { harvardStyle } from '@app/layout/pages/library/lib-service/csl.service';
 import { CiToTypes } from '@app/layout/pages/library/lib-service/editors-refs-manager.service';
-import { MatOption } from '@angular/material/core';
 import { uuidv4 } from 'lib0/random';
 import { mapRef1 } from '@app/editor/utils/references/refsFunctions';
 import { ReferenceEditComponent } from '@app/layout/pages/library/reference-edit/reference-edit.component';
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
 
 
 @Component({
@@ -50,7 +58,8 @@ export class RefsAddNewInArticleDialogComponent implements OnInit,AfterViewInit,
     private serviceShare: ServiceShare,
     private changeDetectorRef: ChangeDetectorRef,
     private http: HttpClient,
-    private ref:ChangeDetectorRef
+    private ref:ChangeDetectorRef,
+    @Inject(APP_CONFIG) private config: AppConfig,
   ) { }
 
   ngAfterViewInit(): void {
@@ -131,7 +140,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit,AfterViewInit,
     this.searchData = undefined;
     this.loading = true;
     this.changeDetectorRef.detectChanges()
-    this.oldSub = this.http.get(environment.EXTERNAL_REFS_API, {
+    this.oldSub = this.http.get(this.config.externalRefsApi, {
       responseType: 'text',
       params: {
         search: 'simple',

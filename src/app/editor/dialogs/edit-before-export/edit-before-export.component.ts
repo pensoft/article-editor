@@ -23,8 +23,8 @@ import { EditorView } from 'prosemirror-view';
 
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { uuidv4 } from 'lib0/random';
-import { environment } from '@env';
-const API_URL = environment.apiUrl;
+import { AppConfig } from '@app/core/services/app-config';
+import { APP_CONFIG } from '@core/services/app-config';
 
 pdfMake.vfs = vfs;
 
@@ -200,7 +200,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
     private http: HttpClient,
     private serviceShare: ServiceShare,
     private ydocService: YdocService,
-    private prosemirrorEditorsService: ProsemirrorEditorsService
+    private prosemirrorEditorsService: ProsemirrorEditorsService,
+    @Inject(APP_CONFIG) private config: AppConfig,
   ) {
     this.data = data;
   }
@@ -225,7 +226,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
 
   renderCodeMirrorEditor() {
     let settings = this.ydocService.printMap!.get('pdfPrintSettings');
-    
+
     if(Object.keys(settings).length == 0 ){
       this.ydocService.printMap!.set('pdfPrintSettings',this.pdfSettingsSave);
     }else{
@@ -484,7 +485,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     /* this.http.post(environment.print_pdf+'/'+articleId+'/pdf/export',articleData).subscribe((data)=>{
       console.log('response for pdf render ',data);
     }) */
-    this.http.post(`${API_URL}/articles/items/`+articleId+'/pdf/export',articleData).subscribe((data)=>{
+    this.http.post(`${this.config.apiUrl}/articles/items/`+articleId+'/pdf/export',articleData).subscribe((data)=>{
       console.log('pdf',data);
     })
     /* http://127.0.0.1:3003 */

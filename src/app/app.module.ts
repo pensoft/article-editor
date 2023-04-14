@@ -1,8 +1,8 @@
-import { HTTP_INTERCEPTORS, HttpClientModule, HttpClientJsonpModule, HttpClient, HttpRequest, HttpHandler, HttpEvent } from '@angular/common/http';
-import { Compiler, CompilerFactory, COMPILER_OPTIONS, Injector, NgModule, APP_INITIALIZER } from '@angular/core';
+import { HTTP_INTERCEPTORS, HttpClient, HttpClientJsonpModule, HttpClientModule } from '@angular/common/http';
+import { APP_INITIALIZER, Compiler, COMPILER_OPTIONS, CompilerFactory, Injector, NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ServiceWorkerModule } from '@angular/service-worker';
+import { ServiceWorkerModule, SwRegistrationOptions } from '@angular/service-worker';
 import { SignupComponent } from '@app/layout/pages/signup/signup.component';
 import { HTTPReqResInterceptor } from '@core/services/http-req-res.interceptor';
 import { NgxSpinnerModule } from 'ngx-spinner';
@@ -10,7 +10,6 @@ import { MaterialModule } from 'src/app/shared/material.module';
 import { STORAGE_PROVIDERS } from 'src/app/shared/storage.service';
 import { ThemeToggleComponent } from 'src/app/layout/widgets/thema-toggle/theme-toggle.component';
 import { windowProvider, WindowToken } from 'src/app/shared/window';
-import { environment } from '@env';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { EditorComponent } from './editor/editor.component';
@@ -22,7 +21,7 @@ import { CommentComponent } from './editor/comments-section/comment/comment.comp
 import { AddCommentDialogComponent } from './editor/add-comment-dialog/add-comment-dialog.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MainComponent } from './layout/pages/main/main.component';
-import { IconsRegisterService } from './shared/icons-register.service';
+import { IconsRegisterService } from '@shared/icons-register.service';
 import { TableSizePickerComponent } from './editor/utils/table-size-picker/table-size-picker.component';
 import { DragDropModule } from '@angular/cdk/drag-drop';
 import { CdkListRecursiveComponent } from './editor/meta-data-tree/cdk-list-recursive/cdk-list-recursive.component';
@@ -46,7 +45,6 @@ import {
   InsertSpecialSymbolDialogComponent
 } from './editor/dialogs/insert-special-symbol-dialog/insert-special-symbol-dialog.component';
 import { FormioAppConfig, FormioModule } from '@formio/angular';
-import { AppConfig } from './config';
 import { SectionComponent } from './editor/section/section.component';
 import { registerFormIOComponents } from './editor/formioComponents/registerFormIOComponents';
 import { ArticleComponent } from './editor/article/article.component';
@@ -76,7 +74,7 @@ import { AvatarComponent } from './layout/widgets/avatar/avatar.component';
 
 import { AvatarModule } from 'ngx-avatar';
 import { DashboardComponent } from './editor/dashboard/dashboard.component';
-import { GravatarModule, GravatarConfig, FALLBACK, } from 'ngx-gravatar';
+import { FALLBACK, GravatarConfig, GravatarModule, } from 'ngx-gravatar';
 import { ChooseSectionComponent } from './editor/dialogs/choose-section/choose-section.component';
 import { SettingsComponent } from './layout/pages/settings/settings.component';
 import { AskBeforeDeleteComponent } from './editor/dialogs/ask-before-delete/ask-before-delete.component';
@@ -104,12 +102,12 @@ import { RecentComponent } from './layout/pages/recent-permission/recent/recent.
 import {
   AddContributorsDialogComponent
 } from './editor/dialogs/add-contributors-dialog/add-contributors-dialog.component';
-import { SearchFilterPipe } from './shared/pipes/search-filter.pipe';
+import { SearchFilterPipe } from '@shared/pipes/search-filter.pipe';
 import { ReferenceEditComponent } from './layout/pages/library/reference-edit/reference-edit.component';
 import {
   CitateReferenceDialogComponent
 } from './layout/pages/library/citate-reference-dialog/citate-reference-dialog.component';
-import { FakeBackendInterceptor } from './core/services/fakeBackendProvide';
+import { FakeBackendInterceptor } from '@core/services/fakeBackendProvide';
 import { SaveComponent } from './layout/pages/library/reference-edit/save/save.component';
 import { ExportJsonLdComponent } from './editor/dialogs/export-json-ld/export-json-ld.component';
 import { TreeChecklistComponent } from './editor/section/tree-checklist/tree-checklist.component';
@@ -121,49 +119,81 @@ import { MaterialSectionComponent } from "@app/editor/section/material-section/m
 import { RefsApiService } from "@app/layout/pages/library/lib-service/refs-api.service";
 import { OauthCallbackComponent } from "@app/layout/pages/oauth-callback/oauth-callback.component";
 import { CookieService } from "ngx-cookie-service";
-import { CommentsInterceptorService } from './core/services/comments/comments-interceptor.service';
+import { CommentsInterceptorService } from '@core/services/comments/comments-interceptor.service';
 import { TestingComponent } from './editor/dialogs/testing/testing.component';
-import { SendInvitationComponent } from './editor/dialogs/add-contributors-dialog/send-invitation/send-invitation.component';
-import { EditContributorComponent } from './editor/dialogs/add-contributors-dialog/edit-contributor/edit-contributor.component';
-import { CollaboratorsAutoCompleteComponent } from './editor/comments-section/collaborators-auto-complete/collaborators-auto-complete.component';
+import {
+  SendInvitationComponent
+} from './editor/dialogs/add-contributors-dialog/send-invitation/send-invitation.component';
+import {
+  EditContributorComponent
+} from './editor/dialogs/add-contributors-dialog/edit-contributor/edit-contributor.component';
+import {
+  CollaboratorsAutoCompleteComponent
+} from './editor/comments-section/collaborators-auto-complete/collaborators-auto-complete.component';
 import { EmailPipe } from './editor/comments-section/email.pipe';
-import { EditCommentDialogComponent } from './editor/comments-section/edit-comment-dialog/edit-comment-dialog.component';
-import { CantOpenArticleDialogComponent } from './layout/widgets/arpha-navigation/cant-open-article-dialog/cant-open-article-dialog.component';
-import { UsersRoleIsChangedComponent } from './layout/widgets/arpha-navigation/users-role-is-changed/users-role-is-changed.component';
+import {
+  EditCommentDialogComponent
+} from './editor/comments-section/edit-comment-dialog/edit-comment-dialog.component';
+import {
+  CantOpenArticleDialogComponent
+} from './layout/widgets/arpha-navigation/cant-open-article-dialog/cant-open-article-dialog.component';
+import {
+  UsersRoleIsChangedComponent
+} from './layout/widgets/arpha-navigation/users-role-is-changed/users-role-is-changed.component';
 import { TestPageComponent } from './casbin/test-page/test-page.component';
 import { HasPermissionPipe } from './casbin/permission-pipe/has-permission.pipe';
 import { CasbinInterceptor } from './casbin/interceptor/casbin.interceptor';
 import { NotificationsComponent } from './layout/widgets/arpha-navigation/notifications/notifications.component';
-import { AllnotificationsComponent } from './layout/widgets/arpha-navigation/allnotifications/allnotifications.component';
+import {
+  AllnotificationsComponent
+} from './layout/widgets/arpha-navigation/allnotifications/allnotifications.component';
 import { ClickOutsideModule } from 'ng4-click-outside';
 import { CitableTablesDialogComponent } from './editor/dialogs/citable-tables-dialog/citable-tables-dialog.component';
-import { AddTableDialogComponent } from './editor/dialogs/citable-tables-dialog/add-table-dialog/add-table-dialog.component';
+import {
+  AddTableDialogComponent
+} from './editor/dialogs/citable-tables-dialog/add-table-dialog/add-table-dialog.component';
 import { CitableTableComponent } from './editor/dialogs/citable-tables-dialog/citable-table/citable-table.component';
 import { InsertTableComponent } from './editor/dialogs/citable-tables-dialog/insert-table/insert-table.component';
 import { JwtModule } from '@auth0/angular-jwt';
-import { NgxLaravelEchoModule } from 'ngx-laravel-echo';
+import { ECHO_CONFIG, EchoService } from 'ngx-laravel-echo';
 import { EditorContainerComponent } from './editor/editor-container/editor-container.component';
 import { SupplementaryFilesDialogComponent } from './editor/dialogs/supplementary-files/supplementary-files.component';
 import { EndNotesDialogComponent } from './editor/dialogs/end-notes/end-notes.component';
-import { AddSupplementaryFileComponent } from './editor/dialogs/supplementary-files/add-supplementary-file/add-supplementary-file.component';
-import { SupplementaryFileComponent } from './editor/dialogs/supplementary-files/supplementary-file/supplementary-file.component';
-import { InsertSupplementaryFileComponent } from './editor/dialogs/supplementary-files/insert-supplementary-file/insert-supplementary-file.component';
+import {
+  AddSupplementaryFileComponent
+} from './editor/dialogs/supplementary-files/add-supplementary-file/add-supplementary-file.component';
+import {
+  SupplementaryFileComponent
+} from './editor/dialogs/supplementary-files/supplementary-file/supplementary-file.component';
+import {
+  InsertSupplementaryFileComponent
+} from './editor/dialogs/supplementary-files/insert-supplementary-file/insert-supplementary-file.component';
 import { AddEndNoteComponent } from './editor/dialogs/end-notes/add-end-note/add-end-note.component';
 import { EndNoteComponent } from './editor/dialogs/end-notes/end-note/end-note.component';
 import { InsertEndNoteComponent } from './editor/dialogs/end-notes/insert-end-note/insert-end-note.component';
 import { JatsErrorsDialogComponent } from './editor/dialogs/jats-errors-dialog/jats-errors-dialog.component';
-import { EchoInterceptor } from 'ngx-laravel-echo';
-import { Observable } from 'rxjs';
 import { BoldPipe } from './editor/dialogs/add-contributors-dialog/bold.pipe';
 import { RefsInArticleDialogComponent } from './editor/dialogs/refs-in-article-dialog/refs-in-article-dialog.component';
-import { RefsInArticleCiteDialogComponent } from './editor/dialogs/refs-in-article-cite-dialog/refs-in-article-cite-dialog.component';
-import { RefsAddNewInArticleDialogComponent } from './editor/dialogs/refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
-import { AddFigureDialogV2Component } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-dialog-v2.component';
-import { FigureComponentPreviewComponent } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/figure-component-preview/figure-component-preview.component';
-import { AddFigureComponentDialogComponent } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-component-dialog/add-figure-component-dialog.component';
+import {
+  RefsInArticleCiteDialogComponent
+} from './editor/dialogs/refs-in-article-cite-dialog/refs-in-article-cite-dialog.component';
+import {
+  RefsAddNewInArticleDialogComponent
+} from './editor/dialogs/refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
+import {
+  AddFigureDialogV2Component
+} from './editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-dialog-v2.component';
+import {
+  FigureComponentPreviewComponent
+} from './editor/dialogs/figures-dialog/add-figure-dialog-v2/figure-component-preview/figure-component-preview.component';
+import {
+  AddFigureComponentDialogComponent
+} from './editor/dialogs/figures-dialog/add-figure-dialog-v2/add-figure-component-dialog/add-figure-component-dialog.component';
 import { MAT_DIALOG_DEFAULT_OPTIONS, MatDialogConfig } from '@angular/material/dialog';
 import { HeadProsemirrorViewComponent } from './editor/article/head-prosemirror-view/head-prosemirror-view.component';
-import { FigurePdfPreviewComponent } from './editor/dialogs/figures-dialog/add-figure-dialog-v2/figure-pdf-preview/figure-pdf-preview.component';
+import {
+  FigurePdfPreviewComponent
+} from './editor/dialogs/figures-dialog/add-figure-dialog-v2/figure-pdf-preview/figure-pdf-preview.component';
 import { TranslateHttpLoader } from '@ngx-translate/http-loader';
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
 import { TaxonsSectionComponent } from './editor/taxons/taxons-section/taxons-section.component';
@@ -175,10 +205,12 @@ import { LogoutComponent } from './layout/pages/logout/logout.component';
 import { InsertVideoComponent } from './editor/dialogs/insert-video/insert-video.component';
 import { FunderSectionComponent } from './editor/section/funder-section/funder-section.component';
 import { AuthService } from '@core/services/auth.service';
-import { ServiceShare } from '@app/editor/services/service-share.service';
+import { FormBuilderConfig } from '@app/form-builder-config';
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
+
 
 //@ts-ignore
-EchoInterceptor.prototype.routesToIntercept = [environment.EVENT_DISPATCHER_SERVICE, 'event-dispatcher']
+/*EchoInterceptor.prototype.routesToIntercept = [environment.eventDispatcherService, 'event-dispatcher']
 
 EchoInterceptor.prototype.intercept = function (req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
 
@@ -188,7 +220,7 @@ EchoInterceptor.prototype.intercept = function (req: HttpRequest<any>, next: Htt
   }
 
   return next.handle(req);
-}
+}*/
 
 export function createCompiler(compilerFactory: CompilerFactory) {
   return compilerFactory.createCompiler();
@@ -344,14 +376,6 @@ function appInitializer(authService: AuthService) {
     BrowserModule,
     MaterialModule,
     FormsModule,
-    NgxLaravelEchoModule.forRoot({
-      userModel: 'users',
-      notificationNamespace: 'App\\Notifications',
-      options: {
-        broadcaster: 'socket.io',
-        host: environment.EVENT_DISPATCHER_SERVICE,
-      }
-    }),
     JwtModule.forRoot({
       config: {
         tokenGetter: function () {
@@ -370,12 +394,7 @@ function appInitializer(authService: AuthService) {
     NgxDropzoneModule,
     GravatarModule.forRoot(gravatarConfig),
     AvatarModule,
-    ServiceWorkerModule.register('editor-service-worker.js', {
-      enabled: environment.production,
-      // Register the ServiceWorker as soon as the app is stables
-      // or after 30 seconds (whichever comes first).
-      registrationStrategy: 'registerWhenStable:30000',
-    }),
+    ServiceWorkerModule.register('editor-service-worker.js'),
     NgxSpinnerModule,
     TranslateModule.forRoot({
       defaultLanguage: 'bg',
@@ -389,8 +408,44 @@ function appInitializer(authService: AuthService) {
   ],
 
   providers: [
-    {provide: 'API_GATEWAY_SERVICE', useValue: environment.apiUrl},
-    {provide: 'AUTH_SERVICE', useValue: environment.authServer},
+    EchoService,
+    {
+      provide: ECHO_CONFIG,
+      deps:[AppConfig],
+      useFactory: (config: AppConfig) => ({
+        userModel: 'users',
+        notificationNamespace: 'App\\Notifications',
+        options: {
+          broadcaster: 'socket.io',
+          host: config.eventDispatcherService,
+        }
+      })
+    },
+    {
+      provide: SwRegistrationOptions,
+      useFactory: (config: AppConfig) => ({
+        enabled: config.production,
+        // Register the ServiceWorker as soon as the app is stables
+        // or after 30 seconds (whichever comes first).
+        registrationStrategy: 'registerWhenStable:30000',
+      }),
+      deps: [AppConfig]
+    },
+    {
+      provide: 'API_GATEWAY_SERVICE',
+      useFactory: (config: AppConfig) => config.apiGatewayService,
+      deps: [AppConfig]
+    },
+    {
+      provide: 'AUTH_SERVICE',
+      useFactory: (config: AppConfig) => config.authService,
+      deps: [AppConfig]
+    },
+    {
+      provide: APP_CONFIG,
+      useFactory: (config: AppConfig) => config,
+      deps: [AppConfig]
+    },
     HasPermissionPipe,
     BoldPipe,
     CookieService,
@@ -428,7 +483,7 @@ function appInitializer(authService: AuthService) {
     },
     STORAGE_PROVIDERS,
     { provide: WindowToken, useFactory: windowProvider },
-    { provide: FormioAppConfig, useValue: AppConfig },
+    { provide: FormioAppConfig, useValue: FormBuilderConfig },
     { provide: COMPILER_OPTIONS, useValue: {}, multi: true },
     {
       provide: CompilerFactory,

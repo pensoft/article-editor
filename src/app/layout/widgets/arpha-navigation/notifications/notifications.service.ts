@@ -1,12 +1,10 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-import { environment } from '@env';
-import { uuidv4 } from 'lib0/random';
 import { EchoService } from 'ngx-laravel-echo';
-import { BehaviorSubject, ReplaySubject } from 'rxjs';
+import { ReplaySubject } from 'rxjs';
 import { map } from 'rxjs/operators';
-const EVENTSURL = environment.apiUrl + '/event-dispatcher'
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
 
 export interface notificationEvent {
   date: number,
@@ -65,7 +63,9 @@ export class NotificationsService {
     private ServiceShare: ServiceShare,
     private http: HttpClient,
     private readonly echoService: EchoService,
+    @Inject(APP_CONFIG) private config: AppConfig,
   ) {
+
     ServiceShare.AuthService.currentUser$.subscribe((user)=>{
 
       const token = ServiceShare.AuthService.getToken();
@@ -88,7 +88,7 @@ export class NotificationsService {
   }
 
   getAllNotifications() {
-    this.http.get(EVENTSURL + '/tasks').pipe(map((data: any[]) => {
+    this.http.get(`${this.config.apiUrl}/event-dispatcher/tasks`).pipe(map((data: any[]) => {
       this.allNotifications
       let oldNotifictions = this.getOldNotificationsIds();
 

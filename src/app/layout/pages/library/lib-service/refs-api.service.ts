@@ -1,14 +1,13 @@
-import { HttpBackend, HttpClient, HttpContext } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { HttpBackend, HttpClient } from '@angular/common/http';
+import { Inject, Injectable } from '@angular/core';
 import { FormGroup } from '@angular/forms';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
-import { environment } from '@env';
-import { uuidv4 } from 'lib0/random';
 import { Observable } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { genereteNewReference } from './refs-funcs';
-const API_URL = environment.apiUrl;
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
+
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +20,8 @@ export class RefsApiService {
     private _http: HttpClient,
     private serviceShare: ServiceShare,
     private ydocService: YdocService,
-    private HttpBackend: HttpBackend
+    private HttpBackend: HttpBackend,
+    @Inject(APP_CONFIG) private config: AppConfig,
     ) {
     this._httpBackend =   new HttpClient(this.HttpBackend)
     serviceShare.shareSelf('RefsApiService',this)
@@ -111,7 +111,7 @@ export class RefsApiService {
   }
 
   getReferenceBackend(id:number){
-    let obs = this._httpBackend.get(API_URL + '/references/items/'+id).pipe(map((data: any) => {
+    let obs = this._httpBackend.get(`${this.config.apiUrl}/references/items/`+id).pipe(map((data: any) => {
       [data.data].forEach(item => {
         if (item.issued && item.issued.hasOwnProperty('date-parts')) {
           item.issued = item.issued['date-parts'].join('-');
@@ -124,7 +124,7 @@ export class RefsApiService {
   }
 
   getReferenceById(id:number,fromcasbin?:true){
-    let obs = this._http.get(API_URL + '/references/items/'+id,fromcasbin?{headers:{
+    let obs = this._http.get(`${this.config.apiUrl}/references/items/${id}`,fromcasbin?{headers:{
       "sendFromCasbin":"true"
     }}:{}).pipe(map((data: any) => {
       [data.data].forEach(item => {
@@ -139,7 +139,7 @@ export class RefsApiService {
   }
 
   getReferences() {
-    let obs = this._http.get(API_URL + '/references/items',{params:{page:1,pageSize:100}}).pipe(map((data: any) => {
+    let obs = this._http.get(`${this.config.apiUrl}/references/items`,{params:{page:1,pageSize:100}}).pipe(map((data: any) => {
       data.data.forEach(item => {
         if (item.issued && item.issued.hasOwnProperty('date-parts')) {
           item.issued = item.issued['date-parts'].join('-');
@@ -158,7 +158,7 @@ export class RefsApiService {
   }
 
   getReferenceTypes() {
-    return this._http.get(API_URL + '/references/definitions').pipe(map((data) => {
+    return this._http.get(`${this.config.apiUrl}/references/definitions`).pipe(map((data) => {
       return {data: this.mapRefTypes(data)}
     }))
     // return this._http.get('https://something/references/types').pipe(map((data) => {
@@ -169,6 +169,7 @@ export class RefsApiService {
   getStyles() {
     /* this._http.get(API_URL+'/references/styles').subscribe((data)=>{
     }) */
+    // TODO: Mincho, please check this! Are we need it?
     return this._http.get('https://something/references/styles1').pipe(map((data) => {
       return data
     }));
@@ -178,7 +179,7 @@ export class RefsApiService {
   createReference(ref: any, formIOData?: any, refType?: any) {
 
     if (formIOData && refType) {
-      return this._http.post(API_URL + '/references/items', {
+      return this._http.post(`${this.config.apiUrl}/references/items`, {
         "title": formIOData.title,
         data: formIOData,
         reference_definition_id: refType.refTypeId
@@ -196,7 +197,7 @@ export class RefsApiService {
         ydocRefs[ref.refData.referenceData.id] = undefined
         this.serviceShare.YdocService.referenceCitationsMap?.set('localRefs',ydocRefs);
       }
-      return this._http.put(API_URL + '/references/items/' + ref.refData.referenceData.id, {
+      return this._http.put(`${this.config.apiUrl}/references/items/` + ref.refData.referenceData.id, {
         "title": formIOData.title,
         data: formIOData,
         reference_definition_id: refType.refTypeId
@@ -205,7 +206,7 @@ export class RefsApiService {
       }));
     } else {
       let observable = new Observable(subscriber => {
-        this._http.get(API_URL + '/references/definitions/' + refType.refTypeId).subscribe((refDefData:any)=>{
+        this._http.get(`${this.config.apiUrl}/references/definitions/${refType.refTypeId}`).subscribe((refDefData:any)=>{
           let def = refDefData.data
 
           let localRef = {
@@ -231,6 +232,6 @@ export class RefsApiService {
       ydocRefs[ref.refData.referenceData.id] = undefined
       this.serviceShare.YdocService.referenceCitationsMap?.set('localRefs',ydocRefs);
     }
-    return this._http.delete(API_URL + '/references/items/' + ref.refData.referenceData.id)
+    return this._http.delete(`${this.config.apiUrl}/references/items/${ref.refData.referenceData.id}`)
   }
 };

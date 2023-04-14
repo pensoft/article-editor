@@ -2,16 +2,16 @@ import {IAuthToken, IUserDetail} from '@core/interfaces/auth.interface';
 import {HttpClient, HttpHeaders, HttpParams} from '@angular/common/http';
 
 import {CONSTANTS} from './constants';
-import {Injectable, OnDestroy} from '@angular/core';
+import { Inject, Injectable, OnDestroy } from '@angular/core';
 import {BehaviorSubject, interval, Observable, of, Subject} from 'rxjs';
-import {NavigationEnd, Router} from '@angular/router';
+import { Router} from '@angular/router';
 import {UserModel} from '@core/models/user.model';
 import {catchError, filter, map, switchMap, takeUntil, tap, timeout} from 'rxjs/operators';
-import { environment } from '@env';
+
 import { JwtHelperService } from '@auth0/angular-jwt';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-const API_AUTH_URL = environment.authUrl;
-const API_URL = environment.apiUrl;
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
+
 export type UserType = UserModel | undefined;
 
 @Injectable({providedIn: 'root'})
@@ -36,6 +36,7 @@ export class AuthService implements OnDestroy {
     private router: Router,
     private sharedService:ServiceShare,
     private jwtHelper: JwtHelperService,
+    @Inject(APP_CONFIG) private config: AppConfig,
   ) {
     this.currentUserSubject = new BehaviorSubject<UserType>(undefined);
     this.currentUser$ = this.currentUserSubject.asObservable();
@@ -45,9 +46,12 @@ export class AuthService implements OnDestroy {
   login(userdetails: IUserDetail) {
     const body = new HttpParams()
       .set(CONSTANTS.USERNAME, userdetails.email)
-      .set(CONSTANTS.PASSWORD, userdetails.password);
+      .set(CONSTANTS.PASSWORD, userdetails.password)
+      .set(CONSTANTS.GRANT_TYPE, CONSTANTS.PASSOWRD_GRANT_TYPE)
+      .set(CONSTANTS.CLIENT_ID, this.config.pgClientId)
+      .set(CONSTANTS.CLIENT_SECRET, this.config.pgClientSecret)
 
-    return this._http.post<IAuthToken>(`${API_AUTH_URL}/token`, body.toString(), {
+    return this._http.post<IAuthToken>(`${this.config.authUrl}/token`, body.toString(), {
       headers: this.headers,
       /* observe:'response',
       responseType:'json' */
@@ -71,7 +75,7 @@ export class AuthService implements OnDestroy {
       .set(CONSTANTS.NAME, userdetails.name || '')
       .set(CONSTANTS.PASSWORD, userdetails.password);
 
-    return this._http.post<IAuthToken>(`${API_AUTH_URL}/signup`, body.toString(), {
+    return this._http.post<IAuthToken>(`${this.config.authUrl}/signup`, body.toString(), {
       headers: this.headers,
 
     }).pipe(
@@ -92,7 +96,7 @@ export class AuthService implements OnDestroy {
   }
 
   invalidateToken() {
-    this._http.post(`${API_AUTH_URL}/logout`, {}, {headers: this.headers})
+    this._http.post(`${this.config.authUrl}/logout`, {}, {headers: this.headers})
       .pipe(takeUntil(this.unsubscribe$))
       .subscribe({
         complete: () => {
@@ -124,7 +128,13 @@ export class AuthService implements OnDestroy {
 
   refreshToken() {
     const refreshToken = this.getToken('refreshToken');
-    return this._http.post<any>(`${API_AUTH_URL}/refresh-token`, {'refresh_token': refreshToken})
+    const body = new HttpParams()
+      .set(CONSTANTS.REFRESH_TOKEN_GRANT_TYPE, refreshToken)
+      .set(CONSTANTS.GRANT_TYPE, CONSTANTS.REFRESH_TOKEN_GRANT_TYPE)
+      .set(CONSTANTS.CLIENT_ID, this.config.pgClientId)
+      .set(CONSTANTS.CLIENT_SECRET, this.config.pgClientSecret);
+
+    return this._http.post<any>(`${this.config.authUrl}/refresh-token`, body.toString())
       .pipe(
         map(({access_token: token, refresh_token: refreshToken}) =>
           ({
@@ -135,7 +145,7 @@ export class AuthService implements OnDestroy {
   }
 
   forgotPassword(email: string): Observable<boolean> {
-    return this._http.post<boolean>(`${API_AUTH_URL}/forgot-password`, {
+    return this._http.post<boolean>(`${this.config.authUrl}/forgot-password`, {
       email,
     });
   }
@@ -152,7 +162,7 @@ export class AuthService implements OnDestroy {
 
     this.storeToken(auth);
 
-    return this._http.get<any>(`${API_AUTH_URL}/me`)
+    return this._http.get<any>(`${this.config.authUrl}/me`)
       .pipe(
         map((user) => {
           if (user) {
@@ -164,39 +174,7 @@ export class AuthService implements OnDestroy {
           this.setGlobalStylesForUser(user);
           return user;
         }),
-
       )
-
-    /*let getInfo = (token = null)=>{
-      const auth = token || this.getToken();
-      if(token){
-        this.storeToken(token['access_token']);
-        this.storeToken(token['refresh_token'], 'refreshToken');
-      }
-      if (!auth) {
-        return of(undefined);
-      }
-      if(this.userInfo){
-                //this.sharedService.EnforcerService.policiesChangeSubject.next(this.userInfo);
-        return of(this.userInfo)
-      }else{
-      }
-        return this._http.get<any>(`${API_AUTH_URL}/me`)
-          .pipe(
-            map((user) => {
-              if (user) {
-                this.userInfo = user;
-                this.currentUserSubject.next(user.data);
-                this.sharedService.EnforcerService.policiesChangeSubject.next(user);
-              } else {
-                this.logout();
-              }
-              return user;
-            }),
-          )
-    }
-
-    return getInfo(token).pipe(tap(this.setGlobalStylesForUser));*/
   }
 
   userGlobalStyle?:HTMLStyleElement

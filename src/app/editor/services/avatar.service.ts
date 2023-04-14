@@ -1,19 +1,18 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Inject, Injectable } from '@angular/core';
 import { IUserAvatar } from '@app/core/interfaces/avatar.interface';
 import { Observable } from 'rxjs';
-import { environment } from '@env';
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
 
-const API_AUTH_USERS = environment.apiUrl+`/users`;
 @Injectable({
   providedIn: 'root'
 })
 export class AvatarService {
 
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, @Inject(APP_CONFIG) private config: AppConfig,) { }
 
   public getInfoByUser(id: string, email: string): Observable<IUserAvatar> {
-    return this.http.get<IUserAvatar>(`${API_AUTH_USERS}`)
+    return this.http.get<IUserAvatar>(`${this.config.apiUrl}/users`)
   }
 }
