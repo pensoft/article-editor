@@ -188,9 +188,8 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
 
     }else{
       this.formIoSubmission = change.data
-      this.isValid = !!change.data?.tableHeader?.length &&
-        !!change.data?.tableContent?.length &&
-        !!change.data?.tableFooter?.length
+      this.isValid = !!change.data?.tableHeader?.length && !!change.data?.tableContent?.length;
+
       if(change.changed&&change.changed.instance){
         this.formIoRoot = change.changed.instance.root
       }
