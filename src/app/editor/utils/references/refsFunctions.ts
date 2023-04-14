@@ -62,7 +62,7 @@ const mappingObj: any = {
         formioobj['issued'] = val.split('-')[0];
     })` },
   },
-  "publishedIn": { type: 'string', cslProp: 'city', formIOprop: "city" },
+  "publishedIn": { type: 'string', cslProp: 'container-title', formIOprop: "container-title" },
   "firstauthor": {
     type: ['string[][]'],
     cslProp: {
@@ -200,7 +200,6 @@ const mappingObj: any = {
     })` },
   },
   "related": undefined,
-  "source":  { type: ['string'], cslProp: "container-title", formIOprop: "container-title" },
   "issue": { type: 'string', cslProp: 'issue', formIOprop: "issue" },
 }
 export function mapRef1(ref: any) {
@@ -378,7 +377,7 @@ export function mapRef1(ref: any) {
 
 //   return { ref: maped, formIOData }
 // }
-export let mapExternalRefs = (data1: string) => {
+export let mapExternalRefs = (data1: string) => {    
   let stringArray = data1.split('][').map((val, i) => {
     let newVal = val;
     if (!newVal.startsWith('[')) {

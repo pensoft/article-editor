@@ -267,12 +267,14 @@ export class YdocService {
     let supplementaryFilesInitialTemplate = this.supplementaryFilesMap!.get('supplementaryFilesInitialTemplate');
     let supplementaryFilesInitialFormIOJson = this.supplementaryFilesMap!.get('supplementaryFilesInitialFormIOJson');
     let supplementaryFilesNumbers = this.supplementaryFilesMap.get('supplementaryFilesNumbers');
+    let citedSupplementaryFiles = this.supplementaryFilesMap.get('citedSupplementaryFiles');
 
     let endNotes = this.endNotesMap.get('endNotes');
     let endNotesNumbers = this.endNotesMap.get('endNotesNumbers');
     let endNotesInitialTemplate = this.endNotesMap!.get('endNotesInitialTemplate');
     let endNotesInitialFormIOJson = this.endNotesMap!.get('endNotesInitialFormIOJson');
     let endNotesTemplates = this.endNotesMap.get('endNotesTemplates');
+    let endNotesCitations = this.endNotesMap.get('endNotesCitations');
 
     this.usersDataMap = this.ydoc.getMap('userDataMap')
     this.mathMap = this.ydoc.getMap('mathDataURLMap');
@@ -287,6 +289,8 @@ export class YdocService {
     let externalRefs = this.referenceCitationsMap?.get('externalRefs');
     let localRefs = this.referenceCitationsMap?.get('localRefs');
     let refsAddedToArticle = this.referenceCitationsMap?.get('refsAddedToArticle');
+    let citedRefsInArticle = this.referenceCitationsMap.get('citedRefsInArticle')
+
     let customPropsObj = this.customSectionProps?.get('customPropsObj');
     let elementsCitations = this.citableElementsMap?.get('elementsCitations');
 
@@ -384,6 +388,9 @@ export class YdocService {
     if (!endNotesTemplates) {
       this.endNotesMap.set('endNotesTemplates', {})
     }
+    if(!endNotesCitations) {
+      this.endNotesMap.set('endNotesCitations', {});
+    }
     if (!supplementaryFilesTemplates) {
       this.supplementaryFilesMap.set('supplementaryFilesTemplates', {})
     }
@@ -401,6 +408,9 @@ export class YdocService {
     }
     if (!supplementaryFilesNumbers) {
       this.supplementaryFilesMap?.set('supplementaryFilesNumbers', [])
+    }
+    if(!citedSupplementaryFiles) {
+      this.supplementaryFilesMap?.set('citedSupplementaryFiles', {});
     }
     if (!menusAndSchemasDefs) {
       let layoutMenusAndAllowedTagsSettings: any = { menus: {}, schemas: {} }
@@ -432,6 +442,9 @@ export class YdocService {
     }
     if (!referencesInEditor) {
       this.referenceCitationsMap?.set('referencesInEditor', {})
+    }
+    if (!citedRefsInArticle) {
+      this.referenceCitationsMap.set('citedRefsInArticle', {})
     }
     if (!usersColors) {
       this.usersDataMap.set('usersColors', {});

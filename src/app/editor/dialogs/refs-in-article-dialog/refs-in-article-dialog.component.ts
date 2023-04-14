@@ -215,7 +215,15 @@ export class RefsInArticleDialogComponent implements OnDestroy {
             if (this.deletedRefsIds.includes(refId)) {
               this.deletedRefsIds = this.deletedRefsIds.filter(id => id != refId);
             }
-            this.passRefsToSubject()
+            let newRefs = this.getRefsForCurrEditSession();
+            newRefs = this.serviceShare.CslService.sortCitations(newRefs);
+            this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
+
+            setTimeout(()=>{
+              this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
+            },100)  
+            
+            this.passRefsToSubject();
           }
         })
       })

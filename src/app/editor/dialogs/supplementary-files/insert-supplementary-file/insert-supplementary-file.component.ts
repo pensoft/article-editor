@@ -22,6 +22,7 @@ export class InsertSupplementaryFileComponent implements AfterViewInit {
   supplementaryFilesNumbers?: string[]
   supplementaryFiles: { [key: string]: supplementaryFile }
   selectedSupplementaryFiles: boolean[] = []
+  selected = [];
   citats: any
 
   constructor(
@@ -31,13 +32,16 @@ export class InsertSupplementaryFileComponent implements AfterViewInit {
     private citableElementsService:CitableElementsService,
     public dialog: MatDialog,
     private prosemirrorEditorsService: ProsemirrorEditorsService,
-    @Inject(MAT_DIALOG_DATA) public data: { view: EditorView, citatData: any,sectionID:string }
+    @Inject(MAT_DIALOG_DATA) public data: { view: EditorView, citatData: any,sectionID:string, isEdit: boolean }
   ) {
     this.supplementaryFilesNumbers = this.ydocService.supplementaryFilesMap?.get('supplementaryFilesNumbers')
     this.supplementaryFiles = this.ydocService.supplementaryFilesMap?.get('supplementaryFiles')
     this.citats = this.ydocService.citableElementsMap?.get('elementsCitations')
     Object.keys(this.supplementaryFiles).forEach((supplementaryFileId, i) => {
       this.selectedSupplementaryFiles[i] = false;
+      if(this.data.citatData?.citated_elements.includes(supplementaryFileId)) {
+        this.selected.push(supplementaryFileId);
+      }
     })
   }
 
@@ -46,6 +50,11 @@ export class InsertSupplementaryFileComponent implements AfterViewInit {
   }
 
   setSelection(checked: boolean, supplementaryFileID: string, supplementaryFileIndex: number) {
+    if(checked) {
+      this.selected.push(supplementaryFileID);
+    } else {
+      this.selected =  this.selected.filter(id => id !== supplementaryFileID);
+    }
     this.selectedSupplementaryFiles[supplementaryFileIndex] = checked
   }
 
@@ -122,7 +131,7 @@ export class InsertSupplementaryFileComponent implements AfterViewInit {
           sectionID = this.data.sectionID;
         }
         this.citableElementsService.citateSupplementaryFile(this.selectedSupplementaryFiles, sectionID,this.data.citatData);
-        this.dialogRef.close()
+        this.dialogRef.close({isEdit: this.data.isEdit});
       }
     }
     catch (e) {

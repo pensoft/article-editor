@@ -39,6 +39,7 @@ export class FiguresDialogComponent implements AfterViewInit {
 
   drop(event: CdkDragDrop<string[]>) {
     moveItemInArray(this.figuresNumbers!, event.previousIndex, event.currentIndex);
+    this.serviceShare.CitableElementsService.writeElementDataGlobal(this.figures!, this.figuresNumbers, 'citation');
   }
 
 

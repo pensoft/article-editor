@@ -8,7 +8,7 @@
       [ngClass]="{'component-image':component.componentType == 'image','component-video':component.componentType == 'video'}"
       *ngFor="let component of figure.components | slice:0:3">
       <div *ngIf="component.componentType == 'image'">
-          <img src='{{component.url}}' alt="{{figure.description}}"/>
+          <img src='{{component.url}}' alt="{{component.componentType}}"/>
       </div>
       <div *ngIf="component.componentType == 'video'">
         <div class="video-thumb">
