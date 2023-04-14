@@ -1,5 +1,6 @@
-import { Component, OnInit } from '@angular/core';
-import { environment } from '@env';
+import { Component, Inject, OnInit } from '@angular/core';
+import Packages from '../../../../../package.json';
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
 
 @Component({
   selector: 'app-landing',
@@ -7,15 +8,14 @@ import { environment } from '@env';
   styleUrls: ['./landing.component.scss']
 })
 export class LandingComponent implements OnInit {
-  version = environment.VERSION;
-  build_number = environment.BUILD_NUMBER;
+  version = `${Packages.version}`;
 
-  constructor() { }
+  constructor(@Inject(APP_CONFIG) private config: AppConfig,) { }
 
   ngOnInit(): void {
   }
 
   goToRegister() {
-    window.location.href = `${environment.authServer}/register?return_uri=${encodeURIComponent(window.location.href)}`
+    window.location.href = `${this.config.authService}/register?return_uri=${encodeURIComponent(window.location.href)}`
   }
 }

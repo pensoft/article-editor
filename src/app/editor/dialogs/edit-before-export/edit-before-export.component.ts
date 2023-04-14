@@ -23,8 +23,8 @@ import { EditorView } from 'prosemirror-view';
 
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { uuidv4 } from 'lib0/random';
-import { environment } from '@env';
-const API_URL = environment.apiUrl;
+import { AppConfig } from '@app/core/services/app-config';
+import { APP_CONFIG } from '@core/services/app-config';
 
 pdfMake.vfs = vfs;
 
@@ -200,7 +200,8 @@ export class EditBeforeExportComponent implements AfterViewInit {
     private http: HttpClient,
     private serviceShare: ServiceShare,
     private ydocService: YdocService,
-    private prosemirrorEditorsService: ProsemirrorEditorsService
+    private prosemirrorEditorsService: ProsemirrorEditorsService,
+    @Inject(APP_CONFIG) private config: AppConfig,
   ) {
     this.data = data;
   }
@@ -229,7 +230,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     if(!settings) {
       settings = this.pdfSettingsSave;
     }
-    
+
     this.ydocService.printMap!.set('pdfPrintSettings',settings);
     if(Object.keys(settings).length == 0 ){
     }else{
@@ -471,6 +472,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
   renderPdf(){
     let headerPmNodesJson = this.headerPmContainer.editorView.state.doc.toJSON();
     let footerPmNodesJson = this.footerPmContainer.editorView.state.doc.toJSON();
+
     let pdfSettings: any = this.fillSettings()
     let articleId = this.ydocService.articleData.uuid;
     //https://ps-article-storage.dev.scalewest.com/api/article/dfc43b3b-4700-4234-b398-bd9bec17db0d
@@ -488,7 +490,7 @@ export class EditBeforeExportComponent implements AfterViewInit {
     /* this.http.post(environment.print_pdf+'/'+articleId+'/pdf/export',articleData).subscribe((data)=>{
       console.log('response for pdf render ',data);
     }) */
-    this.http.post(`${API_URL}/articles/items/`+articleId+'/pdf/export',articleData).subscribe((data)=>{
+    this.http.post(`${this.config.apiUrl}/articles/items/`+articleId+'/pdf/export',articleData).subscribe((data)=>{
       console.log('pdf',data);
     })
     /* http://127.0.0.1:3003 */

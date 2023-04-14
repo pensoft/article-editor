@@ -1,17 +1,16 @@
 import {ServiceShare} from "@app/editor/services/service-share.service";
 import { CiToTypes } from "@app/layout/pages/library/lib-service/editors-refs-manager.service";
-import {bigJatsFile} from "./jatsFile";
 import {saveAs} from 'file-saver';
 import {create} from 'xmlbuilder2';
-import {D, I} from "@angular/cdk/keycodes";
-import {DOMParser, DOMSerializer, Node} from "prosemirror-model";
+import {DOMParser } from "prosemirror-model";
 import {XMLBuilder} from "xmlbuilder2/lib/interfaces";
 import {articleSection} from "@app/editor/utils/interfaces/articleSection";
 import {EditorView} from "prosemirror-view";
 import {schema} from "@app/editor/utils/Schema";
-import {environment} from "@env";
 import { uuidv4 } from "lib0/random";
 import moment from "moment";
+import { APP_CONFIG } from '@core/services/app-config';
+import { inject } from "@angular/core";
 
 let figIdsG: any;
 let refIdsG: any;
@@ -34,7 +33,9 @@ interface IOptions {
 }
 
 export function exportAsJatsXML(serviceShare: ServiceShare) {
-  serviceShare.ProsemirrorEditorsService.spinSpinner()
+  serviceShare.ProsemirrorEditorsService.spinSpinner();
+  const config = inject(APP_CONFIG);
+
   let figObj = serviceShare.YdocService.figuresMap.get('ArticleFigures')
   let figIds: { [key: string]: string } = {}
   let figCount = 0
@@ -172,7 +173,7 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   /*          */
   let titleGroup = article_meta.ele('title-group')
     /*          */
-  
+
   let contribGroup = article_meta.ele('contrib-group', {"content-type": "authors"})
 
   let collaborators = serviceShare.YdocService.collaborators.get('collaborators').collaborators
@@ -326,13 +327,13 @@ export function exportAsJatsXML(serviceShare: ServiceShare) {
   const kwdGroup = article_meta.ele('kwd-group');
   const fundingGroup = article_meta.ele("funding-group");
 
-  
+
   /**/
   let body = article.ele("body")
   let notes = front.ele('notes')
   let back = article.ele('back')
 
-  
+
 const options: IOptions = { refObj, articleMeta: article_meta, titleGroup, notes, back, body, abstractContainer, kwdGroup, fundingGroup }
   // create all article sections
 serviceShare.TreeService.articleSectionsStructure.forEach((sec) => {
@@ -340,7 +341,7 @@ serviceShare.TreeService.articleSectionsStructure.forEach((sec) => {
     let container = serviceShare.ProsemirrorEditorsService.editorContainers[secId]
     let secview = container?.editorView;
 
-    parseSection(secview, body, serviceShare, sec, options) 
+    parseSection(secview, body, serviceShare, sec, options)
 })
 
 let counts = article_meta.ele('counts'); // number of refs,figs,tables in the article
@@ -597,13 +598,14 @@ let countsRef = counts.ele('ref-count', {"count": "" + refCount})
 
   const formData = new FormData();
   formData.append("file", file);//https://ps-jats.dev.scalewest.com/validate/xml
-  serviceShare.httpClient.post(environment.validate_jats, formData).subscribe((data:{valid:boolean,errors:any[]}) => {
+
+  serviceShare.httpClient.post(`${config.validateJats}/validate/xml`, formData).subscribe((data:{valid:boolean,errors:any[]}) => {
     serviceShare.ProsemirrorEditorsService.stopSpinner()
     if(data.valid){
       serviceShare.openSnackBar('Valid JATS xml has been generated.','Save JATS xml',()=>{
         saveAs(blob, "save.xml");
       },5);
-      
+
     }else{
       serviceShare.openSnackBar('The generated JATS xml is not valid. You can view errors in notifications','Save JATS xml',()=>{
         saveAs(blob, "save.xml");
@@ -674,7 +676,7 @@ function customNodesParser(sec: articleSection, secview: EditorView, serviceShar
     }
   }
 
-} 
+}
 
 
 function parseMaterial(material: articleSection, matList: XMLBuilder, serviceShare: ServiceShare) {
@@ -862,7 +864,7 @@ function parseSection(view: EditorView | undefined, container: XMLBuilder, servi
       section.children.forEach((child, i) => {
         let chId = child.sectionID;
         let view = serviceShare.ProsemirrorEditorsService.editorContainers[chId] ? serviceShare.ProsemirrorEditorsService.editorContainers[chId].editorView : undefined;
-    
+
         if(section.children.length - 1 == i && secXml.first().node.nodeName == "title" && secXml.last().node.nodeName == "title") {
           secXml.remove();
         }
@@ -923,7 +925,7 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
     }
     shouldSkipNextBlockElements = true;
   } else if (node.type == 'text' && (!node.marks || node.marks.length == 0)) {
-    
+
     if (options?.keywordGroup && !options?.keywordLabel) {
       const keywords = node.text.split(/[,\s]/).map(keyword => keyword.trim());
       keywords.forEach(keyword => keyword ? xmlPar.ele('kwd').txt(keyword) : undefined)
@@ -933,7 +935,7 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
     xmlPar.txt(node.text);
     return;
   } else if (node.type == 'text' && node.marks && node.marks.length > 0) {
-    
+
       processPmMarkAsXML(node, xmlPar, before, options)
 
     return;
@@ -945,7 +947,7 @@ let processPmNodeAsXML  = function(node: any, xmlPar: XMLBuilder, before: string
         return
       }
       let actualRef = options.refObj[x];
-      let rid = refIdsG[x];      
+      let rid = refIdsG[x];
       let refTxt = actualRef.citation.data[+node.attrs.citationStyle].text;
       let xrefAttr = {
         "ref-type": "bibr",

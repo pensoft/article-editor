@@ -1,4 +1,3 @@
-import { environment } from '../../../../../environments/environment';
 
 export const collectionData = {
     'title': 'Collection Data',
@@ -52,7 +51,7 @@ export const collectionData = {
 
 let collectionDataDF
 
-if(!environment.production){
+/*if(!environment.production){
     collectionDataDF = {// form group structure for the section
         "collectionName": "<p align=\"set-align-left\" class=\"set-align-left\">dqwewewewewewewewewewewewewewewewewewewewewewewewewewewewewd</p>",
         "collectionIdentifier": "<p align=\"set-align-left\" class=\"set-align-left\">WWweweweweweweweweweweweweweweweweweweweweweweweweweweweweWW</p>",
@@ -60,7 +59,7 @@ if(!environment.production){
         "specimenPreservationMethod": "<p align=\"set-align-left\" class=\"set-align-left\">vbvbvbwewewewewewewewewewewewewewewewewewewewewewewewewewewewevb</p>",
         "curatorialUnit": "<p align=\"set-align-left\" class=\"set-align-left\">eqweqdqwwewewewewewewewewewewewewewewewewewewewewewewewewewewewedqwd</p>",
     }
-}else{
+}else{*/
     collectionDataDF = {// form group structure for the section
         "collectionName": "",
         "collectionIdentifier": "",
@@ -68,6 +67,6 @@ if(!environment.production){
         "specimenPreservationMethod": "",
         "curatorialUnit": "",
     }
-}
+//}
 
 export const collectionDataDefaultValues = collectionDataDF

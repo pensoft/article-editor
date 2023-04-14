@@ -1,5 +1,5 @@
 <dropzone *ngIf="shouldRender"
-  [config]="config"
+  [config]="dzConfig"
   [message]="'<span class=\'title\'>Drag and Drop Files to upload</span><span class=\'or\'>or</span><a class=\'mat-flat-button mat-button-base mat-primary\'><span class=\'plus-icon\'>+</span> Select Files to Upload</a>'"
   (sending)="onSending($event)"
   (addedFile)="onAddFile($event)"

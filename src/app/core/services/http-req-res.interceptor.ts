@@ -8,14 +8,13 @@ import {
 } from '@angular/common/http';
 
 import { Inject, Injectable } from '@angular/core';
-import { IAuthToken } from '@core/interfaces/auth.interface';
 import { BehaviorSubject, Observable, throwError } from 'rxjs';
 import { catchError, filter, finalize, map, switchMap, take, tap } from 'rxjs/operators';
 import { AuthService } from './auth.service';
 import { BroadcasterService } from './broadcaster.service';
 import { CONSTANTS } from './constants';
-import { environment } from '@env';
 import { mapExternalRefs } from '@app/editor/utils/references/refsFunctions';
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
 
 @Injectable()
 export class HTTPReqResInterceptor implements HttpInterceptor {
@@ -25,6 +24,7 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
   constructor(
     @Inject('API_GATEWAY_SERVICE') private _apiGatewayService: string,
     @Inject('AUTH_SERVICE') private _authService: string,
+    @Inject(APP_CONFIG) private config: AppConfig,
     private _authservice: AuthService,
     private _broadcaster: BroadcasterService,
   ) {
@@ -36,7 +36,7 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
     let endpoint = req.url;
     let newReq = req.clone({
       url: endpoint,
-      headers: req.headers.set('Accept', `application/vnd.article-backoffice-api.v${environment.VERSION}+json`),
+      headers: req.headers.set('Accept', `application/vnd.article-backoffice-api.v${this.config.articleApiVersion}+json`),
     });
 
     const token = this._authservice.getToken();
@@ -50,7 +50,7 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
         if (x instanceof HttpResponse) {
           if (
             x.url?.includes('http://localhost:4200/find') ||
-            x.url?.includes('https://refindit.org/find')
+            x.url?.includes(this.config.externalRefsApi)
           ) {
             return x.clone({body: mapExternalRefs(x.body)})
           }
@@ -84,40 +84,6 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
     }
     return throwError(err);
   }
-
-  /*intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    let returnNextHandleReq = (reqToReturn)=>{
-      return next.handle(reqToReturn).pipe(map((x) => {
-        if (x instanceof HttpResponse) {
-          if (
-            x.url?.includes('http://localhost:4200/find') ||
-            x.url?.includes('https://refindit.org/find')
-          ) {
-            return x.clone({body: mapExternalRefs(x.body)})
-          }
-        }
-        return x
-      }));
-    }
-    if (req.url.indexOf('token') > -1 || req.url.indexOf('refresh-token') > -1) {
-      return returnNextHandleReq(req);
-    }
-    let newReq = req.clone();
-    const token = this._authservice.getToken();
-    let expired = this._authservice.isTokenExpired(token)
-    if (!expired) {
-      newReq = this.addToken(newReq, token)
-      return returnNextHandleReq(newReq);
-    } else {
-      return this._authservice.refreshToken().pipe(
-        switchMap(({access_token: token, refresh_token: refreshToken}: any) => {
-          this._authservice.storeToken('token', token);
-          this._authservice.storeToken('refresh_token', refreshToken);
-          return returnNextHandleReq(this.addToken(newReq, token));
-        })
-      )
-    }
-  }*/
 
   addToken(request: HttpRequest<any>, newToken: string) {
     return request.clone({

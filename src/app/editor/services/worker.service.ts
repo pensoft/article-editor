@@ -1,7 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { ServiceShare } from './service-share.service';
-import { environment } from '@env';
 import { HttpClient } from '@angular/common/http';
 
 @Injectable({

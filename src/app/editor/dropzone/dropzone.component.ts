@@ -1,9 +1,9 @@
 import { AfterViewInit, ChangeDetectorRef, Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
 import { AuthService } from '@app/core/services/auth.service';
 import { CONSTANTS } from '@app/core/services/constants';
-import { environment } from '@env';
 import { DropzoneConfigInterface } from 'ngx-dropzone-wrapper';
 import { ServiceShare } from '../services/service-share.service';
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
 
 @Component({
   selector: 'app-dropzone',
@@ -16,7 +16,7 @@ export class DropzoneComponent implements AfterViewInit {
   @Input() disabled:boolean = false;
   shouldRender = false;
   private token = this._authservice.getToken();
-  public config: DropzoneConfigInterface = {
+  public dzConfig: DropzoneConfigInterface = {
     chunking: true,
     forceChunking: false,
     autoProcessQueue: true,
@@ -32,7 +32,7 @@ export class DropzoneComponent implements AfterViewInit {
     createImageThumbnails: false,
     thumbnailWidth: 120,
     thumbnailHeight: 120,
-    url: environment.apiUrl+'/cdn/v1/upload',
+    url: this.config.apiUrl+'/cdn/v1/upload',
     capture:'',
     timeout: 0,
     headers: {
@@ -42,12 +42,13 @@ export class DropzoneComponent implements AfterViewInit {
   constructor(
     private serviceShare:ServiceShare,
     private _authservice: AuthService,
-    private ref:ChangeDetectorRef
+    private ref:ChangeDetectorRef,
+    @Inject(APP_CONFIG) private config: AppConfig,
   ) { }
 
 
   ngAfterViewInit(): void {
-    this.config.acceptedFiles = this.fileType?this.fileType:null
+    this.dzConfig.acceptedFiles = this.fileType?this.fileType:null
     this.shouldRender = true;
     this.ref.detectChanges()
   }

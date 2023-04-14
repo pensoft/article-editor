@@ -1,26 +1,24 @@
-import { Component, Injectable, OnDestroy, OnInit } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 //@ts-ignore
 import * as Y from 'yjs'
+import { Transaction as YTransaction } from 'yjs'
 import { IndexeddbPersistence } from 'y-indexeddb';
 import * as awarenessProtocol from 'y-protocols/awareness.js';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { fromEvent, race } from 'rxjs';
-import { catchError, delay } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { fromEvent, Subject } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { WebsocketProvider } from 'y-websocket'
-import { environment } from 'src/environments/environment'
-import { Subject } from 'rxjs';
 import { ydocData } from '../utils/interfaces/ydocData';
 import { YMap, YMapEvent } from 'yjs/dist/src/internals';
 import { articleSection, editorData, taxonomicCoverageContentData } from '../utils/interfaces/articleSection';
 import { ServiceShare } from './service-share.service';
 import { ArticlesService } from '@app/core/services/articles.service';
-import { Transaction as YTransaction } from 'yjs';
-import { layoutMenuAndSchemaSettings, mapSchemaDef, parseSecFormIOJSONMenuAndSchemaDefs, parseSecHTMLMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
-import { TaxonService } from '../taxons/taxon.service';
-import { CitableElementsSchemasV2Template } from '../utils/section-templates/form-io-json/citableTableJSON';
-import { tablesHtmlTemplate } from '../dialogs/citable-tables-dialog/add-table-dialog/add-table-dialog.component';
-import { supplementaryFileHtmlTemplate } from '../dialogs/supplementary-files/add-supplementary-file/add-supplementary-file.component';
-import { endNoteHtmlTemplate } from '../dialogs/end-notes/add-end-note/add-end-note.component';
+import {
+  mapSchemaDef,
+  parseSecFormIOJSONMenuAndSchemaDefs,
+  parseSecHTMLMenuAndSchemaDefs
+} from '../utils/fieldsMenusAndScemasFns';
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
 
 export interface mainSectionValidations{[pivot_id:string]:{min:number,max:number}}
 
@@ -42,6 +40,7 @@ export class YdocService {
     private http: HttpClient,
     private serviceShare: ServiceShare,
     private articleService: ArticlesService,
+    @Inject(APP_CONFIG) private config: AppConfig
   ) {
     this.serviceShare.shareSelf('YdocService', this)
   }
@@ -586,7 +585,7 @@ export class YdocService {
     }
 
     this.saveCitableElementsSchemas(sections);
-    
+
     let mainSectionValidations:mainSectionValidations = {}
     let fnc = (sec)=>{
       if(sec.pivot_id){
@@ -695,7 +694,7 @@ export class YdocService {
     })
     this.providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
     let buildApp = () => {
-      this.provider = new WebsocketProvider(`wss://${environment.WEBSOCKET_HOST}:${environment.WEBSOCKET_PORT}`, this.roomName, this.ydoc, {
+      this.provider = new WebsocketProvider(`wss://${this.config.websocketHost}:${this.config.websocketPort}`, this.roomName, this.ydoc, {
         connect: true,
         params: {},
         WebSocketPolyfill: WebSocket,
