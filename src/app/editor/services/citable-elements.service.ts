@@ -47,6 +47,7 @@ export let citationElementMap = {
     elementNumberProp : 'supplementary_file_number',
     elementNumbersObj: 'supplementaryFilesNumbers',
     templatesObj: 'supplementaryFilesTemplates',
+    elementCitations: 'citedSupplementaryFiles',
     containerNodeName: 'supplementary_files_nodes_container',
     contextMenuTxt:'supplementary file',
     contextMenuBoxWidth:'230px',
@@ -217,6 +218,7 @@ export let citationElementMap = {
     elementNumberProp : 'end_note_number',
     elementNumbersObj: 'endNotesNumbers',
     templatesObj: 'endNotesTemplates',
+    elementCitations: 'endNotesCitations',
     contextMenuTxt:'end notes',
     contextMenuBoxWidth:'180px',
     containerNodeName: 'end_notes_nodes_container',
@@ -864,6 +866,7 @@ export class CitableElementsService {
       let endNotesMaping = citationElementMap[matkType];
 
       let endNotesNumbers = this.serviceShare.YdocService[endNotesMaping.yjsMap].get(endNotesMaping.elementNumbersObj);
+      let endNotesCitations = this.serviceShare.YdocService[endNotesMaping.yjsMap].get(endNotesMaping.elementCitations);
 
       //check selections
       let insertionView = this.serviceShare.ProsemirrorEditorsService.editorContainers[sectionID].editorView
@@ -897,6 +900,13 @@ export class CitableElementsService {
           citatEndPos,
           Fragment.empty)
         )
+        citatAttrs.citated_elements.forEach(citatId => {
+          if(endNotesCitations[citatId] > 1) {
+            endNotesCitations[citatId]--;
+          } else {
+            delete endNotesCitations[citatId];
+          }
+        })
         this.serviceShare.updateCitableElementsViews();
         return
       }
@@ -937,6 +947,15 @@ export class CitableElementsService {
           , node)
         )
       }
+
+      citatedEndNotesIds.forEach(citatId => {
+        if(!endNotesCitations[citatId]) {
+          endNotesCitations[citatId] = 1;
+        } else {
+          endNotesCitations[citatId]++;
+        }
+      })
+
       this.serviceShare.updateCitableElementsViews();
     } catch (e) {
       console.error(e);
@@ -952,6 +971,7 @@ export class CitableElementsService {
       let supplementaryFileMaping = citationElementMap[matkType];
 
       let supplementaryFileNumbers = this.serviceShare.YdocService[supplementaryFileMaping.yjsMap].get(supplementaryFileMaping.elementNumbersObj);
+      let supplementaryFiles = this.serviceShare.YdocService[supplementaryFileMaping.yjsMap].get(supplementaryFileMaping.elementCitations);
 
       //check selections
       let insertionView = this.serviceShare.ProsemirrorEditorsService.editorContainers[sectionID].editorView
@@ -985,6 +1005,13 @@ export class CitableElementsService {
           citatEndPos,
           Fragment.empty)
         )
+        citatAttrs.citated_elements.forEach(citatId => {
+          if(supplementaryFiles[citatId] > 1) {
+            supplementaryFiles[citatId]--;
+          } else {
+            delete supplementaryFiles[citatId];
+          }
+        })
         this.serviceShare.updateCitableElementsViews();
         return
       }
@@ -1025,6 +1052,14 @@ export class CitableElementsService {
           , node)
         )
       }
+
+      citatedSupplementaryFilesIds.forEach(citatId => {
+        if(!supplementaryFiles[citatId]) {
+          supplementaryFiles[citatId] = 1;
+        } else {
+          supplementaryFiles[citatId]++;
+        }
+      })
       /* this.serviceShare.YjsHistoryService.addUndoItemInformation({
         type: 'table-citation',
         data: {}

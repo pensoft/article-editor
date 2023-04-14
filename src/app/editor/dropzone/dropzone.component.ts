@@ -70,11 +70,11 @@ export class DropzoneComponent implements AfterViewInit {
   onSending(data: any) {
     const formData = data[2];
     let room = this.serviceShare.YdocService.roomName;
-    let userData = this._authservice.userInfo
+    // let userData = this._authservice.userInfo
     formData.append('article_id', room);
-    formData.append('user_id', userData.data.id);
-    formData.append('user_email', userData.data.email);
-    formData.append('user_name', userData.data.name);
+    // formData.append('user_id', userData?.data.id);
+    // formData.append('user_email', userData?.data.email);
+    // formData.append('user_name', userData?.data.name);
   }
 
   onAddFile($event: any) {
