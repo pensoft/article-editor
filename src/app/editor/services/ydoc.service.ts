@@ -9,7 +9,7 @@ import { fromEvent, Subject } from 'rxjs';
 import { delay } from 'rxjs/operators';
 import { WebsocketProvider } from 'y-websocket'
 import { ydocData } from '../utils/interfaces/ydocData';
-import { YMap, YMapEvent } from 'yjs/dist/src/internals';
+import { YMap, YMapEvent, YText } from 'yjs/dist/src/internals';
 import { articleSection, editorData, taxonomicCoverageContentData } from '../utils/interfaces/articleSection';
 import { ServiceShare } from './service-share.service';
 import { ArticlesService } from '@app/core/services/articles.service';
@@ -44,6 +44,7 @@ export class YdocService {
   ) {
     this.serviceShare.shareSelf('YdocService', this)
   }
+  articleTitle?: YText;
   articleStructureFromBackend: any
   articleStructure?: YMap<any>
   articleData: any;
@@ -608,6 +609,8 @@ export class YdocService {
         }
       }
     }
+    this.articleTitle = this.ydoc.getText("articleName");
+
     data.layout.template.sections.forEach(fnc)
     data.mainSectionValidations = mainSectionValidations
     this.articleData = data;
