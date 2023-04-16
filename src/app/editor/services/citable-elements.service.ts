@@ -1060,6 +1060,7 @@ export class CitableElementsService {
           supplementaryFiles[citatId]++;
         }
       })
+      this.serviceShare.YdocService[supplementaryFileMaping.yjsMap].set('citedSupplementaryFiles', supplementaryFiles);
       /* this.serviceShare.YjsHistoryService.addUndoItemInformation({
         type: 'table-citation',
         data: {}
