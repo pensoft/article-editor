@@ -406,8 +406,17 @@ export class ValidationSectionComponent implements OnDestroy {
                       let formGroup = formGroups[sec.sectionID];
                       loopFormGroupChildren(formGroup, (child: FormControl, key: string) => {
                         if (child.status == "INVALID") {
-                          let errorStr = Object.keys(child.errors!).map((error) => { return child.errors![error].message }).join('');
-                          this.articleFormFieldsValidation.push({ fulfilled: false, errorMessage: `${key} in "${sec.title.label}". ${errorStr}` })
+                          let errorStr = Object.keys(child.errors!).map((error) => { return child.errors![error].message }).join(' ');
+                          
+                          if(!errorStr) {
+                            errorStr = 'This field is required!';
+                          }
+                          
+                          if(sec.title.label.match(/<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g)) {
+                           this.articleFormFieldsValidation.push({ fulfilled: false, errorMessage: `Content in "${sec.title.label.replace(/<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g, '')}". ${errorStr} `});
+                          } else {
+                            this.articleFormFieldsValidation.push({ fulfilled: false, errorMessage: `Content in "${sec.title.label}". ${errorStr} `});
+                          }
                         }
                       });
                     }
