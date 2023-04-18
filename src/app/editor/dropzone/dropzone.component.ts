@@ -12,6 +12,7 @@ import { APP_CONFIG, AppConfig } from '@core/services/app-config';
 })
 export class DropzoneComponent implements AfterViewInit {
   @Output() uploaded = new EventEmitter<any>();
+  @Output() removed = new EventEmitter<any>();
   @Input() fileType: "image/*"|"video/*"|null = null;
   @Input() disabled:boolean = false;
   shouldRender = false;
@@ -79,6 +80,9 @@ export class DropzoneComponent implements AfterViewInit {
   }
 
   onAddFile($event: any) {
+  }
+  onRemoveFile(file) {
+    this.removed.emit(file)
   }
 
   errorMsg = undefined

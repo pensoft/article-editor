@@ -53,16 +53,27 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
       this.MediaUrls[this.typeFromControl.value] = url
 
       if(this.typeFromControl.value == 'embedded video'){
+       try {
+        if (url.includes('ps-cdn')) {
+          this.videoUrl = url
+          this.lastSource = 'url'
+          return;
+        }
         const videoHtml = this.embedService.embed(url);
         if (!videoHtml) {
           this.videoUrl = url
-          return;
+          return
         }
         const regex = /src="(.*?)"/;
         const match = regex.exec(videoHtml);
         this.videoUrl = match ? match[1] : '';
+        this.lastSource = 'url'
+        return
+       } catch {
+        this.videoUrl = '';
+        return
+       }
       }
-      this.lastSource = 'url'
     })
 
     this.urlSubscription = this.typeFromControl.valueChanges.subscribe(type => {
@@ -89,8 +100,12 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
 
   setComponentDataIfAny(){
     if(this.data&&this.data.component){
+      if (this.data.component.componentType === 'video' && !this.data.component.url.includes('scalewest.com')) {
+        this.typeFromControl.setValue('embedded video')
+      } else {
+        this.typeFromControl.setValue(this.data.component.componentType)
+      }
       this.urlFormControl.setValue(this.data.component.url)
-      this.typeFromControl.setValue(this.data.component.componentType)
       let descContainer = document.createElement('div');
       descContainer.innerHTML = this.data.component.description;
       let prosemirrorNode = PMDomParser.parse(descContainer);
@@ -211,8 +226,14 @@ export class AddFigureComponentDialogComponent implements OnInit,AfterViewInit,A
     }else if(fileData.collection == 'video'){
       this.urlFormControl.setValue(fileData.base_url);
       this.typeFromControl.setValue('video')
+      this.videoUrl = fileData.base_url
       setData()
     }
+  }
+
+  removeFile(type) {
+    this.MediaUrls[type] = ''
+    this.urlFormControl.setValue(this.MediaUrls[type])
   }
 
   isUrlFormControlValid() : boolean { 
