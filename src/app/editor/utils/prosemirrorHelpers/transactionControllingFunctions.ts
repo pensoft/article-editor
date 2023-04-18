@@ -64,10 +64,12 @@ export const updateControlsAndFigures = (
                   node1.content.forEach((node2) => {
                     if (node2.type.name == 'figure_description') {
                       let figureDescriptionHtml = getHtmlFromFragment(node2.content!)
-                      figure.description = figureDescriptionHtml
-                    } else if (node2.type.name == 'figure_component_description' && node2.childCount >= 2) {
+                      if(figure?.description) {
+                        figure.description = figureDescriptionHtml
+                      }
+                    } else if (figure?.components && node2.type.name == 'figure_component_description' && node2.childCount >= 2) {
                       figure.components[+node2.attrs.component_number].description = getHtmlFromFragment(node2.content.child(1).content)
-                    } else if (node2.type.name == 'figure_component_description' && node.childCount == 1) {
+                    } else if (figure?.components && node2.type.name == 'figure_component_description' && node.childCount == 1) {
                       figure.components[+node2.attrs.component_number].description = getHtmlFromFragment(node2.content.child(0).content)
                     }
                   })
