@@ -956,6 +956,8 @@ export class CitableElementsService {
         }
       })
 
+      this.serviceShare.YdocService[endNotesMaping.yjsMap].set('endNotesCitations', endNotesCitations);
+
       this.serviceShare.updateCitableElementsViews();
     } catch (e) {
       console.error(e);

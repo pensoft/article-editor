@@ -99,9 +99,9 @@ export class LinkPopUpPluginServiceService {
             let cursorLeftCoords = view.coordsAtPos(state.selection.from).left;
             
             if(cursorLeftCoords < 500) {
-              linkPopUp.style.width = "145px";
+              linkPopUp.style.maxWidth = "138px";
             } else if (cursorLeftCoords > 1150) {
-              linkPopUp.style.width = "138px";
+              linkPopUp.style.maxWidth = "138px";
             }
             
 

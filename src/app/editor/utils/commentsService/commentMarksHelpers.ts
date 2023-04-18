@@ -23,3 +23,35 @@ export function checkEditorIfMarkOfCommentExists(view:EditorView,commentId):bool
   })
   return exists
 }
+
+export interface userDataInComment {
+  created_at: string
+  email: string
+  email_verified_at: string
+  id: String
+  name: string
+  userColor:string
+  userContrastColor:string
+  updated_at: string
+}
+
+export interface ydocComment {
+  comment: string
+  date: number
+  id: string
+  userData: userDataInComment
+}
+
+export interface commentYdocSave { commentReplies: ydocComment[], initialComment: ydocComment }
+export interface ydocCommentsObj { [key: string]: commentYdocSave }
+
+export interface commentData {
+  pmDocStartPos: number,
+  pmDocEndPos: number,
+  domTop: number,
+  commentTxt: string,
+  section: string,
+  commentAttrs: any,
+  commentMarkId: string,
+  selected: boolean,
+}

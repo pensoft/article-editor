@@ -1,26 +1,29 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { uuidv4 } from 'lib0/random';
-import { toggleMark } from 'prosemirror-commands';
-import { TextSelection } from 'prosemirror-state';
-import { EditorView } from 'prosemirror-view';
 import { interval, Subject, Subscription } from 'rxjs';
 import { debounce } from 'rxjs/operators';
-import { YMap } from 'yjs/dist/src/internals';
-import { MenuService } from '../services/menu.service';
-import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
-import { YdocService } from '../services/ydoc.service';
-import { commentData, CommentsService, commentYdocSave } from '../utils/commentsService/comments.service';
-import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
-import { isCommentAllowed } from '../utils/menu/menuItems';
+
+import { uuidv4 } from 'lib0/random';
+import { MarkType } from 'prosemirror-model';
+import { EditorState, TextSelection } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
+
 import { getDate } from './comment/comment.component';
+import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
+import { MenuService } from '../services/menu.service';
+import { CommentsService } from '../utils/commentsService/comments.service';
+import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
+import { YdocService } from '../services/ydoc.service';
+import { YMap } from 'yjs/dist/src/internals';
+import { isCommentAllowed } from '../utils/menu/menuItems';
+import { commentData, commentYdocSave } from '../utils/commentsService/commentMarksHelpers';
 
 @Component({
   selector: 'app-comments-section',
   templateUrl: './comments-section.component.html',
   styleUrls: ['./comments-section.component.scss']
 })
-export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestroy {
+export class CommentsSectionComponent implements AfterViewInit, OnDestroy {
 
   commentInputFormControl = new FormControl('')
   addCommentEditorId?: any   // id of the editor where the Comment button was clicked in the menu
@@ -34,17 +37,18 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
   commentsMap?: YMap<any>
   editorView?: EditorView
   userInfo: any
-
+  subjSub = new Subscription();
+  
   @ViewChild('input', { read: ElementRef }) commentInput?: ElementRef;
   @ViewChild('commentsInput', { read: ElementRef }) commentsSearchinput?: ElementRef;
   
   searchForm = new FormControl('');
-
+  
   rendered = 0;
   nOfCommThatShouldBeRendered = 0
-
+  
   addCommentBoxIsAlreadyMoved: boolean;
-
+  
   doneRenderingCommentsSubject: Subject<any> = new Subject()
   newCommentMarkId:string
   constructor(
@@ -104,17 +108,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     } catch (e) {
       console.error(e);
     }
-  }
-
-  subjSub = new Subscription();
-
-  ngOnDestroy(): void {
-    this.subjSub.unsubscribe();
-    (document.getElementsByClassName('editor-container')[0] as HTMLDivElement).removeAllListeners('scroll');
-    (document.getElementsByClassName('comments-wrapper')[0] as HTMLDivElement).removeAllListeners('wheel');
-  }
-
-  ngOnInit() {
   }
 
   splice() {
@@ -612,6 +605,39 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
 
   }
 
+  toggleMark(markType: MarkType, attrs: any) {
+    return function(state: EditorState, dispatch: any) {
+      //@ts-ignore
+      let { ranges } = state.selection;
+      if (dispatch) {
+        let has = false, tr = state.tr, isOverlap = false;
+        for (let i = 0; !has && i < ranges.length; i++) {
+          let {$from, $to} = ranges[i]
+          has = state.doc.rangeHasMark($from.pos, $to.pos, markType)
+        }
+        for (let i = 0; i < ranges.length; i++) {
+          let {$from, $to} = ranges[i];
+          if (has) {
+            isOverlap = true
+            let from = $from.pos, to = $to.pos, start = $from.nodeAfter, end = $to.nodeBefore;
+            let spaceStart = start && start.isText ? /^\s*/.exec(start.text)[0].length : 0;
+            let spaceEnd = end && end.isText ? /\s*$/.exec(end.text)[0].length : 0;
+            if (from + spaceStart < to) { from += spaceStart; to -= spaceEnd };
+            tr.addMark(from, to, state.schema.marks['overlapComment'].create(attrs));
+          } else {
+            let from = $from.pos, to = $to.pos, start = $from.nodeAfter, end = $to.nodeBefore;
+            let spaceStart = start && start.isText ? /^\s*/.exec(start.text)[0].length : 0;
+            let spaceEnd = end && end.isText ? /\s*$/.exec(end.text)[0].length : 0;
+            if (from + spaceStart < to) { from += spaceStart; to -= spaceEnd };
+            tr.addMark(from, to, markType.create(attrs));
+          }
+        }
+        dispatch(tr.scrollIntoView());
+        return isOverlap;
+      }
+    }
+  }
+
   cancelBtnHandle() {
     let sectionName = this.addCommentEditorId;
     if(this.commentInput && this.commentInput.nativeElement){
@@ -639,7 +665,8 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     let dispatch = this.editorView?.dispatch
     let from = state.selection.from
     let to = state.selection.to
-    toggleMark(state!.schema.marks.comment, {
+
+    const isOverlap = this.toggleMark(state!.schema.marks.comment, {
       id: commentId,
       date: commentDate,
       commentmarkid,
@@ -654,18 +681,22 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     this.preventRerenderUntilCommentAdd.bool = true
     this.preventRerenderUntilCommentAdd.id = commentId
     setTimeout(() => {
-      this.prosemirrorEditorsService.dispatchEmptyTransaction()
       this.editorView.focus()
-      this.editorView.dispatch(this.editorView.state.tr.setSelection(new TextSelection(this.editorView.state.doc.resolve(from), this.editorView.state.doc.resolve(from))))
+      if(isOverlap) {
+        this.editorView.dispatch(this.editorView.state.tr.setSelection(new TextSelection(this.editorView.state.doc.resolve(to - 5), this.editorView.state.doc.resolve(to - 5))));
+      } else {
+        this.editorView.dispatch(this.editorView.state.tr.setSelection(new TextSelection(this.editorView.state.doc.resolve(from), this.editorView.state.doc.resolve(from))));
+      }
       input.value = ''
+
       setTimeout(() => {
         let pluginData = this.commentsService.commentPluginKey.getState(this.editorView.state)
         let sectionName = pluginData.sectionName
         this.commentsService.getCommentsInAllEditors()
+
         setTimeout(() => {
           this.commentsService.setLastSelectedComment(commentId, from, sectionName, commentmarkid, true)
         }, 300)
-        //this.prosemirrorEditorsService.dispatchEmptyTransaction()
       }, 20)
     }, 20)
   }
@@ -1001,4 +1032,9 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     }
   }
 
+  ngOnDestroy(): void {
+    this.subjSub.unsubscribe();
+    (document.getElementsByClassName('editor-container')[0] as HTMLDivElement).removeAllListeners('scroll');
+    (document.getElementsByClassName('comments-wrapper')[0] as HTMLDivElement).removeAllListeners('wheel');
+  }
 }
