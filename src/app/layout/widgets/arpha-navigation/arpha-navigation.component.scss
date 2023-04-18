@@ -15,6 +15,14 @@
   float: right;
   margin-right: 10px;
   margin-left: auto;
+
+  .btn-start-new-project {
+    ::ng-deep {
+      .mat-button-focus-overlay {
+        display: none !important;
+      }
+    }
+  }
 }
 
 .notifications-component {
