@@ -167,6 +167,7 @@ export class AuthService implements OnDestroy {
         map((user) => {
           if (user) {
             this.currentUserSubject.next(user.data);
+            this.userInfo = user
             /*this.sharedService.EnforcerService?.policiesChangeSubject.next(user);*/
           } else {
             this.logout();

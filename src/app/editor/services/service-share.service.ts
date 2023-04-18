@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
@@ -38,6 +38,7 @@ import { CitationButtonsService } from '../utils/citation-buttons/citation-butto
 import { catchError, mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { createDemoTemplate } from '../utils/serverErrorWorkAround';
+import { AppConfig, APP_CONFIG } from '@app/core/services/app-config';
 @Injectable({
   providedIn: 'root'
 })
@@ -76,7 +77,8 @@ export class ServiceShare {
     public dialog: MatDialog,
     private router: Router,
     public httpClient:HttpClient,
-    private _snackBar: MatSnackBar
+    private _snackBar: MatSnackBar,
+    @Inject(APP_CONFIG) public config: AppConfig,
     ) {
 
   }

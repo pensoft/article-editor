@@ -13,18 +13,31 @@
       flex-shrink: 0;
       margin-right: auto;
 
-      .active {
-        color: var(--color-00b1b2) !important;
-        font-weight: bold;
-         ::ng-deep {
-          .b {
-            stroke: var(--color-00b1b2) !important;
+      button {
+        color: var(--color-192956);
+        padding: 0 16px 0 0;
+
+        ::ng-deep {
+          .mat-button-focus-overlay {
+            display: none;
           }
-          .a {
-            fill: var(--color-00b1b2) !important;
+        }
+
+        &.active {
+          color: var(--color-00b1b2) !important;
+          font-weight: bold;
+          ::ng-deep {
+            .b {
+              stroke: var(--color-00b1b2) !important;
+            }
+            .a {
+              fill: var(--color-00b1b2) !important;
+            }
           }
         }
       }
+
+
     }
 
     .middle-group {
@@ -277,7 +290,7 @@ $treeSpace: 341px;
               pointer-events: all;
               cursor: pointer;
               border: none;
-              
+
               &.edit-citable-button {
                 box-shadow: 0 1px 2px 1px var(--color-00b1b2), 0 0 0 0 var(--color-00b1b2), 0 1px 3px 0 var(--color-00b1b2);
               }
@@ -297,7 +310,7 @@ $treeSpace: 341px;
                   width: 20px;
                 }
               }
-              
+
               img {
                 width: 16px;
               }
@@ -505,13 +518,13 @@ $treeSpace: 341px;
 //   pointer-events: all;
 
 //     .editor-citable-button {
-      
-      
-      
-//   }
-  
 
-  
+
+
+//   }
+
+
+
 // }
 
 .template-name-placeholder {
