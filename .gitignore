@@ -44,3 +44,4 @@ testem.log
 Thumbs.db
 articlle_editor - Shortcut.lnk
 /src/assets/config.json
+proxy.conf.js
