@@ -3,7 +3,7 @@
     <div class="left-group">
 
       <button (click)="clickEditorTab()" color="primary" mat-button [class.active]="active=='editor'"
-              style="color:var(--color-192956)" [disabled]="true" [ngSwitch]="userAccess">
+               [disabled]="true" [ngSwitch]="userAccess">
         <ng-container *ngSwitchCase="'Owner'">
           <mat-icon svgIcon="edit1"></mat-icon>
           <span style="margin-left:2px">Owner</span>
@@ -31,8 +31,7 @@
         <mat-icon svgIcon="library"></mat-icon>
         <span style="margin-left:5px">Library</span>
       </button> -->
-      <button (click)="openDialog();" color="primary" mat-button [class.active]="active=='contributors'"
-              style="color:var(--color-192956)">
+      <button (click)="openDialog();" color="primary" mat-button [class.active]="active=='contributors'">
         <mat-icon svgIcon="contributors"></mat-icon>
         <span style="margin-left:5px">Contributors</span>
       </button>
