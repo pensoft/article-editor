@@ -9,8 +9,6 @@ import {EditorView} from "prosemirror-view";
 import {schema} from "@app/editor/utils/Schema";
 import { uuidv4 } from "lib0/random";
 import moment from "moment";
-import { APP_CONFIG } from '@core/services/app-config';
-import { inject } from "@angular/core";
 
 let figIdsG: any;
 let refIdsG: any;
@@ -34,7 +32,7 @@ interface IOptions {
 
 export function exportAsJatsXML(serviceShare: ServiceShare) {
   serviceShare.ProsemirrorEditorsService.spinSpinner();
-  const config = inject(APP_CONFIG);
+  const config = serviceShare.config;
 
   let figObj = serviceShare.YdocService.figuresMap.get('ArticleFigures')
   let figIds: { [key: string]: string } = {}
@@ -618,7 +616,7 @@ let countsRef = counts.ele('ref-count', {"count": "" + refCount})
         eventId: uuidv4(),
         new: true,
         link: 'open jats render errors',
-        metaData: ['Status - Failed', `Document - ${serviceShare.YdocService.articleData.name}`, 'Type - JATS Export', moment(date).format('MMM DD, YYYY, hh:mm:ss A')]
+        metaData: ['Status - Failed', `Document - ${serviceShare.YdocService.articleData.name}`, 'Type - JATS Export', moment(date).format('MMM DD, YYYY, hh:mm:ss A'), ...data.errors]
       })
     }
 
