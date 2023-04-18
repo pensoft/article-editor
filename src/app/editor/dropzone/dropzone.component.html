@@ -5,6 +5,7 @@
   (addedFile)="onAddFile($event)"
   (error)="onUploadError($event)"
   (success)="onUploadSuccess($event)"
+  (removedFile)="onRemoveFile($event)"
   [disabled]="disabled">
 </dropzone>
 <div *ngIf="errorMsg" class="upload-error" >{{errorMsg}}</div>
