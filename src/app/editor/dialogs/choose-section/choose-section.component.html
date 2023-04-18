@@ -23,7 +23,7 @@
       Initial Sections:
     </mat-list-option>
     <mat-list-option *ngFor="let section of initialSectionResults; let first_initial = first; let last_initial = last" [value]="section" [ngClass]="{'first-item':first_initial, 'last-item':last_initial}">
-      <div class="section-add-container"  matTooltip="{{(section.secname != section.name)?'Sectioon name: '+section.secname:null}}">
+      <div class="section-add-container"  matTooltip="{{(section.secname != section.name)?'Section name: '+section.secname:null}}">
         <span class="section-name-container">
           {{section.name}}
         </span>
@@ -36,7 +36,7 @@
       Compatibility Sections:
     </mat-list-option>
     <mat-list-option *ngFor="let section of compatibilitySectionsResults; let first_compatible = first; let last_compatible = last" [value]="section" [ngClass]="{'first-item':first_compatible, 'last-item':last_compatible}">
-      <div class="section-add-container" matTooltip="{{(section.secname != section.name)?'Sectioon name: '+section.secname:null}}">
+      <div class="section-add-container" matTooltip="{{(section.secname != section.name)?'Section name: '+section.secname:null}}">
         <span class="section-name-container">
           {{section.name}}
         </span>
