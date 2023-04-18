@@ -45,7 +45,7 @@ export const image = {
 export const video = {
   inline: true,
   attrs: {
-    src: { default: 'https://www.youtube.com/embed/l_MtK_kPtNU' },
+    src: { default: '' },
     pdfImgOrigin:{default:''},
     thumbnail:{default:''},
     ...getGenericAttributes()
@@ -69,6 +69,35 @@ export const video = {
       controls: '', src,
       'pdfImgOrigin': node.attrs.pdfImgOrigin,
       'thumbnail': node.attrs.thumbnail,
+    }]
+  }
+}
+
+export const videoSource = {
+  inline: true,
+  attrs: {
+    src: { default: '' },
+    width: { default: '' },
+    height: { default: '' },
+    ...getGenericAttributes()
+  },
+  group: "inline",
+  draggable: true,
+  parseDOM: [{
+    tag: "video", getAttrs(dom: any) {
+      return {
+        src: dom.getAttribute('src'),
+        width: dom.getAttribute('width'),
+        height: dom.getAttribute('height'),
+        ...parseGenericAttributes(dom),
+      }
+    }
+  }],
+  toDOM(node: any) {
+    let { src,width,height } = node.attrs;
+    return ["video", {
+      ...genericAttributtesToDom(node),
+      controls: '', src,width,height
     }]
   }
 }
@@ -262,6 +291,7 @@ export const figure_component_description = {
 export const figureNodes = {
   image,
   video,
+  videoSource,
   //figure,
   //citation,
   block_figure,
