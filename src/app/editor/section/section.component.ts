@@ -416,6 +416,9 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
     //this.sectionContent = newSchema;
     if(!this.sectionForm){
       this.sectionContent = this.formBuilderService.populateDefaultValues(this.treeService.sectionFormGroups[this.section.sectionID].getRawValue(), this.section.formIOSchema, this.section.sectionID,this.section, this.sectionForm);
+      let nodeForm = new FormGroup({});
+      this.formBuilderService.buildFormGroupFromSchema(nodeForm, this.sectionContent, this.section);
+      this.treeService.sectionFormGroups[this.section.sectionID] = nodeForm;
     }
 
     this.renderSection = true
@@ -431,6 +434,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
         } catch (e) {
           console.error(e);
         }
+        this.prosemirrorEditorsService.dispatchEmptyTransaction();
         return
       }
     }
