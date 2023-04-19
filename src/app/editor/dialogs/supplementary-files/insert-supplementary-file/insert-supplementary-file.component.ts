@@ -111,6 +111,7 @@ export class InsertSupplementaryFileComponent implements AfterViewInit {
         this.supplementaryFilesNumbers?.push(result.supplementaryFile.supplementary_file_ID)
         this.supplementaryFiles![result.supplementaryFile.supplementary_file_ID] = result.supplementaryFile
         this.selectedSupplementaryFiles[this.supplementaryFilesNumbers?.length-1] = true;
+        this.selected.push(result.supplementaryFile.supplementary_file_ID);
         this.citableElementsService.writeElementDataGlobal(this.supplementaryFiles!, this.supplementaryFilesNumbers!,'supplementary_file_citation');
       }
     })

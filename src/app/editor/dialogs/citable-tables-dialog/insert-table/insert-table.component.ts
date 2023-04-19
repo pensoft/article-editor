@@ -21,6 +21,7 @@ export class InsertTableComponent implements AfterViewInit {
   tablesData?: string[]
   tables: { [key: string]: citableTable }
   selectedTables: boolean[] = []
+  selected = [];
   citats: any
 
   constructor(
@@ -61,6 +62,11 @@ export class InsertTableComponent implements AfterViewInit {
   }
 
   setSelection(checked: boolean, tableId: string, tableIndex: number) {
+    if(checked) {
+      this.selected.push(tableId);
+    } else {
+      this.selected = this.selected.filter((id) => id !== tableId);
+    }
     this.selectedTables[tableIndex] = checked
   }
 
