@@ -21,7 +21,7 @@ import {javascript} from '@codemirror/lang-javascript';
 import {EditSectionService} from '../dialogs/edit-section-dialog/edit-section.service';
 import {ProsemirrorEditorsService} from '../services/prosemirror-editors.service';
 import {articleSection, editorData} from '../utils/interfaces/articleSection';
-import {FormGroup, FormsModule, ReactiveFormsModule} from "@angular/forms";
+import { FormGroup } from "@angular/forms";
 import {TreeService} from '../meta-data-tree/tree-service/tree.service';
 import {FormBuilderService} from '../services/form-builder.service';
 import {YdocService} from '../services/ydoc.service';
@@ -254,8 +254,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
       if(submision.data.sectionTreeTitle && submision.data.sectionTreeTitle.length>0){
         this.treeService.saveNewTitleChange(this.section,submision.data.sectionTreeTitle)
       }
-      submision.compiledHtml = interpolated
-      this.prosemirrorEditorsService
+      submision.compiledHtml = interpolated;
       this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
       this.editSectionService.editChangeSubject.next(submision);
 
@@ -412,10 +411,12 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
     //const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
 
     //let newSchema = this.formBuilderService.populateDefaultValues(this.treeService.sectionFormGroups[this.section.sectionID].getRawValue(), this.section.formIOSchema, this.section.sectionID, this.sectionForm);
-
     //this.sectionContent = newSchema;
     if(!this.sectionForm){
       this.sectionContent = this.formBuilderService.populateDefaultValues(this.treeService.sectionFormGroups[this.section.sectionID].getRawValue(), this.section.formIOSchema, this.section.sectionID,this.section, this.sectionForm);
+      let nodeForm = new FormGroup({});
+      this.formBuilderService.buildFormGroupFromSchema(nodeForm, this.sectionContent, this.section);
+      this.treeService.sectionFormGroups[this.section.sectionID] = nodeForm;
     }
 
     this.renderSection = true
@@ -427,10 +428,11 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
       } else {
         this.section.initialRender = undefined;
         try {
-          this.prosemirrorEditorsService.renderEditorInWithId(this.ProsemirrorEditor?.nativeElement, this.section.sectionID, this.section)
+          this.prosemirrorEditorsService.renderEditorInWithId(this.ProsemirrorEditor?.nativeElement, this.section.sectionID, this.section);
         } catch (e) {
           console.error(e);
         }
+        this.prosemirrorEditorsService.dispatchEmptyTransaction();
         return
       }
     }
@@ -479,8 +481,5 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
   renderComplexSectionTree() {
     this.complexSection = true;
     this.childrenTreeCopy = JSON.parse(JSON.stringify(this.section.children))
-  }
-
-  log() {
   }
 }
