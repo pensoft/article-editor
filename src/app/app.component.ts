@@ -17,14 +17,17 @@ export class AppComponent implements AfterViewInit {
     private prosemirrorEditorsService:ProsemirrorEditorsService,
     ) {
       //loadMathConfig()
-    navigator.serviceWorker.ready.then(function (registration) {
-      //@ts-ignore
-      return registration.sync.register('sendFormData')
-    }).catch(function () {
-      // system was unable to register for a sync,
-      // this could be an OS-level restriction
-      console.error('sync registration failed')
-    });
+      if(navigator.serviceWorker) {
+        navigator.serviceWorker.ready.then(function (registration) {
+          //@ts-ignore
+          return registration.sync.register('sendFormData')
+        }).catch(function () {
+          // system was unable to register for a sync,
+          // this could be an OS-level restriction
+          console.error('sync registration failed')
+        });
+      }
+    
   }
   ngAfterViewInit(): void {
     this.prosemirrorEditorsService.setSpinner(this.globalSpinner.nativeElement)
