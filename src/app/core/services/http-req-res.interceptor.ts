@@ -44,7 +44,6 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
     if (token) {
       newReq = this.addToken(newReq, token)
     }
-
     return next.handle(newReq).pipe(
       map((x) => {
         if (x instanceof HttpResponse) {
@@ -52,7 +51,8 @@ export class HTTPReqResInterceptor implements HttpInterceptor {
             x.url?.includes('http://localhost:4200/find') ||
             x.url?.includes(this.config.externalRefsApi)
           ) {
-            return x.clone({body: mapExternalRefs(x.body)})
+            const source = x.url.split('=')
+            return x.clone({body: mapExternalRefs(x.body, source[source.length - 1])})
           }
         }
         return x

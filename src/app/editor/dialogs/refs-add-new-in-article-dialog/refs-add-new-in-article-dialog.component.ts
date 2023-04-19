@@ -14,8 +14,8 @@ import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { RefsApiService } from '@app/layout/pages/library/lib-service/refs-api.service';
-import { Observable, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
+import { combineLatest, Observable, race, Subject, Subscription } from 'rxjs';
+import { debounceTime, distinctUntilChanged, filter, map, mergeMap, switchMap, tap } from 'rxjs/operators';
 import { genereteNewReference } from '@app/layout/pages/library/lib-service/refs-funcs';
 import { harvardStyle } from '@app/layout/pages/library/lib-service/csl.service';
 import { CiToTypes } from '@app/layout/pages/library/lib-service/editors-refs-manager.service';
@@ -23,6 +23,7 @@ import { uuidv4 } from 'lib0/random';
 import { mapRef1 } from '@app/editor/utils/references/refsFunctions';
 import { ReferenceEditComponent } from '@app/layout/pages/library/reference-edit/reference-edit.component';
 import { APP_CONFIG, AppConfig } from '@core/services/app-config';
+import { concat } from 'lodash';
 
 
 @Component({
@@ -35,6 +36,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit,AfterViewInit,
   searchReferencesControl = new FormControl('');
   loading = false;
   searchData: any
+  searchResult = new Subject();
   externalSelection: any
   lastSelect: 'external' | 'localRef' | 'none' = 'none';
   filteredOptions: Observable<any[]>;
@@ -140,20 +142,42 @@ export class RefsAddNewInArticleDialogComponent implements OnInit,AfterViewInit,
     this.searchData = undefined;
     this.loading = true;
     this.changeDetectorRef.detectChanges()
-    this.oldSub = this.http.get(this.config.externalRefsApi, {
+    const req1 = this.http.get(this.config.externalRefsApi, {
       responseType: 'text',
       params: {
         search: 'simple',
         text: searchText,
-        db: ["crossref", "datacite"]
+        db: ["crossref"]
       }
-    }).subscribe((data1) => {
-      let parsedJson = JSON.parse(data1);
-      if (parsedJson.length > 0) {
-        this.searchData = parsedJson;
+    })
+    const req2 = this.http.get(this.config.externalRefsApi, {
+      responseType: 'text',
+      params: {
+        search: 'simple',
+        text: searchText,
+        db: ["datacite"]
+      }
+    })
+
+    this.oldSub = race(req1, req2).pipe(
+      mergeMap((result: string) => {
+        let parsedJson = JSON.parse(result);
+        
+        if(parsedJson.mapedReferences.length > 0) {
+          this.searchData = parsedJson.mapedReferences;
+          this.loading = false;
+          this.changeDetectorRef.detectChanges()
+        }
+      
+        return parsedJson.source == 'crossref' ? req2 : req1;
+      })).subscribe((result: string) => {
+      let parsedJson = JSON.parse(result);
+
+      if(parsedJson.length > 0) {
+        this.searchData.push(...parsedJson.mapedReferences);
         this.loading = false;
         this.changeDetectorRef.detectChanges()
-      }
+      } 
     })
   }
 

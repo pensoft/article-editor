@@ -201,6 +201,7 @@ const mappingObj: any = {
   },
   "related": undefined,
   "issue": { type: 'string', cslProp: 'issue', formIOprop: "issue" },
+  "source": { type: 'string', cslProp: 'source', formIOprop: "source" },
 }
 export function mapRef1(ref: any) {
   let maped: any = {};
@@ -377,7 +378,7 @@ export function mapRef1(ref: any) {
 
 //   return { ref: maped, formIOData }
 // }
-export let mapExternalRefs = (data1: string) => {    
+export let mapExternalRefs = (data1: string, source: string) => {    
   let stringArray = data1.split('][').map((val, i) => {
     let newVal = val;
     if (!newVal.startsWith('[')) {
@@ -399,5 +400,5 @@ export let mapExternalRefs = (data1: string) => {
     let mapedRef1 = mapRef1(ref)
     mapedReferences.push(mapedRef1)
   })
-  return JSON.stringify(mapedReferences)
+  return JSON.stringify({ mapedReferences, source })
 }
