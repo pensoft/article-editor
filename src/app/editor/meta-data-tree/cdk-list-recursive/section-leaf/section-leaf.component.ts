@@ -226,9 +226,11 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
     }else{
       this.serviceShare.openSnackBar('Adding this subsection will exceed the maximum levels of the tree.','Close',()=>{},4000)
     }
+    this.scrollTo(nodeId);
   }
 
   deleteNodeHandle(nodeId: string) {
+    this.prosemirrorEditorsService.spinSpinner();
     let dialogRef = this.dialog.open(AskBeforeDeleteComponent, {
       width: '563px',
       data: {objName: this.treeService.findNodeById(nodeId)?.title.label,type:'section'},
@@ -238,31 +240,30 @@ export class SectionLeafComponent implements OnInit, AfterViewInit {
       if (data) {
         this.treeService.deleteNodeChange(nodeId, this.parentId!);
       }
+      this.prosemirrorEditorsService.stopSpinner();
+      this.scrollTo(this.parentId);
     })
   }
   oldIndex?:string
   // scrolledToView?: boolean
 
+  scrollTo(sectionId: string) {
+    let editorContainer = this.prosemirrorEditorsService.editorContainers[sectionId];
+
+    if (editorContainer) {
+      let editorView = editorContainer.editorView;
+      const { doc } = editorView.state;
+      editorView.focus();
+      editorView.dispatch(editorView.state.tr.scrollIntoView().setSelection(TextSelection.create(doc, doc.firstChild.nodeSize)));
+    }
+  }
+
 
   scrollToProsemirror() {
     if (this.node.type == 'simple') {
-      let editorContainer = this.prosemirrorEditorsService.editorContainers[this.node.sectionID];
-
-      if (editorContainer) {
-        let editorView = editorContainer.editorView;
-        const { doc } = editorView.state;
-        editorView.focus();
-        editorView.dispatch(editorView.state.tr.scrollIntoView().setSelection(TextSelection.create(doc, doc.firstChild.nodeSize)));
-      }
+      this.scrollTo(this.node.sectionID);
     } else if (this.node.type == "complex") {
-      let editorContainer = this.prosemirrorEditorsService.editorContainers[this.node.sectionID];
-
-      if (editorContainer) {
-        let editorView = editorContainer.editorView;
-        const { doc } = editorView.state;
-        editorView.focus();
-        editorView.dispatch(editorView.state.tr.scrollIntoView().setSelection(TextSelection.create(doc, doc.firstChild.nodeSize)));
-      }
+      this.scrollTo(this.node.sectionID);
     }
   }
 
