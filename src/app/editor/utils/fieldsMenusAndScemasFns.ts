@@ -215,6 +215,7 @@ let marksConnections = {
   "subscript": { marks: ["subscript"] },
   "superscript": { marks: ["superscript"] },
   "comment": { nodes: [], marks: ["comment"] },
+  "overlapComment": { nodes: [], marks: ["overlapComment"] },
   "link": { marks: ["link"] },
   "em": { marks: ["em"] },
   "strong": { marks: ["strong"] },

@@ -8,7 +8,7 @@ import { TreeService } from 'src/app/editor/meta-data-tree/tree-service/tree.ser
 import { CantOpenArticleDialogComponent } from './cant-open-article-dialog/cant-open-article-dialog.component';
 import { UsersRoleIsChangedComponent } from './users-role-is-changed/users-role-is-changed.component';
 import { TranslateService } from '@ngx-translate/core';
-import { environment } from '@env';
+import Packages from '../../../../../package.json';
 
 @Component({
   selector: 'arpha-navigation',
@@ -16,8 +16,7 @@ import { environment } from '@env';
   styleUrls: ['./arpha-navigation.component.scss'],
 })
 export class ArphaNavigationComponent implements AfterViewInit {
-  version = environment.VERSION;
-  build_number = environment.BUILD_NUMBER;
+  version = `${Packages.version}`;
 
   changeText = false;
   mobileVersion: boolean = false;

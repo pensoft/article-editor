@@ -7,8 +7,8 @@ import {Observable} from 'rxjs';
 import {debounceTime, distinctUntilChanged, filter, startWith, tap, map} from 'rxjs/operators';
 import {CslService} from '../lib-service/csl.service';
 import {RefsApiService} from '../lib-service/refs-api.service';
-import {environment} from '@env';
 import {uuidv4} from 'lib0/random';
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
 
 @Component({
   selector: 'app-citate-reference-dialog',
@@ -39,6 +39,7 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
     private changeDetectorRef: ChangeDetectorRef,
     private http: HttpClient,
     @Inject(MAT_DIALOG_DATA) public data: any,
+    @Inject(APP_CONFIG) private config: AppConfig,
   ) {
   }
 
@@ -203,7 +204,7 @@ export class CitateReferenceDialogComponent implements AfterViewInit {
       url = 'https://refindit.org/find'
     } */
     //let exREFApi = 'https://api.refindit.org/find'
-    this.http.get(environment.EXTERNAL_REFS_API, {
+    this.http.get(this.config.externalRefsApi, {
       responseType: 'text',
 
       params: {

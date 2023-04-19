@@ -2,7 +2,7 @@ import { Injectable, OnDestroy } from '@angular/core';
 import { uuidv4 } from 'lib0/random';
 import { Fragment, Mark, Node, Slice } from 'prosemirror-model';
 import { AllSelection, EditorState, Plugin, PluginKey, Selection, TextSelection } from 'prosemirror-state';
-import { EditorView } from 'prosemirror-view';
+import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
 import { Subject } from 'rxjs';
 import { ServiceShare } from '../services/service-share.service';
 import { articlePosOffset } from '../utils/commentsService/comments.service';
@@ -77,7 +77,6 @@ export class TaxonService implements OnDestroy {
     let markPos:number
     let hasOtherMark = false;
     view.state.doc.nodesBetween(from, to, (node, pos, parent, i) => {
-      debugger
       if(node &&
         node.marks && 
         node.marks.find((mark) => mark.type.name == 'comment' || 
@@ -170,6 +169,35 @@ export class TaxonService implements OnDestroy {
     }, 500)
   }
 
+  addInlineDecoration(state: EditorState, pos: number) {
+    const node = state.doc.nodeAt(pos)
+    if (!node) return;
+
+    const mark = node.marks.find((mark) => mark.type.name === 'taxon' && !mark.attrs.removedtaxon);    
+    if (!mark || 
+      node.marks
+      .find((m) => m.type.name == "insertion" || 
+      m.type.name == "deletion" || 
+      m.type.name == "comment"
+      )) return;
+
+    let from: number;
+    let to: number;
+
+    const nodeSize = state.doc.content.size;
+    state.doc.nodesBetween(0, nodeSize, (node, pos, parent, i) => {
+      const mark2 = node?.marks.find(mark => mark.type.name == 'taxon');
+      if(mark2 && mark2.attrs.taxmarkid == mark.attrs.taxmarkid && !from) {
+        from = pos;
+      }
+      if(mark2 && mark2.attrs.taxmarkid == mark.attrs.taxmarkid){
+        to = pos + node.nodeSize;
+      }
+    })
+
+    return { from, to };
+  }
+
   lastSelectedTaxonMarkSubject:Subject<{
     taxonMarkId?: string, sectionId?: string,pos?:number
   }> = new Subject()
@@ -230,6 +258,24 @@ export class TaxonService implements OnDestroy {
             return prev
           },
         },
+        props: {
+          decorations: (state: EditorState) => {
+            const pluginState = this.taxonPluginKey.getState(state);
+            const focusedEditor = this.serviceShare.DetectFocusService.sectionName;
+            const currentEditor = pluginState.sectionName;
+            const { from, to } = state.selection;
+  
+            if (currentEditor != focusedEditor) return DecorationSet.empty;
+            
+            const markInfo = self.addInlineDecoration(state, from);
+            
+            if(!markInfo) return DecorationSet.empty;
+            
+            return DecorationSet.create(state.doc, [
+              Decoration.inline(markInfo.from, markInfo.to, {class: 'active-taxon'})
+            ])
+          }
+        },
         view: function () {
           return {
             update: (view, prevState) => {
@@ -279,11 +325,23 @@ export class TaxonService implements OnDestroy {
     }
   }
 
-  markTextAsTaxon(from: number, to: number, taxonKey: string, view: EditorView) {
-    this.tagCreateData.view.dispatch(this.tagCreateData.view.state.tr.addMark(from, to, schema.mark('taxon', {
+  markTextAsTaxon(from: number, to: number, taxonKey: string) {
+    const view = this.tagCreateData.view;
+    view.dispatch(
+      view.state.tr.addMark(from, to, schema.mark('taxon', {
       taxmarkid: uuidv4(),
       removedtaxon: false,
     })))
+
+    this.tagCreateData.view.focus()
+    this.setTextSelection(from);
+  }
+
+  setTextSelection(from: number) {
+    this.tagCreateData.view.dispatch(
+      this.tagCreateData.view.state.tr.setSelection(
+      new TextSelection(this.tagCreateData.view.state.doc.resolve(from), this.tagCreateData.view.state.doc.resolve(from))
+    ))
   }
 
   tagOnlyTextInCurrSelection() {
@@ -293,7 +351,7 @@ export class TaxonService implements OnDestroy {
       let { from, to } = state.selection
       let taxonKey = state.doc.textBetween(from, to);
       this.addTaxonToYdocIfNotAdded(taxonKey);
-      this.markTextAsTaxon(from, to, taxonKey, view)
+      this.markTextAsTaxon(from, to, taxonKey)
     }
   }
 
@@ -490,7 +548,7 @@ export class TaxonService implements OnDestroy {
             pmDocStartPos: pos,
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
-            taxonTxt: this.getallTaxonOccurrences(actualMark.attrs.taxmarkid, parent),
+            taxonTxt: this.getallTaxonOccurrences(actualMark.attrs.taxmarkid, view),
             domTop: domCoords.top - articleElementRactangle.top - articlePosOffset - 45,
             taxonAttrs: actualMark.attrs,
             selected: markIsLastSelected,
@@ -500,11 +558,11 @@ export class TaxonService implements OnDestroy {
     })
   }
 
-  getallTaxonOccurrences(taxonId: string, parent: Node) {
-    let nodeSize = parent.content.size;
+  getallTaxonOccurrences(taxonId: string, view: EditorView) {
+    let nodeSize = view.state.doc.content.size;
     let textContent = '';
 
-    parent.nodesBetween(0, nodeSize, (node: Node) => {
+    view.state.doc.nodesBetween(0, nodeSize, (node: Node) => {
       const actualMark = node.marks.find(mark => mark.type.name === "taxon");
       if(actualMark && actualMark.attrs.taxmarkid == taxonId) {
         textContent += node.textContent;

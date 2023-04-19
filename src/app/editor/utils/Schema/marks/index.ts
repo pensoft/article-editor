@@ -1,6 +1,6 @@
 import { MarkSpec } from "prosemirror-model";
 import { trackChangesMarks } from './trackChangesMarks';
-import { comment } from './comment';
+import { comment, overlapComment } from './comment';
 import { marks as basicmarks } from './basic-marks';
 import { Node } from "prosemirror-model";
 import delFromPopup from "./trackChangesMarks/delFromPopupMark";
@@ -60,6 +60,7 @@ export const marks: MarkSpec = {
     },
     taxon,
     comment,
+    overlapComment,
     ...trackChangesMarks,
     delFromPopup,
     insFromPopup,

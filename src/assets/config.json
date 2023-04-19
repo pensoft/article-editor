@@ -1,0 +1,20 @@
+{
+
+  "production": true,
+  "websocketHost": "https://ps-article-storage.dev.scalewest.com",
+  "websocketPort": "443",
+
+  "externalRefsApi": "https://refindit.org/find",
+  "authService": "https://ps-accounts.dev.scalewest.com",
+
+  "apiGatewayService": "https://ps-api.dev.scalewest.com",
+
+  "pkceClientId": "96c50ae2-91d6-4df2-b9b0-1b1f5ef40def",
+  "pgClientId": "96c50182-31ea-4a05-98c9-ebbb4bcb298d",
+  "pgClientSecret": "qaTV7yzGULX7RNMzNq9x4GxU545YJpPdbrTLe9pz",
+
+  "articleApiVersion": "1",
+  "eventDispatcherService": "https://ps-event-dispatcher.dev.scalewest.com",
+
+  "validateJats": "https://ps-jats.dev.scalewest.com"
+}

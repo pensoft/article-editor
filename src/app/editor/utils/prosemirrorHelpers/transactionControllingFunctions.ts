@@ -8,7 +8,6 @@ import { DOMParser } from "prosemirror-model"
 import { uuidv4 } from "lib0/random";
 import { of, Subject } from "rxjs";
 import { split } from "lodash";
-import { notEqual } from "assert";
 import { C, I } from "@angular/cdk/keycodes";
 import { ReplaceStep } from "prosemirror-transform";
 import { ServiceShare } from "@app/editor/services/service-share.service";
@@ -65,10 +64,13 @@ export const updateControlsAndFigures = (
                   node1.content.forEach((node2) => {
                     if (node2.type.name == 'figure_description') {
                       let figureDescriptionHtml = getHtmlFromFragment(node2.content!)
-                      figure.description = figureDescriptionHtml
-                    } else if (node2.type.name == 'figure_component_description') {
-
-                      figure.components[node2.attrs.component_number].description = getHtmlFromFragment(node2.content.child(1).content)
+                      if(figure?.description) {
+                        figure.description = figureDescriptionHtml
+                      }
+                    } else if (figure?.components && node2.type.name == 'figure_component_description' && node2.childCount >= 2) {
+                      figure.components[+node2.attrs.component_number].description = getHtmlFromFragment(node2.content.child(1).content)
+                    } else if (figure?.components && node2.type.name == 'figure_component_description' && node.childCount == 1) {
+                      figure.components[+node2.attrs.component_number].description = getHtmlFromFragment(node2.content.child(0).content)
                     }
                   })
                 }

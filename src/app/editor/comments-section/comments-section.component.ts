@@ -1,26 +1,29 @@
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
-import { uuidv4 } from 'lib0/random';
-import { toggleMark } from 'prosemirror-commands';
-import { TextSelection } from 'prosemirror-state';
-import { EditorView } from 'prosemirror-view';
 import { interval, Subject, Subscription } from 'rxjs';
 import { debounce } from 'rxjs/operators';
-import { YMap } from 'yjs/dist/src/internals';
-import { MenuService } from '../services/menu.service';
-import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
-import { YdocService } from '../services/ydoc.service';
-import { commentData, CommentsService, commentYdocSave } from '../utils/commentsService/comments.service';
-import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
-import { isCommentAllowed } from '../utils/menu/menuItems';
+
+import { uuidv4 } from 'lib0/random';
+import { MarkType } from 'prosemirror-model';
+import { EditorState, TextSelection } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
+
 import { getDate } from './comment/comment.component';
+import { ProsemirrorEditorsService } from '../services/prosemirror-editors.service';
+import { MenuService } from '../services/menu.service';
+import { CommentsService } from '../utils/commentsService/comments.service';
+import { DetectFocusService } from '../utils/detectFocusPlugin/detect-focus.service';
+import { YdocService } from '../services/ydoc.service';
+import { YMap } from 'yjs/dist/src/internals';
+import { isCommentAllowed } from '../utils/menu/menuItems';
+import { commentData, commentYdocSave } from '../utils/commentsService/commentMarksHelpers';
 
 @Component({
   selector: 'app-comments-section',
   templateUrl: './comments-section.component.html',
   styleUrls: ['./comments-section.component.scss']
 })
-export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestroy {
+export class CommentsSectionComponent implements AfterViewInit, OnDestroy {
 
   commentInputFormControl = new FormControl('')
   addCommentEditorId?: any   // id of the editor where the Comment button was clicked in the menu
@@ -34,16 +37,18 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
   commentsMap?: YMap<any>
   editorView?: EditorView
   userInfo: any
-
-  @ViewChild('input', { read: ElementRef })
-  commentInput?: ElementRef;
+  subjSub = new Subscription();
+  
+  @ViewChild('input', { read: ElementRef }) commentInput?: ElementRef;
+  @ViewChild('commentsInput', { read: ElementRef }) commentsSearchinput?: ElementRef;
+  
   searchForm = new FormControl('');
-
+  
   rendered = 0;
   nOfCommThatShouldBeRendered = 0
-
+  
   addCommentBoxIsAlreadyMoved: boolean;
-
+  
   doneRenderingCommentsSubject: Subject<any> = new Subject()
   newCommentMarkId:string
   constructor(
@@ -103,17 +108,6 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     } catch (e) {
       console.error(e);
     }
-  }
-
-  subjSub = new Subscription();
-
-  ngOnDestroy(): void {
-    this.subjSub.unsubscribe();
-    (document.getElementsByClassName('editor-container')[0] as HTMLDivElement).removeAllListeners('scroll');
-    (document.getElementsByClassName('comments-wrapper')[0] as HTMLDivElement).removeAllListeners('wheel');
-  }
-
-  ngOnInit() {
   }
 
   splice() {
@@ -180,13 +174,17 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
         if (lastElementBottom < com.domTop) {
           let pos = com.domTop
           domElement.style.top = pos + 'px';
-          domElement.style.opacity = "1";
+          if(!this.searching){
+            domElement.style.opacity = "1";
+          }
           this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
           lastElementBottom = pos + h;
         } else {
           let pos = lastElementBottom
           domElement.style.top = pos + 'px';
-          domElement.style.opacity = "1";
+          if(!this.searching){
+            domElement.style.opacity = "1";
+          }
           this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
           lastElementBottom = pos + h;
         }
@@ -207,13 +205,17 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
         if (lastCommentTop > com.domTop + h) {
           let pos = com.domTop
           domElement.style.top = pos + 'px';
-          domElement.style.opacity = "1";
+          if(!this.searching){
+            domElement.style.opacity = "1";
+           }
           this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
           lastCommentTop = pos;
         } else {
           let pos = lastCommentTop - h
           domElement.style.top = pos + 'px';
-          domElement.style.opacity = "1";
+          if(!this.searching){
+           domElement.style.opacity = "1";
+          }
           this.displayedCommentsPositions[id] = { displayedTop: pos, height: h }
           lastCommentTop = pos;
         }
@@ -306,7 +308,9 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
             })
             if(commentContainer) {
               commentContainer.style.top = sortedComment.domTop + 'px';
-              commentContainer.style.opacity = '1';
+              if(!this.searching) {
+                commentContainer.style.opacity = '1';
+              }
               this.displayedCommentsPositions[addedCommentId] = { displayedTop: sortedComment.domTop, height: commentContainer.getBoundingClientRect().height }
               this.loopFromTopAndOrderComments(sortedComments, comments)
             }
@@ -515,7 +519,10 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
         this.displayedCommentsPositions[id] = { displayedTop: pos.displayedTop, height: pos.height }
         let domElement = comments[i]
         domElement.style.top = this.displayedCommentsPositions[id].displayedTop + 'px'
-        domElement.style.opacity = "1";
+        if(!this.searching) {
+          domElement.style.opacity = "1";
+        }
+        
       })
     }
     
@@ -598,6 +605,39 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
 
   }
 
+  toggleMark(markType: MarkType, attrs: any) {
+    return function(state: EditorState, dispatch: any) {
+      //@ts-ignore
+      let { ranges } = state.selection;
+      if (dispatch) {
+        let has = false, tr = state.tr, isOverlap = false;
+        for (let i = 0; !has && i < ranges.length; i++) {
+          let {$from, $to} = ranges[i]
+          has = state.doc.rangeHasMark($from.pos, $to.pos, markType)
+        }
+        for (let i = 0; i < ranges.length; i++) {
+          let {$from, $to} = ranges[i];
+          if (has) {
+            isOverlap = true
+            let from = $from.pos, to = $to.pos, start = $from.nodeAfter, end = $to.nodeBefore;
+            let spaceStart = start && start.isText ? /^\s*/.exec(start.text)[0].length : 0;
+            let spaceEnd = end && end.isText ? /\s*$/.exec(end.text)[0].length : 0;
+            if (from + spaceStart < to) { from += spaceStart; to -= spaceEnd };
+            tr.addMark(from, to, state.schema.marks['overlapComment'].create(attrs));
+          } else {
+            let from = $from.pos, to = $to.pos, start = $from.nodeAfter, end = $to.nodeBefore;
+            let spaceStart = start && start.isText ? /^\s*/.exec(start.text)[0].length : 0;
+            let spaceEnd = end && end.isText ? /\s*$/.exec(end.text)[0].length : 0;
+            if (from + spaceStart < to) { from += spaceStart; to -= spaceEnd };
+            tr.addMark(from, to, markType.create(attrs));
+          }
+        }
+        dispatch(tr.scrollIntoView());
+        return isOverlap;
+      }
+    }
+  }
+
   cancelBtnHandle() {
     let sectionName = this.addCommentEditorId;
     if(this.commentInput && this.commentInput.nativeElement){
@@ -625,7 +665,8 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     let dispatch = this.editorView?.dispatch
     let from = state.selection.from
     let to = state.selection.to
-    toggleMark(state!.schema.marks.comment, {
+
+    const isOverlap = this.toggleMark(state!.schema.marks.comment, {
       id: commentId,
       date: commentDate,
       commentmarkid,
@@ -634,23 +675,28 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
       userColor: this.prosemirrorEditorsService.userInfo.color.userColor,
       userContrastColor: this.prosemirrorEditorsService.userInfo.color.userContrastColor,
     })(state!, dispatch);
-    // let sectionName = this.addCommentEditorId
-    // this.addCommentSubject!.next({ type: 'commentData', sectionName, showBox: false })
+
+    let sectionName = this.addCommentEditorId
+    this.addCommentSubject!.next({ type: 'commentData', sectionName, showBox: false })
     this.preventRerenderUntilCommentAdd.bool = true
     this.preventRerenderUntilCommentAdd.id = commentId
     setTimeout(() => {
-      this.prosemirrorEditorsService.dispatchEmptyTransaction()
       this.editorView.focus()
-      this.editorView.dispatch(this.editorView.state.tr.setSelection(new TextSelection(this.editorView.state.doc.resolve(from), this.editorView.state.doc.resolve(to))))
+      if(isOverlap) {
+        this.editorView.dispatch(this.editorView.state.tr.setSelection(new TextSelection(this.editorView.state.doc.resolve(to - 5), this.editorView.state.doc.resolve(to - 5))));
+      } else {
+        this.editorView.dispatch(this.editorView.state.tr.setSelection(new TextSelection(this.editorView.state.doc.resolve(from), this.editorView.state.doc.resolve(from))));
+      }
       input.value = ''
+
       setTimeout(() => {
         let pluginData = this.commentsService.commentPluginKey.getState(this.editorView.state)
         let sectionName = pluginData.sectionName
         this.commentsService.getCommentsInAllEditors()
+
         setTimeout(() => {
           this.commentsService.setLastSelectedComment(commentId, from, sectionName, commentmarkid, true)
         }, 300)
-        //this.prosemirrorEditorsService.dispatchEmptyTransaction()
       }, 20)
     }, 20)
   }
@@ -746,7 +792,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     let st = edView.state
     let doc = st.doc
     let tr = st.tr;
-    let textSel = new TextSelection(doc.resolve(actualMark.pmDocStartPos), doc.resolve(actualMark.pmDocEndPos));
+    let textSel = new TextSelection(doc.resolve(actualMark.pmDocStartPos), doc.resolve(actualMark.pmDocStartPos));
     edView.dispatch(tr.setSelection(textSel));
     let articleElement = document.getElementsByClassName('editor-container')[0] as HTMLDivElement;
     articleElement.scroll({
@@ -759,7 +805,9 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
 
   setFromControlChangeListener() {
     this.searchForm.valueChanges.pipe(debounce(val => interval(700))).subscribe((val) => {
-      if (val && val != "" && typeof val == 'string' && val.trim().length > 0) {
+      let comments = (Array.from(document.getElementsByClassName('comment-container')) as HTMLDivElement[]);
+      
+      if (val && val != "" && typeof val == 'string' && val.trim().length > 0) {          
         let searchVal = val.toLocaleLowerCase()
         let comsInYdocMap = this.commentsService.getCommentsFromYdoc();
         let commentsInYdocFiltered: { inydoc: commentYdocSave, pmmark: commentData }[] = []
@@ -786,14 +834,34 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
         )
 
         if (foundComs.length > 0) {
-          this.searchResults = foundComs
+          comments.forEach(com => {
+            if(!foundComs.find(c => c.pmmark.commentAttrs.id == com.getAttribute('commentId'))) {
+              com.style.opacity = "0";
+            } else {
+              com.style.opacity = "1";
+            }
+          })
+          this.selectComent(foundComs[0].pmmark);
+
+          setTimeout(() => {
+            this.commentsSearchinput?.nativeElement.focus();
+          }, 10);
+          
+          this.searchResults = foundComs;
           this.searchIndex = 0;
-          this.selectComent(foundComs[0].pmmark)
           this.searching = true;
         } else {
-          this.searching = false;
+          comments.forEach(com => {
+            com.style.opacity = "0";
+          })
+          this.searchResults = foundComs;
+          this.searchIndex = -1;
+          this.searching = true;
         }
       } else {
+        comments.forEach(com => {
+            com.style.opacity = "1";
+          })
         this.searching = false;
       }
     })
@@ -831,7 +899,7 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
 
    this.subjSub.add(this.addCommentSubject.subscribe((data) => {
       this.lastFocusedEditor = this.detectFocus.sectionName;
-      this.editorView = this.editorsService.editorContainers[this.lastFocusedEditor].editorView;
+      this.editorView = this.editorsService.editorContainers[this.lastFocusedEditor]?.editorView;
       if(!this.lastFocusedEditor || !this.editorView || !this.editorView.state) return;
       
       if (data.type == 'commentData') {
@@ -964,4 +1032,9 @@ export class CommentsSectionComponent implements AfterViewInit, OnInit, OnDestro
     }
   }
 
+  ngOnDestroy(): void {
+    this.subjSub.unsubscribe();
+    (document.getElementsByClassName('editor-container')[0] as HTMLDivElement).removeAllListeners('scroll');
+    (document.getElementsByClassName('comments-wrapper')[0] as HTMLDivElement).removeAllListeners('wheel');
+  }
 }

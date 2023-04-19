@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { Router } from '@angular/router';
 import { ArticleSectionsService } from '@app/core/services/article-sections.service';
@@ -38,6 +38,7 @@ import { CitationButtonsService } from '../utils/citation-buttons/citation-butto
 import { catchError, mergeMap } from 'rxjs/operators';
 import { of } from 'rxjs';
 import { createDemoTemplate } from '../utils/serverErrorWorkAround';
+import { AppConfig, APP_CONFIG } from '@app/core/services/app-config';
 @Injectable({
   providedIn: 'root'
 })
@@ -76,7 +77,8 @@ export class ServiceShare {
     public dialog: MatDialog,
     private router: Router,
     public httpClient:HttpClient,
-    private _snackBar: MatSnackBar
+    private _snackBar: MatSnackBar,
+    @Inject(APP_CONFIG) public config: AppConfig,
     ) {
 
   }
@@ -136,7 +138,7 @@ export class ServiceShare {
       this.ProsemirrorEditorsService.stopSpinner()
       dialogRef.afterClosed().subscribe(result => {
         if(!result) return ;
-
+        this.ProsemirrorEditorsService.spinSpinner();
         let userData;
         this.AuthService.currentUser$
         .pipe(mergeMap(data => {
@@ -155,12 +157,9 @@ export class ServiceShare {
             this.YdocService!.setArticleData(createArticleRes.data,true)
             this.router.navigate([createArticleRes.data.uuid])
             this.YdocService.newArticleIsCreated(userData,createArticleRes.data.uuid)
-            selectedLayout.sections = selectedLayout.sections.filter(x=>x.name!='Citable Elements Schemas');
+            selectedLayout.sections = selectedLayout.sections.filter(x=>x.name!='Figures'&&x.name!='References'&&x.name!='Tables'&&x.name!='SupplementaryMaterials'&&x.name!='Footnotes');
             selectedLayout.sections.forEach((section: any) => {
               if(section.settings&&section.settings.main_section == true){
-                if ('min_instances' in  section.settings && section.settings.min_instances === 0) {
-                  return
-                }
                 let newSection = renderSectionFunc(section,articleStructure,this.YdocService!.ydoc,this,'end');
               }
             })

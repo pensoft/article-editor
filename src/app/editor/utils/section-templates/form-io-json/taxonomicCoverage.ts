@@ -1,4 +1,4 @@
-import { environment } from '../../../../../environments/environment';
+
 export const taxonomicCoverage = {
     'components': [{
         "label": "Description",
@@ -40,7 +40,7 @@ export const taxonomicCoverage = {
                 "validate": {
                     "required": true,
                     "pattern": '.+\\@.+\\..+',
-                
+
                 },
                 "type": "textarea",
                 "input": true
@@ -118,7 +118,7 @@ export const taxonomicCoverage = {
 }
 
 let taxonomicCoverageDefaultValues1 :any
-if(!environment.production){
+/*if(!environment.production){
     taxonomicCoverageDefaultValues1 = { // form group structure for the section
         "description": "<p align=\"set-align-left\" class=\"set-align-left\">qwd</p>",
         "taxonomicCoverage": [
@@ -134,7 +134,7 @@ if(!environment.production){
             }
         ],
     }
-}else{
+}else{*/
     taxonomicCoverageDefaultValues1 = { // form group structure for the section
         "description": "",
          "taxonomicCoverage": [
@@ -150,7 +150,7 @@ if(!environment.production){
             }
         ],
     }
-}
+/*}*/
 export const taxonomicCoverageDefaultValues = taxonomicCoverageDefaultValues1
 /* export const taxonomicCoverageDefaultValues = {
     "description": "",

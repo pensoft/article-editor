@@ -4,7 +4,7 @@
   <form (keydown)="search(inputText)" fxFlex="100%" fxLayout="column" class="search-form">
     <label>Select a Template</label>
     <mat-form-field class="s mat-form-field-search" floatLabel="never" appearance="standard">
-      <input matInput type="text" #inputText placeholder="Search for topics">
+      <input matInput type="text" #inputText placeholder="Search by name">
       <button mat-flat-button color="primary" type="submit" matSuffix (click)="search(inputText)">
         Search
       </button>
@@ -29,7 +29,7 @@
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]>Cancel</button>
-  <button mat-stroked-button color="primary" (click)="closeManuscriptChoose()">Start Empty</button>
+  <!-- <button mat-stroked-button color="primary" (click)="closeManuscriptChoose()">Start Empty</button> -->
   <button mat-flat-button color="primary" (click)="createManuscript(topic.selectedOptions.selected[0]?.value)">
     Start Manuscript
   </button>

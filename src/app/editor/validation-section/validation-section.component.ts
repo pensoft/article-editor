@@ -48,6 +48,9 @@ export class ValidationSectionComponent implements OnDestroy {
   articleValidations: validationResult[] = []
   articleFormFieldsValidation: validationResult[] = []
   nonCitedFiguresValidation: validationResult[] = []
+  nonCitedTablesValidation: validationResult[] = []
+  nonCitedSupplementaryFilesValidation: validationResult[] = []
+  nonCitedEndNotesValidation: validationResult[] = []
   articleValidationsErrors: validationResult[] = []
   complexSectionsMinMaxErrors: validationResult[] = []
   nonCitedReferences: validationResult[] = []
@@ -60,6 +63,9 @@ export class ValidationSectionComponent implements OnDestroy {
     this.articleValidations = []
     this.articleFormFieldsValidation = []
     this.nonCitedFiguresValidation = []
+    this.nonCitedTablesValidation = []
+    this.nonCitedSupplementaryFilesValidation = [];
+    this.nonCitedEndNotesValidation = [];
     this.nonCitedReferences = []
     this.articleValidationsErrors = []
     this.complexSectionsMinMaxErrors = []
@@ -109,6 +115,9 @@ export class ValidationSectionComponent implements OnDestroy {
       rules.push({ rule: 'CitatedFigures' })
       rules.push({ rule: 'ValidateComplexSections' })
       rules.push({ rule: 'ValidateCitedRefs' })
+      rules.push({ rule: 'ValidateCitedTables' })
+      rules.push({ rule: 'ValidateCitedSupplementaryFiles' })
+      rules.push({ rule: 'ValidateEndNotes' })
       /* rules.push(
         {
           rule: 'SectionPosition',
@@ -397,8 +406,17 @@ export class ValidationSectionComponent implements OnDestroy {
                       let formGroup = formGroups[sec.sectionID];
                       loopFormGroupChildren(formGroup, (child: FormControl, key: string) => {
                         if (child.status == "INVALID") {
-                          let errorStr = Object.keys(child.errors!).map((error) => { return child.errors![error].message }).join('');
-                          this.articleFormFieldsValidation.push({ fulfilled: false, errorMessage: `${key} in "${sec.title.label}". ${errorStr}` })
+                          let errorStr = Object.keys(child.errors!).map((error) => { return child.errors![error].message }).join(' ');
+                          
+                          if(!errorStr) {
+                            errorStr = 'This field is required!';
+                          }
+                          
+                          if(sec.title.label.match(/<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g)) {
+                           this.articleFormFieldsValidation.push({ fulfilled: false, errorMessage: `Content in "${sec.title.label.replace(/<(?:"[^"]*"['"]*|'[^']*'['"]*|[^'">])+>/g, '')}". ${errorStr} `});
+                          } else {
+                            this.articleFormFieldsValidation.push({ fulfilled: false, errorMessage: `Content in "${sec.title.label}". ${errorStr} `});
+                          }
                         }
                       });
                     }
@@ -408,8 +426,8 @@ export class ValidationSectionComponent implements OnDestroy {
                 donevalidationSubject.next(null)
 
               } else if (el.rule == "CitatedFigures") {
-                let figures: { [key: string]: figure } = this.ydocService.figuresMap!.get('ArticleFigures')
-                let figuresNumbersFromYMap: string[] = this.ydocService.figuresMap?.get('ArticleFiguresNumbers');
+                let figures: { [key: string]: figure } = this.ydocService.figuresMap.get('ArticleFigures')
+                let figuresNumbersFromYMap: string[] = this.ydocService.figuresMap.get('ArticleFiguresNumbers');
 
                 Object.keys(figures).forEach((key) => {
                   if (figures[key].figurePlace == "endEditor") {
@@ -463,22 +481,46 @@ export class ValidationSectionComponent implements OnDestroy {
                   donevalidationSubject.next(null)
                 })
               } else if (el.rule == 'ValidateCitedRefs'){
-                let refsInEndEditor = this.ydocService!.referenceCitationsMap?.get('referencesInEditor');
-                let refsInArticle = this.ydocService.referenceCitationsMap.get('refsAddedToArticle');
+                let refsInEndEditor = this.ydocService.referenceCitationsMap?.get('referencesInEditor');
+                let citedRefsInArticle = this.ydocService.referenceCitationsMap.get('citedRefsInArticle');
 
-                let keysOfRefsInEndEditor = Object.keys(refsInEndEditor)
-                let keysOfRefsInArticle = Object.keys(refsInArticle);
-
-                let nonCitedRefs  = {}
-
-                keysOfRefsInArticle.forEach((key)=>{
-                  if(!keysOfRefsInEndEditor.includes(key)){
-                    nonCitedRefs[key] = refsInArticle[key]
+                Object.keys(refsInEndEditor).forEach((refId)=>{
+                  if(!citedRefsInArticle[refId]) {
+                    let refText = refsInEndEditor[refId].citation.textContent;
+                    this.nonCitedReferences.push({ fulfilled: false, errorMessage: `Reference "${refText}" is not cited.` });
                   }
                 })
-                Object.keys(nonCitedRefs).forEach((refId)=>{
-                  let refText = nonCitedRefs[refId].citation.textContent;
-                  this.nonCitedReferences.push({ fulfilled: false, errorMessage: `Reference "${refText}" is not cited.` });
+                donevalidationSubject.next(null)
+              } else if (el.rule == 'ValidateCitedTables'){
+                let tables = this.ydocService.tablesMap!.get('ArticleTables');
+                let tablesNumbers = this.ydocService.tablesMap?.get('ArticleTablesNumbers');
+
+                Object.keys(tables).forEach((key) => {                  
+                  if (tables[key].tablePlace == "endEditor") {
+                    this.nonCitedTablesValidation.push({ fulfilled: false, errorMessage: `Table № ${tablesNumbers.findIndex((el) => el == key) + 1} is not cited.` });
+                  }
+                })
+                donevalidationSubject.next(null)
+              } else if (el.rule == 'ValidateCitedSupplementaryFiles'){
+                let supplementaryFiles = this.ydocService.supplementaryFilesMap!.get('supplementaryFiles');
+                let supplementaryFilesNumbers = this.ydocService.supplementaryFilesMap?.get('supplementaryFilesNumbers');
+                let citedSupplementaryFiles = this.ydocService.supplementaryFilesMap?.get('citedSupplementaryFiles');
+
+                Object.keys(supplementaryFiles).forEach((key) => {                                    
+                  if (!citedSupplementaryFiles[key]) {
+                    this.nonCitedSupplementaryFilesValidation.push({ fulfilled: false, errorMessage: `Supplementary File № ${supplementaryFilesNumbers.findIndex((el) => el == key) + 1} is not cited.` });
+                  }
+                })
+                donevalidationSubject.next(null)
+              } else if (el.rule == 'ValidateEndNotes'){
+                let endNotes = this.ydocService.endNotesMap!.get('endNotes');
+                let endNotesNumbers = this.ydocService.endNotesMap?.get('endNotesNumbers');
+                let endNotesCitations = this.ydocService.endNotesMap?.get('endNotesCitations');
+
+                Object.keys(endNotes).forEach((key) => {                                    
+                  if (!endNotesCitations[key]) {
+                    this.nonCitedEndNotesValidation.push({ fulfilled: false, errorMessage: `EndNote № ${endNotesNumbers.findIndex((el) => el == key) + 1} is not cited.` });
+                  }
                 })
                 donevalidationSubject.next(null)
               }
@@ -494,7 +536,7 @@ export class ValidationSectionComponent implements OnDestroy {
         })
       })
     }
-    let validateData = await validAsync()
+    let validateData = await validAsync();
     if (validateData == 'cancel') {
 
     } else {
@@ -505,6 +547,9 @@ export class ValidationSectionComponent implements OnDestroy {
       this.results += this.articleValidations.length;
       this.results += this.articleFormFieldsValidation.length;
       this.results += this.nonCitedFiguresValidation.length;
+      this.results += this.nonCitedTablesValidation.length;
+      this.results += this.nonCitedSupplementaryFilesValidation.length;
+      this.results += this.nonCitedEndNotesValidation.length;
       this.results += this.nonCitedReferences.length;
       this.results += this.articleValidationsErrors.length;
       this.results += this.complexSectionsMinMaxErrors.length;

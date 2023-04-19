@@ -14,7 +14,7 @@ export class ThemeToggleComponent {
   isLight = true;
 
   constructor(@Inject(DOCUMENT) private document: Document, @Inject(LocalStorage) private storage: Storage) {
-    this.initializeThemeFromPreferences();
+    //this.initializeThemeFromPreferences();
   }
 
   toggleTheme(): void {

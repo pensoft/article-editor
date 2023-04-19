@@ -8,75 +8,87 @@ import { of } from "rxjs";
 function removeTextWithChangeMark(view: EditorView, markattrs: any, action: 'accept' | 'decline', fromConnectionMark?: boolean) {
   let doc = view.state.doc;
   let markid = markattrs.id;
-  let markConnection = markattrs.connectedTo;
+  // let markConnection = markattrs.connectedTo;
 
   let docSize = +doc.nodeSize
 
-  let textstart: any
-  let textend: any
-  let markfound = false;
-  let markType: any
+  // let textstart: any
+  // let textend: any
+  // let markfound = false;
+  // let markType: any
 
-  let connType: any;
-  let connMarkAttrs: any;
-  let connectionFound = false;
+  // let connType: any;
+  // let connMarkAttrs: any;
+  // let connectionFound = false;
+  let from;
+  let to;
 
   doc.nodesBetween(0, docSize - 2, (node, pos, parent) => {
-    let mark = node.marks.filter(mark => mark.attrs.id == markid);
-    let markConn = node.marks.filter(mark => mark.attrs.id == markConnection);
-    if (markConn.length > 0) {
-      connType = markConn[0].type.name;
-      connMarkAttrs = markConn[0].attrs;
-      connectionFound = true;
+    let mark = node.marks.find(mark => mark.attrs.id == markid);
+
+    if(mark?.attrs.id == markid && !from) {
+      from = pos;
+    } 
+    if (mark?.attrs.id) {
+      to = pos + node.nodeSize;
     }
-    if (mark.length > 0) {
-      markType = mark[0].type
-      textstart = pos;
-      textend = pos + node.nodeSize;
-      markfound = true;
-    }
+    // let mark = node.marks.filter(mark => mark.attrs.id == markid);
+    // let markConn = node.marks.filter(mark => mark.attrs.id == markConnection);
+    // if (markConn.length > 0) {
+    //   connType = markConn[0].type.name;
+    //   connMarkAttrs = markConn[0].attrs;
+    //   connectionFound = true;
+    // }
+    // if (mark.length > 0) {
+    //   markType = mark[0].type
+    //   textstart = pos;
+    //   textend = pos + node.nodeSize;
+    //   markfound = true;
+    // }
   })
 
-  if (markfound && !connectionFound && !fromConnectionMark) {
-    let resolvedPosAtStart = view.state.doc.resolve(textstart);
-    let resolvedPosAtEnd = view.state.doc.resolve(textend);
+  if (from && to) {
+    view.dispatch(view.state.tr.replaceWith(from, to, Fragment.empty).setMeta('shouldTrack', false));
+  } 
+  // if (markfound /&& !connectionFound && !fromConnectionMark) {
+  //   let resolvedPosAtStart = view.state.doc.resolve(textstart);
+  //   let resolvedPosAtEnd = view.state.doc.resolve(textend);
 
-    let nodeBefore = resolvedPosAtStart.nodeBefore;
-    let nodeAfter = resolvedPosAtEnd.nodeAfter;
+  //   let nodeBefore = resolvedPosAtStart.nodeBefore;
+  //   let nodeAfter = resolvedPosAtEnd.nodeAfter;
 
-    let searchingFor = markType.name == 'insertion' ? 'insertion' : 'deletion';
-    if (nodeBefore) {
-      let markConn = nodeBefore.marks.filter(mark => mark.type.name == searchingFor)[0]
-      if (markConn) {
-        connType = markConn.type.name;
-        connMarkAttrs = markConn.attrs;
-        connectionFound = true;
-      }
-    }
-    if (nodeAfter) {
-      let markConn = nodeAfter.marks.filter(mark => mark.type.name == searchingFor)[0]
-      if (markConn) {
-        connType = markConn.type.name;
-        connMarkAttrs = markConn.attrs;
-        connectionFound = true;
-      }
-    }
-  }
+  //   let searchingFor = markType.name == 'insertion' ? 'insertion' : 'deletion';
+  //   if (nodeBefore) {
+  //     let markConn = nodeBefore.marks.filter(mark => mark.type.name == searchingFor)[0]
+  //     if (markConn) {
+  //       connType = markConn.type.name;
+  //       connMarkAttrs = markConn.attrs;
+  //       connectionFound = true;
+  //     }
+  //   }
+  //   if (nodeAfter) {
+  //     let markConn = nodeAfter.marks.filter(mark => mark.type.name == searchingFor)[0]
+  //     if (markConn) {
+  //       connType = markConn.type.name;
+  //       connMarkAttrs = markConn.attrs;
+  //       connectionFound = true;
+  //     }
+  //   }
+  // }
 
-  if (markfound) {
-    view.dispatch(view.state.tr.replaceWith(textstart, textend, Fragment.empty).setMeta('shouldTrack', false));
-  }
-  if (connectionFound && !fromConnectionMark) {
-    if (action == 'accept') {
-      setTimeout(() => {
-        acceptChange(view, connType, connMarkAttrs, true)
-      }, 0)
-    } else if (action == 'decline') {
-      setTimeout(() => {
-        rejectChange(view, connType, connMarkAttrs, true)
-      }, 0)
-    }
-  }
+  
+
+  // if (connectionFound && !fromConnectionMark) {
+  //   if (action == 'accept') {
+  //     setTimeout(() => {
+  //       acceptChange(view, connType, connMarkAttrs, true)
+  //     }, 0)
+  //   } else if (action == 'decline') {
+  //     setTimeout(() => {
+  //       rejectChange(view, connType, connMarkAttrs, true)
+  //     }, 0)
+  //   }
+  // }
 }
 
 function removeChangeMarkFromText(view: EditorView, markattrs: any, action: 'accept' | 'decline', fromConnectionMark?: boolean) {

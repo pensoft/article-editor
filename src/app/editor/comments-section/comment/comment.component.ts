@@ -1,11 +1,9 @@
-import { D, E } from '@angular/cdk/keycodes';
 import {
   AfterViewInit,
   Component,
   ElementRef,
   EventEmitter,
   Input,
-  OnChanges,
   OnDestroy,
   OnInit,
   Output,
@@ -13,25 +11,28 @@ import {
 } from '@angular/core';
 import { DateSelectionModelChange } from '@angular/material/datepicker';
 import { MatDialog } from '@angular/material/dialog';
+import { FormControl } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { Router } from '@angular/router';
+import { takeUntil } from 'rxjs/operators';
+
 import { uuidv4 } from 'lib0/random';
-import { indexOf } from 'lodash';
 import { EditorView } from 'prosemirror-view';
-import { YMap } from 'yjs/dist/src/internals';
-import { AddCommentDialogComponent } from '../../add-comment-dialog/add-comment-dialog.component';
+import { TextSelection } from 'prosemirror-state';
+import { Mark } from 'prosemirror-model';
+
 import { ProsemirrorEditorsService } from '../../services/prosemirror-editors.service';
+import { YMap } from 'yjs/dist/src/internals';
 import { YdocService } from '../../services/ydoc.service';
 import { AuthService } from "@core/services/auth.service";
-import { commentData, commentYdocSave, ydocComment } from '@app/editor/utils/commentsService/comments.service';
 import { ServiceShare } from '@app/editor/services/service-share.service';
-import { Subject, Subscription } from 'rxjs';
-import { TextSelection } from 'prosemirror-state';
-import { FormControl } from '@angular/forms';
+import { AddCommentDialogComponent } from '../../add-comment-dialog/add-comment-dialog.component';
 import { fakeUser } from '@app/core/services/comments/comments-interceptor.service';
 import { ContributorsApiService } from '@app/core/services/comments/contributors-api.service';
 import { EditCommentDialogComponent } from '../edit-comment-dialog/edit-comment-dialog.component';
-import { Router } from '@angular/router';
 import { AskBeforeDeleteComponent } from '@app/editor/dialogs/ask-before-delete/ask-before-delete.component';
-import { takeUntil } from 'rxjs/operators';
+import { commentData, commentYdocSave, ydocComment } from '../../utils/commentsService/commentMarksHelpers';
+
 
 export function getDate(date: number) {
   let timeOffset = (new Date()).getTimezoneOffset() * 60 * 1000;
@@ -192,22 +193,9 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
       }
     })
     if (actualComment) {
-      // const nodeSize = view.state.doc.content.size;
-      // let hasDecrease = 0;
 
-      // view.state.doc.nodesBetween(0, nodeSize, (node, pos, parent) => {
-      //   if (node && node.marks) {
-      //     if(node.marks.find(mark => ["insertion", 'deletion', 'taxon'].includes(mark.type.name)) && node.marks.find(node => node.attrs.commentmarkid == actualComment.commentMarkId)) {
-      //       console.log('tuk');
-      //       console.log(node);
-            
-      //       hasDecrease = 1;
-      //     }
-      //   }
-      // })
-      
       view.focus()
-      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualComment.pmDocStartPos), view.state.doc.resolve(actualComment.pmDocEndPos))).setMeta('selected-comment',true).scrollIntoView())
+      view.dispatch(view.state.tr.setSelection(new TextSelection(view.state.doc.resolve(actualComment.pmDocStartPos), view.state.doc.resolve(actualComment.pmDocStartPos))).setMeta('selected-comment',true).scrollIntoView())
 
       this.sharedService.ProsemirrorEditorsService.dispatchEmptyTransaction()
       //this.showHideReply(this.ReplyDiv.nativeElement as HTMLDivElement, true)
@@ -215,56 +203,34 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
-  onDelete(view: EditorView, commentId: string, isFirstTime?: boolean) {
+  onDelete(view: EditorView, commentId: string) {
     let state = view.state;
     let commentsMark = state?.schema.marks.comment;
+    let overlapCommentsMark = state?.schema.marks.overlapComment;
     let docSize = state.doc.content.size;
-    let textstart: any;
-    let textend: any;
-    let commentFound = false;
+    let from: number, to: number;
+    let markForRemove: Mark;
 
-    state.doc.nodesBetween(0, docSize - 2, (node, pos, parent) => {
-      let mark = node.marks.find(mark => mark.attrs.id == commentId);
+    state.doc.nodesBetween(0, docSize, (node, pos, parent) => {
+      let comment = node?.marks.find(c => c.attrs.id == commentId);
 
-      if (mark) {
-        textstart = pos;
-        textend = pos + node.nodeSize;
-        commentFound = true;
+      if(comment && comment.type == commentsMark){
+        markForRemove = comment;
+        if(!from) {
+          from = pos;
+        }
+        to = pos += node.nodeSize;
+      } else if (comment && comment.type == overlapCommentsMark) {
+        markForRemove = comment;
+        if(!from) {
+          from = pos;
+        }
+        to = pos += node.nodeSize;
       }
     })
+    view.dispatch(state.tr.removeMark(from, to, markForRemove));
 
-    if (commentFound) {
-      view.focus();
-      view.dispatch(state?.tr.removeMark(textstart, textend, commentsMark))
-      this.sharedService.ProsemirrorEditorsService.dispatchEmptyTransaction()
-
-      let resolvedPosAtStart = view.state.doc.resolve(textstart);
-      let resolvedPosAtEnd = view.state.doc.resolve(textend);
-
-      let nodeBefore = resolvedPosAtStart.nodeBefore;
-      let nodeAfter = resolvedPosAtEnd.nodeAfter;
-
-      if (nodeBefore) {
-        let markConn = nodeBefore.marks.find(mark => mark.attrs.id == commentId)
-        if (markConn) {
-          setTimeout(()=> {
-            this.onDelete(view, commentId);
-          }, 0)
-        }
-      }
-      if (nodeAfter) {
-        let markConn = nodeAfter.marks.filter(mark => mark.attrs.id == commentId)[0]
-        if (markConn) {
-          setTimeout(()=> {
-            this.onDelete(view, commentId);
-          }, 0)
-        }
-      }
-      if(isFirstTime) {
-        this.commentsMap?.delete(this.comment?.commentAttrs.id);
-      }
-    }
-
+    this.commentsMap?.delete(this.comment?.commentAttrs.id);
   }
 
   deleteComment(showConfirmDialog, comment) {
@@ -276,12 +242,12 @@ export class CommentComponent implements OnInit, AfterViewInit, OnDestroy {
       })
       dialogRef.afterClosed().subscribe((data: any) => {
         if (data) {
-          this.onDelete(viewRef, this.comment.commentAttrs.id, true);
+          this.onDelete(viewRef, this.comment.commentAttrs.id);
         }
       })
       return;
     }
-    this.onDelete(viewRef, this.comment.commentAttrs.id, true)
+    this.onDelete(viewRef, this.comment.commentAttrs.id)
   }
 
   deleteReply(id: string, reply: string) {

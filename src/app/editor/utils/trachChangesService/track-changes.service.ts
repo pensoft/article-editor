@@ -141,7 +141,7 @@ export class TrackChangesService {
             pmDocEndPos: pos + node.nodeSize,
             section: sectionId,
             domTop: domCoords.top - articleElementRactangle.top - articlePosOffset,
-            changeTxt: this.getallChangeOccurrences(actualMark.attrs.id, parent),
+            changeTxt: this.getallChangeOccurrences(actualMark.attrs.id, view),
             changeAttrs: actualMark.attrs,
             type:actualMark.type.name,
             selected: markIsLastSelected,
@@ -151,12 +151,12 @@ export class TrackChangesService {
     })
   }
 
-  getallChangeOccurrences(id: string, parent: Node) {
-    let nodeSize = parent.content.size;
+  getallChangeOccurrences(id: string, view: EditorView) {
+    let nodeSize = view.state.doc.content.size;
     let textContent = '';
 
-    parent.nodesBetween(0, nodeSize, (node: Node) => {
-      const actualMark = node.marks.find(mark => changesMarksNames.includes(mark.type.name));
+    view.state.doc.nodesBetween(0, nodeSize, (node: Node) => {
+      const actualMark = node?.marks.find(mark => changesMarksNames.includes(mark.type.name));
       if(actualMark && actualMark.attrs.id == id) {
         textContent += node.textContent;
       }
@@ -588,12 +588,55 @@ export class TrackChangesService {
         },
       }, props: {
         decorations: (state) => {
-          let pluginState = hideShowPluginKey.getState(state);
+          const pluginState = hideShowPluginKey.getState(state);
+          const focusedEditor = this.serviceShare.DetectFocusService.sectionName;
+          const currentEditor = pluginState.sectionName;
+          const { from, to } = state.selection;
+
+          if (currentEditor != focusedEditor) return DecorationSet.empty;
+          
+          const markInfo = self.addInlineDecoration(state, from);
+          if(!markInfo) return DecorationSet.empty;
+          
+          if(markInfo.markName == "insertion") {
+            return DecorationSet.create(state.doc, [
+            Decoration.inline(markInfo.from, markInfo.to, {class: 'active-insertion'})
+            ])
+          } else if (markInfo.markName == "deletion") {
+            return DecorationSet.create(state.doc, [
+              Decoration.inline(markInfo.from, markInfo.to, {class: 'active-deletion'})
+            ])
+          }
+          
           return pluginState.createdDecorations
         }
       },
     });
     this.hideShowPlugin = hideShowPlugin;
+  }
+
+  addInlineDecoration(state: EditorState, pos: number) {
+    const node = state.doc.nodeAt(pos)
+    if (!node) return;
+
+    const mark = node.marks?.find((mark) => mark.type.name == 'insertion' || mark.type.name == 'deletion');    
+    if (!mark || node.marks?.find((m) => m.type.name == "comment")) return;
+
+    let from: number;
+    let to: number;
+
+    const nodeSize = state.doc.content.size;
+    state.doc.nodesBetween(0, nodeSize, (node, pos, parent, i) => {
+      const mark2 = node?.marks.find(mark => mark.type.name == mark.type.name);
+      
+      if(mark2 && mark2.attrs.id == mark.attrs.id && !from) {
+        from = pos;      
+      }
+      if(mark2 && mark2.attrs.id == mark.attrs.id){
+        to = pos + node.nodeSize;        
+      }
+    })
+    return { from, to: to || from + node.nodeSize, markName: mark.type.name };
   }
 
   getHideShowPlugin() {

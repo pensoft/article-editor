@@ -38,7 +38,7 @@ export function genereteNewReference(refData: reference, data: any) {
           creator.type == 'person' &&
           ((creator.first && creator.first != '') || (creator.last && creator.last != ''))
         ) {
-          addCreator({ "family": creator.first || '', "given": creator.last || '' }, role);
+          addCreator({ "family": creator.last || '', "given": creator.first || '' }, role);
         } else if (
           creator.type == 'institution' &&
           (creator.name && creator.name != '')

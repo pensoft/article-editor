@@ -5,7 +5,6 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
 import { articleSection } from '@app/editor/utils/interfaces/articleSection';
 import { editorContainer } from '@app/editor/utils/interfaces/editor-container';
 import { schema } from '@app/editor/utils/Schema';
-import { environment } from '@env';
 import { EditorView } from 'prosemirror-view';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
@@ -46,7 +45,7 @@ export class FunderSectionComponent implements OnInit,customSecInterface,AfterVi
     private serviceShare:ServiceShare,
     private http: HttpClient,
     private ref:ChangeDetectorRef
-  ) { }  
+  ) { }
 
   /**
     addCustomSectionData(section:articleSection,data:any){
@@ -61,7 +60,7 @@ export class FunderSectionComponent implements OnInit,customSecInterface,AfterVi
 
     this.sectionData = this.serviceShare.YdocService.customSectionProps.get("customPropsObj")[this.section.sectionID];
 
-    this.funderContentPmContainer = 
+    this.funderContentPmContainer =
     this.serviceShare.ProsemirrorEditorsService
       .renderSeparatedEditorWithNoSync(
         header, 'popup-menu-container',
@@ -88,7 +87,7 @@ export class FunderSectionComponent implements OnInit,customSecInterface,AfterVi
       debounceTime(700),
       distinctUntilChanged(),
     ).subscribe((value: any) => {
-      if (this.externalSelection !== value) {        
+      if (this.externalSelection !== value) {
         this.searchExternalRefs(value);
       }
     });
@@ -110,7 +109,6 @@ export class FunderSectionComponent implements OnInit,customSecInterface,AfterVi
     this.loading = true;
     this.ref.detectChanges()
 
-    // environment.EXTERNAL_REFS_API
     /*
       {
       responseType: 'text',
@@ -172,7 +170,7 @@ export class FunderSectionComponent implements OnInit,customSecInterface,AfterVi
       }
       counter+=3
     }
-    
+
     this.onSubmit({ data: { data: funderData } })
   }
 }

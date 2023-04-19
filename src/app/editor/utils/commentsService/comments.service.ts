@@ -1,58 +1,22 @@
 import { Injectable } from '@angular/core';
+import { Subject } from 'rxjs';
+
 import { AllSelection, EditorState, Plugin, PluginKey, Selection, TextSelection } from 'prosemirror-state'
 import { Decoration, DecorationSet, EditorView } from 'prosemirror-view';
-import { Transaction } from 'yjs';
-//@ts-ignore
-import { DocumentHelpers } from 'wax-prosemirror-utilities';
-//@ts-ignore
-import { minBy, maxBy, last } from 'lodash';
-import { from, Subject } from 'rxjs';
-import { Observable } from 'lib0/observable';
-import { state } from '@angular/animations';
-import { ServiceShare } from '@app/editor/services/service-share.service';
-import { Mark, Node } from 'prosemirror-model';
 import { YMap } from 'yjs/dist/src/internals';
-import { checkAllEditorsIfMarkOfCommentExists } from './commentMarksHelpers';
-import { I } from '@angular/cdk/keycodes';
+import { Mark, Node } from 'prosemirror-model';
+
+import { ServiceShare } from '@app/editor/services/service-share.service';
+import { checkAllEditorsIfMarkOfCommentExists, commentData, ydocCommentsObj } from './commentMarksHelpers';
 
 export const articlePosOffset = 24;
 
-export let selInComment = (sel:Selection,node:Node,nodePos:number) =>{
-  let nodestart= nodePos;
-  let nodeend = nodePos+node.nodeSize;
-  return ((sel.from>nodestart&&sel.from<nodeend)||(sel.from>nodestart&&sel.from<nodeend))
-}
-export interface userDataInComment {
-  created_at: string
-  email: string
-  email_verified_at: string
-  id: String
-  name: string
-  userColor:string
-  userContrastColor:string
-  updated_at: string
-}
+// export let selInComment = (sel:Selection,node:Node,nodePos:number) =>{
+//   let nodestart= nodePos;
+//   let nodeend = nodePos+node.nodeSize;
+//   return ((sel.from>nodestart&&sel.from<nodeend)||(sel.from>nodestart&&sel.from<nodeend))
+// }
 
-export interface ydocComment {
-  comment: string
-  date: number
-  id: string
-  userData: userDataInComment
-}
-
-export interface commentYdocSave { commentReplies: ydocComment[], initialComment: ydocComment }
-export interface ydocCommentsObj { [key: string]: commentYdocSave }
-
-export interface commentData {
-  pmDocStartPos: number,
-  pmDocEndPos: number,
-  domTop: number,
-  commentTxt: string,
-  section: string,
-  commentAttrs: any,
-  commentMarkId: string,
-  selected: boolean,
-}
 @Injectable({
   providedIn: 'root'
 })
@@ -135,7 +99,7 @@ export class CommentsService {
       let docSize = edDoc.content.size;
       edDoc.nodesBetween(0,docSize-1,(node,pos,parent,i)=>{
         if(node.marks.find((mark)=>{
-          return (mark.type.name == 'comment'&&mark.attrs.commentmarkid == markid)
+          return ((mark.type.name == 'comment' || mark.type.name == 'overlapComment') && mark.attrs.commentmarkid == markid)
         })&&!commentFound){
           commentFound = true;
           sectionId = sectionid;
@@ -202,7 +166,59 @@ export class CommentsService {
     }, 500)
   }
 
+  addInlineDecoration(state: EditorState, pos: number) {
+    const node = state.doc.nodeAt(pos);
+    if (!node) return;
+
+    const nodeBefore = state.doc.resolve(pos - node.textContent.length > 0 ? pos - node.textContent.length : pos).nodeBefore;
+
+    const comment = node.marks.find((mark) => mark.type.name === 'comment');
+    const overlapComment = node.marks.find((mark) => mark.type.name == 'overlapComment');
+
+    let selectedComment: {
+      mark: Mark,
+      name: string
+    };
+
+    if(comment && overlapComment) {
+      const comment2 = nodeBefore?.marks.find((mark) => mark.type.name === 'comment');
+      const overlapComment2 = nodeBefore?.marks.find((mark) => mark.type.name == 'overlapComment');
+
+      if(comment2) {
+        selectedComment = { mark: comment2, name: 'comment'};
+      } else if (overlapComment2) {
+        selectedComment = { mark: overlapComment2, name: 'overlapComment'};
+      } else {
+        selectedComment = { mark: comment, name: 'comment'};
+      }
+    } else if (comment && !overlapComment) {
+      selectedComment = { mark: comment, name: 'comment'};
+    } else if (!comment && overlapComment){
+      selectedComment = { mark: overlapComment, name: 'overlapComment'};
+    } else {
+      return;
+    }
+
+    let from: number;
+    let to: number;
+
+    const nodeSize = state.doc.content.size;
+    state.doc.nodesBetween(0, nodeSize, (node, pos, parent, i) => {
+      const mark2 = node?.marks.find(mark => mark.type.name == selectedComment.name);
+      if(mark2 && mark2.attrs.id == selectedComment.mark.attrs.id && !from) {
+        from = pos;
+      }
+      if(mark2 && mark2.attrs.id == selectedComment.mark.attrs.id){
+        to = pos + node.nodeSize;
+      }
+    })
+    
+    return { from, to };
+  }
+
   constructor(private serviceShare: ServiceShare) {
+    const self = this;
+
     this.lastSelectedCommentSubject.subscribe((data) => {
       this.lastCommentSelected.commentId = data.commentId
       this.lastCommentSelected.pos = data.pos
@@ -246,8 +262,8 @@ export class CommentsService {
     this.lastCommentSelected = lastCommentSelected
     this.lastSelectedComments = lastSelectedComments
     let setLastSelectedComment = this.setLastSelectedComment
-    let sameAsLastSelectedComment = this.sameAsLastSelectedComment
     let changeInEditors = this.changeInEditors
+    let addInlineDecoration = this.addInlineDecoration;
     this.commentsPlugin = new Plugin({
       key: this.commentPluginKey,
       state: {
@@ -266,75 +282,70 @@ export class CommentsService {
           }
           let selectedAComment = false;
           let commentsMark = newState.schema.marks.comment
-          let foundedChangesMark = false;
-          let commentInSelection = (actualMark: Mark, pos: number) => {
-            err = true
-            errorMessage = "There is a comment here already"
-            if (sameAsLastSelectedComment(actualMark.attrs.id, pos, prev.sectionName, actualMark.attrs.commentmarkid)) {
-              return
-            } else {
-              setLastSelectedComment(actualMark.attrs.id, pos, prev.sectionName, actualMark.attrs.commentmarkid)
-              lastSelectedComments[actualMark.attrs.id] = {
-                commentId: actualMark.attrs.id,
-                commentMarkId: actualMark.attrs.commentmarkid,
-                sectionId: prev.sectionName,
-                pos
-              }
-            }
-          }
+          let overlapCommentMark = newState.schema.marks.overlapComment
+
           let sectionContainer = serviceShare.ProsemirrorEditorsService.editorContainers[prev.sectionName];
           let view = sectionContainer ? sectionContainer.editorView : undefined;
-          if (!(newState.selection instanceof AllSelection) && view && view.hasFocus() ) {
 
-            newState.doc.nodesBetween(from, to, (node, pos, parent) => {
-              if (node.marks.length > 0) {
-                const actualMark = node.marks.find(mark => mark.type == commentsMark);
+          if (!(newState.selection instanceof AllSelection) && view  && view.hasFocus()) {
+            const pos = newState.selection.from;
+            const node = newState.doc.nodeAt(newState.selection.from);
 
-                if (actualMark) {
-                  commentInSelection(actualMark, pos)
-                  addCommentSubject1.next({ type: "commentData", sectionName: prev.sectionName, showBox: false })
+            if(node) {
+              const nodeBefore = newState.doc.resolve(pos - node?.textContent.length > 0 ? pos - node?.textContent.length : pos).nodeBefore;
+
+              const comment = node.marks.find((mark) => mark.type.name === 'comment');
+              const overlapComment = node.marks.find((mark) => mark.type.name == 'overlapComment');
+
+              if(comment && overlapComment && nodeBefore) {
+                const comment2 = nodeBefore?.marks.find((mark) => mark.type.name === 'comment');
+                const overlapComment2 = nodeBefore?.marks.find((mark) => mark.type.name == 'overlapComment');
+
+                if(comment2) {
+                  self.commentInSelection(comment2, pos, prev.sectionName);
+                  selectedAComment = true;
+                } else if (overlapComment2) {
+                  self.commentInSelection(overlapComment2, pos, prev.sectionName);
+                  selectedAComment = true;
+                } else {
+                  self.commentInSelection(comment, pos, prev.sectionName);
                   selectedAComment = true;
                 }
+              } else if (comment && !overlapComment) {
+                self.commentInSelection(comment, pos, prev.sectionName);
+                selectedAComment = true;
+              } else if (!comment && overlapComment){
+                self.commentInSelection(overlapComment, pos, prev.sectionName);
+                selectedAComment = true;
+              }
+            }
 
+            let node1 = newState.doc.nodeAt(from);
+            let node2 = newState.doc.nodeAt(to);
+
+            if(node1 && node2 && from !== to) {
+              let commentMark1 = node1?.marks.find(mark => mark.type === commentsMark || mark.type === overlapCommentMark);
+              let commentMark2 = node2?.marks.find(mark => mark.type === commentsMark || mark.type === overlapCommentMark);
+
+              if(!commentMark1 && !commentMark2) {
+                newState.doc.nodesBetween(from, to, (node, pos, parent) => {    
+                  if(node?.marks.find(mark => mark.type === commentsMark || mark.type === overlapCommentMark)) {
+                    err = true;
+                    errorMessage = "There is a comment here already";
+                  }          
+                  if (node?.attrs.commentable == 'false') {
+                    commentableAttr = false
+                  }
+                })
               }
-              if (node.attrs.commentable == 'false') {
-                commentableAttr = false
-              }
-            })
+            }
           }
 
           if (!commentableAttr && !err) {
-            errorMessage = "You can't leave a comment there."
-            err = true
+            errorMessage = "You can't leave a comment there.";
+            err = true;
           }
 
-          if (!selectedAComment && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() ) {
-
-            let sel = newState.selection
-            let nodeAfterSelection = sel.$to.nodeAfter
-            let nodeBeforeSelection = sel.$from.nodeBefore
-            let foundMark = false;
-            if (nodeAfterSelection) {
-              let pos = sel.to
-              let commentMark = nodeAfterSelection?.marks.find(mark => mark.type === commentsMark);
-
-              if (commentMark) {
-                commentInSelection(commentMark, pos);
-                selectedAComment = true;
-                foundMark = true;
-              }
-            }
-            if (nodeBeforeSelection) {
-              let pos = sel.from - nodeBeforeSelection.nodeSize
-              let commentMark = nodeAfterSelection?.marks.find(mark => mark.type === commentsMark)
-             
-              if (commentMark){
-                commentInSelection(commentMark, pos);
-                selectedAComment = true;
-                foundMark = true;
-              }
-            }
-          }
           if (!selectedAComment && !(newState.selection instanceof AllSelection) && view  && view.hasFocus() && lastCommentSelected.commentId) {
             setLastSelectedComment(undefined, undefined, undefined, undefined);
           }
@@ -342,13 +353,29 @@ export class CommentsService {
           if (!(newState.selection instanceof AllSelection) /* && view.hasFocus() && tr.steps.length > 0 */) {
             changeInEditors();
           }
-          let commentdata = { type: 'commentAllownes', sectionId: prev.sectionName, allow: !err, text, errorMessage, err }
+          let commentdata = { type: 'commentAllownes', sectionId: prev?.sectionName, allow: !err, text, errorMessage, err }
           addCommentSubject1.next(commentdata);
 
           return { ...prev, commentsStatus: commentdata };
         },
       },
+      props: {
+        decorations: (state: EditorState) => {
+          const pluginState = this.commentPluginKey.getState(state);
+          const focusedEditor = this.serviceShare.DetectFocusService.sectionName;
+          const currentEditor = pluginState.sectionName;
+          const { from } = state.selection;
 
+          if (currentEditor != focusedEditor) return DecorationSet.empty;
+
+          const markInfo = addInlineDecoration(state, from);
+          if(!markInfo) return DecorationSet.empty;
+          
+          return DecorationSet.create(state.doc, [
+            Decoration.inline(markInfo.from, markInfo.to, { class: 'active-comment' })
+          ])
+        }
+      },
       view: function () {
         return {
           update: (view, prevState) => {
@@ -413,6 +440,20 @@ export class CommentsService {
     }
   }
 
+  commentInSelection = (actualMark: Mark, pos: number, sectionName: string) => {
+    if (this.sameAsLastSelectedComment(actualMark.attrs.id, pos, sectionName, actualMark.attrs.commentmarkid)) {
+      return
+    } else {
+      this.setLastSelectedComment(actualMark.attrs.id, pos, sectionName, actualMark.attrs.commentmarkid)
+      this.lastSelectedComments[actualMark.attrs.id] = {
+        commentId: actualMark.attrs.id,
+        commentMarkId: actualMark.attrs.commentmarkid,
+        sectionId: sectionName,
+        pos
+      }
+    }
+  }
+
   sameAsLastSelectedComment = (commentId?: string, pos?: number, sectionId?: string, commentMarkId?: string) => {
     if (
       this.lastCommentSelected.commentId != commentId ||
@@ -427,7 +468,7 @@ export class CommentsService {
   }
 
   setLastSelectedComment = (commentId?: string, pos?: number, sectionId?: string, commentMarkId?: string,focus?:true) => {
-      this.lastSelectedCommentSubject.next({ commentId, pos, sectionId, commentMarkId })
+    this.lastSelectedCommentSubject.next({ commentId, pos, sectionId, commentMarkId })
   }
 
   commentsObj: { [key: string]: commentData } = {}
@@ -445,11 +486,12 @@ export class CommentsService {
   }
 
   getComments = (view: EditorView, sectionId: string) => {
-    let commentsMark = view.state.schema.marks.comment
+    let commentsMark = view.state.schema.marks.comment;
+    let overlapComment = view.state.schema.marks.overlapComment;
     let doc = view.state.doc
     let docSize: number = doc.content.size;
     doc.nodesBetween(0, docSize - 1, (node, pos, parent, index) => {
-      const actualMark = node.marks.find(mark => mark.type === commentsMark);
+      const actualMark = node.marks.find(mark => mark.type === commentsMark || mark.type === overlapComment);
 
       if (actualMark) {
         // should get the top position , the node document position , the section id of this view
@@ -478,13 +520,14 @@ export class CommentsService {
         if (lastSelected) {
         }
         if (markIsLastSelected || lastSelected || (!(markIsLastSelected || lastSelected) && !this.commentsObj[actualMark.attrs.id])) {
+          const { textContent, position } = this.getallCommentOccurrences(actualMark.attrs.id, view);
           this.commentsObj[actualMark.attrs.id] = {
             commentMarkId: actualMark.attrs.commentmarkid,
-            pmDocStartPos: pos,
-            pmDocEndPos: pos + node.nodeSize,
+            pmDocStartPos: position,
+            pmDocEndPos: position,
             section: sectionId,
             domTop: domCoords.top - articleElementRactangle.top-articlePosOffset,
-            commentTxt: this.getallCommentOccurrences(actualMark.attrs.id, parent),
+            commentTxt: textContent,
             commentAttrs: actualMark.attrs,
             selected: markIsLastSelected,
           }
@@ -493,29 +536,35 @@ export class CommentsService {
     })
   }
 
-  getallCommentOccurrences(commentId: string, parent: Node) {
-    let nodeSize = parent.content.size;
+  getallCommentOccurrences(commentId: string, view: EditorView) {
+    let nodeSize = view.state.doc.content.size;
     let textContent = '';
+    let position: number;
 
-    parent.nodesBetween(0, nodeSize, (node: Node) => {
+    view.state.doc.nodesBetween(0, nodeSize, (node: Node, pos: number) => {
       const actualMark = node.marks.find(mark => mark.type.name === "comment");
+      const actualMark2 = node.marks.find(mark => mark.type.name === "overlapComment");
       if(actualMark && actualMark.attrs.id == commentId) {
         textContent += node.textContent;
+        position = pos;
+      }
+      if(actualMark2 && actualMark2.attrs.id == commentId) {
+        textContent += node.textContent;
+        position = pos;
       }
     })
 
-    return textContent;
+    return { textContent, position };
   }
 
   removeEditorComment(editorId: any) {
     this.commentsObject[editorId] = [];
-    this.lastSelectedComments[editorId] = undefined
-
+    this.lastSelectedComments[editorId] = undefined;
   }
 
-  init() {
-    this.editorsOuterDiv = document.getElementsByClassName('editor')[0] as HTMLDivElement
-  }
+  // init() {
+  //   this.editorsOuterDiv = document.getElementsByClassName('editor')[0] as HTMLDivElement
+  // }
 
   getPlugin(): Plugin {
     return this.commentsPlugin

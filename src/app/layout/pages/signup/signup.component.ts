@@ -9,11 +9,11 @@ import {FormioBaseService} from '@core/services/formio-base.service';
 import {Observable, Subscription} from 'rxjs';
 import {first, take} from 'rxjs/operators';
 import {uuidv4} from "lib0/random";
-import {lpClient} from "@core/services/oauth-client";
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
 import { HttpErrorResponse } from '@angular/common/http';
-import {environment} from "@env";
+import Packages from '../../../../../package.json';
+import { OauthClient } from '@app/core/services/oauth-client';
 
 @Component({
   selector: 'app-signup',
@@ -21,8 +21,7 @@ import {environment} from "@env";
   styleUrls: ['./signup.component.scss']
 })
 export class SignupComponent implements OnInit, OnDestroy {
-  version = environment.VERSION;
-  build_number = environment.BUILD_NUMBER;
+  version = `${Packages.version}`;
 
   // KeenThemes mock, change it to:
   defaultAuth: any = {
@@ -45,7 +44,8 @@ export class SignupComponent implements OnInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private _broadcaster: BroadcasterService,
-    public formioBaseService: FormioBaseService
+    public formioBaseService: FormioBaseService,
+    private readonly oauthClient: OauthClient
   ) {
   }
 
@@ -136,9 +136,9 @@ export class SignupComponent implements OnInit, OnDestroy {
   }
 
   signIn() {
-    lpClient.signIn().then(async signInResult => {
+    this.oauthClient.lpClient.signIn().then(async signInResult => {
       if (signInResult) {
-        const token: string = await lpClient.getToken();
+        const token: string = await this.oauthClient.lpClient.getToken();
         this.authService.storeToken(token);
         const loginSubscr = this.authService.getUserInfo().pipe(take(1))
           .subscribe((user: UserModel | undefined) => {

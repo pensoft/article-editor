@@ -1,5 +1,11 @@
-<h1>Access change!</h1>
-<p>You article access has been changed from "{{data.oldAccess}}" to "{{data.newAccess}}"</p>
-<div>
-  <button class="normal-btn-done-greenstyle" [mat-dialog-close]>OK</button>
-</div>
+<h2 mat-dialog-title>Access Change!</h2>
+
+<mat-dialog-content class="dynamic-content-height">
+  <div class="options-container" fxLayout="flex nowrap" fxLayoutAlign="flex-start flex-start">
+    <p>You article access has been changed from <strong>"{{data.oldAccess}}"</strong> to <strong>"{{data.newAccess}}"</strong></p>
+  </div>
+</mat-dialog-content>
+
+<mat-dialog-actions align="end" fxLayoutGap="8px">
+  <button mat-flat-button color="primary" [mat-dialog-close]>Ok</button>
+</mat-dialog-actions>

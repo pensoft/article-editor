@@ -76,17 +76,17 @@ export class AddEndNoteComponent implements AfterViewInit,AfterViewChecked {
 
   }
 
-  isValid:boolean = true;
+  isValid:boolean = false;
   formIoSubmission:any
   formIoRoot:any
   onChange(change: any) {
     if(change instanceof Event){
 
     }else{
-      this.isValid
-      this.formIoSubmission = change.data
+      this.isValid = change.data.endNote.length > 0;
+      this.formIoSubmission = change.data;
       if(change.changed&&change.changed.instance){
-        this.formIoRoot = change.changed.instance.root
+        this.formIoRoot = change.changed.instance.root;
       }
     }
   }

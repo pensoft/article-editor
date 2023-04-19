@@ -61,7 +61,7 @@ Suppl. material {{data.supplementary_file_number+1}}:&nbsp;
   </supplementary-file-brief-description>
   <supplementary-file-url *ngIf="data.supplementaryFileURL" contenteditablenode="false">
     <p contenteditablenode="false">
-      <a href="{{data.supplementaryFileURL}}" onclick="event.preventDefault()">Download file.</a>
+      <a href="{{data.supplementaryFileURL}}" onclick="event.preventDefault()">Download file</a>
     </p>
   </supplementary-file-url>
 </block-supplementary-file>

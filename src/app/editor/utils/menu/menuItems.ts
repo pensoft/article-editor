@@ -167,7 +167,7 @@ export const isCommentAllowed = (state: EditorState): boolean => {
   );
 
   // TODO Overlapping comments . for now don't allow
-  if (mark.length >= 1) allowed = false;
+  // if (mark.length >= 1) allowed = false;
   return allowed;
 };
 

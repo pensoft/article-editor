@@ -34,6 +34,11 @@ export class ArticleMetadataComponent implements OnInit {
 
   sectionTemplates: any
   previewMode
+  showAddFigures: boolean
+  showAddReferences: boolean
+  showAddTable: boolean
+  showAddSupplementaryFiles: boolean
+  showAddEndNotes: boolean
   constructor(
     public dialog: MatDialog,
     private http: HttpClient,
@@ -42,9 +47,14 @@ export class ArticleMetadataComponent implements OnInit {
     public enforcer: EnforcerService,
     private serviceShare: ServiceShare,
     private treeService: TreeService,
-    private contributorsApiService:ContributorsApiService,
+    private contributorsApiService: ContributorsApiService,
     private authService: AuthService) {
     this.previewMode = serviceShare.ProsemirrorEditorsService?.previewArticleMode!
+    this.showAddFigures = this.ydocService.hasFigures
+    this.showAddReferences = this.ydocService.hasReferences
+    this.showAddTable = this.ydocService.hasTable
+    this.showAddSupplementaryFiles = this.ydocService.hasSupplementaryMaterials
+    this.showAddEndNotes = this.ydocService.hasFootnotes
   }
 
 

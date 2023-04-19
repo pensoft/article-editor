@@ -91,6 +91,13 @@ export class RefsInArticleDialogComponent implements OnDestroy {
             this.deletedRefsIds = this.deletedRefsIds.filter(id => id != refId);
           }
         })
+        let newRefs = this.getRefsForCurrEditSession();  
+        newRefs = this.serviceShare.CslService.sortCitations(newRefs);
+        this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
+
+        setTimeout(()=>{
+          this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
+        },20)
         this.passRefsToSubject()
       }
     })
@@ -120,14 +127,6 @@ export class RefsInArticleDialogComponent implements OnDestroy {
   }
 
   saveRefsInArticle() {    
-    let newRefs = this.getRefsForCurrEditSession();  
-    newRefs = this.serviceShare.CslService.sortCitations(newRefs);
-    this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
-
-
-    setTimeout(()=>{
-      this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
-    },20)
     this.dialogRef.close()
   }
 
@@ -144,6 +143,12 @@ export class RefsInArticleDialogComponent implements OnDestroy {
     dialogRef.afterClosed().subscribe((data: any) => {
       if (data) {
         this.deletedRefsIds.push(ref.ref.id);
+        let newRefs = this.getRefsForCurrEditSession()
+        this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
+
+        setTimeout(()=>{
+          this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
+        },100)  
         this.passRefsToSubject();
       }
     })
@@ -210,7 +215,15 @@ export class RefsInArticleDialogComponent implements OnDestroy {
             if (this.deletedRefsIds.includes(refId)) {
               this.deletedRefsIds = this.deletedRefsIds.filter(id => id != refId);
             }
-            this.passRefsToSubject()
+            let newRefs = this.getRefsForCurrEditSession();
+            newRefs = this.serviceShare.CslService.sortCitations(newRefs);
+            this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
+
+            setTimeout(()=>{
+              this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
+            },100)  
+            
+            this.passRefsToSubject();
           }
         })
       })

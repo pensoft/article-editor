@@ -1,26 +1,24 @@
-import { Component, Injectable, OnDestroy, OnInit } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 //@ts-ignore
 import * as Y from 'yjs'
+import { Transaction as YTransaction } from 'yjs'
 import { IndexeddbPersistence } from 'y-indexeddb';
 import * as awarenessProtocol from 'y-protocols/awareness.js';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { fromEvent, race } from 'rxjs';
-import { catchError, delay } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { fromEvent, Subject } from 'rxjs';
+import { delay } from 'rxjs/operators';
 import { WebsocketProvider } from 'y-websocket'
-import { environment } from 'src/environments/environment'
-import { Subject } from 'rxjs';
 import { ydocData } from '../utils/interfaces/ydocData';
-import { YMap, YMapEvent } from 'yjs/dist/src/internals';
+import { YMap, YMapEvent, YText } from 'yjs/dist/src/internals';
 import { articleSection, editorData, taxonomicCoverageContentData } from '../utils/interfaces/articleSection';
 import { ServiceShare } from './service-share.service';
 import { ArticlesService } from '@app/core/services/articles.service';
-import { Transaction as YTransaction } from 'yjs';
-import { layoutMenuAndSchemaSettings, mapSchemaDef, parseSecFormIOJSONMenuAndSchemaDefs, parseSecHTMLMenuAndSchemaDefs } from '../utils/fieldsMenusAndScemasFns';
-import { TaxonService } from '../taxons/taxon.service';
-import { CitableElementsSchemasV2Template } from '../utils/section-templates/form-io-json/citableTableJSON';
-import { tablesHtmlTemplate } from '../dialogs/citable-tables-dialog/add-table-dialog/add-table-dialog.component';
-import { supplementaryFileHtmlTemplate } from '../dialogs/supplementary-files/add-supplementary-file/add-supplementary-file.component';
-import { endNoteHtmlTemplate } from '../dialogs/end-notes/add-end-note/add-end-note.component';
+import {
+  mapSchemaDef,
+  parseSecFormIOJSONMenuAndSchemaDefs,
+  parseSecHTMLMenuAndSchemaDefs
+} from '../utils/fieldsMenusAndScemasFns';
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
 
 export interface mainSectionValidations{[pivot_id:string]:{min:number,max:number}}
 
@@ -42,9 +40,11 @@ export class YdocService {
     private http: HttpClient,
     private serviceShare: ServiceShare,
     private articleService: ArticlesService,
+    @Inject(APP_CONFIG) private config: AppConfig
   ) {
     this.serviceShare.shareSelf('YdocService', this)
   }
+  articleTitle?: YText;
   articleStructureFromBackend: any
   articleStructure?: YMap<any>
   articleData: any;
@@ -268,12 +268,14 @@ export class YdocService {
     let supplementaryFilesInitialTemplate = this.supplementaryFilesMap!.get('supplementaryFilesInitialTemplate');
     let supplementaryFilesInitialFormIOJson = this.supplementaryFilesMap!.get('supplementaryFilesInitialFormIOJson');
     let supplementaryFilesNumbers = this.supplementaryFilesMap.get('supplementaryFilesNumbers');
+    let citedSupplementaryFiles = this.supplementaryFilesMap.get('citedSupplementaryFiles');
 
     let endNotes = this.endNotesMap.get('endNotes');
     let endNotesNumbers = this.endNotesMap.get('endNotesNumbers');
     let endNotesInitialTemplate = this.endNotesMap!.get('endNotesInitialTemplate');
     let endNotesInitialFormIOJson = this.endNotesMap!.get('endNotesInitialFormIOJson');
     let endNotesTemplates = this.endNotesMap.get('endNotesTemplates');
+    let endNotesCitations = this.endNotesMap.get('endNotesCitations');
 
     this.usersDataMap = this.ydoc.getMap('userDataMap')
     this.mathMap = this.ydoc.getMap('mathDataURLMap');
@@ -288,6 +290,8 @@ export class YdocService {
     let externalRefs = this.referenceCitationsMap?.get('externalRefs');
     let localRefs = this.referenceCitationsMap?.get('localRefs');
     let refsAddedToArticle = this.referenceCitationsMap?.get('refsAddedToArticle');
+    let citedRefsInArticle = this.referenceCitationsMap.get('citedRefsInArticle')
+
     let customPropsObj = this.customSectionProps?.get('customPropsObj');
     let elementsCitations = this.citableElementsMap?.get('elementsCitations');
 
@@ -385,6 +389,9 @@ export class YdocService {
     if (!endNotesTemplates) {
       this.endNotesMap.set('endNotesTemplates', {})
     }
+    if(!endNotesCitations) {
+      this.endNotesMap.set('endNotesCitations', {});
+    }
     if (!supplementaryFilesTemplates) {
       this.supplementaryFilesMap.set('supplementaryFilesTemplates', {})
     }
@@ -402,6 +409,9 @@ export class YdocService {
     }
     if (!supplementaryFilesNumbers) {
       this.supplementaryFilesMap?.set('supplementaryFilesNumbers', [])
+    }
+    if(!citedSupplementaryFiles) {
+      this.supplementaryFilesMap?.set('citedSupplementaryFiles', {});
     }
     if (!menusAndSchemasDefs) {
       let layoutMenusAndAllowedTagsSettings: any = { menus: {}, schemas: {} }
@@ -433,6 +443,9 @@ export class YdocService {
     }
     if (!referencesInEditor) {
       this.referenceCitationsMap?.set('referencesInEditor', {})
+    }
+    if (!citedRefsInArticle) {
+      this.referenceCitationsMap.set('citedRefsInArticle', {})
     }
     if (!usersColors) {
       this.usersDataMap.set('usersColors', {});
@@ -531,29 +544,62 @@ export class YdocService {
     this.citableElementsSchemasSection = citableElementsSchemasSection
   }
 
+  hasFigures = false
+  hasReferences = false
+  hasTable = false
+  hasSupplementaryMaterials = false
+  hasFootnotes = false
   saveArticleData(data) {
-    let artilceCitableElementsSchemas = data.layout.template.sections.find(x => x.name == "Citable Elements Schemas");
-    if (artilceCitableElementsSchemas) {
-      // filter sections from ctable elements schemas section
-      data.layout.template.sections = data.layout.template.sections.filter(x => x.name != 'Citable Elements Schemas');
-      this.saveCitableElementsSchemas(artilceCitableElementsSchemas);
-    } else {
-      let section = {
-        schema: CitableElementsSchemasV2Template,
-        template: `
-          <ng-template #Tables>	
-          ${tablesHtmlTemplate}
-        </ng-template>
-        <ng-template #SupplementaryMaterials>
-        ${supplementaryFileHtmlTemplate}
-        </ng-template>
-        <ng-template #Footnotes>
-         ${endNoteHtmlTemplate}
-        </ng-template>
-          `
-      }
-      this.saveCitableElementsSchemas(section);
+    let sections = {
+      schema: {
+        sections: [],
+        override: {
+          categories: {}
+        }
+      },
+      template: ""
     }
+
+    let artilceFiguresSchemas = data.layout.template.sections.find(x => x.name == "Figures")
+    if (artilceFiguresSchemas) {
+      data.layout.template.sections = data.layout.template.sections.filter(x => x.name !== "Figures");
+      this.hasFigures = true
+    }
+
+    if (data.layout.template.sections.find(x => x.name == "References")) {
+      data.layout.template.sections = data.layout.template.sections.filter(x => x.name !== "References");
+      this.hasReferences = true
+    }
+
+    let artilceTablesSchemas = data.layout.template.sections.find(x => x.name == "Tables");
+    if (artilceTablesSchemas) {
+      sections.schema.sections.push("Tables")
+      sections.schema.override.categories['Tables'] = artilceTablesSchemas.schema.override.categories.Tables
+      sections.template += artilceTablesSchemas.template
+      data.layout.template.sections = data.layout.template.sections.filter(x => x.name !== "Tables");
+      this.hasTable= true
+    }
+
+    let artilceSupplementaryMaterialsSchemas = data.layout.template.sections.find(x => x.name == "SupplementaryMaterials");
+    if (artilceSupplementaryMaterialsSchemas) {
+      sections.schema.sections.push("SupplementaryMaterials")
+      sections.schema.override.categories['SupplementaryMaterials'] = artilceSupplementaryMaterialsSchemas.schema.override.categories.SupplementaryMaterials
+      sections.template += artilceSupplementaryMaterialsSchemas.template
+      data.layout.template.sections = data.layout.template.sections.filter(x => x.name !== "SupplementaryMaterials");
+      this.hasSupplementaryMaterials = true
+    }
+
+    let artilceFootnotesSchemas = data.layout.template.sections.find(x => x.name == "Footnotes");
+    if (artilceFootnotesSchemas) {
+      sections.schema.sections.push("Footnotes")
+      sections.schema.override.categories['Footnotes'] = artilceFootnotesSchemas.schema.override.categories.Footnotes
+      sections.template += artilceFootnotesSchemas.template
+      data.layout.template.sections = data.layout.template.sections.filter(x => x.name !== "Footnotes");
+      this.hasFootnotes = true
+    }
+
+    this.saveCitableElementsSchemas(sections);
+
     let mainSectionValidations:mainSectionValidations = {}
     let fnc = (sec)=>{
       if(sec.pivot_id){
@@ -563,6 +609,8 @@ export class YdocService {
         }
       }
     }
+    this.articleTitle = this.ydoc.getText("articleName");
+
     data.layout.template.sections.forEach(fnc)
     data.mainSectionValidations = mainSectionValidations
     this.articleData = data;
@@ -662,7 +710,7 @@ export class YdocService {
     })
     this.providerIndexedDb = new IndexeddbPersistence(this.roomName, this.ydoc);
     let buildApp = () => {
-      this.provider = new WebsocketProvider(`wss://${environment.WEBSOCKET_HOST}:${environment.WEBSOCKET_PORT}`, this.roomName, this.ydoc, {
+      this.provider = new WebsocketProvider(`wss://${this.config.websocketHost}:${this.config.websocketPort}`, this.roomName, this.ydoc, {
         connect: true,
         params: {},
         WebSocketPolyfill: WebSocket,

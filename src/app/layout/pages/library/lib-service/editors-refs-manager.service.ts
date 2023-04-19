@@ -47,6 +47,7 @@ export class EditorsRefsManagerService {
     citationPos: number
     }) {
     let refsInYdoc = this.serviceShare.YdocService.referenceCitationsMap.get('refsAddedToArticle');
+    let citedRefsInArticle = this.serviceShare.YdocService.referenceCitationsMap.get('citedRefsInArticle');
     let citationStyle = citedRefs[0]?.citationStyle;
 
     let state = view.state;
@@ -63,11 +64,13 @@ export class EditorsRefsManagerService {
 
     this.serviceShare.YjsHistoryService.captureBigOperation();
 
+    let isDeleted = false;
     if(isEditMode && !citedRefs.length) {
       view.dispatch(state.tr.deleteRange(
         citedRefsAtPos.citationPos - 1,
         citedRefsAtPos.citationPos + citedRefsAtPos.citationNode.nodeSize - 1
       ).setMeta("deleteRefCitation", true));
+      isDeleted = true;
     } else if (!citedRefsAtPos) {
       let citationTxt = schema.text(refsTxts.join(', '));
 
@@ -78,6 +81,19 @@ export class EditorsRefsManagerService {
       view.dispatch(state.tr.replaceWith(citedRefsAtPos.citationPos - 1, citedRefsAtPos.citationPos + citedRefsAtPos.citationNode.nodeSize -  1, schema.nodes.reference_citation.create(nodeAttrs, citationTxt)))
     }
 
+    if(isDeleted) {
+      
+    } else {
+      nodeAttrs.citedRefsIds.forEach((refId) => {
+      if(!citedRefsInArticle[refId]) {
+        citedRefsInArticle[refId] = 1;
+      } else {
+        citedRefsInArticle[refId]++;
+      }
+    })
+    }
+
+    this.serviceShare.YdocService.referenceCitationsMap.set('citedRefsInArticle', citedRefsInArticle);
     this.serviceShare.YjsHistoryService.endBigOperationCapture()
   }
 
