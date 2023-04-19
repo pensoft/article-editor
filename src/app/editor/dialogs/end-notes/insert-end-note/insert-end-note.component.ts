@@ -60,6 +60,7 @@ export class InsertEndNoteComponent implements AfterViewInit {
         this.endNotesNumbers?.push(result.endNote.end_note_ID)
         this.endNotes![result.endNote.end_note_ID] = result.endNote
         this.selectedEndNotes[this.endNotesNumbers?.length-1] = true
+        this.selected.push(result.endNote.end_note_ID);
         this.citableElementsService.writeElementDataGlobal(this.endNotes!, this.endNotesNumbers!,'end_note_citation');
       }
     })

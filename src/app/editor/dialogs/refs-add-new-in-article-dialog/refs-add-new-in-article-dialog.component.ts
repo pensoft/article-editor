@@ -173,8 +173,8 @@ export class RefsAddNewInArticleDialogComponent implements OnInit,AfterViewInit,
       })).subscribe((result: string) => {
       let parsedJson = JSON.parse(result);
 
-      if(parsedJson.length > 0) {
-        this.searchData.push(...parsedJson.mapedReferences);
+      if(parsedJson.mapedReferences.length > 0) {
+        this.searchData ? this.searchData.push(...parsedJson.mapedReferences) : this.searchData = parsedJson.mapedReferences;
         this.loading = false;
         this.changeDetectorRef.detectChanges()
       } 
