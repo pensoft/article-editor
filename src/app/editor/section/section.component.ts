@@ -412,7 +412,7 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
     //const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
 
     //let newSchema = this.formBuilderService.populateDefaultValues(this.treeService.sectionFormGroups[this.section.sectionID].getRawValue(), this.section.formIOSchema, this.section.sectionID, this.sectionForm);
-
+    let editorObj;
     //this.sectionContent = newSchema;
     if(!this.sectionForm){
       this.sectionContent = this.formBuilderService.populateDefaultValues(this.treeService.sectionFormGroups[this.section.sectionID].getRawValue(), this.section.formIOSchema, this.section.sectionID,this.section, this.sectionForm);
@@ -430,11 +430,13 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
       } else {
         this.section.initialRender = undefined;
         try {
-          this.prosemirrorEditorsService.renderEditorInWithId(this.ProsemirrorEditor?.nativeElement, this.section.sectionID, this.section)
+          editorObj = this.prosemirrorEditorsService.renderEditorInWithId(this.ProsemirrorEditor?.nativeElement, this.section.sectionID, this.section)
         } catch (e) {
           console.error(e);
         }
-        this.prosemirrorEditorsService.dispatchEmptyTransaction();
+        if(this.treeService.sectionFormGroups[this.section.sectionID] && this.treeService.sectionFormGroups[this.section.sectionID].controls['content']) {
+          this.prosemirrorEditorsService.dispatchEmptyTransaction();
+        }
         return
       }
     }
