@@ -53,10 +53,10 @@ export class MetaDataTreeComponent implements OnInit,AfterViewInit{
     this.ydocService.ydocStateObservable.subscribe((event) => {
       if (event == 'docIsBuild') {
         this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
-      this.metadataMap=this.ydocService.articleStructure
-      this.treeService.initTreeList(this.articleSectionsStructure!)
-
-    }
+        this.showAll(this.articleSectionsStructure);
+        this.metadataMap=this.ydocService.articleStructure
+        this.treeService.initTreeList(this.articleSectionsStructure!)
+      }
     });
   }
 
