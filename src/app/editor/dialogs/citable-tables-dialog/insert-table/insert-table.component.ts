@@ -21,6 +21,7 @@ export class InsertTableComponent implements AfterViewInit {
   tablesData?: string[]
   tables: { [key: string]: citableTable }
   selectedTables: boolean[] = []
+  selected = [];
   citats: any
 
   constructor(
@@ -51,6 +52,7 @@ export class InsertTableComponent implements AfterViewInit {
         this.tablesData?.push(result.table.tableID)
         this.tables![result.table.tableID] = result.table
         this.selectedTables[this.tablesData?.length-1] = true;
+        this.selected.push(result.table.tableID);
         this.citableElementsService.writeElementDataGlobal( this.tables!, this.tablesData!,'table_citation');
       }
     })
@@ -61,6 +63,11 @@ export class InsertTableComponent implements AfterViewInit {
   }
 
   setSelection(checked: boolean, tableId: string, tableIndex: number) {
+    if(checked) {
+      this.selected.push(tableId);
+    } else {
+      this.selected = this.selected.filter((id) => id !== tableId);
+    }
     this.selectedTables[tableIndex] = checked
   }
 

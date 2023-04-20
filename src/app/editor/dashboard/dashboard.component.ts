@@ -27,7 +27,7 @@ import { debounce } from 'lodash';
 })
 export class DashboardComponent implements AfterViewInit, AfterViewChecked {
 
-  displayedColumns: string[] = ['id', 'title', 'date', 'lastupdated', 'layout-type', 'autor', 'buttons']; // template-type - column removed
+  displayedColumns: string[] = ['id', 'title', 'date', 'layout-type', 'autor', 'buttons']; // template-type and lastupdated - column removed
   data: any[] = [];
   realData: any[] = [];
 

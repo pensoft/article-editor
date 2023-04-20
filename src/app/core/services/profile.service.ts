@@ -1,18 +1,19 @@
-import { HttpClient, HttpErrorResponse } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { HttpClient } from '@angular/common/http';
+import { Inject, Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
 import { IPermission } from '../interfaces/permission.interface';
 import { ISingInEmails } from '../interfaces/sing-in-emails.interface';
 import { UserModel } from '../models/user.model';
-import { environment } from '@env';
-const API_URL = environment.apiUrl;
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class ProfileService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(APP_CONFIG) private config: AppConfig,
+    ) {}
 
   public getOtherEmailsInfo(
     img: string,
@@ -31,19 +32,16 @@ export class ProfileService {
     setPassword: string,
     confirmPassword: string
   ): Observable<UserModel> {
-    return this.http.post<UserModel>(`${API_URL}/`, {
+    return this.http.post<UserModel>(`${this.config.apiUrl}/`, {
       setPassword,
       confirmPassword,
     });
-    // ne znam koi link da sloja
   }
   public submitPermissionForm(model: IPermission) {
-    return this.http.post(`http://localhost:4200/profileData`, model);
-    // ne znam kam koi link da go post-na
+    return this.http.post(`${this.config.apiUrl}/profileData`, model);
   }
 
   public deleteAccount() {
-    return this.http.delete(`${API_URL}/users/{id}`);
-    // bi trqbvalo tova da e linka
+    return this.http.delete(`${this.config.apiUrl}/users/{id}`);
   }
 }

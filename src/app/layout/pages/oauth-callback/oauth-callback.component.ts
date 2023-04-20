@@ -7,7 +7,7 @@ import { CONSTANTS } from '@core/services/constants';
 import { catchError, map, switchMap, take } from 'rxjs/operators';
 import { of, pipe, Subscription } from 'rxjs';
 import { UserModel } from '@core/models/user.model';
-import {lpClient} from "@core/services/oauth-client";
+import { OauthClient } from '@app/core/services/oauth-client';
 
 @Component({
   selector: 'app-oauth-callback',
@@ -21,7 +21,8 @@ export class OauthCallbackComponent implements OnInit {
               private route: ActivatedRoute,
               private router: Router,
               private _broadcaster: BroadcasterService,
-              public formioBaseService: FormioBaseService) { }
+              public formioBaseService: FormioBaseService,
+              private readonly oauthClient: OauthClient) { }
 
   ngOnInit(): void {
     this.returnUrl =
@@ -30,8 +31,8 @@ export class OauthCallbackComponent implements OnInit {
 
     this.hasError = false;
     const begin = performance.now();
-    lpClient.handleRedirectCallback().then( async signInResult => {
-      const token = await lpClient.getToken();
+    this.oauthClient.lpClient.handleRedirectCallback().then( async signInResult => {
+      const token = await this.oauthClient.lpClient.getToken();
       this.authService.storeToken(token);
       const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
         .subscribe((user: UserModel | undefined) => {

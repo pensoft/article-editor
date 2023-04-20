@@ -21,9 +21,11 @@ export class CitableElementsContextMenuService {
   elementCitationsHTMLtags = Object.values(citationElementMap).map((x) => x.htmlTag);
   elementCitationsMarkNames = Object.keys(citationElementMap)
 
-  elementsDialogsComponentsMap ={
+  elementsData ={
     'supplementary_file_citation':{
       editElementCitationComponent:InsertSupplementaryFileComponent,
+      elementMap: 'supplementaryFilesMap',
+      citedMap: 'citedSupplementaryFiles'
     },
     'table_citation':{
       editElementCitationComponent:InsertTableComponent,
@@ -33,6 +35,8 @@ export class CitableElementsContextMenuService {
     },
     'end_note_citation':{
       editElementCitationComponent:InsertEndNoteComponent,
+      elementMap: 'endNotesMap',
+      citedMap: 'endNotesCitations'
     }
   }
 
@@ -107,13 +111,26 @@ export class CitableElementsContextMenuService {
 
         if (mark) {
           let data = JSON.parse(JSON.stringify(mark.attrs));
-          let dialogRef = dialog.open(this.elementsDialogsComponentsMap[typeOfEl].editElementCitationComponent, {
-            width: '80%',
-            height: '90%',
+          
+          let dialogRef = dialog.open(this.elementsData[typeOfEl].editElementCitationComponent, {
+            width: '70%',
+            // height: '90%',
             panelClass: 'insert-figure-in-editor',
-            data: { view, citatData: data, sectionID: prev.sectionName }
+            data: { view, citatData: data, sectionID: prev.sectionName, isEdit: true }
           });
           dialogRef.afterClosed().subscribe(result => {
+            if(result?.isEdit) {
+              if(typeOfEl == 'supplementary_file_citation' || typeOfEl == 'end_note_citation') {            
+                let elementMap = this.serviceShare.YdocService[this.elementsData[typeOfEl].elementMap].get(this.elementsData[typeOfEl].citedMap);
+                mark.attrs.citated_elements.forEach(citedElId => {
+                  if(elementMap[citedElId] > 1) {
+                    elementMap[citedElId]--;
+                  } else {
+                    delete elementMap[citedElId];
+                  }
+                })
+              }
+            }
             shouldCloseContextMenu = true
             view.dispatch(view.state.tr)
           });
@@ -141,6 +158,18 @@ export class CitableElementsContextMenuService {
           if(found){
             shouldCloseContextMenu = true;
             view.dispatch(view.state.tr.delete(nodePos,nodePos + nodeSize));
+
+            if(typeOfEl == 'supplementary_file_citation' || typeOfEl == 'end_note_citation') {              
+              let elementMap = this.serviceShare.YdocService[this.elementsData[typeOfEl].elementMap].get(this.elementsData[typeOfEl].citedMap);
+              
+              mark.attrs.citated_elements.forEach(citedElId => {
+                if(elementMap[citedElId] > 1) {
+                  elementMap[citedElId]--;
+                } else {
+                  delete elementMap[citedElId];
+                }
+              })
+            }
           }else{
             shouldCloseContextMenu = true;
             view.dispatch(view.state.tr)

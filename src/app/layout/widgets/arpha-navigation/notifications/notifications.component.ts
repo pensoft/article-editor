@@ -1,6 +1,5 @@
 import { AfterViewInit, ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
-import { Router } from '@angular/router';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { AllnotificationsComponent } from '../allnotifications/allnotifications.component';
 import { notificationEvent, NotificationsService } from './notifications.service';
@@ -16,7 +15,7 @@ export class NotificationsComponent implements AfterViewInit {
   lastNNotifications:notificationEvent[] = [];
   NeventsNoShow = 3;
   NumberofNewNotifications = 0;
-  displayedColumns: string[] = ['status', 'event', 'date'];
+  displayedColumns: string[] = ['status', 'event', 'document', 'date'];
   constructor(
     private serviceShare:ServiceShare,
     private changeDetection:ChangeDetectorRef,
@@ -24,14 +23,15 @@ export class NotificationsComponent implements AfterViewInit {
     ) { }
 
   ngAfterViewInit(): void {
-    this.serviceShare.NotificationsService.notificationsBehaviorSubject.subscribe((notifications:notificationEvent[])=>{
+    console.log(this.serviceShare);
+    this.serviceShare.NotificationsService?.notificationsBehaviorSubject.subscribe((notifications:notificationEvent[])=>{
       this.NumberofNewNotifications = 0
       notifications.forEach((event)=>{if(event.new){this.NumberofNewNotifications++;}})
       let filteredNew = notifications.filter(event=>event.new);
       this.lastNNotifications = filteredNew.sort((a,b)=>b.date-a.date).slice(0,this.NeventsNoShow)
       this.changeDetection.detectChanges()
     })
-    this.serviceShare.NotificationsService.getAllNotifications()
+    this.serviceShare.NotificationsService?.getAllNotifications()
   }
 
   openAllNotificationsDialog(){
@@ -57,6 +57,10 @@ export class NotificationsComponent implements AfterViewInit {
   }
 
   getName(element) {
-    return element.data?.article_title || element.event;
+    return element.data?.article_title || element.docName;
+  }
+
+  getEvent(element) {
+    return element.event;
   }
 }

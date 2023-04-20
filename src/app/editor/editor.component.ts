@@ -74,6 +74,7 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked,
   articleTemplate: string;
 
   titleControl = new FormControl();
+  unobserveTitle: () => void;
 
   @ViewChild('trackChangesOnOffBtn', {read: ElementRef})
   trackChangesOnOffBtn?: ElementRef;
@@ -129,12 +130,14 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked,
     this.previewMode = this.prosemirrorEditorServie.previewArticleMode
     this.titleControl.valueChanges
       .pipe(
-        debounceTime(300),
+        debounceTime(1500),
         distinctUntilChanged(),
         pairwise() // gets a pair of old and new value
       )
-      .subscribe(([oldValue, newName]) => {
-        if (oldValue !== newName) {
+      .subscribe(([oldValue, newName]) => {        
+        if(oldValue !== newName && newName.trim() !== '' && this.titleControl.dirty) {
+          this.ydocService.articleTitle.delete(0, this.ydocService.articleTitle.length);
+          this.ydocService.articleTitle.insert(0, newName);
           this.articlesService
             .putArticleById(
               this.ydocService.articleData.id,
@@ -312,7 +315,8 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked,
             this.commentService.markIdOfScrollComment = commentId;
           }
           this.ydocService.init(roomName!, {data: userInfo}, articleData);
-
+          this.ydocService.articleTitle.delete(0, this.ydocService.articleTitle.toString().length);
+          this.ydocService.articleTitle.insert(0, this.ydocService.articleTitle.toString());
         });
       });
 
@@ -356,6 +360,15 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked,
         this.articleTemplate = this.ydocService.articleData.layout.name;
       }
     });
+
+    const observeArticleTitle = (event: Y.YTextEvent, tr) => {
+      if(event.target.toString().length > 0) {
+        this.titleControl.setValue(event.target.toString());
+      }
+    }
+
+    this.ydocService.articleTitle.observe(observeArticleTitle);
+    this.unobserveTitle = () => this.ydocService.articleTitle.unobserve(observeArticleTitle);
 
     this.innerWidth = window.innerWidth;
   }
@@ -435,5 +448,6 @@ export class EditorComponent implements OnInit, AfterViewInit, AfterViewChecked,
 
   ngOnDestroy(): void {
     this.subscription.unsubscribe();
+    this.unobserveTitle();
   }
 }

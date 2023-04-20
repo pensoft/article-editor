@@ -19,7 +19,7 @@
           </mat-error>
         </mat-form-field>
       </div>
-      <div fxLayout="column nowrap">
+      <div fxLayout="column nowrap" fxFlex="0 1 0">
         <mat-label class="upper-label">Media type</mat-label>
         <mat-form-field class="type-edit-field" appearance="fill">
           <mat-select [formControl]="typeFromControl">
@@ -34,10 +34,10 @@
       </div>
     </div>
     <div *ngIf="typeFromControl.value == 'image'">
-      <app-dropzone (uploaded)="fileIsUploaded($event)" [fileType]="'image/*'"></app-dropzone>
+      <app-dropzone (uploaded)="fileIsUploaded($event)" (removed)="removeFile('image')" [fileType]="'image/*'"></app-dropzone>
     </div>
     <div *ngIf="typeFromControl.value == 'video'">
-      <app-dropzone (uploaded)="fileIsUploaded($event)" [fileType]="'video/*'"></app-dropzone>
+      <app-dropzone (uploaded)="fileIsUploaded($event)" (removed)="removeFile('video')" [fileType]="'video/*'"></app-dropzone>
     </div>
     <div *ngIf="typeFromControl.value == 'embedded video'">
       <app-dropzone [disabled]="true"></app-dropzone>
@@ -50,12 +50,11 @@
       </div>
 
       <div class="figure-component-edit-preview">
-        <div *ngIf="typeFromControl.valid&&urlFormControl.valid">
+        <div *ngIf="typeFromControl.valid&&isUrlFormControlValid()">
           <img *ngIf="typeFromControl.value == 'image'" src="{{urlFormControl.value}}" alt="">
-          <iframe *ngIf="typeFromControl.value == 'video'" [src]="urlFormControl.value | safe">
-          </iframe>
-          <iframe *ngIf="typeFromControl.value == 'embedded video'" [src]="this.videoUrl | safe">
-          </iframe>
+          <video  *ngIf="typeFromControl.value == 'video'"  [src]="urlFormControl.value | safe" width='320' height='240' controls="controls"></video>
+        <iframe *ngIf="typeFromControl.value == 'embedded video'" [src]="this.videoUrl | safe">
+        </iframe>
         </div>
       </div>
     </div>

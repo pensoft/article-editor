@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
-import { environment } from '@env';
-import {lpClient, ssoClient} from "@core/services/oauth-client";
+import { Component, Inject, OnInit } from '@angular/core';
+import Packages from '../../../../../package.json';
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
+import { OauthClient } from '@app/core/services/oauth-client';
 import {take} from "rxjs/operators";
 import {UserModel} from "@core/models/user.model";
 import {ServiceShare} from "@app/editor/services/service-share.service";
@@ -15,11 +16,12 @@ import {FormioBaseService} from "@core/services/formio-base.service";
   styleUrls: ['./landing.component.scss']
 })
 export class LandingComponent implements OnInit {
-  version = environment.VERSION;
-  build_number = environment.BUILD_NUMBER;
+  version = `${Packages.version}`;
   hasError!: boolean;
 
   constructor(
+    @Inject(APP_CONFIG) private config: AppConfig,
+    private readonly oauthClient: OauthClient,
     private serviceShare: ServiceShare,
     private authService: AuthService,
     private route: ActivatedRoute,
@@ -32,16 +34,14 @@ export class LandingComponent implements OnInit {
   }
 
   goToRegister() {
-    window.location.href = `${environment.authServer}/register?return_uri=${encodeURIComponent(window.location.href)}`
+    window.location.href = `${this.config.authService}/register?return_uri=${encodeURIComponent(window.location.href)}`
   }
 
   signIn() {
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
-    console.log('CLICK');
-    lpClient.signIn().then(async signInResult => {
-      console.log('CLICK Result', signInResult)
+    this.oauthClient.lpClient.signIn().then(async signInResult => {
       if (signInResult) {
-        const token: string = await lpClient.getToken();
+        const token: string = await this.oauthClient.lpClient.getToken();
         this.authService.storeToken(token);
         const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
           .subscribe((user: UserModel | undefined) => {
@@ -61,9 +61,9 @@ export class LandingComponent implements OnInit {
   orcidSignIn() {
     this.serviceShare.ProsemirrorEditorsService.spinSpinner();
 
-    lpClient.signIn().then(async signInResult => {
+    this.oauthClient.lpClient.signIn().then(async signInResult => {
       if (signInResult) {
-        const token: string = await ssoClient.getToken();
+        const token: string = await this.oauthClient.ssoClient.getToken();
         this.authService.storeToken(token);
         const loginSubscr = this.authService.getUserInfo(token).pipe(take(1))
           .subscribe((user: UserModel | undefined) => {

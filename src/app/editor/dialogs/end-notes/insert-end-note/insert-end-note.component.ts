@@ -22,6 +22,7 @@ export class InsertEndNoteComponent implements AfterViewInit {
   endNotesNumbers?: string[]
   endNotes: { [key: string]: endNote }
   selectedEndNotes: boolean[] = []
+  selected = [];
   citats: any
 
   constructor(
@@ -31,13 +32,16 @@ export class InsertEndNoteComponent implements AfterViewInit {
     public dialog: MatDialog,
     private citableElementsService:CitableElementsService,
     private prosemirrorEditorsService: ProsemirrorEditorsService,
-    @Inject(MAT_DIALOG_DATA) public data: { view: EditorView, citatData: any,sectionID:string }
+    @Inject(MAT_DIALOG_DATA) public data: { view: EditorView, citatData: any,sectionID:string, isEdit: boolean }
   ) {
     this.endNotesNumbers = this.ydocService.endNotesMap?.get('endNotesNumbers')
     this.endNotes = this.ydocService.endNotesMap?.get('endNotes')
     this.citats = this.ydocService.citableElementsMap?.get('elementsCitations')
     Object.keys(this.endNotes).forEach((endNoteId, i) => {
       this.selectedEndNotes[i] = false;
+      if(this.data.citatData?.citated_elements.includes(endNoteId)) {
+        this.selected.push(endNoteId);
+      }
     })
   }
 
@@ -56,13 +60,19 @@ export class InsertEndNoteComponent implements AfterViewInit {
         this.endNotesNumbers?.push(result.endNote.end_note_ID)
         this.endNotes![result.endNote.end_note_ID] = result.endNote
         this.selectedEndNotes[this.endNotesNumbers?.length-1] = true
+        this.selected.push(result.endNote.end_note_ID);
         this.citableElementsService.writeElementDataGlobal(this.endNotes!, this.endNotesNumbers!,'end_note_citation');
       }
     })
   }
 
   setSelection(checked: boolean, endNoteID: string, endNoteIndex: number) {
-    this.selectedEndNotes[endNoteIndex] = checked
+    if(checked) {
+      this.selected.push(endNoteID);
+    } else {
+      this.selected = this.selected.filter((id) => id !== endNoteID);
+    }
+    this.selectedEndNotes[endNoteIndex] = checked;
   }
 
   ngAfterViewInit(): void {
@@ -120,7 +130,7 @@ export class InsertEndNoteComponent implements AfterViewInit {
           sectionID = this.data.sectionID;
         }
         this.citableElementsService.citateEndNote(this.selectedEndNotes, sectionID,this.data.citatData);
-        this.dialogRef.close()
+        this.dialogRef.close({isEdit: this.data.isEdit})
       }
     }
     catch (e) {

@@ -1,28 +1,30 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { environment } from '@env';
-import { Observable, Subscriber } from 'rxjs';
+import { Inject, Injectable } from '@angular/core';
 import { map } from 'rxjs/operators';
-const API_USERS_URL = environment.apiUrl;
+import { APP_CONFIG, AppConfig } from '@core/services/app-config';
+
 @Injectable({
   providedIn: 'root',
 })
 export class AllUsersService {
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(APP_CONFIG) private config: AppConfig,
+    ) {}
 
   public getAllUsers(params:{[key:string]:string|number}) {
-    return this.http.get(`${API_USERS_URL}/users`,{params}).pipe(map((x:any)=>{return x.data||[]}));
+    return this.http.get(`${this.config.authUrl}/users`,{params}).pipe(map((x:any)=>{return x.data||[]}));
   }
 
   public getAllUsersV2(params:{[key:string]:string|number}) {
-    return this.http.get(`${API_USERS_URL}/users`,{params});
+    return this.http.get(`${this.config.authUrl}/users`,{params});
   }
 
   sendCommentMentionInformation(body:any){
-    return this.http.post(`${API_USERS_URL}/collaborators/comment`,body)
+    return this.http.post(`${this.config.apiUrl}/collaborators/comment`,body)
   }
 
   sendInviteInformation(body:any){
-    return this.http.post(`${API_USERS_URL}/collaborators/invite`,body)
+    return this.http.post(`${this.config.apiUrl}/collaborators/invite`,body)
   }
 }

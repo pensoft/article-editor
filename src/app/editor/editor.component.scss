@@ -13,18 +13,31 @@
       flex-shrink: 0;
       margin-right: auto;
 
-      .active {
-        color: var(--color-00b1b2) !important;
-        font-weight: bold;
-         ::ng-deep {
-          .b {
-            stroke: var(--color-00b1b2) !important;
+      button {
+        color: var(--color-192956);
+        padding: 0 16px 0 0;
+
+        ::ng-deep {
+          .mat-button-focus-overlay {
+            display: none;
           }
-          .a {
-            fill: var(--color-00b1b2) !important;
+        }
+
+        &.active {
+          color: var(--color-00b1b2) !important;
+          font-weight: bold;
+          ::ng-deep {
+            .b {
+              stroke: var(--color-00b1b2) !important;
+            }
+            .a {
+              fill: var(--color-00b1b2) !important;
+            }
           }
         }
       }
+
+
     }
 
     .middle-group {

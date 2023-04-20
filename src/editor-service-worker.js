@@ -1,4 +1,4 @@
-//const Yindexeddb = require('y-indexeddb') 
+//const Yindexeddb = require('y-indexeddb')
 let FOLDER_NAME = 'post_requests'
 
 function openDatabase() {
@@ -10,7 +10,7 @@ function openDatabase() {
         console.error('IndexedDB error:', error)
     }
     indexedDBOpenRequest.onupgradeneeded = function() {
-            // This should only executes if there's a need to 
+            // This should only executes if there's a need to
             // create/update db.
             this.result.createObjectStore('post_requests', {
                 autoIncrement: true,
@@ -79,12 +79,12 @@ function sendPostToServer() {
                             'readwrite').delete(savedRequest.id)
                     }
                 }).catch(function(error) {
-                    // This will be triggered if the network is still down. 
+                    // This will be triggered if the network is still down.
                     // The request will be replayed again
                     // the next time the service worker starts up.
                     console.error('Send to Server failed:', error)
                         // since we are in a catch, it is important an error is
-                        //thrown,so the background sync knows to keep retrying 
+                        //thrown,so the background sync knows to keep retrying
                         // the send to server
                     throw error
                 })

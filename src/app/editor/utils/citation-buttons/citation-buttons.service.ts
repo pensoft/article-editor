@@ -120,7 +120,6 @@ export class CitationButtonsService {
     })
       return;
     } else if (referenceCitationInfo && from != to) {
-      // this.serviceShare.TaxonService.canShowTaxonButtons.next(false);
       const editReferenceItemBtn = editCitableElementsContainer.getElementsByClassName('edit-citable-button')[0] as HTMLButtonElement;
       const editCitationBtn = editCitationBtnContainer.getElementsByClassName('edit-cite-ref-button')[0] as HTMLButtonElement;
       const deleteCitationBtn = deleteCitationBtnContainer.getElementsByClassName('delete-citation-btn')[0] as HTMLButtonElement;
@@ -142,13 +141,11 @@ export class CitationButtonsService {
       })
 
       editCitationBtn.addEventListener("click", (event: MouseEvent) => {
-          // const referenceCitationInfo = citeRefPosition(view.state, anchor.pos);
-          // if(!referenceCitationInfo) return;
           const { from, referenceCitation } = referenceCitationInfo;
           const { citedRefsCiTOs, citedRefsIds, citationStyle } = referenceCitation.attrs;
           const texts = referenceCitation.textContent.split(', ');
-          const data = citedRefsIds.map((refCitationID: string, i: number) => ({ text: texts[i], refCitationID, citationStyle }))
-          
+          const data = citedRefsIds.map((refCitationID: string, i: number) => ({ text: texts[i], refCitationID, citationStyle }));
+          const citedRefsInArticle = this.serviceShare.YdocService.referenceCitationsMap.get('citedRefsInArticle');
 
           this.dialog.open(RefsInArticleCiteDialogComponent, {
               panelClass: 'editor-dialog-container',
@@ -157,7 +154,16 @@ export class CitationButtonsService {
             })
             .afterClosed()
             .subscribe((result) => {
-              if (result) {                
+              if (result) {
+                citedRefsIds.forEach((refId: string) => {
+                  if(citedRefsInArticle[refId] > 1) {
+                    citedRefsInArticle[refId]--;
+                  } else {
+                    delete  citedRefsInArticle[refId];
+                  }
+                })
+                this.serviceShare.YdocService.referenceCitationsMap.set('citedRefsInArticle', citedRefsInArticle);
+
                 const citationObj = {
                   citedRefsIds,
                   citationNode: referenceCitation,
@@ -176,15 +182,22 @@ export class CitationButtonsService {
       })
 
       deleteCitationBtn.addEventListener("click", (event: MouseEvent) => {
-          // const referenceCitationInfo = citeRefPosition(view.state, anchor.pos);
-          // if(!referenceCitationInfo) return;
           const { from, referenceCitation } = referenceCitationInfo;
+          const citedRefsInArticle = this.serviceShare.YdocService.referenceCitationsMap.get('citedRefsInArticle');
 
           const tr = view.state.tr.deleteRange(
             from - 1,
             from + referenceCitation.nodeSize - 1
           );
           view.dispatch(tr.setMeta("deleteRefCitation", true));
+          referenceCitation.attrs.citedRefsIds.forEach((refId: string) => {
+            if(citedRefsInArticle[refId] > 1) {
+              citedRefsInArticle[refId]--;
+            } else {
+              delete  citedRefsInArticle[refId];
+            }
+          })
+          this.serviceShare.YdocService.referenceCitationsMap.set('citedRefsInArticle', citedRefsInArticle);
           btnsWrapper.style.display = "none";
       })
     }    

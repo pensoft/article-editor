@@ -142,13 +142,13 @@ export class FormBuilderService {
     } else if(type == "radio"){
       this.updateValue(component, submission,props, formGroup)
       callback(component)
-    }else if (type == 'panel') {
+    } else if (type == 'panel') {
       component.components.forEach((subcomp: any) => {
         this.updateDefaultValue(subcomp, submission,props,callback, formGroup)
         callback(subcomp)
       })
       callback(component)
-      } else if (type == 'table') {
+    } else if (type == 'table') {
       for(let i = 0 ; i < component.rows.length;i++){
         let row = component.rows[i];
         for(let j = 0 ; j < row.length;j++){

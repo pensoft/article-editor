@@ -43,6 +43,18 @@
       <ul *ngFor="let error of nonCitedFiguresValidation">
         <li>{{error.errorMessage}}</li>
       </ul>
+      <div class="error-type" *ngIf="nonCitedTablesValidation.length>0">Tables</div>
+      <ul *ngFor="let error of nonCitedTablesValidation">
+        <li>{{error.errorMessage}}</li>
+      </ul>
+      <div class="error-type" *ngIf="nonCitedSupplementaryFilesValidation.length>0">Supplementary Files</div>
+      <ul *ngFor="let error of nonCitedSupplementaryFilesValidation">
+        <li>{{error.errorMessage}}</li>
+      </ul>
+      <div class="error-type" *ngIf="nonCitedEndNotesValidation.length>0">EndNotes</div>
+      <ul *ngFor="let error of nonCitedEndNotesValidation">
+        <li>{{error.errorMessage}}</li>
+      </ul>
       <div class="error-type" *ngIf="articleValidations.length>0">Other</div>
       <ul *ngFor="let error of articleValidations">
         <li>{{error.errorMessage}}</li>

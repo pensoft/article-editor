@@ -12,36 +12,7 @@ https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image5.jpg
 https://s3-pensoft.s3.eu-west-1.amazonaws.com/public/image6.jpg */
 export const figureBasicData = {
   "description": "<p class=\"set-align-left\">Caption basic example</p>",
-  "components": [
-    
-      {
-        "url": "https://ps-cdn.dev.scalewest.com/image/9d436583-e3ae-44a3-9e78-5f1478fe1828",
-        "description": `<p align="set-align-left" class="set-align-left">moon</p>`,
-        "componentType": "image",
-        "pdfImgOrigin": "https://ps-cdn.dev.scalewest.com/image/9d436583-e3ae-44a3-9e78-5f1478fe1828",
-      },
-      {
-        "url": "https://ps-cdn.dev.scalewest.com/image/bf7c8b07-0143-47d6-811d-4174685fb2cb",
-        "description": `<p align="set-align-left" class="set-align-left">Sunrise</p>`,
-        "componentType": "image",
-        "pdfImgOrigin": "https://ps-cdn.dev.scalewest.com/image/bf7c8b07-0143-47d6-811d-4174685fb2cb",
-      },
-     {
-      "url": "https://ps-cdn.dev.scalewest.com/image/f233515b-dda3-4f6a-b646-2a8e7bb94063",
-      "description": `<p align="set-align-left" class="set-align-left">Forest</p>`,
-      "componentType": "image",
-      "pdfImgOrigin": "https://ps-cdn.dev.scalewest.com/image/f233515b-dda3-4f6a-b646-2a8e7bb94063",
-      
-      },
-      {
-      
-        "url": "https://ps-cdn.dev.scalewest.com/image/02a5f079-bde8-40b3-bc3b-60bc0faf5a62",
-        "description": `<p align="set-align-left" class="set-align-left">Galaxy</p>`,
-        "componentType": "image",
-        "pdfImgOrigin": "https://ps-cdn.dev.scalewest.com/image/02a5f079-bde8-40b3-bc3b-60bc0faf5a62",
-      
-    }
-  ],
+  "components": [],
   "figureID": "fa679ae6-d6af-44fb-aecf-21fd6492603f",
   "figurePlace": "endEditor",
   "viewed_by_citat": "endEditor",
