@@ -15,7 +15,7 @@ export class NotificationsComponent implements AfterViewInit {
   lastNNotifications:notificationEvent[] = [];
   NeventsNoShow = 3;
   NumberofNewNotifications = 0;
-  displayedColumns: string[] = ['status', 'event', 'date'];
+  displayedColumns: string[] = ['status', 'event', 'document', 'date'];
   constructor(
     private serviceShare:ServiceShare,
     private changeDetection:ChangeDetectorRef,
@@ -57,6 +57,10 @@ export class NotificationsComponent implements AfterViewInit {
   }
 
   getName(element) {
-    return element.data?.article_title || element.event;
+    return element.data?.article_title || element.docName;
+  }
+
+  getEvent(element) {
+    return element.event;
   }
 }
