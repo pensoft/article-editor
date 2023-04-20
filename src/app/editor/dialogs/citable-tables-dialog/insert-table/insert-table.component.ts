@@ -52,6 +52,7 @@ export class InsertTableComponent implements AfterViewInit {
         this.tablesData?.push(result.table.tableID)
         this.tables![result.table.tableID] = result.table
         this.selectedTables[this.tablesData?.length-1] = true;
+        this.selected.push(result.table.tableID);
         this.citableElementsService.writeElementDataGlobal( this.tables!, this.tablesData!,'table_citation');
       }
     })
