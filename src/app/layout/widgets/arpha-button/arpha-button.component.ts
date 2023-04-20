@@ -12,6 +12,7 @@ export class ArphaButtonComponent implements OnInit {
   @Input() label: string = '';
   @Input() icon: string = '';
   @Input() routerLink: string = '';
+  @Input() image: string = '';
 
   @Output() clickEvent: EventEmitter<MouseEvent> = new EventEmitter();
 

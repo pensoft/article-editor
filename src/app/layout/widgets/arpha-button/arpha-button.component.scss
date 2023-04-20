@@ -57,6 +57,20 @@
         }
     }
 }
+:host-context(.third) .arpha-button {
+  color: var(--color-818181);
+  &:disabled {
+    opacity: 0.7;
+    ::ng-deep {
+      .mat-button-wrapper {
+        opacity: 0.7;
+      }
+    }
+  }
+}
+:host-context(.noborder) .arpha-button {
+    border: none;
+}
 
 :host-context(.gray) .arpha-button {
     background-color: transparent;
@@ -93,4 +107,7 @@
     font-family: "Open Sans" !important;
     letter-spacing: 0;
     font-weight: 600 !important;
+    &:hover {
+      opacity: 0.9;
+    }
 }

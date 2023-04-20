@@ -13,8 +13,9 @@
       </h1>
 
       <div class="actions">
-        <arpha-button label="Login" routerLink="/login" class="small primary login-button"></arpha-button>
-        <arpha-button label="Register" (clickEvent)="goToRegister()" class="small secondary register-button"></arpha-button>
+        <arpha-button label="Login" (clickEvent)="signIn()" class="small primary login-button"></arpha-button>
+        <arpha-button label="Register" (clickEvent)="goToRegister()" class="small secondary noborder register-button"></arpha-button>
+        <arpha-button label="Sign in with ORCID" (clickEvent)="orcidSignIn()" class="third orcid-button" image="./assets/icons/orcid.svg"></arpha-button>
       </div>
     </div>
   </div>
@@ -42,9 +43,9 @@
         <img src="./assets/img/online_collaboration.jpg" height="260px" width="260px" alt="girl">
       </div>
       <ul class="card-content">
-        <li>Write a manuscript online</li>
-        <li>Easy online revisions and editing</li>
-        <li>Submit it at a click of a button</li>
+        <li>Work with co-authors and peers</li>
+        <li>Pre-submission external reviews</li>
+        <li>Automated technical validation</li>
       </ul>
     </div>
     <div class="card">
@@ -55,9 +56,9 @@
         <img src="./assets/img/integrated_services.jpg" height="260px" width="260px" alt="girl">
       </div>
       <ul class="card-content">
-        <li>Write a manuscript online</li>
-        <li>Easy online revisions and editing</li>
-        <li>Submit it at a click of a button</li>
+        <li>Online import of references/data</li>
+        <li>Import manuscripts via XML/API</li>
+        <li>Export manuscripts as XML/PDF</li>
       </ul>
     </div>
   </div>
