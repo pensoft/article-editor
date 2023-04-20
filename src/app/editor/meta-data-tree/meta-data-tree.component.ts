@@ -1,7 +1,7 @@
 import { ArrayDataSource, SelectionModel } from '@angular/cdk/collections';
 import { FlatTreeControl, NestedTreeControl } from '@angular/cdk/tree';
 import { sectionNode } from '../utils/interfaces/section-node'
-import { ChangeDetectorRef, Injectable,Component, EventEmitter, Input, OnInit, Output, AfterViewInit } from '@angular/core';
+import { ChangeDetectorRef, Injectable,Component, EventEmitter, Input, OnInit, Output, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 import { YdocService } from '../services/ydoc.service';
 import { YMap } from 'yjs/dist/src/internals';
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree';
@@ -28,8 +28,12 @@ import { TextSelection } from 'prosemirror-state';
 export class MetaDataTreeComponent implements OnInit,AfterViewInit{
   articleSectionsStructure ?:articleSection[]
   errorDuration = 4;
+
   searchForm = new FormControl('');
+  @ViewChild('input', { read: ElementRef }) input?: ElementRef;
+
   metadataMap?:YMap<any>
+
   constructor(public treeService:TreeService,private ydocService:YdocService,private _snackBar: MatSnackBar, private prosemirrorEditorsService: ProsemirrorEditorsService){
     this.treeService.errorSnackbarSubject.subscribe((data)=>{
       this._snackBar.openFromComponent(SnackBarErrorComponentComponent, {
@@ -60,6 +64,43 @@ export class MetaDataTreeComponent implements OnInit,AfterViewInit{
     this.setFormControlChangeListener();
   }
 
+  showAll(sections: articleSection[]) {
+    for(const section of sections) {
+      section.shouldNotShow = false;
+      if (section.children && section.children.length > 0) {
+        this.showAll(section.children);
+      }
+    }
+  }
+
+  searchSections(sections: articleSection[], searchValue: string, parent?: articleSection) {
+    let foundSections = [];
+    for (const section of sections) {
+
+      if (section.title && section.title.label.toLocaleLowerCase().includes(searchValue)) {
+         foundSections.push(section);
+         section.shouldNotShow = false;
+      } else {
+        section.shouldNotShow = true;
+      }
+      
+      if (section.children && section.children.length > 0) {
+        let foundChildrenSections;
+        if(parent) {
+          foundChildrenSections = this.searchSections(section.children, searchValue);
+        } else {
+          foundChildrenSections = this.searchSections(section.children, searchValue, section);
+        }
+        foundSections = foundSections.concat(foundChildrenSections);
+      }
+     
+      if(section.children && section.children.find(ch => ch.shouldNotShow == false)) {
+        section.shouldNotShow = false;
+      }
+    }
+    return foundSections;
+  }
+
   searching: boolean = false
   searchIndex: number = 0;
   searchResults?: articleSection[];
@@ -68,32 +109,19 @@ export class MetaDataTreeComponent implements OnInit,AfterViewInit{
     this.searchForm.valueChanges.pipe(debounce(val => interval(700))).subscribe((val) => {
       if (val && val != "" && typeof val == 'string' && val.trim().length > 0) {
         const searchVal = val.toLocaleLowerCase();
-        const allSections = this.articleSectionsStructure;
-      
-        const searchSections = (sections: articleSection[], searchValue: string) => {
-          let foundSections = [];
-          for (const section of sections) {
-            if (section.title && section.title.label.toLocaleLowerCase().includes(searchValue)) {
-               foundSections.push(section);
-            }
-            if (section.children && section.children.length > 0) {
-              const foundChildrenSections = searchSections(section.children, searchValue);
-              foundSections = foundSections.concat(foundChildrenSections);
-            }
-          }
-          return foundSections;
-        }
-       
-        const foundSections = searchSections(allSections, searchVal);
+        const foundSections = this.searchSections(this.articleSectionsStructure, searchVal);
+
         if (foundSections.length > 0) {
           this.searchResults = foundSections;
           this.searchIndex = 0;
           this.selectSection(foundSections[0]);
+          this.input.nativeElement.focus();
           this.searching = true;
         } else {
           this.searching = false;
         }
       } else {
+        this.showAll(this.articleSectionsStructure);
         this.searching = false;
       }
     })

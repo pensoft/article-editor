@@ -33,6 +33,7 @@ export class CdkListRecursiveComponent implements OnInit, OnDestroy, AfterViewIn
 
   @Input() nestedList!: boolean;
   @Input() firstNested!: boolean;
+  @Input() isSearch?: boolean;
 
   @Input() listData!: { expandParentFunc: any, listDiv: HTMLDivElement ,listinstance:SectionLeafComponent };
   @Input() listParentId?: string; // the id of the parent of this node
