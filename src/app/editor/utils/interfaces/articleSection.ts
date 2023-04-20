@@ -75,7 +75,8 @@ export interface articleSection {
   sectionMenusAndSchemasDefsfromJSONByfieldsTags?:{[key:string]:{menu:any,schema:any}},
   jats_tag?: string
   originalSectionTemplate:any,
-  level?: number
+  level?: number,
+  shouldNotShow?: boolean
 }
 
 export interface flatArticleSection {
