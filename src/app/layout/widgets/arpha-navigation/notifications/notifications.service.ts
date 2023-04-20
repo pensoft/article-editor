@@ -96,7 +96,7 @@ export class NotificationsService {
       let notificationsFromBackend: notificationEvent[] = []
       data.forEach(task => {
         let date = new Date(task.created_at).getTime();
-        let event = task.type;
+        let event = task.type === 'pdf.export' ? 'PDF export' :  task.type;
         let docName = this.ServiceShare.YdocService.articleData?.name;
         let status = task.status;
         let eventId = task.task_id;
@@ -123,7 +123,7 @@ export class NotificationsService {
       let date = new Date(eventData.task.created_at);
       let isNew = !this.getOldNotificationsIds().includes(eventData.task.task_id)
       let task: notificationEvent = {
-        event: eventData.task.type,
+        event: 'PDF export',
         docName: this.ServiceShare.YdocService.articleData.name,
         data: eventData.task.data?.data || null,
         date: date.getTime(),
@@ -158,6 +158,9 @@ export class NotificationsService {
         var blob=new Blob([data], {type:"application/pdf"});
         const fileObjectURL = URL.createObjectURL(blob);
       }) */
+    }
+    else if (event.error && event.event === 'PDF export') {
+      this.ServiceShare.openJatsErrorsDialog([event.error]);
     }
     let eventid = event.eventId;
     this.setEventAsOld(eventid);
