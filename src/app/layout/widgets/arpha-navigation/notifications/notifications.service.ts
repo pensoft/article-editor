@@ -16,6 +16,7 @@ export interface notificationEvent {
   metaData?:any,
   error?: string,
   data?: any
+  docName?: string,
 }
 
 @Injectable({
@@ -96,12 +97,13 @@ export class NotificationsService {
       data.forEach(task => {
         let date = new Date(task.created_at).getTime();
         let event = task.type;
+        let docName = this.ServiceShare.YdocService.articleData?.name;
         let status = task.status;
         let eventId = task.task_id;
         const data =  task.data?.data || null;
         let isNew = !oldNotifictions.includes(event.eventId)
         let notification: notificationEvent = {
-          date, event, status, eventId, new: isNew, data
+          date, event, docName, status, eventId, new: isNew, data
         }
         if (task.type == 'pdf.export' && task.status == 'DONE') {
           notification.link = task.data.data ? task.data.data.url : task.data.url;
@@ -122,6 +124,7 @@ export class NotificationsService {
       let isNew = !this.getOldNotificationsIds().includes(eventData.task.task_id)
       let task: notificationEvent = {
         event: eventData.task.type,
+        docName: this.ServiceShare.YdocService.articleData.name,
         data: eventData.task.data?.data || null,
         date: date.getTime(),
         eventId: eventData.task.task_id,

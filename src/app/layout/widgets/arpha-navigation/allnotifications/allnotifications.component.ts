@@ -8,7 +8,7 @@ import { ServiceShare } from '@app/editor/services/service-share.service';
   styleUrls: ['./allnotifications.component.scss']
 })
 export class AllnotificationsComponent implements AfterViewInit {
-  displayedColumns: string[] = ['status','event', 'date',];
+  displayedColumns: string[] = ['status','event','document','date',];
   allNotifications = []
 
   constructor(
@@ -35,6 +35,10 @@ export class AllnotificationsComponent implements AfterViewInit {
   }
 
   getName(element) {
-    return element.data?.article_title || element.event;
+    return element.data?.article_title || element.docName;
+  }
+
+  getEvent(element) {
+    return element.event;
   }
 }

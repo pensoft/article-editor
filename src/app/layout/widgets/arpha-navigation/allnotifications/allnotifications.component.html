@@ -18,10 +18,17 @@
       </ng-container>
 
       <ng-container matColumnDef="event">
-        <th mat-header-cell *matHeaderCellDef>Document</th>
+        <th mat-header-cell *matHeaderCellDef>Type</th>
         <td mat-cell *matCellDef="let element" (click)="viewNotification(element)">
-          <p *ngIf="!element.error" class="event nowrap" [ngClass]="{'new': element.new}">{{getName(element)}}</p>
+          <p *ngIf="!element.error" class="event nowrap" [ngClass]="{'new': element.new}">{{getEvent(element)}}</p>
           <p *ngIf="element.error">{{element.error}}</p>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="document">
+        <th mat-header-cell *matHeaderCellDef>Document</th>
+        <td mat-cell *matCellDef="let element">
+          <p class="nowrap" >{{getName(element)}}</p>
         </td>
       </ng-container>
 
