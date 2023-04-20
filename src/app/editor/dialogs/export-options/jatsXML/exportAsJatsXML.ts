@@ -611,6 +611,7 @@ let countsRef = counts.ele('ref-count', {"count": "" + refCount})
       let date = Date.now()
       serviceShare.NotificationsService.addLocalNotification({
         date,
+        docName: serviceShare.YdocService.articleData.name,
         event: 'JATS errors',
         status: 'FAILED',
         eventId: uuidv4(),

@@ -19,7 +19,7 @@
           </mat-error>
         </mat-form-field>
       </div>
-      <div fxLayout="column nowrap">
+      <div fxLayout="column nowrap" fxFlex="0 1 0">
         <mat-label class="upper-label">Media type</mat-label>
         <mat-form-field class="type-edit-field" appearance="fill">
           <mat-select [formControl]="typeFromControl">
@@ -48,7 +48,7 @@
         <span class="upper-label">Media Description</span>
         <div class="pm-editor pm-editor-override" #componentDescription></div>
       </div>
-      
+
       <div class="figure-component-edit-preview">
         <div *ngIf="typeFromControl.valid&&isUrlFormControlValid()">
           <img *ngIf="typeFromControl.value == 'image'" src="{{urlFormControl.value}}" alt="">

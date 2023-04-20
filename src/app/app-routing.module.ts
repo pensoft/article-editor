@@ -41,8 +41,9 @@ const routes: Routes = [
     path: '',
     component: MainComponent,
     children: [
-      /*{ path: '', canActivate: [LoginGuard], component: LandingComponent },*/
-      { path: 'login', canActivate: [/*LoginGuard*/], component: LoginComponent },
+      { path: '', canActivate: [LoginGuard], component: LandingComponent },
+      { path: 'login', canActivate: [LoginGuard], component: LandingComponent },
+      // { path: 'login', canActivate: [/*LoginGuard*/], component: LoginComponent },
       { path: 'logout', canActivate: [AuthGuard], component: LogoutComponent },
       {
         path: 'callback',
