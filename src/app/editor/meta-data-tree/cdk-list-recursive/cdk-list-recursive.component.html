@@ -2,7 +2,6 @@
   <div 
   cdkDropList 
   [ngClass]="{'outer-list':!nestedList,'nested-list':nestedList, 'is-empty':articleSectionsStructure.length == 0}" 
-  [ngStyle]="{ 'padding': isSearch ? '34px 0' : '24px 0'}"
   (cdkDropListDropped)="drop($event)" 
   id="{{listParentId}}" 
   [cdkDropListConnectedTo]="treeService.connectedLists" 
