@@ -94,10 +94,11 @@ export class RefsInArticleDialogComponent implements OnDestroy {
           newRefs = this.serviceShare.CslService.sortCitations(newRefs);
           newRefs[refId].citation.data.push(
             this.serviceShare.CslService
-            .generateLabelStyle(refInstance.ref.ref.author[0].family,refInstance.ref.ref.issued['date-parts'][0]), 
-            this.serviceShare.CslService
-            .generateNumericStyle(Object.keys(newRefs).findIndex(id => id == refId) + 1)
+            .generateLabelStyle(refInstance.ref.ref.author[0].family,refInstance.ref.ref.issued['date-parts'][0])
           );
+          Object.keys(newRefs).forEach(key => {
+            newRefs[key].citation.data[4] = this.serviceShare.CslService.generateNumericStyle(Object.keys(newRefs).findIndex(id => id == refId) + 1)
+          })
           this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
         })
 
@@ -224,12 +225,11 @@ export class RefsInArticleDialogComponent implements OnDestroy {
             let newRefs = this.getRefsForCurrEditSession();
             newRefs = this.serviceShare.CslService.sortCitations(newRefs);
 
-            newRefs[ref.ref.id].citation.data.push(
-              this.serviceShare.CslService
-              .generateLabelStyle(refInstance.ref.author[0].family,refInstance.ref.issued['date-parts'][0]), 
-              this.serviceShare.CslService
-              .generateNumericStyle(Object.keys(newRefs).findIndex(id => id == ref.ref.id) + 1)
-            );
+            newRefs[ref.ref.id].citation.data.push(this.serviceShare.CslService.generateLabelStyle(refInstance.ref.author[0].family,refInstance.ref.issued['date-parts'][0]));
+
+            Object.keys(newRefs).forEach(key => {
+              newRefs[key].citation.data[4] = this.serviceShare.CslService.generateNumericStyle(Object.keys(newRefs).findIndex(id => id == refId) + 1)
+            })
             
             this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
 
