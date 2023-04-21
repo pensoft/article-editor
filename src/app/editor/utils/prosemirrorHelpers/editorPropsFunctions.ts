@@ -273,8 +273,11 @@ export let handleKeyDown = (serviceShare: ServiceShare, options?: any) => {
   let previewMode = serviceShare.ProsemirrorEditorsService!.previewArticleMode!
   return (view: EditorView, event: KeyboardEvent) => {
     try {
+       if (view.state.selection.$from.parent.attrs.contenteditableNode == 'false' || view.state.selection.$from.parent.attrs.contenteditableNode === false) {
+        return true
+      }
 
-      if (view.state.selection.$from.parent.attrs.contenteditableNode == 'false' || view.state.selection.$from.parent.attrs.contenteditableNode === false) {
+      if (view.state.selection.$from.parent.firstChild?.firstChild?.attrs.contenteditableNode == 'false' || view.state.selection.$from.parent.firstChild?.firstChild?.attrs.contenteditableNode === false) {
         return true
       }
       
