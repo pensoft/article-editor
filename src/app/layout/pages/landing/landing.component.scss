@@ -35,8 +35,8 @@
       align-items: center;
       padding: 290px 20px 60px 20px;
       margin: 0 auto;
-      width: 780px;
-      max-width: 90vw;
+      width: 60%;
+      height: 85vh;
 
       h1 {
         width: 100%;
@@ -60,13 +60,19 @@
         margin-top: 25px;
 
         .login-button,
-        .register-button {
+        .register-button,
+        .orcid-button {
           ::ng-deep {
             button {
-              width: 212px;
+              min-width: 212px;
               height: 48px;
               font-size: 21px;
               line-height: 28px;
+              img {
+                left: -6px;
+                position: relative;
+                width: 30px;
+              }
             }
           }
         }
@@ -89,7 +95,7 @@
 
       .card {
         min-height: 481px;
-        max-width: 344px;
+        max-width: 350px;
         box-shadow: 0 2px 4px #1BB1B224;
         border-radius: 20px;
 
