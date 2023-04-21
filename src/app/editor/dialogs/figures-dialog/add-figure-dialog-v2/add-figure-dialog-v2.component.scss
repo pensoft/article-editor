@@ -8,10 +8,6 @@
   padding: 4px;
 }
 
-.columns-select {
-  margin: 0;
-}
-
 .reorder-box {
   display: block;
   padding: 4px;
@@ -70,18 +66,26 @@
 
   .heading-container {
     display: flex;
-    flex-flow: row nowrap;
+    flex-flow: row wrap;
     justify-content: flex-start;
     align-items: flex-start;
     width: 100%;
+    gap: 16px;
     padding: 0 0 32px 0;
 
     .figure-description {
+      display: flex;
+      flex-flow: column nowrap;
+      margin: 0;
+      min-width: 300px;
       flex-grow: 1;
-      padding-right: 16px;
     }
 
     .columns-select {
+      display: flex;
+      flex-flow: column nowrap;
+      min-width: 180px;
+      margin: 0;
       flex-shrink: 0;
     }
   }
