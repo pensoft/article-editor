@@ -143,6 +143,7 @@ export class CslService {
       "properties": { "noteIndex": 1, "mode": "suppress-author" }
     }, [], []])
   ];
+
     let bibliography = this.citeproc.makeBibliography();
     this.currentRef = undefined;
     return {
@@ -171,6 +172,17 @@ export class CslService {
     let rtx = " " + this.citeproc.previewCitationCluster(citationObj[0], citationObj[1], [], 'rtf') + " ";
     return { html, text, rtx }
   }
+
+  generateNumericStyle = (index: number) => ({ htm: " [" + index + "] ", text: " [" + index + "] ", rtx: " [" + index + "] " });
+
+  generateLabelStyle = (name: string, year: string) => ({ htm: ` [${name}${year}] `, text: ` [${name}${year}] `, rtx: ` [${name}${year}] ` });
+
+    //   “author-date” - e.g. “… (Doe, 1999)”
+    // “author” - e.g. “… (Doe)”
+    // “numeric” - e.g. “… [1]”
+    // “label” - e.g. “… [doe99]”
+    // “note” - the citation appears as a footnote or endnote
+  
 
   editReferenceThroughPMEditor(node: Node, sectionId: string) {
     let attrs = JSON.parse(JSON.stringify(node.attrs));

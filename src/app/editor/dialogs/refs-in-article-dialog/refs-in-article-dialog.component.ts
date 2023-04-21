@@ -209,7 +209,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
               refCiTO:result.refCiTO,
               refStyle
             }
-
+            
             let refId = refInstance.ref.id;
             this.changedOrAddedRefs[refId] = refInstance
             if (this.deletedRefsIds.includes(refId)) {
@@ -217,6 +217,14 @@ export class RefsInArticleDialogComponent implements OnDestroy {
             }
             let newRefs = this.getRefsForCurrEditSession();
             newRefs = this.serviceShare.CslService.sortCitations(newRefs);
+
+            newRefs[ref.ref.id].citation.data.push(
+              this.serviceShare.CslService
+              .generateLabelStyle(refInstance.ref.author[0].family,refInstance.ref.issued['date-parts'][0]), 
+              this.serviceShare.CslService
+              .generateNumericStyle(Object.keys(newRefs).findIndex(id => id == ref.ref.id) + 1)
+            );
+            
             this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
 
             setTimeout(()=>{
