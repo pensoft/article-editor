@@ -85,7 +85,6 @@ export class RefsInArticleDialogComponent implements OnDestroy {
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result && result instanceof Array) {
         result.forEach((refInstance) => {
-          debugger
           let refId = refInstance.ref.ref.id;
           this.changedOrAddedRefs[refId] = refInstance.ref
           if (this.deletedRefsIds.includes(refId)) {
