@@ -7,6 +7,7 @@ import {
   CUSTOM_ELEMENTS_SCHEMA,
   ElementRef,
   EventEmitter,
+  Inject,
   Input,
   NgModule,
   NO_ERRORS_SCHEMA,
@@ -38,6 +39,7 @@ import { MaterialSectionComponent } from './material-section/material-section.co
 import { MaterialsSectionComponent } from './materials-section/materials-section.component';
 import { TaxonSectionComponent } from './taxon-section/taxon-section.component';
 import { Subject } from 'rxjs';
+import { AppConfig, APP_CONFIG } from '@app/core/services/app-config';
 
 @Component({
   selector: 'app-section',
@@ -107,7 +109,8 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
     public detectFocusService: DetectFocusService,
     public helperService: HelperService,
     private serviceShare:ServiceShare,
-    private changeDetectionRef:ChangeDetectorRef
+    private changeDetectionRef:ChangeDetectorRef,
+    @Inject(APP_CONFIG) readonly config: AppConfig
     ) {
     /* if(this.formControlService.popUpSectionConteiners[this.section.sectionID]){
       this.popUpContainer = this.formControlService.popUpSectionConteiners[this.section.sectionID]
