@@ -1,6 +1,6 @@
 {
 
-  "production": true,
+  "production": false,
   "websocketHost": "https://ps-article-storage.dev.scalewest.com",
   "websocketPort": "443",
 

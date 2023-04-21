@@ -1,13 +1,16 @@
 import { HttpClient } from '@angular/common/http';
 import { AfterViewInit, ChangeDetectorRef, Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { FormControl } from '@angular/forms';
+import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
+import { Subject, Subscription } from 'rxjs';
+
+import { TextSelection } from 'prosemirror-state';
+import { EditorView } from 'prosemirror-view';
+import { schema } from '@app/editor/utils/Schema';
+
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { articleSection } from '@app/editor/utils/interfaces/articleSection';
 import { editorContainer } from '@app/editor/utils/interfaces/editor-container';
-import { schema } from '@app/editor/utils/Schema';
-import { EditorView } from 'prosemirror-view';
-import { Subject, Subscription } from 'rxjs';
-import { debounceTime, distinctUntilChanged, filter } from 'rxjs/operators';
 
 export interface customSecInterface{
   triggerSubmit:()=>void
@@ -92,7 +95,9 @@ export class FunderSectionComponent implements OnInit,customSecInterface,AfterVi
       }
     });
     setTimeout(()=>{
-      this.refinditsearch.nativeElement.focus()
+      const state = this.editorView.state;
+      this.editorView.focus();
+      this.editorView.dispatch(state.tr.setSelection(new TextSelection(state.doc.resolve(state.doc.content.size - 1), state.doc.resolve(state.doc.content.size - 1))));
       this.ref.detectChanges()
     },40)
     this.triggerCustomSecSubmit.subscribe(()=>{
