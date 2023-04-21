@@ -90,10 +90,16 @@ export class RefsInArticleDialogComponent implements OnDestroy {
           if (this.deletedRefsIds.includes(refId)) {
             this.deletedRefsIds = this.deletedRefsIds.filter(id => id != refId);
           }
+          let newRefs = this.getRefsForCurrEditSession();  
+          newRefs = this.serviceShare.CslService.sortCitations(newRefs);
+          newRefs[refId].citation.data.push(
+            this.serviceShare.CslService
+            .generateLabelStyle(refInstance.ref.ref.author[0].family,refInstance.ref.ref.issued['date-parts'][0]), 
+            this.serviceShare.CslService
+            .generateNumericStyle(Object.keys(newRefs).findIndex(id => id == refId) + 1)
+          );
+          this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
         })
-        let newRefs = this.getRefsForCurrEditSession();  
-        newRefs = this.serviceShare.CslService.sortCitations(newRefs);
-        this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
 
         setTimeout(()=>{
           this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
