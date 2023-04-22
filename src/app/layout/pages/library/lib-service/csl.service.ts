@@ -185,12 +185,12 @@ export class CslService {
   
 
   editReferenceThroughPMEditor(node: Node, sectionId: string) {
+    this.serviceShare.ProsemirrorEditorsService.spinSpinner();
     let attrs = JSON.parse(JSON.stringify(node.attrs));
     this.refsAPI.getReferences().subscribe((refsRes: any) => {
       let refsInYdoc = this.serviceShare.YdocService.referenceCitationsMap.get('refsAddedToArticle');
       let ref = refsInYdoc[attrs.referenceData.refId]
       if (ref) {
-        this.serviceShare.ProsemirrorEditorsService.spinSpinner()
         this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
           this.refsAPI.getStyles().subscribe((refStyles: any) => {
             let referenceStyles = refStyles.data
@@ -248,6 +248,7 @@ export class CslService {
           })
         })
       } else {
+        this.serviceShare.ProsemirrorEditorsService.stopSpinner();
         console.error('The reference for this citation does not exist anymore.')
       }
     })

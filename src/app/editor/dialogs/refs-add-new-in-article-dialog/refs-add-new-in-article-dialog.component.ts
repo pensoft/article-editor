@@ -18,7 +18,6 @@ import { combineLatest, Observable, race, Subject, Subscription } from 'rxjs';
 import { debounceTime, distinctUntilChanged, filter, map, mergeMap, shareReplay, switchMap, tap } from 'rxjs/operators';
 import { genereteNewReference } from '@app/layout/pages/library/lib-service/refs-funcs';
 import { harvardStyle } from '@app/layout/pages/library/lib-service/csl.service';
-import { CiToTypes } from '@app/layout/pages/library/lib-service/editors-refs-manager.service';
 import { uuidv4 } from 'lib0/random';
 import { mapRef1 } from '@app/editor/utils/references/refsFunctions';
 import { ReferenceEditComponent } from '@app/layout/pages/library/reference-edit/reference-edit.component';
@@ -31,27 +30,25 @@ import { concat } from 'lodash';
   templateUrl: './refs-add-new-in-article-dialog.component.html',
   styleUrls: ['./refs-add-new-in-article-dialog.component.scss']
 })
-export class RefsAddNewInArticleDialogComponent implements OnInit,AfterViewInit, OnDestroy {
+export class RefsAddNewInArticleDialogComponent implements OnInit, OnDestroy {
 
   searchReferencesControl = new FormControl('');
   loading = false;
-  searchData: any
+  searchData: any;
   searchResult = new Subject();
-  externalSelection: any
+  externalSelection: any;
   lastSelect: 'external' | 'localRef' | 'none' = 'none';
-  filteredOptions: Observable<any[]>;
-  lastFilter = null;
+
   @ViewChild('refinditsearch', { read: ElementRef }) refinditsearch?: ElementRef;
 
   referenceFormControl = new FormControl(null, [Validators.required]);
-  citoFormControl = new FormControl(null, [Validators.required]);
   referenceTypesFromBackend
-  CiToTypes = CiToTypes
   dataSave: any
   formIOSchema: any = undefined;
   referenceForms: FormGroup = new FormGroup({})
   isModified
   isValid
+  isSelected = false;
 
   constructor(
     private refsAPI: RefsApiService,
@@ -64,39 +61,30 @@ export class RefsAddNewInArticleDialogComponent implements OnInit,AfterViewInit,
     @Inject(APP_CONFIG) private config: AppConfig,
   ) { }
 
-  ngAfterViewInit(): void {
-
-  }
-
   ngOnInit(): void {
     this.loadingRefDataFromBackend = true;
     this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
-      this.refsAPI.getStyles().subscribe((refStyles: any) => {
-        this.referenceTypesFromBackend = refTypes.data;
-        if (!this.referenceFormControl.value) {
-          this.referenceFormControl.setValue(this.referenceTypesFromBackend[0]);
-        } else {
-          this.referenceFormControl.setValue(this.referenceFormControl.value);
-        }
-        if (!this.citoFormControl.value) {
-          this.citoFormControl.setValue(null);
-        } else {
-          this.citoFormControl.setValue(this.citoFormControl.value);
-        }
-        this.loadingRefDataFromBackend = false;
-        setTimeout(()=>{
-          this.refinditsearch.nativeElement.focus()
-          this.ref.detectChanges()
-        },40)
-      })
+      this.referenceTypesFromBackend = refTypes.data;
+      if (!this.referenceFormControl.value) {
+        this.referenceFormControl.setValue(this.referenceTypesFromBackend[0]);
+      } else {
+        this.referenceFormControl.setValue(this.referenceFormControl.value);
+      }
+      this.loadingRefDataFromBackend = false;
+      setTimeout(()=>{
+        this.refinditsearch.nativeElement.focus()
+        this.ref.detectChanges()
+      },40)
     })
     this.searchReferencesControl.valueChanges.pipe(
       filter(Boolean),
       debounceTime(700),
       distinctUntilChanged(),
     ).subscribe((value: any) => {
-      if (this.externalSelection !== value) {
+      if (this.externalSelection !== value && typeof value == "string" && value.trim().length > 0 && !this.isSelected) {
         this.searchExternalRefs(value);
+      } else {
+        this.isSelected = false;
       }
     });
   }
@@ -122,6 +110,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit,AfterViewInit,
     }, 100)
     return
   }
+
   loadingRefDataFromBackend = false;
   tabIndex = 0;
   tabChanged(change: MatTabChangeEvent) {
@@ -158,7 +147,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit,AfterViewInit,
         db: ["datacite"]
       }
     })
-    shareReplay
+    // shareReplay
     this.oldSub = race(req1, req2).pipe(
       mergeMap((result: string) => {
         let parsedJson = JSON.parse(result);
@@ -182,6 +171,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit,AfterViewInit,
   }
 
   select(row: any, lastSelect) {
+    this.isSelected = true;
     this.lastSelect = lastSelect;
     this.getRefWithCitation([row],'refindit')
   }
@@ -251,7 +241,7 @@ export class RefsAddNewInArticleDialogComponent implements OnInit,AfterViewInit,
         citation: refBasicCitation,
         ref_last_modified: Date.now(),
         refType: refMappedType,
-        refCiTO: (source == 'file'||source == 'refindit')?null:this.citoFormControl.value,
+        refCiTO: null,
         refStyle
       }
       refsToAdd.push({ref})
