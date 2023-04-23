@@ -36,7 +36,7 @@ import {ControlContainer, FormGroup} from "@angular/forms";
     `
   ],
   template: `
-    <mat-spinner *ngIf="isLoading"></mat-spinner>
+    <mat-spinner style="margin: auto;" *ngIf="isLoading"></mat-spinner>
     <div *ngIf="!this.options?.disableAlerts">
       <div *ngFor="let alert of alerts.alerts"
            class="alert alert-{{ alert.type }}"
