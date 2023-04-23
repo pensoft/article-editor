@@ -205,11 +205,17 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
 
   onSubmit = async (submision?: any) => {
     try {
-      let prosemirrorNewNodeContent: any
 
-      prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
-
-      filterFieldsValues(this.sectionContent,submision,this.serviceShare,this.section.sectionID,false,prosemirrorNewNodeContent,false)
+      if(submision.data.sectionTreeTitle) {
+        const matched = /<p\b[^>]*>(.*?)<\/p>/.exec(submision.data.sectionTreeTitle);
+      
+        if(matched) {
+          submision.data.sectionTreeTitle = matched[1];
+        } 
+      }
+      let prosemirrorNewNodeContent = this.codemirrorHTMLEditor?.state.doc.sliceString(0, this.codemirrorHTMLEditor?.state.doc.length);
+      
+      filterFieldsValues(this.sectionContent,submision,this.serviceShare,this.section.sectionID,false,prosemirrorNewNodeContent,false);
 
       if (this.section.type == 'complex') {
         this.submitComplexSectionEdit()
@@ -254,9 +260,11 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
       } else {
         interpolated = await this.prosemirrorEditorsService.interpolateTemplate(prosemirrorNewNodeContent!,submision.data, this.sectionForm, null, {hTag});
       }
-      if(submision.data.sectionTreeTitle && submision.data.sectionTreeTitle.length>0){
-        this.treeService.saveNewTitleChange(this.section,submision.data.sectionTreeTitle)
+
+      if(submision.data.sectionTreeTitle && submision.data.sectionTreeTitle.length > 0){
+        this.treeService.saveNewTitleChange(this.section, submision.data.sectionTreeTitle);
       }
+
       submision.compiledHtml = interpolated
       this.prosemirrorEditorsService
       this.treeService.updateNodeProsemirrorHtml(prosemirrorNewNodeContent, this.section.sectionID)
@@ -273,9 +281,9 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
   }
 
   formatHTML(html: string) {
-    var tab = '\t';
-    var result = '';
-    var indent = '';
+    let tab = '\t';
+    let result = '';
+    let indent = '';
 
     html.split(/>\s*</).forEach(function (element) {
       if (element.match(/^\/\w/)) {
@@ -295,31 +303,28 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
 
   renderCodemMirrorEditors() {
     try {
-      this.codemirrorJsonEditor = new EditorView({
+      if(!this.config.production) {
+        this.codemirrorJsonEditor = new EditorView({
         state: EditorState.create({
           doc:
             `${JSON.stringify(this.sectionContent, null, "\t")}`,
           extensions: [basicSetup, javascript()],
         }),
-
         parent: this.codemirrorJsonTemplate?.nativeElement,
-        /* dispatch:()=>{
+        })
 
-        }, */
-      })
-      let {importantMenusDefsForSection,importantScehmasDefsForSection,menusAndSchemasForCitableElements} = this.prosemirrorEditorsService.getMenusAndSchemaDefsImportantForSection(this.section.sectionID)
-      this.codemirrorMenusAndSchemasDefsEditor = new EditorView({
-        state: EditorState.create({
-          doc:
-            `${JSON.stringify({importantMenusDefsForSection,importantScehmasDefsForSection}, null, "\t")}`,
-          extensions: [basicSetup, javascript()],
-        }),
-
-        parent: this.codemirrorMenusAndSchemasDefs?.nativeElement,
-        dispatch:()=>{
-
-        },
-      })
+        let {importantMenusDefsForSection,importantScehmasDefsForSection,menusAndSchemasForCitableElements} = this.prosemirrorEditorsService.getMenusAndSchemaDefsImportantForSection(this.section.sectionID)
+       
+        this.codemirrorMenusAndSchemasDefsEditor = new EditorView({
+          state: EditorState.create({
+            doc:
+              `${JSON.stringify({importantMenusDefsForSection,importantScehmasDefsForSection}, null, "\t")}`,
+            extensions: [basicSetup, javascript()],
+          }),
+          parent: this.codemirrorMenusAndSchemasDefs?.nativeElement,
+        })
+      }
+      
       if (!this.section.prosemirrorHTMLNodesTempl) {
         console.error(`prosemirrorHTMLNodesTempl is ${this.section.prosemirrorHTMLNodesTempl}.Should provide such a property in the article sections structure.`)
         return
@@ -330,10 +335,11 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
         return
       }
       let prosemirrorNodesHtml = this.section.prosemirrorHTMLNodesTempl
-      /* if (this.prosemirrorEditorsService.editorContainers[this.section.sectionID]) {
-        prosemirrorNodesHtml = this.prosemirrorEditorsService.editorContainers[this.section.sectionID].editorView.dom.parentElement?.innerHTML;
-      }*/
+      // if (this.prosemirrorEditorsService.editorContainers[this.section.sectionID]) {
+      //   prosemirrorNodesHtml = this.prosemirrorEditorsService.editorContainers[this.section.sectionID].editorView.dom.parentElement?.innerHTML;
+      // }
       prosemirrorNodesHtml = this.formatHTML(prosemirrorNodesHtml)
+      
       this.codemirrorHTMLEditor = new EditorView({
         state: EditorState.create({
           doc: prosemirrorNodesHtml,
@@ -407,10 +413,9 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
     let node1 = DOMParserPM.fromSchema(editorSchema).parse(templDiv.firstChild!);
 
     updateYFragment(xmlFragment.doc, xmlFragment, node1, new Map());
-    this.prosemirrorEditorsService.renderEditorInWithId(this.ProsemirrorEditor?.nativeElement, this.section.sectionID, this.section)
-
-
+    this.prosemirrorEditorsService.renderEditorInWithId(this.ProsemirrorEditor?.nativeElement, this.section.sectionID, this.section);
   }
+
   ngAfterViewInit(): void {
     //const newSchema = this.populateDefaultValues(this.sectionForm.getRawValue(), this.section.formIOSchema);
 
@@ -419,13 +424,16 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
     //this.sectionContent = newSchema;
     if(!this.sectionForm){
       this.sectionContent = this.formBuilderService.populateDefaultValues(this.treeService.sectionFormGroups[this.section.sectionID].getRawValue(), this.section.formIOSchema, this.section.sectionID,this.section, this.sectionForm);
-      let nodeForm = new FormGroup({});
-      this.formBuilderService.buildFormGroupFromSchema(nodeForm, this.sectionContent, this.section);
-      this.treeService.sectionFormGroups[this.section.sectionID] = nodeForm;
     }
 
     this.renderSection = true
     if (this.section.mode == 'documentMode' && this.section.active) {
+      if(this.section.type == 'complex') {
+        let nodeForm = new FormGroup({});
+        this.formBuilderService.buildFormGroupFromSchema(nodeForm, this.sectionContent, this.section);
+        this.treeService.sectionFormGroups[this.section.sectionID] = nodeForm;
+        this.treeService.setTitleListener(this.section);
+      }
       if (this.section.initialRender == this.ydocService.ydoc.guid) {
         this.section.initialRender = undefined;
         this.initialRender()
@@ -482,14 +490,14 @@ export class SectionComponent implements AfterViewInit, OnInit ,AfterViewChecked
         sectionLabelTemplate:this.section.title.template
       }
     }
+    if(this.sectionContent.components.length > 0 && this.sectionContent.components[0].key == 'sectionTreeTitle') {
+      this.sectionContent.components[0].defaultValue = '<p controlpath="" customproppath="" formcontrolname="" contenteditablenode="" menutype="" allowedtags="" commentable="" invalid="false" style="" class="set-align-left">' +  this.section.title.label + '</p>';
+    }    
     this.renderForm = true
   }
 
   renderComplexSectionTree() {
     this.complexSection = true;
     this.childrenTreeCopy = JSON.parse(JSON.stringify(this.section.children))
-  }
-
-  log() {
   }
 }
