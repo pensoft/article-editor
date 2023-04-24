@@ -158,26 +158,13 @@ app-figures-prosemirror-view.not-empty {
   margin-top: 24px;
 }
 
-
-
 .show-article-data {
   width: 90% !important;
   height: 90% !important;
 }
 
-block-figure {
-  figure-component {
-    code {
-      display: block;
-      text-align: left;
-      margin-left: 10px;
-      font-size: 15px;
-    }
-  }
-}
-
 spacer {
-  height: 20px;
+  height: 15px;
   width: 100%;
   display: block;
   cursor: default;
@@ -190,107 +177,6 @@ spacer {
     padding: 0 341px 0 0;
     overflow: hidden;
     min-width: 1366px;
-  }
-}
-
-td {
-  block-figure {
-    display: inline;
-    figure-components-container {
-      width: 100%;
-      display: inline;
-      figure-component {
-        padding: 9px;
-        padding-top: 40px;
-        padding-bottom: 40px;
-        border: 2px solid #e2e2dc;
-        border-radius: 6px;
-        width: 100%;
-        display: block;
-        img {
-          width: 100%;
-          height: auto;
-        }
-        iframe {
-          width: 100%;
-          height: auto;
-        }
-      }
-      figure-component {
-        $item: &;
-        $first-child-in-any-row: ":nth-child(2n + 1)";
-        $any-child-in-the-last-row: ":nth-last-child(-n + 2)";
-        $first-child-in-last-row: "&#{$any-child-in-the-last-row}";
-        #{$first-child-in-last-row},
-        #{$first-child-in-last-row} ~ & {
-          // border-bottom-right-radius: 0px;
-          // border-bottom-left-radius: 0px;
-        }
-      }
-    }
-    figure-descriptions-container {
-      padding: 7px;
-      background-color: #fafaf8;
-      border: 2px solid #e2e2dc;
-      border-bottom-right-radius: 6px;
-      border-bottom-left-radius: 6px;
-      p {
-        margin-top: 4px !important;
-        margin-bottom: 4px !important;
-      }
-    }
-  }
-}
-
-//figures
-block-figure {
-  display: block;
-  padding: 20px;
-  figure-components-container {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    padding-left: 8%;
-    padding-right: 8%;
-    column-gap: calc(100% - 640px);
-    row-gap: 15px;
-    figure-component {
-      padding: 9px;
-      padding-top: 40px;
-      padding-bottom: 40px;
-      border: 2px solid #e2e2dc;
-      border-radius: 6px;
-      img {
-        height: 200px;
-      }
-      iframe {
-        height: 200px;
-      }
-      width: auto;
-      text-align: center;
-    }
-    figure-component {
-      $item: &;
-      $first-child-in-any-row: ":nth-child(2n + 1)";
-      $any-child-in-the-last-row: ":nth-last-child(-n + 2)";
-      $first-child-in-last-row: "&#{$any-child-in-the-last-row}";
-      #{$first-child-in-last-row},
-      #{$first-child-in-last-row} ~ & {
-        // border-bottom-right-radius: 0px;
-        // border-bottom-left-radius: 0px;
-      }
-    }
-  }
-  figure-descriptions-container {
-    padding: 7px;
-    background-color: #fafaf8;
-    display: block;
-    border: 2px solid #e2e2dc;
-    border-bottom-right-radius: 6px;
-    border-bottom-left-radius: 6px;
-    p {
-      margin-top: 4px !important;
-      margin-bottom: 4px !important;
-    }
   }
 }
 

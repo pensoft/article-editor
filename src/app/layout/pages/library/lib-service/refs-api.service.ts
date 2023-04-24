@@ -80,14 +80,14 @@ export class RefsApiService {
         basicCitation,
         referenceData: refFormated
       }
-      let refGlobalDataUUID1 = newRef.refData.referenceData.id
+      // let refGlobalDataUUID1 = newRef.refData.referenceData.id
       let refGlobalDataUUID2 = 'ref'+newRef.refData.referenceData.id
       newRef.globaldatauuid = refGlobalDataUUID2
       newRef.isOwner = function(reqSub:string){
         return this.user.id==reqSub
       }
       this.serviceShare.addDataToGlobalObj(refGlobalDataUUID2,newRef)
-      this.serviceShare.CasbinGlobalObjectsService.addItemToGlobalContainer('ReferenceItem',refGlobalDataUUID1,newRef);
+      // this.serviceShare.CasbinGlobalObjectsService.addItemToGlobalContainer('ReferenceItem',refGlobalDataUUID1,newRef);
       refs.push(newRef);
     })
     return refs

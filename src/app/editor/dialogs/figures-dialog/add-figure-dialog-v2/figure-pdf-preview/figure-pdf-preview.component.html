@@ -4,11 +4,12 @@
     <div class="grid-component" [attr.figure_columns]="nOfColumns">
       <ng-container *ngFor="let row of figureRows; let r=index">
         <ng-container *ngFor="let i of rowTemplate;">
-          <div *ngIf="row[i].container" class="cell-component">
+          <div *ngIf="row[i]?.container" class="cell-component">
             <code *ngIf="!singleMedia">{{getCharValue(r * nOfColumns + i)}}</code>
             <!-- row[i].container.pdfImgResized?row[i].container.pdfImgResized:row[i].container.pdfImgOrigin -->
             <!-- <img  src="{{row[i].container.pdfImgResized?row[i].container.pdfImgResized:row[i].container.pdfImgOrigin}}" alt="" title="default image" /> -->
-            <img src="{{row[i].container.url}}" alt="" title="default image" />
+            <img *ngIf="row[i].container.componentType == 'image'" src="{{row[i].container.url}}" alt="" title="default image" />
+            <img *ngIf="row[i].container.componentType == 'video'" src="{{row[i].container.thumbnail}}" alt="" title="default image" />
           </div>
         </ng-container>
       </ng-container>

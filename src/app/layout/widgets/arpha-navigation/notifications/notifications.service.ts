@@ -16,6 +16,7 @@ export interface notificationEvent {
   metaData?:any,
   error?: string,
   data?: any
+  docName?: string,
 }
 
 @Injectable({
@@ -95,19 +96,24 @@ export class NotificationsService {
       let notificationsFromBackend: notificationEvent[] = []
       data.forEach(task => {
         let date = new Date(task.created_at).getTime();
-        let event = task.type;
+        let event = task.type === 'pdf.export' ? 'PDF export' :  task.type;
+        let docName = task.data?.data?.article_title;
         let status = task.status;
         let eventId = task.task_id;
         const data =  task.data?.data || null;
         let isNew = !oldNotifictions.includes(event.eventId)
         let notification: notificationEvent = {
-          date, event, status, eventId, new: isNew, data
+          date, event, docName, status, eventId, new: isNew, data
         }
         if (task.type == 'pdf.export' && task.status == 'DONE') {
           notification.link = task.data.data ? task.data.data.url : task.data.url;
         }
         if (task.data?.error) {
-          notification.error = task.data.error.slice(1, task.data.error.length - 1)
+          try {
+            notification.error = task.data.error.slice(1, task.data.error.length - 1)
+          } catch (error) {
+            notification.error = task.data.error.message.slice(1, task.data.error.length - 1)
+          }
         }
         notificationsFromBackend.push(notification)
       })
@@ -121,7 +127,8 @@ export class NotificationsService {
       let date = new Date(eventData.task.created_at);
       let isNew = !this.getOldNotificationsIds().includes(eventData.task.task_id)
       let task: notificationEvent = {
-        event: eventData.task.type,
+        event: 'PDF export',
+        docName: this.ServiceShare.YdocService.articleData.name,
         data: eventData.task.data?.data || null,
         date: date.getTime(),
         eventId: eventData.task.task_id,
@@ -155,6 +162,9 @@ export class NotificationsService {
         var blob=new Blob([data], {type:"application/pdf"});
         const fileObjectURL = URL.createObjectURL(blob);
       }) */
+    }
+    else if (event.error && event.event === 'PDF export') {
+      this.ServiceShare.openJatsErrorsDialog([event.error]);
     }
     let eventid = event.eventId;
     this.setEventAsOld(eventid);
