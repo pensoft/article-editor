@@ -97,7 +97,7 @@ export class NotificationsService {
       data.forEach(task => {
         let date = new Date(task.created_at).getTime();
         let event = task.type === 'pdf.export' ? 'PDF export' :  task.type;
-        let docName = this.ServiceShare.YdocService.articleData?.name;
+        let docName = task.data?.data?.article_title;
         let status = task.status;
         let eventId = task.task_id;
         const data =  task.data?.data || null;
@@ -109,7 +109,11 @@ export class NotificationsService {
           notification.link = task.data.data ? task.data.data.url : task.data.url;
         }
         if (task.data?.error) {
-          notification.error = task.data.error.slice(1, task.data.error.length - 1)
+          try {
+            notification.error = task.data.error.slice(1, task.data.error.length - 1)
+          } catch (error) {
+            notification.error = task.data.error.message.slice(1, task.data.error.length - 1)
+          }
         }
         notificationsFromBackend.push(notification)
       })

@@ -27,8 +27,7 @@ export class NotificationsComponent implements AfterViewInit {
     this.serviceShare.NotificationsService?.notificationsBehaviorSubject.subscribe((notifications:notificationEvent[])=>{
       this.NumberofNewNotifications = 0
       notifications.forEach((event)=>{if(event.new){this.NumberofNewNotifications++;}})
-      let filteredNew = notifications.filter(event=>event.new);
-      this.lastNNotifications = filteredNew.sort((a,b)=>b.date-a.date).slice(0,this.NeventsNoShow)
+      this.lastNNotifications = notifications.sort((a,b)=>b.date-a.date).slice(0,this.NeventsNoShow)
       this.changeDetection.detectChanges()
     })
     this.serviceShare.NotificationsService?.getAllNotifications()
