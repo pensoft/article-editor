@@ -23,6 +23,6 @@
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <!-- <button mat-stroked-button [mat-dialog-close]>Cancel</button> -->
-  <button mat-stroked-button color="primary" (click)="hidehtml=!hidehtml">Edit HTML</button>
+  <button *ngIf="!config.production" mat-stroked-button color="primary" (click)="hidehtml=!hidehtml">Edit HTML</button>
   <button mat-flat-button color="primary"  (click)="submitSupplementaryFile()" [disabled]="!isValid">Ok</button>
 </mat-dialog-actions>

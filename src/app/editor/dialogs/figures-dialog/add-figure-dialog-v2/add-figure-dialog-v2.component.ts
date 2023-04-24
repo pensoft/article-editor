@@ -4,6 +4,7 @@ import { ClassField } from '@angular/compiler';
 import { AfterViewChecked, AfterViewInit, ChangeDetectorRef, Component, ElementRef, Inject, OnInit, ViewChild, ViewContainerRef } from '@angular/core';
 import { FormControl } from '@angular/forms';
 import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { AppConfig, APP_CONFIG } from '@app/core/services/app-config';
 import { FormioEventsService } from '@app/editor/formioComponents/formio-events.service';
 import { editorContainer, ProsemirrorEditorsService } from '@app/editor/services/prosemirror-editors.service';
 import { YdocService } from '@app/editor/services/ydoc.service';
@@ -100,6 +101,7 @@ export class AddFigureDialogV2Component implements AfterViewInit, AfterViewCheck
     private ref: ChangeDetectorRef,
     private viewportRuler: ViewportRuler,
     private formioEventsService: FormioEventsService,
+    @Inject(APP_CONFIG) readonly config: AppConfig,
     @Inject(MAT_DIALOG_DATA) public data: { fig: figure | undefined, updateOnSave: boolean, index: number, figID: string | undefined }
   ) { }
 

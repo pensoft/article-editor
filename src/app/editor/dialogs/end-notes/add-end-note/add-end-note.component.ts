@@ -24,21 +24,9 @@ import { endNoteJSON } from '@app/editor/utils/section-templates/form-io-json/en
 import { endNote } from '@app/editor/utils/interfaces/endNotes';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { filterFieldsValues } from '@app/editor/utils/fieldsMenusAndScemasFns';
+import { AppConfig, APP_CONFIG } from '@app/core/services/app-config';
 
 
-export let endNoteHtmlTemplate = `
-<block-end-note [attr.end_note_number]="data.end_note_number" [attr.end_note_id]="data.end_note_ID">
-  <end-note *ngIf="data.endNote">
-    <p style="display: inline;" contenteditablenode="false">
-      <strong><sup>
-        *{{data.end_note_number+1}}&nbsp;&nbsp;&nbsp;&nbsp;
-      </sup></strong>
-    </p>
-    <form-field style="display: inline;" formControlName="endNote">
-    </form-field>
-  </end-note>
-</block-end-note>
-`
 @Component({
   selector: 'app-add-end-note',
   templateUrl: './add-end-note.component.html',
@@ -66,6 +54,7 @@ export class AddEndNoteComponent implements AfterViewInit,AfterViewChecked {
     private dialogRef: MatDialogRef<AddEndNoteComponent>,
     private serviceShare: ServiceShare,
     private ydocService: YdocService,
+    @Inject(APP_CONFIG) readonly config: AppConfig,
     @Inject(MAT_DIALOG_DATA) public data:  { endNote:endNote, updateOnSave: boolean, index: number, endNoteID: string }
   ) {
 
@@ -180,7 +169,7 @@ export class AddEndNoteComponent implements AfterViewInit,AfterViewChecked {
 
       let currEndNoteTemplate
       if (!this.endNotesTemplatesObj[endNoteID]) {
-        this.endNotesTemplatesObj[endNoteID] = { html: endNotesInitialTemplate?endNotesInitialTemplate:endNoteHtmlTemplate }
+        this.endNotesTemplatesObj[endNoteID] = { html: endNotesInitialTemplate }
         currEndNoteTemplate = this.endNotesTemplatesObj[endNoteID]
       } else {
         currEndNoteTemplate = this.endNotesTemplatesObj[endNoteID]

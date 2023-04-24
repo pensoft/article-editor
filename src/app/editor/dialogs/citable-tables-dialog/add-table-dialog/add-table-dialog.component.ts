@@ -36,40 +36,8 @@ import { citationElementMap } from '@app/editor/services/citable-elements.servic
 import { TableSizePickerComponent } from '@app/editor/utils/table-size-picker/table-size-picker.component';
 import { filterFieldsValues } from '@app/editor/utils/fieldsMenusAndScemasFns';
 import { ServiceShare } from '@app/editor/services/service-share.service';
+import { AppConfig, APP_CONFIG } from '@app/core/services/app-config';
 
-
-export let tablesHtmlTemplate = `
-<block-table [attr.viewed_by_citat]="data.viewed_by_citat||''" [attr.table_number]="data.tableNumber" [attr.table_id]="data.tableID">
-  		<h3 tagname="h3" contenteditablenode="false">
-        	<p contenteditablenode="false">Table: {{data.tableNumber+1}}</p>
-      	</h3>
-  		<table-header-container>
-    		<table-description 
-                               *ngIf="data.tableHeader" 
-                               formControlName="tableHeader" 
-                               style="display:block;" 
-                              menuType="[['toggleEm', 'toggleUnderline'],['toggleSubscriptItem','toggleSuperscriptItem'],['undoItem', 'redoItem', 'insertVideoItem'],['insertPageBreak', 'headings']]"
-                              allowedTags="{'nodes':['video','citable-figures','headings','page_break','tables','reference-citation','citable-tables'],'marks':['em','underline','subscript','superscript']}"
-                               >
-    		</table-description>
-  		</table-header-container>
-  		<table-content *ngIf="data.tableContent" 
-                       formControlName="tableContent"
-                       >
-  		</table-content>
-  		<table-footer-container>
-    		<table-description 
-                               *ngIf="data.tableFooter" 
-                               formControlName="tableFooter" 
-                               style="display:block;"
-                               menuType="OnlyCitableElementsAndCommentsMenu" 
-                               allowedTags="{'nodes':['video','citable-figures','headings','page_break','tables','reference-citation','citable-tables'],'marks':['em','underline','subscript','superscript']}"
-                               >
-    		</table-description>
-  		</table-footer-container>
-	</block-table>
-
-`
 @Component({
   selector: 'app-add-table-dialog',
   templateUrl: './add-table-dialog.component.html',
@@ -95,6 +63,7 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
     private dialogRef: MatDialogRef<AddTableDialogComponent>,
     private ydocService: YdocService,
     private serviceShare:ServiceShare,
+    @Inject(APP_CONFIG) readonly config: AppConfig,
     @Inject(MAT_DIALOG_DATA) public data: { table: citableTable | undefined, updateOnSave: boolean, index: number, tableID: string | undefined }
   ) {
 
@@ -265,7 +234,7 @@ export class AddTableDialogComponent implements AfterViewInit,AfterViewChecked {
       let initialTableTemplate = this.ydocService.tablesMap!.get('tablesInitialTemplate');
       let currFigTemplates
       if (!this.tablesTemplatesObj[tableID]) {
-        this.tablesTemplatesObj[tableID] = { html: initialTableTemplate?initialTableTemplate:tablesHtmlTemplate }
+        this.tablesTemplatesObj[tableID] = { html: initialTableTemplate }
         currFigTemplates = this.tablesTemplatesObj[tableID]
       } else {
         currFigTemplates = this.tablesTemplatesObj[tableID]
