@@ -25,7 +25,7 @@ import { TextSelection } from 'prosemirror-state';
   styleUrls: ['./meta-data-tree.component.scss']
 })
 
-export class MetaDataTreeComponent implements OnInit,AfterViewInit{
+export class MetaDataTreeComponent implements OnInit, AfterViewInit {
   articleSectionsStructure ?:articleSection[]
   errorDuration = 4;
 
@@ -47,12 +47,15 @@ export class MetaDataTreeComponent implements OnInit,AfterViewInit{
   ngOnInit(){
     if (this.ydocService.editorIsBuild) {
       this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
+      this.searchCount = this.articleSectionsStructure.length;
+      this.showAll(this.articleSectionsStructure);
       this.metadataMap=this.ydocService.articleStructure
       this.treeService.initTreeList(this.articleSectionsStructure!)
     }
     this.ydocService.ydocStateObservable.subscribe((event) => {
       if (event == 'docIsBuild') {
         this.articleSectionsStructure = this.ydocService.articleStructure?.get('articleSectionsStructure');
+        this.searchCount = this.articleSectionsStructure.length;
         this.showAll(this.articleSectionsStructure);
         this.metadataMap=this.ydocService.articleStructure
         this.treeService.initTreeList(this.articleSectionsStructure!)
@@ -101,7 +104,8 @@ export class MetaDataTreeComponent implements OnInit,AfterViewInit{
     return foundSections;
   }
 
-  searching: boolean = false
+  searching: boolean = false;
+  searchCount: number;
   searchIndex: number = 0;
   searchResults?: articleSection[];
 
@@ -112,6 +116,7 @@ export class MetaDataTreeComponent implements OnInit,AfterViewInit{
         const foundSections = this.searchSections(this.articleSectionsStructure, searchVal);
 
         if (foundSections.length > 0) {
+          this.searchCount = foundSections.length;
           this.searchResults = foundSections;
           this.searchIndex = 0;
           this.selectSection(foundSections[0]);
@@ -122,6 +127,7 @@ export class MetaDataTreeComponent implements OnInit,AfterViewInit{
         }
       } else {
         this.showAll(this.articleSectionsStructure);
+        this.searchCount = this.articleSectionsStructure.length;
         this.searching = false;
       }
     })
@@ -151,9 +157,10 @@ export class MetaDataTreeComponent implements OnInit,AfterViewInit{
   }
 
   endSearch() {
-    this.searching = false
+    this.searching = false;
+    this.searchCount = this.articleSectionsStructure.length;
     this.searchIndex = 0;
-    this.searchResults = []
+    this.searchResults = [];
     this.searchForm.setValue('');
   }
 }

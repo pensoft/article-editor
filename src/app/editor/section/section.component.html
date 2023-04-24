@@ -42,9 +42,11 @@
 
 <mat-dialog-actions *ngIf="section.mode == 'editMode'" align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]>Cancel</button>
-  <button mat-stroked-button color="primary" (click)="hidehtml=!hidehtml">Edit HTML</button>
-  <button mat-stroked-button color="primary" (click)="hidejson=!hidejson">Show JSON</button>
-  <button mat-stroked-button color="primary" (click)="hideDefsjson=!hideDefsjson">Show Menus And Schema Defs</button>
+  <ng-container *ngIf="!config.production">
+    <button mat-stroked-button color="primary" (click)="hidehtml=!hidehtml">Edit HTML</button>
+    <button mat-stroked-button color="primary" (click)="hidejson=!hidejson">Show JSON</button>
+    <button mat-stroked-button color="primary" (click)="hideDefsjson=!hideDefsjson">Show Menus And Schema Defs</button>
+  </ng-container>
   <button mat-flat-button color="primary" (click)="submitSection()" [disabled]="!isValid">Save</button>
 </mat-dialog-actions>
 

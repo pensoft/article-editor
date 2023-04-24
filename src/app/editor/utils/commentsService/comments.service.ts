@@ -319,25 +319,47 @@ export class CommentsService {
                 selectedAComment = true;
               }
             }
-
-            let node1 = newState.doc.nodeAt(from);
-            let node2 = newState.doc.nodeAt(to);
+            
+            let node1: Node;
+            let node2: Node;
+            if(node && from !== to) {
+              node1 = newState.doc.nodeAt(from + 1);
+              node2 = newState.doc.nodeAt(to - 2);
+            } 
+            
 
             if(node1 && node2 && from !== to) {
-              let commentMark1 = node1?.marks.find(mark => mark.type === commentsMark || mark.type === overlapCommentMark);
-              let commentMark2 = node2?.marks.find(mark => mark.type === commentsMark || mark.type === overlapCommentMark);
-
-              if(!commentMark1 && !commentMark2) {
-                newState.doc.nodesBetween(from, to, (node, pos, parent) => {    
-                  if(node?.marks.find(mark => mark.type === commentsMark || mark.type === overlapCommentMark)) {
-                    err = true;
-                    errorMessage = "There is a comment here already";
-                  }          
-                  if (node?.attrs.commentable == 'false') {
-                    commentableAttr = false
-                  }
-                })
+              let commentMark1 = node1?.marks.find(mark => mark.type === commentsMark);
+              let commentMark2 = node2?.marks.find(mark => mark.type === commentsMark);
+              let commentMark3 = node1?.marks.find(mark => mark.type === overlapCommentMark);
+              let commentMark4 = node2?.marks.find(mark => mark.type === overlapCommentMark);
+              
+              if(commentMark1 && commentMark2 && commentMark1?.attrs.id == commentMark2?.attrs.id) {
+                err = true;
+                errorMessage = "There is a comment here already";
               }
+              if (commentMark3 && commentMark4 && commentMark3?.attrs.id == commentMark4?.attrs.id) {
+                err = true;
+                errorMessage = "There is a comment here already";
+              }
+              if((commentMark1 || commentMark3) && (commentMark2 || commentMark4) || (commentMark1 || commentMark2) && (commentMark3 || commentMark4)) {
+                err = true;
+                errorMessage = "There is a comment here already";
+              }
+              
+              let count = 0;
+              newState.doc.nodesBetween(from, to, (node, pos, parent) => {    
+                if(node?.marks.find(mark => mark.type === commentsMark ||  mark.type === overlapCommentMark)) {
+                  count++;
+                }
+                if(count > 1) {
+                  err = true;
+                  errorMessage = "There is a comment here already";
+                }
+                if (node?.attrs.commentable == 'false') {
+                  commentableAttr = false
+                }
+              })
             }
           }
 

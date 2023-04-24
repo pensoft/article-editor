@@ -242,6 +242,9 @@ export class EditorsRefsManagerService {
 
     if (updatedAnyDisplayText) {
       refs = this.serviceShare.CslService.sortCitations(refs);
+      Object.keys(refs).forEach((key: string, i: number) => refs[key].citation.data[4] = this.serviceShare.CslService.generateNumericStyle(i + 1));
+      this.serviceShare.YdocService!.referenceCitationsMap?.set('refsAddedToArticle', refs);
+
       this.addNewRefToEndEditor(Object.values(refs));
       setTimeout(() => {
         this.updateReferenceCitats(updatedReferences, refs);
@@ -336,7 +339,7 @@ export class EditorsRefsManagerService {
     return citaitonIds
   }
 
-  updateRefsCitationsInEditor(view, refs, citationObj) {
+  updateRefsCitationsInEditor(view: EditorView, refs: any, citationObj: { citationId: string, citationStyle: number }) {
     let edView = view;
 
     let node: any;

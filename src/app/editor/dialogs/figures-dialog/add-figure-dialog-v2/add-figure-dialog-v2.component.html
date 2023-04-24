@@ -11,7 +11,6 @@
       <div class="figure-description">
         <span class="upper-label">Figure Description</span>
         <div class="pm-editor pm-editor-override" #figureDescription>
-
         </div>
       </div>
 
@@ -53,7 +52,7 @@
 
 <mat-dialog-actions align="end" fxLayoutGap="8px">
   <button mat-stroked-button [mat-dialog-close]>Cancel</button>
-  <button mat-stroked-button color="{{showHTMLEditor?'primary':'accent'}}" (click)="showHTMLEditor=!showHTMLEditor">Edit HTML</button>
+  <button *ngIf="!config.production" mat-stroked-button color="{{showHTMLEditor?'primary':'accent'}}" (click)="showHTMLEditor=!showHTMLEditor">Edit HTML</button>
   <button mat-stroked-button color="primary" (click)="openFigurePdfPreview()" [disabled]="figNewComponents.length == 0">Print Preview</button>
   <button mat-stroked-button color="primary" (click)="addComponent()">Add Media</button>
   <button mat-flat-button color="primary" (click)="submitFigure()" [disabled]="figNewComponents.length == 0">Save</button>

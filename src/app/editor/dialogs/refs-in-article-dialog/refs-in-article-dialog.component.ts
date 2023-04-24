@@ -1,14 +1,14 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
-import { FormControl, Validators } from '@angular/forms';
+import { Component, OnDestroy } from '@angular/core';
 import { MatDialog, MatDialogRef } from '@angular/material/dialog';
+import { Subject } from 'rxjs';
+
+import { YMap } from 'yjs/dist/src/internals';
 import { ServiceShare } from '@app/editor/services/service-share.service';
 import { harvardStyle } from '@app/layout/pages/library/lib-service/csl.service';
 import { CiToTypes } from '@app/layout/pages/library/lib-service/editors-refs-manager.service';
 import { RefsApiService } from '@app/layout/pages/library/lib-service/refs-api.service';
 import { genereteNewReference } from '@app/layout/pages/library/lib-service/refs-funcs';
 import { ReferenceEditComponent } from '@app/layout/pages/library/reference-edit/reference-edit.component';
-import { Subject } from 'rxjs';
-import { YMap } from 'yjs/dist/src/internals';
 import { AskBeforeDeleteComponent } from '../ask-before-delete/ask-before-delete.component';
 import { RefsAddNewInArticleDialogComponent } from '../refs-add-new-in-article-dialog/refs-add-new-in-article-dialog.component';
 
@@ -86,14 +86,20 @@ export class RefsInArticleDialogComponent implements OnDestroy {
       if (result && result instanceof Array) {
         result.forEach((refInstance) => {
           let refId = refInstance.ref.ref.id;
+
+          refInstance.ref.citation.data.push(this.serviceShare.CslService.generateLabelStyle(refInstance.ref.ref.author[0].family,refInstance.ref.ref.issued['date-parts'][0]));
           this.changedOrAddedRefs[refId] = refInstance.ref
           if (this.deletedRefsIds.includes(refId)) {
             this.deletedRefsIds = this.deletedRefsIds.filter(id => id != refId);
           }
+          let newRefs = this.getRefsForCurrEditSession();  
+          newRefs = this.serviceShare.CslService.sortCitations(newRefs);
+          newRefs[refId].citation.data.push(
+            this.serviceShare.CslService
+            .generateLabelStyle(refInstance.ref.ref.author[0].family,refInstance.ref.ref.issued['date-parts'][0])
+          );
+          this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
         })
-        let newRefs = this.getRefsForCurrEditSession();  
-        newRefs = this.serviceShare.CslService.sortCitations(newRefs);
-        this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
 
         setTimeout(()=>{
           this.serviceShare.EditorsRefsManagerService.updateRefsInEndEditorAndTheirCitations();
@@ -126,11 +132,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
     this.ydocAndChangedRefsSubject.next([...Object.values(newRefs)]);
   }
 
-  saveRefsInArticle() {    
-    this.dialogRef.close()
-  }
-
-  cancelRefsInAfticleEdit() {
+  closeModal() {    
     this.dialogRef.close()
   }
 
@@ -154,12 +156,12 @@ export class RefsInArticleDialogComponent implements OnDestroy {
     })
   }
 
-  preventClick(event: Event) {
-    event.preventDefault();
-    event.stopPropagation();
-  }
+  // preventClick(event: Event) {
+  //   event.preventDefault();
+  //   event.stopPropagation();
+  // }
 
-  editRef(ref) {
+  editRef(ref: any) {
     this.refsAPI.getReferenceTypes().subscribe((refTypes: any) => {
       this.refsAPI.getStyles().subscribe((refStyles: any) => {
         let referenceStyles = refStyles.data
@@ -209,7 +211,7 @@ export class RefsInArticleDialogComponent implements OnDestroy {
               refCiTO:result.refCiTO,
               refStyle
             }
-
+            
             let refId = refInstance.ref.id;
             this.changedOrAddedRefs[refId] = refInstance
             if (this.deletedRefsIds.includes(refId)) {
@@ -217,6 +219,9 @@ export class RefsInArticleDialogComponent implements OnDestroy {
             }
             let newRefs = this.getRefsForCurrEditSession();
             newRefs = this.serviceShare.CslService.sortCitations(newRefs);
+
+            newRefs[ref.ref.id].citation.data.push(this.serviceShare.CslService.generateLabelStyle(refInstance.ref.author[0].family,refInstance.ref.issued['date-parts'][0]));
+            
             this.serviceShare.YdocService.referenceCitationsMap.set("refsAddedToArticle", newRefs);
 
             setTimeout(()=>{
