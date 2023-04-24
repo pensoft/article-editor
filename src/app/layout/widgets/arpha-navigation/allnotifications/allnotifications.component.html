@@ -19,15 +19,15 @@
 
       <ng-container matColumnDef="event">
         <th mat-header-cell *matHeaderCellDef>Type</th>
-        <td mat-cell *matCellDef="let element" (click)="viewNotification(element)">
-          <p class="event nowrap" [ngClass]="{'new': element.new}">{{getEvent(element)}}</p>
+        <td mat-cell *matCellDef="let element">
+          <p class="nowrap" >{{getEvent(element)}}</p>
         </td>
       </ng-container>
 
       <ng-container matColumnDef="document">
         <th mat-header-cell *matHeaderCellDef>Document</th>
-        <td mat-cell *matCellDef="let element">
-          <p class="nowrap" >{{getName(element)}}</p>
+        <td mat-cell *matCellDef="let element" (click)="viewNotification(element)">
+          <p class="event nowrap" [ngClass]="{'new': element.new}">{{getName(element)}}</p>
         </td>
       </ng-container>
 
