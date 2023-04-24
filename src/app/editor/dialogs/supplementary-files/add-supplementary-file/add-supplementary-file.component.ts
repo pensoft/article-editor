@@ -23,49 +23,9 @@ import { supplementaryFileJSON } from '@app/editor/utils/section-templates/form-
 import { supplementaryFile } from '@app/editor/utils/interfaces/supplementaryFile';
 import { filterFieldsValues } from '@app/editor/utils/fieldsMenusAndScemasFns';
 import { ServiceShare } from '@app/editor/services/service-share.service';
+import { AppConfig, APP_CONFIG } from '@app/core/services/app-config';
 
 
-export let supplementaryFileHtmlTemplate = `
-<block-supplementary-file [attr.supplementary_file_number]="data.supplementary_file_number" [attr.supplementary_file_id]="data.supplementary_file_ID">
-<supplementary-file-title style="display: inline;" *ngIf="data.supplementaryFileTitle">
-<h3 style="display: inline;" tagname="h3" contenteditablenode="false" >
-<p style="display: inline;" contenteditablenode="false">
-Suppl. material {{data.supplementary_file_number+1}}:&nbsp;
-</p>
-</h3>
-<h3 style="display: inline;" tagname="h3" >
-<p style="display: inline;" formControlName="supplementaryFileTitle">
-</p>
-</h3>
-</supplementary-file-title>
-  <supplementary-file-authors *ngIf="data.supplementaryFileAuthors">
-    <p style="display: inline;" contenteditablenode="false">
-      Authors:&nbsp;
-    </p>
-    <p style="display: inline;" formControlName="supplementaryFileAuthors">
-    </p>
-  </supplementary-file-authors>
-  <supplementary-file-data-type *ngIf="data.supplementaryFileDataType">
-    <p style="display: inline;" contenteditablenode="false">
-      Data type:&nbsp;
-    </p>
-    <p style="display: inline;" formControlName="supplementaryFileDataType">
-    </p>
-  </supplementary-file-data-type>
-  <supplementary-file-brief-description *ngIf="data.supplementaryFileBriefDescription">
-    <p style="display: inline;" contenteditablenode="false">
-      Brief description:&nbsp;
-    </p>
-    <form-field style="display: inline;" formControlName="supplementaryFileBriefDescription">
-    </form-field>
-  </supplementary-file-brief-description>
-  <supplementary-file-url *ngIf="data.supplementaryFileURL" contenteditablenode="false">
-    <p contenteditablenode="false">
-      <a href="{{data.supplementaryFileURL}}" onclick="event.preventDefault()">Download file</a>
-    </p>
-  </supplementary-file-url>
-</block-supplementary-file>
-`
 @Component({
   selector: 'app-add-supplementary-file',
   templateUrl: './add-supplementary-file.component.html',
@@ -92,6 +52,7 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
     private dialogRef: MatDialogRef<AddSupplementaryFileComponent>,
     private ydocService: YdocService,
     private serviceShare: ServiceShare,
+    @Inject(APP_CONFIG) readonly config: AppConfig,
     @Inject(MAT_DIALOG_DATA) public data:  { supplementaryFile:supplementaryFile, updateOnSave: boolean, index: number, supplementaryFileID: string }
   ) {
 
@@ -239,7 +200,7 @@ export class AddSupplementaryFileComponent implements AfterViewInit,AfterViewChe
 
       let currSupplementalFileTemplates
       if (!this.supplementaryFilesTemplatesObj[supplementaryFileID]) {
-        this.supplementaryFilesTemplatesObj[supplementaryFileID] = { html: supplementaryFilesInitialTemplate?supplementaryFilesInitialTemplate:supplementaryFileHtmlTemplate }
+        this.supplementaryFilesTemplatesObj[supplementaryFileID] = { html: supplementaryFilesInitialTemplate }
         currSupplementalFileTemplates = this.supplementaryFilesTemplatesObj[supplementaryFileID]
       } else {
         currSupplementalFileTemplates = this.supplementaryFilesTemplatesObj[supplementaryFileID]
